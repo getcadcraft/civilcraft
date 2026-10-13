@@ -1,0 +1,44 @@
+{
+  "format": "cadcraft-sw-export", "version": 1, "units": "mm", "name": "Plate",
+  "source": { "app": "SolidWorks", "appVersion": "hand-written test fixture (not from SolidWorks)", "file": "C:\\Parts\\Plate.SLDPRT", "exported": "2026-10-11T00:00:00Z" },
+  "globals": [ { "name": "width", "expr": "120" }, { "name": "hole", "expr": "\"width\" / 6" } ],
+  "equations": [
+    { "lhs": "D1@Sketch1", "rhs": "\"width\"", "raw": "\"D1@Sketch1\" = \"width\"" },
+    { "lhs": "D2@Sketch1", "rhs": "\"width\" / 2", "raw": "\"D2@Sketch1\" = \"width\" / 2" },
+    { "lhs": "D3@Sketch1", "rhs": "\"hole\"", "raw": "\"D3@Sketch1\" = \"hole\"" },
+    { "lhs": "D1@Boss-Extrude1", "rhs": "10", "raw": "\"D1@Boss-Extrude1\" = 10" }
+  ],
+  "features": [
+    { "name": "Sketch1", "type": "sketch", "suppressed": false, "plane": { "base": "front" },
+      "points": [
+        { "id": "P1", "x": 0, "y": 0 }, { "id": "P2", "x": 120, "y": 0 }, { "id": "P3", "x": 120, "y": 60 }, { "id": "P4", "x": 0, "y": 60 },
+        { "id": "P5", "x": 60, "y": 30 }, { "id": "P6", "x": 30, "y": 30, "construction": true }
+      ],
+      "segments": [
+        { "id": "S1", "type": "line", "a": "P1", "b": "P2" }, { "id": "S2", "type": "line", "a": "P2", "b": "P3" },
+        { "id": "S3", "type": "line", "a": "P3", "b": "P4" }, { "id": "S4", "type": "line", "a": "P4", "b": "P1" },
+        { "id": "S5", "type": "circle", "c": "P5", "r": 10 }
+      ],
+      "relations": [
+        { "type": "horizontal", "refs": ["S1"] }, { "type": "horizontal", "refs": ["S3"] },
+        { "type": "vertical", "refs": ["S2"] }, { "type": "vertical", "refs": ["S4"] },
+        { "type": "fix", "refs": ["P1"] },
+        { "type": "midpoint", "refs": ["P6", "S1"] },
+        { "type": "smooth", "refs": ["S1", "S2"] }
+      ],
+      "dimensions": [
+        { "name": "D1", "full": "D1@Sketch1", "type": "distance", "value": 120, "refs": ["S1"] },
+        { "name": "D2", "full": "D2@Sketch1", "type": "distance", "value": 60, "refs": ["S2"] },
+        { "name": "D3", "full": "D3@Sketch1", "type": "diameter", "value": 20, "refs": ["S5"] },
+        { "name": "D4", "full": "D4@Sketch1", "type": "hdistance", "value": 60, "refs": ["P1", "P5"] },
+        { "name": "D5", "full": "D5@Sketch1", "type": "vdistance", "value": 30, "refs": ["P1", "P5"] }
+      ] },
+    { "name": "Boss-Extrude1", "type": "extrude", "sketch": "Sketch1", "op": "add", "end": "blind", "depth": 10, "reverse": false, "dims": { "depth": "D1@Boss-Extrude1" } },
+    { "name": "Sketch2", "type": "sketch", "suppressed": false, "plane": { "o": [0, 0, 10], "x": [1, 0, 0], "n": [0, 0, 1] },
+      "points": [ { "id": "P1", "x": 10, "y": 10 }, { "id": "P2", "x": 40, "y": 10 }, { "id": "P3", "x": 10, "y": 10 }, { "id": "P4", "x": 40, "y": 10 }, { "id": "P5", "x": 25, "y": 10 } ],
+      "segments": [ { "id": "S1", "type": "arc", "c": "P5", "s": "P2", "e": "P1" }, { "id": "S2", "type": "line", "a": "P1", "b": "P2" } ],
+      "relations": [ { "type": "horizontal", "refs": ["S2"] } ],
+      "dimensions": [ { "name": "D1", "full": "D1@Sketch2", "type": "radius", "value": 15, "refs": ["S1"] } ] },
+    { "type": "unsupported", "swType": "Sweep", "name": "Sweep1" }
+  ]
+}

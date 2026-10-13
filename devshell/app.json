@@ -1,0 +1,35 @@
+{
+    "format": "cadcraft-devshell",
+    "version": 1,
+    "app": {
+        "slug": "civilcraft",
+        "name": "CivilCraft",
+        "layer": "green",
+        "role": "Civil & site design",
+        "tagline": "From survey points to finished grade.",
+        "short": "Surfaces from points and breaklines, alignments, profiles, corridors, grading and pipe networks. LandXML in and out."
+    },
+    "others": {
+        "cadcraft": "CadCraft",
+        "bimcraft": "BimCraft",
+        "modelcraft": "ModelCraft",
+        "markupcraft": "MarkupCraft",
+        "takeoffcraft": "TakeoffCraft",
+        "detailcraft": "DetailCraft",
+        "partcraft": "PartCraft"
+    },
+    "vendor": {
+        "delaunator": "5.1.0",
+        "geotiff": "3.0.5",
+        "laz-perf": "0.0.7",
+        "proj4": "2.22.0",
+        "robust-predicates": "3.0.3",
+        "sql.js": "1.14.2",
+        "three": "0.186.1"
+    },
+    "origin": "https://getcadcraft.com",
+    "packed": {
+        "at": "2026-10-13T20:37:33Z",
+        "build": "0.4"
+    }
+}

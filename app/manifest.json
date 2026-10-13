@@ -1,0 +1,17 @@
+{
+  "app": "civilcraft",
+  "css": [
+    "civilcraft.css"
+  ],
+  "module": "civilcraft.js",
+  "imports": {
+    "delaunator": "/assets/vendor/delaunator/5.1.0/index.js",
+    "robust-predicates": "/assets/vendor/robust-predicates/3.0.3/index.js",
+    "three": "/assets/vendor/three/0.186.1/three.module.js",
+    "proj4": "/assets/vendor/proj4/2.22.0/proj4.esm.min.js",
+    "geotiff": "/assets/vendor/geotiff/3.0.5/geotiff.esm.min.js",
+    "laz-perf": "/assets/vendor/laz-perf/0.0.7/laz-perf.js",
+    "sql.js": "/assets/vendor/sql.js/1.14.2/sql-wasm.esm.js"
+  },
+  "panels": ["move", "window"]
+}

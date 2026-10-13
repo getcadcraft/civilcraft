@@ -1,0 +1,9 @@
+CivilCraft — browser edition
+Copyright 2026 The Data Design Group, Inc.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+It uses third-party software under their own permissive licenses: see THIRD_PARTY.md and the LICENSE and
+SOURCE.txt files in each folder under assets/vendor/.
+
+CadCraft and the names of the apps in the CadCraft family are trademarks of The Data Design Group, Inc.
+The Apache License does not grant permission to use them (section 6); a fork must use another name.

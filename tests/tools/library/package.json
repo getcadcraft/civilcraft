@@ -1,0 +1,9 @@
+{
+  "name": "cadcraft-library-converter",
+  "private": true,
+  "type": "module",
+  "description": "Server-side converter for LibraryCraft (docs/LIBRARY-SPEC.md §2): node convert.mjs <input> <out-dir> [--units in|mm|…] [--block <name>]… [--list]. node_modules is a symlink to ../bimcraft-test/node_modules (the Node build of web-ifc, pinned to the vendored version); DWG/DXF use BimCraft's own readers (dwg/read.js, dxf-model.js). Setup once: (cd tools/bimcraft-test && npm install).",
+  "dependencies": {
+    "web-ifc": "0.0.78"
+  }
+}

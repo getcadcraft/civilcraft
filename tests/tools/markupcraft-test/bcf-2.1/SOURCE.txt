@@ -1,0 +1,1 @@
+BCF 2.1 XML schemas from https://github.com/buildingSMART/BCF-XML (branch release_2_1, Schemas/). Used by bin/test-markupcraft.mjs to validate the .bcfzip MarkupCraft writes.

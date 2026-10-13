@@ -1,0 +1,12 @@
+three.js 0.186.1 (MIT, see LICENSE) from the npm package three@0.186.1
+  https://registry.npmjs.org/three/-/three-0.186.1.tgz
+  integrity sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==
+Files (unmodified copies from the package):
+  three.module.js, three.core.js        build/
+  addons/controls/OrbitControls.js      examples/jsm/controls/
+  addons/controls/TransformControls.js  examples/jsm/controls/  (added 2026-10-11 for PartCraft's assembly move gizmo)
+sha256:
+  9052042d676cb0fdc1ddfefe193053f34b7ac0513a616fdac4535d49987812ea  three.module.js
+  9edde002b066a9a05676a6127f67735b62baf399bdea529f2f7e31657da769e6  three.core.js
+  3d79d07ecb686b4e5d93232eedab255331c1beef711e13164eaa1f68655a5f2b  addons/controls/OrbitControls.js
+  151befe25bb0d68626f9a6b033625b7b0cf6848e39ba71623b7bed8e3df565d6  addons/controls/TransformControls.js

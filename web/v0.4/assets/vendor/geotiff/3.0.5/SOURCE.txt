@@ -1,0 +1,9 @@
+geotiff.js 3.0.5 (MIT, https://github.com/geotiffjs/geotiff.js), from npm, with its dependencies pako 2.2.0 (MIT AND Zlib),
+lerc 3.0.0 (Apache-2.0), zstddec 0.2.0 (MIT AND BSD-3-Clause), @petamoriken/float16 3.9.3 (MIT), quick-lru 6.1.2 (MIT),
+xml-utils 1.10.2 (CC0-1.0), parse-headers 2.0.6 (MIT). Licenses in LICENSE.
+geotiff.esm.min.js = esbuild bundle (--bundle --format=esm --minify --platform=browser) of the package's ES module build:
+  export * from 'geotiff/dist-module/geotiff.js'; export { default } from 'geotiff/dist-module/geotiff.js';
+The decoders geotiff.js lazy-loads (raw, LZW, JPEG, Deflate, PackBits, LERC, zstd, WebP) are inlined (no extra files).
+The decoder-worker factory (dist-module/worker/create.js, which inlines a worker script and needs the web-worker package)
+is replaced by a stub that throws: this build decodes in the page's thread only — never pass a Pool.
+Used by CivilCraft (raster.js, geotiff-write.js) — loaded only when a GeoTIFF is read or written.

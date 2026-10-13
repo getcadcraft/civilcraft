@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Suggest what to rebuild next
+    url: https://getcadcraft.com/suggest
+    about: Vote on and suggest the next app in the CadCraft family.
+  - name: Support
+    url: https://getcadcraft.com/support
+    about: Questions about licenses, the cloud service or anything that is not a bug.

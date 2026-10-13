@@ -1,0 +1,8 @@
+{
+  "name": "bimcraft-test",
+  "private": true,
+  "description": "The Node build of web-ifc (the BimCraft browser UI vendors the browser build), so bin/test-bimcraft.mjs can run its readers outside a browser. DWG/DXF tests use the build's own readers (dwg/read.js, dxf-model.js). Keep versions in step with public_html/assets/vendor/*/current.",
+  "dependencies": {
+    "web-ifc": "0.0.78"
+  }
+}

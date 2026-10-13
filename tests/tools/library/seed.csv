@@ -1,0 +1,7 @@
+name,category,kind,description,width (in),depth (in),height (in),z (in),remarks
+"Generic work table, 30 x 72 in",foodservice/worktables,equipment,"Stainless steel work table with an undershelf.",72,30,34,0,"Generic size; check the chosen unit's spec sheet."
+"Generic three-compartment sink, 90 in",foodservice/sinks,equipment,"Three 18 x 18 in bowls with 18 in drainboards on both ends.",90,25.5,44,0,"Generic size; check the chosen unit's spec sheet."
+"Generic hand sink, wall-mounted",foodservice/sinks,equipment,"Wall-mounted hand sink, rim at about 34 in.",17,15,12,22,"Generic size; check the chosen unit's spec sheet."
+"Generic two-door reach-in refrigerator",foodservice/refrigeration,equipment,"Upright reach-in refrigerator with two solid doors.",52,32,83,0,"Generic size; check the chosen unit's spec sheet."
+"Generic six-burner range, 36 in",foodservice/cooking,equipment,"Six open burners over a standard oven.",36,33,36,0,"Generic size; height to the cooking top; check the chosen unit's spec sheet."
+"Generic wall shelf, 48 in",foodservice/shelving,equipment,"Wall-mounted shelf, bottom at 60 in.",48,12,1.5,60,"Generic size; check the chosen unit's spec sheet."

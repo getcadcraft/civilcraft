@@ -1,0 +1,3 @@
+# Second reader for the DXF round trips in bin/test-cadcraft.mjs (audit.py, dwg_check.py); optional: the tests skip without it.
+# npm test (devshell/test.mjs) builds tools/cadcraft-test/venv from this file.
+ezdxf==1.4.4

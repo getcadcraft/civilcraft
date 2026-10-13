@@ -1,0 +1,6 @@
+# CivilCraft browser edition: file types some servers do not know (see INSTALL.md).
+AddType application/wasm .wasm
+AddType text/javascript .js
+AddType application/json .json
+AddType font/woff2 .woff2
+DirectoryIndex index.html

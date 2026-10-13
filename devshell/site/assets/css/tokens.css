@@ -1,0 +1,131 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* CadCraft design tokens.
+ * Paper space (light) = the plotted sheet. Model space (dark) = the drafting canvas.
+ * <html data-space="paper|model"> is set before paint (header.inc + pre-paint script);
+ * with no attribute (JS off, no cookie) the OS preference decides via the media query.
+ * Contrast (verified): ink-2 on sheet ≥ 8.6:1 both spaces; every layer colour ≥ 4.6:1
+ * on sheet and sheet-2 in both spaces (orange/violet lowest: 5.11:1 violet on model sheet-2),
+ * so layer colours may be used for text. Eight layers, one per app (Catalog::LAYERS).
+ */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(/assets/fonts/archivo/current/archivo-latin-wdth-normal.woff2) format('woff2-variations'),
+       url(/assets/fonts/archivo/current/archivo-latin-wdth-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(/assets/fonts/archivo/current/archivo-latin-ext-wdth-normal.woff2) format('woff2-variations'),
+       url(/assets/fonts/archivo/current/archivo-latin-ext-wdth-normal.woff2) format('woff2');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+:root {
+  color-scheme: light;
+  --sheet:   #F3F6F8;
+  --sheet-2: #FFFFFF;
+  --ink:     #17202B;
+  --ink-2:   #34404E;
+  --grid:    #D5DDE5;
+  --line:    #7A8796;
+  --placeholder: #6F9FD8;   /* blueprint baby blue */
+  --layer-red:     #B3122E;
+  --layer-ochre:   #8A6200;
+  --layer-green:   #17703A;
+  --layer-cyan:    #00707E;
+  --layer-blue:    #1E48C8;
+  --layer-magenta: #9A1F86;
+  --layer-orange:  #A84A00;
+  --layer-violet:  #5B3CC4;
+  --action:     var(--layer-blue);
+  --on-action:  #FFFFFF;
+  --poche:      #17202B;
+  --grid-minor: color-mix(in srgb, var(--grid) 45%, transparent);
+  --grid-major: color-mix(in srgb, var(--grid) 95%, transparent);
+
+  /* Pen weights (0.25 / 0.5 / 0.7 mm) */
+  --pen-1: 1px;
+  --pen-2: 1.5px;
+  --pen-3: 2px;
+  --radius: 2px;
+
+  /* Type scale: 15 / 17 / 20 / 26 / 36 / 52 / 72 */
+  --fs-sm:  0.9375rem;  /* 15 */
+  --fs-base: 1.0625rem; /* 17 */
+  --fs-md:  1.25rem;    /* 20 */
+  --fs-lg:  1.625rem;   /* 26 */
+  --fs-xl:  clamp(1.75rem, 1.2rem + 1.6vw, 2.25rem);   /* 36 */
+  --fs-2xl: clamp(2.1rem, 1.3rem + 2.6vw, 3.25rem);    /* 52 */
+  --fs-3xl: clamp(2.25rem, 1.1rem + 3.9vw, 4.5rem);    /* 72 */
+
+  --font: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --container: 75rem;
+}
+
+/* Large-screen scaling: 16px up to a 1920px viewport, rising linearly to 20px (125%) at 3840px.
+   Layout is sized in rem, so everything above 1920 reads as the same layout zoomed. */
+html { font-size: clamp(100%, 0.75rem + 0.2083vw, 125%); }
+
+/* Model space — OS preference when nothing is chosen (works with JS off) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-space="paper"]) {
+    color-scheme: dark;
+    --sheet:   #1D232B;
+    --sheet-2: #252D37;
+    --ink:     #E8EEF4;
+    --ink-2:   #C3CDD8;
+    --grid:    #36414E;
+    --line:    #6C7A8A;
+    --placeholder: #7FA9DC;
+  --layer-red:     #FF5A6E;
+    --layer-ochre:   #F2C230;
+    --layer-green:   #4BD37B;
+    --layer-cyan:    #3FD6E6;
+    --layer-blue:    #6E95FF;
+    --layer-magenta: #F06BDC;
+    --layer-orange:  #FF9A3C;
+    --layer-violet:  #A78BFA;
+    --on-action: #1D232B;
+    --poche:     #C3CDD8;
+  }
+}
+/* Model space — chosen explicitly */
+:root[data-space="model"] {
+  color-scheme: dark;
+  --sheet:   #1D232B;
+  --sheet-2: #252D37;
+  --ink:     #E8EEF4;
+  --ink-2:   #C3CDD8;
+  --grid:    #36414E;
+  --line:    #6C7A8A;
+  --placeholder: #7FA9DC;
+  --layer-red:     #FF5A6E;
+  --layer-ochre:   #F2C230;
+  --layer-green:   #4BD37B;
+  --layer-cyan:    #3FD6E6;
+  --layer-blue:    #6E95FF;
+  --layer-magenta: #F06BDC;
+  --layer-orange:  #FF9A3C;
+  --layer-violet:  #A78BFA;
+  --on-action: #1D232B;
+  --poche:     #C3CDD8;
+}
+
+/* Layer hooks: put .layer-<name> on an element and use var(--layer) inside it. */
+.layer-red     { --layer: var(--layer-red); }
+.layer-ochre   { --layer: var(--layer-ochre); }
+.layer-green   { --layer: var(--layer-green); }
+.layer-cyan    { --layer: var(--layer-cyan); }
+.layer-blue    { --layer: var(--layer-blue); }
+.layer-magenta { --layer: var(--layer-magenta); }
+.layer-orange  { --layer: var(--layer-orange); }
+.layer-violet  { --layer: var(--layer-violet); }

@@ -1,0 +1,22 @@
+name: Bug report
+description: Something in CivilCraft did the wrong thing
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes: {label: What happened, description: What you did, what you expected, and what happened instead.}
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes: {label: Steps to reproduce, description: "Each click, key or typed command, in order."}
+    validations: {required: true}
+  - type: input
+    id: version
+    attributes: {label: Version, description: "The version in the app bar (for example 0.3), or the commit you ran.", placeholder: "0.3"}
+    validations: {required: true}
+  - type: input
+    id: browser
+    attributes: {label: Browser and system, placeholder: "Chrome 141 on Windows 11"}
+  - type: textarea
+    id: files
+    attributes: {label: Files, description: "A small file that shows the problem, if you have the right to share it. Never a client's drawing."}

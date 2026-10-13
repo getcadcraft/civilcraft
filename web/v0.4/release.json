@@ -1,0 +1,36 @@
+{
+    "format": "cadcraft-edition",
+    "version": 1,
+    "app": "civilcraft",
+    "name": "CivilCraft",
+    "edition": "browser",
+    "release": "0.4",
+    "semver": "0.4.0",
+    "tag": "civilcraft-v0.4.0",
+    "zip": "civilcraft-browser-edition-v0.4.0.zip",
+    "packed_at": "2026-10-13T20:37:34Z",
+    "from": {
+        "build": "0.4",
+        "released_at": "2026-10-13 17:59 UTC",
+        "git": "20b9b74 (dev had uncommitted changes)"
+    },
+    "license": "Apache-2.0",
+    "libs": {
+        "delaunator": "5.1.0",
+        "geotiff": "3.0.5",
+        "laz-perf": "0.0.7",
+        "proj4": "2.22.0",
+        "robust-predicates": "3.0.3",
+        "sql.js": "1.14.2",
+        "three": "0.186.1",
+        "bootstrap": "5.3.8",
+        "bootstrap-icons": "1.13.2",
+        "archivo": "5.2.8"
+    },
+    "changes_to_copied_files": [
+        "Library URLs written as /assets/vendor/<lib>/current/ are pinned to the versions listed in release.json."
+    ],
+    "files": 203,
+    "bytes_before_this_file": 11816970,
+    "notes": "Cross sections with section sheets and mass haul; feature lines; plan and profile sheets; superelevation; description keys and line codes. Storm drainage (rational method, Manning sizing, HGL), parcels with draft legal descriptions, traverses (compass rule) and staking reports. Open DWG and DXF drawings as linework for the surface. Edit one survey point, lasso selection, grid shift files (NADCON5, NTv2), KML and KMZ in and out, labels from GIS attributes. GIS and map layers in 3D, drive along an alignment, sun light. Works by touch, recovers unsaved work, draft Spanish (Mexico) not yet reviewed."
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "key": "work-table",
+    "name": "Generic work table, 30 x 72 in",
+    "file": "work-table.item.json",
+    "sha256": "3b7dd32fc4cf0a61a2b641aa927fdf70f03a459b0eeaed15946c55276cf3ef35",
+    "changelog": "Drew the full plan symbol (backsplash, rolled edge, undershelf and legs) and a service space in front."
+  },
+  {
+    "key": "three-compartment-sink",
+    "name": "Generic three-compartment sink, 90 in",
+    "file": "three-compartment-sink.item.json",
+    "sha256": "df1ffc49eb0ddf50d35a14859c201f1297d3500711a450be9a1d2162952570f4",
+    "changelog": "Drew the full plan symbol (basins, drains, drainboards, faucets) and a service space in front."
+  },
+  {
+    "key": "hand-sink",
+    "name": "Generic hand sink, wall-mounted",
+    "file": "hand-sink.item.json",
+    "sha256": "f0275b33cce612ffe656bb769e40548387291a7a92ec127d3ea90de2e32f97a0",
+    "changelog": "Drew the full plan symbol (bowl, drain, faucet with wrist handles) and the space to stand at it."
+  },
+  {
+    "key": "reach-in",
+    "name": "Generic two-door reach-in refrigerator",
+    "file": "reach-in.item.json",
+    "sha256": "a30ca5f77eb4e5808f5989d613531586a000ddfdd4243a3a32f261fc0dd95662",
+    "changelog": "Drew the full plan symbol (two doors with hinges, handles and 90° swings) and the door swing clearance."
+  },
+  {
+    "key": "range",
+    "name": "Generic six-burner range, 36 in",
+    "file": "range.item.json",
+    "sha256": "355c2f211a4910ddf446ffbac7b7b9a0ebd092fb243f084be52fbae736168f15",
+    "changelog": "Drew the full plan symbol (six grates with burners, knob rail, flue riser, oven door shown hidden) and the oven door and service clearances."
+  },
+  {
+    "key": "wall-shelf",
+    "name": "Generic wall shelf, 48 in",
+    "file": "wall-shelf.item.json",
+    "sha256": "d50a63d5d1b26a95485bdc8f1383c1f176b4ee582326b5726eb39a2b2da035b3",
+    "changelog": "Drew the full plan symbol (shelf above shown hidden, with its wall brackets)."
+  }
+]

@@ -1,0 +1,12 @@
+name: Translation
+description: Offer or improve a translation of CivilCraft
+labels: [translation]
+body:
+  - type: input
+    id: locale
+    attributes: {label: Language, description: "The language and region tag, for example es-MX or pt-BR."}
+    validations: {required: true}
+  - type: textarea
+    id: what
+    attributes: {label: What you would like to do, description: "Translate the app's words (app/lang), the help (app/help/<locale>/), or fix a translation."}
+    validations: {required: true}

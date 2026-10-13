@@ -1,0 +1,1 @@
+bootstrap 5.3.8 — copied from getcadcraft.com (assets/js/bootstrap/5.3.8/ there), unchanged. See THIRD_PARTY.md.

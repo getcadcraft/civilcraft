@@ -1,0 +1,9 @@
+{
+  "name": "modelcraft-test",
+  "private": true,
+  "description": "Second readers for bin/test-modelcraft.mjs: the Node build of web-ifc (reads our IFC export back; keep in step with public_html/assets/vendor/web-ifc/current) and the Khronos glTF validator (checks our .glb). node_modules is git-ignored.",
+  "dependencies": {
+    "web-ifc": "0.0.78",
+    "gltf-validator": "2.0.0-dev.3.10"
+  }
+}

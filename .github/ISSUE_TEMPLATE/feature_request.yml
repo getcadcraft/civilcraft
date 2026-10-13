@@ -1,0 +1,14 @@
+name: Feature request
+description: A tool or workflow you need in CivilCraft
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes: {label: What do you need to do, description: The task, in your own words.}
+    validations: {required: true}
+  - type: textarea
+    id: today
+    attributes: {label: How do you do it today, description: The program and the steps you use now.}
+  - type: textarea
+    id: files
+    attributes: {label: Example, description: A screenshot or a small file that shows the result you want, if you can share one.}

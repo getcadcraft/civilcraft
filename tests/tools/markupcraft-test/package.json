@@ -1,0 +1,8 @@
+{
+  "name": "markupcraft-test",
+  "private": true,
+  "description": "Node build of pdf.js (the legacy build; the MarkupCraft browser UI vendors the modern build) so bin/test-markupcraft.mjs can re-read saved PDFs outside a browser. pdf-lib is loaded from the vendored copy directly. Keep versions in step with public_html/assets/vendor/*/current.",
+  "dependencies": {
+    "pdfjs-dist": "6.3.289"
+  }
+}

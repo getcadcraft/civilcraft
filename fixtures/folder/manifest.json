@@ -1,0 +1,28 @@
+{
+ "note": "File dates for the folder scan (git does not keep them): node tools/fixtures/make-folder.mjs --touch",
+ "dates": {
+  "Cad/Kitchen Equipment.0010.rvt": "2025-02-17T15:20:00Z",
+  "Cad/Kitchen Equipment.0011.rvt": "2025-04-20T16:05:00Z",
+  "Cad/Kitchen Equipment.rvt": "2025-04-21T09:12:00Z",
+  "Cad/Kitchen Equipment_KA.rvt": "2025-06-16T11:40:00Z",
+  "Cad/Site Model.rvt": "2024-12-02T10:00:00Z",
+  "Cad/Project1.0027.rvt": "2024-08-11T12:00:00Z",
+  "Cad/Project1.0028.rvt": "2024-08-12T12:00:00Z",
+  "Cad/Tower Central.0003.rvt": "2024-11-10T08:00:00Z",
+  "Cad/Tower Central.0004.rvt": "2024-11-12T08:00:00Z",
+  "Cad/Tower Central.rvt": "2024-11-20T08:00:00Z",
+  "Cad/REVIT/Blank-2014.rvt": "2024-01-05T09:00:00Z",
+  "Cad/Families/Wall shelf.rfa": "2025-03-01T09:00:00Z",
+  "Cad/X-Refs/BASE/ELECTRICAL.dwg": "2025-01-15T09:00:00Z",
+  "Cad/CURB DETAILS.dwg": "2025-01-16T09:00:00Z",
+  "Cad/Shell export.ifc": "2025-05-01T09:00:00Z",
+  "Cad/RevitKeynotes_Metric.txt": "2024-06-01T09:00:00Z",
+  "Cad/STARTUP_DRAWING.bak": "2025-06-16T12:00:00Z",
+  "Cad/Drawing2.dwl": "2025-06-16T12:00:00Z",
+  "Cad/Drawing2.dwl2": "2025-06-16T12:00:00Z",
+  "Cad/plot.log": "2025-06-16T12:00:00Z",
+  "Cad/Revit_temp/t.tmp": "2025-06-16T12:00:00Z",
+  "Cad/Tower Central_backup/incRecent.dat": "2025-06-16T12:00:00Z",
+  "Cad/Tower Central_log/x.slog": "2025-06-16T12:00:00Z"
+ }
+}

@@ -1,0 +1,84 @@
+{
+  "format": "cadcraft-sheetset",
+  "version": 1,
+  "name": "Riverside Clinic",
+  "properties": {
+    "PROJECTNAME": "Riverside Clinic",
+    "PROJECTNUMBER": "2026-014",
+    "CLIENT": "Example Health Co."
+  },
+  "layoutNames": "number-title",
+  "sheets": [],
+  "subsets": [
+    {
+      "id": "arch",
+      "name": "Architectural",
+      "sheets": [],
+      "subsets": [
+        {
+          "id": "plans",
+          "name": "Plans",
+          "sheets": [
+            {
+              "id": "p1",
+              "file": "plans/Level 1.dwg",
+              "layout": "Plan 1",
+              "number": "A-101",
+              "title": "Level 1 floor plan"
+            },
+            {
+              "id": "p2",
+              "file": "plans/Level 2.dxf",
+              "layout": "Plan 2",
+              "number": "A-102",
+              "title": "Level 2 floor plan"
+            },
+            {
+              "id": "c1",
+              "file": "plans/Level 1.dwg",
+              "layout": "Ceiling 1",
+              "number": "A-201",
+              "title": "Level 1 reflected ceiling"
+            },
+            {
+              "id": "rf",
+              "file": "plans/Level 2.dxf",
+              "layout": "Roof",
+              "number": "A-301",
+              "title": "Roof plan"
+            }
+          ],
+          "subsets": []
+        },
+        {
+          "id": "det",
+          "name": "Details",
+          "sheets": [
+            {
+              "id": "d1",
+              "file": "details/Details.dwg",
+              "layout": "D1",
+              "number": "A-501",
+              "title": "Wall details"
+            }
+          ],
+          "subsets": []
+        }
+      ]
+    },
+    {
+      "id": "str",
+      "name": "Structural",
+      "sheets": [
+        {
+          "id": "s1",
+          "file": "details/Details.dwg",
+          "layout": "S1",
+          "number": "S-101",
+          "title": "Foundation plan"
+        }
+      ],
+      "subsets": []
+    }
+  ]
+}

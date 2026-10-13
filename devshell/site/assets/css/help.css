@@ -1,0 +1,102 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Help — compiled topic HTML (core/classes/Help.php) on the site (/tutorials/<app>/<topic>) and in
+ * the in-app panel (assets/js/help-panel.js). Tokens from tokens.css; sizes in rem, px for pens. */
+
+/* ---- Keys: both renderings are in the HTML; the nearest [data-os] picks one ---- */
+.hk { display: inline-block; padding: 0 .35em; font: inherit; font-size: .9em; font-weight: 600; white-space: nowrap;
+  color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-bottom-width: var(--pen-2); border-radius: var(--radius); }
+.hk .k-mac { display: none; }
+[data-os="mac"] .hk .k-mac { display: inline; }
+[data-os="mac"] .hk .k-pc { display: none; }
+
+/* ---- Inline tokens ---- */
+.hui { font-weight: 600; padding: 0 .3em; border: var(--pen-1) dashed var(--line); border-radius: var(--radius); white-space: nowrap; }
+.hcmd { font-weight: 700; letter-spacing: .02em; color: var(--ink); }
+.hp-sep { color: var(--ink-2); }
+.hpv[hidden], .hp-sep[hidden], .hv[hidden] { display: none !important; }
+.help-all .hpv:not(:only-child) { border-bottom: var(--pen-1) dotted var(--ink-2); }
+
+/* ---- Blocks ---- */
+.help-content h2 { font-size: var(--fs-lg); margin: 1.6rem 0 .5rem; }
+.help-content h3 { font-size: var(--fs-md); margin: 1.2rem 0 .4rem; }
+.help-content ol, .help-content ul { padding-left: 1.4rem; }
+.help-content ol > li { padding-left: .2rem; margin-bottom: .35rem; }
+.help-content ol > li::marker { font-weight: 700; font-variant-numeric: tabular-nums; }
+.help-content li > ul, .help-content li > ol { margin-top: .3rem; }
+.help-content code { font-size: .92em; }
+.help-content .hcode { padding: .6rem .8rem; background: var(--sheet-2); border: var(--pen-1) solid var(--line); border-radius: var(--radius); overflow-x: auto; }
+.help-content hr { border: 0; border-top: var(--pen-1) solid var(--line); margin: 1.5rem 0; }
+
+.ht-wrap { overflow-x: auto; margin: .75rem 0 1rem; }
+.ht { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.ht th, .ht td { text-align: left; vertical-align: top; padding: .4rem .6rem; border-bottom: var(--pen-1) solid var(--line); }
+.ht th { font-weight: 700; border-bottom: var(--pen-2) solid var(--ink); }
+
+.hc { margin: 1rem 0; padding: .6rem .9rem; border-left: var(--pen-3) solid var(--ink-2); background: var(--sheet-2); border-radius: 0 var(--radius) var(--radius) 0; }
+.hc-tip { border-left-color: var(--layer-green); }
+.hc-note { border-left-color: var(--layer-blue); }
+.hc-warning { border-left-color: var(--layer-red); }
+.hc > :last-child { margin-bottom: 0; }
+.hc-label { margin: 0 0 .2rem; font-size: var(--fs-sm); font-weight: 700; }
+
+.hv { margin: 1rem 0; padding: .5rem .9rem .6rem; border: var(--pen-1) solid var(--line); border-left: var(--pen-3) solid var(--layer-cyan); border-radius: 0 var(--radius) var(--radius) 0; }
+.hv > :last-child { margin-bottom: 0; }
+.hv-label { margin: 0 0 .25rem; font-size: var(--fs-sm); font-weight: 700; color: var(--ink-2); }
+.hv-label::before { content: "For "; font-weight: 500; }
+
+/* ---- In-app panel ---- */
+.help-panel {
+  position: fixed; z-index: 1040; right: 0; top: var(--help-top, 3rem); bottom: 0;
+  width: min(28rem, 100vw);
+  display: flex; flex-direction: column;
+  background: var(--sheet); color: var(--ink);
+  border-left: var(--pen-2) solid var(--ink);
+  font-size: var(--fs-base);
+}
+.help-panel[hidden] { display: none; }
+.help-head { display: flex; align-items: center; gap: .25rem; padding: .5rem .5rem .5rem 1rem; border-bottom: var(--pen-1) solid var(--line); }
+.help-title { margin: 0 auto 0 0; font-weight: 700; font-stretch: 112%; }
+.help-icon { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); }
+.help-icon:hover:not(:disabled) { border-color: var(--ink); }
+.help-icon:disabled { opacity: .35; }
+.help-tools { padding: .6rem 1rem 0; }
+.help-search { width: 100%; padding: .4rem .6rem; font: inherit; color: var(--ink); background: var(--sheet-2); border: var(--pen-1) solid var(--ink); border-radius: var(--radius); }
+.help-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .75rem; padding: .45rem 1rem .55rem; font-size: var(--fs-sm); color: var(--ink-2); border-bottom: var(--pen-1) solid var(--line); }
+.help-field { display: inline-flex; align-items: center; gap: .35rem; }
+.help-select { font: inherit; color: var(--ink); background: var(--sheet-2); border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .1rem .3rem; }
+.help-check { display: inline-flex; align-items: center; gap: .3rem; }
+.help-link { padding: 0; font: inherit; color: var(--action, var(--ink)); background: none; border: 0; text-decoration: underline; cursor: pointer; text-align: left; }
+.help-body { flex: 1 1 auto; overflow-y: auto; padding: .75rem 1rem 2rem; overscroll-behavior: contain; }
+.help-body:focus { outline: none; }
+.help-h { font-size: var(--fs-lg); margin: .25rem 0 .75rem; }
+.help-sec { font-size: var(--fs-sm); font-weight: 700; margin: 1.25rem 0 .35rem; color: var(--ink-2); }
+.help-list { list-style: none; margin: 0; padding: 0; }
+.help-list li { border-bottom: var(--pen-1) solid var(--line); }
+.help-topic-link { display: block; padding: .45rem 0; color: var(--ink); text-decoration: none; }
+.help-topic-link:hover .help-topic-title { text-decoration: underline; }
+.help-topic-title { display: block; font-weight: 600; }
+.help-topic-sum { display: block; font-size: var(--fs-sm); color: var(--ink-2); }
+.help-crumb { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
+.help-count, .help-hint { font-size: var(--fs-sm); color: var(--ink-2); }
+.help-untranslated { margin: 0.25rem 0 0; font-size: var(--fs-sm); color: var(--ink-2); font-style: italic; }
+.help-pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: .75rem; border-top: var(--pen-1) solid var(--line); font-size: var(--fs-sm); }
+.help-web { margin-top: 1rem; font-size: var(--fs-sm); }
+.help-web-off { display: none; color: var(--ink-2); }
+.help-panel.is-offline .help-web a { display: none; }
+.help-panel.is-offline .help-web-off { display: inline; }
+.help-empty { padding: 1rem 0; }
+
+@media (max-width: 760px) {
+  .help-panel { width: 100vw; border-left: 0; }
+}
+
+/* ---- Site topic pages ---- */
+.help-platforms { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 0 0 1.25rem; font-size: var(--fs-sm); }
+.help-platforms[hidden] { display: none; }
+.help-platforms button { padding: .2rem .65rem; font: inherit; color: var(--ink); background: transparent; border: var(--pen-1) solid var(--ink); border-radius: var(--radius); }
+.help-platforms button[aria-pressed="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+.help-toc { font-size: var(--fs-sm); }
+.help-toc ul { list-style: none; padding: 0; margin: 0; }
+.help-toc li { padding: .2rem 0; }
+.help-toc .lvl-3 { padding-left: .9rem; }
+.help-build { font-size: var(--fs-sm); color: var(--ink-2); }

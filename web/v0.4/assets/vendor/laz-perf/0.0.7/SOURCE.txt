@@ -1,0 +1,8 @@
+laz-perf 0.0.7 (Apache-2.0, https://github.com/hobuinc/laz-perf), from npm. LICENSE = the repository's COPYING.
+laz-perf.wasm = the package's lib/web/laz-perf.wasm, unchanged.
+laz-perf.js = esbuild bundle (--bundle --format=esm --minify) of the package's web build (lib/web/laz-perf.js, an
+Emscripten MODULARIZE factory) behind a small ES-module wrapper:
+  import create from 'laz-perf/lib/web/laz-perf.js';
+  export default function createLazPerf(opts = {}) { return create({ locateFile: (p) => new URL(p, import.meta.url).href, ...opts }); }
+so the .wasm is fetched from next to this file (pass `wasmBinary` to skip the fetch, as the Node tests do). No workers.
+Used by CivilCraft (las.js) — loaded only when a .laz file is read.

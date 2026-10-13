@@ -1,0 +1,3 @@
+Delaunator 5.1.0 — https://github.com/mapbox/delaunator
+Files from the published package of that version, unchanged.
+Copied into this edition from getcadcraft.com's vendored copy (assets/vendor/delaunator/5.1.0/ there).

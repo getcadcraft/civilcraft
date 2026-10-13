@@ -1,0 +1,3 @@
+proj4 2.22.0 (MIT, https://github.com/proj4js/proj4js), from npm.
+proj4.esm.min.js = esbuild bundle of the package's ES module entry (lib/index.js, which includes its
+dependencies mgrs and wkt-parser, both MIT): `export { default } from 'proj4'`, --bundle --format=esm --minify.

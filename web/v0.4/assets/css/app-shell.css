@@ -1,0 +1,565 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* App shell — an app's browser UI fills the window under one slim bar (app-shell.inc,
+ * app-bar.inc). The app's own stylesheet lays out <main>. Sizes in rem; px only for pens. */
+
+body.app-shell {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--sheet);
+}
+body.app-shell > main { flex: 1 1 auto; min-height: 0; }
+
+.app-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3rem;
+  padding: .35rem 1rem;
+  background: var(--sheet-2);
+  border-bottom: var(--pen-2) solid var(--ink);
+}
+.app-bar-mark { display: inline-flex; color: var(--ink); }
+.app-bar-name { display: flex; align-items: center; gap: .55rem; margin: 0; font-weight: 700; font-stretch: 112%; }
+.app-bar-area {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-stretch: 100%;
+  padding: .05rem .5rem;
+  color: var(--layer);
+  border: var(--pen-1) solid var(--layer);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+.app-bar-area:hover { text-decoration: underline; }
+.app-bar-ver { position: relative; font-size: var(--fs-sm); font-weight: 600; font-stretch: 100%; }
+.app-bar-ver summary { list-style: none; cursor: pointer; white-space: nowrap; padding: .05rem .45rem; border: var(--pen-1) solid var(--ink); border-radius: var(--radius); font-variant-numeric: tabular-nums; }
+.app-bar-ver summary::-webkit-details-marker { display: none; }
+.app-bar-ver summary .bi { font-size: .7em; }
+.app-bar-ver ul { position: absolute; z-index: 20; top: calc(100% + .3rem); left: 0; min-width: 11rem; margin: 0; padding: .25rem 0; list-style: none; background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); }
+.app-bar-ver a { display: flex; gap: .75rem; padding: .3rem .75rem; border-left: var(--pen-3) solid transparent; color: var(--ink); text-decoration: none; font-variant-numeric: tabular-nums; }
+.app-bar-ver a:hover { background: var(--sheet); text-decoration: underline; }
+.app-bar-ver a[aria-current="page"] { font-weight: 700; border-left-color: var(--layer); }
+.app-bar-ver .n { margin-left: auto; color: var(--ink-2); font-weight: 500; }
+.app-bar-older { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
+.app-bar-links { display: flex; gap: 1.1rem; margin-left: auto; font-size: var(--fs-sm); }
+.app-bar-links a { color: var(--ink-2); }
+.app-bar .space-toggle { flex: 0 0 auto; }
+
+@media (max-width: 760px) {
+  body.app-shell { height: auto; min-height: 100dvh; overflow: visible; }
+  .app-bar { gap: .6rem; padding-inline: .75rem; }
+  .app-bar-links { display: none; }
+  .app-bar .space-toggle { margin-left: auto; }
+}
+@media (max-width: 480px) {
+  /* phone: everything on one line inside the screen; the app name gives way first (ellipsis) */
+  .app-bar { gap: .45rem; padding-inline: .5rem; }
+  .app-bar-name { min-width: 0; gap: .4rem; }
+  .app-bar-name > span:not(.layer-swatch) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-bar-name > .layer-swatch, .app-bar-area { display: none; }   /* the name and version chip matter more */
+  .app-bar-ver { flex: 0 0 auto; }
+}
+
+/* ---- Screen modes (assets/js/app-shell.js): normal → full screen → full screen with the bars hidden ---- */
+.app-bar-fs {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .2rem .6rem;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+  background: transparent;
+  border: var(--pen-1) solid var(--ink);
+  border-radius: var(--radius);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.app-bar-fs[hidden] { display: none; }
+.app-bar-fs .bi { color: var(--layer); }
+.app-bar-fs:hover { background: var(--sheet); }
+.app-bar-fs:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
+.app-bar-fs[aria-pressed="true"] { border-width: var(--pen-2); }
+
+/* Bars hidden: the app bar and the app's top toolbar stack at the top (fixed, so the drawing keeps
+   the whole window) and slide out of sight until the pointer reaches the top edge. */
+body.shell-autohide .shell-bar {
+  position: fixed;
+  top: var(--bar-top, 0);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  transform: translateY(calc(-1 * var(--bars-h, 6rem) - 4px));
+  visibility: hidden;
+}
+body.shell-autohide.shell-reveal .shell-bar { transform: none; visibility: visible; }
+@media (prefers-reduced-motion: no-preference) {
+  body.shell-autohide .shell-bar { transition: transform .16s ease-out, visibility 0s linear .16s; }
+  body.shell-autohide.shell-reveal .shell-bar { transition: transform .16s ease-out, visibility 0s; }
+}
+.shell-edge { display: none; }
+body.shell-autohide .shell-edge {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: .5rem;
+  z-index: 59;
+}
+body.shell-autohide.shell-reveal .shell-edge { height: calc(var(--bars-h, 6rem) + .5rem); }
+
+/* A short note when the mode changes (role=status, so screen readers hear it too). */
+.shell-hint {
+  position: fixed;
+  left: 50%;
+  top: 1rem;
+  z-index: 70;
+  margin: 0;
+  padding: .45rem .8rem;
+  max-width: calc(100vw - 2rem);
+  font-size: var(--fs-sm);
+  color: var(--sheet);
+  background: var(--ink);
+  border-radius: var(--radius);
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+}
+body.shell-hinting .shell-hint { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) { .shell-hint { transition: opacity .2s; } }
+
+@media (max-width: 1100px) { .app-bar-fs-label { display: none; } }
+
+/* ---- Help (assets/js/help-panel.js) and Save for offline (assets/js/app-offline.js) ---- */
+.app-bar-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .2rem .6rem;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+  background: transparent;
+  border: var(--pen-1) solid var(--ink);
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+.app-bar-btn:hover:not(:disabled) { background: var(--sheet); }
+.app-bar-btn:disabled { opacity: .6; }
+.app-bar-help[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+.app-bar-offline[data-state="ready"] .bi { color: var(--layer-green); }
+.app-bar-offline[data-state="failed"] .bi { color: var(--layer-red); }
+.app-bar-offline[data-state="saving"] { font-variant-numeric: tabular-nums; }
+.offline-menu {
+  position: fixed; z-index: 1050; width: 18rem; padding: .6rem;
+  background: var(--sheet-2); color: var(--ink);
+  border: var(--pen-2) solid var(--ink); border-radius: var(--radius);
+  font-size: var(--fs-sm);
+}
+.offline-menu p { margin: 0 0 .5rem; color: var(--ink-2); }
+.offline-menu button { display: block; width: 100%; margin-top: .25rem; padding: .35rem .5rem; font: inherit; text-align: left; color: var(--ink); background: transparent; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.offline-menu button:hover { border-color: var(--ink); }
+@media (max-width: 1100px) {
+  .app-bar-btn-label { display: none; }   /* icons only; the title says what they do */
+  .app-bar-offline[data-state="saving"] .app-bar-btn-label { display: inline; }
+}
+
+/* ---- Settings (assets/js/app-settings.js, core/components/app-settings.inc) ---- */
+body.app-shell > main { position: relative; }   /* the panel resize handles are placed over it */
+
+/* Panel text size: zoom scales rem sizes too, which font-size alone would not. */
+body.app-shell.shell-zoomed > main > aside { zoom: var(--shell-panel-zoom, 1); }
+
+.shell-split {
+  position: absolute;
+  z-index: 15;
+  width: .55rem;
+  transform: translateX(-50%);
+  cursor: col-resize;
+  touch-action: none;
+}
+.shell-split[hidden] { display: none; }
+.shell-split::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--pen-3);
+  transform: translateX(-50%);
+  background: transparent;
+}
+.shell-split:hover::after, .shell-split:focus-visible::after, body.shell-resizing .shell-split::after { background: var(--layer); }
+.shell-split:focus-visible { outline: none; }
+body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user-select: none; }
+
+.shell-settings {
+  width: min(32rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2.5rem);
+  padding: 0;
+  color: var(--ink);
+  background: var(--sheet-2);
+  border: var(--pen-2) solid var(--ink);
+  border-radius: var(--radius);
+}
+.shell-settings::backdrop { background: color-mix(in srgb, var(--ink) 35%, transparent); }
+.shell-dlg { display: flex; flex-direction: column; max-height: calc(100dvh - 2.5rem); margin: 0; }
+.shell-dlg-head, .shell-dlg-foot { display: flex; align-items: center; gap: .75rem; padding: .65rem 1rem; }
+.shell-dlg-head { justify-content: space-between; border-bottom: var(--pen-1) solid var(--line); }
+.shell-dlg-head h2 { margin: 0; font-size: var(--fs-md); font-weight: 700; font-stretch: 112%; }
+.shell-dlg-foot { justify-content: space-between; flex-wrap: wrap; border-top: var(--pen-1) solid var(--line); }
+.shell-dlg-body { padding: .9rem 1rem; overflow: auto; min-height: 0; display: grid; gap: 1rem; font-size: var(--fs-sm); }
+.shell-tabs { display: flex; gap: .25rem; padding: .5rem 1rem 0; border-bottom: var(--pen-1) solid var(--line); }
+.shell-tabs[hidden] { display: none; }
+.shell-tabs [role="tab"] { margin-bottom: -1px; padding: .4rem .8rem; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); background: transparent; border: var(--pen-1) solid transparent; border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; }
+.shell-tabs [role="tab"]:hover { color: var(--ink); }
+.shell-tabs [role="tab"][aria-selected="true"] { color: var(--ink); background: var(--sheet-2); border-color: var(--line); box-shadow: inset 0 var(--pen-2) 0 var(--layer); }
+.shell-pane { display: grid; gap: 1rem; min-width: 0; }
+.shell-pane[hidden] { display: none; }
+.shell-pane-lede { padding-bottom: .1rem; }
+.shell-x { display: inline-grid; place-items: center; width: 2rem; height: 2rem; padding: 0; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); }
+.shell-x:hover { border-color: var(--ink); }
+.shell-set { margin: 0; padding: 0; border: 0; display: grid; gap: .55rem; min-width: 0; }
+.shell-set legend { float: none; margin: 0 0 .15rem; padding: 0; font-size: var(--fs-sm); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+.shell-seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
+.shell-seg label { display: flex; align-items: center; gap: .4rem; padding: .4rem .55rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.shell-seg label:has(input:checked) { border: var(--pen-2) solid var(--layer); font-weight: 600; }
+.shell-seg input { accent-color: var(--layer); margin: 0; }
+.shell-row { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: .75rem; align-items: center; }
+.shell-row[hidden] { display: none; }
+.shell-row .select-cc { width: 100%; }
+.shell-range { display: flex; align-items: center; gap: .6rem; min-width: 0; }
+.shell-range input { flex: 1 1 auto; min-width: 0; accent-color: var(--layer); }
+.shell-range input:disabled { opacity: .5; }
+.shell-range output { flex: 0 0 auto; min-width: 6.5rem; color: var(--ink-2); }
+.shell-check { display: flex; gap: .5rem; align-items: baseline; cursor: pointer; }
+.shell-check input { accent-color: var(--layer); }
+.shell-hint-text { margin: 0; color: var(--ink-2); }
+@media (max-width: 480px) {
+  .shell-seg, .shell-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Tooltips with the full text of anything cut off (…) */
+.tooltip.shell-tip {
+  --bs-tooltip-bg: var(--ink);
+  --bs-tooltip-color: var(--sheet);
+  --bs-tooltip-max-width: 28rem;
+  --bs-tooltip-font-size: var(--fs-sm);
+  --bs-tooltip-border-radius: var(--radius);
+  --bs-tooltip-opacity: 1;
+  pointer-events: none;
+}
+.tooltip.shell-tip .tooltip-inner { text-align: left; overflow-wrap: anywhere; }
+
+/* Settings button in the app bar */
+.app-bar-settings[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+
+/* Toolbar buttons (app-settings.js): icons only keeps the label for screen readers; labels only drops the icon. */
+body[data-shell-tb="icons"] .shell-tb :is(button:not([role="menuitem"]), summary) > span {
+  position: absolute !important;
+  width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+body[data-shell-tb="icons"] .shell-tb :is(button:not([role="menuitem"]), summary) > .bi { font-size: 1.15em; }
+body[data-shell-tb="labels"] .shell-tb :is(button:not([role="menuitem"]), summary) > .bi { display: none; }
+body.shell-tb-nogroups:not(.shell-arranging) .shell-tb > [role="group"] > [class$="-tool-label"] { display: none; }
+.shell-btns { display: flex; flex-wrap: wrap; gap: .5rem; }
+.shell-set[hidden], .shell-check[hidden] { display: none; }
+
+/* Arrange the toolbar: every tool and group name is a drag handle; clicks do nothing. */
+body.shell-arranging .shell-tb { outline: var(--pen-2) dashed var(--layer); outline-offset: -2px; }
+body.shell-arranging .shell-tb :is(button, summary, [role="group"] > [class$="-tool-label"]),
+body.shell-arranging .shell-tb [class$="-tool-row"] > * { cursor: grab; touch-action: none; }
+body.shell-arranging .shell-tb [role="group"] > [class$="-tool-label"] { text-decoration: underline dotted; }
+body.shell-arranging .shell-tb [class$="-tool-row"] > *:hover,
+body.shell-arranging .shell-tb > :is(button, span):hover { outline: var(--pen-1) dashed var(--ink-2); }
+.shell-dragging { opacity: .45; outline: var(--pen-2) solid var(--layer) !important; }
+.shell-arrange-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  max-width: calc(100vw - 2rem);
+  padding: .55rem .75rem;
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  background: var(--sheet-2);
+  border: var(--pen-2) solid var(--layer);
+  border-radius: var(--radius);
+  transform: translateX(-50%);
+}
+.shell-arrange-bar[hidden] { display: none; }
+.shell-arrange-bar p { margin: 0; }
+.shell-arrange-bar .bi { color: var(--layer); }
+@media (max-width: 760px) { .shell-arrange-bar { flex-wrap: wrap; } }
+.shell-arrange-bar button { flex: 0 0 auto; white-space: nowrap; }
+
+/* ---- Movable panels and the panels window (assets/js/app-panels.js; only builds with manifest "panels") ----
+ * Every rule hangs off a class app-panels.js adds, so builds without the flag are untouched. */
+.shell-grip {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  min-height: 1.75rem;
+  padding: 0 .25rem 0 .35rem;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  background: var(--sheet-2);
+  border-bottom: var(--pen-1) solid var(--line);
+}
+.shell-grip-handle { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: .3rem; padding: .25rem 0; cursor: grab; touch-action: none; user-select: none; }
+.shell-grip-handle .bi { color: var(--layer); }
+.shell-grip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shell-grip-menu { flex: 0 0 auto; display: inline-grid; place-items: center; width: 1.6rem; height: 1.4rem; padding: 0; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.shell-grip-menu:hover, .shell-grip-menu[aria-expanded="true"] { border-color: var(--ink); }
+.shell-grip-menu:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
+main.shell-panels-narrow .shell-grip-handle { cursor: default; }
+body.shell-panel-dragging, body.shell-panel-dragging * { cursor: grabbing !important; user-select: none; }
+
+.shell-panel-menu {
+  position: fixed;
+  z-index: 1060;
+  min-width: 15rem;
+  margin: 0;
+  padding: .25rem 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+  background: var(--sheet-2);
+  border: var(--pen-2) solid var(--ink);
+  border-radius: var(--radius);
+}
+.shell-panel-menu button { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .35rem .75rem; font: inherit; text-align: left; color: var(--ink); background: transparent; border: 0; border-left: var(--pen-3) solid transparent; }
+.shell-panel-menu button:hover, .shell-panel-menu button:focus { background: var(--sheet); border-left-color: var(--layer); outline: none; }
+.shell-panel-menu .bi { color: var(--layer); }
+
+/* Managed layout: docked panels fill their dock; floating ones sit over the drawing. */
+main.shell-panels-managed > aside.shell-docked { min-width: 0; min-height: 0; overflow: auto; }
+main.shell-panels-managed > aside[data-shell-dock="left"] { border-left: 0; border-right: var(--pen-2) solid var(--ink); }
+main.shell-panels-managed > aside[data-shell-dock="right"] { border-right: 0; border-left: var(--pen-2) solid var(--ink); }
+main.shell-panels-managed > aside[data-shell-dock="bottom"] { border-left: 0; border-right: 0; border-top: var(--pen-2) solid var(--ink); }
+main.shell-panels-managed > aside[data-shell-dock="bottom"][style*="justify-self: end"] { border-left: var(--pen-1) solid var(--line); }
+main.shell-panels-managed > aside[data-shell-dock][style*="align-self: end"] { border-top: var(--pen-2) solid var(--ink); }
+body.app-shell > main > aside.shell-float {
+  position: absolute;
+  z-index: 40;
+  grid-area: auto;
+  min-width: 10rem;
+  min-height: 6rem;
+  overflow: auto;
+  border: var(--pen-2) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--sheet-2);
+}
+/* A floating panel's corner (assets/js/app-panels.js sizer, 1.6): mouse, touch and pen; arrows with focus. */
+.shell-float-size { position: absolute; z-index: 41; width: 1.1rem; height: 1.1rem; cursor: nwse-resize; touch-action: none; }
+.shell-float-size[hidden] { display: none; }
+.shell-float-size::after { content: ""; position: absolute; right: .2rem; bottom: .2rem; width: .55rem; height: .55rem; border-right: var(--pen-2) solid var(--ink-2); border-bottom: var(--pen-2) solid var(--ink-2); }
+.shell-float-size:hover::after, .shell-float-size:focus-visible::after { border-color: var(--layer); }
+.shell-float-size:focus-visible { outline: none; }
+@media (pointer: coarse) { .shell-float-size { width: 1.8rem; height: 1.8rem; } .shell-float-size::after { width: .8rem; height: .8rem; } }
+/* A panels window under a panel dragged from another window. */
+body.shell-pw.shell-pw-drop { box-shadow: inset 0 0 0 var(--pen-3) var(--layer); }
+.shell-dock-split { position: absolute; z-index: 16; touch-action: none; }
+.shell-dock-split[hidden] { display: none; }
+.shell-dock-split.is-vertical { width: .55rem; transform: translateX(-50%); cursor: col-resize; }
+.shell-dock-split:not(.is-vertical) { height: .55rem; transform: translateY(-50%); cursor: row-resize; }
+.shell-dock-split::after { content: ""; position: absolute; background: transparent; }
+.shell-dock-split.is-vertical::after { top: 0; bottom: 0; left: 50%; width: var(--pen-3); transform: translateX(-50%); }
+.shell-dock-split:not(.is-vertical)::after { left: 0; right: 0; top: 50%; height: var(--pen-3); transform: translateY(-50%); }
+.shell-dock-split:hover::after, .shell-dock-split:focus-visible::after { background: var(--layer); }
+.shell-dock-split:focus-visible { outline: none; }
+
+/* Drop zones while a panel is dragged by its grip. */
+.shell-drop { position: absolute; inset: 0; z-index: 45; pointer-events: none; }
+.shell-drop[hidden] { display: none; }
+.shell-drop-zone {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: .5rem;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--layer) 10%, transparent);
+  border: var(--pen-2) dashed var(--layer);
+  border-radius: var(--radius);
+}
+.shell-drop-zone[data-zone="left"] { left: .4rem; top: 15%; bottom: 15%; width: min(9rem, 22%); }
+.shell-drop-zone[data-zone="right"] { right: .4rem; top: 15%; bottom: 15%; width: min(9rem, 22%); }
+.shell-drop-zone[data-zone="bottom"] { left: 30%; right: 30%; bottom: .4rem; height: min(6rem, 18%); }
+.shell-drop-zone.is-hot { background: color-mix(in srgb, var(--layer) 35%, transparent); border-style: solid; }
+.shell-drag-ghost {
+  position: absolute;
+  z-index: 46;
+  padding: .4rem .6rem;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--sheet-2) 80%, transparent);
+  border: var(--pen-2) solid var(--layer);
+  border-radius: var(--radius);
+  pointer-events: none;
+}
+
+/* "Your panels were in their own window — Open it" after a reload. */
+.shell-pw-offer {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 80;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  max-width: calc(100vw - 2rem);
+  padding: .55rem .75rem;
+  font-size: var(--fs-sm);
+  color: var(--ink);
+  background: var(--sheet-2);
+  border: var(--pen-2) solid var(--layer);
+  border-radius: var(--radius);
+}
+.shell-pw-offer[hidden] { display: none; }
+.shell-pw-offer p { margin: 0; }
+.shell-pw-offer .bi { color: var(--layer); }
+
+/* The panels window (the pop-up): a bar, then the panels side by side, each scrolling on its own. */
+body.shell-pw { height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+.shell-pw-bar { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: .4rem .75rem; background: var(--sheet-2); border-bottom: var(--pen-2) solid var(--ink); }
+.shell-pw-title { margin: 0 auto 0 0; font-size: var(--fs-sm); font-weight: 700; font-stretch: 112%; }
+.shell-pw-title .bi { color: var(--layer); }
+.shell-pw-orphan { display: none; margin: 0; padding: .5rem .75rem; font-size: var(--fs-sm); color: var(--sheet); background: var(--layer-red); }
+body.shell-pw-lost .shell-pw-orphan { display: block; }
+body.shell-pw > main.shell-pw-main {
+  display: flex !important;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  min-height: 0;
+  height: auto !important;
+  grid-template-areas: none !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  overflow: auto;
+}
+body.shell-pw > main.shell-pw-main > aside {
+  flex: 1 1 16rem;
+  min-width: 0;
+  max-height: 100%;
+  height: 100%;
+  overflow: auto;
+  grid-area: auto;
+  border: 0;
+  border-right: var(--pen-2) solid var(--ink);
+}
+body.shell-pw > main.shell-pw-main > aside:last-child { border-right: 0; }
+body.shell-pw.shell-zoomed > main > aside { zoom: var(--shell-panel-zoom, 1); }
+
+/* Recover your work? (assets/js/app-autosave.js, 0.4 item 1.1) — the Settings dialog's frame, one row per copy. */
+.shell-recover { width: min(36rem, calc(100vw - 2rem)); }
+.shell-recover-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: var(--pen-1) solid var(--line); }
+.shell-recover-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: .35rem 1rem; padding: .6rem 0; border-bottom: var(--pen-1) solid var(--line); }
+.shell-recover-what { display: grid; gap: .1rem; min-width: 0; }
+.shell-recover-what strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shell-recover-meta { color: var(--ink-2); }
+.shell-recover-msg { grid-column: 1 / -1; margin: 0; color: var(--ink-2); }
+.shell-recover-msg:empty { display: none; }
+@media (max-width: 30rem) { .shell-recover-row { grid-template-columns: minmax(0, 1fr); } }
+
+/* Settings › Add-ons (assets/js/addons.js, 0.4 item A.2). */
+.shell-addons { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.shell-addon { display: grid; gap: .2rem; padding: .5rem .6rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.shell-addon[data-state="refused"], .shell-addon[data-state="failed"] { border-style: dashed; }
+.shell-addon-ver { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.shell-addon-meta { margin: 0; color: var(--ink-2); }
+.shell-addon-status { margin: 0; color: var(--ink); }
+.shell-addon[data-state="failed"] .shell-addon-status, .shell-addon[data-state="refused"] .shell-addon-status { color: var(--layer-red); }
+
+/* Recent files on an app's start screen ([data-recent-files], assets/js/host.js mountRecent; 0.4 item 1.4). */
+.shell-recent { display: grid; gap: .5rem; width: min(32rem, 100%); text-align: start; }
+.shell-recent[hidden] { display: none; }
+.shell-recent-h { margin: 0; font-size: var(--fs-base); font-weight: 700; color: var(--ink); }
+.shell-recent-list { list-style: none; margin: 0; padding: 0; border-top: var(--pen-1) solid var(--line); }
+.shell-recent-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; border-bottom: var(--pen-1) solid var(--line); }
+.shell-recent-open { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "i n w" ". p p"; align-items: baseline; gap: 0 .5rem; padding: .45rem .25rem; font: inherit; text-align: start; color: var(--ink); background: transparent; border: 0; cursor: pointer; min-width: 0; }
+.shell-recent-open:hover .shell-recent-name, .shell-recent-open:focus-visible .shell-recent-name { text-decoration: underline; }
+.shell-recent-open .bi { grid-area: i; color: var(--layer); }
+.shell-recent-name { grid-area: n; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.shell-recent-when { grid-area: w; font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; }
+.shell-recent-where { grid-area: p; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-sm); color: var(--ink-2); }
+.shell-recent-msg { grid-column: 1 / -1; margin: 0 0 .4rem; font-size: var(--fs-sm); color: var(--ink-2); }
+.shell-recent-msg:empty { display: none; }
+.shell-recent-clear { justify-self: start; padding: 0; font: inherit; font-size: var(--fs-sm); color: var(--ink-2); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+.shell-recent-clear:hover { color: var(--ink); }
+
+/* Add-ons' shared UI (assets/js/app-addons.js, 0.4 item A.6): a run of buttons in a toolbar without groups, and a
+   section at the end of a side panel. */
+.shell-addon-run { display: inline-flex; align-items: center; gap: .25rem; padding-left: .5rem; margin-left: .25rem; border-left: var(--pen-1) solid var(--line); }
+.shell-addon-section { margin-top: .75rem; padding-top: .5rem; border-top: var(--pen-1) solid var(--line); }
+.shell-addon-section-h { margin: 0 0 .4rem; font-size: var(--fs-sm); font-weight: 700; color: var(--ink); }
+.shell-addon-section-body { font-size: var(--fs-sm); }
+
+/* Command palette (assets/js/app-palette.js, 0.4 item 1.8): Ctrl+K / ⌘K. */
+.shell-palette {
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: min(34rem, calc(100dvh - 6rem));
+  margin: 4.5rem auto auto;
+  padding: 0;
+  color: var(--ink);
+  background: var(--sheet-2);
+  border: var(--pen-2) solid var(--ink);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+}
+.shell-palette:not([open]) { display: none; }
+.shell-palette::backdrop { background: color-mix(in srgb, var(--ink) 25%, transparent); }
+.shell-palette-input { flex: 0 0 auto; width: 100%; padding: .7rem .9rem; font: inherit; font-size: var(--fs-md); color: var(--ink); background: var(--sheet); border: 0; border-bottom: var(--pen-1) solid var(--line); outline: none; }
+.shell-palette-input::placeholder { color: var(--placeholder, var(--ink-2)); }
+.shell-palette-list { flex: 1 1 auto; min-height: 0; overflow: auto; margin: 0; padding: .25rem 0; list-style: none; }
+.shell-palette-opt { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "n g k" "h h h"; align-items: baseline; gap: 0 .75rem; padding: .4rem .9rem; border-left: var(--pen-3) solid transparent; cursor: pointer; }
+.shell-palette-opt[aria-selected="true"] { background: var(--sheet); border-left-color: var(--layer); }
+.shell-palette-opt.is-disabled { color: var(--ink-2); cursor: default; }
+.shell-palette-name { grid-area: n; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.shell-palette-group { grid-area: g; font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 16rem; }
+.shell-palette-opt kbd { grid-area: k; font-size: .75rem; padding: .05rem .35rem; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.shell-palette-hint { grid-area: h; font-size: var(--fs-sm); color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shell-palette-status { margin: 0; padding: .35rem .9rem; font-size: var(--fs-sm); color: var(--ink-2); border-top: var(--pen-1) solid var(--line); }
+.shell-palette-foot { margin: 0; padding: 0 .9rem .45rem; font-size: .75rem; color: var(--ink-2); }
+.shell-set.shell-palette-flash { outline: var(--pen-2) solid var(--layer); outline-offset: .3rem; }
+@media (max-width: 30rem) { .shell-palette-opt { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "n k" "g g" "h h"; } }
+
+/* ---- Settings › Assistants and the "assistant connected" button (assets/js/host.js; session agents, docs/AGENTS-SPEC.md §7) ---- */
+.shell-assist-groups { display: grid; gap: .35rem; padding-left: 1.4rem; }
+.shell-assist-groups .shell-check:has(input:disabled) { color: var(--ink-2); cursor: default; }
+.shell-assist-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.shell-assist-btn { padding: .25rem .6rem; font: inherit; font-size: var(--fs-sm); color: var(--ink); background: transparent; border: var(--pen-1) solid var(--ink); border-radius: var(--radius); }
+.shell-assist-btn:hover:not(:disabled) { background: var(--sheet-2); }
+.shell-assist-btn:disabled { opacity: .6; }
+.shell-assist-btn[hidden] { display: none; }
+.shell-assist-activity summary { cursor: pointer; font-weight: 600; }
+.shell-assist-log { list-style: none; margin: .4rem 0; padding: 0; max-height: 12rem; overflow: auto; font-size: var(--fs-sm); border-top: var(--pen-1) solid var(--line); }
+.shell-assist-entry, .shell-assist-empty { padding: .2rem 0; border-bottom: var(--pen-1) solid var(--line); overflow-wrap: anywhere; }
+.shell-assist-entry time { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.shell-assist-tool { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.shell-assist-entry[data-outcome="refused"] .shell-assist-outcome,
+.shell-assist-entry[data-outcome="error"] .shell-assist-outcome { color: var(--layer-red); font-weight: 600; }
+.app-bar-assist { border-color: var(--layer-orange); }
+.app-bar-assist .bi { color: var(--layer-orange); }
+.app-bar-assist[hidden] { display: none; }

@@ -1,0 +1,17 @@
+sql.js 1.14.2 — SQLite compiled to WebAssembly (MIT; LICENSE in this folder; SQLite itself is public domain).
+Source: https://github.com/sql-js/sql.js (npm package sql.js@1.14.2, fetched with `npm pack sql.js@1.14.2` on 2026-10-11).
+
+Files here:
+  sql-wasm.wasm         dist/sql-wasm.wasm, unchanged (identical to dist/sql-wasm-browser.wasm)
+                        sha256 38c14f6e379210bc942bdc4ebca44e7bfdb4318ecc1c72ca666a28fdce96670a
+  sql-wasm-browser.js   dist/sql-wasm-browser.js, unchanged (the classic-script browser build)
+                        sha256 35e39a73b2e0bc1c2202a4cadb23bcf7a3a77071a39c270f014402968785b95f
+  sql-wasm.esm.js       the same file as an ES module, for the import map (CivilCraft manifest: "sql.js"):
+                        upstream's text unchanged between the "upstream … begins/ends" marker lines, with
+                        `var module;` added above it (upstream assigns `module = undefined`, which an ES module
+                        must declare) and `export default initSqlJs;` added below it.
+  LICENSE               upstream LICENSE
+
+Used by CivilCraft (assets/apps/civilcraft/<build>/gpkg.js) only when a GeoPackage is read or written; it passes the
+wasm bytes itself (wasmBinary), fetched from this folder. Upgrade: drop a new version folder made the same way, then
+`ln -sfn <version> current`.
