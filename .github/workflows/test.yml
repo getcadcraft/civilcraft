@@ -27,6 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      # The PDF checks read their output back with poppler (pdftotext, pdfinfo, pdftoppm, pdfimages).
+      - name: Poppler
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - name: Cache libraries
         uses: actions/cache@v4
         with:
