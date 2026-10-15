@@ -23,7 +23,7 @@
 import * as THREE from 'three';
 import { Camera, VIEWS, VIEW_LABELS } from './camera.js';
 import { invert } from './vec.js';
-import { buildSite3D, siteInput, pickSite, SHOW_DEFAULTS, EXAGGERATIONS } from './site3d.js';
+import { buildSite3D, siteInput, pickSite, SHOW_DEFAULTS, EXAGGERATIONS, declutterLabels } from './site3d.js';
 import { exportGLB, exportOBJ } from './site3d-export.js';
 import { mountViewCube, mountAxisIcon } from './viewcube.js';
 import { cameraCubeOptions } from './viewcube-camera.js';
@@ -31,12 +31,14 @@ import { el } from './ui-util.js';
 import { fixed } from './units.js';
 import { t, has } from './i18n.js';   // 0.4 V3 strings
 import { mountDrive } from './drive-ui.js';   // 0.4 V10
+import { action3d, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: buttons and wheel from the menu style
 
 const STORE = 'civilcraft.view3d';
 const SHOW_LABELS = [   // [what, language key]: looked up when the bar is built
   ['eg', 'surface.eg'], ['fg', 'surface.fg'], ['triangles', 'v3d.show.triangles'], ['contours', 'v3d.show.contours'], ['boundary', 'scene.layer.bndy'],
   ['breaklines', 'scene.layer.brkl'], ['alignments', 'v3d.show.alignments'], ['corridors', 's3.corridors'], ['pads', 'v3d.show.pads'],
   ['pipes', 'v3d.show.pipes'], ['points', 'scene.layer.node'], ['gis', 'v3d.show.gis'],   // gis: 0.4 V4
+  ['labels', 'v3d.show.labels'],   // 0.5 WL.22
 ];
 const VIEW_KEYS = { iso: 'v3d.view.iso', top: 'v3d.view.top', bottom: 'v3d.view.bottom', front: 'v3d.view.front', back: 'v3d.view.back', left: 'v3d.view.left', right: 'v3d.view.right' };
 
@@ -83,6 +85,84 @@ function mix(a, b, t) {
   return '#' + [16, 8, 0].map((s) => ch(s).toString(16).padStart(2, '0')).join('');
 }
 
+// ---- labels that face the camera (0.5 WL.22) ----
+// One mesh of quads, one text atlas: each quad's corners are pushed out in clip space by its size in CSS pixels, so every
+// label faces the camera at the same size however far it is, stands on its point, and is still hidden by a hill in front
+// of it (depth-tested; pulled a hair towards the eye so it is not buried in the ground it labels). The atlas holds each
+// text in two channels — red the letters, green a halo — painted in the label's colour and the sheet's colour.
+const LABEL_FONT_3D = '600 13px Helvetica, Arial, "Liberation Sans", sans-serif';   // i18n-ignore: a font stack
+const LABEL_VS = `
+attribute vec2 corner; attribute vec4 rect; attribute vec2 size; attribute vec3 tint; attribute float vis;
+uniform vec2 viewport;
+varying vec2 vUv; varying vec3 vTint; varying float vVis;
+void main() {
+  vec4 c = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  vec2 off = vec2((corner.x - 0.5) * size.x, corner.y * size.y + 6.0);
+  c.xy += off * 2.0 / viewport * c.w;
+  c.z -= 0.0015 * c.w;
+  gl_Position = c;
+  vUv = vec2(mix(rect.x, rect.z, corner.x), mix(rect.y, rect.w, corner.y));
+  vTint = tint; vVis = vis;
+}`;
+const LABEL_FS = `
+uniform sampler2D atlas; uniform vec3 halo;
+varying vec2 vUv; varying vec3 vTint; varying float vVis;
+void main() {
+  if (vVis < 0.5) discard;
+  vec4 a = texture2D(atlas, vUv);
+  float k = max(a.r, a.g);
+  if (k < 0.04) discard;
+  gl_FragColor = vec4(mix(halo, vTint, a.r / k), k);
+}`;
+/** The labels' mesh + atlas for a scene's `labels`; sets each label's measured width `w` (px) for the declutter. */
+function labelMesh(labels, haloHex) {
+  const W = 2048, RH = 20, cv = document.createElement('canvas'), g = cv.getContext('2d');
+  g.font = LABEL_FONT_3D;
+  let x = 0, y = 0;
+  const slots = labels.map((l) => {
+    const w = Math.ceil(g.measureText(l.text).width) + 8;
+    if (x + w > W) { x = 0; y += RH; }
+    const s = { x, y, w };
+    x += w;
+    l.w = w;
+    return s;
+  });
+  let H = 64; while (H < y + RH) H *= 2;
+  cv.width = W; cv.height = Math.min(H, 8192);
+  g.font = LABEL_FONT_3D; g.textBaseline = 'middle'; g.lineJoin = 'round';
+  labels.forEach((l, i) => { const s = slots[i]; if (s.y + RH > cv.height) return; g.strokeStyle = 'rgb(0,255,0)'; g.lineWidth = 4; g.strokeText(l.text, s.x + 4, s.y + RH / 2); });
+  g.globalCompositeOperation = 'lighter';
+  labels.forEach((l, i) => { const s = slots[i]; if (s.y + RH > cv.height) return; g.fillStyle = 'rgb(255,0,0)'; g.fillText(l.text, s.x + 4, s.y + RH / 2); });
+  const n = labels.length, pos = new Float32Array(n * 12), corner = new Float32Array(n * 8), rect = new Float32Array(n * 16), size = new Float32Array(n * 8), tint = new Float32Array(n * 12), vis = new Float32Array(n * 4), idx = new Uint32Array(n * 6);
+  const C = [[0, 0], [1, 0], [1, 1], [0, 1]];
+  labels.forEach((l, i) => {
+    const s = slots[i], col = new THREE.Color(l.color || '#17202b');
+    const u0 = s.x / W, u1 = (s.x + s.w) / W, v1 = 1 - s.y / cv.height, v0 = 1 - (s.y + RH) / cv.height;   // flipY: canvas top = v 1
+    for (let k = 0; k < 4; k++) {
+      const j = i * 4 + k;
+      pos.set(l.at, j * 3); corner.set(C[k], j * 2); rect.set([u0, v0, u1, v1], j * 4); size.set([s.w, RH], j * 2); tint.set([col.r, col.g, col.b], j * 3); vis[j] = 1;
+    }
+    idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
+  });
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('corner', new THREE.BufferAttribute(corner, 2));
+  geo.setAttribute('rect', new THREE.BufferAttribute(rect, 4));
+  geo.setAttribute('size', new THREE.BufferAttribute(size, 2));
+  geo.setAttribute('tint', new THREE.BufferAttribute(tint, 3));
+  geo.setAttribute('vis', new THREE.BufferAttribute(vis, 1));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), Infinity);   // quads move in clip space: never culled by their anchors
+  const tex = new THREE.CanvasTexture(cv);
+  tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
+  const mat = new THREE.ShaderMaterial({ vertexShader: LABEL_VS, fragmentShader: LABEL_FS, transparent: true, depthWrite: false,
+    uniforms: { atlas: { value: tex }, viewport: { value: new THREE.Vector2(1, 1) }, halo: { value: new THREE.Color(haloHex) } } });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = 'labels'; mesh.frustumCulled = false; mesh.renderOrder = 5;
+  mesh.userData.tex = tex;
+  return mesh;
+}
+
 export class SiteView3D {
   constructor(canvas) {
     this.canvas = canvas;
@@ -119,7 +199,8 @@ export class SiteView3D {
     this._raf = requestAnimationFrame(() => { this._raf = 0; this.draw(); });
   }
   clear() {
-    for (const o of [...this.root.children]) { this.root.remove(o); o.geometry?.dispose(); o.material?.dispose(); }
+    for (const o of [...this.root.children]) { this.root.remove(o); o.geometry?.dispose(); o.material?.dispose(); o.userData?.tex?.dispose(); }
+    this.labels = null;
   }
   /** Replace what is drawn with a site3d.js scene; `drape` (0.4 V3) = a THREE texture for meshes that carry uvs. */
   setData(data, bg, drape = null) {
@@ -158,7 +239,20 @@ export class SiteView3D {
       o.name = 'points';
       this.root.add(o);
     }
+    if (data.labels?.length) { this.labels = labelMesh(data.labels, '#' + hex(bg)); this.root.add(this.labels); }   // 0.5 WL.22
     this.invalidate();
+  }
+  /** 0.5 WL.22: which labels show from here (declutterLabels), written into the mesh before each frame. */
+  placeLabels() {
+    const m = this.labels, L = this.data?.labels;
+    if (!m || !L) return;
+    m.material.uniforms.viewport.value.set(this.w, this.h);
+    const vp = this.cam.viewProj();
+    const vis = declutterLabels(L, (at) => this.cam.project(at, vp), { w: this.w, h: this.h });
+    const a = m.geometry.getAttribute('vis');
+    for (let i = 0; i < L.length; i++) { const v = vis[i]; a.array[i * 4] = a.array[i * 4 + 1] = a.array[i * 4 + 2] = a.array[i * 4 + 3] = v; }
+    a.needsUpdate = true;
+    this.labelsShown = vis.reduce((s, v) => s + v, 0);
   }
   /** 0.4 V10: light from the sun. cfg = null (the usual light from the upper left) | { dir: [x, y, z] toward the sun in view
    *  space, up: above the horizon, shadows }. Shadows: one shadow map over the whole site. */
@@ -193,6 +287,7 @@ export class SiteView3D {
     tc.updateMatrixWorld(true);
     tc.projectionMatrix.fromArray(this.cam.proj());
     tc.projectionMatrixInverse.copy(tc.projectionMatrix).invert();
+    this.placeLabels();
     this.renderer.render(this.scene, tc);
     this.frames++;
     this.onRender?.();
@@ -390,7 +485,11 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     cubeOpts.stop();
     dv.userMoved();   // 0.4 V10: looking round while driving pauses it
     canvas.setPointerCapture(e.pointerId);
-    drag = { x: p.x, y: p.y, x0: p.x, y0: p.y, button: e.button, pan: e.button === 2 || e.shiftKey, moved: false };
+    // 0.5 IP.3: what this button does comes from the menu style (input-mouse.js; null = the view's own: left orbits, right pans);
+    // Shift swaps orbit and pan; 'zoom' drags zoom; 'none' leaves the button alone (a click still picks)
+    const act = e.pointerType === 'touch' ? null : action3d(e.button);
+    const mode = act === null ? (e.button === 2 ? 'pan' : 'orbit') : act;
+    drag = { x: p.x, y: p.y, x0: p.x, y0: p.y, button: e.button, pan: act === null ? e.button === 2 || e.shiftKey : mode === 'pan' ? !e.shiftKey : mode === 'orbit' ? e.shiftKey : false, zoom: mode === 'zoom', none: mode === 'none', moved: false };
     if (e.button === 1) e.preventDefault();
   });
   canvas.addEventListener('pointermove', (e) => {
@@ -414,7 +513,8 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     if (!drag.moved && Math.hypot(p.x - drag.x0, p.y - drag.y0) < (e.pointerType === 'touch' ? 10 : 4)) return;   // a finger's tap wobbles
     drag.moved = true;
     tip.hidden = true;
-    if (drag.pan) view.cam.pan(dx, dy); else view.cam.orbit(dx, dy);
+    if (drag.none) return;
+    if (drag.zoom) view.cam.zoomAt(Math.exp(dy * 0.01), drag.x0, drag.y0); else if (drag.pan) view.cam.pan(dx, dy); else view.cam.orbit(dx, dy);
     view.invalidate();
   });
   const end = (e) => {
@@ -449,7 +549,7 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
       return;
     }
     const p = pos(e);
-    const k = Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * (e.ctrlKey ? 0.01 : 0.0015));
+    const k = Math.exp((e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY) * (e.ctrlKey ? 0.01 : 0.0015 * wheelFactor()));   // IP.3: the style's wheel
     view.cam.zoomAt(k, p.x, p.y);
     view.invalidate();
   }, { passive: false });

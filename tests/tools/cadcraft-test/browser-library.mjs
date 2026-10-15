@@ -135,7 +135,9 @@ try {
     await page.click('[data-library]');
     await page.waitForSelector('dialog[data-lib][open] .cc-lib-card');
     ok(await page.locator('.cc-lib-card').count() === total && total > 0, 'the panel lists every published item the API returns (' + total + ')');
-    await page.waitForFunction(() => [...document.querySelectorAll('.cc-lib-card .cc-lib-prev img')].every((i) => i.complete), null, { timeout: 10000 }).catch(() => {});
+    // the cards' previews load lazily: with more items than fit (136 since the standard parts), make them all load now
+    await cc(() => { for (const i of document.querySelectorAll('.cc-lib-card .cc-lib-prev img')) i.loading = 'eager'; });
+    await page.waitForFunction(() => [...document.querySelectorAll('.cc-lib-card .cc-lib-prev img')].every((i) => i.complete && i.naturalWidth > 0), null, { timeout: 20000 }).catch(() => {});
     const imgs = await page.$$eval('.cc-lib-card .cc-lib-prev img', (l) => l.map((i) => ({ w: i.naturalWidth, h: i.naturalHeight })));
     ok(imgs.length === total && imgs.every((i) => i.w === 480 && i.h === 360), 'every live card shows its drawn preview.svg (480×360 tile)', JSON.stringify(imgs.slice(0, 3)));
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, '06a-live-panel.png') });
@@ -170,7 +172,7 @@ try {
   ok(await page.locator('.cc-lib-card .cc-lib-badge').first().textContent() === 'CC0' && (await page.locator('.cc-lib-card').first().textContent()).includes('Version 1'), 'card: license badge and version');
   await page.waitForFunction(() => { const i = document.querySelector('.cc-lib-card img'); return i && i.complete && i.naturalWidth > 0; });
   ok(true, 'the preview image loads');
-  ok(await page.locator('.cc-lib-tabs, [role=tablist][aria-label="Library sources"] [role=tab]').count() === 3, 'sources: LibraryCraft, Files…, Other feeds');
+  ok(await page.locator('.cc-lib-tabs, [role=tablist][aria-label="Library sources"] [role=tab]').count() === 4, 'sources: LibraryCraft, Files…, Standard (0.5 MQ.3/MQ.4), Other feeds');
   ok(await page.locator('dialog[data-lib] a:has-text("Sign in to the library")').count() === 1, '"Sign in to the library" link is offered');
   await page.fill('dialog[data-lib] input[type=search]', 'table');
   await page.click('dialog[data-lib] .cc-lib-search button[type=submit]');

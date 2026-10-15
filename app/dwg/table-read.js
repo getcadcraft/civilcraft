@@ -19,6 +19,7 @@
  *     res = { hx(handle) → hex, nameOf(handle) → name, get(handle) → record }
  */
 
+import { msg } from './messages.js';
 import { DwgReadError } from './bits-read.js';
 
 /**
@@ -32,7 +33,7 @@ function cmc(r) {
   try { return r.CMC(); } finally { r.version = v; }
 }
 const fits = (r, n, minBits) => {
-  if (!(n >= 0) || n * minBits > r.end - r.pos) throw new DwgReadError('count ' + n + ' is larger than the data');
+  if (!(n >= 0) || n * minBits > r.end - r.pos) throw new DwgReadError(msg('ccdwg.err.count_large', { n }));
   return n;
 };
 
@@ -61,7 +62,7 @@ export function readValue(r, h, rec, ctx) {
       case 32: { const n = fits(r, r.BL(), 8); v.value = n >= 24 ? r.RD3() : (r.bytes(n), null); break; }
       case 64: v._id = h.H(rec.handle); break;
       case 128: case 256: case 512: { const n = fits(r, r.BL(), 8); v.bytes = hexOf(r.bytes(n)); break; }
-      default: throw new DwgReadError('value data type ' + v.dataType);
+      default: throw new DwgReadError(msg('ccdwg.err.value_type', { type: v.dataType }));
     }
   }
   if (ctx.ver >= 21) { v.unitType = r.BL(); v.format = r.TV(); v.text = r.TV(); }

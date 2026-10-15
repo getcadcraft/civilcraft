@@ -1,55 +1,66 @@
 ---
-title: What's new in 0.4
-summary: CivilCraft 0.4 adds cross sections and mass haul, feature lines, plan and profile sheets, description keys, superelevation, storm drainage, parcels, traverses, staking reports, point editing, grid shift files, KML, and more GIS and map layers in 3D, the PDF and DWG.
+title: What's new in 0.5
+summary: CivilCraft 0.5 turns DWG and DXF blocks into survey points, shows feature lines in the profile, adds a grade and elevation overlay and 3D labels that face you, explains curves that do not fit, and adds menu styles, live sessions in CadCraft Studio and a phone layout.
 section: start
 order: 5
-keywords: whats new, what's new, release notes, changelog, changes, 0.4, version, new features, sections, mass haul, feature lines, sheets, superelevation, drainage, parcels, traverse, staking, kml, grid shift, spanish, touch
+keywords: whats new, what's new, release notes, changelog, changes, 0.5, version, new features, survey points from blocks, feature lines in profile, grade overlay, elevation overlay, 3d labels, curve does not fit, largest radius, menu styles, keys, mouse, live, studio, phone, fold phone, tablet, settings, spanish
 ---
 
-This is what changed in CivilCraft 0.4, compared with 0.3, the version Try runs now.
+This is what changed in CivilCraft 0.5, compared with 0.4. It is a smaller release than 0.4: five wishes from public ideas boards, plus what came to every app.
 
 ## New
 
-- **Cross sections.** Add sample lines to an alignment to see the ground and the design across the road at every station, with cut and fill shaded and the volumes by average end areas (download them as CSV). {{ui:Sections}} is under Surface › {{ui:More}}, or press {{key:X}}. See [Sample lines and cross sections](topic:sections).
-- **Cross-section sheets.** {{ui:Section sheets (PDF)}} under an alignment's sample lines puts every section on PDF pages in rows, with cut and fill shaded and each section's areas. See [Section sheets](topic:sections#section-sheets).
-- **Mass haul.** From an alignment's sample lines: the mass-haul diagram with shrink or swell, balance points, the volumes moved and how far, and what is left as waste or borrow. See [Mass haul](topic:sections#mass-haul).
-- **Feature lines.** Draw 3D lines and grade them vertex by vertex (elevations or grades), make stepped offsets (a curb back 0.5 ft and up), and use them as breaklines of the ground or, closed, as sloped pads with cut and fill slopes to daylight. {{ui:Feature line}} is under Surface › {{ui:More}}, or press {{key:L}}. See [Feature lines](topic:feature-lines).
-- **Plan and profile sheets.** Select an alignment and choose {{ui:Plan and profile sheets}} to plot it as a set of sheets in one PDF: the plan turned along the road above, the profile below at the same scale, and match lines between sheets. See [Plan and profile sheets](topic:plan-profile-sheets).
-- **Description keys and line codes.** Field codes become point groups with long descriptions, and line codes join coded points into lines: B begins, E ends, C closes. Breakline groups follow those lines, so a curb with a gap is never stretched across it. Open {{ui:Description keys and line codes}} under **Points**. See [Description keys and line codes](topic:description-keys).
-- **Superelevation.** Tick {{ui:Superelevate the curves}} under a corridor: the lanes rotate through each curve by a rate table, with runoff and runout worked out and a superelevation diagram. Sections, volumes, 3D and sheets follow. See [Superelevation](topic:corridor#superelevation).
-- **Storm drainage.** Draw catchments over the pipe network: flows add up down the pipes by the rational method, {{ui:Size the pipes for these flows}} picks sizes by Manning's equation, and the hydraulic grade line flags pipes flowing full and structures where water reaches the surface. See [Work out storm flows, pipe sizes and the hydraulic grade line](topic:storm-drainage).
-- **Parcels.** Draw parcels or type the calls from a deed: closure and precision as you go, bearings, distances and curves labeled on the plan and in the PDF and DWG, and a draft legal description to copy. See [Draw parcels and write their legal descriptions](topic:parcels).
-- **Traverses.** Type angles or bearings and distances: the angular and linear closure and the precision show as you type, the compass rule adjusts the stations, and they go in as survey points or a parcel. See [Enter a traverse and adjust it by the compass rule](topic:traverse).
-- **Staking reports.** From an alignment: stakes at stations and offsets (or the survey points near it) with design and ground elevations and cut or fill, as CSV or PDF. See [Make a staking report](topic:staking).
-- **Edit one point.** Select a survey point to change its number, coordinates, elevation or description in **Properties**, or drag it on the plan. The surface follows, and so do breaklines drawn through it. See [Edit a survey point](topic:edit-points).
-- **Lasso selection.** Hold {{key:Shift}} and drag round survey points to select them as a window, a crossing or a fence ({{key:Space}} switches while you drag); a straight drag still draws a box. See [Lasso selection of survey points](topic:lasso-selection).
-- **Grid shift files.** A NAD27 project can use NADCON5, or any NTv2 or PROJ grid file, in place of the rough datum shift, so latitude and longitude, GIS files and map layers land where they belong. See [Grid shift files](topic:coordinate-systems#grid-shift-files).
-- **KML and KMZ.** Open KML or KMZ files from Google Earth or a web map as GIS layers, and export to KML or KMZ from GIS › {{ui:Export}}. See [Import GIS data](topic:gis-import) and [Export as-built data for GIS](topic:gis-export).
-- **Labels from attributes.** Label a GIS layer's features with one of its fields (the layer's menu › {{ui:Label with}}). The labels go into the PDF, DXF and DWG too. See [Label features from an attribute](topic:gis-import#label-features-from-an-attribute).
-- **Open DWG and DXF drawings as linework.** Open or drop a .dwg or .dxf (or use Surface › {{ui:Linework}}) to bring the drawing's model space onto the plan layer by layer, and use its contours, 3D polylines and closed outlines for the surface. See [Open a DWG or DXF as linework](topic:open-dwg-dxf).
-- **Drive and sun in 3D.** Drive along an alignment from the driver's seat, and light the site from where the sun is at any date and time, with shadows. See [View the site in 3D](topic:site-3d#drive-along-an-alignment).
-- **Work by touch.** Bigger buttons, tap to pick, pinch to zoom, and a long press for the second click. While you draw, a bar with {{ui:Finish}}, {{ui:Undo point}} and {{ui:Cancel}} appears at the top. See [Keys and mouse](topic:keyboard#mouse-trackpad-and-touch).
-- **Recover your work.** CivilCraft keeps a copy of the open project in the browser while you work. After a crash, a closed tab or a reload, it asks **Recover your work?** See [Recover unsaved work](common:recover).
-- **Spanish (Mexico), as a draft.** Settings › General › **Language** offers Español (México). It is a machine-made draft that nobody has reviewed yet, and the help topics are still in English.
-- **Find anything.** Press {{key:Mod+K}}, or click **Find** in the bar at the top, and type a few letters to run a tool, jump to a setting or open a help topic. See [Find a tool or setting](common:find-tools).
+### Survey points from blocks
+
+- **Blocks become survey points.** When you open a DWG or DXF, tick point blocks by name or by their layers. Each insertion becomes a survey point, numbered, described and raised from its attributes (or from the block name, the layer or the insertion height), in one undo step. Each point remembers its block, in the project file too, and its Properties show "From block". See [Open a DWG or DXF as linework](topic:open-dwg-dxf).
+
+### Profiles and feature lines
+
+- **Feature lines in the profile view.** Where a feature line crosses an alignment, its profile shows a labeled diamond with the line's name and its elevation at the crossing. Type a distance in {{ui:Alongside within}} to also show the lines running beside the alignment, as dashed lines. Click a diamond to select its line; {{ui:Feature lines}} in the profile bar hides or shows them. See [Design a vertical profile](topic:profile).
+- **Grade and elevation overlay.** Press {{key:E}}, or tick **Grades and elevations on feature lines** under Display, to see each segment's grade with an arrow pointing downhill and the elevation at the vertices. It is on the screen only: the PDF, DXF and DWG stay as they are. See [Feature lines](topic:feature-lines).
+
+### When a curve does not fit
+
+- **CivilCraft says why, in numbers.** When alignment curves need more tangent than there is, a red box shows how much they need and how much there is, and offers the largest radius that fits at each PI, or both radii shrunk together. With a **Design minimum radius** set, it offers the smallest radius that meets it, or says why none fits. A vertical curve that is too long gets the longest length that fits, with K shown. Each fix is one click and one undo step. See [Lay out a horizontal alignment](topic:alignment) and [Design a vertical profile](topic:profile).
+
+### The 3D view
+
+- **Labels that face you.** {{ui:Show}} › {{ui:Labels}} in the 3D view shows alignment names and stations, major contours, pads, feature lines, structures and, with survey points shown, each point's number and elevation. Labels stay one size and upright however you turn, hide behind hills, and thin out where they would crowd. See [View the site in 3D](topic:site-3d).
+
+### Menu styles
+
+- **Three menu styles.** {{ui:CivilCraft}} is the toolbar you know. {{ui:Drafting classic}} adds a small ribbon and a command line: type ALIGNMENT, PAD, PIPE, PROFILE or ZOOM and press {{key:Enter}}. {{ui:Civil ribbon}} groups the tools in tabs of large buttons. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+
+### Working together
+
+- **Live sessions in CadCraft Studio.** Several people edit points, alignments and the design in one project at once, and every window builds the same surface. See [Design one site together, live](topic:work-live).
 
 ## Improved
 
-- **Pick in 3D.** Click an alignment, a pad, a feature line or a breakline in the 3D view to select it. The selection is highlighted in 3D and on the plan.
-- **GIS layers in 3D.** The 3D view shows the GIS layers (Show › {{ui:GIS layers}}): 3D lines at their elevations, flat ones laid on the ground.
-- **Map layers in 3D.** Choose {{ui:Map layers}} in the 3D view's color list to lay an aerial photo or map tiles over the surfaces.
-- **Map layers in the PDF and DWG.** Map layers can go under the plan in the PDF plot, and beside the DWG as a picture it shows in place (the download is then a zip). See [Plot the plan to PDF](topic:plot-pdf).
-- **Undo a surface swap.** Replacing the surface with an elevation grid, or rebuilding a LandXML surface from the points, can now be undone with {{key:Mod+Z}}.
-- The extents of exports now include parcels, catchments and feature lines.
-- Every word on screen comes from a language file, and counts read properly ("1 file", not "1 files").
-- The view cube's words come from the language file too, so they follow the language you pick.
-- The start screen lists the files you opened lately, in browsers that can reopen them (Chrome and Edge). Click one to open it again.
-- Panels can have more windows of their own, up to four, one per monitor. See [Arrange the panels and use a second monitor](common:arrange-panels).
-- {{ui:Save for offline}} says how much it keeps before you click.
+- Messages about damaged or unsupported DWG and DXF files now come from the language file, also when the drawing is read in the background.
+- BimCraft 0.5 can send a building site's terrain to CivilCraft as LandXML, and TakeoffCraft 0.5 exports spot elevations as a points file CivilCraft opens.
+
+## Fixed
+
+- The profile's readout could wrap the profile bar, so the plot moved under the pointer. It no longer wraps.
+- A typed number could be applied twice (on {{key:Enter}}, then again on leaving the box), so raising a feature line by 2 raised it by 4. It is applied once now.
+
+## In every app
+
+- **CadCraft Studio is the desktop app.** From 0.5 the desktop download is CadCraft Studio: all eight apps in one install. The separate installer for each app stops. CivilCraft still runs in the browser, and as a browser edition you can download.
+- **Installers are not signed yet.** Code signing comes with 0.6. On Windows, if SmartScreen stops the installer, choose {{ui:More info}}, then {{ui:Run anyway}}. The macOS disk image (Apple silicon and Intel, macOS 13 or later) is not signed or notarized: the first time, right-click the app and choose {{ui:Open}}. iPad, Android and iPhone come with 0.6.
+- **Work together live.** In CadCraft Studio, {{ui:Live}} shares the file you have open: teammates on the same network join with a short code and edit with you, each with their own undo. Sessions on your own network are free, for everyone. Invite links over the internet aren't open yet. See [Work together live](common:work-together-live) and [Design one site together, live](topic:work-live).
+- **Menus, keys and mouse.** In {{ui:Settings}} › {{ui:CivilCraft}} › {{ui:Menus, keys and mouse}}, pick a menu style ({{ui:CivilCraft}}, {{ui:Drafting classic}} or {{ui:Civil ribbon}}), give any command your own key, move commands between menus, set the wheel and the mouse buttons, and export or import a style as a `.ccinput.json` file. {{ui:Use this style in every app}} opens every app in its matching style. See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+- **A wider Settings dialog,** in two columns, so more fits without scrolling. See [CivilCraft settings](topic:settings).
+- **Floating and bottom panels fit the window.** A floating panel stays above the status bar and shrinks with a small window; on a short window a panel docked at the bottom leaves the drawing room. See [Arrange the panels and use a second monitor](common:arrange-panels).
+- **Phones and fold phones.** On a screen up to 760 px wide, or a phone held sideways, the plan keeps the screen: panels open as sheets from a bar at the bottom, and the toolbar is one row of icons that scrolls sideways (the group names are read to screen readers). {{ui:Tools}} hides the toolbar and {{ui:Move}} puts it at the bottom. The tool hint is one line; tap it to read all of it. Turning the phone, or opening and closing a fold phone, keeps your work, the selection and an open dialog. The app bar's {{ui:More}} menu holds the version, Find and the links. Phones work, but CivilCraft is made for larger screens.
+- **Touch tablets.** On a touch screen each toolbar is one row that scrolls sideways instead of wrapping onto several lines.
+- **Spanish** stays a machine-made draft that has not been reviewed yet. Help topics are in English.
 
 ## Not in this version yet
 
-- **AI assistants.** The **Assistants** switch is in Settings, but an assistant connects through CadCraft Studio, which is not out yet.
-- Desktop builds and cloud saving are not available yet.
-- Vertical datums and geoid models are not handled: elevations are used as each file gives them.
-- [What is not built yet](topic:not-built-yet)
+- Vertical datums and geoid models: elevations are used as the file gives them.
+- 3D arcs in feature lines, corridor targets, feature lines shared between projects, a structure builder and vehicle swept paths.
+- Survey points from blocks come only from blocks placed directly in model space: blocks inside other blocks and linked drawings are skipped.
+- In a live session, GIS layers, map pictures, grid shift files and a grid surface loaded from a file are not shared, and CivilCraft shows no cursors of other people yet.
+- [Not built yet](topic:not-built-yet)

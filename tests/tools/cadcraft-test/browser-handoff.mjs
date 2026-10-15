@@ -102,10 +102,10 @@ try {
     ok(!(await page.isVisible('[data-edit-drawing]')), 'an IFC model has no "Edit in CadCraft"');
   }
   const tryPage = await ctx.newPage();
-  await tryPage.goto(BASE + '/try/bimcraft', { waitUntil: 'domcontentloaded' });
+  await tryPage.goto(BASE + '/use/bimcraft', { waitUntil: 'domcontentloaded' });
   const tryUrl = await tryPage.getAttribute('[data-bimcraft]', 'data-edit-url');
   const tryAccepts = JSON.parse(fs.readFileSync(path.join(REPO, 'public_html/assets/apps/cadcraft/current/manifest.json'), 'utf8')).accepts?.includes('handoff');
-  ok(tryAccepts ? tryUrl === '/try/cadcraft' : tryUrl === null, 'the try area offers it only when its CadCraft release accepts handoffs (' + (tryAccepts ? 'it does' : 'not yet') + ')', String(tryUrl));
+  ok(tryAccepts ? tryUrl === '/use/cadcraft' : tryUrl === null, 'the try area offers it only when its CadCraft release accepts handoffs (' + (tryAccepts ? 'it does' : 'not yet') + ')', String(tryUrl));
   await tryPage.close();
 
   // CadCraft "Open in 3D" (0.4 part 2): offered only when ModelCraft here accepts a handoff; then it opens ModelCraft

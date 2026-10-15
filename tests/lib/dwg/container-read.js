@@ -15,6 +15,7 @@
  *   Throws only when the file is not a DWG of a supported family (the caller turns that into a note).
  */
 
+import { msg } from './messages.js';
 import { crc8, crc32, pageChecksum, R13_HEADER_XOR, R2004_MAGIC } from './crc.js';
 import { decompressR2004 } from './lz-r2004.js';
 import { readR2007Container } from './r2007.js';
@@ -36,14 +37,14 @@ const ascii = (b, from, n) => { let s = ''; for (let i = 0; i < n; i++) s += Str
 
 export function readContainer(bytes) {
   if (!(bytes instanceof Uint8Array)) bytes = new Uint8Array(bytes);
-  if (bytes.length < 0x80) throw new UnsupportedDwg('too short to be a DWG file (' + bytes.length + ' bytes)');
+  if (bytes.length < 0x80) throw new UnsupportedDwg(msg('ccdwg.open.too_short', { n: bytes.length }));
   const version = ascii(bytes, 0, 6);
   const ver = VERSION_NUM[version];
   if (!ver) {
     if (/^AC10\d\d$/.test(version) || /^AC[12]\.\d/.test(version) || version.startsWith('MC0.0')) {
-      throw new UnsupportedDwg('DWG version ' + version + ' is not supported (only R13 to R2018: AC1012–AC1032)');
+      throw new UnsupportedDwg(msg('ccdwg.open.version', { version }));
     }
-    throw new UnsupportedDwg('not a DWG file (it starts "' + version.replace(/[^\x20-\x7e]/g, '?') + '")');
+    throw new UnsupportedDwg(msg('ccdwg.open.not_dwg', { start: version.replace(/[^\x20-\x7e]/g, '?') }));
   }
   if (ver <= 15) return readR13(bytes, version, ver);
   if (ver === 21) return readR2007Container(bytes, version, ver);
@@ -57,7 +58,7 @@ function readR13(b, version, ver) {
   const maintenance = b[0x0B];
   const codepageNum = d.getUint16(0x13, true);
   const n = d.getUint32(0x15, true);
-  if (n > 16) throw new UnsupportedDwg('damaged R13–R15 file header (' + n + ' section locators)');
+  if (n > 16) throw new UnsupportedDwg(msg('ccdwg.open.r13_header', { n }));
   const loc = {};
   for (let i = 0; i < n; i++) {
     const at = 0x19 + i * 9;
@@ -66,7 +67,7 @@ function readR13(b, version, ver) {
   const crcAt = 0x19 + n * 9;
   const want = d.getUint16(crcAt, true);
   const got = crc8(0, b, 0, crcAt) ^ (R13_HEADER_XOR[n] || 0);
-  if (want !== got) notes.push('File header CRC does not match (file may be damaged).');
+  if (want !== got) notes.push(msg('ccdwg.read.file_header_crc'));
   const sec = (k) => (loc[k] && loc[k].at + loc[k].size <= b.length ? b.subarray(loc[k].at, loc[k].at + loc[k].size) : null);
   const sections = {
     'AcDb:Header': sec(0), 'AcDb:Classes': sec(1), 'AcDb:Handles': sec(2), 'AcDb:AcDbObjects': b,
@@ -74,7 +75,7 @@ function readR13(b, version, ver) {
   if (loc[3]) sections['AcDb:ObjFreeSpace'] = sec(3);
   if (loc[4]) sections['AcDb:Template'] = sec(4);
   if (loc[5]) sections['AcDb:AuxHeader'] = sec(5);
-  if (!sections['AcDb:Header'] || !sections['AcDb:Handles']) throw new UnsupportedDwg('damaged R13–R15 file: section locators point outside the file');
+  if (!sections['AcDb:Header'] || !sections['AcDb:Handles']) throw new UnsupportedDwg(msg('ccdwg.open.r13_locators'));
   return { version, ver, maintenance, codepageNum, notes, sections, objectsAbsolute: true };
 }
 
@@ -85,23 +86,23 @@ function readR2004(b, version, ver) {
   const maintenance = b[0x0B];
   const codepageNum = d.getUint16(0x13, true);
   const security = d.getUint32(0x18, true);
-  if (security & 1) notes.push('The drawing is password-protected (encrypted data); its sections cannot be read.');
+  if (security & 1) notes.push(msg('ccdwg.read.password'));
   // 4.1 encrypted file header data at 0x80
   const magic = R2004_MAGIC(0x6C);
   const h = new Uint8Array(0x6C);
   for (let i = 0; i < 0x6C; i++) h[i] = b[0x80 + i] ^ magic[i];
   const hd = dv(h);
-  if (ascii(h, 0, 11) !== 'AcFssFcAJMB') throw new UnsupportedDwg('damaged ' + version + ' file header (no AcFssFcAJMB id)');
+  if (ascii(h, 0, 11) !== 'AcFssFcAJMB') throw new UnsupportedDwg(msg('ccdwg.open.no_id', { version }));
   {
     const want = hd.getUint32(0x68, true);
     const tmp = h.slice(); tmp[0x68] = tmp[0x69] = tmp[0x6A] = tmp[0x6B] = 0;
-    if (crc32(tmp, 0) !== want) notes.push('File header CRC-32 does not match.');
+    if (crc32(tmp, 0) !== want) notes.push(msg('ccdwg.read.file_header_crc32'));
   }
   const pageMapAddr = Number(hd.getBigUint64(0x54, true)) + 0x100;
   const sectionMapId = hd.getUint32(0x5C, true);
 
   // 4.4 section page map (system page)
-  const pm = readSystemPage(b, pageMapAddr, 0x41630E3B, notes, 'page map');
+  const pm = readSystemPage(b, pageMapAddr, 0x41630E3B, notes, msg('ccdwg.part.page_map'));
   const pmd = dv(pm);
   const pages = new Map();   // page number → { addr, size }
   let addr = 0x100;
@@ -113,9 +114,9 @@ function readR2004(b, version, ver) {
     addr += size;
   }
   const sm = pages.get(sectionMapId);
-  if (!sm) throw new UnsupportedDwg('damaged ' + version + ' file: section map page ' + sectionMapId + ' is not in the page map');
+  if (!sm) throw new UnsupportedDwg(msg('ccdwg.open.no_section_map', { version, id: sectionMapId }));
   // 4.5 data section map
-  const smData = readSystemPage(b, sm.addr, 0x4163003B, notes, 'section map');
+  const smData = readSystemPage(b, sm.addr, 0x4163003B, notes, msg('ccdwg.part.section_map'));
   const sd = dv(smData);
   const count = sd.getUint32(0, true);
   const sections = {};
@@ -130,17 +131,17 @@ function readR2004(b, version, ver) {
     for (let i = 0; i < 64 && smData[p + 0x20 + i]; i++) name += String.fromCharCode(smData[p + 0x20 + i]);
     p += 0x60;
     const list = [];
-    if (pageCount > pages.size + 1 || p + pageCount * 16 > smData.length) { notes.push('The section map is damaged (' + pageCount + ' pages for one section).'); break; }
+    if (pageCount > pages.size + 1 || p + pageCount * 16 > smData.length) { notes.push(msg('ccdwg.read.section_map_damaged', { n: pageCount })); break; }
     for (let k = 0; k < pageCount; k++) {
       list.push({ num: sd.getUint32(p, true), dataSize: sd.getUint32(p + 4, true), start: Number(sd.getBigUint64(p + 8, true)) });
       p += 16;
     }
     if (!name) continue;
-    if (encrypted === 1) { notes.push('Section ' + name + ' is encrypted and was skipped.'); continue; }
+    if (encrypted === 1) { notes.push(msg('ccdwg.read.section_encrypted', { name })); continue; }
     try {
       sections[name] = readDataSection(b, pages, list, size, maxSize, compressed === 2, name, notes);
     } catch (e) {
-      notes.push('Section ' + name + ' could not be read: ' + e.message);
+      notes.push(msg('ccdwg.read.section_failed', { name, reason: e.message }));
     }
   }
   return { version, ver, maintenance, codepageNum, notes, sections, objectsAbsolute: false };
@@ -148,16 +149,16 @@ function readR2004(b, version, ver) {
 
 /** 4.3 system section page: 0x14-byte header, then compressed data. */
 function readSystemPage(b, addr, type, notes, what) {
-  if (addr + 0x14 > b.length) throw new UnsupportedDwg('damaged file: the ' + what + ' lies past the end of the file');
+  if (addr + 0x14 > b.length) throw new UnsupportedDwg(msg('ccdwg.open.past_end', { what }));
   const d = dv(b);
   const t = d.getUint32(addr, true);
-  if (t !== type) throw new UnsupportedDwg('damaged file: the ' + what + ' page has type 0x' + t.toString(16));
+  if (t !== type) throw new UnsupportedDwg(msg('ccdwg.open.page_type', { what, type: t.toString(16) }));
   const usize = plausibleSize(d.getUint32(addr + 4, true), b.length), csize = d.getUint32(addr + 8, true);
-  if (addr + 0x14 + csize > b.length) throw new UnsupportedDwg('damaged file: the ' + what + ' runs past the end of the file');
+  if (addr + 0x14 + csize > b.length) throw new UnsupportedDwg(msg('ccdwg.open.runs_past', { what }));
   const ctype = d.getUint32(addr + 12, true), sum = d.getUint32(addr + 16, true);
   const hdr = b.slice(addr, addr + 0x14); hdr[16] = hdr[17] = hdr[18] = hdr[19] = 0;
   const check = pageChecksum(pageChecksum(0, hdr), b, addr + 0x14, addr + 0x14 + csize);
-  if (check !== sum) notes.push('Checksum of the ' + what + ' does not match.');
+  if (check !== sum) notes.push(msg('ccdwg.read.system_checksum', { what }));
   if (ctype === 2) return decompressR2004(b, addr + 0x14, addr + 0x14 + csize, usize);
   return b.slice(addr + 0x14, addr + 0x14 + usize);
 }
@@ -180,7 +181,7 @@ function readDataSection(b, pages, list, size, maxSize, compressed, name, notes)
     if (ptype !== 0x4163043B) { bad++; continue; }
     const from = at + 32;
     if (from + dataSize > b.length) { bad++; continue; }
-    if (pageChecksum(0, b, from, from + dataSize) !== dataSum) notes.push('Checksum of a page of ' + name + ' does not match.');
+    if (pageChecksum(0, b, from, from + dataSize) !== dataSum) notes.push(msg('ccdwg.read.page_checksum', { name }));
     const logical = Math.min(maxSize, size - start);
     if (logical <= 0) continue;
     if (compressed) {
@@ -190,6 +191,6 @@ function readDataSection(b, pages, list, size, maxSize, compressed, name, notes)
       out.set(b.subarray(from, from + logical), start);
     }
   }
-  if (bad) notes.push(bad + ' page' + (bad === 1 ? '' : 's') + ' of ' + name + ' could not be found or decoded.');
+  if (bad) notes.push(msg('ccdwg.read.pages_bad', { n: bad, name }));
   return out;
 }

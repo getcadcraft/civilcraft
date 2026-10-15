@@ -15,6 +15,7 @@
  * (a second ACIS block, very rare), hasRevisionGuid + revisionGuid (R2013+), history (R2007+ handle, read.js names it).
  */
 
+import { msg } from './messages.js';
 import { satDecrypt, findAcisEnd, isSab, sabVersion, acisInfo, bytesToB64, latin1String } from './acis.js';
 import { readAcds } from './acds.js';
 
@@ -33,7 +34,7 @@ function acisBlock(r, withEmptyBit = true) {
     for (let guard = 0; guard < 1e6; guard++) {
       const n = r.BL();
       if (!n) break;
-      if (n * 8 > r.end - r.pos) throw new Error('ACIS block of ' + n + ' bytes is larger than the data');
+      if (n * 8 > r.end - r.pos) throw new Error(msg('ccdwg.err.acis_block', { n }));
       parts.push(r.bytes(n)); total += n;
     }
     const all = new Uint8Array(total);
@@ -47,21 +48,21 @@ function acisBlock(r, withEmptyBit = true) {
     const save = r.pos;
     const all = r.bytes(left);
     const n = findAcisEnd(all);
-    if (n < 0) throw new Error('ACIS data (version 2) has no end mark');
+    if (n < 0) throw new Error(msg('ccdwg.err.acis_no_end'));
     r.pos = save + n * 8;
     const b = all.slice(0, n);
     if (isSab(b)) return { unknown, dwgVersion: 2, acis: { format: 'sab', version: sabVersion(b), data: bytesToB64(b) } };
     const text = latin1String(b);
     return { unknown, dwgVersion: 2, acis: { format: 'sat', version: acisInfo('sat', text).version, data: text } };
   }
-  throw new Error('ACIS data version ' + version);
+  throw new Error(msg('ccdwg.err.acis_version', { version }));
 }
 
 /** 20.4.41 a wire of the wireframe or of a silhouette. */
 function wire(r) {
   const w = { type: r.RC(), selectionMarker: r.BL() | 0, color: r.BS(), acisIndex: r.BL() | 0 };
   const n = r.BL();
-  if (n * 6 > r.end - r.pos) throw new Error('wire of ' + n + ' points is larger than the data');
+  if (n * 6 > r.end - r.pos) throw new Error(msg('ccdwg.err.wire_large', { n }));
   w.points = new Array(n);
   for (let i = 0; i < n; i++) w.points[i] = r.BD3();
   if (r.B()) {
@@ -72,7 +73,7 @@ function wire(r) {
 }
 function wires(r) {
   const n = r.BL();
-  if (n * 10 > r.end - r.pos) throw new Error(n + ' wires are more than the data holds');
+  if (n * 10 > r.end - r.pos) throw new Error(msg('ccdwg.err.wires_large', { n }));
   const a = new Array(n);
   for (let i = 0; i < n; i++) a[i] = wire(r);
   return a;
@@ -104,7 +105,7 @@ export function decodeAcisEntity(r, h, rec, ctx) {
     // saves of example_2010.dwg: isolines present 0, then at once the silhouette count).
     if (wf.isolinesPresent) wf.wires = wires(r);
     const ns = r.BL();
-    if (ns * 10 > r.end - r.pos) throw new Error(ns + ' silhouettes are more than the data holds');
+    if (ns * 10 > r.end - r.pos) throw new Error(msg('ccdwg.err.silhouettes_large', { n: ns }));
     rec.silhouettes = [];
     // Spec gap: the viewport id is a BLL from R2010 (a BL before: the ODA File Converter's R2004/R2007 and R2010 saves of
     // the same client drawing), and a silhouette's "Num Wires" and wires follow a "wires present" bit, as
@@ -156,7 +157,7 @@ export function attachDataStorage(records, sec, notes) {
   if (!sec) {
     let n = 0;
     for (const r of records.values()) if (r._acisInDataStorage) n++;
-    if (n) notes.push(n + ' ACIS entit' + (n === 1 ? 'y says its' : 'ies say their') + ' data is in the data storage section, which the file does not have.');
+    if (n) notes.push(msg('ccdwg.read.acis_no_storage', { n }));
     return;
   }
   const ds = readAcds(sec);
@@ -169,7 +170,7 @@ export function attachDataStorage(records, sec, notes) {
     if (isSab(b)) r.acis = { format: 'sab', version: sabVersion(b), data: bytesToB64(b) };
     else { const t = latin1String(b); r.acis = { format: 'sat', version: acisInfo('sat', t).version, data: t }; }
   }
-  if (missing) notes.push(missing + ' ACIS entit' + (missing === 1 ? 'y has' : 'ies have') + ' no record in the data storage section (kept empty).');
+  if (missing) notes.push(msg('ccdwg.read.acis_no_record', { n: missing }));
 }
 
 /** read.js: model fields of an ACIS entity record (handles named, the R2004–R2010 xdata GUID surfaced). */

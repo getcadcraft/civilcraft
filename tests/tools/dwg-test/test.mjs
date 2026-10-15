@@ -349,6 +349,68 @@ if (section('async', 'readDwgAsync (read-async.js: readDwg in a worker, 0.4 1.3)
   } else ok(false, A.why || R.why);
 }
 
+// ------------------------------------------------------------------------------------------------ dynamic blocks
+if (section('dyn', 'dynamic blocks (dynblock-read.js, 0.5 DB.2; docs/DWG-DYNAMIC-BLOCKS.md)')) {
+  const D = await tryImport('dynblock-read.js'), Wr = await tryImport('write.js');
+  const file = path.join(CORPUS, 'orig/blocks-and-tables-imperial.dwg');
+  if (!D.mod || !R.read) ok(false, D.why || why['R.read']);
+  else if (!fs.existsSync(file)) skipT('dyn: ' + file + ' not found (AutoCAD sample, outside git)');
+  else {
+    const db = R.read.readDwg(new Uint8Array(fs.readFileSync(file)));
+    const defs = db.blocks.filter((b) => b.dynamic);
+    ok(defs.length === 12 && db.report.dynamicBlocks === 12, 'the blocks sample: 12 dynamic definitions');
+    ok(['Label', 'Window', 'Receptacle', 'Switch', 'Sink', 'Toilet', 'Door'].every((n) => defs.some((b) => b.name === n && b.trueName === n)) && !defs.some((b) => b.name.startsWith('*')),
+      'definitions stored as "*U" with a graph take their true name (as the ODA converter names them)');
+    const rec = defs.find((b) => b.name === 'Receptacle'), vis = rec.dynamic.params.find((p) => p.kind === 'visibility');
+    ok(vis && vis.node === 73 && vis.label === 'Visibility' && vis.states.map((x) => x.name).join('|') === 'Duplex|GFI' && vis.all.length === 5
+      && vis.states[0].entities.length === 4 && vis.states[1].entities.length === 5 && vis.grip === 74, 'Receptacle: visibility parameter (node 73, grip 74), states Duplex | GFI with their entity lists');
+    ok(rec.dynamic.params.some((p) => p.kind === 'alignment' && p.node === 48), 'Receptacle: its alignment parameter (node 48)');
+    const states = defs.flatMap((b) => b.dynamic.params.filter((p) => p.kind === 'visibility').map((p) => p.states.length));
+    ok(states.slice().sort().join() === '2,2,2,2,3,3', 'six visibility parameters, decoded exactly (two with 3 states)');
+    const door = defs.find((b) => b.name === 'Door');
+    ok(door.dynamic.params.map((p) => p.kind).sort().join() === 'alignment,basepoint,flip,flip,linear,point' && door.dynamic.actions.map((a) => a.kind).sort().join() === 'flip,flip,move,scale,stretch',
+      'Door: its parameters and actions by kind');
+    const refs = db.blocks.flatMap((b) => b.entities.filter((e) => e.dyn));
+    ok(refs.length === 136 && refs.every((e) => defs.some((b) => b.record === e.dyn.def)), '136 references, each finds its definition');
+    const st = {}; for (const e of refs) if (e.dyn.state) st[e.dyn.state] = (st[e.dyn.state] || 0) + 1;
+    ok(st.GFI === 7 && st.Duplex === 38 && st['3 Pole'] === 6 && st.Single === 14 && st['Kitchen - Plan'] === 1, 'their visibility states (from the XRECORDs, else the block shown)', JSON.stringify(st));
+    const lin = refs.map((e) => e.dyn.values.find((v) => v.kind === 'linear')).find(Boolean);
+    ok(lin && Math.abs(lin.distance - 72) < 1e-9, 'a linear value as its distance (Window: 72)', lin && lin.distance);
+    ok(refs.some((e) => e.dyn.values.some((v) => v.kind === 'flip' && typeof v.flipped === 'boolean')), 'flip values read as flipped / not');
+    ok(db.blocks.filter((b) => b.dynamicOf).length === 29 && db.blocks.filter((b) => b.dynamicOf).every((b) => defs.some((d) => d.record === b.dynamicOf)), '29 reference copies (*B…) point back to their definition');
+    // every version keeps the graph layout: AutoCAD's own example files (a sweep's history)
+    const ex = ['2000', '2004', '2007', '2010', '2013', '2018'].map((v) => path.join(CORPUS, 'orig/example-' + v + '.dwg')).filter((f) => fs.existsSync(f));
+    const nodes = ex.map((f) => { const m = R.read.readDwg(new Uint8Array(fs.readFileSync(f))); const g = m.objects.find((o) => o.type === 'ACAD_EVALUATION_GRAPH'); return JSON.stringify(D.mod.graphNodes(g).map((x) => x.node)); });
+    ok(ex.length === 6 && nodes.every((x) => x === '[1]'), 'the evaluation graph reads the same in AutoCAD 2000–2018', nodes.join(' '));
+    // untrusted data: a damaged parameter is left undecoded, the read goes on
+    const vo = db.objects.find((o) => o.type === 'BLOCKVISIBILITYPARAMETER');
+    const cut = { ...vo, raw: { ...vo.raw, h: vo.raw.h.slice(0, 3) } };
+    let threw = false; try { D.mod.visibilityOf(cut); } catch { threw = true; }
+    ok(threw, 'a visibility parameter whose handle list is short is refused (not half read)');
+    // written back by cc-dwg in its own version: everything there again; another version: as proxies (AutoCAD saves down so)
+    if (Wr.mod) {
+      const again = R.read.readDwg(Wr.mod.writeDwg(db, { version: '2007' }).bytes);
+      const st2 = {}; for (const e of again.blocks.flatMap((b) => b.entities.filter((x) => x.dyn))) if (e.dyn.state) st2[e.dyn.state] = (st2[e.dyn.state] || 0) + 1;
+      ok(again.report.dynamicBlocks === 12 && JSON.stringify(st2) === JSON.stringify(st), 'written as AutoCAD 2007 (its own version) and read again: the same definitions and states');
+      const down = Wr.mod.writeDwg(db, { version: '2018' });
+      ok(down.report.notes.some((n) => /proxies of their own class/.test(n) && /BLOCKVISIBILITYPARAMETER/.test(n)), 'written as 2018: kept as proxies of their own class, and said');
+      // an edited visibility parameter (dynblock-write.js, 0.5 DB.9): re-encoded exactly first, then written with new states
+      const Dw = await tryImport('dynblock-write.js');
+      if (Dw.mod) {
+        const vps = db.objects.filter((o) => o.type === 'BLOCKVISIBILITYPARAMETER');
+        ok(vps.length === 6 && vps.every((o) => Dw.mod.reencodesExactly(o.raw)), 'dynblock-write: all 6 visibility parameters re-encode bit for bit');
+        const f = Dw.mod.visibilityFields(vo.raw);
+        const states = [...f.states.map((s, i) => ({ name: i ? s.name : s.name + ' (edited)', from: s.name, entities: s.entities.map(([, h]) => h) })), { name: 'Empty', from: f.states[0].name, entities: [] }];
+        const edited = { ...db, objects: db.objects.map((o) => (o === vo ? { ...o, raw: Dw.mod.rewriteVisibility(o.raw, states) } : o)) };
+        const back = R.read.readDwg(Wr.mod.writeDwg(edited, { version: '2007' }).bytes);
+        const pv = back.objects.filter((o) => o.type === 'BLOCKVISIBILITYPARAMETER').map((o) => { try { return D.mod.visibilityOf(o).states.map((s) => s.name + ':' + s.entities.length).join('|'); } catch { return 'damaged'; } });
+        const want = states.map((s) => s.name + ':' + s.entities.length).join('|');
+        ok(back.report.dynamicBlocks === 12 && pv.includes(want), 'an edited parameter (state renamed, one added) written in its own version reads back as edited', want + ' in ' + JSON.stringify(pv));
+      }
+    }
+  }
+}
+
 console.log(`\n${pass} passed, ${fail} failed, ${skip} skipped`);
 if (skip && !VERBOSE) console.log('skipped: ' + skipped.map((s) => s.split(':')[0]).join('; '));
 process.exit(fail ? 1 : 0);

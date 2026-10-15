@@ -458,6 +458,43 @@ section('a large surface stays quick');
   if (validator) { const rep = await validator.validateBytes(glb, { maxIssues: 10 }); ok(rep.issues.numErrors === 0, `the large GLB validates (${rep.issues.numErrors} errors)`); }
 }
 
+section('labels that face the camera (0.5 WL.22)');
+{
+  const scL2 = S3.buildSite3D(input, { exag: 2, show: { points: true } });
+  const by = (k) => scL2.labels.filter((l) => l.kind === k);
+  const toLocal = (x, y, z) => [x - scL2.origin.x, y - scL2.origin.y, (z - scL2.origin.z) * scL2.exag];
+  const al = project.alignment(project.state.alignments[0]), prof = project.designProfile(project.state.alignments[0]);
+  const a0 = al.pointAt(al.start), want = toLocal(a0.x, a0.y, prof.elevationAt(al.start));
+  ok(by('alignment').length === project.state.alignments.length && by('alignment')[0].text === project.state.alignments[0].name && by('alignment')[0].at.every((v, k) => Math.abs(v - want[k]) < 1e-6), 'each alignment named at its start, on its design profile (local, exaggerated)');
+  const majors = []; for (let s = Math.ceil(al.start / 100) * 100; s <= al.end + 1e-9; s += 100) majors.push(s);
+  ok(by('station').length === majors.length && by('station').every((l, i) => l.text === (Math.floor(majors[i] / 100) + '+' + String(majors[i] % 100).padStart(2, '0'))), 'a station label at every 100 ft tick: ' + by('station').map((l) => l.text).join(' '));
+  const step = input.interval * input.major, cont = by('contour');
+  ok(cont.length > 0 && cont.every((l) => Math.abs(Number(l.text) / step - Math.round(Number(l.text) / step)) < 1e-9 && Math.abs(l.at[2] - (Number(l.text) - scL2.origin.z) * 2) < 1e-6), 'major contours labelled with their elevation, at that elevation (' + cont.length + ' labels)');
+  const nStr = project.state.network.structures.length;
+  ok(by('structure').length === nStr && by('pad').length === project.state.pads.length, 'structures and pads by name');
+  const withZ = project.points.filter((p) => p.z !== null).length;
+  ok(by('point').length === Math.min(withZ, S3.MAX_LABELS - scL2.labels.length + by('point').length) && by('point')[0].text.split(/\s+/).length === 2, 'with Show › Points: each survey point\'s number and elevation');
+  ok(!S3.buildSite3D(input, {}).labels.some((l) => l.kind === 'point'), 'without Show › Points: no point labels');
+  ok(S3.buildSite3D(input, { show: { labels: false } }).labels.length === 0, 'Show › Labels off: none');
+  ok(scL2.labels.every((l) => Number.isInteger(l.pri) && typeof l.color === 'string'), 'every label has a priority and a colour');
+  // declutter from the iso view
+  const cam = new Camera(); cam.setSize(1000, 700); cam.standard('iso', scL2.bbox);
+  const vp = cam.viewProj(), pr = (at) => cam.project(at, vp);
+  const vis = S3.declutterLabels(scL2.labels, pr, { w: 1000, h: 700 });
+  const boxes = [];
+  scL2.labels.forEach((l, i) => { if (!vis[i]) return; const s = pr(l.at), w = l.text.length * 7 + 8; boxes.push([s[0] - w / 2, s[0] + w / 2, s[1] - 22, s[1] - 6]); });
+  const overlap = boxes.some((a, i) => boxes.some((b, j) => j > i && a[0] < b[1] && b[0] < a[1] && a[2] < b[3] && b[2] < a[3]));
+  ok(boxes.length > 5 && boxes.length < scL2.labels.length && !overlap, 'iso view: ' + boxes.length + ' of ' + scL2.labels.length + ' labels drawn, none overlapping (the 276 point labels thin out)');
+  ok(scL2.labels.every((l, i) => l.kind !== 'alignment' || !pr(l.at) || vis[i] === 1), 'the alignment names (first in priority) are always drawn when on screen');
+  // two labels on one spot: the higher priority wins; behind the eye or far off screen: not drawn
+  const fake = [{ text: 'P 100', at: [0, 0, 0], pri: 6 }, { text: 'Road', at: [0, 0, 0], pri: 0 }, { text: 'gone', at: [1, 1, 1], pri: 0 }];
+  const fv = S3.declutterLabels(fake, (at) => (at[0] === 1 ? null : [500, 300, 10]), { w: 1000, h: 700 });
+  ok(fv[0] === 0 && fv[1] === 1 && fv[2] === 0, 'same spot: the alignment beats the point; behind the eye: hidden');
+  ok(S3.declutterLabels([{ text: 'x', at: [0, 0, 0], pri: 0 }], () => [5000, 300, 1], { w: 1000, h: 700 })[0] === 0, 'off screen: not drawn');
+  const near = S3.declutterLabels([{ text: 'far', at: [0, 0, 0], pri: 5 }, { text: 'near', at: [0, 0, 1], pri: 5 }], (at) => [500, 300, at[2] ? 5 : 50], { w: 1000, h: 700 });
+  ok(near[0] === 0 && near[1] === 1, 'same priority on one spot: the nearer label wins');
+}
+
 console.log(`\n${pass} passed, ${fail} failed${KEEP ? ' — files in ' + OUT : ''}`);
 if (!KEEP) fs.rmSync(OUT, { recursive: true, force: true });
 process.exit(fail ? 1 : 0);

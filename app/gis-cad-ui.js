@@ -9,17 +9,24 @@
  * "Use for the surface" (breaklines from the lines' own elevations or their ELEV, the boundary, survey points — the same
  * choices as a GIS layer's). Add = the chosen layers become GIS layers (one undo step), then each chosen use is one
  * more undo step. Layers named like contours (TOPO, CONT, CNTR) that carry elevations start as breaklines.
+ * Survey points from blocks (0.5 WL.19; block-points.js): the drawing's block references in model space, by block or by
+ * layer, each insertion point → one survey point (description from the block name, its layer or an attribute; elevation
+ * from the insertion or an attribute; number from an attribute or the next free ones), added as ONE undo step; the
+ * drawing is not changed and every point keeps the block it came from (`blk`). Attribute choices start on likely tags.
  * window.civilcraft.gis.cad (host.cad) = { open(files), last } for tests. Every word goes through t() (lang/en.json, cad.*).
  */
 
 import { t } from './i18n.js';
 import { cadLinework, unitScale } from './cad-linework.js';
+import { blockRefs, pointsFromBlocks } from './block-points.js';
 import { addLayers, useChoices, useForSurface, layerOf } from './gis-layers.js';
 
 const CAD = /\.(dwg|dxf)$/i;
 const MAX_BYTES = 200 * 1024 * 1024;
 const CONTOUR = /TOPO|CONT|CNTR|CTR|CONTOUR/i;
 const UNIT_CHOICES = [['', null], ['ft', 2], ['ft-us', 21], ['m', 6], ['mm', 4], ['cm', 5], ['in', 1]];
+// likely attribute tags of survey point blocks (upper case), for the first choice of each select
+const TAG_GUESS = { num: /^(PT|PNT|POINT|PT_?NO|PNT_?NO|POINT_?(NO|NUM|NUMBER)|NO|NUM|NUMBER|ID)$/, desc: /^(DESC|DESCRIPTION|CODE|DESCR|RAW_?DESC|FULL_?DESC|NAME)$/, z: /^(ELEV|ELEVATION|EL|Z|HEIGHT|ELV|LEVEL|RL)$/ };
 
 export async function install(host) {
   const { reg, el } = host;
@@ -84,7 +91,8 @@ export async function install(host) {
       const projectUnit = P().state.units === 'm' ? 'm' : 'ft';
       let unitCode = null;   // null = what the file says
       let r = cadLinework(model, { file, projectUnit });
-      if (!r.layers.length) { host.say([t('cad.ui.nothing', { file }), ...r.notes].join(' ')); done(null); return; }
+      let br = blockRefs(model, { projectUnit, scale: r.scale });
+      if (!r.layers.length && !br.refs.length) { host.say([t('cad.ui.nothing', { file }), ...r.notes].join(' ')); done(null); return; }
       const pick = new Set(r.cadLayers.filter((l) => l.on).map((l) => l.name));
       const use = new Map();   // cad layer name + geom → choice index (into useChoices of that layer)
       const tbody = el('tbody', {});
@@ -94,6 +102,61 @@ export async function install(host) {
       const unitNote = el('p', { className: 'cv-note', 'data-cad-unit-note': '' });
       const what = el('p', { className: 'cv-note', 'data-cad-what': '' });
       const go = el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-cad-go': '' }, t('cad.ui.add'));
+      // ---- survey points from blocks (WL.19) ----
+      const bPick = new Set(), lPick = new Set();
+      const bBody = el('tbody', {}), lList = el('div', { className: 'cv-blk-layers', 'data-blk-layers': '' });
+      const bDesc = el('select', { className: 'cv-select', id: 'cv-blk-desc-' + uid, 'data-blk-desc': '' });
+      const bZ = el('select', { className: 'cv-select', id: 'cv-blk-z-' + uid, 'data-blk-z': '' });
+      const bNum = el('select', { className: 'cv-select', id: 'cv-blk-num-' + uid, 'data-blk-num': '' });
+      const bWhat = el('p', { className: 'cv-note', 'data-blk-what': '' });
+      const touched = { desc: false, z: false, num: false };
+      bDesc.onchange = () => { touched.desc = true; sum(); };
+      bZ.onchange = () => { touched.z = true; sum(); };
+      bNum.onchange = () => { touched.num = true; sum(); };
+      const blkSec = el('section', { className: 'cv-blk', 'data-blk-sec': '', hidden: true },
+        el('h3', { className: 'cv-h3' }, t('cad.blk.head')),
+        el('p', { className: 'cv-note' }, t('cad.blk.lede')),
+        el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-blk-table': '' },
+          el('thead', {}, el('tr', {}, el('th', {}, el('span', { className: 'visually-hidden' }, t('cad.blk.col.take'))), el('th', { scope: 'col' }, t('cad.blk.col.block')),
+            el('th', { scope: 'col' }, t('cad.blk.col.count')), el('th', { scope: 'col' }, t('cad.blk.col.layers')), el('th', { scope: 'col' }, t('cad.blk.col.tags')))), bBody)),
+        el('p', { className: 'cv-note' }, t('cad.blk.bylayer')), lList,
+        el('div', { className: 'cv-props cv-blk-how' },
+          el('label', { for: bNum.id }, t('cad.blk.num')), bNum,
+          el('label', { for: bDesc.id }, t('cad.blk.desc')), bDesc,
+          el('label', { for: bZ.id }, t('cad.blk.z')), bZ),
+        bWhat);
+      const chosenRefs = () => br.refs.filter((x) => bPick.has(x.block) || lPick.has(x.layer));
+      /** Fill a select with fixed choices + one per attribute tag of the chosen references; keep or guess its value. */
+      function fillSelect(sel, fixed, tags, guess, keep) {
+        const was = sel.value;
+        sel.replaceChildren(...fixed.map(([v, label]) => el('option', { value: v }, label)), ...tags.map((tg) => el('option', { value: 'attr:' + tg }, t('cad.blk.attr', { tag: tg }))));
+        const vals = [...sel.options].map((o) => o.value);
+        if (keep && vals.includes(was)) sel.value = was;
+        else { const g = tags.find((tg) => guess.test(tg)); sel.value = g ? 'attr:' + g : fixed[0][0]; }
+      }
+      function rebuildBlocks() {
+        blkSec.hidden = !br.refs.length;
+        if (!br.refs.length) return;
+        bBody.replaceChildren(...br.blocks.map((b) => {
+          const box = el('input', { type: 'checkbox', checked: bPick.has(b.name), 'aria-label': t('cad.blk.take', { block: b.name }), 'data-blk-pick': b.name });
+          box.onchange = () => { if (box.checked) bPick.add(b.name); else bPick.delete(b.name); howChoices(); sum(); };
+          return el('tr', { 'data-blk-row': b.name }, el('td', {}, box), el('td', {}, b.name), el('td', {}, num(b.count)), el('td', {}, b.layers.join(', ')), el('td', {}, b.tags.join(', ') || '—'));
+        }));
+        lList.replaceChildren(...br.layers.map((l) => {
+          const box = el('input', { type: 'checkbox', checked: lPick.has(l.name), 'data-blk-layer': l.name });
+          box.onchange = () => { if (box.checked) lPick.add(l.name); else lPick.delete(l.name); howChoices(); sum(); };
+          return el('label', { className: 'cv-check' }, box, ' ', t('cad.blk.layer', { layer: l.name, n: num(l.count) }));
+        }));
+        howChoices();
+      }
+      function howChoices() {
+        const tags = [...new Set(chosenRefs().flatMap((x) => Object.keys(x.attrs)))].sort();
+        fillSelect(bNum, [['next', t('cad.blk.num.next')]], tags, TAG_GUESS.num, touched.num);
+        fillSelect(bDesc, [['block', t('cad.blk.desc.block')], ['layer', t('cad.blk.desc.layer')]], tags, TAG_GUESS.desc, touched.desc);
+        // an elevation attribute is only guessed when the blocks sit at zero (a 2D drawing)
+        const flat = chosenRefs().every((x) => x.z === 0);
+        fillSelect(bZ, [['insert', t('cad.blk.z.insert')], ['none', t('cad.blk.z.none')]], tags, flat ? TAG_GUESS.z : /^$/, touched.z);
+      }
 
       const choicesFor = (l) => useChoices({ geom: l.geom, fields: l.fields }, l.features);
       function rebuild() {
@@ -123,6 +186,8 @@ export async function install(host) {
             el('td', {}, cl.z ? t('cad.ui.z.yes') : t('cad.ui.z.no')), el('td', { className: 'cv-cad-uses' }, ...(uses.length ? uses : [el('span', { className: 'cv-note' }, t('cad.ui.use.nothing'))]))));
         }
         tbody.replaceChildren(...rows);
+        br = blockRefs({ ...model, header }, { projectUnit, scale: r.scale });
+        rebuildBlocks();
         notesBox.replaceChildren(...(r.notes.length ? [el('ul', {}, ...r.notes.map((n) => el('li', {}, n)))] : []));
         notesBox.hidden = !r.notes.length;
         sum();
@@ -133,8 +198,10 @@ export async function install(host) {
       function sum() {
         const ls = chosen();
         const uses = ls.filter((l) => (use.get(l.cadLayer + '|' + l.geom) ?? -1) >= 0).length;
-        what.textContent = ls.length ? t('cad.ui.what', { n: ls.length, uses }) : t('cad.ui.what.none');
-        go.disabled = !ls.length;
+        const nPts = chosenRefs().length;
+        what.textContent = [ls.length ? t('cad.ui.what', { n: ls.length, uses }) : '', nPts ? t('cad.blk.what', { n: nPts }) : ''].filter(Boolean).join(' ') || t('cad.ui.what.none');
+        bWhat.textContent = nPts ? t('cad.blk.what', { n: nPts }) : t('cad.blk.what.none');
+        go.disabled = !ls.length && !nPts;
       }
       unitSel.onchange = () => { unitCode = unitSel.value === '' ? null : Number(unitSel.value); rebuild(); };
 
@@ -146,12 +213,22 @@ export async function install(host) {
           tbody)),
         el('div', { className: 'cv-props' }, el('label', { for: unitSel.id }, t('cad.ui.units')), unitSel), unitNote,
         notesBox,
+        blkSec,
         el('h3', { className: 'cv-h3' }, t('cad.ui.what.head')), what]);
       let result = null;
       go.onclick = () => {
         const ls = chosen();
-        const ids = addLayers(P(), ls, { label: t('cad.ui.undo', { file }) });
-        const msgs = [t('cad.ui.added', { n: ids.length, file })];
+        const ids = ls.length ? addLayers(P(), ls, { label: t('cad.ui.undo', { file }) }) : [];
+        const msgs = ls.length ? [t('cad.ui.added', { n: ids.length, file })] : [];
+        let blk = null;
+        if (chosenRefs().length) {
+          blk = pointsFromBlocks(br.refs, { blocks: [...bPick], layers: [...lPick], desc: bDesc.value, z: bZ.value, number: bNum.value, existing: P().points });
+          P().editPoints(t('cad.blk.undo', { file }), (pts) => [...pts, ...blk.points]);
+          msgs.push(t('cad.blk.added', { n: blk.points.length, file }));
+          if (blk.renumbered) msgs.push(t('cad.blk.renumbered', { n: blk.renumbered }));
+          if (blk.skipped.noZ) msgs.push(t('cad.blk.noz', { n: blk.skipped.noZ }));
+          if (blk.skipped.noNumber) msgs.push(t('cad.blk.nonum', { n: blk.skipped.noNumber }));
+        }
         ls.forEach((l, i) => {
           const k = use.get(l.cadLayer + '|' + l.geom) ?? -1;
           if (k < 0 || !ids[i]) return;
@@ -160,7 +237,7 @@ export async function install(host) {
           const u = useForSurface(P(), ids[i], { use: c.use, from: c.from, field });
           msgs.push(u.message);
         });
-        result = { ids, layers: ids.map((id) => layerOf(P(), id)?.name), notes: r.notes, scale: r.scale };
+        result = { ids, layers: ids.map((id) => layerOf(P(), id)?.name), notes: r.notes, scale: r.scale, points: blk ? blk.points.length : 0 };
         api.last = result;
         dlg.close();
         host.fitAll();

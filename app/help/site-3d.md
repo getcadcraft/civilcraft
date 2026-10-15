@@ -3,7 +3,7 @@ title: View the site in 3D
 summary: Open the 3D view, orbit, pan and zoom, set the vertical exaggeration and colouring, choose what shows, and click alignments, pads, feature lines, breaklines, pipes, structures and points to select them.
 section: tasks
 order: 125
-keywords: drape, aerial, map layers on the surface, 3d, three d, 3d view, view cube, compass, orbit, perspective, parallel, isometric, iso, vertical exaggeration, terrain, model, site model, fly around, visualize, render, pipes in 3d, structures, manholes, corridor 3d
+keywords: labels, 3d labels, billboard, labels facing the camera, station labels, contour labels, point labels, drape, aerial, map layers on the surface, 3d, three d, 3d view, view cube, compass, orbit, perspective, parallel, isometric, iso, vertical exaggeration, terrain, model, site model, fly around, visualize, render, pipes in 3d, structures, manholes, corridor 3d
 ---
 
 The 3D view shows the site as one model: the existing ground and the graded surface, contours draped on them, breaklines and the surface edge, each alignment on its design profile with station ticks, the corridor feature lines, pads with their daylight lines, and the pipe network with pipes and structures at their real elevations. It reads the same project as the plan, so every edit shows in both.
@@ -69,6 +69,9 @@ Click {{ui:Show}} on the bar and tick or clear:
 | Pipes and structures | Pipes as round pipes between their inverts, structures from rim to sump |
 | Survey points | A dot at each point with an elevation (off at first) |
 | GIS layers | The GIS layers shown on the plan, in their colors: lines and outlines with their own elevations at those elevations, others laid on the existing ground (they follow it exactly); points as small crosses. Shapes without elevations off the surface are left out, and the view says how many |
+| Labels | Names and values that always face you: each alignment's name at its start and its stations every 100 ft (or 100 m), the elevation of each major contour, pads, feature lines and structures by name, and with **Survey points** ticked each point's number and elevation |
+
+Labels stay the same size and upright however you turn or zoom, and a hill in front of a label hides it. Where they would crowd, the most important show and the rest wait until you zoom in: alignments first, then structures, pads, feature lines, stations, contours and points, nearer ones first. They are on the screen only; exports and plots leave them out.
 
 Your choices, the exaggeration and the colouring are remembered in this browser.
 

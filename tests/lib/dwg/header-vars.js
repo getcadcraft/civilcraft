@@ -20,6 +20,7 @@
  *
  * The writer walks HEADER_VARS for its version and writes each type with its own BitWriter.
  */
+import { msg } from './messages.js';
 
 export const VERSION_NUM = { AC1012: 12, AC1014: 14, AC1015: 15, AC1018: 18, AC1021: 21, AC1024: 24, AC1027: 27, AC1032: 32 };
 
@@ -239,6 +240,6 @@ function readOne(r, hr, type) {
     case '3BD': return r.BD3();
     case '2RD': return r.RD2();
     case 'TD': case 'TS': { const d = r.BL(), ms = r.BL(); return d + ms / 86400000; }
-    default: throw new Error('unknown header type ' + type);
+    default: throw new Error(msg('ccdwg.err.header_type', { type }));
   }
 }

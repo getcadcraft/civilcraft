@@ -2,7 +2,7 @@
 /* CadCraft — site styles. Tokens live in tokens.css (load it first).
  * Rules: no gradients (except the drafting grid), no drop shadows, no card kit.
  * Boxes are ruled (pen weights 1 / 1.5 / 2px, 2px radius). Colour only from layers.
- * Class reference: project CLAUDE.md → "CSS vocabulary".
+ * Class reference: the site conventions → "CSS vocabulary".
  */
 
 /* ---------- Base ---------- */
@@ -600,7 +600,15 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .btn-try { white-space: nowrap; display: inline-flex; align-items: center; justify-content: flex-start; gap: .55rem; width: 15.875rem; max-width: 100%; min-height: 3.25rem; padding: .7rem 1.4rem; font-size: var(--fs-md); font-weight: 700; border-width: var(--pen-3); }
 .btn-try .bi { font-size: 1.25em; line-height: 1; }
 .app-card .app-try { position: relative; z-index: 1; flex: none; }
+.app-card .app-repo { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .35rem; color: var(--ink-2); }
+.app-card .app-repo:hover { color: var(--ink); }
 .nav-mobile-panel .btn-line { margin-top: 1rem; width: 100%; justify-content: center; }
 .nav-mobile-panel .btn-line + .btn-plot { margin-top: .5rem; }
 .nav-right .nav-cta, .space-toggle button { white-space: nowrap; }
 .nav-right > * { flex-shrink: 0; }
+
+/* Phones, website only (owner, 2026-10-15: "on phone - reduce fonts 10% (website)"): portrait phones and phones turned
+   sideways (short + touch). Layout is in rem, so it steps down with the text. App pages (body.app-shell) keep their size. */
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
+  html:not(:has(> body.app-shell)) { font-size: 90%; }
+}

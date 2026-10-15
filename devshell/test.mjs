@@ -129,11 +129,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   problems.push(...npmInstall());
   problems.push(...pythonVenvs());
 
+  // Node 22+ warns on stderr for every app module without a "type" (detected as ES by its syntax, on purpose — see
+  // pack.php's package.json); tests that check for "no errors logged" would count that warning.
+  const nodeOptions = [process.env.NODE_OPTIONS, '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON'].filter(Boolean).join(' ');
   const results = [];
   for (const t of run) {
     console.log(`\n▶ ${t}`);
     const t0 = Date.now();
-    const r = spawnSync(process.execPath, [path.join(MIRROR, 'bin', t)], { cwd: MIRROR, stdio: 'inherit', env: { ...process.env, CC_DEVSHELL: '1' } });
+    const r = spawnSync(process.execPath, [path.join(MIRROR, 'bin', t)], { cwd: MIRROR, stdio: 'inherit', env: { ...process.env, CC_DEVSHELL: '1', NODE_OPTIONS: nodeOptions } });
     results.push({ t, code: r.status ?? 1, s: ((Date.now() - t0) / 1000).toFixed(1) });
   }
   console.log('\n' + results.map((r) => `${r.code === 0 ? 'pass' : 'FAIL'}  ${r.t}  (${r.s} s)`).join('\n'));

@@ -70,6 +70,12 @@ const build = fs.readdirSync(cacheDir).filter((d) => /^chromium-\d+$/.test(d)).s
 const exe = ['chrome-linux64/chrome', 'chrome-linux/chrome'].map((s) => path.join(cacheDir, build, s)).find((p) => fs.existsSync(p));
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true });
+// 0.5 SI.9: signed in, MarkupCraft takes the name from the account (no dialog). This run checks the name dialog, the
+// signed-out path, so the page's #cc-account is taken out; tools/shell-test/browser-author.mjs checks the signed-in one.
+await ctx.route(/\/lab\/markupcraft(\?[^/]*)?$/, async (route) => {
+  const res = await route.fetch();
+  await route.fulfill({ response: res, body: (await res.text()).replace(/<script type="application\/json" id="cc-account">[^<]*<\/script>\s*/, '') });
+});
 const page = await ctx.newPage();
 const problems = [];
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -1046,6 +1052,80 @@ try {
   const locp = lyDoc.catalog.lookup(PDFLib.PDFName.of('OCProperties'));
   ok(locp && locp.lookup(PDFLib.PDFName.of('OCGs')).asArray().some((r) => lyDoc.context.lookup(r).lookup(PDFLib.PDFName.of("Name")).decodeText() === "Mechanical"), 'the saved PDF carries the layer as an optional content group');
   await p7.close();
+
+  console.log('\n== File › New: blank pages (owner, 2026-10-15)');
+  {
+    const pn = await ctx.newPage();
+    pn.on('console', (m) => { if (m.type() === 'error') problems.push('new tab console: ' + m.text()); });
+    pn.on('pageerror', (e) => problems.push('new tab pageerror: ' + e.message));
+    await pn.goto(BASE + '/lab/markupcraft?space=paper', { waitUntil: 'networkidle' });
+    await noRecover(pn);
+    await pn.evaluate(() => localStorage.removeItem('markupcraft.blank'));
+    ok(await pn.locator('.mc-tools [data-act="new"]').isVisible() && await pn.locator('.mc-hint [data-act="new"]').isVisible() && await pn.locator('[data-add-blank]').isHidden(), 'New in the File group and on the start screen; "Add a blank page" hidden with nothing open');
+    // Ctrl+N opens the dialog when the page gets the key (headless Chromium hands it over); Esc cancels
+    await pn.locator('[data-over]').focus();
+    await pn.keyboard.press('Control+n');
+    ok(await pn.waitForSelector('dialog.mc-dialog[open] #mc-dlg-paper', { timeout: 5000 }).then(() => true, () => false), 'Ctrl+N opens the New dialog');
+    await pn.keyboard.press('Escape');
+    await pn.waitForSelector('dialog.mc-dialog', { state: 'detached' });
+    ok(await pn.evaluate(() => window.markupcraft.files.length) === 0, 'Esc cancels: nothing made');
+    await pn.click('.mc-tools [data-act="new"]');
+    await pn.waitForSelector('dialog.mc-dialog[open] #mc-dlg-paper');
+    const papers = await pn.$$eval('#mc-dlg-paper option', (o) => o.map((x) => x.value));
+    ok(papers.join() === 'letter,tabloid,arch-d,arch-e,a4,a3,a1' && await pn.locator('input[name="mc-new-orient"]').count() === 2 && await pn.locator('input[name="mc-new-grid"]').count() === 3, 'the dialog offers the seven papers, portrait/landscape and three grids', papers);
+    await pn.selectOption('#mc-dlg-paper', 'arch-d');
+    await pn.check('input[name="mc-new-orient"][value="landscape"]');
+    await pn.check('input[name="mc-new-grid"][value="square"]');
+    await pn.fill('#mc-dlg-blank-pages', '25');
+    await pn.click('dialog.mc-dialog button[data-key="ok"]');
+    ok(/1 to 20/.test(await pn.locator('.mc-dlg-err').innerText()), 'more than 20 pages is refused in the dialog');
+    await pn.fill('#mc-dlg-blank-pages', '2');
+    await pn.screenshot({ path: path.join(OUT, '30-new-dialog.png') });
+    await pn.click('dialog.mc-dialog button[data-key="ok"]');
+    await pn.waitForFunction(() => window.markupcraft.sheets.length === 2 && window.markupcraft.view.page, null, { timeout: 30000 });
+    await pn.waitForFunction(() => /^New /.test(document.querySelector('[data-status]').textContent), null, { timeout: 10000 }).catch(() => {});
+    const nb = await pn.evaluate(() => { const mc = window.markupcraft; return { name: mc.files[0].name, blank: mc.files[0].blank, w: mc.sheets[0].page.width, h: mc.sheets[0].page.height, scale: document.querySelector('[data-scale]').textContent.trim(), status: document.querySelector('[data-status]').textContent, dirty: mc.store.dirtySheets.size }; });
+    ok(nb.name === 'Untitled-1.pdf' && nb.w === 2592 && nb.h === 1728 && nb.blank?.grid === 'square', 'Create: "Untitled-1.pdf", two ARCH D landscape sheets (2592 × 1728 pt) with a square grid', nb);
+    ok(/Not calibrated/.test(nb.scale) && /Not calibrated/.test(nb.status) && nb.dirty === 0, 'blank sheets start with no scale and nothing unsaved', nb);
+    ok(await pn.locator('[data-add-blank]').isVisible(), '"Add a blank page" shows under the sheets of a blank set');
+    await pn.click('[data-add-blank]');
+    await pn.waitForFunction(() => window.markupcraft.sheets.length === 3 && document.querySelector('[data-busy]').hidden, null, { timeout: 30000 });
+    const ad = await pn.evaluate(() => { const mc = window.markupcraft; return { cur: mc.cur, w: mc.sheets[2].page.width, grid: mc.files[0].blank?.grid, status: document.querySelector('[data-status]').textContent }; });
+    ok(ad.cur === 2 && ad.w === 2592 && ad.grid === 'square' && /Added a blank page at the end of Untitled-1\.pdf \(page 3\)/.test(ad.status), 'Add a blank page: a third sheet like the others, shown', ad);
+    // draw on it with the pointer, like on any PDF
+    await pn.evaluate(() => window.markupcraft.goTo(0));
+    const nbox = await pn.locator('[data-over]').boundingBox();
+    const atN = async (x, y) => { const [sx, sy] = await pn.evaluate(([a, b]) => window.markupcraft.view.toScreen([a, b]), [x, y]); return [nbox.x + sx, nbox.y + sy]; };
+    await pn.locator('[data-over]').focus();
+    await pn.keyboard.press('r');
+    const authorDlg = await pn.waitForSelector('#mc-dlg-author', { timeout: 1500 }).catch(() => null);
+    if (authorDlg) { await pn.fill('#mc-dlg-author', 'Blank Tester'); await pn.click('dialog.mc-dialog button[data-key="save"]'); await pn.waitForSelector('dialog.mc-dialog', { state: 'detached' }); }
+    const [a0, b0] = await atN(400, 400), [a1, b1] = await atN(1200, 900);
+    await pn.mouse.move(a0, b0); await pn.mouse.down(); await pn.mouse.move(a1, b1, { steps: 6 }); await pn.mouse.up();
+    await pn.keyboard.press('Escape');
+    const drawn = await pn.evaluate(() => window.markupcraft.store.all().map((m) => ({ type: m.type, sheet: m.sheet, rect: m.rect.map(Math.round) })));
+    ok(drawn.length === 1 && drawn[0].type === 'rect' && drawn[0].sheet.endsWith(':0') && Math.abs(drawn[0].rect[2] - drawn[0].rect[0] - 800) < 20, 'a rectangle drawn on the blank sheet with the pointer', drawn);
+    await pn.screenshot({ path: path.join(OUT, '31-new-blank-drawn.png') });
+    const [nsv] = await Promise.all([pn.waitForEvent('download'), pn.keyboard.press('Control+s')]);
+    const nPath = path.join(TMP, nsv.suggestedFilename()); await nsv.saveAs(nPath);   // reopened under its own name
+    const nDoc = await pdfjs.getDocument({ data: new Uint8Array(fs.readFileSync(nPath)), standardFontDataUrl: STD_FONTS }).promise;
+    const nAnn = await (await nDoc.getPage(1)).getAnnotations({ intent: 'any' });
+    ok(nsv.suggestedFilename() === 'Untitled-1 (marked up).pdf' && nDoc.numPages === 3 && nAnn.length === 1 && nAnn[0].subtype === 'Square', 'Save: "Untitled-1 (marked up).pdf", three pages, the rectangle as a Square annotation', { name: nsv.suggestedFilename(), pages: nDoc.numPages, annots: nAnn.map((a) => a.subtype) });
+    await nDoc.loadingTask.destroy();
+    // reopen the saved copy: the markup comes back editable, the set is still a blank set
+    await pn.click('.mc-tools [data-act="close"]');
+    await pn.waitForFunction(() => window.markupcraft.files.length === 0, null, { timeout: 10000 });
+    await pn.setInputFiles('[data-file]', [nPath]);
+    await pn.waitForFunction(() => window.markupcraft.sheets.length === 3 && window.markupcraft.view.page, null, { timeout: 30000 });
+    const ro = await pn.evaluate(() => { const mc = window.markupcraft; return { marks: mc.store.all().map((m) => [m.type, m.locked, m.sheet]), grid: mc.files[0].blank?.grid, add: !document.querySelector('[data-add-blank]').hidden }; });
+    ok(ro.marks.length === 1 && ro.marks[0][0] === 'rect' && !ro.marks[0][1] && ro.grid === 'square' && ro.add, 'reopened: the rectangle is editable again, and pages can still be added', ro);
+    // a second New in the same tab is Untitled-2
+    await pn.evaluate(() => window.markupcraft.newBlank({ paper: 'a4', grid: 'dot', pages: 1 }));
+    const names = await pn.evaluate(() => window.markupcraft.files.map((f) => f.name).join('|'));
+    ok(names === 'Untitled-1 (marked up).pdf|Untitled-2.pdf', 'the next New is Untitled-2.pdf, opened beside the set', names);
+    await pn.screenshot({ path: path.join(OUT, '32-new-reopened.png') });
+    await pn.close();
+  }
 
   console.log('\n== The desktop app (host.js, W.2): a stand-in bridge');
   {

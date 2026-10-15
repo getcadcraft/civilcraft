@@ -29,6 +29,7 @@
  * loft's path flag), written back only in the same version (surface-write.js).
  */
 
+import { msg } from './messages.js';
 import { decodeAcisEntity, solidFields } from './solid-read.js';
 import { sliceBits, b64 } from './bits-util.js';
 import { SURFACE_TYPES, SURFACE_LAYOUTS } from './surface-layout.js';
@@ -43,7 +44,7 @@ function readField(r, op) {
     case 'B': return !!r.B();
     case 'BD3': return r.BD3();
     case 'M': { const m = new Array(16); for (let i = 0; i < 16; i++) m[i] = r.BD(); return m; }
-    default: throw new Error('surface field code ' + op);
+    default: throw new Error(msg('ccdwg.err.surface_code', { code: op }));
   }
 }
 

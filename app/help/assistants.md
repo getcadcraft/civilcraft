@@ -3,12 +3,12 @@ title: Let an AI assistant work with your site
 summary: Turn on assistants in Settings so an assistant on your computer can read the open site (points, surfaces, stations and offsets) and select survey points, through CadCraft Studio. Off until you turn it on.
 section: tasks
 order: 60
-keywords: ai, assistant, claude, mcp, script, automation, studio, points, elevation, station, offset, alignment, permissions, disconnect, activity
+keywords: ai, assistant, mcp, script, automation, studio, points, elevation, station, offset, alignment, permissions, disconnect, activity
 ---
 
 ## What you will learn
 
-How to let an AI assistant (Claude, or another assistant that speaks MCP) look into the site you have open, what it can and cannot do, and how to stop it.
+How to let an AI assistant (any assistant that speaks MCP) look into the site you have open, what it can and cannot do, and how to stop it.
 
 ## What an assistant can do in CivilCraft
 

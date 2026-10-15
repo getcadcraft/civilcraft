@@ -77,6 +77,32 @@ if (!class_exists('AppBuilds')) {
             $want = $build['manifest']['panels'] ?? [];
             return is_array($want) ? array_values(array_intersect(self::PANEL_FEATURES, $want)) : [];
         }
+        /** Phones and fold phones (0.5 track PH), as the site's AppBuilds::phone. */
+        public const PHONE_SCRIPT = '/assets/js/app-phone.js';
+        public static function phone(array $build): ?array
+        {
+            $p = $build['manifest']['phone'] ?? null;
+            if ($p === true) return [];
+            if (!is_array($p)) return null;
+            $out = [];
+            foreach (['stage', 'toolbar', 'options', 'hint', 'keep', 'sheets'] as $k) if (isset($p[$k]) && is_string($p[$k]) && strlen($p[$k]) <= 400) $out[$k] = $p[$k];
+            return $out;
+        }
+        /** Menus, keys and mouse (0.5 track IP), as the site's AppBuilds::input / wideSettings. */
+        public const INPUT_SCRIPT = '/assets/js/app-input-ui.js';
+        public const INPUT_ENGINE = '/assets/js/app-input.js';
+        public const INPUT_CSS = '/assets/css/app-input.css';
+        public static function input(array $build): ?string
+        {
+            $f = $build['manifest']['input'] ?? null;
+            if (!is_string($f) || !preg_match('/^input-[a-z0-9-]+\.js$/', $f) || !is_file(($build['dir'] ?? '') . '/' . $f)) return null;
+            return $build['url'] . $f;
+        }
+        public static function wideSettings(array $build): bool
+        {
+            $v = (string)($build['version'] ?? '');
+            return !empty($build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $v) === 1 && version_compare($v, '0.5', '>='));
+        }
         /** Another app's build is never here (an "Edit in <app>" handoff stays hidden). */
         public static function resolve(string $slug, string $area, ?string $version = null): ?array
         {

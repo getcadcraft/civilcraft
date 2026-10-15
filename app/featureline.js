@@ -22,6 +22,21 @@
  *   featureItem(f) → a grading item for project.gradeItems (closed design lines): { kind: 'feature', id, name, pts, z, cut,
  *       fill, daylight } — with daylight off its patch is the outline itself (region = the polygon, its edge a breakline)
  *   gradeLabel(g) → '+2.00%'
+ *
+ * In a profile view (0.5 WL.20), against an Alignment (alignment.js):
+ *   alignmentCrossings(al, f) → [{ sta, z, i (segment), grade }]   every place the line crosses the centerline, exactly
+ *       (each plan segment against each line / arc element of the alignment); z along the segment by plan length
+ *   projectedRuns(al, f, within) → [[{ sta, z, off }]]   the line's stretches lying within `within` of the centerline (its
+ *       vertices and crossings, by station), split where it leaves the band or runs past an end — what a profile shows of a
+ *       curb or ditch running alongside
+ *   featureProfile(al, features, { within }) → [{ id, name, use, crossings, runs }]   lines with neither are left out
+ *
+ * On screen only (0.5 WL.21: the grade and elevation overlay — never in the drawing, PDF, DXF or DWG):
+ *   gradeOverlay(features, toScreen, { minSeg = 60, minGap = 34, skip }) → [{ kind 'grade', x, y, ang, text, down }
+ *       | { kind 'elev', x, y, text }]   a grade label at each segment's middle (unsigned, `down` = the downhill direction
+ *       in screen radians; level = no arrow), drawn upright along the segment, for segments at least `minSeg` px long; an
+ *       elevation at each vertex at least `minGap` px from every elevation already placed (busy lines thin out when zoomed
+ *       out); `skip` = an id left out (the selected line has its own labels)
  */
 
 import { t } from './i18n.js';
@@ -149,3 +164,104 @@ export function featureItem(f) {
 }
 
 export const gradeLabel = (g) => (fin(g) ? (g >= 0 ? '+' : '') + (g * 100).toFixed(2) + '%' : '—');
+
+// ---- feature lines in a profile view (0.5 WL.20) ----
+const TAU = Math.PI * 2;
+/** Where plan segment a→b crosses one alignment element: [{ t (0…1 along the segment), sta }]. */
+function crossElement(e, a, b) {
+  const out = [], dx = b.x - a.x, dy = b.y - a.y;
+  if (e.type === 'line') {
+    const ex = e.p1.x - e.p0.x, ey = e.p1.y - e.p0.y, den = dx * ey - dy * ex;
+    if (Math.abs(den) < 1e-15) return out;   // parallel (or along it: no single crossing)
+    const wx = e.p0.x - a.x, wy = e.p0.y - a.y;
+    const t = (wx * ey - wy * ex) / den, u = (wx * dy - wy * dx) / den;
+    if (t >= -1e-12 && t <= 1 + 1e-12 && u >= -1e-12 && u <= 1 + 1e-12) out.push({ t: Math.min(1, Math.max(0, t)), sta: e.sta + Math.min(1, Math.max(0, u)) * e.len });
+    return out;
+  }
+  // arc: |a + t·d − c| = r
+  const fx = a.x - e.c.x, fy = a.y - e.c.y, A = dx * dx + dy * dy, B = 2 * (fx * dx + fy * dy), C = fx * fx + fy * fy - e.r * e.r;
+  const disc = B * B - 4 * A * C;
+  if (A < 1e-24 || disc < 0) return out;
+  const sq = Math.sqrt(disc);
+  for (const t of disc === 0 ? [-B / (2 * A)] : [(-B - sq) / (2 * A), (-B + sq) / (2 * A)]) {
+    if (t < -1e-12 || t > 1 + 1e-12) continue;
+    const x = a.x + t * dx, y = a.y + t * dy;
+    let sw = ((Math.atan2(y - e.c.y, x - e.c.x) - e.a0) * (e.ccw ? 1 : -1)) % TAU;
+    if (sw < 0) sw += TAU;
+    if (sw > e.delta + 1e-12) continue;
+    out.push({ t: Math.min(1, Math.max(0, t)), sta: e.sta + Math.min(sw, e.delta) * e.r });
+  }
+  return out;
+}
+
+/** Every crossing of a feature line with an alignment's centerline (see the header). */
+export function alignmentCrossings(al, f) {
+  if (!al?.elements?.length || !f?.pts?.length) return [];
+  const out = [];
+  for (const sg of segments(f)) {
+    if (!(sg.len > 1e-12)) continue;
+    const a = f.pts[sg.i], b = f.pts[sg.j];
+    for (const e of al.elements) for (const c of crossElement(e, a, b)) out.push({ sta: c.sta, z: a.z + c.t * sg.dz, i: sg.i, grade: sg.grade });
+  }
+  out.sort((p, q) => p.sta - q.sta);
+  // a crossing exactly at a shared vertex / element joint is found twice
+  return out.filter((c, k) => !k || Math.abs(c.sta - out[k - 1].sta) > 1e-6 || Math.abs(c.z - out[k - 1].z) > 1e-6);
+}
+
+/** The line's stretches within `within` of the centerline, as profile polylines by station (see the header). */
+export function projectedRuns(al, f, within) {
+  if (!(within > 0) || !al?.elements?.length || !f?.pts?.length) return [];
+  const n = f.pts.length, idx = [...Array(n).keys()];
+  if (f.closed) idx.push(0);
+  const cross = alignmentCrossings(al, f);
+  const runs = [];
+  let run = [];
+  // a stretch with no length along the alignment (a line straight across it) is only its crossing: no run
+  const flush = () => { if (run.length >= 2 && Math.max(...run.map((q) => q.sta)) - Math.min(...run.map((q) => q.sta)) > 1e-6) runs.push(run); run = []; };
+  for (let k = 0; k < idx.length; k++) {
+    const p = f.pts[idx[k]], so = al.stationOffset(p.x, p.y);
+    const inside = so && !so.outside && Math.abs(so.off) <= within + 1e-9;
+    if (!inside) { flush(); continue; }
+    if (k > 0 && run.length) for (const c of cross) if (c.i === idx[k - 1]) run.push({ sta: c.sta, z: c.z, off: 0 });
+    run.push({ sta: so.sta, z: p.z, off: so.off });
+  }
+  flush();
+  // a run is read along the alignment: keep its points in station order when the line runs backwards
+  return runs.map((r) => (r[r.length - 1].sta < r[0].sta ? r.reverse() : r));
+}
+
+/** Every feature line's crossings and nearby runs against one alignment (see the header). */
+export function featureProfile(al, features, { within = 0 } = {}) {
+  const out = [];
+  for (const f of features || []) {
+    const crossings = alignmentCrossings(al, f), runs = projectedRuns(al, f, within);
+    if (crossings.length || runs.length) out.push({ id: f.id, name: f.name, use: f.use, crossings, runs });
+  }
+  return out;
+}
+
+// ---- the grade and elevation overlay (0.5 WL.21) ----
+/** Screen labels for every feature line's grades and elevations (see the header). */
+export function gradeOverlay(features, toScreen, { minSeg = 60, minGap = 34, skip = null } = {}) {
+  const out = [], placed = [];
+  for (const f of features || []) {
+    if (!f?.pts?.length || f.id === skip) continue;
+    const S = f.pts.map((p) => toScreen(p.x, p.y));
+    for (const sg of segments(f)) {
+      const a = S[sg.i], b = S[sg.j], len = Math.hypot(b.x - a.x, b.y - a.y);
+      if (len < minSeg || sg.grade === null) continue;
+      let ang = Math.atan2(b.y - a.y, b.x - a.x);
+      const along = ang;
+      if (Math.abs(ang) > Math.PI / 2) ang += ang > 0 ? -Math.PI : Math.PI;   // upright
+      const level = Math.abs(sg.grade) < 5e-5;
+      out.push({ kind: 'grade', x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, ang, text: (Math.abs(sg.grade) * 100).toFixed(2) + '%', down: level ? null : (sg.grade < 0 ? along : along + Math.PI) });
+    }
+    f.pts.forEach((p, i) => {
+      const q = S[i];
+      if (placed.some((o) => Math.hypot(o.x - q.x, o.y - q.y) < minGap)) return;
+      placed.push(q);
+      out.push({ kind: 'elev', x: q.x, y: q.y, text: (Math.round(p.z * 100) / 100).toFixed(2) });
+    });
+  }
+  return out;
+}

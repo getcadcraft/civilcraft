@@ -47,6 +47,7 @@ import { unitOf, formatStation, parseStation, fixed, pct, volumeText, areaText, 
 import { buildProfile } from './profile.js';
 import { polyArea, pointInPoly } from './tin.js';
 import { normAng } from './alignment.js';
+import { curveWhy, verticalWhy } from './solve-why.js';   // 0.5 WL.23
 import { el, fillDl, num } from './ui-util.js';
 import { mountViewCube, mountAxisIcon } from './viewcube.js';
 import { defaultNetwork, defaultPipeDia, defaultStructDia, autoInverts, DIA_UNIT } from './pipes.js';
@@ -56,6 +57,7 @@ import { t, has } from './i18n.js';
 import { editPoint, movePoint } from './point-edit.js';   // 0.4 V2
 import { createSections } from './sections-ui.js';   // 0.4 V13
 import { createFeatures } from './features-ui.js';   // 0.4 V14
+import { featureProfile } from './featureline.js';   // 0.5 WL.20
 import { createSheetsDialog } from './pp-ui.js';   // 0.4 V15
 import { createCodes } from './codes-ui.js';   // 0.4 V16
 import { superProps } from './super-ui.js';   // 0.4 V18
@@ -65,6 +67,7 @@ import { createTraverse } from './traverse-ui.js';   // 0.4 V22
 import { createStaking } from './staking-ui.js';   // 0.4 V23
 import { getHost } from "./host.js";   // W2.19: files through the host adapter (browser or desktop)
 import { Autosave } from "./app-autosave.js";   // 0.4 1.2
+import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-civilcraft.js)
 
 const root = document.querySelector('[data-civilcraft]');
 if (root) init(root);
@@ -81,7 +84,7 @@ function init(root) {
     showSurface: $('[data-show-surface]'), interval: $('[data-interval]'), major: $('[data-major]'), bandCount: $('[data-bandcount]'), checks: $('[data-checks]'), legend: $('[data-legend]'),
     props: $('[data-props]'), propsH: $('[data-props-h]'),
     coords: $('[data-coords]'), elev: $('[data-elev]'), staoff: $('[data-staoff]'), status: $('[data-status]'),
-    profPanel: $('[data-profile-panel]'), prof: $('[data-prof]'), profAl: $('[data-prof-al]'), pviAdd: $('[data-pvi-add]'), profRead: $('[data-prof-read]'), profClose: $('[data-prof-close]'),
+    profPanel: $('[data-profile-panel]'), prof: $('[data-prof]'), profAl: $('[data-prof-al]'), pviAdd: $('[data-pvi-add]'), profFl: $('[data-prof-fl]'), profWithin: $('[data-prof-fl-within]'), profRead: $('[data-prof-read]'), profClose: $('[data-prof-close]'),
     imp: $('[data-import]'), plot: $('[data-plot]'), dwg: $('[data-dwg]'),
     gisLayers: $('[data-gis-layers]'),   // GIS: the GIS layers section (gis-vector-ui.js fills it)
   };
@@ -129,7 +132,11 @@ function init(root) {
     get gis() { return gisHost; }, gisLoad: () => gisLoad(),
     get sections() { return secUi; },   // 0.4 V13
     get sheets() { return ppUi; },   // 0.4 V15
+    say: (m) => say(m),   // Studio Live (0.5 LV.22, live.js): its messages
   };
+  // the menu styles (0.5 IP.3, input-civilcraft.js + the shell's app-input-ui.js): their messages go to the status line;
+  // letters stay CivilCraft's while a line is being drawn (draft points: Backspace, Enter)
+  window.ccInputHooks = { status: (m) => say(m || ''), busy: () => draft.length > 0 || tool === 'paste' };
 
   // ------------------------------------------------------------------ GIS registry (docs/GIS-SPEC.md §0)
   // scene: (scene, mmPerUnit) => void adds layers/items · underlay: (ctx, view) => void paints maps in CSS px ·
@@ -463,7 +470,14 @@ function init(root) {
 
   function numInput(value, onCommit, { label, step = 'any', min, id, text = false, width } = {}) {
     const inp = el('input', { type: text ? 'text' : 'number', className: 'cv-input', step: text ? undefined : step, min, value: value ?? '', 'aria-label': label, id, inputMode: text ? 'decimal' : undefined, style: width ? 'width:' + width : undefined });
-    inp.addEventListener('change', () => { if (onCommit(inp.value) === false) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid'); });
+    // Enter commits at once (a synthetic change); the browser's own change when the box then loses focus must not commit
+    // the same text again — "Raise 2" would raise twice (0.5: found by the WL.20 browser test)
+    let entered = null;
+    inp.addEventListener('change', (e) => {
+      if (e.isTrusted && entered !== null && inp.value === entered) { entered = null; return; }
+      entered = e.isTrusted ? null : inp.value;
+      if (onCommit(inp.value) === false) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid');
+    });
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.dispatchEvent(new Event('change')); } });
     return inp;
   }
@@ -511,9 +525,15 @@ function init(root) {
     const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-name', value: a.name, maxLength: 120 });
     nm.addEventListener('change', () => project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = nm.value.trim().slice(0, 120) || t('sec.alignment'); }));
     const st = numInput(formatStation(Number(a.start) || 0, units()), (v) => { const x = parseStation(v, units()); if (x === null) return false; project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); }, { text: true, id: 'cv-al-start' });
+    // 0.5 WL.23: a design minimum radius (empty = none): curves under it are said, with the smallest radius that fits
+    const minR = numInput(a.minR > 0 ? String(a.minR) : '', (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }); }, { text: true, id: 'cv-al-minr', width: '7rem' });
+    minR.placeholder = t('why.minr.none');
     out.push(el('div', { className: 'cv-props' }, ...row(t('fl.props.name'), nm, 'cv-al-name'), ...row(t('cv.al.start'), st, 'cv-al-start'),
+      ...row(t('why.minr'), el('div', { className: 'cv-row' }, minR, el('span', { className: 'cv-unit' }, U.short)), 'cv-al-minr'),
       ...(al.ok ? [...row(t('fl.props.length'), fixed(al.length, 2) + ' ' + U.short), ...row(t('cv.al.end'), formatStation(al.end, units()))] : [])));
-    if (al.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...al.errors.map((e) => el('li', {}, e)))));
+    const why = curveWhy(a.pis, { minR: a.minR || 0 });
+    if (why.length) out.push(whyBlock(a, why));
+    else if (al.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...al.errors.map((e) => el('li', {}, e)))));
     // PIs
     out.push(el('h3', { className: 'cv-h3' }, t('cv.al.pis')));
     const tbody = el('tbody');
@@ -553,6 +573,40 @@ function init(root) {
     ui.props.replaceChildren(...out);
   }
 
+  /**
+   * 0.5 WL.23: why the curves have no solution, in numbers, each with the radius that would fit as a button (one undo
+   * step). Overlaps offer either PI's largest fitting radius or both scaled together; a radius under the design minimum
+   * offers the smallest that meets it, or says why none fits.
+   */
+  function whyBlock(a, why) {
+    const U = u().short, n = (v) => fixed(v, 2).replace(/,/g, '');
+    const setR = (pairs, label) => () => { project.change(label, () => { const al = findAl(a.id); for (const [i, r] of pairs) al.pis[i].r = r; }); say(label); };
+    const shown = new Set();   // one button per fix: two overlaps round one PI often offer the same radius
+    const btn = (text, attr, fn) => { if (shown.has(attr)) return null; shown.add(attr); return el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-why-fix': attr, onclick: fn }, text); };
+    const items = why.map((w) => {
+      if (w.kind === 'overlap') {
+        const fixes = [];
+        if (w.fixA !== null) fixes.push(btn(t('why.fix.r', { pi: w.a + 1, r: n(w.fixA), u: U }), w.a + ':' + w.fixA, setR([[w.a, w.fixA]], t('why.undo.r', { pi: w.a + 1, r: n(w.fixA) }))));
+        if (w.fixB !== null) fixes.push(btn(t('why.fix.r', { pi: w.b + 1, r: n(w.fixB), u: U }), w.b + ':' + w.fixB, setR([[w.b, w.fixB]], t('why.undo.r', { pi: w.b + 1, r: n(w.fixB) }))));
+        if (w.both.ra > 0 && w.both.rb > 0) fixes.push(btn(t('why.fix.both', { a: w.a + 1, b: w.b + 1, ra: n(w.both.ra), rb: n(w.both.rb), u: U }), 'both', setR([[w.a, w.both.ra], [w.b, w.both.rb]], t('why.undo.both', { a: w.a + 1, b: w.b + 1 }))));
+        const none = [w.fixA === null && w.a > 0 ? t('why.none.at', { pi: w.a + 1, other: w.b + 1 }) : '', w.fixB === null && w.b < a.pis.length - 1 ? t('why.none.at', { pi: w.b + 1, other: w.a + 1 }) : ''].filter(Boolean);
+        const one = !(w.Ta > 0 && w.Tb > 0), [pi, other] = w.Ta > 0 ? [w.a, w.b] : [w.b, w.a];
+        const said = one ? t('why.overlap.one', { pi: pi + 1, other: other + 1, need: n(w.need), dist: n(w.dist), u: U }) : t('why.overlap', { a: w.a + 1, b: w.b + 1, need: n(w.need), ta: n(w.Ta), tb: n(w.Tb), dist: n(w.dist), u: U });
+        const kept = fixes.filter(Boolean);
+        return el('li', { 'data-why': 'overlap' }, el('p', {}, said),
+          ...none.map((x) => el('p', { className: 'cv-note' }, x)), kept.length ? el('div', { className: 'cv-actions' }, ...kept) : null);
+      }
+      if (w.kind === 'back') return el('li', { 'data-why': 'back' }, el('p', {}, t('why.back', { pi: w.pi + 1 })),
+        el('div', { className: 'cv-actions' }, btn(t('why.fix.nocurve', { pi: w.pi + 1 }), w.pi + ':0', setR([[w.pi, 0]], t('why.undo.r', { pi: w.pi + 1, r: '0' })))));
+      return el('li', { 'data-why': 'min' }, el('p', {}, t('why.min', { pi: w.pi + 1, r: n(w.r), min: n(w.minR), u: U })),
+        w.fix !== null ? el('div', { className: 'cv-actions' }, btn(t('why.fix.min', { pi: w.pi + 1, r: n(w.fix), u: U }), w.pi + ':' + w.fix, setR([[w.pi, w.fix]], t('why.undo.r', { pi: w.pi + 1, r: n(w.fix) }))))
+          : el('p', { className: 'cv-note' }, t('why.min.none', { pi: w.pi + 1, max: n(w.maxR), min: n(w.minR), u: U })));
+    });
+    const errs = why.some((w) => w.kind !== 'min');
+    return el('div', { className: 'cv-report cv-why' + (errs ? ' is-error' : ''), 'data-why-block': '' },
+      el('p', { className: 'cv-why-h' }, t(errs ? 'why.head.error' : 'why.head.min')), el('ul', {}, ...items));
+  }
+
   function profileProps(a, al) {
     const out = [], prof = project.designProfile(a);
     if (!a.pvis.length) {
@@ -560,7 +614,15 @@ function init(root) {
       out.push(el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-start-profile': '', onclick: () => startProfile(a) }, t('cv.prof.start')));
       return out;
     }
-    if (prof.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...prof.errors.map((e) => el('li', {}, e)))));
+    // 0.5 WL.23: vertical curves that do not fit say why, with the longest length that does (one undo step)
+    const vwhy = verticalWhy(a.pvis);
+    if (vwhy.length) {
+      const n = (v) => fixed(v, 2).replace(/,/g, '');
+      out.push(el('div', { className: 'cv-report cv-why is-error', 'data-vwhy-block': '' }, el('p', { className: 'cv-why-h' }, t('why.head.error')), el('ul', {}, ...vwhy.map((w) => el('li', { 'data-why': 'vc' },
+        el('p', {}, t(w.side === 'before' ? 'why.vc.before' : 'why.vc.past', { pvi: w.pvi + 1, l: n(w.L), room: n(w.room / 2), u: u().short })),
+        w.fix ? el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-why-fix': 'L' + w.index + ':' + w.fix,
+          onclick: () => { const lbl = t('why.undo.l', { pvi: w.pvi + 1, l: n(w.fix) }); project.change(lbl, () => { const v = findAl(a.id).pvis[w.index]; v.L = w.fix; delete v.K; }); say(lbl); } }, t('why.fix.l', { pvi: w.pvi + 1, l: n(w.fix), k: fixed(w.K, 1), u: u().short }))) : null)))));
+    } else if (prof.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...prof.errors.map((e) => el('li', {}, e)))));
     const tbody = el('tbody');
     a.pvis.forEach((v, i) => {
       const interior = i > 0 && i < a.pvis.length - 1;
@@ -745,7 +807,9 @@ function init(root) {
       ...row(t('pt.props.northing'), f('y', fixed(p.y, 3).replace(/,/g, ''), { key: 'northing' }), 'cv-pt-y'),
       ...row(t('pt.props.elev'), f('z', p.z === null ? '' : fixed(p.z, 3).replace(/,/g, ''), { key: 'elev' }), 'cv-pt-z'),
       ...row(t('pt.props.desc'), f('d', p.d || '', { key: 'desc' }), 'cv-pt-d'),
-      ...row(t('pt.props.group'), project.keyOf()(p)), ...(codesUi.keyFor(p)?.label ? row(t('pt.props.key'), codesUi.keyFor(p).label) : []));
+      ...row(t('pt.props.group'), project.keyOf()(p)), ...(codesUi.keyFor(p)?.label ? row(t('pt.props.key'), codesUi.keyFor(p).label) : []),
+      // 0.5 WL.19: a point made from a block reference remembers it
+      ...(p.blk ? row(t('pt.props.block'), el('span', { 'data-pt-block': '' }, t('pt.props.block.v', { block: p.blk.name, layer: p.blk.layer, handle: p.blk.handle }))) : []));
     for (const inp of grid.querySelectorAll('#cv-pt-z')) inp.placeholder = t('pt.props.elev.none');
     ui.props.replaceChildren(grid, el('p', { className: 'cv-note' }, t('pt.props.note')), pickNote());
   }
@@ -791,8 +855,23 @@ function init(root) {
     if (!al.ok) { pview.set(null); return; }
     const pvis = pvDrag ? pvDrag.pvis : a.pvis;
     const prof = pvDrag ? pvDrag.prof : project.designProfile(a);
-    pview.set({ key: a.id + '|' + project.version, eg: project.egProfile(a), profile: prof, pvis, start: al.start, end: al.end, units: units(), sel: selPvi, hover: pvHover, cursor: profCursor });
+    // 0.5 WL.20: feature lines crossing it (and, within the set distance, running alongside), worked out again after every
+    // edit — the labels follow the lines
+    const ds = project.state.display;
+    const features = ds.profFeatures ? project.memo('flprof:' + a.id, project.version + '|' + ds.profWithin, () => featureProfile(al, project.state.features || [], { within: ds.profWithin })) : [];
+    ui.profFl.setAttribute('aria-pressed', String(!!ds.profFeatures));
+    if (document.activeElement !== ui.profWithin) ui.profWithin.value = ds.profWithin ? String(ds.profWithin) : '';
+    ui.profWithin.disabled = !ds.profFeatures;
+    pview.set({ key: a.id + '|' + project.version, eg: project.egProfile(a), profile: prof, pvis, start: al.start, end: al.end, units: units(), sel: selPvi, hover: pvHover, cursor: profCursor,
+      features, featSel: sel?.kind === 'feature' ? sel.id : null });
   }
+  ui.profFl.addEventListener('click', () => { project.setDisplay('profFeatures', !project.state.display.profFeatures); renderProfile(); });
+  ui.profWithin.addEventListener('change', () => {
+    const v = Number(String(ui.profWithin.value).replace(',', '.'));
+    if (ui.profWithin.value.trim() !== '' && (!Number.isFinite(v) || v < 0)) { say(t('pv.fl.within.bad')); ui.profWithin.value = project.state.display.profWithin || ''; return; }
+    project.setDisplay('profWithin', ui.profWithin.value.trim() === '' ? 0 : v);
+    renderProfile();
+  });
   let pvHover = -1;
   ui.profAl.addEventListener('change', () => { ui.profAl.dataset.want = ui.profAl.value; sel = { kind: 'alignment', id: ui.profAl.value }; selPvi = -1; refresh(); });
   ui.profClose.addEventListener('click', () => showProfile(false));
@@ -804,6 +883,8 @@ function init(root) {
     ui.prof.focus({ preventScroll: true });
     const r = ui.prof.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
     const hit = pview.hitPvi(sx, sy);
+    const fl = hit < 0 ? pview.hitFeature(sx, sy) : null;   // 0.5 WL.20: a feature line's crossing mark selects it
+    if (fl) { flUi.find(fl) && (sel = { kind: 'feature', id: fl }, selPvi = -1, picked.clear(), refresh()); return; }
     if (hit >= 0) {
       selPvi = hit; sel = { kind: 'alignment', id: a.id };
       pvDrag = { id: a.id, i: hit, pvis: a.pvis.map((v) => ({ ...v })), prof: project.designProfile(a), moved: false, x0: sx, y0: sy };
@@ -897,6 +978,12 @@ function init(root) {
       case 'alignment': case 'pad': case 'breakline': case 'boundary': case 'pipe': case 'feature': if (is3D()) await show3D(false); setTool(tool === c ? 'select' : c); break;
       case 'profile': showProfile(ui.profPanel.hidden); break;
       case 'sections': secUi.toggle(); break;   // 0.4 V13
+      case 'grades': {   // 0.5 WL.21: the grade and elevation overlay (screen only), from E or Display
+        const on = !project.state.display.gradeOverlay;
+        project.setDisplay('gradeOverlay', on);
+        say(t(on ? ((project.state.features || []).length ? 'fl.grades.on' : 'fl.grades.none') : 'fl.grades.off'));
+        break;
+      }
       case 'undo': { const l = project.undo(); say(l ? t('cv.undo.done', { what: l }) : t('cv.undo.none')); break; }
       case 'redo': { const l = project.redo(); say(l ? t('cv.redo.done', { what: l }) : t('cv.redo.none')); break; }
       case 'delete': deleteSelected(); break;
@@ -1153,7 +1240,8 @@ function init(root) {
         }
       }, LONG_MS);
     }
-    if (e.button === 1 || e.button === 2 || spaceDown) { drag = { kind: 'pan', s, last: s, moved: true }; ui.over.classList.add('is-panning'); return; }
+    if ((e.button !== 0 && panButton(e.button)) || spaceDown) { drag = { kind: 'pan', s, last: s, moved: true }; ui.over.classList.add('is-panning'); return; }   // IP.3: the style's pan buttons (middle and right unless changed)
+    if (e.button !== 0) return;   // a middle or right button the style took off panning does nothing
     if (tool === 'select') {
       const g = gripAt(s);
       if (g) { drag = { kind: 'grip', g, s, last: s, moved: false, orig: JSON.stringify(g.list[g.i]) }; return; }
@@ -1223,7 +1311,7 @@ function init(root) {
   ui.over.addEventListener('wheel', (e) => {
     e.preventDefault();
     const s = local(e);
-    view.zoomAt(s.x, s.y, Math.pow(1.0015, -e.deltaY * (e.deltaMode === 1 ? 16 : 1)));
+    view.zoomAt(s.x, s.y, Math.pow(1.0015, -e.deltaY * (e.deltaMode === 1 ? 16 : 1) * (e.ctrlKey ? 1 : wheelFactor())));   // IP.3: the style's wheel (a pinch stays as it is)
   }, { passive: false });
 
   function click(w, s, d = {}) {
@@ -1398,6 +1486,7 @@ function init(root) {
     pcUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.4 V21: the selected parcel
     for (const f of gisReg.overlay) f(ctx, v, sel);   // GIS: the picked feature
     secUi.overlay(ctx, (x, y) => v.toScreen(x, y), C.action);   // 0.4 V13: the section on show
+    if (project.state.display.gradeOverlay) flUi.gradeLayer(ctx, (x, y) => v.toScreen(x, y), C, sel, LABEL_FONT);   // 0.5 WL.21: screen only
     flUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel, LABEL_FONT);   // 0.4 V14: the selected feature line, its elevations and grades
     const a = selAl();
     if (a) {
@@ -1541,7 +1630,7 @@ function init(root) {
     if (k === 'Enter' && draft.length) { e.preventDefault(); finishDraft(); return; }
     if (k === 'Backspace' && draft.length) { e.preventDefault(); draft.pop(); view.invalidate(); return; }
     if (k === 'Delete' || (k === 'Backspace' && e.target === ui.prof)) { e.preventDefault(); command('delete'); return; }
-    const keyCmd = { v: 'select', a: 'alignment', g: 'pad', p: 'pipe', b: 'breakline', o: 'boundary', r: 'profile', f: 'fit', d: 'view3d', x: 'sections', l: 'feature' }[k.toLowerCase()];
+    const keyCmd = { v: 'select', a: 'alignment', g: 'pad', p: 'pipe', b: 'breakline', o: 'boundary', r: 'profile', f: 'fit', d: 'view3d', x: 'sections', l: 'feature', e: 'grades' }[k.toLowerCase()];
     if (keyCmd && !e.shiftKey) { e.preventDefault(); command(keyCmd); return; }
     if (k.toLowerCase() === 'i') { if (ui.profPanel.hidden) showProfile(true); setPviAdd(ui.pviAdd.getAttribute('aria-pressed') !== 'true'); return; }
     if (e.target === ui.over) {
@@ -1621,6 +1710,8 @@ function init(root) {
   } });
   fileHost.onOpenFiles((files) => openHostFiles(files));
   fileHost.launchFiles().then((files) => openHostFiles(files));
+  // Studio Live from a link (#live=<code> on a host's LAN page, ?live=<ROOM>#<secret> from an invite): join; the project comes from the host
+  if (/[#&]live=|[?&]live=/.test(location.hash + location.search)) import('./live.js').then((m) => m.joinFromPage(window.civilcraft, fileHost), (err) => say(err.message));
 
   // ---- Assistants and scripts (0.4 X.12; civil-agent.js, AGENTS-SPEC §5.2/§6.3/§7): the open site through host.control —
   // describe it, list points, surface elevations, stations and offsets (read), select points (edit: the selection only).

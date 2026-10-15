@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* i18n-ignore-file: cc-dwg is a standalone library; its errors and report notes are English (an app translates what it shows). */
+/* i18n-ignore-file: report notes go through msg() (messages.js); what is left is internal checks and file-format text. */
 /**
  * write.js — writeDwg(model, { version }) → { bytes, report } (cc-dwg, Apache-2.0).
  *
@@ -19,6 +19,7 @@
  * *Active viewport zoomed to the drawing, *Model_Space, *Paper_Space and the layouts. Text from R2007 on is
  * UTF-16; before that ANSI_1252 with \U+XXXX for anything outside it.
  */
+import { msg } from './messages.js';
 import { encode1252, atLeast, cleanText } from './bits-write.js';
 import { encodeObject, encodeHeader, encodeClasses, CLASSED, julian } from './objects-write.js';
 import * as CW from './container-write.js';
@@ -44,6 +45,7 @@ export function lwIndex(lw) {
   return best;
 }
 const BAD_NAME = /[<>/\\":;?*|,=`\x00-\x1f]/g;
+const BAD_NAME_NOBAR = /[<>/\\":;?*,=`\x00-\x1f]/;   // the same without "|" (an xref-dependent name keeps its one bar)
 /** AutoCAD's hidden "*" system layers (parametric constraints, the system lights' glyphs), written as they are named. */
 const SYSTEM_LAYERS = /^\*(LayerNameForDynamicConstraint|ADSK_CONSTRAINTS|ADSK_SYSTEM_LIGHTS)$/i;
 const HARD_OWN_CODE = 3;
@@ -153,6 +155,7 @@ export function writeDwg(model = {}, opts = {}) {
   const styleRef = (name) => styleByName.get(String(name ?? 'Standard').toUpperCase()) || srcMap.get(hexKey(name)) || styleByName.get('STANDARD');
 
   // ---------------------------------------------------------------- layers
+  const xrefBlockNames = new Set((model.blocks || []).filter((b) => (b.flags & 4) && b.name).map((b) => String(b.name).toUpperCase()));   // links kept as links
   const layers = [];
   const layerByName = new Map();                   // original name → record
   const layerByNew = new Map();                    // written name → record
@@ -163,8 +166,13 @@ export function writeDwg(model = {}, opts = {}) {
     // (dimensional constraints, the lights' glyphs). The names are those found in the corpus; the ODA File Converter
     // keeps them in every version.
     const keep = orig === '0' || SYSTEM_LAYERS.test(orig);
-    const name = keep ? orig : cleanName('layer', orig === '' ? 'Unnamed' : orig, 'Unnamed');
-    if (keep) reserve('layer', orig);
+    // a linked drawing's own layer ("Plan|Walls") while the link stays a link (block flag 4): kept by that name, marked
+    // xref-dependent and pointing at the link's block record (20.4.55: xdep bit, external reference handle), as AutoCAD
+    // keeps them — so settings made on it survive saving and a reload (0.5 WL.15)
+    const bar = orig.indexOf('|'), xrefOf = bar > 0 ? orig.slice(0, bar) : '';
+    const dep = !!xrefOf && xrefBlockNames.has(xrefOf.toUpperCase()) && !BAD_NAME_NOBAR.test(orig);
+    const name = keep || dep ? orig : cleanName('layer', orig === '' ? 'Unnamed' : orig, 'Unnamed');
+    if (keep || dep) reserve('layer', orig);
     if (name !== orig) { notes.renamedLayers++; report.renamed.layers[orig] = name; }
     let color = l.color;
     if (typeof color === 'number') color = { index: color };
@@ -174,7 +182,7 @@ export function writeDwg(model = {}, opts = {}) {
     if (color.rgb !== undefined && !r2004) { lostRgb++; color = { index: aciFromRgb(color.rgb) }; }
     const h = orig === '0' ? H.layer0 : next();
     mapSrc(l.handle, h);
-    const rec = { t: 'LAYER', h, owner: H.layerCtl, name, color, off, frozen: !!l.frozen, locked: !!l.locked, plot: l.plot !== false,
+    const rec = { t: 'LAYER', h, owner: H.layerCtl, name, color, off, frozen: !!l.frozen, locked: !!l.locked, plot: l.plot !== false, frozenNew: !!l.frozenInNewViewports, ...(dep ? { xdep: true, xrefOf } : {}),
       lwIndex: l.lineweight === undefined ? 31 : lwIndex(l.lineweight), ltype: ltypeRef(l.linetype).h || (srcMap.get(hexKey(l.linetype))) || H.ltContinuous,
       plotstyle: H.plotStyleNormal };
     layers.push(rec); layerByName.set(orig, rec); layerByNew.set(name, rec);
@@ -224,12 +232,23 @@ export function writeDwg(model = {}, opts = {}) {
     const h = next(); mapSrc(v.handle, h);
     views.push({ ...v, t: 'VIEW', h, owner: H.viewCtl, name: cleanName('view', v.name, 'View'), reactors: undefined, xdic: undefined, eed: undefined });
   }
+  // named UCSs (20.4.62; 0.5 DR.8): name, origin, X and Y axes, elevation
+  const ucsList = [];
+  for (const u of T.ucs || []) {
+    const p3 = (p) => (p && fin(p.x, p.y) ? { x: num(p.x), y: num(p.y), z: num(p.z) } : null);
+    const o = p3(u?.origin), xa = p3(u?.xAxis), ya = p3(u?.yAxis);
+    if (!u || !u.name || !o || !xa || !ya) continue;
+    const h = next(); mapSrc(u.handle, h);
+    ucsList.push({ t: 'UCS', h, owner: H.ucsCtl, name: cleanName('ucs', u.name, 'UCS'), origin: o, xAxis: xa, yAxis: ya, elevation: num(u.elevation) });
+  }
   // the *Active viewports: a split screen (2–4 *Active records whose corners tile the window; the first is the current one)
   // is written as given, anything else as one *Active zoomed to the drawing (below)
   const corner = (p) => p && fin(p.x, p.y) && p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1;
   const actIn = (T.vports || []).filter((v) => v && /^\*active$/i.test(v.name || '') && corner(v.lowerLeft) && corner(v.upperRight)
     && v.upperRight.x > v.lowerLeft.x && v.upperRight.y > v.lowerLeft.y);
-  const actives = actIn.length >= 2 && actIn.length <= 4 ? actIn.map((v, i) => ({ v, h: i ? next() : H.vport })) : [{ v: null, h: H.vport }];
+  // (one record with its own view twist — a turned view, 0.5 DR.8 — is written as given too)
+  const actives = actIn.length >= 2 && actIn.length <= 4 ? actIn.map((v, i) => ({ v, h: i ? next() : H.vport }))
+    : actIn.length === 1 && num(actIn[0].twist) ? [{ v: actIn[0], h: H.vport }] : [{ v: null, h: H.vport }];
 
   // ---------------------------------------------------------------- blocks (records + their entities)
   const blocksIn = Array.isArray(model.blocks) ? model.blocks.slice() : [];
@@ -429,7 +448,8 @@ export function writeDwg(model = {}, opts = {}) {
         if (!okP(e.insert)) return null;
         return [{ ...c('MTEXT'), insert: P3(e.insert), xAxis: e.xAxis ? P3(e.xAxis) : null, rotation: num(e.rotation), width: num(e.width), height: num(e.height, 0.2),
           attach: e.attach | 0 || 1, direction: e.direction | 0 || 1, value: String(e.value ?? e.text ?? ''), style: styleRef(e.style), lineSpacing: num(e.lineSpacing, 1),
-          lineSpacingStyle: e.lineSpacingStyle | 0 || 1, extWidth: num(e.extWidth), extHeight: num(e.extHeight), rectHeight: num(e.rectHeight), extrusion: e.extrusion }];
+          lineSpacingStyle: e.lineSpacingStyle | 0 || 1, extWidth: num(e.extWidth), extHeight: num(e.extHeight), rectHeight: num(e.rectHeight), extrusion: e.extrusion,
+          backgroundFlags: e.backgroundFlags | 0, backgroundScale: num(e.backgroundScale, 1.5), backgroundColor: e.backgroundColor, backgroundTransparency: e.backgroundTransparency | 0 }];
       case 'INSERT': case 'MINSERT': {
         const B = blockByName.get(String(e.block ?? '').toUpperCase()) || blocks.find((x) => hexKey(x.src.record) === hexKey(e.block));
         if (!B || B.kind !== 'block') return 'INSERT of a block the drawing does not define';
@@ -623,7 +643,7 @@ export function writeDwg(model = {}, opts = {}) {
   push({ t: 'STYLE_CONTROL', h: H.styleCtl, owner: 0, entries: styles.map((s) => s.h) });
   push({ t: 'LTYPE_CONTROL', h: H.ltypeCtl, owner: 0, count: 1 + ltypes.length, entries: [H.ltContinuous, ...ltypes.map((l) => l.h)], hardEntries: [H.ltByLayer, H.ltByBlock] });
   push({ t: 'VIEW_CONTROL', h: H.viewCtl, owner: 0, entries: views.map((v) => v.h) });
-  push({ t: 'UCS_CONTROL', h: H.ucsCtl, owner: 0, entries: [] });
+  push({ t: 'UCS_CONTROL', h: H.ucsCtl, owner: 0, entries: ucsList.map((u) => u.h) });
   push({ t: 'VPORT_CONTROL', h: H.vportCtl, owner: 0, entries: actives.map((a) => a.h) });
   push({ t: 'APPID_CONTROL', h: H.appidCtl, owner: 0, entries: appids.map((a) => a.h) });
   push({ t: 'DIMSTYLE_CONTROL', h: H.dimstyleCtl, owner: 0, entries: dimstyles.map((d) => d.h) });
@@ -658,11 +678,12 @@ export function writeDwg(model = {}, opts = {}) {
   push({ t: 'LTYPE', h: H.ltByLayer, owner: H.ltypeCtl, name: 'ByLayer', elements: [] });
   push({ t: 'LTYPE', h: H.ltContinuous, owner: H.ltypeCtl, name: 'Continuous', description: 'Solid line', elements: [] });
   for (const l of ltypes) push(l);
-  for (const L of layers) push(L);
+  for (const L of layers) { if (L.xdep) L.xrefBlock = blockByName.get(L.xrefOf.toUpperCase())?.hdr || 0; push(L); }
   for (const s of styles) push(s);
   for (const a of appids) push(a);
   for (const d of dimstyles) push(d);
   for (const v of views) push(v);
+  for (const u of ucsList) push(u);
   // the *Active viewport
   {
     const e = ext || { min: { x: 0, y: 0 }, max: { x: 12, y: 9 } };
@@ -673,7 +694,7 @@ export function writeDwg(model = {}, opts = {}) {
       if (!v) { push({ t: 'VPORT', h, owner: H.vportCtl, name: '*Active', viewHeight: vh, aspect, center: c0 }); continue; }
       const c = v.center || v.viewCenter, hgt = v.viewHeight, asp = v.aspect ?? v.aspectRatio;
       push({ t: 'VPORT', h, owner: H.vportCtl, name: '*Active', viewHeight: num(hgt) > 0 ? hgt : vh, aspect: num(asp) > 0 ? asp : aspect,
-        center: c && fin(c.x, c.y) ? { x: c.x, y: c.y } : c0, lowerLeft: v.lowerLeft, upperRight: v.upperRight, eed: eedOf(v.xdata) });
+        center: c && fin(c.x, c.y) ? { x: c.x, y: c.y } : c0, lowerLeft: v.lowerLeft, upperRight: v.upperRight, twist: num(v.twist), eed: eedOf(v.xdata) });
     }
   }
   // layouts
@@ -748,7 +769,7 @@ export function writeDwg(model = {}, opts = {}) {
     });
     if (!r.eed.length) delete r.eed;
   }
-  if (droppedEed) report.notes.push(`${droppedEed} extended-data block${droppedEed === 1 ? '' : 's'} referring to objects this writer does not copy (materials, groups, …) ${droppedEed === 1 ? 'was' : 'were'} left out.`);
+  if (droppedEed) report.notes.push(msg('ccdwg.write.eed_dropped', { n: droppedEed }));
   const objects = [];
   let entities = 0;
   for (const r of recs) {
@@ -777,8 +798,8 @@ export function writeDwg(model = {}, opts = {}) {
   else if (version === 'AC1021') bytes = layoutR2007(parts, CW);
   else bytes = layoutR2004(parts, version);
 
-  if (lostRgb) report.notes.push(`${lostRgb} true colour${lostRgb === 1 ? '' : 's'} became the nearest AutoCAD colour index (R2000 stores colour indexes only).`);
-  if (encode1252.lost) report.notes.push(encode1252.lost + ' character' + (encode1252.lost === 1 ? '' : 's') + ' outside the Basic Multilingual Plane (emoji and the like) became "?".');
+  if (lostRgb) report.notes.push(msg('ccdwg.write.true_colours', { n: lostRgb }));
+  if (encode1252.lost) report.notes.push(msg('ccdwg.write.chars_lost', { n: encode1252.lost }));
   report.objects = objects.length;
   report.entities = entities;
   return { bytes, report };

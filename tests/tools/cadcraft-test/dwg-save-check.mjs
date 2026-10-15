@@ -102,6 +102,8 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
       if (reader.name.startsWith('libdxfrw')) delete want.DIMENSION;
       // ... and no MULTILEADER either (AutoCAD's example_2000.dwg: 1 in, none out)
       if (reader.name.startsWith('libdxfrw')) delete want.MULTILEADER;
+      // ... nor XLINE / RAY (AutoCAD's example_2018.dwg: one of each in, none out; ODA keeps both) — 0.5 DR.7
+      if (reader.name.startsWith('libdxfrw')) { delete want.XLINE; delete want.RAY; }
       const have = s.model;
       const diff = Object.keys({ ...want, ...have }).filter((k) => (want[k] || 0) !== (have[k] || 0));
       ok(!diff.length, label + ': model space as written (' + Object.values(want).reduce((a, b) => a + b, 0) + ' objects)', diff.map((k) => k + ' want ' + (want[k] || 0) + ' got ' + (have[k] || 0)).join(', '));
@@ -149,6 +151,7 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
       if (!dxfrw) ok(s.model.MULTILEADER === 1, r + ': the multileader is a MULTILEADER', JSON.stringify(s.model));
       ok(L.Hidden?.linetype?.toUpperCase() === 'HIDDEN' && s.ltypes.includes('HIDDEN') && s.ltypes.includes('DASHED') && (s.entity_ltypes.DASHED || 0) === 1 && (dxfrw || (L.Hidden.lineweight === 35 && (s.entity_lweights['50'] || 0) === 1)),
         r + ': linetypes (layer HIDDEN, object DASHED, both in the table)' + (dxfrw ? '' : ' and lineweights (0.35, 0.5 mm)'), JSON.stringify([L.Hidden, s.ltypes, s.entity_ltypes, s.entity_lweights]));
+      if (!dxfrw) ok(L.Hidden?.newvp === true && L.Walls?.newvp === false, r + ': HIDDEN frozen in new viewports (layer flag 2), WALLS not (0.5 VP.2)', JSON.stringify([L.Hidden?.newvp, L.Walls?.newvp]));
       ok(s.insunits === 4 && s.measurement === 1, r + ': units millimetres, metric', s.insunits + ' / ' + s.measurement);
       ok(s.lunits === 4 && s.luprec === 3, r + ': length format (architectural, 1/8)', s.lunits + ' / ' + s.luprec);
       // the Properties panel's fields (part 2, track P): thickness, transparency (2004+), oblique text in its style, a polyline's
@@ -169,6 +172,10 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
       // layouts with a viewport each in, "Layout1" with none out): sheets are checked with the other two readers
       if (!dxfrw) ok(A && A.viewports === 2 && A.entities.TEXT === 1 && JSON.stringify(A.views) === '[[200,150],[420,297]]' && B && B.viewports === 2,
         r + ': both sheets with their own viewport, the sheet\'s own one and its text', JSON.stringify(s.layouts));
+      if (!dxfrw) ok(A && JSON.stringify(A.frozen) === '[[],["HIDDEN"]]', r + ': the layer frozen in the sheet\'s viewport (0.5 VP.1)', JSON.stringify(A?.frozen));
+      if (!dxfrw && rn.startsWith('ODA')) ok(JSON.stringify(s.ucs) === '{"org":[10,20],"xdir":[0.866025,0.5],"named":[["Tilted",0.707107,0.707107]],"twist":30,"vptwist":[17.188734]}', r + ': UCS, named UCS, the turned pane (30°) and the twisted viewport as ezdxf reads them (0.5 DR.8)', JSON.stringify(s.ucs));
+      if (!dxfrw && rn.startsWith('ODA')) ok(JSON.stringify(s.xclips) === '[[[0,0],[10,0],[10,20],[0,20]]]', r + ': the clipped reference\'s boundary as ezdxf reads it (0.5 WL.16)', JSON.stringify(s.xclips));
+      if (!dxfrw && rn.startsWith('ODA')) ok(JSON.stringify(s.vpovr?.WALLS) === '[{"color":5,"lw":70,"tr":0.4}]', r + ': the viewport\'s override of Walls (colour 5, 0.70 mm, 40 %) as ezdxf reads it (0.5 VP.3)', JSON.stringify(s.vpovr));
     }
   }
 
@@ -206,6 +213,12 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
     const vp = [...(back.layouts[0]?.entities.values() || [])].find((e) => e.type === 'viewport');
     ok(vp && vp.x === 200 && vp.y === 150 && vp.w === 200 && vp.h === 150 && Math.abs(vp.cx - 250) < 1e-9 && Math.abs(vp.cy - 350) < 1e-9 && Math.abs(vp.s - 0.5) < 1e-12,
       v + ': reopened viewport shows the same part of the model at the same scale', JSON.stringify(vp));
+    ok(vp && JSON.stringify(vp.frz) === '["Hidden"]', v + ': reopened viewport keeps the layer frozen in it (0.5 VP.1)', JSON.stringify(vp?.frz));
+    ok(vp && JSON.stringify(vp.lov) === '{"Walls":{"color":5,"lw":0.7,"tr":40}}', v + ': reopened viewport keeps its layer override (0.5 VP.3)', JSON.stringify(vp?.lov));
+    const cl = [...back.model.values()].find((e) => e.type === 'insert' && e.clip);
+    ok(cl && JSON.stringify(cl.clip.pts.map((p) => [p.x, p.y])) === '[[0,0],[10,0],[10,20],[0,20]]', v + ': reopened reference keeps its clip (0.5 WL.16)', JSON.stringify(cl?.clip));
+    const xl = [...back.model.values()].find((e) => e.type === 'xline'), ry = [...back.model.values()].find((e) => e.type === 'ray');
+    ok(xl && ry && Math.abs(xl.y - 1000) < 1e-9 && Math.abs(xl.dx - Math.SQRT1_2) < 1e-12 && ry.x === 10 && ry.dx === 1, v + ': reopened XLINE and RAY: same point and direction (0.5 DR.7)', JSON.stringify([xl, ry]));
     const ml = [...back.model.values()].find((e) => e.type === 'mleader'), ml0 = [...fx.model.values()].find((e) => e.type === 'mleader');
     ok(ml && JSON.stringify(ml.pts) === JSON.stringify(ml0.pts) && ml.s === ml0.s && ml.dir === ml0.dir && ml.h === ml0.h, v + ': reopened multileader is the same editable multileader (MULTILEADER in the file)', JSON.stringify(ml));
     {
@@ -244,7 +257,7 @@ export function fixture(Doc, attdef) {
   d.addLayer({ name: 'Frozen', color: 4, frozen: true });
   d.addLayer({ name: 'Locked', color: 5, locked: true });
   d.addLayer({ name: 'NoPlot', color: 8, plot: false });
-  d.addLayer({ name: 'Hidden', color: 2, linetype: 'HIDDEN', lineweight: 0.35 });
+  d.addLayer({ name: 'Hidden', color: 2, linetype: 'HIDDEN', lineweight: 0.35, newVpFrozen: true });   // frozen in new viewports (VP.2)
   d.change('fixture', () => {
     d.defineBlock({
       name: 'Table 30x72', base: { x: 10, y: 5 },
@@ -279,13 +292,15 @@ export function fixture(Doc, attdef) {
     add({ type: 'text', layer: 'Walls', x: 300, y: 300, h: 5, rot: 0, s: 'First line\nSecond line {braces} \\ backslash', ha: 'left', va: 'baseline' });
     add({ type: 'text', layer: 'Walls', x: 400, y: 300, h: 5, rot: 0, s: 'A wrapped paragraph of text that is longer than its box', ha: 'center', va: 'middle', ww: 40 });
     add({ type: 'insert', layer: 'Walls', block: 'Table 30x72', x: 100, y: 400, sx: 2, sy: 2, rot: Math.PI / 2, attrs: { ITEM: '12', MAKER: 'Acme Ø ±' } });
-    add({ type: 'insert', layer: 'Walls', block: 'Table 30x72', x: 300, y: 400, sx: 1, sy: 1, rot: 0, attrs: { ITEM: '13' } });
+    add({ type: 'insert', layer: 'Walls', block: 'Table 30x72', x: 300, y: 400, sx: 1, sy: 1, rot: 0, attrs: { ITEM: '13' }, clip: { pts: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 20 }, { x: 0, y: 20 }] } });   // XCLIP (0.5 WL.16)
     add({ type: 'insert', layer: 'Walls', block: 'Outer', x: 0, y: 500, sx: 1, sy: 1, rot: 0 });
     add({ type: 'hatch', layer: 'Walls', solid: true, loops: [[0, 600, 10, 600, 5, 610, 0, 600]] });
     add({ type: 'hatch', layer: 'Walls', solid: true, loops: [[100, 600, 150, 600, 150, 650, 125, 670, 100, 650, 100, 600], [110, 610, 120, 610, 120, 620, 110, 620, 110, 610]] });
     add({ type: 'hatch', layer: 'Walls', solid: false, pattern: 'ANSI31', pscale: 2, pangle: Math.PI / 12, piso: true, loops: [[200, 600, 250, 600, 250, 650, 200, 650, 200, 600]], island: 'outer', bg: 3, ox: 5, oy: 7 });
     add({ type: 'dim', layer: 'Walls', kind: 'linear', p1: { x: 0, y: 700 }, p2: { x: 100, y: 700 }, loc: { x: 100, y: 720 }, rot: 0, text: '', st: { txt: 3.5, lunit: 4, dec: 3, blk1: 'ARCHTICK', blk2: 'ARCHTICK', tih: true, pre: 'L=', tol: 'sym', tp: 0.5, tm: 0.5 }, dimstyle: 'Arch', trot: Math.PI / 12 });
     add({ type: 'mleader', layer: 'Walls', color: null, pts: [{ x: 600, y: 0 }, { x: 650, y: 50 }], dir: 1, s: 'Note', h: 5 });
+    add({ type: 'xline', layer: 'Walls', color: null, x: 0, y: 1000, dx: Math.SQRT1_2, dy: Math.SQRT1_2 });   // construction lines (0.5 DR.7)
+    add({ type: 'ray', layer: 'Walls', color: null, x: 10, y: 1000, dx: 1, dy: 0 });
     // a linked drawing CadCraft did not load (0.4 C35): saved as a link to its file
     d.defineBlock({ name: 'Site', base: { x: 0, y: 0 }, entities: [], xref: { path: 'X-Refs\\Site.dwg', loaded: false } });
     add({ type: 'insert', layer: 'Walls', block: 'Site', x: 0, y: 900, sx: 1, sy: 1, rot: 0 });
@@ -294,13 +309,14 @@ export function fixture(Doc, attdef) {
   d.views = [{ name: 'Kitchen', cx: 250, cy: 350, w: 500, h: 300 }];
   d.textStyles = new Map([['Notes', { font: 'romans.shx', h: 0, wf: 0.9, obl: 0 }]]);
   d.dimStyles = new Map([['Arch', { txt: 3.5, asz: 2.5, exe: 1.25, exo: 0.625, gap: 0.625, dli: 3.75, dec: 3, adec: 0, scale: 1, tad: 1, zin: 8, lunit: 4 }]]);
-  d.vports = { layout: '3r', fx: 0.6, fy: 0.25, active: 2, list: [{ cx: 250, cy: 350, h: 300 }, { cx: 100, cy: 100, h: 50 }, { cx: 600, cy: 25, h: 120 }] };   // split screen (part 2 Q.1)
+  d.vports = { layout: '3r', fx: 0.6, fy: 0.25, active: 2, list: [{ cx: 250, cy: 350, h: 300 }, { cx: 100, cy: 100, h: 50 }, { cx: 600, cy: 25, h: 120, tw: Math.PI / 6 }] };
+  d.ucs = { x: 10, y: 20, ang: Math.PI / 6 }; d.ucsNamed = [{ name: 'Tilted', x: 5, y: 5, ang: Math.PI / 4 }];   // DR.8: the active pane turned 30°, a UCS   // split screen (part 2 Q.1)
   d.layouts.push({ name: 'A3 sheet', paper: { w: 420, h: 297, unit: 'mm', x0: 0, y0: 0, key: 'iso-a3' }, entities: new Map([
-    ['s1', { id: 's1', type: 'viewport', layer: '0', color: null, x: 200, y: 150, w: 200, h: 150, cx: 250, cy: 350, s: 0.5, locked: true }],
+    ['s1', { id: 's1', type: 'viewport', layer: '0', color: null, x: 200, y: 150, w: 200, h: 150, cx: 250, cy: 350, s: 0.5, locked: true, frz: ['Hidden'], lov: { Walls: { color: 5, lw: 0.7, tr: 40 } } }],   // Hidden frozen in it (0.5 VP.1); Walls overridden in it (VP.3)
     ['s2', { id: 's2', type: 'text', layer: '0', color: null, x: 300, y: 20, h: 5, rot: 0, s: 'Title', ha: 'left', va: 'baseline' }],
   ]) });
   d.layouts.push({ name: 'Detail', paper: { w: 11, h: 8.5, unit: 'in', x0: 0, y0: 0, key: 'letter' }, entities: new Map([
-    ['s3', { id: 's3', type: 'viewport', layer: '0', color: null, x: 5.5, y: 4.25, w: 8, h: 6, cx: 100, cy: 100, s: 0.02 }],
+    ['s3', { id: 's3', type: 'viewport', layer: '0', color: null, x: 5.5, y: 4.25, w: 8, h: 6, cx: 100, cy: 100, s: 0.02, tw: 0.3 }],   // a twisted viewport (DR.8)
   ]) });
   return d;
 }

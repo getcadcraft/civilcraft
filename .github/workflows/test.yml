@@ -1,0 +1,38 @@
+# The app's tests on every pull request and every change to main: the same `npm test -- --oracles` a contributor runs
+# locally (BUILDING.md). Libraries are fetched by exact version and checked against devshell/vendor.json.
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cache libraries
+        uses: actions/cache@v4
+        with:
+          path: devshell/vendor
+          key: vendor-${{ hashFiles('devshell/vendor.json') }}
+      # --oracles: also the copyleft reference readers some checks compare against (test-only black boxes, never shipped;
+      # PROVENANCE.md). Some apps' tests need them.
+      - name: npm test
+        run: npm test -- --oracles

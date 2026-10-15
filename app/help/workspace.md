@@ -123,4 +123,4 @@ Fields take effect when you press {{key:Enter}} or leave the field. A value that
 
 ## Small screens
 
-Below about 760 pixels wide, the panels stack: toolbar, plan (with the profile under it), status bar, then Properties, then the left panel. Scroll the page to reach them.
+Up to 760 pixels wide, such as on a phone, the plan keeps the screen: the toolbar is one row that scrolls sideways, and the panels open as sheets from a bar at the bottom. {{ui:Tools}} hides the toolbar and {{ui:Move}} puts it at the bottom.

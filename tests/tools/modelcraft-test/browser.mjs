@@ -407,7 +407,9 @@ try {
     ok((await info()).insts === 7 && /Converted from Y up, 0\.0254 m per unit\./.test(msg), 'a DAE written by pycollada (Y up, inches) imports converted: ' + msg);
   } else console.log('  note gen_dae.py did not run (venv with pycollada missing): pycollada DAE import not checked here');
   // DWG: the reader is fetched only now, on the first DWG
-  ok(dwgRequests.length === 0, 'the DWG reader has not been loaded before a DWG is opened');
+  // (the DWG export above has already fetched the writer, dwg/write.js and the modules it shares; the reader's own entry files must not be)
+  const early = dwgRequests.filter((u) => /\/dwg\/read(-async)?\.js|dwg-reader\.js/.test(u));
+  ok(early.length === 0, 'the DWG reader has not been loaded before a DWG is opened' + (early.length ? ': ' + early.slice(0, 3).join(', ') : ''));
   const instsBefore = (await info()).insts;
   await page.setInputFiles('[data-file-import]', '/var/www/CADCRAFT/testfiles/dwg-samples/civil_example-imperial.dwg');
   await page.waitForFunction((n) => window.modelcraft.model.root.insts.size > n, instsBefore, { timeout: 30000 }).catch(() => {});
@@ -842,7 +844,8 @@ try {
     await pg.close();
   }
 
-  // S.8 touch: tap = click, two fingers orbit + pinch, three fingers pan, a long press finishes a tool; the touch bar
+  // S.8 touch: tap = click, two fingers pan + pinch, three fingers orbit (or swapped), a long press finishes a tool or
+  // orbits, the loupe; the touch bar
   {
     const t = await fresh('touch');
     const { pg } = t;
@@ -859,15 +862,22 @@ try {
     const box = await pg.locator('[data-over]').boundingBox();
     const cx = box.x + box.width / 2, cy = box.y + box.height / 2;
     const camNow = () => pg.evaluate(() => { const c = window.modelcraft.cam; return { e: c.eye.slice(), t: c.target.slice(), d: Math.hypot(c.eye[0] - c.target[0], c.eye[1] - c.target[1], c.eye[2] - c.target[2]) }; });
-    // two fingers dragged together: orbit (distance kept, direction changes)
+    const dir = (c) => { const v = [c.e[0] - c.t[0], c.e[1] - c.t[1], c.e[2] - c.t[2]]; return v.map((x) => x / c.d); };
+    const drag = async (n, dx, dy) => {
+      const at = (i) => Array.from({ length: n }, (_, k) => [cx - 40 + k * 40 + i * dx, cy + i * dy]);
+      await touch('touchStart', at(0));
+      for (let i = 1; i <= 6; i++) await touch('touchMove', at(i));
+      await touch('touchEnd', []);
+      await pg.waitForTimeout(60);
+    };
+    const orbited = (c0, c1) => Math.hypot(c1.e[0] - c0.e[0], c1.e[1] - c0.e[1], c1.e[2] - c0.e[2]) > 0.5 && Math.abs(c1.d - c0.d) < 1e-6 * c0.d
+      && Math.hypot(c1.t[0] - c0.t[0], c1.t[1] - c0.t[1], c1.t[2] - c0.t[2]) < 1e-6 * c0.d;
+    const panned = (c0, c1) => dir(c0).every((x, i) => Math.abs(x - dir(c1)[i]) < 1e-9) && Math.hypot(c1.t[0] - c0.t[0], c1.t[1] - c0.t[1], c1.t[2] - c0.t[2]) > 0.05;
+    // two fingers dragged together: pan (tangentsoft, 2026-10-15: the touch equivalent of middle-drag pan)
     let c0 = await camNow();
-    await touch('touchStart', [[cx - 40, cy], [cx + 40, cy]]);
-    for (let i = 1; i <= 6; i++) await touch('touchMove', [[cx - 40 + i * 15, cy], [cx + 40 + i * 15, cy]]);
-    await touch('touchEnd', []);
+    await drag(2, 15, 8);
     let c1 = await camNow();
-    const turned = Math.hypot(c1.e[0] - c0.e[0], c1.e[1] - c0.e[1], c1.e[2] - c0.e[2]) > 0.5;
-    const tMoved = Math.hypot(c1.t[0] - c0.t[0], c1.t[1] - c0.t[1], c1.t[2] - c0.t[2]);
-    ok(turned && Math.abs(c1.d - c0.d) < 1e-6 * c0.d && tMoved < 1e-6 * c0.d, `S.8: a two-finger drag orbits (the eye moves, the distance and target stay) (eye ${c0.e.map((x) => x.toFixed(2))} → ${c1.e.map((x) => x.toFixed(2))}; target moved ${tMoved.toExponential(1)})`);
+    ok(panned(c0, c1), 'touch: a two-finger drag pans (the view keeps its direction, the target slides)');
     // pinch: zoom
     c0 = await camNow();
     await touch('touchStart', [[cx - 50, cy], [cx + 50, cy]]);
@@ -875,15 +885,34 @@ try {
     await touch('touchEnd', []);
     c1 = await camNow();
     ok(c1.d < c0.d * 0.75, `S.8: spreading two fingers zooms in (${c0.d.toFixed(2)} → ${c1.d.toFixed(2)})`);
-    // three fingers: pan (the target moves, the view direction stays)
+    // three fingers: orbit (distance kept, direction changes)
     c0 = await camNow();
-    await touch('touchStart', [[cx - 40, cy], [cx, cy], [cx + 40, cy]]);
-    for (let i = 1; i <= 5; i++) await touch('touchMove', [[cx - 40 + i * 12, cy + i * 8], [cx + i * 12, cy + i * 8], [cx + 40 + i * 12, cy + i * 8]]);
+    await drag(3, 15, 0);
+    c1 = await camNow();
+    ok(orbited(c0, c1), 'touch: a three-finger drag orbits (the eye moves, the distance and target stay)');
+    // Settings › ModelCraft › Touch screen "Two fingers orbit" swaps them
+    await pg.evaluate(() => { window.modelcraft.settings.touch2 = 'orbit'; });
+    c0 = await camNow(); await drag(2, 15, 0); c1 = await camNow();
+    const swapOrbit = orbited(c0, c1);
+    c0 = await camNow(); await drag(3, 15, 8); c1 = await camNow();
+    ok(swapOrbit && panned(c0, c1), 'touch: with "Two fingers orbit", two fingers orbit and three pan');
+    await pg.evaluate(() => { window.modelcraft.settings.touch2 = 'pan'; });
+    // hold still with nothing going on, then drag the same finger: orbit
+    await pg.click('[data-tool="select"]');
+    c0 = await camNow();
+    await touch('touchStart', [[cx, cy]]); await pg.waitForTimeout(650);
+    for (let i = 1; i <= 6; i++) await touch('touchMove', [[cx + i * 15, cy]]);
     await touch('touchEnd', []);
     c1 = await camNow();
-    const dir = (c) => { const v = [c.e[0] - c.t[0], c.e[1] - c.t[1], c.e[2] - c.t[2]]; return v.map((x) => x / c.d); };
-    const same = dir(c0).every((x, i) => Math.abs(x - dir(c1)[i]) < 1e-9);
-    ok(same && Math.hypot(c1.t[0] - c0.t[0], c1.t[1] - c0.t[1], c1.t[2] - c0.t[2]) > 0.05, 'S.8: a three-finger drag pans (the view keeps its direction, the target slides)');
+    ok(orbited(c0, c1), 'touch: hold still on nothing, then drag one finger: it orbits');
+    // a drawing finger shows the loupe, lifting hides it
+    await pg.click('[data-tool="line"]');
+    await touch('touchStart', [[cx, cy]]); await pg.waitForTimeout(150);
+    const loupeOn = await pg.evaluate(() => { const l = document.querySelector('.mc-loupe'); return !!l && !l.hidden; });
+    await touch('touchCancel', []); await pg.waitForTimeout(60);
+    const loupeOff = await pg.evaluate(() => document.querySelector('.mc-loupe').hidden);
+    await pg.keyboard.press('Escape');
+    ok(loupeOn && loupeOff, `touch: a drawing finger shows the loupe above it, lifting hides it (${loupeOn}, ${loupeOff})`);
     // a long press finishes a Curve
     await pg.evaluate(() => { const c = window.modelcraft.cam; c.eye = [9, -12, 9]; c.target = [2, 1.5, 1]; window.modelcraft.view.invalidate(); });
     await pg.click('[data-tool="curve"]');
@@ -1435,7 +1464,7 @@ try {
   const wide = await pp.evaluate(() => ({
     main: document.querySelector('main').scrollWidth, iw: innerWidth, page: document.documentElement.scrollWidth,
     bar: document.querySelector('.app-bar').scrollWidth,
-    out: [...document.querySelectorAll('main *')].filter((e) => !e.closest('.mc-tools, .mc-menu-list') && e.getBoundingClientRect().right > innerWidth + 0.5).map((e) => e.className).slice(0, 5),
+    out: [...document.querySelectorAll('main *')].filter((e) => !e.closest('.mc-tools, .mc-menu-list, .mc-status.shell-phone-status') && e.getBoundingClientRect().right > innerWidth + 0.5).map((e) => e.className).slice(0, 5),   // on a phone the status line scrolls sideways too (app-phone.js)
   }));
   ok(wide.main <= wide.iw && !wide.out.length, `390 px wide: ModelCraft's own area fits (main ${wide.main} ≤ ${wide.iw}; the toolbar scrolls inside itself)` + (wide.out.length ? ' — too wide: ' + wide.out.join(', ') : ''));
   if (wide.page > wide.iw) console.log(`  note the shared app bar (app-bar.inc, not part of this app) is ${wide.bar} px wide at 390 px, so the page scrolls sideways by ${wide.page - wide.iw} px`);

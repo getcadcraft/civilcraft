@@ -28,6 +28,7 @@ def dump(path, encoding=None):
         layers[l.dxf.name] = {
             'color': abs(l.dxf.color), 'off': l.is_off(), 'frozen': l.is_frozen(), 'locked': l.is_locked(),
             'plot': bool(l.dxf.get('plot', 1)), 'rgb': l.dxf.get('true_color'), 'linetype': l.dxf.get('linetype', ''), 'lineweight': l.dxf.get('lineweight', -3),
+            'newvp': bool(l.dxf.get('flags', 0) & 2),   # frozen in new viewports (0.5 VP.2)
         }
     blocks = {}
     for b in doc.blocks:
@@ -64,8 +65,34 @@ def dump(path, encoding=None):
             continue
         vps = [v for v in lay if v.dxftype() == 'VIEWPORT']
         layouts[lay.name] = {'viewports': len(vps), 'entities': dict(Counter(x.dxftype() for x in lay if x.dxftype() != 'VIEWPORT')),
-                             'views': sorted([r6(v.dxf.width), r6(v.dxf.height)] for v in vps)}
+                             'views': sorted([r6(v.dxf.width), r6(v.dxf.height)] for v in vps),
+                             'frozen': sorted(sorted(str(n).upper() for n in v.frozen_layers) for v in vps)}
+    # per-viewport layer overrides (0.5 VP.3), as ezdxf reads them: layer → [{color, lw, tr}] for each viewport it overrides
+    vpovr = {}
+    vhs = [v.dxf.handle for lay in doc.layouts if lay.name.upper() != 'MODEL' for v in lay if v.dxftype() == 'VIEWPORT']
+    for layer in doc.layers:
+        ov = layer.get_vp_overrides()
+        for vh in vhs:
+            if ov.has_overrides(vh):
+                vpovr.setdefault(layer.dxf.name.upper(), []).append({'color': ov.get_color(vh), 'lw': ov.get_lineweight(vh), 'tr': round(ov.get_transparency(vh), 2)})
+    xclips = []
+    try:
+        import ezdxf.xclip as XC
+        for e in msp.query('INSERT'):
+            xc = XC.XClip(e)
+            if xc.has_clipping_path:
+                xclips.append([[round(v.x, 6), round(v.y, 6)] for v in xc.get_block_clipping_path().vertices])
+    except Exception as err:
+        xclips = [str(err)]
+    hdr = doc.header
+    ucs = {'org': [round(v, 6) for v in list(hdr.get('$UCSORG', (0, 0, 0)))[:2]], 'xdir': [round(v, 6) for v in list(hdr.get('$UCSXDIR', (1, 0, 0)))[:2]],
+           'named': [[u.dxf.name, round(u.dxf.xaxis[0], 6), round(u.dxf.xaxis[1], 6)] for u in doc.ucs],
+           'twist': round(doc.viewports.get('*Active')[0].dxf.view_twist, 6) if doc.viewports.get('*Active') else None,
+           'vptwist': sorted(round(v.dxf.view_twist_angle, 6) for lay in doc.layouts if lay.name.upper() != 'MODEL' for v in lay if v.dxftype() == 'VIEWPORT' and v.dxf.view_twist_angle)}
     return {
+        'ucs': ucs,
+        'xclips': xclips,
+        'vpovr': vpovr,
         'version': doc.dxfversion,
         'audit_errors': len(aud.errors),
         'model': dict(model),

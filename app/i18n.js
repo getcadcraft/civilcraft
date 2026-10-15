@@ -118,6 +118,8 @@ export function setLocale(loc) {
   document.cookie = 'cc_lang=' + v + '; path=/; SameSite=Lax; max-age=' + (loc ? 31536000 : 0);
 }
 
-const api = { t, has, locale, missing, init, setLocale, fill, choosePlural, pluralCategory };
+// globalThis.ccI18n: how shared libraries (lib/dwg, lib/skp, libitem.js — docs/LANG.md § Shared libraries) reach the
+// page's language without importing this file; catalog() lets one hand it to its worker.
+const api = { t, has, locale, missing, init, setLocale, fill, choosePlural, pluralCategory, catalog };
 if (typeof globalThis !== 'undefined' && !globalThis.ccI18n) globalThis.ccI18n = api;
 export default api;

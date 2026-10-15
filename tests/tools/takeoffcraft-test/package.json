@@ -1,0 +1,9 @@
+{
+  "name": "takeoffcraft-test",
+  "private": true,
+  "description": "Node-side helpers for bin/test-takeoffcraft.mjs: the legacy (Node) build of pdf.js, pinned to the version vendored at public_html/assets/vendor/pdfjs/current (the browser build needs newer JS than Node ships). pdf-lib is loaded straight from the vendored ESM file. Keep versions in step with the vendor folders. gltf-validator (Khronos) checks the 3D view's GLB export (T6).",
+  "dependencies": {
+    "pdfjs-dist": "6.3.289",
+    "gltf-validator": "2.0.0-dev.3.10"
+  }
+}

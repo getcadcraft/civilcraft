@@ -17,6 +17,7 @@
  *
  * Performance: no per-bit allocation; RC on an unaligned position combines two bytes.
  */
+import { msg } from './messages.js';
 
 export class DwgReadError extends Error {}
 
@@ -37,7 +38,7 @@ export class BitReader {
     this.str = null;      // R2007+: the reader positioned on the string stream (TV reads from it)
     this.hcode = 0;
   }
-  overrun(n) { throw new DwgReadError('read past the end (' + (this.pos + n) + ' > ' + this.end + ' bits)'); }
+  overrun(n) { throw new DwgReadError(msg('ccdwg.err.read_past_end', { at: this.pos + n, end: this.end })); }
   bitsLeft() { return this.end - this.pos; }
   align() { this.pos = (this.pos + 7) & ~7; }
 
@@ -101,7 +102,7 @@ export class BitReader {
       case 0: return this.RLs();
       case 1: return this.RC();
       case 2: return 0;
-      default: throw new DwgReadError('bad BITLONG code 11');
+      default: throw new DwgReadError(msg('ccdwg.err.bitlong'));
     }
   }
   /** 2.4 BITLONGLONG. */
@@ -117,7 +118,7 @@ export class BitReader {
       case 0: return this.RD();
       case 1: return 1.0;
       case 2: return 0.0;
-      default: throw new DwgReadError('bad BITDOUBLE code 11');
+      default: throw new DwgReadError(msg('ccdwg.err.bitdouble'));
     }
   }
   /** 2.9 BitDouble with default. */

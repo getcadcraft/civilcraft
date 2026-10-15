@@ -8,7 +8,9 @@
  *   → { finish(draftPts, closed) (the Feature line tool ended: make it), props(f) → nodes, sceneItems() (layer
  *       C-GRAD-FEAT, z kept: 3D polylines in DXF/DWG), pick(w, tol) → { kind: 'feature', id } | null, find(id),
  *       grip(sel) → { list, label, get } for the selected line's vertices, overlay(ctx2d, toScreen, colors, sel)
- *       (elevations at the vertices, grades along the segments), remove(id) }
+ *       (elevations at the vertices, grades along the segments), remove(id),
+ *       gradeLayer(ctx2d, toScreen, colors, sel, font) — 0.5 WL.21: every other line's grades (a downhill arrow under each)
+ *       and elevations, on screen only (display.gradeOverlay) }
  *
  * Drawing: the Feature line tool (L, Surface › More) takes a click per vertex; a click on a survey point takes its
  * place and elevation, otherwise the elevation is the existing ground's there (else the previous vertex's, said);
@@ -16,7 +18,7 @@
  */
 
 import { t } from './i18n.js';
-import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel } from './featureline.js';
+import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel, gradeOverlay } from './featureline.js';
 import { fixed, unitOf } from './units.js';
 
 export function createFeatures(ctx) {
@@ -174,5 +176,34 @@ export function createFeatures(ctx) {
     ctx.say(t('fl.deleted', { name: f.name }));
     return true;
   }
-  return { finish, props, sceneItems, pick, grip, overlay, remove, find };
+  /** 0.5 WL.21: grades and elevations along every feature line, screen only (the selected line keeps its own labels). */
+  function gradeLayer(c2d, toScreen, C, sel, font) {
+    const items = gradeOverlay(P().state.features || [], toScreen, { skip: sel?.kind === 'feature' ? sel.id : null });
+    if (!items.length) return 0;
+    c2d.save();
+    c2d.font = '600 10.5px ' + font;
+    for (const it of items) {
+      if (it.kind === 'grade') {
+        c2d.save(); c2d.translate(it.x, it.y); c2d.rotate(it.ang);
+        const w = c2d.measureText(it.text).width;
+        c2d.fillStyle = C.bg; c2d.globalAlpha = 0.85; c2d.fillRect(-w / 2 - 2, -15, w + 4, 12); c2d.globalAlpha = 1;
+        c2d.fillStyle = C.green || C.ink; c2d.textAlign = 'center'; c2d.textBaseline = 'bottom'; c2d.fillText(it.text, 0, -4);
+        c2d.restore();
+        if (it.down !== null) {   // a small arrow on the line, pointing downhill
+          const L = 9, ux = Math.cos(it.down), uy = Math.sin(it.down), x = it.x + ux * 4, y = it.y + uy * 4;
+          c2d.strokeStyle = C.green || C.ink; c2d.lineWidth = 1.4; c2d.beginPath();
+          c2d.moveTo(x - ux * L, y - uy * L); c2d.lineTo(x, y);
+          c2d.moveTo(x - ux * 4 - uy * 3, y - uy * 4 + ux * 3); c2d.lineTo(x, y); c2d.lineTo(x - ux * 4 + uy * 3, y - uy * 4 - ux * 3);
+          c2d.stroke();
+        }
+      } else {
+        const w = c2d.measureText(it.text).width;
+        c2d.fillStyle = C.bg; c2d.globalAlpha = 0.85; c2d.fillRect(it.x + 5, it.y - 14, w + 4, 12); c2d.globalAlpha = 1;
+        c2d.fillStyle = C.ink; c2d.textAlign = 'left'; c2d.textBaseline = 'bottom'; c2d.fillText(it.text, it.x + 7, it.y - 3);
+      }
+    }
+    c2d.restore();
+    return items.length;
+  }
+  return { finish, props, sceneItems, pick, grip, overlay, remove, find, gradeLayer };
 }

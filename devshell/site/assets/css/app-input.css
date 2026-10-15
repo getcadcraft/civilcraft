@@ -1,0 +1,154 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Menus, keys and mouse — the page side of the shared input engine (assets/js/app-input-ui.js; 0.5 track IP).
+   Loaded by app-shell.inc only for builds whose manifest says "input" (released builds never get it).
+   A style's bar is the toolbar's first child; the toolbar's own buttons hide (they stay in the page: every command runs
+   by clicking its own button). Sizes in rem; tokens only. */
+
+.cc-in-styled > :not([data-input-bar]) { display: none !important; }
+.cc-inbar { display: grid; gap: 0; width: 100%; min-width: 0; color: var(--ink); }
+.cc-inbar[hidden] { display: none; }
+.cc-in-styled:has(details[open]) { z-index: 6; }
+
+/* buttons of the bar */
+.cc-in-tool {
+  position: relative; display: inline-flex; align-items: center; gap: .35rem; padding: .35rem .5rem;
+  font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--ink); background: transparent;
+  border: 0; cursor: pointer;
+}
+.cc-in-tool:hover { background: var(--sheet); }
+.cc-in-tool:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -3px; }
+.cc-in-tool[aria-pressed="true"] { background: var(--ink); color: var(--sheet); }
+.cc-in-tool[aria-disabled="true"] { color: var(--ink-2); opacity: .55; cursor: default; }
+.cc-in-tool[aria-disabled="true"]:hover { background: transparent; }
+.cc-in-sep { width: var(--pen-2); align-self: stretch; margin: .2rem .15rem; background: var(--line); }
+
+/* menus (a menu bar's, a ribbon's File menu, More) */
+.cc-in-menu { position: relative; display: flex; }
+.cc-in-mtitle { list-style: none; padding: .3rem .7rem; font-size: var(--fs-sm); font-weight: 600; cursor: default; user-select: none; }
+.cc-in-mtitle::-webkit-details-marker { display: none; }
+.cc-in-menu > summary:hover, .cc-in-menu[open] > summary { background: var(--ink); color: var(--sheet); }
+.cc-in-menu > summary:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -3px; }
+.cc-in-menus { display: flex; flex-wrap: wrap; }
+.cc-in-list {
+  position: absolute; z-index: 20; top: calc(100% + var(--pen-2)); left: calc(-1 * var(--pen-2)); min-width: 15rem;
+  max-height: min(70vh, 40rem); overflow: auto;
+  display: flex; flex-direction: column; padding: .25rem 0;
+  background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius);
+}
+.cc-in-item {
+  display: grid; grid-template-columns: 1.1rem minmax(0, 1fr) auto; align-items: baseline; gap: .5rem;
+  font: inherit; font-size: var(--fs-sm); font-weight: 600; text-align: left; color: var(--ink);
+  background: none; border: 0; padding: .4rem .8rem; cursor: pointer;
+}
+.cc-in-item i { color: var(--ink-2); }
+.cc-in-item:hover, .cc-in-item:focus-visible { background: var(--sheet); text-decoration: underline; outline: none; }
+.cc-in-item[aria-disabled="true"] { color: var(--ink-2); opacity: .6; cursor: default; text-decoration: none; }
+.cc-in-item kbd { font: inherit; font-size: .75rem; font-weight: 500; color: var(--ink-2); background: none; border: 0; padding: 0; white-space: nowrap; }
+.cc-in-list hr { margin: .25rem 0; border: 0; border-top: var(--pen-1) solid var(--line); opacity: 1; }
+.cc-in-quickbar { display: flex; flex-wrap: wrap; border-top: var(--pen-1) solid var(--line); }
+
+/* ribbon */
+.cc-in-rhead { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .25rem .5rem; padding: .2rem .3rem 0; border-bottom: var(--pen-1) solid var(--line); }
+.cc-in-file > summary { background: var(--action); color: var(--on-action); border-radius: var(--radius) var(--radius) 0 0; }
+.cc-in-file[open] > summary, .cc-in-file > summary:hover { background: var(--ink); color: var(--sheet); }
+.cc-in-tabs { display: flex; flex-wrap: wrap; gap: .1rem; }
+.cc-in-tab { margin-bottom: calc(-1 * var(--pen-1)); padding: .3rem .75rem; font: inherit; font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); background: none; border: var(--pen-1) solid transparent; border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; }
+.cc-in-tab:hover { color: var(--ink); }
+.cc-in-tab[aria-selected="true"] { color: var(--ink); background: var(--sheet); border-color: var(--line); box-shadow: inset 0 var(--pen-2) 0 var(--action); }
+.cc-in-tab:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -3px; }
+.cc-in-quick { display: flex; margin-left: auto; }
+.cc-in-icon { padding: .3rem .45rem; }
+.cc-in-icon span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cc-in-rbody { display: flex; flex-wrap: wrap; align-items: stretch; padding: .25rem 0 .1rem; background: var(--sheet); }
+.cc-in-panel { display: flex; flex-direction: column; padding: 0 .3rem; border-right: var(--pen-1) solid var(--line); }
+.cc-in-panel:last-child { border-right: 0; }
+.cc-in-pbtns { display: flex; flex: 1; gap: .1rem; }
+.cc-in-plabel { padding: .1rem 0 0; text-align: center; font-size: .6875rem; color: var(--ink-2); white-space: nowrap; }
+.cc-in-tool.cc-in-big { flex-direction: column; justify-content: flex-start; gap: .15rem; min-width: 3.5rem; padding: .3rem .35rem; font-size: .75rem; text-align: center; line-height: 1.15; }
+.cc-in-tool.cc-in-big i { font-size: 1.2rem; }
+
+/* the command line of styles that have one */
+.cc-in-cmd { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .9rem; padding: .25rem .45rem; border-top: var(--pen-1) solid var(--line);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: var(--fs-sm); }
+.cc-in-cmdlabel { display: inline-flex; align-items: center; gap: .4rem; margin: 0; }
+.cc-in-input { padding: .1rem .3rem; font: inherit; color: var(--ink); background: var(--sheet-2); border: var(--pen-2) solid var(--action); border-radius: var(--radius); }
+.cc-in-input:focus { outline: none; }
+.cc-in-cmdinput { width: 16rem; max-width: 50vw; text-transform: uppercase; }
+.cc-in-cmdmsg { color: var(--ink-2); }
+
+/* Settings › <App> › Menus, keys and mouse: style cards with a sketch of where each style puts things */
+.cc-in-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: .5rem; }
+.cc-in-card { position: relative; display: grid; gap: .3rem; padding: .4rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.cc-in-card:has(input:checked) { border: var(--pen-2) solid var(--action); padding: calc(.4rem - var(--pen-1)); }
+.cc-in-card:has(input:focus-visible) { outline: var(--pen-3) solid var(--action); outline-offset: 2px; }
+.cc-in-card input { position: absolute; opacity: 0; pointer-events: none; }
+.cc-in-cname { font-weight: 600; line-height: 1.2; }
+.cc-in-card:has(input:checked) .cc-in-cname { color: var(--action); }
+.cc-in-thumb { display: flex; flex-direction: column; gap: .15rem; height: 3.25rem; padding: .2rem; background: var(--sheet); border: var(--pen-1) solid var(--line); }
+.cc-in-thumb i { display: block; height: .3rem; background: var(--line); }
+.cc-in-thumb-toolbar i:first-child { width: 70%; height: .55rem; border: var(--pen-1) solid var(--ink-2); background: var(--sheet-2); }
+.cc-in-thumb-toolbar i:not(:first-child) { display: none; }
+.cc-in-thumb-menubar i:first-child { width: 85%; height: .25rem; background: var(--ink-2); }
+.cc-in-thumb-menubar i:nth-child(2) { width: 60%; height: .4rem; }
+.cc-in-thumb-menubar i:nth-child(3) { display: none; }
+.cc-in-thumb-ribbon i:first-child { width: 40%; height: .25rem; background: var(--action); }
+.cc-in-thumb-ribbon i:nth-child(2) { height: .8rem; border: var(--pen-1) solid var(--ink-2); background: var(--sheet-2); }
+.cc-in-thumb-ribbon i:nth-child(3) { display: none; }
+.cc-in-thumb.has-cmd i:nth-child(3) { display: block; margin-top: auto; height: .3rem; width: 55%; background: var(--ink-2); }
+.cc-in-setbtns { display: flex; flex-wrap: wrap; gap: .4rem; }
+.shell-check:has(input:disabled) { color: var(--ink-2); cursor: default; }
+
+/* Customize… (a dialog over Settings) */
+.cc-in-dlg { width: min(60rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2.5rem); padding: 1.1rem 1.25rem; font-size: .8125rem; color: var(--ink); background: var(--sheet); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); }
+.cc-in-dlg::backdrop { background: color-mix(in srgb, var(--ink) 35%, transparent); }
+.cc-in-h { margin: 0 0 .4rem; font-size: var(--fs-md); font-weight: 700; font-stretch: 112%; }
+.cc-in-sub { display: block; margin: 0; color: var(--ink-2); font-weight: 400; overflow-wrap: anywhere; }
+.cc-in-link { padding: 0; font: inherit; font-weight: 600; color: var(--action); background: none; border: 0; text-decoration: underline; text-underline-offset: .15em; cursor: pointer; }
+.cc-in-link:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 2px; }
+.cc-in-name { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: .6rem 0; }
+.cc-in-name .cc-in-input, .cc-in-filter .cc-in-input { width: 18rem; max-width: 100%; }
+.cc-in-dtabs { display: flex; gap: .25rem; border-bottom: var(--pen-1) solid var(--line); }
+.cc-in-dtab { margin-bottom: calc(-1 * var(--pen-1)); padding: .35rem .8rem; font: inherit; font-weight: 600; color: var(--ink-2); background: none; border: var(--pen-1) solid transparent; border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0; cursor: pointer; }
+.cc-in-dtab[aria-selected="true"] { color: var(--ink); border-color: var(--line); background: var(--sheet); box-shadow: inset 0 var(--pen-2) 0 var(--action); }
+.cc-in-pane { display: grid; gap: .6rem; padding-top: .6rem; }
+.cc-in-pane[hidden] { display: none; }
+.cc-in-warn:empty { display: none; }
+.cc-in-warn p { margin: .15rem 0; }
+.cc-in-bad { color: var(--layer-red); }
+.cc-in-tablewrap { max-height: 52vh; overflow: auto; border: var(--pen-1) solid var(--line); }
+.cc-in-table { width: 100%; border-collapse: collapse; }
+.cc-in-table th, .cc-in-table td { padding: .25rem .5rem; text-align: left; vertical-align: middle; border-bottom: var(--pen-1) solid var(--grid); }
+.cc-in-table thead th { position: sticky; top: 0; z-index: 1; background: var(--sheet-2); font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+.cc-in-grp th { background: var(--sheet-2); font-weight: 700; }
+.cc-in-where.select-cc { width: auto; max-width: 15rem; padding-top: .15rem; padding-bottom: .15rem; font-size: .8125rem; }
+.cc-in-keys { white-space: nowrap; }
+.cc-in-chip { display: inline-flex; align-items: center; gap: .2rem; margin: 0 .25rem .1rem 0; padding: .05rem .35rem; font: .75rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink); background: var(--sheet-2); border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.cc-in-chip:hover { border-color: var(--layer-red); }
+.cc-in-row { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.cc-in-m3 { display: grid; gap: .15rem; margin: 0; }
+.cc-in-m3 .select-cc, .cc-in-mouse .select-cc { width: auto; justify-self: start; }
+.cc-in-speed { display: grid; grid-template-columns: auto minmax(0, 22rem); align-items: center; gap: .75rem; margin: 0; }
+.cc-in-dfoot { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .8rem; }
+
+/* ==== Phones and fold phones (html.cc-phone, set by app-phone.js; 0.5 IP.3, session input-apps) ====
+   The phone rule (Track PH): at most two toolbar lines, each one row that scrolls sideways — the toolbar and the active
+   tool's options. So a style's bar is one row too: a menu bar's titles then its quick buttons; a ribbon's File menu, its
+   tabs, the open tab's buttons (icons, no panel names) and the quick buttons; a command line at the end. The menus open over
+   the page (app-phone.js's .shell-phone-pop). */
+html.cc-phone .cc-inbar:not([hidden]) { display: flex; flex-wrap: nowrap; align-items: stretch; width: auto; }
+html.cc-phone .cc-inbar :is(.cc-in-menus, .cc-in-quickbar, .cc-in-rhead, .cc-in-tabs, .cc-in-quick, .cc-in-rbody, .cc-in-pbtns, .cc-in-cmd) {
+  display: flex; flex-wrap: nowrap; flex: 0 0 auto; align-items: stretch;
+}
+html.cc-phone .cc-inbar :is(.cc-in-quickbar, .cc-in-rbody, .cc-in-cmd) { border-top: 0; border-left: var(--pen-1) solid var(--line); padding: 0; background: none; }
+html.cc-phone .cc-in-rhead { padding: 0; border-bottom: 0; align-items: stretch; }
+html.cc-phone .cc-in-tab { margin-bottom: 0; border-radius: 0; border-color: transparent; }
+html.cc-phone .cc-in-tab[aria-selected="true"] { box-shadow: inset 0 calc(-1 * var(--pen-2)) 0 var(--action); }
+html.cc-phone .cc-in-quick { margin-left: 0; order: 9; }
+html.cc-phone .cc-in-panel { flex-direction: row; padding: 0 .15rem; }
+html.cc-phone .cc-in-plabel { display: none; }
+html.cc-phone .cc-in-tool.cc-in-big { min-width: 2.75rem; }
+html.cc-phone .cc-in-mtitle { display: flex; align-items: center; }
+html.cc-phone .cc-in-cmd { align-items: center; padding: 0 .35rem; }
+html.cc-phone .cc-in-cmdinput { width: 8rem; }
+html.cc-phone .cc-in-cmdmsg { display: none; }
+html.cc-phone .cc-in-list { left: 0; }

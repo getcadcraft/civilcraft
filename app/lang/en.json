@@ -2,6 +2,9 @@
   "@locale": "en",
   "@name": "English",
   "@context": {
+    "why.overlap": "Alignment design: PI = point of intersection; {a}/{b} = PI numbers; {need}, {ta}, {tb}, {dist} = lengths; {u} = the unit (ft or m).",
+    "why.fix.r": "Button that sets the curve radius at a PI to the largest that fits; R = radius.",
+    "s3.label.point": "A survey point's label in the 3D view: {n} = its number, {z} = its elevation.",
     "cad.units.scaled": "A drawing's coordinates are multiplied into the project's units. {from} is a unit abbreviation such as mm or in.",
     "cad.closed": "Layer name in the GIS layer list for the closed shapes of one CAD layer.",
     "cad.ui.what": "{uses} is how many of the added layers have a use chosen.",
@@ -703,7 +706,7 @@
     "cv.lasso.fence": "A fence is an open freehand path (not closed); it picks what it crosses.",
     "set.assist.legend": "Settings › CivilCraft: heading of the AI assistants section (AGENTS-SPEC §7).",
     "set.assist.activity.row": "One line of the assistants' activity log: {time} = clock time, {client} = the assistant's name, {tool} = the tool's name (points_list …), {outcome} = ok, error or refused (left in English).",
-    "assist.banner.read": "Banner above the Properties panel while an assistant is connected; {client} = the assistant's own name, e.g. claude-code."
+    "assist.banner.read": "Banner above the Properties panel while an assistant is connected; {client} = the assistant's own name, as the program reports it."
   },
   "cad.unit.ft": "US survey feet",
   "cad.unit.m": "meters",
@@ -768,6 +771,34 @@
     "one": "Added 1 layer from {file}.",
     "other": "Added {n} layers from {file}."
   },
+  "pt.props.block": "From block",
+  "pt.props.block.v": "{block} on {layer} (handle {handle})",
+  "cad.blk.head": "Survey points from blocks",
+  "cad.blk.lede": "Each chosen block reference in model space becomes a survey point at its insertion point. The drawing is not changed, and each point remembers its block.",
+  "cad.blk.col.take": "Take",
+  "cad.blk.col.block": "Block",
+  "cad.blk.col.count": "References",
+  "cad.blk.col.layers": "On layers",
+  "cad.blk.col.tags": "Attributes",
+  "cad.blk.take": "Make points from {block}",
+  "cad.blk.bylayer": "Or every block reference on these layers:",
+  "cad.blk.layer": "{layer} ({n})",
+  "cad.blk.num": "Point number",
+  "cad.blk.num.next": "Next free numbers",
+  "cad.blk.desc": "Description",
+  "cad.blk.desc.block": "The block's name",
+  "cad.blk.desc.layer": "The layer's name",
+  "cad.blk.z": "Elevation",
+  "cad.blk.z.insert": "The insertion point's Z",
+  "cad.blk.z.none": "None",
+  "cad.blk.attr": "Attribute {tag}",
+  "cad.blk.what": { "one": "{n} survey point from blocks.", "other": "{n} survey points from blocks." },
+  "cad.blk.what.none": "No blocks chosen.",
+  "cad.blk.undo": "Points from blocks in {file}",
+  "cad.blk.added": { "one": "Added {n} survey point from the blocks in {file}.", "other": "Added {n} survey points from the blocks in {file}." },
+  "cad.blk.renumbered": { "one": "{n} number was taken already and got a new one.", "other": "{n} numbers were taken already and got new ones." },
+  "cad.blk.noz": { "one": "{n} point has no elevation: its attribute is not a number.", "other": "{n} points have no elevation: their attribute is not a number." },
+  "cad.blk.nonum": { "one": "{n} reference had no number attribute and got the next free number.", "other": "{n} references had no number attribute and got the next free numbers." },
   "cad.ui.after": "Each step is undoable (Ctrl+Z).",
   "cad.ui.nothing": "{file} has no linework in model space.",
   "cad.ui.reading": "Reading {file}…",
@@ -1028,6 +1059,9 @@
   "v3d.map.loading": "Loading the map layers…",
   "v3d.map.none": "No map layer to drape: add one under GIS › Map (the surfaces show their elevation bands meanwhile).",
   "v3d.map.noload": "The map tools could not be loaded. Check the connection and try again.",
+  "v3d.show.labels": "Labels",
+  "s3.label.point": "{n}  {z}",
+  "s3.labels.cut": "Only the first {n} labels are shown.",
   "v3d.show.gis": "GIS layers",
   "v3d.gis.cut": "GIS layers have more than {n} line pieces: the rest is not drawn in 3D.",
   "v3d.gis.off": {
@@ -1452,12 +1486,15 @@
   "mh.nospans": "Nothing to move: no cut and no fill along the sample lines.",
   "mh.saved": "Mass haul saved as CSV.",
   "mh.file": "{stem} {name} mass haul.csv",
-
   "touch.draft": "Drawing the line",
   "touch.finish": "Finish",
   "touch.back": "Undo point",
   "touch.cancel": "Cancel",
-  "touch.back.done": {"=0": "Took the last point back; none left.", "one": "Took the last point back; {n} point left.", "other": "Took the last point back; {n} points left."},
+  "touch.back.done": {
+    "=0": "Took the last point back; none left.",
+    "one": "Took the last point back; {n} point left.",
+    "other": "Took the last point back; {n} points left."
+  },
   "viewcube.face.top": "Top",
   "viewcube.face.bottom": "Bottom",
   "viewcube.face.front": "Front",
@@ -1485,14 +1522,15 @@
   "viewcube.letter.s": "S",
   "viewcube.letter.w": "W",
   "viewcube.axes": "Axes: X red, Y green, Z blue",
-
   "save.cancelled": "Not saved: the save dialog was closed.",
   "save.failed": "Not saved: {error}",
   "save.written": "Saved {name}.",
-
-  "recover.done": {"=0": "Recovered {file}. Save to keep it.", "one": "Recovered {file} ({n} survey point). Save to keep it.", "other": "Recovered {file} ({n} survey points). Save to keep it."},
+  "recover.done": {
+    "=0": "Recovered {file}. Save to keep it.",
+    "one": "Recovered {file} ({n} survey point). Save to keep it.",
+    "other": "Recovered {file} ({n} survey points). Save to keep it."
+  },
   "recover.failed": "The recovered copy is not a CivilCraft project.",
-
   "scene.layer.minr": "Minor contours",
   "scene.layer.majr": "Major contours",
   "scene.layer.topotext": "Contour labels",
@@ -1512,29 +1550,46 @@
   "scene.layer.strc": "Structures",
   "scene.layer.strmtext": "Pipe labels",
   "scene.layer.prob": "Pipe network problems",
-
   "scene.pad.label": "{name} EL {z}",
   "scene.pad.default": "Pad",
   "scene.sta.pc": "PC {sta}",
   "scene.sta.pt": "PT {sta}",
   "scene.al.default": "Alignment",
   "scene.strc.rim": "{name} RIM {rim}",
-
   "units.ft": "US feet",
   "units.m": "Metres",
-
   "thin.spacing": "The spacing must be a positive number.",
-
-  "dxf.renamed": {"one": "{n} layer name was changed to fit R12.", "other": "{n} layer names were changed to fit R12."},
-
+  "dxf.renamed": {
+    "one": "{n} layer name was changed to fit R12.",
+    "other": "{n} layer names were changed to fit R12."
+  },
+  "why.minr": "Design minimum radius",
+  "why.minr.none": "none",
+  "why.undo.minr": "Design minimum radius",
+  "why.head.error": "Why it has no solution, and what would fit:",
+  "why.head.min": "Curves under the design minimum radius:",
+  "why.overlap": "The curves at PI {a} and PI {b} need {need} {u} of tangent between them ({ta} + {tb}), but the PIs are {dist} {u} apart.",
+  "why.overlap.one": "The curve at PI {pi} needs {need} {u} of tangent towards PI {other}, but the PIs are {dist} {u} apart.",
+  "why.none.at": "No curve at PI {pi} fits while PI {other}'s curve is this big.",
+  "why.back": "PI {pi} turns straight back, so no curve can go there.",
+  "why.min": "The radius at PI {pi} ({r} {u}) is under the design minimum of {min} {u}.",
+  "why.min.none": "No radius at PI {pi} both meets the minimum ({min} {u}) and fits: its tangents allow at most {max} {u}. Move PI {pi} or a neighbour, or lower the minimum.",
+  "why.fix.r": "PI {pi}: R {r} {u} (the largest that fits)",
+  "why.fix.both": "Both: R {ra} and {rb} {u}",
+  "why.fix.min": "PI {pi}: R {r} {u} (the smallest that meets the minimum)",
+  "why.fix.nocurve": "No curve at PI {pi}",
+  "why.undo.r": "Radius at PI {pi}: {r}",
+  "why.undo.both": "Radii at PI {a} and PI {b}",
+  "why.vc.before": "The vertical curve at PVI {pvi} (L {l}) runs back into the PVI or curve before it: there are only {room} {u} on that side, and it needs half its length on each side.",
+  "why.vc.past": "The vertical curve at PVI {pvi} (L {l}) runs past the next PVI: there are only {room} {u} on that side, and it needs half its length on each side.",
+  "why.fix.l": "PVI {pvi}: L {l} {u}, K {k} (the longest that fits)",
+  "why.undo.l": "Curve length at PVI {pvi}: {l}",
   "al.err.two": "An alignment needs at least two points.",
   "al.err.back": "PI {pi} turns straight back; it cannot take a curve.",
   "al.err.overlap": "The curves at PI {a} and PI {b} overlap: they need {need} of tangent, the PIs are {dist} apart. Use smaller radii.",
-
   "prof.err.two": "Two PVIs at station {sta}.",
   "prof.err.before": "The vertical curve at PVI {pvi} (L = {len}) starts before the curve or PVI before it ends.",
   "prof.err.past": "The vertical curve at PVI {pvi} (L = {len}) runs past the next PVI.",
-
   "xml.err.comment": "Unclosed comment.",
   "xml.err.cdata": "Unclosed CDATA.",
   "xml.err.pi": "Unclosed processing instruction.",
@@ -1549,14 +1604,18 @@
   "xml.err.attr": "Unclosed attribute in {tag}.",
   "xml.err.ends": "The file ends inside {tag}.",
   "xml.err.none": "No XML element found.",
-
+  "ui.prof.fl": "Feature lines",
+  "ui.prof.fl.title": "Show feature lines in the profile: where they cross the alignment, labelled with their name and elevation",
+  "ui.prof.fl.within": "Alongside within",
+  "ui.prof.fl.within.title": "Also draw the feature lines that run within this distance of the centerline (empty or 0: crossings only)",
+  "pv.fl.cross": "{name} {z}",
+  "pv.fl.within.bad": "Type a distance of 0 or more (empty = crossings only).",
   "pv.empty": "Draw an alignment to see its profile.",
   "pv.ve": "Vertical exaggeration {ve}×",
   "pv.lk": "L {len}  K {k}",
   "pv.high": "High {sta} · {z}",
   "pv.low": "Low {sta} · {z}",
   "pv.pvi": "PVI {sta} · {z}",
-
   "plot.paper.letter": "Letter 8.5 × 11 in",
   "plot.paper.tabloid": "Tabloid 11 × 17 in",
   "plot.paper.ansi-d": "ANSI D 22 × 34 in",
@@ -1567,7 +1626,6 @@
   "plot.title": "Site plan",
   "plot.scale": "Scale {scale}",
   "plot.made": "CivilCraft (lab build) · {date}",
-
   "pipes.default": "Storm",
   "pipes.p.offsurf": "{name} is off the surface and has no rim elevation.",
   "pipes.p.unconnected": "{name} is not connected to two structures.",
@@ -1586,47 +1644,56 @@
   "pipes.loop": "The pipes form a loop; flow has to end at an outlet.",
   "pipes.loop.inv": "The pipes form a loop; inverts cannot be set.",
   "pipes.noground": "{name}: no ground at {at} to start from.",
-
   "corr.err.al": "The alignment has errors.",
   "corr.err.prof": "The corridor needs a design profile without errors.",
   "corr.err.slopes": "Cut and fill slopes must be more than 0.",
   "corr.err.overlap": "The design profile does not overlap the alignment.",
   "corr.err.two": "The corridor needs at least two sections on the surface.",
-  "corr.off": {"one": "{n} side slope runs off the surface before meeting the ground.", "other": "{n} side slopes run off the surface before meeting the ground."},
+  "corr.off": {
+    "one": "{n} side slope runs off the surface before meeting the ground.",
+    "other": "{n} side slopes run off the surface before meeting the ground."
+  },
   "corr.cross": "The corridor’s daylight lines cross (sections overlap, for example on the inside of a tight curve). Use a larger radius or narrower assembly.",
-
   "grade.err.cross": "The pad outline crosses itself.",
   "grade.err.three": "A pad needs at least three corners around some area.",
   "grade.err.slopes": "Cut and fill slopes must be more than 0 (horizontal to 1 vertical).",
-  "grade.off": {"one": "{n} slope line runs off the surface before meeting it: the pad is too close to the surface's edge or too high/low.", "other": "{n} slope lines run off the surface before meeting it: the pad is too close to the surface's edge or too high/low."},
+  "grade.off": {
+    "one": "{n} slope line runs off the surface before meeting it: the pad is too close to the surface's edge or too high/low.",
+    "other": "{n} slope lines run off the surface before meeting it: the pad is too close to the surface's edge or too high/low."
+  },
   "grade.daycross": "The daylight line crosses itself (slopes from different sides of the pad run into each other). Reshape the pad or change the slopes.",
   "grade.none": "No slope lines.",
   "grade.bl.edge": "{name} edge",
   "grade.bl.daylight": "{name} daylight",
-
   "gtw.cell.bad": "The cell size must be a positive number.",
   "gtw.no_outline": "The surface has no outline.",
   "gtw.too_many": "At this cell size the grid would be {w} × {h} cells ({cells} million); the most CivilCraft writes is {max} million. Use a larger cell.",
   "gtw.size_wrong": "The grid size is wrong.",
   "gtw.north_up": "Only north-up grids are written.",
   "gtw.over_4gb": "The GeoTIFF would be over 4 GB; use a larger cell.",
-
-  "pts.bad.cols": {"one": "{n} column, expected {want} ({format})", "other": "{n} columns, expected {want} ({format})"},
+  "pts.bad.cols": {
+    "one": "{n} column, expected {want} ({format})",
+    "other": "{n} columns, expected {want} ({format})"
+  },
   "pts.bad.ne": "northing or easting is not a number",
   "pts.bad.z": "elevation is not a number",
   "pts.bad.latlon": "latitude outside ±90° or longitude outside ±180°",
   "pts.bad.nonum": "no point number",
   "pts.bad.twice": "point {num} appears twice (the first one is kept)",
-
   "clip.why.newer": "newer text on the clipboard",
   "clip.why.text": "text on the clipboard",
   "clip.why.unread": "The clipboard holds text, but no points could be read from it ({why}).",
   "clip.why.norows": "no rows",
   "clip.why.own": "CivilCraft copy",
   "clip.why.nothing": "Nothing to paste: select survey points and copy them first (Ctrl+C), or copy point rows (P,N,E,Z,D) in a spreadsheet.",
-  "clip.kept": {"one": "{n} kept its number", "other": "{n} kept their numbers"},
-  "clip.changed": {"one": "{n} got a new number: {was} became {now}", "other": "{n} got new numbers: {was} became {now}"},
-
+  "clip.kept": {
+    "one": "{n} kept its number",
+    "other": "{n} kept their numbers"
+  },
+  "clip.changed": {
+    "one": "{n} got a new number: {was} became {now}",
+    "other": "{n} got new numbers: {was} became {now}"
+  },
   "terrain.unit.m": "meters",
   "terrain.unit.ft": "feet",
   "terrain.unit.ftus": "US survey feet",
@@ -1634,7 +1701,6 @@
   "terrain.crs.own": "The file describes its own coordinate system (no EPSG code); CivilCraft cannot use that description yet. Pick the system.",
   "terrain.crs.noload": "The list of coordinate systems is not loaded.",
   "terrain.crs.unknown": "The file names EPSG:{code}, which is not in CivilCraft’s list (systems that need a grid shift file, such as NAD27, are left out). Pick the system.",
-
   "raster.not_tiff": "This is not a TIFF file CivilCraft can read ({reason}).",
   "raster.bad_size": "The image size in this file ({w} × {h}) is not usable.",
   "raster.bad_cells": "The cell values in this file ({bits}-bit, format {fmt}) are not a kind CivilCraft reads.",
@@ -1658,24 +1724,39 @@
   "raster.image_reduced": "The image is {w} × {h} pixels; it was read at {rw} × {rh}.",
   "raster.big.billion": "{n} billion",
   "raster.big.million": "{n} million",
-
   "tin.err.bndy": "The boundary does not overlap the points.",
   "tin.bndy.cut": "The boundary reaches past the points; it was cut back to their outline.",
   "tin.err.bndyz": "A boundary corner has no elevation.",
   "tin.err.noz": "No points with elevations.",
   "tin.err.three": "A surface needs at least three points with elevations.",
   "tin.err.line": "The points are all on one line: no triangles.",
-  "tin.constraint": {"one": "{n} breakline piece could not be forced into the surface.", "other": "{n} breakline pieces could not be forced into the surface."},
+  "tin.constraint": {
+    "one": "{n} breakline piece could not be forced into the surface.",
+    "other": "{n} breakline pieces could not be forced into the surface."
+  },
   "tin.err.inside": "No triangles are left inside the boundary.",
-  "tin.merged": {"one": "{n} point was at the same place as another and joined it.", "other": "{n} points were at the same place as another and joined it."},
-  "tin.zconflict": {"one": "{n} place has two different elevations (points on top of each other, or breaklines crossing at different heights); it uses the breakline’s or the first one.", "other": "{n} places have two different elevations (points on top of each other, or breaklines crossing at different heights); they use the breakline’s or the first one."},
-  "tin.noz": {"one": "{n} point has no elevation and was left out.", "other": "{n} points have no elevation and were left out."},
+  "tin.merged": {
+    "one": "{n} point was at the same place as another and joined it.",
+    "other": "{n} points were at the same place as another and joined it."
+  },
+  "tin.zconflict": {
+    "one": "{n} place has two different elevations (points on top of each other, or breaklines crossing at different heights); it uses the breakline’s or the first one.",
+    "other": "{n} places have two different elevations (points on top of each other, or breaklines crossing at different heights); they use the breakline’s or the first one."
+  },
+  "tin.noz": {
+    "one": "{n} point has no elevation and was left out.",
+    "other": "{n} points have no elevation and were left out."
+  },
   "tin.err.nopts": "The surface has no points.",
-  "tin.badfaces": {"one": "{n} face referred to missing points or had no area and was left out.", "other": "{n} faces referred to missing points or had no area and were left out."},
+  "tin.badfaces": {
+    "one": "{n} face referred to missing points or had no area and was left out.",
+    "other": "{n} faces referred to missing points or had no area and were left out."
+  },
   "tin.err.nofaces": "The surface has no usable faces.",
-
-  "raster.bands_n": {"one": "The file has {n} band; the first is read as elevations.", "other": "The file has {n} bands; the first is read as elevations."},
-
+  "raster.bands_n": {
+    "one": "The file has {n} band; the first is read as elevations.",
+    "other": "The file has {n} bands; the first is read as elevations."
+  },
   "lx.err.root": "This is XML but not LandXML (its root element is {tag}).",
   "lx.unit.m": "Unknown length unit \"{unit}\"; read as metres.",
   "lx.unit.ft": "Unknown length unit \"{unit}\"; read as feet.",
@@ -1687,7 +1768,10 @@
   "lx.bl.no3d": "Breaklines without 3D points were skipped.",
   "lx.def.breakline": "Breakline",
   "lx.bndy.outer": "Only outer boundaries are read (hide/show/data-clip boundaries were skipped).",
-  "lx.faces.hidden": {"one": "{n} invisible face was left out.", "other": "{n} invisible faces were left out."},
+  "lx.faces.hidden": {
+    "one": "{n} invisible face was left out.",
+    "other": "{n} invisible faces were left out."
+  },
   "lx.surf.nofaces": "Surface \"{name}\" has no faces and was skipped.",
   "lx.al.nogeom": "Alignment \"{name}\" has no geometry and was skipped.",
   "lx.al.spirals": "Alignment \"{name}\" has spirals or other elements CivilCraft cannot draw yet; it was skipped.",
@@ -1702,7 +1786,6 @@
   "lx.pipe.missing": "Pipes that refer to missing structures were skipped.",
   "lx.pipe.round": "Egg, elliptical, box pipes and channels were read as round pipes of no size.",
   "lx.notyet": "The file's {what} are not read yet.",
-
   "las.class.0": "Never classified",
   "las.class.1": "Unclassified",
   "las.class.2": "Ground",
@@ -1745,25 +1828,37 @@
   "las.bad.laz_open": "This LAS file cannot be read: the compressed points could not be opened (the file may be cut short or damaged).",
   "las.bad.laz_len": "This LAS file cannot be read: the compressed point length does not match its format.",
   "las.laz.stopped": "The compressed points stop after {read} of {n}: the file may be cut short or damaged.",
-
   "gstate.unreadable": "The GIS layers in the file could not be read.",
-  "gstate.bad.features": {"one": "{n} feature of GIS layer {layer} could not be read.", "other": "{n} features of GIS layer {layer} could not be read."},
-  "gstate.bad.layers": {"one": "{n} GIS layer in the file could not be read.", "other": "{n} GIS layers in the file could not be read."},
+  "gstate.bad.features": {
+    "one": "{n} feature of GIS layer {layer} could not be read.",
+    "other": "{n} features of GIS layer {layer} could not be read."
+  },
+  "gstate.bad.layers": {
+    "one": "{n} GIS layer in the file could not be read.",
+    "other": "{n} GIS layers in the file could not be read."
+  },
   "layers.default": "Layer",
-
   "project.untitled": "Untitled site",
   "surface.eg": "Existing ground",
   "project.corridor": "{name} corridor",
   "project.err.notcc": "This is not a CivilCraft project file.",
   "project.err.newer": "This project file is from a newer CivilCraft (version {version}).",
-  "project.bad.points": {"one": "{n} points could not be read.", "other": "{n} points could not be read."},
+  "project.bad.points": {
+    "one": "{n} points could not be read.",
+    "other": "{n} points could not be read."
+  },
   "project.def.structure": "Structure",
   "project.def.pipe": "Pipe",
-  "project.bad.pipes": {"one": "{n} pipes could not be read.", "other": "{n} pipes could not be read."},
+  "project.bad.pipes": {
+    "one": "{n} pipes could not be read.",
+    "other": "{n} pipes could not be read."
+  },
   "project.bad.crs": "The coordinate system in the file could not be read; the project has none.",
   "project.def.crs": "Coordinate system",
-  "project.bad.maps": {"one": "{n} map picture in the file could not be read.", "other": "{n} map pictures in the file could not be read."},
-
+  "project.bad.maps": {
+    "one": "{n} map picture in the file could not be read.",
+    "other": "{n} map pictures in the file could not be read."
+  },
   "geom.short": "A geometry is cut short.",
   "geom.deep": "A geometry is nested too deeply.",
   "geom.order": "A geometry has an unknown byte order.",
@@ -1778,19 +1873,26 @@
   "dbf.cut": "The .dbf says it has {n} records but holds {avail} (cut short); the rest have no attributes.",
   "dbf.max": "Only the first {n} attribute records were read.",
   "dbf.noenc": "The .dbf names no encoding (no .cpg); its text was read as Windows-1252.",
-  "dbf.deleted": {"one": "{n} deleted record was left out.", "other": "{n} deleted records were left out."},
+  "dbf.deleted": {
+    "one": "{n} deleted record was left out.",
+    "other": "{n} deleted records were left out."
+  },
   "dbf.memo": "Memo fields (stored in a separate .dbt file) were not read.",
-
   "surface.fg": "Graded surface",
   "s3.contours.minor": "{surface} minor contours",
   "s3.contours.major": "{surface} major contours",
   "s3.alignments": "Alignments",
   "s3.stations": "Station ticks",
   "s3.corridors": "Corridor feature lines",
-  "s3.noinv": {"one": "One pipe has no inverts yet and is not drawn.", "other": "{n} pipes have no inverts yet and are not drawn."},
-  "s3.norim": {"one": "One structure has no rim elevation and is not drawn.", "other": "{n} structures have no rim elevation and are not drawn."},
+  "s3.noinv": {
+    "one": "One pipe has no inverts yet and is not drawn.",
+    "other": "{n} pipes have no inverts yet and are not drawn."
+  },
+  "s3.norim": {
+    "one": "One structure has no rim elevation and is not drawn.",
+    "other": "{n} structures have no rim elevation and are not drawn."
+  },
   "s3.point": "Point {n}",
-
   "shp.noshp": "{name}: the .shp file (the shapes) is missing; a shapefile needs at least .shp and .dbf.",
   "shp.short": "{name}.shp is too short to be a shapefile.",
   "shp.header": "{name}.shp is not a shapefile (its header is wrong).",
@@ -1807,15 +1909,20 @@
   "shp.multi": "{name}: multipoints were split into single points (each keeps its record’s attributes).",
   "shp.m": "{name}: measure (M) values were left out.",
   "shp.bad": "{name}.shp: shape {rec} is damaged (its counts do not fit its length).",
-
   "geojson.crs.member": "The file’s old-style \"crs\" member (\"{crs}\") was not understood; RFC 7946 longitude/latitude was assumed.",
   "geojson.json": "{name} is not valid JSON.",
   "geojson.not": "{name} is not GeoJSON.",
   "geojson.nolist": "{name}: the FeatureCollection has no features list.",
   "geojson.none": "{name} is not GeoJSON (no FeatureCollection, Feature or geometry).",
   "geojson.max": "{name}: only the first {n} features were read.",
-  "geojson.bad": {"one": "{name}: {n} geometry could not be read and was left out.", "other": "{name}: {n} geometries could not be read and were left out."},
-  "geojson.empty": {"one": "{name}: {n} feature has no geometry and was left out.", "other": "{name}: {n} features have no geometry and were left out."},
+  "geojson.bad": {
+    "one": "{name}: {n} geometry could not be read and was left out.",
+    "other": "{name}: {n} geometries could not be read and were left out."
+  },
+  "geojson.empty": {
+    "one": "{name}: {n} feature has no geometry and was left out.",
+    "other": "{name}: {n} features have no geometry and were left out."
+  },
   "geojson.flat": "{name}: geometry collections were split into their parts.",
   "geojson.multi": "{name}: multipoints were split into single points (each keeps its feature’s properties).",
   "geojson.layer.pt": "{name} (points)",
@@ -1837,7 +1944,6 @@
   "zip.size": "A file in the zip ({file}) unpacked to a different size than it says (damaged).",
   "zip.method": "{file} is packed with a method CivilCraft does not read ({method}); re-zip it with ordinary compression.",
   "zip.crc": "A file in the zip ({file}) fails its checksum (damaged).",
-
   "v3d.show.triangles": "Triangle edges",
   "v3d.show.contours": "Contours",
   "v3d.show.alignments": "Alignments and stations",
@@ -1870,7 +1976,6 @@
   "v3d.empty": "Nothing to show in 3D yet: open survey points, or turn something on under Show.",
   "v3d.exported": "Exported {file} (true scale, meters, Y up; origin E {e}, N {n}, elevation {z}).",
   "v3d.tip.at": "E {e}  N {n}  EL {z} {u}",
-
   "tui.picture": "{name} is a picture, not an elevation grid; map layers open pictures (GIS › Map).",
   "tui.crs.not_stated": "not stated",
   "tui.shift.unknown": "The shift between {a} and {b} is not known for one of them: the points may be off by hundreds of feet. Check them against something you know.",
@@ -1967,7 +2072,10 @@
   "tui.done.surface": "The surface is the grid from {name}: {pts} grid points, {faces} triangles (two per cell; {skipped} triangles left out where a corner had no data). It equals the grid at its points and is planar between them.",
   "tui.err.no_cell": "No cell in the area has an elevation.",
   "tui.undo.import": "Import {name}",
-  "tui.done.dem": {"one": "Imported {count} points from {name} (description DEM; every cell, {d} {unit} apart).", "other": "Imported {count} points from {name} (description DEM; every {n} cells, {d} {unit} apart)."},
+  "tui.done.dem": {
+    "one": "Imported {count} points from {name} (description DEM; every cell, {d} {unit} apart).",
+    "other": "Imported {count} points from {name} (description DEM; every {n} cells, {d} {unit} apart)."
+  },
   "tui.points.reading": "Reading the points…",
   "tui.points.reading_pct": "Reading the points… {pct}% — {kept} kept",
   "tui.err.no_point": "No point of the classes picked is in the area.",
@@ -2003,7 +2111,6 @@
   "tui.gt.title": "Export the surface as a GeoTIFF",
   "tui.gt.lede": "An elevation grid for GIS: one value per cell, sampled from the surface at each cell’s center.",
   "tui.gt.head": "Surface as a GeoTIFF elevation grid",
-
   "gpkg.load": "The GeoPackage reader could not be loaded ({status}).",
   "gpkg.notsqlite": "This is not a GeoPackage (it is not an SQLite file).",
   "gpkg.damaged": "This GeoPackage is damaged (SQLite could not open it).",
@@ -2011,8 +2118,14 @@
   "gpkg.unreadable": "This GeoPackage could not be read: {why}",
   "gpkg.notable": "That table is not in the GeoPackage.",
   "gpkg.max": "{table}: only the first {n} features were read.",
-  "gpkg.bad": {"one": "{table}: {n} geometry could not be read.", "other": "{table}: {n} geometries could not be read."},
-  "gpkg.ext": {"one": "{table}: {n} geometry uses an extended (non-standard) encoding and was left out.", "other": "{table}: {n} geometries use an extended (non-standard) encoding and were left out."},
+  "gpkg.bad": {
+    "one": "{table}: {n} geometry could not be read.",
+    "other": "{table}: {n} geometries could not be read."
+  },
+  "gpkg.ext": {
+    "one": "{table}: {n} geometry uses an extended (non-standard) encoding and was left out.",
+    "other": "{table}: {n} geometries use an extended (non-standard) encoding and were left out."
+  },
   "gpkg.multi": "{table}: multipoints were split into single points.",
   "gpkg.layer.pt": "{table} (points)",
   "gpkg.layer.ln": "{table} (lines)",
@@ -2020,10 +2133,20 @@
   "gpkg.geom.not": "Not a GeoPackage geometry.",
   "gpkg.geom.env": "Bad envelope.",
   "gpkg.geom.short": "Cut short.",
-
-  "tui.plan.pts": {"=1": "Up to {count} points: every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "one": "Up to {count} points: every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "=2": "Up to {count} points: every {n}nd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "=3": "Up to {count} points: every {n}rd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "other": "Up to {count} points: every {n}th cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out."},
-  "tui.plan.tin": {"=1": "Up to {count} grid points ({tri} triangles): every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "one": "Up to {count} grid points ({tri} triangles): every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "=2": "Up to {count} grid points ({tri} triangles): every {n}nd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "=3": "Up to {count} grid points ({tri} triangles): every {n}rd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.", "other": "Up to {count} grid points ({tri} triangles): every {n}th cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out."},
-
+  "tui.plan.pts": {
+    "=1": "Up to {count} points: every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "one": "Up to {count} points: every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "=2": "Up to {count} points: every {n}nd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "=3": "Up to {count} points: every {n}rd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "other": "Up to {count} points: every {n}th cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out."
+  },
+  "tui.plan.tin": {
+    "=1": "Up to {count} grid points ({tri} triangles): every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "one": "Up to {count} grid points ({tri} triangles): every cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "=2": "Up to {count} grid points ({tri} triangles): every {n}nd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "=3": "Up to {count} grid points ({tri} triangles): every {n}rd cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out.",
+    "other": "Up to {count} grid points ({tri} triangles): every {n}th cell of {w} × {h}, {d} {unit} apart. Cells with no data are left out."
+  },
   "crs.load": "The list of coordinate systems could not be loaded ({status}).",
   "crs.notloaded": "The list of coordinate systems is not loaded yet.",
   "crs.prj.not": "This is not a coordinate system description (.prj).",
@@ -2041,7 +2164,6 @@
   "crs.pairs.two": "Pick two control points.",
   "crs.pairs.same": "The two control points are in the same place.",
   "crs.wkt.load": "The coordinate system descriptions could not be loaded ({status}).",
-
   "set.order": "Point rows",
   "set.order.hint": "Point, northing, easting, elevation, description — or easting before northing. Used for points you copy (the rows a spreadsheet gets), point rows you paste, and the import's guess when a file has no header row.",
   "set.renum": "Numbers for pasted points",
@@ -2068,7 +2190,6 @@
   "set.internet.off": "Off",
   "set.internet.on": "On",
   "set.internet.hint": "When on, CivilCraft asks the map servers you add for pictures of the area on screen. Your drawing stays on this computer; the server sees the area and your internet address. Off, no map server is asked for anything; a georeferenced image file works either way.",
-
   "crs.unit.m": "meters",
   "crs.unit.ft": "international feet",
   "crs.unit.ftus": "US survey feet",
@@ -2089,7 +2210,6 @@
   "crs.reproject.tin": "The surface came from a LandXML file as triangles, and those cannot be converted here. Use “Rebuild the surface from the points” first, or convert the file before opening it.",
   "crs.reproject.coord": "A coordinate could not be converted (it is outside what the system can handle).",
   "crs.reproject.point": "Point {n} could not be converted.",
-
   "mapl.err.404": "The server has no picture for part of this area (404).",
   "mapl.http.status": "The server answered {status}.",
   "mapl.http.404": "The server answered 404 (not found): check the URL.",
@@ -2185,11 +2305,17 @@
   "mapl.wms.no_place": "This layer is not offered in the project’s system, web Mercator or WGS 84, so CivilCraft cannot place it.",
   "mapl.wms.code_same": "Pictures will be asked for in EPSG:{code} — the project’s system.",
   "mapl.wms.code_warp": "Pictures will be asked for in EPSG:{code} and warped into the project’s system.",
-  "mapl.wms.found": {"one": "{title} (WMS {version}): {n} layer.", "other": "{title} (WMS {version}): {n} layers."},
+  "mapl.wms.found": {
+    "one": "{title} (WMS {version}): {n} layer.",
+    "other": "{title} (WMS {version}): {n} layers."
+  },
   "mapl.f.layer": "Layer",
   "mapl.set.opt": "{id} (EPSG:{code})",
   "mapl.set.opt_missing": "{id} (EPSG:{code}) — not in CivilCraft’s list",
-  "mapl.wmts.found": {"one": "{title}: {n} layer.", "other": "{title}: {n} layers."},
+  "mapl.wmts.found": {
+    "one": "{title}: {n} layer.",
+    "other": "{title}: {n} layers."
+  },
   "mapl.f.set": "Tile matrix set",
   "mapl.arc.service": "Service",
   "mapl.arc.tiled": "{name} ({kind}): cached web Mercator tiles — drawn from its tiles.",
@@ -2207,7 +2333,6 @@
   "mapl.undo.show": "Show map layer",
   "mapl.undo.hide": "Hide map layer",
   "mapl.undo.opacity": "Map layer opacity",
-
   "gread.epsg.unknown.grid": "EPSG:{code} is not a system CivilCraft knows (not in its list, or it needs a grid shift file).",
   "gread.epsg.unknown": "EPSG:{code} is not a system CivilCraft knows.",
   "gread.big": "{file} is over 200 MB; CivilCraft does not open files that large yet.",
@@ -2231,7 +2356,10 @@
   "gread.bad.crs": "{file}: its coordinate system could not be used ({why}); it was not imported.",
   "gread.noproject": "{file} is in {crs} but the project has no coordinate system; it was not imported.",
   "gread.noconvert": "{file}: it could not be converted ({why}).",
-  "gread.outside": {"one": "{layer}: {n} feature is outside ±180° / ±90°, so it is not latitude and longitude; left out (the file may need a .prj).", "other": "{layer}: {n} features are outside ±180° / ±90°, so they are not latitude and longitude; left out (the file may need a .prj)."},
+  "gread.outside": {
+    "one": "{layer}: {n} feature is outside ±180° / ±90°, so it is not latitude and longitude; left out (the file may need a .prj).",
+    "other": "{layer}: {n} features are outside ±180° / ±90°, so they are not latitude and longitude; left out (the file may need a .prj)."
+  },
   "gread.someconvert": "{layer}: some features could not be converted.",
   "gread.src.asproject": "{name} (as the project)",
   "gread.z": "{file}: elevations converted from {from} to {to}.",
@@ -2242,8 +2370,10 @@
   "gread.lx.name": "the file names a system CivilCraft cannot match (“{name}”)",
   "gread.lx.noname": "no name",
   "gread.undo": "Import {file}",
-  "gread.undo.many": {"one": "Import {n} GIS file", "other": "Import {n} GIS files"},
-
+  "gread.undo.many": {
+    "one": "Import {n} GIS file",
+    "other": "Import {n} GIS files"
+  },
   "ui.tb.new": "New",
   "ui.tb.new.title": "New project",
   "ui.tb.open": "Open",
@@ -2341,6 +2471,11 @@
   "ui.show.slopes": "Slope arrows",
   "ui.show.points": "Points",
   "ui.show.pointlabels": "Point labels",
+  "ui.show.grades": "Grades and elevations on feature lines (E)",
+  "ui.show.grades.title": "Every feature line's grades and elevations on the screen only: nothing is added to the drawing, the PDF, DXF or DWG",
+  "fl.grades.on": "Grades and elevations along the feature lines, on the screen only (E hides them).",
+  "fl.grades.none": "Grades and elevations will show along feature lines once there are some (E hides this).",
+  "fl.grades.off": "Grades and elevations hidden.",
   "ui.show.breaklines": "Breaklines",
   "ui.show.outline": "Surface edge",
   "ui.show.pipes": "Pipes",
@@ -2391,7 +2526,6 @@
   "ui.plot.color": "Layer colors",
   "ui.plot.mono": "Black",
   "ui.plot.go": "Download PDF",
-
   "gexp.kind.points": "Survey points",
   "gexp.kind.contours-eg": "Contours of existing ground",
   "gexp.kind.contours-fg": "Contours of the graded surface",
@@ -2412,7 +2546,6 @@
   "gexp.nocrs": "The project has no coordinate system, so the file carries the project’s own numbers and says no system; the GIS department will have to be told which system they are in.",
   "gexp.nocode": "The project’s system has no EPSG code and no description CivilCraft can write, so the file names no system.",
   "gexp.grid": "Coordinates were written in grid ({crs}), not the project’s ground/local numbers.",
-
   "basemap.xml.nothing": "The server sent nothing.",
   "basemap.wms.big": "The WMS capabilities is {mb} MB; CivilCraft reads up to 8 MB of it.",
   "basemap.wmts.big": "The WMTS capabilities is {mb} MB; CivilCraft reads up to 8 MB of it.",
@@ -2446,8 +2579,10 @@
   "basemap.world.long": "This is not a world file (it is too long).",
   "basemap.world.six": "A world file has six numbers, one per line; this one does not.",
   "basemap.world.zero": "The world file’s pixel size is zero.",
-  "basemap.maps.bad": {"one": "{n} map layer in the file could not be read and was left out.", "other": "{n} map layers in the file could not be read and were left out."},
-
+  "basemap.maps.bad": {
+    "one": "{n} map layer in the file could not be read and was left out.",
+    "other": "{n} map layers in the file could not be read and were left out."
+  },
   "layers.color.blue": "Blue",
   "layers.color.orange": "Orange",
   "layers.color.magenta": "Magenta",
@@ -2475,9 +2610,18 @@
   "layers.use.noline": "No line in {layer} has elevations to use.",
   "layers.use.noline.field": "No line in {layer} has elevations in {field} to use.",
   "layers.undo.brk": "Breaklines from {layer}",
-  "layers.use.brk.added": {"one": "{n} breakline ({verts} vertices) added from {layer}.", "other": "{n} breaklines ({verts} vertices) added from {layer}."},
-  "layers.use.brk.added.more": {"one": "{n} breakline ({verts} vertices) added from {layer} to the {before} already drawn.", "other": "{n} breaklines ({verts} vertices) added from {layer} to the {before} already drawn."},
-  "layers.use.brk.skipped": {"one": "{n} line without elevations was left out.", "other": "{n} lines without elevations were left out."},
+  "layers.use.brk.added": {
+    "one": "{n} breakline ({verts} vertices) added from {layer}.",
+    "other": "{n} breaklines ({verts} vertices) added from {layer}."
+  },
+  "layers.use.brk.added.more": {
+    "one": "{n} breakline ({verts} vertices) added from {layer} to the {before} already drawn.",
+    "other": "{n} breaklines ({verts} vertices) added from {layer} to the {before} already drawn."
+  },
+  "layers.use.brk.skipped": {
+    "one": "{n} line without elevations was left out.",
+    "other": "{n} lines without elevations were left out."
+  },
   "layers.use.tin": "The surface is the TIN from a LandXML file, so it uses them only after “Rebuild the surface from the points”.",
   "layers.use.nopoly": "{layer} has no polygon to use as the boundary.",
   "layers.undo.boundary": "Boundary from {layer}",
@@ -2486,9 +2630,14 @@
   "layers.use.nopoint": "No point in {layer} has an elevation.",
   "layers.use.nopoint.field": "No point in {layer} has an elevation in {field}.",
   "layers.undo.pts": "Survey points from {layer}",
-  "layers.use.pts.added": {"one": "{n} survey point added from {layer} (numbers {first}), described “{layer}” so they form a point group.", "other": "{n} survey points added from {layer} (numbers {first} to {last}), described “{layer}” so they form a point group."},
-  "layers.use.pts.skipped": {"one": "{n} without an elevation was left out.", "other": "{n} without an elevation were left out."},
-
+  "layers.use.pts.added": {
+    "one": "{n} survey point added from {layer} (numbers {first}), described “{layer}” so they form a point group.",
+    "other": "{n} survey points added from {layer} (numbers {first} to {last}), described “{layer}” so they form a point group."
+  },
+  "layers.use.pts.skipped": {
+    "one": "{n} without an elevation was left out.",
+    "other": "{n} without an elevation were left out."
+  },
   "vec.kind.pt": "Points",
   "vec.kind.ln": "Lines",
   "vec.kind.pg": "Polygons",
@@ -2498,9 +2647,18 @@
   "vec.kind.pt.withz": "Points with z",
   "vec.kind.ln.withz": "Lines with z",
   "vec.kind.pg.withz": "Polygons with z",
-  "vec.count.pt": {"one": "{count} point", "other": "{count} points"},
-  "vec.count.ln": {"one": "{count} line", "other": "{count} lines"},
-  "vec.count.pg": {"one": "{count} polygon", "other": "{count} polygons"},
+  "vec.count.pt": {
+    "one": "{count} point",
+    "other": "{count} points"
+  },
+  "vec.count.ln": {
+    "one": "{count} line",
+    "other": "{count} lines"
+  },
+  "vec.count.pg": {
+    "one": "{count} polygon",
+    "other": "{count} polygons"
+  },
   "vec.feat.head": "GIS feature",
   "vec.shape.none": "none (no geometry)",
   "vec.shape.pt": "point",
@@ -2551,7 +2709,10 @@
   "vec.ask.note": "Systems whose area holds the data, in the project’s units (state plane and UTM first).",
   "vec.ask.go": "Use this system",
   "vec.reading": "Reading {file}…",
-  "vec.reading.many": {"one": "Reading {n} file…", "other": "Reading {n} files…"},
+  "vec.reading.many": {
+    "one": "Reading {n} file…",
+    "other": "Reading {n} files…"
+  },
   "vec.import.cancelled": "Import cancelled.",
   "vec.import.failed": "Could not read the files: {why}",
   "vec.import.other": "Not read here: {files} (open them on their own).",
@@ -2584,14 +2745,20 @@
   "vec.unknown.which": "Which coordinate system is {file} in?",
   "vec.pick.reason": "Pick the project’s coordinate system; the layers are converted into it.",
   "vec.what.none": "Nothing is ticked.",
-  "vec.what.layers": {"one": "{count} layer ({features} features) will be added as GIS layers, drawn on the plan and listed under GIS layers.", "other": "{count} layers ({features} features) will be added as GIS layers, drawn on the plan and listed under GIS layers."},
+  "vec.what.layers": {
+    "one": "{count} layer ({features} features) will be added as GIS layers, drawn on the plan and listed under GIS layers.",
+    "other": "{count} layers ({features} features) will be added as GIS layers, drawn on the plan and listed under GIS layers."
+  },
   "vec.what.needs": "Choose the project’s coordinate system first: data with a coordinate system is never placed by guesswork.",
   "vec.what.convert": "They are converted from {from} to {to}.",
   "vec.what.convert.local": "They are converted from {from} to {to} and its ground/local adjustment.",
   "vec.what.becomes": "{crs} becomes the project’s coordinate system (the same undo step).",
   "vec.what.undo": "Ctrl+Z undoes the import.",
   "vec.imported.none": "Nothing was imported.",
-  "vec.imported": {"one": "Imported {count} GIS layer ({features} features). Click a feature with Select to see its attributes; Use for the surface is in each layer’s menu.", "other": "Imported {count} GIS layers ({features} features). Click a feature with Select to see its attributes; Use for the surface is in each layer’s menu."},
+  "vec.imported": {
+    "one": "Imported {count} GIS layer ({features} features). Click a feature with Select to see its attributes; Use for the surface is in each layer’s menu.",
+    "other": "Imported {count} GIS layers ({features} features). Click a feature with Select to see its attributes; Use for the surface is in each layer’s menu."
+  },
   "vec.use.nothing": "{layer} has nothing CivilCraft can use for the surface (no elevations, no number field, no polygon).",
   "vec.use.field": "Elevation field",
   "vec.use.selected": "The boundary is the selected polygon (feature {n}).",
@@ -2640,7 +2807,6 @@
   "vec.x.writing": "Writing…",
   "vec.x.done": "Downloaded {file}: {list}.",
   "vec.x.failed": "Could not export: {why}",
-
   "crs.d.latlon.none": "Lat —  Long —",
   "crs.d.latlon.off": "Off the system",
   "crs.d.list": "Coordinate systems",
@@ -2700,7 +2866,10 @@
   "crs.d.match": "{count} systems match “{q}”.",
   "crs.d.match.near": "{count} systems match “{q}”, those whose area holds the place first.",
   "crs.d.nomatch": "No system matches “{q}”. Try the EPSG code, or fewer words.",
-  "crs.d.fit": {"one": "Systems these coordinates fit: {n} system in {unit} put the project’s middle (E {e}, N {n2}) inside their area of use.", "other": "Systems these coordinates fit: {n} systems in {unit} put the project’s middle (E {e}, N {n2}) inside their area of use."},
+  "crs.d.fit": {
+    "one": "Systems these coordinates fit: {n} system in {unit} put the project’s middle (E {e}, N {n2}) inside their area of use.",
+    "other": "Systems these coordinates fit: {n} systems in {unit} put the project’s middle (E {e}, N {n2}) inside their area of use."
+  },
   "crs.d.fit.first": "The first {n} are shown; search to narrow them.",
   "crs.d.fit.none": "No system in {unit} puts the project’s middle (E {e}, N {n}) inside its area of use: the coordinates may be local (an assumed grid), or in another unit. Search by name, or pick near a place.",
   "crs.d.middleat": "middle at {at}",
@@ -2770,7 +2939,6 @@
   "crs.d.set.local": "The project is in {crs} (local coordinates). Nothing moved.",
   "crs.d.undo.remove": "Remove the coordinate system",
   "crs.d.removed": "The project has no coordinate system now. Nothing moved; Ctrl+Z puts it back.",
-
   "cv.gis.noload": "The GIS tools could not be loaded: {why}",
   "cv.open.cannot": "CivilCraft cannot open {files} yet.",
   "cv.edit.need.pts": "Select survey points first: click one, Shift+drag a box, or Ctrl+A.",
@@ -2797,7 +2965,10 @@
   "cv.sf.area3d": "3D area",
   "cv.sf.breaklines": "Breaklines",
   "cv.sf.boundary": "Boundary",
-  "cv.sf.boundary.yes": {"one": "Yes (1 corner)", "other": "Yes ({n} corners)"},
+  "cv.sf.boundary.yes": {
+    "one": "Yes (1 corner)",
+    "other": "Yes ({n} corners)"
+  },
   "cv.sf.notbuilt": "Not built",
   "cv.sf.noneyet": "None yet",
   "cv.undo.boundary.remove": "Remove boundary",
@@ -2821,7 +2992,10 @@
   "cv.ew.net.fill": "{v} fill",
   "cv.ew.net.cut": "{v} cut",
   "cv.ew.item": "{name}: cut {cut}, fill {fill}",
-  "cv.ew.grid": {"one": "Grid method: existing ground and the graded surface sampled every {cell} {u} inside the daylight lines ({cells} cell). No swell or shrink applied.", "other": "Grid method: existing ground and the graded surface sampled every {cell} {u} inside the daylight lines ({cells} cells). No swell or shrink applied."},
+  "cv.ew.grid": {
+    "one": "Grid method: existing ground and the graded surface sampled every {cell} {u} inside the daylight lines ({cells} cell). No swell or shrink applied.",
+    "other": "Grid method: existing ground and the graded surface sampled every {cell} {u} inside the daylight lines ({cells} cells). No swell or shrink applied."
+  },
   "cv.undo.al.rename": "Rename alignment",
   "cv.al.start": "Start station",
   "cv.al.end": "End station",
@@ -2877,15 +3051,24 @@
   "cv.undo.co.fill": "Corridor: fill slope",
   "cv.co.step": "Section every",
   "cv.undo.co.step": "Corridor: section every",
-  "cv.co.facts": {"one": "{n} section from {from} to {to}.", "other": "{n} sections from {from} to {to}."},
-  "cv.co.facts.vol": {"one": "{n} section from {from} to {to}; cut {cut}, fill {fill}.", "other": "{n} sections from {from} to {to}; cut {cut}, fill {fill}."},
+  "cv.co.facts": {
+    "one": "{n} section from {from} to {to}.",
+    "other": "{n} sections from {from} to {to}."
+  },
+  "cv.co.facts.vol": {
+    "one": "{n} section from {from} to {to}; cut {cut}, fill {fill}.",
+    "other": "{n} sections from {from} to {to}; cut {cut}, fill {fill}."
+  },
   "cv.prof.noground": "This alignment has no ground under it to start from.",
   "cv.undo.prof.start": "Start design profile",
   "cv.prof.started": "Design profile started at the ground at both ends. Turn on Add PVIs and click to add grade breaks; give them a curve length in the table.",
   "cv.undo.pad.rename": "Rename pad",
   "cv.undo.pad.z": "Pad elevation",
   "cv.pad.area": "Pad area",
-  "cv.pad.daylight": {"one": "Daylight line: 1 slope line ({cut} in cut, {fill} in fill), farthest {d} {u} out.", "other": "Daylight line: {n} slope lines ({cut} in cut, {fill} in fill), farthest {d} {u} out."},
+  "cv.pad.daylight": {
+    "one": "Daylight line: 1 slope line ({cut} in cut, {fill} in fill), farthest {d} {u} out.",
+    "other": "Daylight line: {n} slope lines ({cut} in cut, {fill} in fill), farthest {d} {u} out."
+  },
   "cv.net.head": "Pipe network",
   "cv.net.storm": "Storm",
   "cv.net.sanitary": "Sanitary",
@@ -2896,8 +3079,14 @@
   "cv.net.mindrop": "Drop in structures",
   "cv.net.note": "These rules are yours to set: the starting values are placeholders, not a standard. Cover is ground to pipe crown (inside diameter; walls not counted), on the graded surface where pads are graded.",
   "cv.net.count": "{structures}, {pipes}.",
-  "cv.net.structures": {"one": "{n} structure", "other": "{n} structures"},
-  "cv.net.pipes": {"one": "{n} pipe", "other": "{n} pipes"},
+  "cv.net.structures": {
+    "one": "{n} structure",
+    "other": "{n} structures"
+  },
+  "cv.net.pipes": {
+    "one": "{n} pipe",
+    "other": "{n} pipes"
+  },
   "cv.net.ok": "Every pipe and structure passes the rules.",
   "cv.net.auto": "Set every invert from the rules",
   "cv.undo.net.inverts": "Set inverts",
@@ -2927,7 +3116,10 @@
   "cv.pp.ok": "This pipe passes the rules.",
   "cv.pp.auto": "Set its inverts from the rules",
   "cv.pt.head": "Point {n}",
-  "cv.pts.n": {"one": "{count} point", "other": "{count} points"},
+  "cv.pts.n": {
+    "one": "{count} point",
+    "other": "{count} points"
+  },
   "cv.pk.selected": "Selected",
   "cv.pk.numbers": "Numbers",
   "cv.pk.groups": "Groups",
@@ -2946,7 +3138,6 @@
   "cv.read.fill": "Fill {d}",
   "cv.read.cut": "Cut {d}",
   "cv.undo.pvi.move": "Move PVI",
-
   "cv.hint.alignment": "Alignment: click the PIs in order. Enter or double-click finishes, Backspace drops the last, Esc cancels.",
   "cv.hint.pad": "Pad: click its corners. Enter or double-click finishes, Backspace drops the last, Esc cancels.",
   "cv.hint.breakline": "Breakline: click survey points in order (it takes their elevations). Enter finishes.",
@@ -2964,18 +3155,36 @@
   "cv.undo.st.delete": "Delete structure",
   "cv.st.deleted": "{name} and its pipes deleted.",
   "cv.undo.pp.delete": "Delete pipe",
-  "cv.undo.pts.delete": {"one": "Delete {count} point", "other": "Delete {count} points"},
-  "cv.pts.deleted": {"one": "{count} point deleted. {surface} Ctrl+Z brings it back.", "other": "{count} points deleted. {surface} Ctrl+Z brings them back."},
+  "cv.undo.pts.delete": {
+    "one": "Delete {count} point",
+    "other": "Delete {count} points"
+  },
+  "cv.pts.deleted": {
+    "one": "{count} point deleted. {surface} Ctrl+Z brings it back.",
+    "other": "{count} points deleted. {surface} Ctrl+Z brings them back."
+  },
   "cv.surface.tin.kept": "The surface is the TIN from the LandXML file, so it did not change (Surface: Rebuild the surface from the points).",
   "cv.surface.rebuilt": "The surface was rebuilt.",
-  "cv.pts.selected": {"one": "{count} point selected.", "other": "{count} points selected."},
+  "cv.pts.selected": {
+    "one": "{count} point selected.",
+    "other": "{count} points selected."
+  },
   "cv.cut.need": "Select survey points to cut first: click one, Shift+drag a box, or Ctrl+A.",
   "cv.copy.need": "Select survey points to copy first: click one, Shift+drag a box, or Ctrl+A.",
   "cv.cut.none": "There are no survey points to cut yet.",
   "cv.copy.none": "There are no survey points to copy yet.",
-  "cv.undo.pts.cut": {"one": "Cut {count} point", "other": "Cut {count} points"},
-  "cv.pts.cut.done": {"one": "Cut {count} point (also on the clipboard as {order} rows for a spreadsheet).", "other": "Cut {count} points (also on the clipboard as {order} rows for a spreadsheet)."},
-  "cv.pts.copied": {"one": "Copied {count} point (also on the clipboard as {order} rows for a spreadsheet).", "other": "Copied {count} points (also on the clipboard as {order} rows for a spreadsheet)."},
+  "cv.undo.pts.cut": {
+    "one": "Cut {count} point",
+    "other": "Cut {count} points"
+  },
+  "cv.pts.cut.done": {
+    "one": "Cut {count} point (also on the clipboard as {order} rows for a spreadsheet).",
+    "other": "Cut {count} points (also on the clipboard as {order} rows for a spreadsheet)."
+  },
+  "cv.pts.copied": {
+    "one": "Copied {count} point (also on the clipboard as {order} rows for a spreadsheet).",
+    "other": "Copied {count} points (also on the clipboard as {order} rows for a spreadsheet)."
+  },
   "cv.pts.paste.how": "Ctrl+V pastes them at the pointer, Ctrl+Shift+V in place.",
   "cv.pts.noshare": "(Too many to share with other tabs.)",
   "cv.paste.from.text": "point rows from the clipboard",
@@ -2985,13 +3194,34 @@
   "cv.paste.units.ft": "They were copied in US feet; the numbers are kept as they are (not converted).",
   "cv.dup.need": "Select survey points to duplicate first: click one, Shift+drag a box, or Ctrl+A.",
   "cv.dup.none": "There are no survey points to duplicate yet.",
-  "cv.paste.follow": {"one": "{count} point ({from}) follows the pointer: click where it goes. Enter puts it at its own coordinates; Esc cancels.", "other": "{count} points ({from}) follow the pointer: click where they go. Enter puts them at their own coordinates; Esc cancels."},
-  "cv.undo.paste": {"one": "Paste {count} point", "other": "Paste {count} points"},
-  "cv.undo.paste.place": {"one": "Paste in place {count} point", "other": "Paste in place {count} points"},
-  "cv.undo.duplicate": {"one": "Duplicate {count} point", "other": "Duplicate {count} points"},
-  "cv.paste.done": {"one": "Pasted {count} point. {renumber}.", "other": "Pasted {count} points. {renumber}."},
-  "cv.paste.done.place": {"one": "Pasted {count} point at their own coordinates. {renumber}.", "other": "Pasted {count} points at their own coordinates. {renumber}."},
-  "cv.dup.done": {"one": "Duplicated {count} point. {renumber}.", "other": "Duplicated {count} points. {renumber}."},
+  "cv.paste.follow": {
+    "one": "{count} point ({from}) follows the pointer: click where it goes. Enter puts it at its own coordinates; Esc cancels.",
+    "other": "{count} points ({from}) follow the pointer: click where they go. Enter puts them at their own coordinates; Esc cancels."
+  },
+  "cv.undo.paste": {
+    "one": "Paste {count} point",
+    "other": "Paste {count} points"
+  },
+  "cv.undo.paste.place": {
+    "one": "Paste in place {count} point",
+    "other": "Paste in place {count} points"
+  },
+  "cv.undo.duplicate": {
+    "one": "Duplicate {count} point",
+    "other": "Duplicate {count} points"
+  },
+  "cv.paste.done": {
+    "one": "Pasted {count} point. {renumber}.",
+    "other": "Pasted {count} points. {renumber}."
+  },
+  "cv.paste.done.place": {
+    "one": "Pasted {count} point at their own coordinates. {renumber}.",
+    "other": "Pasted {count} points at their own coordinates. {renumber}."
+  },
+  "cv.dup.done": {
+    "one": "Duplicated {count} point. {renumber}.",
+    "other": "Duplicated {count} points. {renumber}."
+  },
   "cv.al.need2": "An alignment needs at least two points.",
   "cv.undo.al.draw": "Draw alignment",
   "cv.al.name": "Alignment {n}",
@@ -3006,7 +3236,10 @@
   "cv.pp.name": "P{n}",
   "cv.pp.drawn.ok": "{pipes} drawn, {dia}, inverts set from the rules; every check passes.",
   "cv.pp.drawn.bad": "{pipes} drawn, {dia}, inverts set from the rules; {problems} listed in Properties.",
-  "cv.problems.n": {"one": "{n} problem", "other": "{n} problems"},
+  "cv.problems.n": {
+    "one": "{n} problem",
+    "other": "{n} problems"
+  },
   "cv.bl.need2": "A breakline needs at least two points.",
   "cv.undo.bl.draw": "Draw breakline",
   "cv.bl.name": "Breakline {n}",
@@ -3047,16 +3280,34 @@
   "cv.lx.net.rules": "Pipe network rules were not in the file; the placeholders are in use — set yours under Project.",
   "cv.lx.nets.more": "Only the first pipe network was opened; the file has {n} more.",
   "cv.lx.opened": "Opened {file}: {points}, {surfaces}, {alignments}.",
-  "cv.surfaces.n": {"one": "{n} surface", "other": "{n} surfaces"},
-  "cv.als.n": {"one": "{n} alignment", "other": "{n} alignments"},
+  "cv.surfaces.n": {
+    "one": "{n} surface",
+    "other": "{n} surfaces"
+  },
+  "cv.als.n": {
+    "one": "{n} alignment",
+    "other": "{n} alignments"
+  },
   "cv.imp.delim.comma": "commas",
   "cv.imp.delim.tab": "tabs",
   "cv.imp.delim.semi": "semicolons",
   "cv.imp.delim.space": "spaces",
-  "cv.imp.read.header": {"one": "{count} point read as {format} (from the header row), separated by {delim}.", "other": "{count} points read as {format} (from the header row), separated by {delim}."},
-  "cv.imp.read.chosen": {"one": "{count} point read as {format} (as chosen), separated by {delim}.", "other": "{count} points read as {format} (as chosen), separated by {delim}."},
-  "cv.imp.read.guessed": {"one": "{count} point read as {format} (guessed from the column count and your point row setting ({order}) — check that northing and easting are not swapped), separated by {delim}.", "other": "{count} points read as {format} (guessed from the column count and your point row setting ({order}) — check that northing and easting are not swapped), separated by {delim}."},
-  "cv.imp.bad": {"one": "{count} row could not be read.", "other": "{count} rows could not be read."},
+  "cv.imp.read.header": {
+    "one": "{count} point read as {format} (from the header row), separated by {delim}.",
+    "other": "{count} points read as {format} (from the header row), separated by {delim}."
+  },
+  "cv.imp.read.chosen": {
+    "one": "{count} point read as {format} (as chosen), separated by {delim}.",
+    "other": "{count} points read as {format} (as chosen), separated by {delim}."
+  },
+  "cv.imp.read.guessed": {
+    "one": "{count} point read as {format} (guessed from the column count and your point row setting ({order}) — check that northing and easting are not swapped), separated by {delim}.",
+    "other": "{count} points read as {format} (guessed from the column count and your point row setting ({order}) — check that northing and easting are not swapped), separated by {delim}."
+  },
+  "cv.imp.bad": {
+    "one": "{count} row could not be read.",
+    "other": "{count} rows could not be read."
+  },
   "cv.imp.none": "No points could be read from this file.",
   "cv.imp.latlon.crs": "The file has latitude and longitude columns: Import converts them to easting and northing through {crs}.",
   "cv.imp.latlon.pick": "The file has latitude and longitude columns: Import converts them to easting and northing through a coordinate system you pick.",
@@ -3064,27 +3315,60 @@
   "cv.imp.bad.line": "Line {line}: {why} — “{text}”",
   "cv.imp.bad.more": "… and {count} more.",
   "cv.imp.latlon.need": "The points in {file} were not imported: their latitude and longitude need a coordinate system to become easting and northing.",
-  "cv.imp.imported": {"one": "Imported {count} point from {file}.", "other": "Imported {count} points from {file}."},
-  "cv.imp.imported.sf": {"one": "Imported {count} point from {file}; surface: {tris} triangles.", "other": "Imported {count} points from {file}; surface: {tris} triangles."},
-  "cv.imp.replaced": {"one": "Replaced the points with {count} point from {file}.", "other": "Replaced the points with {count} points from {file}."},
-  "cv.imp.replaced.sf": {"one": "Replaced the points with {count} point from {file}; surface: {tris} triangles.", "other": "Replaced the points with {count} points from {file}; surface: {tris} triangles."},
+  "cv.imp.imported": {
+    "one": "Imported {count} point from {file}.",
+    "other": "Imported {count} points from {file}."
+  },
+  "cv.imp.imported.sf": {
+    "one": "Imported {count} point from {file}; surface: {tris} triangles.",
+    "other": "Imported {count} points from {file}; surface: {tris} triangles."
+  },
+  "cv.imp.replaced": {
+    "one": "Replaced the points with {count} point from {file}.",
+    "other": "Replaced the points with {count} points from {file}."
+  },
+  "cv.imp.replaced.sf": {
+    "one": "Replaced the points with {count} point from {file}; surface: {tris} triangles.",
+    "other": "Replaced the points with {count} points from {file}; surface: {tris} triangles."
+  },
   "cv.imp.mark": "Mark breakline groups under Points.",
   "cv.lx.proposed": "Proposed",
-  "cv.lx.proposed.desc": {"one": "Existing ground with 1 pad graded in", "other": "Existing ground with {n} pads graded in"},
+  "cv.lx.proposed.desc": {
+    "one": "Existing ground with 1 pad graded in",
+    "other": "Existing ground with {n} pads graded in"
+  },
   "cv.lx.design": "{name} design",
   "cv.saved.dl": "Saved {name} (downloaded).",
   "cv.export.none": "Nothing to export yet.",
   "cv.lx.exported": "Exported LandXML 1.2: {list}. Pads are not part of LandXML here; the graded surface is.",
   "cv.lx.als.skipped": "{alignments} ({n} with errors left out)",
   "cv.lx.network": "the pipe network",
-  "cv.dxf.done": {"one": "Exported R12 DXF: {count} object; labels sized for {scale}.", "other": "Exported R12 DXF: {count} objects; labels sized for {scale}."},
+  "cv.dxf.done": {
+    "one": "Exported R12 DXF: {count} object; labels sized for {scale}.",
+    "other": "Exported R12 DXF: {count} objects; labels sized for {scale}."
+  },
   "cv.bands.no": "Bands are not exported.",
   "cv.dwg.noload": "The DWG writer could not be loaded. Check the connection and try again.",
-  "cv.dwg.n.poly": {"one": "{count} polyline", "other": "{count} polylines"},
-  "cv.dwg.n.poly3d": {"one": "{count} 3D polyline", "other": "{count} 3D polylines"},
-  "cv.dwg.n.arc": {"one": "{count} arc", "other": "{count} arcs"},
-  "cv.dwg.n.label": {"one": "{count} label", "other": "{count} labels"},
-  "cv.dwg.done": {"one": "Exported DWG ({year} format): {list} on 1 layer; labels sized for {scale}.", "other": "Exported DWG ({year} format): {list} on {n} layers; labels sized for {scale}."},
+  "cv.dwg.n.poly": {
+    "one": "{count} polyline",
+    "other": "{count} polylines"
+  },
+  "cv.dwg.n.poly3d": {
+    "one": "{count} 3D polyline",
+    "other": "{count} 3D polylines"
+  },
+  "cv.dwg.n.arc": {
+    "one": "{count} arc",
+    "other": "{count} arcs"
+  },
+  "cv.dwg.n.label": {
+    "one": "{count} label",
+    "other": "{count} labels"
+  },
+  "cv.dwg.done": {
+    "one": "Exported DWG ({year} format): {list} on 1 layer; labels sized for {scale}.",
+    "other": "Exported DWG ({year} format): {list} on {n} layers; labels sized for {scale}."
+  },
   "cv.plot.none": "Nothing to plot yet.",
   "cv.plot.fits": "{scale} (fits)",
   "cv.plot.info": "The area is {w} × {h} mm at {scale} on a {pw} × {ph} mm sheet (landscape). Contours, labels, alignments, pads and points plot as vectors; elevation bands and slope arrows are screen-only for now.",
@@ -3097,15 +3381,13 @@
   "cv.ask.save": "Save a copy",
   "cv.v3d.loading": "Loading the 3D view…",
   "cv.v3d.fail": "The 3D view could not start: {why}",
-
   "cv.lasso.window": "Window lasso: selects the survey points inside it. Space: crossing.",
   "cv.lasso.crossing": "Crossing lasso: selects the survey points inside it or touching it. Space: fence.",
   "cv.lasso.fence": "Fence: selects the survey points the path passes over. Space: window.",
   "cv.pts.lasso.none": "No survey points in that lasso.",
-
   "set.assist.legend": "Assistants",
   "set.assist.on": "Let AI assistants and scripts use CivilCraft",
-  "set.assist.hint": "An assistant on this computer (Claude and others) reaches CivilCraft through CadCraft Studio, only while this is on. Off by default; turning it off disconnects at once.",
+  "set.assist.hint": "An assistant on this computer reaches CivilCraft through CadCraft Studio, only while this is on. Off by default; turning it off disconnects at once.",
   "set.assist.read": "Read: the site, its points, surfaces and alignments",
   "set.assist.edit": "Select survey points on the plan (no point is ever changed)",
   "set.assist.activity": "Activity",
@@ -3115,5 +3397,271 @@
   "assist.banner.read": "An assistant is connected to CivilCraft: {client}. It can read the site: points, surfaces and alignments.",
   "assist.banner.edit": "An assistant is connected to CivilCraft: {client}. It can read the site and select survey points.",
   "assist.disconnect": "Disconnect",
-  "assist.disconnected": "The assistant was disconnected."
+  "assist.disconnected": "The assistant was disconnected.",
+  "ccdwg.open.failed": "Could not open the file: {reason}",
+  "ccdwg.open.too_short": {
+    "one": "too short to be a DWG file ({n} byte)",
+    "other": "too short to be a DWG file ({n} bytes)"
+  },
+  "ccdwg.open.version": "DWG version {version} is not supported (only R13 to R2018: AC1012–AC1032)",
+  "ccdwg.open.not_dwg": "not a DWG file (it starts \"{start}\")",
+  "ccdwg.open.r13_header": "damaged R13–R15 file header ({n} section locators)",
+  "ccdwg.open.r13_locators": "damaged R13–R15 file: section locators point outside the file",
+  "ccdwg.open.no_id": "damaged {version} file header (no AcFssFcAJMB id)",
+  "ccdwg.open.no_section_map": "damaged {version} file: section map page {id} is not in the page map",
+  "ccdwg.open.past_end": "damaged file: the {what} lies past the end of the file",
+  "ccdwg.open.page_type": "damaged file: the {what} page has type 0x{type}",
+  "ccdwg.open.runs_past": "damaged file: the {what} runs past the end of the file",
+  "ccdwg.open.r2007_short": "R2007 file too short",
+  "ccdwg.open.r2007_no_section_map": "damaged R2007 file: no section map page",
+  "ccdwg.open.r2007_past_end": "damaged R2007 file: the {what} lies past the end",
+  "ccdwg.part.page_map": "page map",
+  "ccdwg.part.section_map": "section map",
+  "ccdwg.read.password": "The drawing is password-protected (encrypted data); its sections cannot be read.",
+  "ccdwg.read.codepage": "Code page {num} ({name}) is decoded as ANSI_1252.",
+  "ccdwg.read.file_header_crc": "File header CRC does not match (file may be damaged).",
+  "ccdwg.read.file_header_crc32": "File header CRC-32 does not match.",
+  "ccdwg.read.r2007_header_bad": "The R2007 file header has uncorrectable errors.",
+  "ccdwg.read.r2007_corrected": {
+    "one": "Corrected {n} damaged byte in the file header.",
+    "other": "Corrected {n} damaged bytes in the file header."
+  },
+  "ccdwg.read.uncorrectable": "The {what} has uncorrectable errors.",
+  "ccdwg.read.section_map_damaged": "The section map is damaged ({n} pages for one section).",
+  "ccdwg.read.section_encrypted": "Section {name} is encrypted and was skipped.",
+  "ccdwg.read.section_failed": "Section {name} could not be read: {reason}",
+  "ccdwg.read.system_checksum": "Checksum of the {what} does not match.",
+  "ccdwg.read.page_checksum": "Checksum of a page of {name} does not match.",
+  "ccdwg.read.pages_bad": {
+    "one": "{n} page of {name} could not be found or decoded.",
+    "other": "{n} pages of {name} could not be found or decoded."
+  },
+  "ccdwg.read.pages_missing": {
+    "one": "{n} page of {name} could not be found.",
+    "other": "{n} pages of {name} could not be found."
+  },
+  "ccdwg.read.header_failed": "Header variables could not be read: {reason}",
+  "ccdwg.read.header_sentinel": "Header section sentinel is missing.",
+  "ccdwg.read.header_crc": "Header section CRC does not match.",
+  "ccdwg.read.header_early": "Header variables stop early: {reason}",
+  "ccdwg.read.classes_failed": "Classes could not be read: {reason}",
+  "ccdwg.read.classes_sentinel": "Classes section sentinel is missing.",
+  "ccdwg.read.classes_crc": "Classes section CRC does not match.",
+  "ccdwg.read.class_number": "Class list stops at an unexpected class number {num}.",
+  "ccdwg.read.map_failed": "Object map could not be read: {reason}",
+  "ccdwg.read.map_short": "Object map is cut short.",
+  "ccdwg.read.map_crc": {
+    "one": "{n} object map page failed the CRC check.",
+    "other": "{n} object map pages failed the CRC check."
+  },
+  "ccdwg.read.map_entry": "Object map entry {handle} points at object {other}.",
+  "ccdwg.read.object_failed": "Object {handle} could not be read: {reason}",
+  "ccdwg.read.no_objects": "The file has no objects section.",
+  "ccdwg.read.more_failed": {
+    "one": "… {n} more object could not be read.",
+    "other": "… {n} more objects could not be read."
+  },
+  "ccdwg.read.crc_failed": {
+    "one": "{n} object failed the CRC check (read anyway).",
+    "other": "{n} objects failed the CRC check (read anyway)."
+  },
+  "ccdwg.read.partial_type": {
+    "one": "{n} {type} object could only be read in part.",
+    "other": "{n} {type} objects could only be read in part."
+  },
+  "ccdwg.read.assembled_part": "The drawing could only be assembled in part: {reason}",
+  "ccdwg.read.kept_common": {
+    "one": "{n} damaged object kept with only its common data.",
+    "other": "{n} damaged objects kept with only their common data."
+  },
+  "ccdwg.read.orphans": {
+    "one": "{n} entity was not linked from its block and was added at its end.",
+    "other": "{n} entities were not linked from their block and were added at its end."
+  },
+  "ccdwg.read.acds_empty": "The data storage section is empty.",
+  "ccdwg.read.acds_no_sig": "The data storage section has no \"jard\" signature.",
+  "ccdwg.read.acds_entry": "Data storage entry points at a \"{name}\" segment.",
+  "ccdwg.read.acds_record_large": "Data storage record of {handle} is larger than its segment.",
+  "ccdwg.read.acds_partial": "The data storage section could only be read in part: {reason}",
+  "ccdwg.read.acis_no_storage": {
+    "one": "{n} ACIS entity says its data is in the data storage section, which the file does not have.",
+    "other": "{n} ACIS entities say their data is in the data storage section, which the file does not have."
+  },
+  "ccdwg.read.acis_no_record": {
+    "one": "{n} ACIS entity has no record in the data storage section (kept empty).",
+    "other": "{n} ACIS entities have no record in the data storage section (kept empty)."
+  },
+  "ccdwg.err.no_header": "no AcDb:Header section",
+  "ccdwg.err.no_classes": "no AcDb:Classes section",
+  "ccdwg.err.no_handles": "no AcDb:Handles section",
+  "ccdwg.err.read_past_end": "read past the end ({at} > {end} bits)",
+  "ccdwg.err.bitlong": "bad BITLONG code 11",
+  "ccdwg.err.bitdouble": "bad BITDOUBLE code 11",
+  "ccdwg.err.lz_before_start": "LZ back-reference before the start of the page",
+  "ccdwg.err.lz_opcode": "LZ opcode 0x{op} is not used",
+  "ccdwg.err.r2007_lz": "R2007 LZ back-reference before the start",
+  "ccdwg.err.header_type": "unknown header type {type}",
+  "ccdwg.err.offset_outside": "object offset outside the section",
+  "ccdwg.err.object_past_end": "object of {n} bytes runs past the section end",
+  "ccdwg.err.size_fields": "object size fields do not agree (damaged object)",
+  "ccdwg.err.eed_code": "EED code {code}",
+  "ccdwg.err.handle_count": "handle count {n} is larger than the handle stream",
+  "ccdwg.err.count_large": "count {n} is larger than the data",
+  "ccdwg.err.dictionary_size": "dictionary of {n} entries",
+  "ccdwg.err.hatch_edge": "hatch edge type {type}",
+  "ccdwg.err.xrecord_code": "XRECORD group code {code}",
+  "ccdwg.err.value_type": "value data type {type}",
+  "ccdwg.err.surface_code": "surface field code {code}",
+  "ccdwg.err.acds_no_segment": "no file segment at {offset}",
+  "ccdwg.err.acds_index": "the segment index is a \"{name}\" segment",
+  "ccdwg.err.acds_segment": "segment {n} is not in the index",
+  "ccdwg.err.acis_block": "ACIS block of {n} bytes is larger than the data",
+  "ccdwg.err.acis_no_end": "ACIS data (version 2) has no end mark",
+  "ccdwg.err.acis_version": "ACIS data version {version}",
+  "ccdwg.err.wire_large": "wire of {n} points is larger than the data",
+  "ccdwg.err.wires_large": "{n} wires are more than the data holds",
+  "ccdwg.err.silhouettes_large": "{n} silhouettes are more than the data holds",
+  "ccdwg.write.eed_dropped": {
+    "one": "{n} extended-data block referring to objects this writer does not copy (materials, groups, …) was left out.",
+    "other": "{n} extended-data blocks referring to objects this writer does not copy (materials, groups, …) were left out."
+  },
+  "ccdwg.write.true_colours": {
+    "one": "{n} true colour became the nearest AutoCAD colour index (R2000 stores colour indexes only).",
+    "other": "{n} true colours became the nearest AutoCAD colour index (R2000 stores colour indexes only)."
+  },
+  "ccdwg.write.chars_lost": {
+    "one": "{n} character outside the Basic Multilingual Plane (emoji and the like) became \"?\".",
+    "other": "{n} characters outside the Basic Multilingual Plane (emoji and the like) became \"?\"."
+  },
+  "ccdwg.write.nongraphic": {
+    "one": "{n} non-graphical object was copied from the source ({raw} bit for bit in the drawing's own version, {fields} from their fields).",
+    "other": "{n} non-graphical objects were copied from the source ({raw} bit for bit in the drawing's own version, {fields} from their fields)."
+  },
+  "ccdwg.write.not_copied": "Not copied (cc-dwg cannot write them in this version, or they depend on them): {list}.",
+  "ccdwg.write.entities_dropped": {
+    "one": "{n} {type} entity was left out: undecoded data can only be written back in the drawing's own version.",
+    "other": "{n} {type} entities were left out: undecoded data can only be written back in the drawing's own version."
+  },
+  "ccdwg.write.proxied": "Written as proxies of their own class (undecoded data in another version, as AutoCAD saves them down): {list}.",
+  "ccdwg.write.raw": "Copied bit for bit (custom or proxy entities): {list}.",
+  "ccdwg.write.acis_empty": {
+    "one": "{n} ACIS entity has no ACIS data (written empty).",
+    "other": "{n} ACIS entities have no ACIS data (written empty)."
+  },
+  "ccdwg.write.acis_sat": {
+    "one": "{n} ACIS entity keeps its SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted).",
+    "other": "{n} ACIS entities keep their SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted)."
+  },
+  "ccdwg.write.acis_sab": {
+    "one": "{n} ACIS entity keeps its SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT).",
+    "other": "{n} ACIS entities keep their SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT)."
+  },
+  "ccdwg.write.nurbs_down": {
+    "one": "{n} NURBS surface was written as plain SURFACE ({version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+).",
+    "other": "{n} NURBS surfaces were written as plain SURFACE ({version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+)."
+  },
+  "ccdwg.write.nurbs_up": {
+    "one": "{n} surface saved down from NURBSURFACE was written as NURBSURFACE again (its NURBS fields were not kept by the save-down).",
+    "other": "{n} surfaces saved down from NURBSURFACE were written as NURBSURFACE again (its NURBS fields were not kept by the save-down)."
+  },
+  "ccdwg.write.embedded": {
+    "one": "{n} embedded profile/path entity of a surface (an encoding cc-dwg does not know) was left out: it is kept only in the drawing's own version.",
+    "other": "{n} embedded profile/path entities of a surface (an encoding cc-dwg does not know) were left out: it is kept only in the drawing's own version."
+  },
+  "ccdwg.write.table_fields": {
+    "one": "{n} table cell field could not be written and kept its text.",
+    "other": "{n} table cell fields could not be written and kept their text."
+  },
+  "dxfmodel.not_text": "This DXF file could not be read as text.",
+  "dxfmodel.binary": "This is a binary DXF. Save it as ASCII DXF and try again.",
+  "dxfmodel.bad_code": "This file is not a readable DXF (bad group code on line {line}).",
+  "live.someone": "someone",
+  "live.guest": "Guest",
+  "live.status.live": "You're in the live session.",
+  "live.status.reconnecting": "Lost the connection to the live session. Reconnecting…",
+  "live.status.waiting": "Waiting for the host to let you in…",
+  "live.ended": "The live session ended. Your copy stays here, unsaved: save it to keep it.",
+  "live.refused": "{what} was taken back: someone changed it first, or it no longer fits.",
+  "live.refused.locked": "{what} was taken back: locked by the host.",
+  "live.refused.role": "You can only look in this session: the host let you in as a viewer.",
+  "live.undo_skipped": "Nothing undone: {name} changed it since ({what}).",
+  "input.cmd.file.new": "New project",
+  "input.cmd.file.open": "Open…",
+  "input.cmd.file.save": "Save the project",
+  "input.cmd.export.landxml": "Export LandXML",
+  "input.cmd.export.dxf": "Export DXF",
+  "input.cmd.export.dwg": "Export DWG…",
+  "input.cmd.export.pdf": "Plot to PDF…",
+  "input.cmd.surface.breakline": "Breakline",
+  "input.cmd.surface.boundary": "Boundary",
+  "input.cmd.surface.cad-open": "Linework from a drawing…",
+  "input.cmd.surface.feature": "Feature line",
+  "input.cmd.surface.sections": "Cross sections",
+  "input.cmd.surface.grades": "Grades and elevations",
+  "input.cmd.design.alignment": "Alignment",
+  "input.cmd.design.pad": "Pad",
+  "input.cmd.design.pipe": "Pipes",
+  "input.cmd.design.profile": "Profile view",
+  "input.cmd.design.pvi-add": "Add PVIs",
+  "input.cmd.edit.undo": "Undo",
+  "input.cmd.edit.redo": "Redo",
+  "input.cmd.edit.copy": "Copy points",
+  "input.cmd.edit.paste": "Paste points",
+  "input.cmd.edit.cut": "Cut",
+  "input.cmd.edit.paste-in-place": "Paste in place",
+  "input.cmd.edit.duplicate": "Duplicate",
+  "input.cmd.edit.delete": "Delete",
+  "input.cmd.edit.select-all": "Select all points",
+  "input.cmd.edit.select-none": "Select none",
+  "input.cmd.gis.crs": "Coordinate system…",
+  "input.cmd.gis.import": "Import GIS data…",
+  "input.cmd.gis.export": "Export GIS data…",
+  "input.cmd.gis.basemap": "Map layers…",
+  "input.cmd.view.select": "Select",
+  "input.cmd.view.fit": "Fit",
+  "input.cmd.view.view3d": "3D view",
+  "input.cmd.app.settings": "Settings",
+  "input.cmd.app.palette": "Find a command",
+  "input.cmd.app.help": "Help",
+  "input.grp.file": "File",
+  "input.grp.export": "Export",
+  "input.grp.surface": "Surface",
+  "input.grp.design": "Design",
+  "input.grp.edit": "Edit",
+  "input.grp.gis": "GIS",
+  "input.grp.view": "View",
+  "input.grp.app": "Settings and help",
+  "input.m.file": "File",
+  "input.m.home": "Home",
+  "input.m.draw": "Draw",
+  "input.m.modify": "Modify",
+  "input.m.view": "View",
+  "input.m.clipboard": "Clipboard",
+  "input.m.insert": "Insert",
+  "input.m.import": "Import",
+  "input.m.geolocation": "Geolocation",
+  "input.m.output": "Output",
+  "input.m.plot": "Plot",
+  "input.m.export": "Export",
+  "input.m.ground": "Ground data",
+  "input.m.create": "Create design",
+  "input.m.views": "Profile and section views",
+  "input.m.surfaces": "Surfaces",
+  "input.m.editsurface": "Edit the surface",
+  "input.m.analyze": "Analyze",
+  "input.m.selection": "Selection",
+  "input.m.coordinates": "Coordinates",
+  "input.m.map": "Map",
+  "input.m.data": "GIS data",
+  "input.m.navigate": "Navigate",
+  "input.lbl.drafting.plot": "Plot",
+  "input.lbl.drafting.xattach": "Attach a drawing",
+  "input.lbl.ribbon.cad": "Linework",
+  "input.lbl.ribbon.3d": "3D",
+  "input.style.civilcraft": "CivilCraft",
+  "input.style.drafting": "Drafting classic",
+  "input.style.ribbon": "Civil ribbon",
+  "input.style.civilcraft.hint": "CivilCraft's own toolbar and single keys: A alignment, G pad, P pipes, B breakline, R profile, D 3D, F fit.",
+  "input.style.drafting.hint": "For people coming from 2D drafting: a small ribbon and a command line. Type ALIGNMENT, PAD, PROFILE, U or ZOOM and press Enter; Enter on nothing repeats the last command. The middle button pans.",
+  "input.style.ribbon.hint": "Tabs of large buttons the way civil design programs group them (Home, Surfaces, Modify, Geolocation, View, Output), CivilCraft's single keys, and middle-button pan with Shift and the middle button to orbit in 3D."
 }

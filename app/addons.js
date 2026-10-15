@@ -32,6 +32,8 @@
  *   entry        "./main.js" — inside the folder (no "..", no URL)
  *   permissions  ["commands", "objects", …] — shown in Settings (JS add-ons have the page's access; reviewed + signed)
  *   description, author, homepage, lang ("./lang/"), help ("./help/help.js") — optional
+ *   default      "on" (the default) or "off": a BUNDLED add-on that starts off until the person switches it on (0.5,
+ *                api.default-off; Apparel). Ignored for installed packages: installing one is already the person's choice.
  * The entry exports activate(api) (sync or async; may return a deactivate function) and optionally deactivate(api).
  *
  * TRUST (decision 14 / A.8): bundled add-ons are part of the build. Installed ones must pass AddonLoader.verify(pkg)
@@ -41,7 +43,8 @@
  * FAILURE: an entry that does not import, an activate() that throws, rejects or takes over 10 s → the add-on is switched
  * off (remembered, with the reason), a shell message says so once, and the app carries on. The user can switch it on again.
  *
- * ON / OFF: per app, localStorage "cc-addons:<app>" {off: {id: reason}}. Switching on activates at once; switching off
+ * ON / OFF: per app, localStorage "cc-addons:<app>" {off: {id: reason}, on: {id: true}} — `on` remembers a default-off
+ * bundled add-on the person switched on. Switching on activates at once; switching off
  * calls its deactivate (and the cleanups it registered) — what it cannot undo goes on reload, and Settings says so.
  *
  * The base API every add-on gets (apps add their own on top through makeApi):
@@ -67,6 +70,27 @@ const g = globalThis;
 const T = (k, v) => (typeof window !== 'undefined' && window.ccShellT ? window.ccShellT(k, v) : k);
 
 /** "1" / "1.2" / "1.2.3" → [major, minor] or null. */
+/**
+ * Add-on data kept on an app's own records (0.5 AO.6): MarkupCraft markups and TakeoffCraft items carry `xd` =
+ * { <add-on id>: { kind, v, data } } — kind '' (data on an ordinary record) or one of the add-on's types, v its data version,
+ * data any JSON (≤ 12 000 characters per add-on, ≤ 20 add-ons). Read from files and the clipboard, so untrusted: anything
+ * else is dropped. Without the add-on it is kept as it is. → a clean copy, or undefined when nothing is left.
+ */
+export function cleanAddonData(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+  const out = {};
+  for (const [id, x] of Object.entries(v).slice(0, 20)) {
+    if (!ID_RE.test(id) || /\.\.|--|[.-]$/.test(id) || !x || typeof x !== 'object' || Array.isArray(x)) continue;
+    const kind = typeof x.kind === 'string' && /^([a-z][a-z0-9-]{0,40})?$/.test(x.kind) ? x.kind : null;
+    const ver = Number.isInteger(x.v) && x.v >= 1 && x.v <= 9999 ? x.v : null;
+    let json;
+    try { json = JSON.stringify(x.data ?? null); } catch { continue; }
+    if (kind === null || ver === null || json.length > 12000) continue;
+    out[id] = { kind, v: ver, data: JSON.parse(json) };
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 export function apiParts(v) {
   const m = /^(\d{1,3})(?:\.(\d{1,3}))?(?:\.\d{1,3})?$/.exec(String(v ?? ''));
   return m ? [Number(m[1]), Number(m[2] || 0)] : null;
@@ -100,6 +124,10 @@ export function checkManifest(raw, { app, apiVersion }) {
     if (typeof raw[k] !== 'string' || raw[k].length > (k === 'description' ? 400 : 200) || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(raw[k])) return bad('manifest', k);
     if (k === 'homepage' && !/^https:\/\/[^\s"'<>]+$/.test(raw[k])) return bad('manifest', k);
     m[k] = raw[k];
+  }
+  if (raw.default !== undefined) {
+    if (raw.default !== 'on' && raw.default !== 'off') return bad('manifest', 'default');
+    m.default = raw.default;
   }
   for (const k of ['lang', 'help']) {
     if (raw[k] === undefined) continue;
@@ -262,12 +290,15 @@ export class AddonLoader {
 
   get devMode() { try { return !!this.storage && this.storage.getItem('cc-addons-dev') === '1'; } catch { return false; } }
   prefs() {
-    try { const v = JSON.parse((this.storage && this.storage.getItem('cc-addons:' + this.app)) || '{}'); return v && typeof v === 'object' && v.off && typeof v.off === 'object' ? v : { off: {} }; }
-    catch { return { off: {} }; }
+    try {
+      const v = JSON.parse((this.storage && this.storage.getItem('cc-addons:' + this.app)) || '{}');
+      const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
+      return v && typeof v === 'object' ? { ...v, off: obj(v.off), on: obj(v.on) } : { off: {}, on: {} };
+    } catch { return { off: {}, on: {} }; }
   }
   setOff(id, reason) {
     const p = this.prefs();
-    if (reason) p.off[id] = reason; else delete p.off[id];
+    if (reason) { p.off[id] = reason; delete p.on[id]; } else { delete p.off[id]; p.on[id] = true; }
     try { this.storage && this.storage.setItem('cc-addons:' + this.app, JSON.stringify(p)); } catch { /* storage blocked */ }
   }
 
@@ -321,8 +352,10 @@ export class AddonLoader {
     const id = r.manifest && typeof r.manifest.id === 'string' && ID_RE.test(r.manifest.id) ? r.manifest.id : source + ':' + key;
     const e = { id, source, root, pkg, manifest: r.manifest, state: r.ok ? 'ready' : 'refused', reason: r.reason, detail: r.detail, cleanups: [], mod: null };
     if (r.ok) {
-      const off = this.prefs().off[id];
+      const p = this.prefs();
+      const off = p.off[id];
       if (off) { e.state = 'off'; e.reason = off === 'user' ? '' : off; }
+      else if (source === 'bundled' && r.manifest.default === 'off' && !p.on[id]) { e.state = 'off'; e.reason = ''; e.defaultOff = true; }
     }
     return e;
   }

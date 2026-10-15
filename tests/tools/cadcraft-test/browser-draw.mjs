@@ -9,12 +9,14 @@
  * cctest+cadcraft@projectz.xyz, disabled again at the end). Uses the cached Playwright Chromium, 1440 × 900.
  * Checks: the page carries its language catalog (#cc-lang, lang/en.json) and the command line prints its words,
  * not keys; FILLET (radius, real clicks on two lines, Polyline on a rectangle) and CHAMFER (distances, toolbar
- * button) on the drawing; no console errors.
+ * button) on the drawing; no console errors. Grows one section per finished item; the last one (0.5 VP.5) is the
+ * guard for the sheet tabs on short windows (tab-check.mjs, shared with browser-tabs-sweep.mjs).
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pageCheck } from './tab-check.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const BASE = 'https://getcadcraft.com';
@@ -671,6 +673,401 @@ try {
   ok(await page.evaluate(() => window.cadcraft.engine.running === 'CIRCLE'), 'the key row\'s Esc clears, its Enter sends (CIRCLE starts)');
   await page.click('.cc-keyrow .cc-key[aria-label^="Esc"]');
   ok(!(await page.evaluate(() => window.cadcraft.engine.running)), 'and its Esc cancels the command');
+
+  console.log('\n== enter a viewport by double-clicking (0.5 VP.4)');
+  await fresh();
+  await page.evaluate(() => window.cadcraft.doc.setSpace(null));
+  await typeCmd('REC'); await typeCmd('0,0'); await typeCmd('10000,5000');
+  await page.evaluate(() => { window.cadcraft.doc.meta.units = 'millimeters'; });
+  await typeCmd('LAYOUT');
+  await typeCmd('ZOOM'); await typeCmd('E');
+  const vpInfo = await page.evaluate(() => { const v = [...window.cadcraft.doc.entities.values()].find((e) => e.type === 'viewport'); return { id: v.id, x: v.x, y: v.y, w: v.w, h: v.h, s: v.s }; });
+  const vpMid = await screen(vpInfo.x, vpInfo.y);
+  await page.mouse.dblclick(vpMid.x, vpMid.y); await page.waitForTimeout(150);
+  ok(await page.evaluate(() => !!window.cadcraft.host.viewportEntered() && window.cadcraft.doc.inModel && document.querySelector('[data-tabs] [aria-selected="true"]').textContent.startsWith('Layout')), 'a double-click inside the viewport enters it: the doc works on the model, the sheet\'s tab stays selected');
+  await typeCmd('L');
+  const inA = await page.evaluate(([x, y]) => window.cadcraft.view.toScreen(x, y), [2000, 1000]);
+  const ovr = await page.evaluate(() => { const r = document.querySelector('[data-over]').getBoundingClientRect(); return { x: r.left, y: r.top }; });
+  await page.mouse.click(ovr.x + inA.x, ovr.y + inA.y); await page.waitForTimeout(60);
+  const inB = await page.evaluate(([x, y]) => window.cadcraft.view.toScreen(x, y), [8000, 1000]);
+  await page.mouse.click(ovr.x + inB.x, ovr.y + inB.y); await page.waitForTimeout(60);
+  await typeCmd('');
+  const drawn = await page.evaluate(() => [...window.cadcraft.doc.model.values()].filter((e) => e.type === 'line').map((e) => ({ x1: e.x1, y1: e.y1, x2: e.x2, y2: e.y2 })));
+  ok(drawn.length === 1 && Math.abs(drawn[0].x1 - 2000) < 30 && Math.abs(drawn[0].x2 - 8000) < 30, 'LINE by two clicks inside the viewport lands in the model, in model units', JSON.stringify(drawn));
+  const before = await page.evaluate(() => window.cadcraft.view.paperView().zoom);
+  await page.mouse.move(vpMid.x, vpMid.y); await page.mouse.wheel(0, -300); await page.waitForTimeout(120);
+  ok(await page.evaluate((z) => Math.abs(window.cadcraft.view.paperView().zoom - z) < 1e-9 && !!window.cadcraft.view.pendingViewport(), before), 'the wheel inside zooms the viewport\'s view; the sheet stays put');
+  if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-24-inside-viewport.png') });
+  const outside = await page.evaluate(() => { const f = window.cadcraft.view.enteredFrame(); const r = document.querySelector('[data-over]').getBoundingClientRect(); return { x: r.left + Math.max(f[0].x, f[2].x) + 25, y: r.top + Math.max(f[0].y, f[2].y) - 10 }; });
+  await page.mouse.click(outside.x, outside.y); await page.waitForTimeout(60);
+  ok(await page.evaluate(() => !!window.cadcraft.host.viewportEntered()), 'one click outside the frame does nothing');
+  await page.mouse.dblclick(outside.x, outside.y); await page.waitForTimeout(150);
+  const after = await page.evaluate((id) => { const d = window.cadcraft.doc; const v = d.layout && d.layout.entities.get(id); return { inside: !!window.cadcraft.host.viewportEntered(), sheet: !!d.layout, s: v?.s }; }, vpInfo.id);
+  ok(!after.inside && after.sheet && after.s > vpInfo.s * 1.2, 'a double-click outside goes back to the sheet; the viewport keeps the zoom', JSON.stringify(after));
+  await page.keyboard.press('Control+z'); await page.waitForTimeout(100);
+  ok(await page.evaluate(([id, s]) => Math.abs(window.cadcraft.doc.layout.entities.get(id).s - s) < 1e-12, [vpInfo.id, vpInfo.s]), 'Ctrl+Z undoes the viewport\'s new view in one step');
+  await typeCmd('MS');
+  ok(await page.evaluate(() => !!window.cadcraft.host.viewportEntered()), 'MS enters the sheet\'s only viewport');
+  await page.click('[data-tabs] .cc-tab'); await page.waitForTimeout(150);
+  ok(await page.evaluate(() => !window.cadcraft.host.viewportEntered() && window.cadcraft.doc.inModel && !window.cadcraft.doc.layout), 'a click on the Model tab leaves the viewport and opens the model');
+  await page.evaluate(() => { const d = window.cadcraft.doc; d.change('sheets', () => d.setLayouts([])); });
+
+  console.log('\n== construction lines: XLINE and RAY by clicks, trimmed to a ray (0.5 DR.6)');
+  await fresh();
+  await typeCmd('REC'); await typeCmd('0,0'); await typeCmd('200,100');
+  await typeCmd('ZOOM'); await typeCmd('E');
+  await typeCmd('ERASE'); await typeCmd('ALL'); await typeCmd('');
+  const rows = await page.evaluate(() => new Set([...document.querySelectorAll('.cc-tools > .cc-tool-group')].filter((g) => g.offsetParent).map((g) => g.offsetTop)).size);
+  ok(rows <= 2, 'the toolbar stays two rows at 1440 px with Draw › More', String(rows));
+  await page.click('[data-group-menu="Draw"] > summary');
+  await page.click('[data-group-menu="Draw"] [data-cmd="XLINE"]'); await page.waitForTimeout(80);
+  ok(await page.evaluate(() => window.cadcraft.engine.running) === 'XLINE', 'Draw › More › Construction line starts XLINE');
+  await typeCmd('H'); await clickAt(0, 50); await typeCmd('');
+  await typeCmd('XL'); await typeCmd('V'); await clickAt(30, 0); await typeCmd('');
+  await typeCmd('XL'); await typeCmd('A'); await typeCmd('30'); await clickAt(0, 0); await typeCmd('');
+  await typeCmd('XL'); await typeCmd('B'); await clickAt(0, 0); await clickAt(100, 0); await clickAt(0, 100); await typeCmd('');
+  let xs = (await all()).filter((e) => e.type === 'xline');
+  const angs = xs.map((e) => Math.round(Math.atan2(e.dy, e.dx) * 180 / Math.PI));
+  ok(xs.length === 4 && near(xs[0].y, 50, 0.5) && near(xs[1].x, 30, 0.5) && angs[0] === 0 && angs[1] === 90 && angs[2] === 30 && angs[3] === 45, 'XLINE Hor, Ver, Ang 30 and Bisect by clicks', JSON.stringify({ angs, xs }));
+  await typeCmd('XL'); await typeCmd('O'); await typeCmd('20'); await clickAt(150, 50); await clickAt(150, 80); await typeCmd('');
+  const ox = (await all()).filter((e) => e.type === 'xline').pop();
+  ok(ox && near(ox.y, 70, 1e-6) && near(Math.abs(ox.dx), 1), 'XLINE Offset 20 from the horizontal one, by clicks', JSON.stringify(ox));
+  const span = await page.evaluate((id) => { const v = window.cadcraft.view, e = window.cadcraft.doc.get(id); const s = v.screenRay(e); return s && { a: s[0].x, b: s[1].x, w: v.w }; }, xs[0].id);
+  ok(span && Math.min(span.a, span.b) <= 0 && Math.max(span.a, span.b) >= span.w, 'drawn across the whole view, edge to edge', JSON.stringify(span));
+  await typeCmd('RAY'); await clickAt(10, 10); await clickAt(60, 60); await typeCmd('');
+  ok((await all()).some((e) => e.type === 'ray' && near(e.x, 10, 0.5) && Math.round(Math.atan2(e.dy, e.dx) * 180 / Math.PI) === 45), 'RAY by two clicks');
+  await typeCmd('L'); await typeCmd('120,-100'); await typeCmd('120,300'); await typeCmd('');
+  await typeCmd('TR'); await clickAt(170, 50); await typeCmd('');
+  const afterTrim = await all();
+  const leftRay = afterTrim.find((e) => e.type === 'ray' && near(e.y, 50, 1e-6));
+  ok(leftRay && near(leftRay.x, 120, 1e-6) && leftRay.dx < 0 && !afterTrim.some((e) => e.type === 'xline' && near(e.y, 50, 1e-6)), 'TRIM the right part of the horizontal xline: a ray from the cut, going left', JSON.stringify(leftRay));
+  await typeCmd('ZOOM'); await typeCmd('E');
+  const ext = await page.evaluate(() => ({ h: window.cadcraft.view.h / window.cadcraft.view.zoom, cy: window.cadcraft.view.cy }));
+  ok(Math.abs(ext.h - 400 / 0.9) < 1 && Math.abs(ext.cy - 100) < 1, 'ZOOM Extents fits the 400-long line and leaves the construction lines out', JSON.stringify(ext));
+  if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-26-xline.png') });
+
+  console.log('\n== UCS and a turned view (0.5 DR.8)');
+  {   // its own block: names of its own
+  await fresh();
+  await page.evaluate(() => { const d = window.cadcraft.doc; d.ucs = null; d.ucsPrev = []; });
+  await typeCmd('L'); await typeCmd('0,0'); await typeCmd('100,0'); await typeCmd('');
+  await typeCmd('ZOOM'); await typeCmd('E');
+  const before8 = await page.evaluate(() => ({ version: window.cadcraft.doc.version, steps: window.cadcraft.doc.undoStack.length, dirty: window.cadcraft.doc.dirty }));
+  await page.click('[data-group-menu="View"] > summary');
+  await page.click('[data-group-menu="View"] [data-cmd="TURNRIGHT"]'); await page.waitForTimeout(200);
+  const turned = await page.evaluate(() => { const c = window.cadcraft; const a = c.view.toScreen(0, 0), b = c.view.toScreen(100, 0); return { tw: c.view.tw, ucs: c.doc.ucs, a, b, version: c.doc.version, steps: c.doc.undoStack.length, dirty: c.doc.dirty }; });
+  ok(Math.abs(turned.tw - Math.PI / 2) < 1e-9 && Math.abs(turned.a.x - turned.b.x) < 1e-6 && turned.b.y > turned.a.y, 'View › More › Turn view 90° right: the world X axis now runs down the screen', JSON.stringify(turned));
+  ok(turned.version === before8.version && turned.steps === before8.steps && turned.dirty === before8.dirty, 'turning the view is not an edit: no undo step, no unsaved mark');
+  if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-27-turned.png') });
+  await typeCmd('L'); await typeCmd('0,0'); await typeCmd('50,0'); await typeCmd('');
+  await typeCmd('ZOOM'); await typeCmd('E');
+  ok(await page.evaluate(() => Math.abs(window.cadcraft.view.tw - Math.PI / 2) < 1e-9), 'ZOOM Extents keeps the view turned');
+  const ul = (await all()).pop();
+  ok(ul && Math.abs(ul.x2) < 1e-9 && Math.abs(ul.y2 - 50) < 1e-9, 'typed 50,0 in the turned UCS lands at world 0,50 (its X axis is world +Y, level on screen)', JSON.stringify(ul));
+  const coords = await page.evaluate(async () => { const c = window.cadcraft; const s = c.view.toScreen(0, 50); const r = document.querySelector('[data-over]').getBoundingClientRect(); return { x: r.left + s.x, y: r.top + s.y }; });
+  await page.mouse.move(coords.x, coords.y); await page.waitForTimeout(80);
+  ok(/^50(\.0+)?, 0(\.0+)?/.test((await page.textContent('[data-coords]')).trim()), 'the coordinates readout is in the UCS', await page.textContent('[data-coords]'));
+  // a selection window dragged on the turned screen picks what lies inside it on screen
+  await page.evaluate(() => window.cadcraft.host.setSelection(new Set()));
+  await typeCmd('LASSOMODE'); await typeCmd('0');   // a rectangle: the turned case is the rectangle's
+  const w0 = await page.evaluate(() => { const c = window.cadcraft, r = document.querySelector('[data-over]').getBoundingClientRect(); const a = c.view.toScreen(-3, -3), b = c.view.toScreen(3, 53); return { ax: r.left + Math.min(a.x, b.x), ay: r.top + Math.min(a.y, b.y), bx: r.left + Math.max(a.x, b.x), by: r.top + Math.max(a.y, b.y) }; });
+  await page.mouse.move(w0.ax, w0.ay); await page.mouse.down(); await page.mouse.move((w0.ax + w0.bx) / 2, (w0.ay + w0.by) / 2, { steps: 4 }); await page.mouse.move(w0.bx, w0.by, { steps: 4 }); await page.mouse.up(); await page.waitForTimeout(100);
+  const selIds = await page.evaluate(() => [...window.cadcraft.host.selection].map((id) => window.cadcraft.doc.get(id)).map((e) => e && e.type + ':' + Math.round(e.y2)));
+  await typeCmd('LASSOMODE'); await typeCmd('1');
+  ok(selIds.length === 1 && selIds[0] === 'line:50', 'a window dragged on the turned screen selects the line inside it on screen, not the other', JSON.stringify(selIds));
+  await page.keyboard.press('Escape');
+  await page.click('[data-group-menu="View"] > summary');
+  await page.click('[data-group-menu="View"] [data-cmd="TURNWORLD"]'); await page.waitForTimeout(150);
+  ok(await page.evaluate(() => window.cadcraft.view.tw === 0 && window.cadcraft.doc.ucs === null), 'Back to world: level view, world UCS');
+  await typeCmd('UCS'); await typeCmd('Z'); await typeCmd('30');
+  await typeCmd('PLAN'); await typeCmd('W');
+  ok(await page.evaluate(() => window.cadcraft.view.tw === 0 && Math.abs(window.cadcraft.doc.ucs.ang - Math.PI / 6) < 1e-9), 'UCS Z 30 then PLAN World: the view level again, the UCS kept');
+  await typeCmd('UCS'); await typeCmd('W');
+  }
+
+  console.log('\n== My tools: buttons of your own, keys, a pausing macro, CUIx import (0.5 DR.9)');
+  {
+    await fresh();
+    await typeCmd('ZOOM'); await typeCmd('C'); await typeCmd('0,0'); await typeCmd('400');
+    await page.evaluate(() => window.cadcraft.host.myTools.set({ format: 'cadcraft-mytools', version: 1, groups: [{ name: 'Mine', tools: [
+      { id: 'box', label: 'Box', macro: '^C^C_rectang;0,0;@100,50;', key: 'Ctrl+Alt+B' },
+      { id: 'cir', label: 'Circle 25', macro: '^C^C_circle;\\25;' }] }] }));
+    const grp = await page.$('[data-mytools-group][aria-label="Mine"]');
+    ok(!!grp && (await grp.$$('button.cc-tool')).length === 2, 'My tools: the group and its two buttons on the toolbar');
+    await page.click('[data-mytool="box"]'); await page.waitForTimeout(300);
+    let es = await all();
+    ok(es.length === 1 && es[0].type === 'poly' && es[0].pts.length === 4 && Math.abs(es[0].pts[2].x - 100) < 1e-9 && Math.abs(es[0].pts[2].y - 50) < 1e-9, 'a click runs the macro ^C^C_rectang;0,0;@100,50;', JSON.stringify(es[0]?.pts));
+    await page.click('[data-cmd-input]');
+    await page.keyboard.press('Control+Alt+b'); await page.waitForTimeout(300);
+    ok((await all()).length === 2, 'its key Ctrl+Alt+B runs it too');
+    await page.click('[data-mytool="cir"]'); await page.waitForTimeout(200);
+    ok(await page.evaluate(() => window.cadcraft.engine.running) === 'CIRCLE', 'a macro with \\ waits at the centre prompt for you');
+    await clickAt(150, 80); await page.waitForTimeout(300);
+    const cir = (await all()).find((e) => e.type === 'circle');
+    ok(cir && Math.abs(cir.r - 25) < 1e-9 && Math.abs(cir.cx - 150) < 2 && Math.abs(cir.cy - 80) < 2 && !(await page.evaluate(() => window.cadcraft.engine.running)), 'after your click it carries on: radius 25 there', JSON.stringify(cir));
+    // Settings › CadCraft › My tools: add a button, refuse a taken key
+    await page.keyboard.press('Control+,'); await page.waitForTimeout(300);
+    await page.click('[data-mytools-settings] [data-mt-add]'); await page.waitForTimeout(150);
+    await page.fill('#cc-mt-group', 'Mine'); await page.fill('#cc-mt-label', 'Origin line'); await page.fill('#cc-mt-macro', '^C^C_line;0,0;@0,60;;');
+    await page.click('#cc-mt-key'); await page.keyboard.press('Control+s');
+    await page.click('.cc-mt-dlg [data-key="ok"]'); await page.waitForTimeout(100);
+    ok(/already a CadCraft/.test(await page.textContent('.cc-mt-dlg [role=alert]')), 'Ctrl+S as a key: refused, it is CadCraft\'s Save', await page.textContent('.cc-mt-dlg [role=alert]'));
+    await page.click('#cc-mt-key'); await page.keyboard.press('Control+Alt+o');
+    await page.click('.cc-mt-dlg [data-key="ok"]'); await page.waitForTimeout(150);
+    ok(await page.evaluate(() => window.cadcraft.host.myTools.data().groups[0].tools.some((x) => x.label === 'Origin line' && x.key === 'Ctrl+Alt+O')), 'the dialog adds the button with its key');
+    // a CUIx through the file picker
+    const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('[data-mytools-settings] [data-mt-cuix]')]);
+    await chooser.setFiles(path.join(REPO, 'tools/cadcraft-test/fixtures/my-tools.cuix')); await page.waitForTimeout(600);
+    const report = await page.textContent('[data-mytools-settings] [role=status]');
+    ok(/CUIx imported/.test(report) && /SUPERHATCH/.test(report), 'Import CUIx: groups added; the command CadCraft lacks is named', report);
+    await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+    ok(!!(await page.$('[data-mytools-group][aria-label="My drafting"] img.cc-mytool-icon')), 'its toolbar is on the toolbar, with its picture');
+    const n0 = (await all()).length;
+    await page.click('[data-mytools-group][aria-label="My drafting"] button:has-text("Super")'); await page.waitForTimeout(200);
+    ok((await all()).length === n0 && (await history()).includes('no SUPERHATCH command'), 'a button for a command CadCraft lacks says so and does nothing');
+    await page.evaluate(() => window.cadcraft.host.myTools.set({ format: 'cadcraft-mytools', version: 1, groups: [] }));
+    ok(!(await page.$('[data-mytools-group]')), 'emptied: no My tools group on the toolbar');
+  }
+
+  console.log('\n== freeze a layer in one viewport from the Layers panel (0.5 VP.2)');
+  {
+    await fresh();
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.setSpace(null); d.change('lay', () => d.setLayouts([])); d.setLayer('Hide', { color: 1 }); });
+    await typeCmd('LAYER'); await page.keyboard.press('Escape');
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.current.layer = 'Hide'; });
+    await typeCmd('L'); await typeCmd('0,0'); await typeCmd('300,200'); await typeCmd('');
+    await page.evaluate(() => { window.cadcraft.doc.current.layer = '0'; });
+    await typeCmd('LAYOUT');
+    const vpId = await page.evaluate(() => { const c = window.cadcraft; const v = [...c.doc.entities.values()].find((e) => e.type === 'viewport'); c.host.setSelection(new Set([v.id])); return v.id; });
+    await page.waitForTimeout(150);
+    ok(await page.evaluate(() => !document.querySelector('[data-vpfrz-note]').hidden && !!document.querySelector('[data-vpfrz="Hide"]')), 'a selected viewport: the Layers panel shows the freeze-in-viewport column and says so');
+    await page.click('[data-vpfrz="Hide"]'); await page.waitForTimeout(150);
+    ok(await page.evaluate((i) => JSON.stringify(window.cadcraft.doc.entities.get(i).frz) === '["Hide"]' && document.querySelector('[data-vpfrz="Hide"]').getAttribute('aria-pressed') === 'true', vpId), 'a click freezes the layer in that viewport only (the button shows it)');
+    await page.keyboard.press('Escape'); await page.evaluate(() => window.cadcraft.host.setSelection(new Set()));
+    await page.waitForTimeout(100);
+    ok(await page.evaluate(() => document.querySelector('[data-vpfrz-note]').hidden && !document.querySelector('[data-vpfrz]')), 'nothing selected: the column goes');
+    await page.click('[data-cmd-input]'); await page.keyboard.press('Control+z'); await page.waitForTimeout(100);
+    ok(await page.evaluate((i) => !window.cadcraft.doc.entities.get(i).frz, vpId), 'Ctrl+Z thaws it again (one step)');
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.setSpace(null); d.change('lay', () => d.setLayouts([])); });
+  }
+
+  console.log('\n== dynamic blocks: Properties › Custom switches the visibility state (0.5 DB.3, DB.12)');
+  {
+    const sample = '/var/www/CADCRAFT/testfiles/dwg-samples/blocks_and_tables_-_imperial.dwg';   // a vendor sample: outside the repo, skipped when absent
+    if (fs.existsSync(sample)) {
+      await page.setInputFiles('[data-file]', sample);
+      await page.waitForFunction(() => [...window.cadcraft.doc.model.values()].some((e) => e.type === 'insert' && e.dyn), null, { timeout: 60000 });
+      await page.waitForTimeout(300);
+      const id = await page.evaluate(() => { const c = window.cadcraft; c.doc.setSpace(null); const r = [...c.doc.model.values()].find((e) => e.type === 'insert' && e.block === 'Receptacle' && e.dyn?.state === 'Duplex'); c.host.setSelection(new Set([r.id])); return r.id; });
+      await page.waitForSelector('#cc-p-dyn-vis', { timeout: 5000 }).catch(() => {});
+      const opts = await page.$$eval('#cc-p-dyn-vis option', (os) => os.map((o) => o.value)).catch(() => []);
+      ok(opts.join('|') === 'Duplex|GFI', 'Properties › Custom: a Visibility list with the block\'s states', opts.join('|'));
+      await page.selectOption('#cc-p-dyn-vis', 'GFI'); await page.waitForTimeout(300);
+      ok(await page.evaluate((i) => window.cadcraft.doc.model.get(i).dyn.state === 'GFI', id), 'choosing GFI switches the reference to its GFI state');
+      if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-28-dynamic-block.png') });
+      await page.click('[data-cmd-input]'); await page.keyboard.press('Control+z'); await page.waitForTimeout(200);
+      ok(await page.evaluate((i) => window.cadcraft.doc.model.get(i).dyn.state === 'Duplex', id), 'one Ctrl+Z puts Duplex back');
+      // DB.5: the visibility grip opens the list of states
+      const gp = await page.evaluate((i) => { const c = window.cadcraft, e = c.doc.model.get(i); c.view.fit(c.view.boundsOf(e), 0.3); c.host.setSelection(new Set([i])); const g = c.view.state.grips.find((x) => x.key === 'dyn:vis'); const s = c.view.toScreen(g.x, g.y), r = document.querySelector('[data-over]').getBoundingClientRect(); return { x: r.left + s.x, y: r.top + s.y }; }, id);
+      await page.waitForTimeout(150);
+      await page.mouse.click(gp.x, gp.y); await page.waitForTimeout(200);
+      const items = await page.$$eval('.cc-dynvis [role=menuitemradio]', (bs) => bs.map((b) => b.textContent + (b.getAttribute('aria-checked') === 'true' ? '*' : ''))).catch(() => []);
+      ok(items.join('|') === 'Duplex*|GFI', 'a click on the visibility grip lists the states, the current one checked', items.join('|'));
+      await page.click('.cc-dynvis button:has-text("GFI")'); await page.waitForTimeout(200);
+      ok(await page.evaluate((i) => window.cadcraft.doc.model.get(i).dyn.state === 'GFI' && !document.querySelector('.cc-dynvis'), id), 'choosing GFI there switches it and closes the list');
+      await page.evaluate(() => window.cadcraft.host.setSelection(new Set()));
+      await typeCmd('NEW');
+    } else console.log('  (no vendor sample: skipped)');
+  }
+
+  console.log('\n== sheet tabs show numbers only (0.5 WL.9)');
+  {
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.setSpace(null); d.change('lay', () => d.setLayouts([])); });
+    await typeCmd('LAYOUT'); await typeCmd('LAYOUT');
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.change('names', () => d.setLayouts(d.layouts.map((l, i) => ({ ...l, name: ['A-101 Ground floor plan', 'Layout2'][i] })))); });
+    await page.keyboard.press('Control+,'); await page.waitForTimeout(300);
+    await page.check('input[name="ccTabs"][value="number"]'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+    const tabs = await page.$$eval('[data-tabs] .cc-tab', (bs) => bs.map((b) => [b.textContent, b.title]));
+    ok(tabs.some(([x, ti]) => x === 'A-101' && ti.includes('A-101 Ground floor plan')) && tabs.some(([x]) => x === 'Layout2'), 'Sheet numbers only: "A-101" on the tab, the whole name in its tooltip; a name with no number stays', JSON.stringify(tabs));
+    await page.keyboard.press('Control+,'); await page.waitForTimeout(300);
+    await page.check('input[name="ccTabs"][value="full"]'); await page.keyboard.press('Escape'); await page.waitForTimeout(150);
+    ok((await page.$$eval('[data-tabs] .cc-tab', (bs) => bs.map((b) => b.textContent))).includes('A-101 Ground floor plan'), 'Full names again');
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.setSpace(null); d.change('lay', () => d.setLayouts([])); });
+  }
+
+  console.log('\n== compare settings between two open drawings (0.5 WL.12)');
+  {
+    await fresh();
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.setLayer('Walls', { color: 1 }); });
+    await typeCmd('NEW'); await page.waitForTimeout(300);
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.setLayer('Walls', { color: 5 }); });
+    await page.click('[data-group-menu="View"] > summary');
+    await page.click('[data-group-menu="View"] [data-cmd="COMPARESETTINGS"]'); await page.waitForTimeout(300);
+    await page.selectOption('#cc-cmp-cat', 'layer'); await page.waitForTimeout(100);
+    const other = await page.$$eval('#cc-cmp-doc option', (os) => os.map((o) => [o.value, o.textContent]));
+    const otherId = await page.evaluate(() => { const t = window.cadcraft.host.tabs; return String(t.list.filter((r) => r.id !== t.active && t.docOf(r.id).layers.has('Walls')).pop()?.id); });   // the drawing set up just before (earlier sections leave others open)
+    void other;
+    await page.selectOption('#cc-cmp-doc', otherId); await page.waitForTimeout(100);
+    await page.selectOption('#cc-cmp-a', 'Walls'); await page.selectOption('#cc-cmp-b', 'Walls'); await page.waitForTimeout(100);
+    ok(await page.$eval('tr[data-cmp-key="color"]', (tr) => tr.classList.contains('is-diff')), 'Compare settings: the layer colour that differs between the two drawings is marked');
+    await page.click('tr[data-cmp-key="color"] [data-cmp-right]'); await page.waitForTimeout(150);
+    ok(await page.evaluate((id) => window.cadcraft.host.tabs.docOf(+id).layers.get('Walls').color === 5, otherId), '→ copies this drawing\'s colour into the other drawing');
+    ok(await page.$eval('tr[data-cmp-key="color"]', (tr) => !tr.classList.contains('is-diff')), 'and the row is the same now');
+    await page.click('[data-cmp-close]'); await page.waitForTimeout(150);
+    await page.click('.cc-doctab-wrap:not(.is-on) .cc-doctab-x').catch(() => {}); await page.waitForTimeout(150);
+    if (await page.$('dialog[open] button[data-key="discard"]')) await page.click('dialog[open] button[data-key="discard"]');
+    await page.waitForTimeout(150);
+  }
+
+  console.log('\n== keyboard shortcuts for any command (0.5 WL.18)');
+  {
+    await fresh();
+    await typeCmd('KEYS'); await page.waitForTimeout(200);
+    await page.click('#cc-keys-key'); await page.keyboard.press('Control+s');
+    await page.fill('#cc-keys-cmd', 'LINE'); await page.click('[data-keys-add]'); await page.waitForTimeout(100);
+    ok(/already a CadCraft/.test(await page.textContent('.cc-keys [role=status]')), 'Ctrl+S refused (CadCraft\'s Save)');
+    await page.click('#cc-keys-key'); await page.keyboard.press('Alt+Shift+c');
+    await page.fill('#cc-keys-cmd', 'CIRCLE'); await page.click('[data-keys-add]'); await page.waitForTimeout(100);
+    ok(await page.evaluate(() => window.cadcraft.host.shortcuts.keys().get('Alt+Shift+C') === 'CIRCLE'), 'Alt+Shift+C → CIRCLE added');
+    await page.click('[data-keys-close]'); await page.waitForTimeout(100);
+    await page.click('[data-cmd-input]'); await page.keyboard.press('Alt+Shift+c'); await page.waitForTimeout(200);
+    ok(await page.evaluate(() => window.cadcraft.engine.running) === 'CIRCLE', 'the key starts CIRCLE');
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => window.cadcraft.host.shortcuts.set(new Map()));
+  }
+
+  console.log('\n== Tangent snap: a line touching two circles by clicks (0.5 DR.3)');
+  {
+    await fresh();
+    await typeCmd('C'); await typeCmd('0,0'); await typeCmd('5');
+    await typeCmd('C'); await typeCmd('40,0'); await typeCmd('10');
+    await typeCmd('ZOOM'); await typeCmd('E');
+    const keep = await page.evaluate(() => { const c = window.cadcraft; const k = [...c.host.settings.kinds]; c.host.settings.kinds.clear(); c.host.settings.kinds.add('tan'); return k; });
+    if ((await page.getAttribute('[data-toggle="osnap"]', 'aria-pressed')) !== 'true') await page.click('[data-toggle="osnap"]');
+    await typeCmd('L');
+    await clickAt(-1, 5.2); await clickAt(38, 10.3);
+    await typeCmd('');
+    const tl = (await all()).find((e) => e.type === 'line');
+    const dist1 = tl && Math.abs((tl.y2 - tl.y1) * 0 - (tl.x2 - tl.x1) * 0 + tl.x2 * tl.y1 - tl.y2 * tl.x1) / Math.hypot(tl.x2 - tl.x1, tl.y2 - tl.y1);
+    const dist2 = tl && Math.abs((tl.y2 - tl.y1) * 40 - (tl.x2 - tl.x1) * 0 + tl.x2 * tl.y1 - tl.y2 * tl.x1) / Math.hypot(tl.x2 - tl.x1, tl.y2 - tl.y1);
+    ok(tl && Math.abs(dist1 - 5) < 1e-6 && Math.abs(dist2 - 10) < 1e-6 && tl.y1 > 0 && tl.y2 > 0, 'LINE with Tangent then Tangent: the top line touches both circles exactly', JSON.stringify({ tl, dist1, dist2 }));
+    await page.click('[data-toggle="osnap"]');
+    await page.evaluate((k) => { const c = window.cadcraft; c.host.settings.kinds.clear(); for (const x of k) c.host.settings.kinds.add(x); }, keep);
+  }
+
+  console.log('\n== tangent circles by clicks: Tan Tan Radius, Tan Tan Tan (0.5 DR.1, DR.2)');
+  {
+    await fresh();
+    await typeCmd('L'); await typeCmd('0,0'); await typeCmd('100,0'); await typeCmd('0,100'); await typeCmd('C');
+    await typeCmd('ZOOM'); await typeCmd('E');
+    await page.click('[data-group-menu="Draw"] > summary');
+    await page.click('[data-group-menu="Draw"] [data-cmd="CIRCLE TTT"]'); await page.waitForTimeout(150);
+    await clickAt(30, 0); await clickAt(0, 30); await clickAt(50, 50); await page.waitForTimeout(150);
+    const ic = (await all()).find((e) => e.type === 'circle');
+    const want = 100 - 50 * Math.SQRT2;
+    ok(ic && Math.abs(ic.r - want) < 1e-6 && Math.abs(ic.cx - want) < 1e-6, 'Draw › More › Circle: Tan, Tan, Tan — three clicks on the triangle give its incircle', JSON.stringify(ic));
+    await typeCmd('C'); await typeCmd('T'); await clickAt(60, 0); await clickAt(0, 60); await typeCmd('8');
+    const tr = (await all()).filter((e) => e.type === 'circle')[1];
+    ok(tr && Math.abs(tr.r - 8) < 1e-9 && Math.abs(tr.cx - 8) < 1e-6 && Math.abs(tr.cy - 8) < 1e-6, 'CIRCLE T: two clicks and radius 8 in the corner', JSON.stringify(tr));
+  }
+
+  console.log('\n== view label follows the viewport\'s view name (0.5 WL.11)');
+  {
+    await fresh();
+    await typeCmd('REC'); await typeCmd('0,0'); await typeCmd('1000,500');
+    await page.evaluate(() => { const d = window.cadcraft.doc; d.change('views', () => d.setViews([{ name: 'Kitchen', cx: 250, cy: 125, w: 500, h: 250 }])); });
+    await typeCmd('LAYOUT');
+    await page.waitForTimeout(200);
+    const vpId = await page.evaluate(() => { const c = window.cadcraft; const v = [...c.doc.layout.entities.values()].find((e) => e.type === 'viewport'); c.host.setSelection(new Set([v.id])); return v.id; });
+    await typeCmd('VPVIEW'); await typeCmd('V'); await typeCmd('Kitchen');
+    await page.evaluate((id) => window.cadcraft.host.setSelection(new Set([id])), vpId);
+    await typeCmd('VIEWLABEL'); await typeCmd('');
+    const lab = () => page.evaluate(() => [...window.cadcraft.doc.layout.entities.values()].find((e) => e.type === 'text' && e.field)?.s);
+    ok((await lab()) === 'Kitchen', 'VPVIEW View + VIEWLABEL: the label reads the view name', await lab());
+    await page.evaluate((id) => window.cadcraft.host.setSelection(new Set([id])), vpId);
+    await page.waitForTimeout(200);
+    const how = await page.evaluate(() => {
+      const l = [...document.querySelectorAll('[data-props] label')].find((x) => x.textContent.trim() === 'View name');
+      const box = l && (l.control || document.getElementById(l.htmlFor));
+      if (!box) return 'no box: ' + (l ? 'label for=' + l.htmlFor : 'no label');
+      box.focus(); box.value = 'Kitchen plan'; box.dispatchEvent(new Event('input', { bubbles: true })); box.dispatchEvent(new Event('change', { bubbles: true })); box.blur();   // as Enter does
+      return 'ok';
+    });
+    ok(how === 'ok', 'Properties shows View name for the selected viewport', how);
+    await page.waitForTimeout(200);
+    ok((await lab()) === 'Kitchen plan', 'renaming the view in Properties: the label follows', await lab());
+    await page.keyboard.press('Control+z'); await page.waitForTimeout(150);
+    ok((await lab()) === 'Kitchen', 'one Ctrl+Z puts both back', await lab());
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, "draw-wl11-view-label.png") });
+  }
+
+  console.log('\n== visibility states in the block editor (0.5 DB.9)');
+  {
+    await fresh();
+    await page.evaluate(() => {
+      const { doc } = window.cadcraft;
+      const L = (x1, y1, x2, y2) => ({ type: 'line', x1, y1, x2, y2, layer: '0', color: null });
+      const all = [[L(0, 0, 10, 0)], [L(0, 5, 10, 5)], [{ type: 'circle', cx: 5, cy: 10, r: 2, layer: '0', color: null }]];
+      doc.change('blk', () => doc.defineBlock({ name: 'SINK', base: { x: 0, y: 0 }, entities: [all[0][0], all[1][0]],
+        dyn: { def: true, src: 'A1', h: ['B1', 'B2', 'B3'], all, shown: [true, true, false], ad: [], vis: { node: 7, name: 'Visibility1', label: 'Visibility', states: [{ name: 'Single', show: [0, 1] }, { name: 'Double', show: [0, 2] }] } } }));
+      doc.change('ins', () => doc.add({ type: 'insert', block: 'SINK', x: 0, y: 0, sx: 1, sy: 1, rot: 0, dyn: { state: 'Single', values: [] } }));
+    });
+    await typeCmd('BEDIT'); await typeCmd('SINK');
+    await page.waitForTimeout(200);
+    const pickBox = page.locator('[data-be-state]');
+    ok(await pickBox.isVisible(), 'the block editor bar shows the visibility state picker');
+    await pickBox.selectOption('Double'); await page.waitForTimeout(200);
+    const kinds = () => page.evaluate(() => window.cadcraft.doc.all().map((e) => e.type).sort().join());
+    ok((await kinds()) === 'circle,line', 'picking "Double" in the bar shows that state', await kinds());
+    await typeCmd('BVSTATE'); await typeCmd('N'); await typeCmd('Triple'); await typeCmd('S');
+    ok((await kinds()) === 'circle,line,line' && (await pickBox.inputValue()) === 'Triple', 'BVSTATE New, Show all: the bar follows', await kinds());
+    await page.evaluate(() => { const c = window.cadcraft; c.host.setSelection(new Set(c.doc.all().filter((e) => e.type === 'circle').map((e) => e.id))); });
+    await typeCmd('BVHIDE');
+    ok((await kinds()) === 'line,line', 'BVHIDE hides the selected circle in "Triple"', await kinds());
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-db9-bedit-states.png') });
+    await page.click('.cc-te-btn.is-primary'); await page.waitForTimeout(200);
+    const st = await page.evaluate(() => window.cadcraft.doc.blocks.get('SINK').dyn?.vis.states.map((x) => x.name + ':' + x.show.join('')).join(' '));
+    ok(st === 'Single:01 Double:02 Triple:01', 'Save in the bar: the block keeps its states, as edited', st);
+  }
+
+  console.log('\n== layout tabs on short windows (0.5 VP.5 guard; the full sweep is browser-tabs-sweep.mjs)');
+  await fresh();
+  await page.evaluate(async () => {
+    const { doc, engine } = window.cadcraft;
+    if (!doc.layouts.length) { await engine.run('LAYOUT'); await engine.done; }
+    const base = doc.layouts[0];
+    const list = Array.from({ length: 40 }, (_, i) => ({ ...base, name: `A-${101 + i} Ground floor plan, kitchen and servery — issued for construction (${i + 1})`, entities: i ? new Map() : base.entities }));
+    doc.setSpace(null);
+    doc.change('sheets', () => doc.setLayouts(list));
+   
+  });
+  // 1366 × 768 at 150 % (911 × 512), 1024 × 500, and the usual 1440 × 900; the touch key row is on from the section above
+  for (const [w, h] of [[911, 512], [1024, 500], [1440, 900]]) {
+    await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(250);
+    const pr = await page.evaluate(pageCheck);
+    ok(pr.length === 0, `${w} × ${h}: every sheet tab is clickable, nothing covers the command line or the status bar`, pr.join('; '));
+    const last = await page.evaluate(() => { const t = [...document.querySelectorAll('[data-tabs] .cc-tab')].pop(); t.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' }); const r = t.getBoundingClientRect(); return { x: r.left + Math.min(r.width / 2, 12), y: r.top + r.height / 2 }; });
+    await page.mouse.click(last.x, last.y); await page.waitForTimeout(100);
+    ok(await page.evaluate(() => window.cadcraft.doc.layout?.name.endsWith('(40)')), `${w} × ${h}: a real click on the 40th tab opens that sheet`);
+    if (SHOTS && w === 911) await page.screenshot({ path: path.join(SHOTS, 'draw-25-short-window.png') });
+    await page.evaluate(() => { window.cadcraft.doc.setSpace(null); });
+  }
+  ok(await page.evaluate(() => document.querySelector('.cc').classList.contains('cc-fit-compact') === false), 'at 1440 × 900 the toolbar keeps its words');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  // Moved panels (app-panels.js, 0.5 VP.5 rest): both floating at their default place, and the right panel docked at the
+  // bottom; each arranged at 1440 × 900, then the window shrinks (the dock was measured on the big window).
+  for (const [kind, moves] of [['floating panels', [['left', 'float'], ['right', 'float']]], ['bottom dock', [['right', 'bottom']]]]) {
+    if (!(await page.evaluate(() => !!window.ccShellPanels))) { ok(false, `${kind}: app-panels.js is loaded`); break; }
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(150);
+    await page.evaluate((mv) => { for (const [id, d] of mv) window.ccShellPanels.move(id, d); }, moves);
+    for (const [w, h] of [[911, 512], [1024, 500]]) {
+      await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(300);
+      const pr = await page.evaluate(pageCheck);
+      ok(pr.length === 0, `${kind}, ${w} × ${h}: every sheet tab is clickable, nothing covers the command line or the status bar`, pr.join('; '));
+    }
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.waitForTimeout(150);
+    await page.evaluate(() => window.ccShellPanels.reset());
+  }
 
   ok(problems.length === 0, 'no console errors', problems.join(' | '));
 } catch (err) {

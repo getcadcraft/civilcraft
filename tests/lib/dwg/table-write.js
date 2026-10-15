@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* i18n-ignore-file: cc-dwg is a standalone library; its errors and report notes are English (an app translates what it shows). */
+/* i18n-ignore-file: report notes go through msg() (messages.js); what is left is internal checks and file-format text. */
 /**
  * table-write.js — editable tables: ACAD_TABLE, TABLESTYLE and FIELD written in every version R2000–R2018
  * (cc-dwg, Apache-2.0; builder T).
@@ -28,6 +28,7 @@
  *   tableWriter(env) → { convert(e, owner, c) → [record] | 'reason', finish({ recs, H }) }
  *     env = { model, version, next, srcMap, mapSrc, hexKey, styleRef, ltypeRef, blockByName, blocks }
  */
+import { msg } from './messages.js';
 import { ENC, CLASSED, entityCommon, objectCommon, begin, finish, ObjWriter, HARD_OWN, HARD_PTR, SOFT_PTR } from './objects-write.js';
 import { FIELD_ENCODERS, COPY_SKIP } from './nongraphic-write.js';
 import { DEFAULT_STYLE_NAMES, canonicalBorders } from './table-read.js';
@@ -608,7 +609,7 @@ export function tableWriter(env) {
     recs.push(dict, ...objRecs);
     const nod = recs.find((r) => r.h === H.nod && r.t === 'DICTIONARY');
     if (nod && !nod.items.some((x) => x[0] === 'ACAD_TABLESTYLE')) { nod.items.push(['ACAD_TABLESTYLE', dict.h]); nod.items.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)); }
-    if (fieldFallback) env.report.notes.push(`${fieldFallback} table cell field${fieldFallback === 1 ? '' : 's'} could not be written and kept their text.`);
+    if (fieldFallback) env.report.notes.push(msg('ccdwg.write.table_fields', { n: fieldFallback }));
     env.report.tables = { tables: nTables, styles: styles.size, fieldCells: nFieldCells };
   };
   return T;

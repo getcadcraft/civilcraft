@@ -3,7 +3,7 @@ title: Feature lines
 summary: Draw 3D lines you grade vertex by vertex, make stepped offsets of them, and use them as breaklines of the ground or as sloped pads in the design.
 section: tasks
 order: 65
-keywords: feature line, grade, slope, elevation, stepped offset, offset, breakline, curb, ditch, berm, sloped pad, daylight, grading, 3d polyline
+keywords: grade overlay, elevation overlay, grade arrows, feature line, grade, slope, elevation, stepped offset, offset, breakline, curb, ditch, berm, sloped pad, daylight, grading, 3d polyline
 ---
 
 A feature line is a line with an elevation at every vertex: a curb, a ditch flow line, the top of a berm, the edge of a sloped pad. You set its elevations by number or by grade, copy it sideways with a step up or down, and choose what the surfaces do with it.
@@ -36,6 +36,14 @@ The selected line shows its elevations at the vertices and its grades along the 
 ## Stepped offsets
 
 Under **Stepped offset**, type a **Distance** (positive to the right of the line's direction, negative to the left), then a height (up or down by) or a slope in percent, and click {{ui:Make the offset line}}. The copy is a new feature line: for example the back of a curb 0.5 ft to the side and 0.5 ft higher, or a ditch edge 6 ft out at 2 %. A distance that would fold the copy over itself at a tight bend is refused.
+
+## Grades and elevations on the screen
+
+Press {{key:E}}, or tick **Grades and elevations on feature lines** under Display, to see every feature line's grade along each segment (with a small arrow pointing downhill) and its elevation at the vertices. They show on the screen only: nothing is added to the drawing, and the PDF, DXF and DWG stay as they are. Short segments and crowded vertices are left unlabelled until you zoom in. The selected line always shows its own grades and elevations.
+
+## In the profile view
+
+A feature line that crosses an alignment shows in that alignment's profile view, with its name and elevation at the crossing; lines running beside it can be shown as well. See [Design a vertical profile](topic:profile).
 
 ## What the surfaces do with it
 

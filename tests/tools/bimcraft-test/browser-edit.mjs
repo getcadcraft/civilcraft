@@ -73,7 +73,7 @@ try {
   ok(acts.join() === 'undo:Undo,redo:Redo,copy:Copy,paste:Paste' && await page.isVisible('[data-edit-menu] > summary'), 'toolbar Edit tools: Undo, Redo, Copy, Paste and More (' + acts.join(', ') + ')');
   const rows = await page.$$eval('[data-toolbar] .bc-tool', (bs) => new Set(bs.filter((b) => b.offsetParent).map((b) => Math.round(b.getBoundingClientRect().top))).size);
   ok(rows === 2, 'at 1440 px the toolbar keeps the two rows it had (' + rows + ')');
-  const rowOf = await page.$$eval('[data-toolbar] .bc-tool', (bs) => Object.fromEntries(bs.map((b) => [b.dataset.act || b.dataset.view || b.dataset.toggle || b.dataset.libTool || (b.hasAttribute('data-handoff-ifc') ? 'handoff' : b.closest('[data-vis-menu]') ? 'show' : 'more'), Math.round(b.getBoundingClientRect().top)])));
+  const rowOf = await page.$$eval('[data-toolbar] .bc-tool', (bs) => Object.fromEntries(bs.map((b) => [b.dataset.act || b.dataset.view || b.dataset.toggle || b.dataset.libTool || (b.hasAttribute('data-handoff-ifc') ? 'handoff' : b.closest('[data-vis-menu]') ? 'show' : b.closest('[data-edit-menu]') ? 'more' : 'other'), Math.round(b.getBoundingClientRect().top)])));
   ok(rowOf.iso === rowOf.more && rowOf.undo === rowOf.iso && rowOf.library > rowOf.iso, 'row 1: view tools and the Edit group with More; row 2: the library tools');
   ok(await disabled(page, tool('undo')) && (await page.getAttribute(tool('undo'), 'title')) === 'Nothing to undo.', 'Undo is aria-disabled, title "Nothing to undo."');
   ok(await disabled(page, tool('copy')) && /Pick an element/.test(await page.getAttribute(tool('copy'), 'title')), 'Copy is disabled until an element is picked (title says so)');

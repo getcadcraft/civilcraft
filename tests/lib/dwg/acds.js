@@ -11,6 +11,7 @@
  *   readAcds(bytes) → { records: Map(handle Number → Uint8Array), notes: [string], info }
  *   writeAcds(records: [{ handle: Number, data: Uint8Array }]) → Uint8Array (the section's logical bytes)
  */
+import { msg } from './messages.js';
 
 const SIG = 0x6472616A;            // "jard" (24.1 file signature)
 const SEG_SIG = 0xD5AC;            // 24.2.1
@@ -26,25 +27,25 @@ export function readAcds(sec) {
   const records = new Map();
   const info = {};
   try {
-    if (!sec || sec.length < 0x40) { notes.push('The data storage section is empty.'); return { records, notes, info }; }
+    if (!sec || sec.length < 0x40) { notes.push(msg('ccdwg.read.acds_empty')); return { records, notes, info }; }
     const d = dv(sec);
-    if (d.getUint32(0, true) !== SIG) { notes.push('The data storage section has no "jard" signature.'); return { records, notes, info }; }
+    if (d.getUint32(0, true) !== SIG) { notes.push(msg('ccdwg.read.acds_no_sig')); return { records, notes, info }; }
     const H = (k) => d.getInt32(k, true);
     Object.assign(info, { headerSize: H(4), unknown1: H(8), version: H(12), unknown2: H(16), revision: H(20), segIdxOffset: H(24),
       segIdxUnknown: H(28), segCount: H(32), schIdx: H(36), datIdx: H(40), searchIdx: H(44), prevSave: H(48), fileSize: H(52) });
     // 24.2.2.1 segment index: the stream offset and size of every file segment, by segment index
     const segAt = (off) => {
-      if (off < 0 || off + 0x30 > sec.length || d.getUint16(off, true) !== SEG_SIG) throw new Error('no file segment at ' + off);
+      if (off < 0 || off + 0x30 > sec.length || d.getUint16(off, true) !== SEG_SIG) throw new Error(msg('ccdwg.err.acds_no_segment', { offset: off }));
       return { off, name: name6(sec, off + 2), index: H(off + 8), unknown1: H(off + 12), size: H(off + 16), revision: H(off + 24),
         sysAlign: H(off + 32), objAlign: H(off + 36), data: off + 0x30 };
     };
     const si = segAt(info.segIdxOffset);
-    if (si.name !== 'segidx') throw new Error('the segment index is a "' + si.name + '" segment');
+    if (si.name !== 'segidx') throw new Error(msg('ccdwg.err.acds_index', { name: si.name }));
     const segs = [];
     for (let i = 0, p = si.data; i < info.segCount && p + 12 <= sec.length; i++, p += 12) {
       segs.push({ offset: Number(d.getBigUint64(p, true)), size: d.getUint32(p + 8, true) });
     }
-    const seg = (i) => { const s = segs[i]; if (!s || !s.offset) throw new Error('segment ' + i + ' is not in the index'); return segAt(s.offset); };
+    const seg = (i) => { const s = segs[i]; if (!s || !s.offset) throw new Error(msg('ccdwg.err.acds_segment', { n: i })); return segAt(s.offset); };
     // 24.2.2.2 data index: (segment, local offset, schema) per entry
     const di = seg(info.datIdx);
     const n = H(di.data);
@@ -59,7 +60,7 @@ export function readAcds(sec) {
     for (const e of entries) (bySeg.get(e.seg) || bySeg.set(e.seg, []).get(e.seg)).push(e);
     for (const [si2, list] of bySeg) {
       const s = seg(si2);
-      if (s.name !== '_data_') { notes.push('Data storage entry points at a "' + s.name + '" segment.'); continue; }
+      if (s.name !== '_data_') { notes.push(msg('ccdwg.read.acds_entry', { name: s.name })); continue; }
       const segEnd = s.off + segs[si2].size;
       // Spec gap: the data index's local offsets count from the end of the segment header (stream position + 0x30),
       // and the "data start marker" is the segment start + (object data alignment offset << 4) — found by experiment.
@@ -76,11 +77,11 @@ export function readAcds(sec) {
         const size = d.getUint32(at, true);
         if (size === BLOB_REF) records.set(h.handle, readBlob(sec, d, at + 4, seg, segs));
         else if (size + 4 <= max) records.set(h.handle, sec.slice(at + 4, at + 4 + size));
-        else notes.push('Data storage record of ' + h.handle.toString(16).toUpperCase() + ' is larger than its segment.');
+        else notes.push(msg('ccdwg.read.acds_record_large', { handle: h.handle.toString(16).toUpperCase() }));
       }
     }
   } catch (e) {
-    notes.push('The data storage section could only be read in part: ' + e.message);
+    notes.push(msg('ccdwg.read.acds_partial', { reason: e.message }));
   }
   return { records, notes, info };
 }

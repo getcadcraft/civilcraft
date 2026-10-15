@@ -108,8 +108,8 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Portrait sheets, title blocks of your own, viewports you arrange, plan and profile sheets in DWG | One landscape plan sheet per PDF, or plan and profile sheets along an alignment (PDF) |
 | Plotting elevation bands and profiles | Bands are screen only; take a screenshot if you need them |
 | Changing layer names, colors or label styles | Change them in a CAD program after DXF export |
-| Cloud saving, sharing, version history | Save `.civilcraft.json` files and keep them backed up |
-| Desktop builds for Mac, Windows and Linux | Use CivilCraft in the browser |
+| Cloud saving and version history | Save `.civilcraft.json` files and keep them backed up; to work on one project together, use a live session in CadCraft Studio ([Design one site together, live](topic:work-live)) |
+| CadCraft Studio for iPad, Android tablets and phones, and iPhone (planned for 0.6) | Use CivilCraft in the browser on the device |
 | Opening several point or project files at once | One file per open (GIS files that belong together, such as a shapefile's parts, open together) |
 
 ## GIS and coordinate systems
@@ -134,7 +134,6 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Typed coordinates or distances while drawing | Draw roughly, then type exact PI coordinates in the alignment's PI table |
 | Typing coordinates for pad corners and structures | Drag their grips; zoom in for precision and watch E and N in the status bar |
 | Snapping to objects (other than survey points for breaklines) | Zoom in and watch the status bar |
-| Changing keys | The keys are fixed |
 
 ## 3D view
 
@@ -143,4 +142,5 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Drawing or editing in the 3D view | Draw and edit in the plan; the 3D view follows every edit |
 | Selecting corridor feature lines or GIS features by clicking in 3D | Click them in the plan |
 | Exporting the exaggerated view or in feet | Exports are true scale in meters; see [Export the site in 3D](topic:export-3d) |
+| Labels in GLB or OBJ exports, label sizes and styles in 3D | Labels show in the 3D view only, one size; see [View the site in 3D](topic:site-3d) |
 | Textures from photos, recording a drive as video, shadows from beyond the site, sun studies over a day | Map layers draped on the surfaces; drive and the sun's position at one time |

@@ -272,7 +272,9 @@ GeoCtx.prototype.georef = function georef() {
   let ax = this.num(this.a(op, 'XAxisAbscissa'), 1), ay = this.num(this.a(op, 'XAxisOrdinate'), 0);
   const l = Math.hypot(ax, ay) || 1; ax /= l; ay /= l;
   const s = this.num(this.a(op, 'Scale'), 1);
-  const sy = this.num(this.a(op, 'FactorY'), s), sz = this.num(this.a(op, 'FactorZ'), 1);
+  // Scale is the unit difference between the model and the map (IFC4), so heights take it too: a millimetre model with
+  // Scale 0.001 has heights in metres on the map. Only IfcMapConversionScaled (IFC4X3) names its own FactorY / FactorZ.
+  const sy = this.num(this.a(op, 'FactorY'), s), sz = this.num(this.a(op, 'FactorZ'), s);
   // map = (E, N, H) + R(θ) · S · model, θ from the map's east axis to the model's x axis
   const m = [ax * s, ay * s, 0, 0, -ay * sy, ax * sy, 0, 0, 0, 0, sz, 0, e, n, h, 1];
   return { kind: 'map-conversion', crs, eastings: e, northings: n, height: h, xAxis: [ax, ay], rotation: Math.atan2(ay, ax), scale: s, matrix: m };

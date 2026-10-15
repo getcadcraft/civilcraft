@@ -48,6 +48,18 @@
   var MAX_WINS = 4;   // panels windows at once (1.6)
   var HAS_WM = typeof window.getScreenDetails === 'function';
   var root = document.documentElement;
+  /* 0.5 VP.5: floating panels stay between the toolbar and the command line, and the bottom dock gives way when the window
+   * shrinks. This file is shared by every build, released ones too, so the new places apply to dev and to builds from 0.5
+   * on; a 0.4 release (or older) keeps the places it shipped with until the owner releases a newer one. */
+  var FIT = (function () {
+    var s = document.querySelector('script[type="module"][src*="/assets/apps/"]');
+    var m = s && /\/assets\/apps\/[^\/]+\/([^\/?#]+)\//.exec(s.getAttribute('src') || '');
+    var v = m && /^(\d+)\.(\d+)(\.|$)/.exec(m[1]);
+    return !v || +v[1] > 0 || +v[2] >= 5;
+  })();
+  var FLOAT_H = 28, FLOAT_STAGE = 0.5;        // a new floating panel: at most 28 rem, at most half the drawing's height
+  var BAND_FOOT = 2.5;                         // rem kept free at the band's foot when it is that short (a strip of sheet tabs)
+  var DOCK_MAX = 0.35, STAGE_KEEP = 10, STAGE_MIN = 6, DOCK_MIN = 3;   // bottom dock: share of <main>; rem (see dockCapNow)
 
   function remPx() { return parseFloat(getComputedStyle(root).fontSize) || 16; }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -226,7 +238,7 @@
     main.style.removeProperty('grid-template-rows');
     main.style.removeProperty('grid-template-columns');
     panels.forEach(function (p) {
-      ['grid-area', 'align-self', 'justify-self', 'height', 'width', 'left', 'top'].forEach(function (k) { p.el.style.removeProperty(k); });
+      ['grid-area', 'align-self', 'justify-self', 'height', 'width', 'left', 'top', 'min-height'].forEach(function (k) { p.el.style.removeProperty(k); });
       p.el.classList.remove('shell-float', 'shell-docked');
       p.el.removeAttribute('data-shell-dock');
     });
@@ -235,7 +247,8 @@
 
   function layout() {
     var want = wantsManaged();
-    var pl = want ? plan() : null;
+    // The phone layout (app-phone.js, html.cc-phone) turns panels into sheets of its own: stand aside as on narrow layouts.
+    var pl = want && !(FIT && root.classList.contains('cc-phone')) ? plan() : null;
     if (want && !pl) {
       // Narrow layouts (one column) keep the app's own arrangement; panels in the window stay there.
       narrow = true;
@@ -261,12 +274,14 @@
     var L = inDock('left'), R = inDock('right'), B = inDock('bottom');
     var rows = pl.rows.slice(), m = pl.matrix.map(function (r) { return r.slice(); });
     var bodyRows = pl.body.slice();
+    var at = -1;
     if (B.length) {
-      var at = bodyRows[bodyRows.length - 1] + 1;
-      rows.splice(at, 0, dockH() + 'rem');
+      at = bodyRows[bodyRows.length - 1] + 1;
+      rows.splice(at, 0, (FIT ? dockShown(dockCap) : dockH()) + 'rem');
       m.splice(at, 0, ['shell-dock-bottom', 'shell-dock-bottom', 'shell-dock-bottom']);
       bodyRows.push(at);
     }
+    bandRows = { stage: pl.body.slice(), dock: at };
     var areas = m.map(function (row, r) {
       var isBody = bodyRows.indexOf(r) !== -1;
       var mid = row[1];
@@ -310,9 +325,20 @@
         }
       });
     });
+    // Every floating panel out of the grid before any is measured against it (band, dock cap).
+    if (FIT) panels.forEach(function (p) { if (eff(p) === 'float' && p.el.ownerDocument === document) p.el.classList.add('shell-float'); });
     panels.forEach(function (p) {
       if (eff(p) === 'float' && p.el.ownerDocument === document) placeFloat(p);
     });
+    if (FIT && B.length) {
+      // The bottom dock gives way when the window is short (dockCapNow); what the person set comes back when it grows.
+      // Measured once every panel has its place (a panel not yet placed would sit in an implicit row).
+      var cap = dockCapNow();
+      if (cap !== dockCap) {
+        dockCap = cap; rows[at] = dockShown(cap) + 'rem'; main.style.gridTemplateRows = rows.join(' ');
+        panels.forEach(function (p) { if (eff(p) === 'float' && p.el.ownerDocument === document) placeFloat(p); });
+      }
+    }
     hideSizers();
     placeHandles();
   }
@@ -321,8 +347,88 @@
     body.classList.toggle('shell-panels-moved', on);   // app-settings.js re-lays out on body class changes
   }
 
+  /* 0.5 VP.5: the rows the drawing and the docks share (the "band"), from <main>'s used row sizes. */
+  var bandRows = null;   // {stage: [row indexes], dock: row index of the bottom dock or -1}, set by layout()
+  var dockCap = null;    // rem: the most the bottom dock may take in this window (null until measured)
+  function usedRows() {
+    var cs = getComputedStyle(main);
+    var px = tracks(cs.gridTemplateRows).filter(function (t) { return /px$/.test(t); }).map(parseFloat);
+    return { px: px, gap: parseFloat(cs.rowGap) || 0, pad: parseFloat(cs.paddingTop) || 0 };
+  }
+  function rowTop(u, i) { var y = u.pad; for (var k = 0; k < i; k++) y += (u.px[k] || 0) + u.gap; return y; }
+  /** In rem from <main>'s top-left: top and height of the band (stage rows + bottom dock), and the stage rows' height. */
+  function band() {
+    var rp = remPx(), mh = main.clientHeight / rp;
+    if (!managed || !bandRows || !bandRows.stage.length) return { top: 0, h: mh, stage: mh };
+    var u = usedRows();
+    var rs = bandRows.stage.concat(bandRows.dock >= 0 ? [bandRows.dock] : []);
+    var a = Math.min.apply(null, rs), b = Math.max.apply(null, rs);
+    if (b >= u.px.length) return { top: 0, h: mh, stage: mh };
+    var top = rowTop(u, a), bot = rowTop(u, b) + u.px[b];
+    var sa = Math.min.apply(null, bandRows.stage), sb = Math.max.apply(null, bandRows.stage);
+    var stage = rowTop(u, sb) + u.px[sb] - rowTop(u, sa);
+    return { top: top / rp, h: Math.max(0, bot - top) / rp, stage: Math.max(0, stage) / rp };
+  }
+  /** The bottom dock's cap in this window (rem), from the rows' used sizes. */
+  function dockCapNow() {
+    var rp = remPx(), mh = main.clientHeight / rp;
+    if (!bandRows || bandRows.dock < 0) return null;
+    var u = usedRows();
+    if (bandRows.dock >= u.px.length) return null;
+    var other = 0;   // the rows that are neither the drawing nor the dock: toolbar, command line, status bar …
+    u.px.forEach(function (h, i) { if (i !== bandRows.dock && bandRows.stage.indexOf(i) === -1) other += h; });
+    var avail = mh - other / rp - u.gap * Math.max(0, u.px.length - 1) / rp;
+    // Room to spare: the dock may grow while the drawing keeps STAGE_KEEP. Short: 35 % of <main>, less if the drawing would
+    // keep under STAGE_MIN (its sheet tabs and a strip of drawing), not under DOCK_MIN (the grip and a line). No room for
+    // both (a window under ~300 CSS px tall): the drawing's tabs come first and the dock shrinks, to nothing if it must.
+    if (avail < STAGE_MIN + DOCK_MIN) return round(Math.max(0, avail - STAGE_MIN));
+    return round(Math.max(DOCK_MIN, Math.max(avail - STAGE_KEEP, Math.min(mh * DOCK_MAX, avail - STAGE_MIN))));
+  }
+  function dockShown(cap) { return cap == null ? dockH() : Math.min(dockH(), cap); }
+  /** A new floating panel's place: beside the middle, near the top of the drawing, half its height at most (28 rem). */
+  function floatDefault(mw, b, p) {
+    return { w: Math.min(20, mw * 0.4), h: Math.max(gh(p), Math.min(FLOAT_H, b.stage * FLOAT_STAGE)), x: mw * 0.5, y: b.top + Math.min(2, b.stage * 0.1) };
+  }
+  /** A floating panel's least height: its grip and a little of its content (rem). */
+  function gh(p) { return (p && p.grip && p.grip.offsetHeight ? p.grip.offsetHeight / remPx() : 2) + 0.5; }
+  /** Where a floating panel shows: its remembered place, kept inside the band (above the command line and status bar).
+   *  A short window only changes where it shows; the remembered place changes when the person moves or sizes it. */
+  function placeFit(p, commit) {
+    var st = S.p[p.id];
+    var rp = remPx(), mw = main.clientWidth / rp;
+    var b = band();
+    var wish = st.float || floatDefault(mw, b, p);
+    var hi = Math.max(gh(p), b.h);
+    // Never taller than the band (unless it can't show its grip); never shorter than 6 rem when the person sizes it, but a
+    // default place on a short window may be (down to the grip), so it doesn't cover the sheet tabs at the drawing's foot.
+    var lo = commit ? Math.min(MIN_H, hi) : Math.min(Math.max(gh(p), Math.min(MIN_H, wish.h)), hi);
+    var f = { w: clamp(wish.w, MIN_W, Math.max(MIN_W, mw - 1)), h: clamp(wish.h, lo, hi) };
+    f.x = clamp(wish.x, 0, Math.max(0, mw - f.w));
+    if (b.h < Math.min(MIN_H, Math.max(gh(p), lo)) + BAND_FOOT) {
+      // No room (the drawing is about one strip of sheet tabs tall): just its grip, at the top over the toolbar — never over
+      // the tabs (whose strip may even rise above so short a drawing), the command line or the status bar.
+      f.h = Math.min(f.h, gh(p));
+      f.y = 0;
+    } else {
+      f.y = clamp(wish.y, b.top, b.top + b.h - f.h);
+    }
+    if (commit) st.float = { x: f.x, y: f.y, w: f.w, h: f.h };
+    p.shown = f;
+    p.el.classList.add('shell-float');
+    p.el.style.left = f.x + 'rem';
+    p.el.style.top = f.y + 'rem';
+    p.el.style.width = f.w + 'rem';
+    p.el.style.height = f.h + 'rem';
+    p.el.style.minHeight = Math.min(MIN_H, f.h) + 'rem';
+    sizer(p).hidden = false;
+    placeSizer(p);
+  }
+  /** The person takes hold of a floating panel: what shows becomes what is remembered. */
+  function adopt(p) { if (FIT && p.shown) S.p[p.id].float = { x: p.shown.x, y: p.shown.y, w: p.shown.w, h: p.shown.h }; }
+
   /* Floating: absolutely placed over <main>, kept inside it. Stored in rem from <main>'s top-left. */
-  function placeFloat(p) {
+  function placeFloat(p, commit) {
+    if (FIT) { placeFit(p, commit); return; }
     var st = S.p[p.id];
     var rp = remPx(), mw = main.clientWidth / rp, mh = main.clientHeight / rp;
     var f = st.float || { w: Math.min(20, mw * 0.4), h: Math.min(28, mh * 0.7), x: mw * 0.5, y: 2 };
@@ -356,6 +462,7 @@
       if (e.button !== 0) return;
       e.preventDefault();
       try { h.setPointerCapture(e.pointerId); } catch (err) {}
+      adopt(p);
       var f = S.p[p.id].float;
       start = { x: e.clientX, y: e.clientY, w: f.w, h: f.h, id: e.pointerId };
       body.classList.add('shell-resizing');
@@ -365,7 +472,7 @@
       var rp = remPx(), f = S.p[p.id].float;
       f.w = start.w + (e.clientX - start.x) / rp;
       f.h = start.h + (e.clientY - start.y) / rp;
-      placeFloat(p);
+      placeFloat(p, true);
     });
     function end(e) {
       if (!start || e.pointerId !== start.id) return;
@@ -377,18 +484,19 @@
     h.addEventListener('pointerup', end);
     h.addEventListener('pointercancel', end);
     h.addEventListener('keydown', function (e) {
+      if (['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp'].indexOf(e.key) !== -1) adopt(p);
       var f = S.p[p.id].float, step = e.shiftKey ? 2 : 0.5;
       if (e.key === 'ArrowRight') f.w += step; else if (e.key === 'ArrowLeft') f.w -= step;
       else if (e.key === 'ArrowDown') f.h += step; else if (e.key === 'ArrowUp') f.h -= step;
       else return;
       e.preventDefault(); e.stopPropagation();
-      placeFloat(p); save();
+      placeFloat(p, true); save();
     });
     p.sizer = h;
     return h;
   }
   function placeSizer(p) {
-    var f = S.p[p.id].float, h = p.sizer;
+    var f = (FIT && p.shown) || S.p[p.id].float, h = p.sizer;
     if (!h || !f) return;
     h.style.left = 'calc(' + (f.x + f.w) + 'rem - 1.1rem)';   // i18n-ignore (CSS)
     h.style.top = 'calc(' + (f.y + f.h) + 'rem - 1.1rem)';   // i18n-ignore (CSS)
@@ -417,7 +525,7 @@
       if (e.button !== 0) return;
       e.preventDefault();
       h.setPointerCapture(e.pointerId);
-      start = { x: e.clientX, y: e.clientY, w: dockW(dock), h: dockH(), split: S.docks[dock].split != null ? S.docks[dock].split : 0.5, rect: dockRect(dock) };
+      start = { x: e.clientX, y: e.clientY, w: dockW(dock), h: FIT && dock === 'bottom' ? dockShown(dockCap) : dockH(), split: S.docks[dock].split != null ? S.docks[dock].split : 0.5, rect: dockRect(dock) };
       body.classList.add('shell-resizing');
     });
     h.addEventListener('pointermove', function (e) {
@@ -455,7 +563,7 @@
       e.preventDefault();
       e.stopPropagation();   // the apps pan the drawing with arrow keys
       if (kind === 'size') {
-        if (dock === 'bottom') S.docks.bottom.h = round(clamp(dockH() - d * step, MIN_H, 60));
+        if (dock === 'bottom') S.docks.bottom.h = round(clamp((FIT ? dockShown(dockCap) : dockH()) - d * step, MIN_H, 60));
         else S.docks[dock].w = round(clamp(dockW(dock) + (dock === 'left' ? d : -d) * step, MIN_W, MAX_W));
       } else {
         var cur = S.docks[dock].split != null ? S.docks[dock].split : 0.5;
@@ -496,7 +604,7 @@
       if (d === 'bottom') {
         h.style.left = (r.left - mr.left) + 'px'; h.style.top = (r.top - mr.top) + 'px';
         h.style.width = r.width + 'px'; h.style.height = '';
-        h.setAttribute('aria-valuenow', String(dockH()));
+        h.setAttribute('aria-valuenow', String(FIT ? dockShown(dockCap) : dockH()));
       } else {
         h.style.left = ((d === 'left' ? r.right : r.left) - mr.left) + 'px'; h.style.top = (r.top - mr.top) + 'px';
         h.style.height = r.height + 'px'; h.style.width = '';
@@ -762,7 +870,7 @@
           drag.ghost = document.createElement('div');
           drag.ghost.className = 'shell-drag-ghost';
           drag.ghost.style.width = Math.min(drag.w, 20 * remPx()) + 'px';
-          drag.ghost.style.height = Math.min(drag.h, main.clientHeight * 0.7) + 'px';
+          drag.ghost.style.height = (FIT ? Math.min(drag.h, floatDefault(main.clientWidth / remPx(), band(), drag.p).h * remPx()) : Math.min(drag.h, main.clientHeight * 0.7)) + 'px';
           drag.ghost.textContent = drag.p.name;
           main.appendChild(drag.ghost);
           drag.dx = Math.min(drag.dx, parseFloat(drag.ghost.style.width) - 8);
@@ -777,7 +885,7 @@
       var mr = main.getBoundingClientRect();
       var x = e.clientX - mr.left - drag.dx, y = e.clientY - mr.top - drag.dy;
       if (drag.ghost) { drag.ghost.style.left = x + 'px'; drag.ghost.style.top = y + 'px'; drag.ghost.hidden = t.kind === 'win'; }
-      else if (t.kind !== 'win') { var rp = remPx(); S.p[drag.p.id].float.x = x / rp; S.p[drag.p.id].float.y = y / rp; placeFloat(drag.p); }
+      else if (t.kind !== 'win') { var rp = remPx(); adopt(drag.p); S.p[drag.p.id].float.x = x / rp; S.p[drag.p.id].float.y = y / rp; placeFloat(drag.p, true); }
       var z = t.kind === 'win' ? null : zoneAt(e.clientX, e.clientY);
       if (z !== drag.zone) { drag.zone = z; hot(z); }
     } else {
@@ -821,7 +929,7 @@
       d.ghost.remove();
       moveTo(d.p, 'float', { x: (g.left - mr.left) / rp, y: (g.top - mr.top) / rp, w: g.width / rp, h: g.height / rp });
     } else {
-      placeFloat(d.p);
+      placeFloat(d.p, true);
       save();
     }
   }
@@ -833,6 +941,11 @@
         var st = S.p[p.id];
         if (st.dock !== 'float' || !st.float || p.el.ownerDocument !== document || !p.el.classList.contains('shell-float')) return;
         var rp = remPx(), w = p.el.offsetWidth / rp, h = p.el.offsetHeight / rp;
+        if (FIT) {   // a CSS corner resize: compared with what shows, not with the remembered place
+          var sh = p.shown || st.float;
+          if (Math.abs(w - sh.w) > 0.05 || Math.abs(h - sh.h) > 0.05) { st.float = { x: sh.x, y: sh.y, w: w, h: h }; sh.w = w; sh.h = h; changed = true; }
+          return;
+        }
         if (Math.abs(w - st.float.w) > 0.05 || Math.abs(h - st.float.h) > 0.05) { st.float.w = w; st.float.h = h; changed = true; }
       });
       if (changed) { clearTimeout(fro.t); fro.t = setTimeout(save, 200); }
@@ -899,7 +1012,7 @@
     return true;
   }
   function clearPanelInline(p) {
-    ['grid-area', 'align-self', 'justify-self', 'height', 'width', 'left', 'top'].forEach(function (k) { p.el.style.removeProperty(k); });
+    ['grid-area', 'align-self', 'justify-self', 'height', 'width', 'left', 'top', 'min-height'].forEach(function (k) { p.el.style.removeProperty(k); });
     p.el.classList.remove('shell-float', 'shell-docked');
     p.el.removeAttribute('data-shell-dock');
   }
@@ -1217,17 +1330,46 @@
   window.addEventListener('resize', relayoutSoon);
   window.addEventListener('load', relayoutSoon);
   if (window.ResizeObserver) {
-    var ro = new ResizeObserver(function () { requestAnimationFrame(placeHandles); });
+    var ro = new ResizeObserver(function () { requestAnimationFrame(FIT ? refit : placeHandles); });
     ro.observe(main);
     panels.forEach(function (p) { ro.observe(p.el); });
+    // 0.5 VP.5: an app's own bars change height without <main> resizing (CadCraft's toolbar wraps or goes compact).
+    if (FIT) [].forEach.call(main.children, function (ch) { if (ch.tagName !== 'ASIDE') ro.observe(ch); });
   }
   // Toolbars showing/hiding (screen modes) move the docks without resizing <main>.
-  new MutationObserver(function () { requestAnimationFrame(placeHandles); }).observe(body, { attributes: true, attributeFilter: ['class'] });
+  new MutationObserver(function () { requestAnimationFrame(FIT ? refit : placeHandles); }).observe(body, { attributes: true, attributeFilter: ['class'] });
+  if (FIT) {   // app-phone.js switching the phone layout on or off
+    var wasPhone = root.classList.contains('cc-phone');
+    new MutationObserver(function () {
+      var on = root.classList.contains('cc-phone');
+      if (on !== wasPhone) { wasPhone = on; relayoutSoon(); }
+    }).observe(root, { attributes: true, attributeFilter: ['class'] });
+  }
+  /** 0.5 VP.5: after a size change, re-cap the bottom dock and put floating panels back inside the band. */
+  var recaps = [], recapLater = 0;   // an app whose bars follow the drawing's height can't loop: 6 re-caps a second, then one later
+  function refit() {
+    if (managed && !drag) {
+      if (bandRows && bandRows.dock >= 0 && dockCapNow() !== dockCap) {
+        var now = Date.now();
+        recaps = recaps.filter(function (t) { return now - t < 1000; });
+        if (recaps.length < 6) { recaps.push(now); layout(); return; }
+        clearTimeout(recapLater);
+        recapLater = setTimeout(function () { requestAnimationFrame(refit); }, 1000);
+      }
+      panels.forEach(function (p) { if (eff(p) === 'float' && p.el.ownerDocument === document) placeFloat(p); });
+    }
+    placeHandles();
+  }
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu) { e.preventDefault(); e.stopPropagation(); closeMenu(true); } }, true);
 
   window.ccShellPanels = {
     managed: function () { return managed; },
-    state: function () { return JSON.parse(JSON.stringify(S)); },
+    state: function () {
+      var o = JSON.parse(JSON.stringify(S));
+      // 0.5 VP.5: a floating panel at its default place has no remembered place yet; report where it shows.
+      if (FIT) panels.forEach(function (p) { var q = o.p[p.id]; if (q.dock === 'float' && !q.float && p.shown) q.float = { x: p.shown.x, y: p.shown.y, w: p.shown.w, h: p.shown.h }; });
+      return o;
+    },
     panels: function () { return panels.map(function (p) { return { id: p.id, name: p.name, dock: S.p[p.id].dock, win: S.p[p.id].win || null, inWindow: p.el.ownerDocument !== document }; }); },
     move: function (id, dock) { var p = byId(id); if (p) moveTo(p, dock); },
     openWindow: function (ids, n) { return toWindow(ids ? panels.filter(function (p) { return ids.indexOf(p.id) !== -1; }) : panels, false, n); },

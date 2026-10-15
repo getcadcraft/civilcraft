@@ -205,9 +205,10 @@ function objectCommon(w, r) {
  */
 function tableEntry(w, name, flags = 0) {
   w.TV(name);
-  if (!w.r2007) w.B(flags & 64 ? 1 : 0);
-  w.BS(0);                                      // xref index + 1
-  if (!w.r2007) w.B(flags & 16 ? 1 : 0);
+  if (!w.r2007) { w.B(flags & 64 ? 1 : 0); w.BS(0); w.B(flags & 16 ? 1 : 0); return; }   // 64-flag, xref index + 1, xdep
+  // R2007+: no xref index (objects-read.js tableEntry); the 64-flag and xdep bits. Every entry had "BS 0" here, which
+  // reads as 64-flag 1 and xdep 0: the same two bits, so only an xref-dependent entry (WL.15) changes
+  w.B(1); w.B(flags & 16 ? 1 : 0);
 }
 
 const rad = (a) => { const t = 2 * Math.PI; let r = (+a || 0) % t; if (r < 0) r += t; return r; };
@@ -265,14 +266,14 @@ ENC.BLOCK_HEADER = (w, r) => {
 // --- LAYER (20.4.54)
 ENC.LAYER = (w, r) => {
   objectCommon(w, r);
-  tableEntry(w, r.name);
+  tableEntry(w, r.name, r.xdep ? 16 : 0);   // xref-dependent: a linked drawing's layer (WL.15)
   const lwIndex = r.lwIndex ?? 31;
   w.BS((r.frozen ? 1 : 0) | (r.off ? 2 : 0) | (r.frozenNew ? 4 : 0) | (r.locked ? 8 : 0) | (r.plot === false ? 0 : 16) | ((lwIndex & 31) << 5));
   // Spec gap: "off" is the flag bit above; the colour index itself stays positive. The ODA reader turns a negative
   // index in an R2000 layer into -7 (white), so the DXF convention of a negative 62 is not used in the DWG.
   const c = r.color && r.color.rgb === undefined ? { index: Math.abs(r.color.index ?? 7) } : r.color;
   w.CMC(c);
-  w.H(HARD_PTR, 0);                             // xref block
+  w.H(HARD_PTR, r.xrefBlock || 0);              // xref block (the link a dependent layer belongs to)
   w.H(HARD_PTR, r.plotstyle || 0);
   if (w.r2007) w.H(HARD_PTR, r.material || 0);
   w.H(HARD_PTR, r.ltype || 0);
@@ -309,6 +310,17 @@ ENC.LTYPE = (w, r) => {
   else if (textArea) for (let i = 0; i < 512; i++) w.RC(0);
   w.H(HARD_PTR, 0);
   for (const e of els) w.H(HARD_PTR, e.styleH || 0);
+};
+
+// --- UCS (20.4.62; 0.5 DR.8): a named UCS
+ENC.UCS = (w, r) => {
+  objectCommon(w, r);
+  tableEntry(w, r.name);
+  const o = P(r.origin), x = P(r.xAxis), y = P(r.yAxis);
+  w.BD3(o.x, o.y, o.z); w.BD3(x.x, x.y, x.z); w.BD3(y.x, y.y, y.z);
+  w.BD(num(r.elevation)); w.BS(0); w.BS(0);    // R2000+: elevation, orthographic view type, orthographic type
+  w.H(HARD_PTR, 0);                             // xref block
+  w.H(HARD_PTR, 0); w.H(HARD_PTR, 0);           // base UCS, named UCS
 };
 
 // --- VPORT (20.4.64)
@@ -611,7 +623,13 @@ ENC.MTEXT = (w, r) => {
   w.TV(r.value ?? '');
   w.H(HARD_PTR, r.style);                       // STYLE comes before the R2018 application handle
   w.BS(r.lineSpacingStyle || 1); w.BD(num(r.lineSpacing, 1)); w.B(0);
-  if (w.r2004) w.BL(0);                        // no background
+  if (w.r2004) {
+    // background mask (0.5 WL.8): flags 1 = fill with its colour, 2 = the drawing window's colour; the scale (BD, see
+    // objects-read.js), colour and transparency follow when flag 1 (or the R2018 text frame, 0x10) is on
+    const bg = r.backgroundFlags | 0;
+    w.BL(bg);
+    if (bg & 1 || (w.r2018 && bg & 0x10)) { w.BD(num(r.backgroundScale, 1.5)); w.CMC(r.backgroundColor || { index: 7 }); w.BL(r.backgroundTransparency | 0); }
+  }
   if (w.r2018) {
     // Spec gap (filled from AutoCAD 2018 files read with dwgread -v5): not annotative → class version 4, default
     // flag, the redundant geometry block and column type.
@@ -1079,7 +1097,7 @@ export function encodeHeader(H, hv, ctx) {
         if (name === 'CPSNID') { if ((val('CEPSNTYPE', 0) | 0) !== 3) break; }
         w.H(HARD_OWNED.has(name) ? HARD_OWN : HARD_PTR, HEADER_HANDLES[name] ? H[HEADER_HANDLES[name]] || 0 : 0);
         break;
-      default: throw new Error('header type ' + e.type);
+      default: throw new Error('header type ' + e.type);   // i18n-ignore: an internal check (the writer's own header table)
     }
   }
   const endbit = w.endData();

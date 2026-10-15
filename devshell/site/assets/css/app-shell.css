@@ -64,6 +64,50 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
   .app-bar-ver { flex: 0 0 auto; }
 }
 
+/* ---- Narrow screens (phones, the Studio APK; owner 2026-10-15): the bar keeps the app name, Help, Save for offline,
+   Settings and the screen mode; the mark, version, Paper/Model, Find and the links move into "More"
+   (details.app-bar-more in app-bar.inc, which prints copies of them). Every control at least 2.75rem square. ---- */
+.app-bar-more { display: none; position: relative; flex: 0 0 auto; }
+@media (max-width: 47.5rem) {
+  .app-bar { gap: .35rem; padding-inline: .5rem; }
+  .app-bar > .app-bar-mark, .app-bar-name > .app-bar-ver, .app-bar > .app-bar-older,
+  .app-bar > .space-toggle, .app-bar > .app-bar-palette { display: none; }
+  .app-bar-name { flex: 1 1 auto; min-width: 0; gap: .4rem; }
+  .app-bar-name > span:not(.layer-swatch) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .app-bar-area { flex: 0 0 auto; }
+  .app-bar > .app-bar-btn, .app-bar > .app-bar-fs, .app-bar-more > summary { min-width: 2.75rem; min-height: 2.75rem; justify-content: center; padding: .2rem .45rem; }
+  .app-bar-more { display: block; }
+  .app-bar-more > summary {
+    display: inline-flex; align-items: center; list-style: none; cursor: pointer;
+    color: var(--ink); border: var(--pen-1) solid var(--ink); border-radius: var(--radius);
+  }
+  .app-bar-more > summary::-webkit-details-marker { display: none; }
+  .app-bar-more > summary .bi { font-size: 1.1rem; }
+  .app-bar-more[open] > summary { color: var(--sheet); background: var(--ink); }
+  .app-bar-more-menu {
+    position: absolute; z-index: 70; top: calc(100% + .3rem); right: 0;
+    width: min(18rem, calc(100vw - 1rem)); max-height: calc(100dvh - 4.5rem); overflow-y: auto;
+    padding: .25rem 0; background: var(--sheet-2); color: var(--ink);
+    border: var(--pen-2) solid var(--ink); border-radius: var(--radius); font-size: var(--fs-sm);
+  }
+  .app-bar-more-item {
+    display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 2.75rem; padding: 0 .9rem;
+    font: inherit; font-weight: 600; text-align: left; color: var(--ink); text-decoration: none;
+    background: transparent; border: 0; border-left: var(--pen-3) solid transparent;
+  }
+  .app-bar-more-item:hover { background: var(--sheet); text-decoration: underline; }
+  .app-bar-more-item .bi { color: var(--layer); }
+  .app-bar-more-item[aria-current="page"] { font-weight: 700; border-left-color: var(--layer); }
+  .app-bar-more-item .n { margin-left: auto; color: var(--ink-2); font-weight: 500; }
+  .app-bar:has(.app-bar-palette[hidden]) .app-bar-more-find { display: none; }
+  .app-bar-more-h { margin: .4rem 0 0; padding: .35rem .9rem 0; border-top: var(--pen-1) solid var(--line); font-size: .75rem; font-weight: 700; color: var(--ink-2); }
+  .app-bar-more-ver { margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+  .app-bar-more-note { margin: 0; padding: .5rem .9rem; color: var(--ink-2); }
+  .app-bar-more .space-toggle { display: flex; margin: .3rem .9rem .5rem; }
+  .app-bar-more .space-toggle button { flex: 1 1 0; min-height: 2.75rem; }
+  .app-bar-more .space-toggle + .app-bar-more-item { border-top: var(--pen-1) solid var(--line); }
+}
+
 /* ---- Screen modes (assets/js/app-shell.js): normal → full screen → full screen with the bars hidden ---- */
 .app-bar-fs {
   flex: 0 0 auto;
@@ -247,6 +291,26 @@ body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user
 @media (max-width: 480px) {
   .shell-seg, .shell-row { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ---- IP.6 (0.5 track IP, session input-shell): the wider two-column Settings dialog for every app ----
+   Only on .shell-settings-wide, which app-settings.inc sets for dev builds and releases from 0.5 on
+   (AppBuilds::wideSettings), so the 0.4 releases in /use keep their narrow dialog until the owner's next release.
+   46rem wide, 0.8125rem text, each pane's fieldsets in two columns; .shell-set-wide (style cards) and anything that is
+   not a fieldset span both. One column again on narrow screens. Phone rules live in their own block (session phones). */
+.shell-settings.shell-settings-wide { width: min(46rem, calc(100vw - 2rem)); }
+.shell-settings-wide .shell-dlg-body { font-size: .8125rem; }
+.shell-settings-wide .shell-set legend { font-size: .6875rem; }
+.shell-settings-wide .shell-pane { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; align-items: start; }
+.shell-settings-wide .shell-pane > :not(fieldset), .shell-settings-wide .shell-pane > .shell-set-wide { grid-column: 1 / -1; }
+.shell-settings-wide .shell-seg { gap: .25rem; }
+.shell-settings-wide .shell-seg label { gap: .3rem; padding: .3rem .4rem; line-height: 1.2; }
+.shell-settings-wide .shell-row { grid-template-columns: minmax(0, 1fr); gap: .25rem; }   /* label over its control */
+.shell-settings-wide .shell-dlg-body .btn-sm-cc { min-height: 2rem; padding: .3rem .65rem; font-size: .8125rem; }
+.shell-settings-wide .shell-btns { display: flex; flex-wrap: wrap; gap: .4rem; }
+@media (max-width: 45rem) {
+  .shell-settings-wide .shell-pane { grid-template-columns: minmax(0, 1fr); }
+}
+/* ---- end IP.6 ---- */
 
 /* Tooltips with the full text of anything cut off (…) */
 .tooltip.shell-tip {
@@ -563,3 +627,223 @@ body.shell-pw.shell-zoomed > main > aside { zoom: var(--shell-panel-zoom, 1); }
 .app-bar-assist { border-color: var(--layer-orange); }
 .app-bar-assist .bi { color: var(--layer-orange); }
 .app-bar-assist[hidden] { display: none; }
+
+/* ==== Phones and fold phones (assets/js/app-phone.js; 0.5 Track PH, session `phones`, owner 2026-10-15) ====
+ * Every rule below hangs off a class only app-phone.js sets (html.cc-phone, cc-compact, cc-land, cc-tb-closed, cc-tb-bottom,
+ * cc-kbd, cc-fold-h / cc-fold-v, and shell-phone-* / shell-sheet on elements), and app-shell.inc loads it only for builds
+ * whose manifest has "phone" — frozen releases never get these classes, so they look as they did. Settings rules (IP.6)
+ * are not here. Layout on a phone: [toolbar] [drawing] [command line …] [status] [toolbar when at the bottom] [bar]. */
+.shell-phone-bar, .shell-sheet-close { display: none; }
+html.cc-phone { --shell-bar-h: 3rem; }
+html.cc-compact { --shell-bar-h: 2.75rem; }
+html.cc-phone, html.cc-phone body.app-shell { overflow: clip; }   /* clip: an app's scrollIntoView can't shift the page */
+html.cc-phone body.app-shell { height: var(--cc-vvh, 100dvh) !important; min-height: 0 !important; }
+html.cc-phone body.app-shell > main {
+  display: flex !important; flex-direction: column !important; flex-wrap: nowrap !important;
+  height: auto !important; min-height: 0 !important; overflow: clip !important;
+}
+html.cc-phone body.app-shell > main > * { order: 2; flex: 0 0 auto; min-width: 0; max-width: 100%; }
+html.cc-phone body.app-shell > main > .shell-phone-tb { order: 0; }
+html.cc-phone body.app-shell > main > .shell-phone-stage {
+  order: 1; flex: 1 1 auto !important; width: auto !important; height: auto !important; min-height: 0 !important; max-height: none !important;
+}
+html.cc-phone body.app-shell > main > .shell-phone-status { order: 3; }
+html.cc-phone.cc-tb-bottom body.app-shell > main > .shell-phone-tb { order: 4; }
+html.cc-phone body.app-shell > main > .shell-phone-bar { order: 5; }
+html.cc-phone body.app-shell > main > .shell-split, html.cc-phone .shell-dock-split, html.cc-phone .shell-float-size { display: none !important; }
+
+/* The bar at the bottom: Tools (show / hide the toolbar), Move (toolbar at the top / bottom), then one button per panel. */
+html.cc-phone .shell-phone-bar {
+  display: flex; position: relative; z-index: 42; height: var(--shell-bar-h); overflow-x: auto; scrollbar-width: none;
+  background: var(--sheet-2); border-top: var(--pen-2) solid var(--ink);
+}
+.shell-phone-btn {
+  flex: 1 1 0; min-width: 3rem; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: .05rem;
+  padding: 0 .35rem; font: inherit; font-size: .75rem; font-weight: 600; line-height: 1.1; color: var(--ink);
+  background: none; border: 0; border-right: var(--pen-1) solid var(--line); cursor: pointer;
+}
+.shell-phone-btn:last-child { border-right: 0; }
+.shell-phone-btn[hidden] { display: none; }
+.shell-phone-btn .bi { font-size: 1.1rem; color: var(--layer); }
+.shell-phone-btn:disabled { opacity: .45; }
+.shell-phone-btn-label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.shell-phone-btn[data-phone-sheet][aria-pressed="true"] { color: var(--sheet); background: var(--ink); }
+.shell-phone-btn[data-phone-sheet][aria-pressed="true"] .bi { color: inherit; }
+.shell-phone-btn:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -3px; }
+html.cc-compact .shell-phone-btn { font-size: .6875rem; }
+html.cc-kbd .shell-phone-bar, html.cc-kbd .shell-phone-status { display: none !important; }
+
+/* Panels as sheets over the drawing (one at a time). Upright on a compact screen: from the bottom. Sideways, and on a fold
+   phone's inner screen: from their own side. (Tablets in Studio: the tablet sheets below — app-phone.js never turns both on.)
+   !important beats the inline places app-panels.js gives docked and floating panels; their remembered layout is untouched. */
+html.cc-phone body.app-shell > main > .shell-sheet {
+  position: absolute !important; z-index: 41; inset: 0 auto var(--shell-bar-h) 0 !important;
+  width: min(22rem, 85vw) !important; height: auto !important; max-width: none !important; max-height: none !important; margin: 0 !important;
+  overflow-y: auto !important; overscroll-behavior: contain; visibility: hidden; background: var(--sheet-2);
+  border: 0 solid var(--ink) !important; border-right-width: var(--pen-2) !important; border-radius: 0 !important;
+  transform: translateX(-102%);
+}
+html.cc-phone body.app-shell > main > .shell-sheet[data-sheet-side="right"] {
+  inset: 0 0 var(--shell-bar-h) auto !important; border-right-width: 0 !important; border-left-width: var(--pen-2) !important; transform: translateX(102%);
+}
+html.cc-phone body.app-shell > main > .shell-sheet[data-sheet-side="bottom"],
+html.cc-compact:not(.cc-land) body.app-shell > main > .shell-sheet {
+  inset: auto 0 var(--shell-bar-h) 0 !important; width: auto !important; max-height: 72% !important;
+  border-width: var(--pen-2) 0 0 0 !important; transform: translateY(calc(100% + var(--shell-bar-h)));
+}
+html.cc-phone body.app-shell > main > .shell-sheet.shell-sheet-open { visibility: visible; transform: none !important; }
+@media (prefers-reduced-motion: no-preference) { html.cc-phone body.app-shell > main > .shell-sheet { transition: transform .18s ease, visibility .18s; } }
+html.cc-phone body.app-shell > main > .shell-sheet > .shell-grip { display: none !important; }   /* nowhere to move them on a phone */
+html.cc-phone .shell-sheet > .shell-sheet-close {
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%;
+  position: sticky; top: 0; z-index: 6; min-height: 2.75rem; padding: .3rem 1rem;
+  font: inherit; font-size: var(--fs-sm); font-weight: 700; color: var(--ink); text-align: left;
+  background: var(--sheet-2); border: 0; border-bottom: var(--pen-1) solid var(--line); cursor: pointer;
+}
+.shell-sheet-close:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -3px; }
+
+/* Tablets in Studio (app-phone.js tablet mode, `ccShellPhone.tablet(true)` from studio/hub/window.js; html.cc-sheets): held
+   upright, 600–999 px wide, the side panels float and slide in from their edge under the app bar, a button each in the bar
+   (.app-bar-sheet). Under 600 px the phone layout above takes over instead: never both. */
+html.cc-sheets body.app-shell > main > aside.cc-sheet {
+  position: fixed !important; top: var(--cc-sheet-top, 0) !important; bottom: var(--cc-sheet-bottom, 0) !important;
+  height: auto !important; width: min(24rem, 85vw) !important; max-width: none !important; z-index: 60;
+  visibility: hidden; overflow: auto; background: var(--sheet); border: 0 solid var(--line);
+}
+html.cc-sheets body.app-shell > main > aside.cc-sheet.cc-left { left: 0 !important; right: auto !important; border-right-width: var(--pen-2); transform: translateX(-102%); }
+html.cc-sheets body.app-shell > main > aside.cc-sheet.cc-right { right: 0 !important; left: auto !important; border-left-width: var(--pen-2); transform: translateX(102%); }
+html.cc-sheets body.app-shell > main > aside.cc-sheet.cc-open { visibility: visible; transform: none; }
+@media (prefers-reduced-motion: no-preference) { html.cc-sheets body.app-shell > main > aside.cc-sheet { transition: transform .18s ease, visibility .18s; } }
+.app-bar-sheet[hidden] { display: none !important; }
+.app-bar-sheet[aria-pressed="true"] { color: var(--sheet); background: var(--ink); }
+/* upright, the app bar keeps one row with the panel buttons: the About links and the version chip step aside */
+html.cc-sheets .app-bar-links, html.cc-sheets .app-bar-ver { display: none !important; }
+
+/* Toolbars: one row each that scrolls sideways (never wraps); at most two lines on a phone — the toolbar and the active
+   tool's options. Hidden with Tools; at the bottom with Move. On a compact screen: icons first, labels .75rem or smaller,
+   every button still 2.75rem tall. */
+html.cc-phone .shell-phone-tb {
+  display: flex !important; flex-wrap: nowrap !important; align-items: stretch; max-height: none !important;
+  overflow-x: auto !important; overflow-y: hidden !important; overscroll-behavior-x: contain; scrollbar-width: thin;
+}
+/* the toolbar holds its own hidden words (position: absolute), so they scroll with it instead of widening the page */
+html.cc-phone .shell-phone-tb:not(.shell-phone-tb-over) { position: relative; }
+html.cc-phone .shell-phone-tb > *, html.cc-phone .shell-phone-tb [class$="-tool-row"] > * { flex: 0 0 auto !important; }
+html.cc-phone .shell-phone-tb [class$="-tool-row"] { flex-wrap: nowrap !important; }
+html.cc-phone .shell-phone-tb [class$="-tool-label"] { white-space: nowrap; overflow: visible; text-overflow: clip; }
+html.cc-phone.cc-tb-closed .shell-phone-tb { display: none !important; }
+html.cc-phone .shell-phone-tb-over { left: .25rem !important; right: .25rem !important; max-width: calc(100% - .5rem) !important; }
+html.cc-phone.cc-tb-bottom .shell-phone-tb-over { top: auto !important; bottom: .25rem !important; }
+html.cc-compact .shell-phone-tb { font-size: .75rem; }
+html.cc-phone .shell-phone-tb > [role="group"] { padding-block: .1rem !important; }
+/* on a phone (and a fold's inner screen) group names give way (the groups keep their dividers; each tool keeps its title
+   and words for screen readers): the toolbar is one row of 2.75rem icon buttons */
+html.cc-phone body:not(.shell-arranging) .shell-phone-tb [class$="-tool-label"] { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+html.cc-phone .shell-phone-tb :is(button:not([role="menuitem"]), summary):has(> .bi) > span {
+  position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+html.cc-phone .shell-phone-tb :is(button:not([role="menuitem"]), summary) {
+  min-width: 2.75rem; min-height: 2.75rem; justify-content: center; font-size: .75rem !important; white-space: nowrap;
+}
+html.cc-phone .shell-phone-tb :is(button:not([role="menuitem"]), summary) > .bi { font-size: 1.15rem; }
+html.cc-compact .shell-phone-tb select, html.cc-compact .shell-phone-tb input { font-size: .75rem; }
+/* a toolbar's own menus open over the page (the sideways scroll would clip them) */
+html.cc-phone .shell-phone-pop, html.cc-touch .shell-phone-pop {
+  position: fixed !important; z-index: 1055 !important; left: var(--pop-x, .25rem) !important; right: auto !important;
+  top: var(--pop-y, auto) !important; bottom: var(--pop-b, auto) !important; max-width: calc(100vw - .5rem) !important;
+  max-height: min(60dvh, 26rem) !important; overflow-y: auto !important;
+}
+
+/* Touch tablets (html.cc-touch: pointer coarse, not a phone): the app's own layout, but each toolbar is one row that scrolls
+   sideways instead of wrapping onto two or three lines — unless Settings › General › Toolbar says "Wrap" (data-shell-tb-touch).
+   The button style and group-name settings still apply. */
+html.cc-touch body:not([data-shell-tb-touch="wrap"]) .shell-touch-tb {
+  flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important;
+  overscroll-behavior-x: contain; scrollbar-width: thin; position: relative;
+}
+html.cc-touch body:not([data-shell-tb-touch="wrap"]) .shell-touch-tb > *,
+html.cc-touch body:not([data-shell-tb-touch="wrap"]) .shell-touch-tb [class$="-tool-row"] > * { flex: 0 0 auto !important; }
+html.cc-touch body:not([data-shell-tb-touch="wrap"]) .shell-touch-tb [class$="-tool-row"] { flex-wrap: nowrap !important; }
+
+/* Tool-option bars: one line that scrolls sideways (the second toolbar line). */
+html.cc-phone .shell-phone-opts {
+  display: flex !important; flex-wrap: nowrap !important; align-items: center;
+  overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap; scrollbar-width: thin;
+}
+html.cc-phone .shell-phone-opts > * { flex: 0 0 auto !important; }
+html.cc-compact .shell-phone-opts { font-size: .75rem !important; }
+html.cc-compact .shell-phone-opts :is(select, input, button) { font-size: .75rem !important; }
+
+/* Hints: one line; a tap shows all of it. */
+html.cc-compact .shell-phone-hint:not(.is-expanded) {
+  max-height: 2.25rem !important; overflow: hidden !important; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;
+}
+html.cc-compact .shell-phone-hint { font-size: .75rem !important; pointer-events: auto !important; }
+
+/* The status line: one line that scrolls sideways. */
+html.cc-phone .shell-phone-status { flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap; scrollbar-width: none; }
+html.cc-compact .shell-phone-status { font-size: .75rem; }
+
+/* The view cube / axis icon (viewcube.js, every 3D app): small, in the drawing's lower right corner — never over a hint. */
+html.cc-phone :is(.cc-vc, .cc-axes) { top: auto !important; left: auto !important; right: .35rem !important; bottom: .35rem !important; }
+html.cc-phone .cc-vc, html.cc-phone .cc-vc svg { width: 4.75rem !important; }
+html.cc-phone .cc-vc svg { height: 4.75rem !important; }
+
+/* Dialogs fit the screen (and the part of it above the keyboard). */
+html.cc-phone dialog[open] {
+  max-width: calc(100vw - 1rem) !important; max-height: calc(var(--cc-vvh, 100dvh) - 1rem) !important; overflow: auto;
+}
+html.cc-compact dialog[open] { min-width: 0 !important; }
+
+/* A hinge (two viewport segments): dialogs and the command line keep to one segment; the drawing may span it. */
+html.cc-fold-h dialog[open]:modal, html.cc-fold-v dialog[open]:modal {
+  inset: var(--cc-seg-y) var(--cc-seg-r) var(--cc-seg-b) var(--cc-seg-x) !important; margin: auto !important;
+  max-width: calc(var(--cc-seg-w) - 1rem) !important; max-height: calc(var(--cc-seg-h) - 1rem) !important;
+}
+html.cc-fold-h .shell-phone-whole { margin-left: var(--cc-seg-x) !important; width: var(--cc-seg-w) !important; max-width: var(--cc-seg-w) !important; }
+/* The app bar on a short sideways phone (wider than 760 px, so the narrow rules above do not apply), and wherever app-phone.js
+   finds it too full for its window (html.cc-bar-narrow: tablets turned sideways, 800–1104 px): the same "More" layout. */
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-links { display: none; }
+html.cc-compact .app-bar { min-height: 0; padding-block: .15rem; }   /* every pixel goes to the drawing */
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar { gap: .35rem; padding-inline: .5rem; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-mark, :is(html.cc-phone, html.cc-bar-narrow) .app-bar-name > .app-bar-ver, :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-older,
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar > .space-toggle, :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-palette { display: none; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-name { flex: 1 1 auto; min-width: 0; gap: .4rem; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-name > span:not(.layer-swatch) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-area { flex: 0 0 auto; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-btn, :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-fs, :is(html.cc-phone, html.cc-bar-narrow) .app-bar-more > summary { min-width: 2.75rem; min-height: 2.75rem; justify-content: center; padding: .2rem .45rem; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more { display: block; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more > summary {
+  display: inline-flex; align-items: center; list-style: none; cursor: pointer;
+  color: var(--ink); border: var(--pen-1) solid var(--ink); border-radius: var(--radius);
+}
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more > summary::-webkit-details-marker { display: none; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more > summary .bi { font-size: 1.1rem; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more[open] > summary { color: var(--sheet); background: var(--ink); }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-menu {
+  position: absolute; z-index: 70; top: calc(100% + .3rem); right: 0;
+  width: min(18rem, calc(100vw - 1rem)); max-height: calc(100dvh - 4.5rem); overflow-y: auto;
+  padding: .25rem 0; background: var(--sheet-2); color: var(--ink);
+  border: var(--pen-2) solid var(--ink); border-radius: var(--radius); font-size: var(--fs-sm);
+}
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-item {
+  display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 2.75rem; padding: 0 .9rem;
+  font: inherit; font-weight: 600; text-align: left; color: var(--ink); text-decoration: none;
+  background: transparent; border: 0; border-left: var(--pen-3) solid transparent;
+}
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-item:hover { background: var(--sheet); text-decoration: underline; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-item .bi { color: var(--layer); }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-item[aria-current="page"] { font-weight: 700; border-left-color: var(--layer); }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-item .n { margin-left: auto; color: var(--ink-2); font-weight: 500; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar:has(.app-bar-palette[hidden]) .app-bar-more-find { display: none; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-h { margin: .4rem 0 0; padding: .35rem .9rem 0; border-top: var(--pen-1) solid var(--line); font-size: .75rem; font-weight: 700; color: var(--ink-2); }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-ver { margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more-note { margin: 0; padding: .5rem .9rem; color: var(--ink-2); }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more .space-toggle { display: flex; margin: .3rem .9rem .5rem; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more .space-toggle button { flex: 1 1 0; min-height: 2.75rem; }
+:is(html.cc-phone, html.cc-bar-narrow) .app-bar-more .space-toggle + .app-bar-more-item { border-top: var(--pen-1) solid var(--line); }
+/* The staff panel's tab (staff-panel.inc; staff and lab testers only) would sit on the bar's first button: above the bar. */
+html.cc-phone .sp-tab { bottom: 3.35rem !important; left: .35rem !important; padding: .2rem .45rem !important; font-size: .75rem !important; opacity: .8; }
+/* The status line's own toggles stay one short row on a compact screen. */
+html.cc-compact .shell-phone-status :is(button, select, summary) { min-height: 2.25rem !important; padding-block: .1rem !important; font-size: .75rem; }

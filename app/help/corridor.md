@@ -62,8 +62,6 @@ A corridor with a problem is not graded in and does not count in the earthwork.
 
 The proposed surface is built in order: every corridor first, then every pad. Where a pad's grading overlaps a corridor, the pad wins. Volumes are worked out inside all the daylight lines together; see [Earthwork volumes](topic:volumes).
 
-## What is not built yet
-
 ## Superelevation
 
 Through a curve the road can tilt toward the inside, so traffic is pushed less to the outside. Tick **Superelevate the curves** under **Superelevation** in the alignment's **Properties**:
@@ -75,5 +73,7 @@ Through a curve the road can tilt toward the inside, so traffic is pushed less t
 - A curve too short to reach full superelevation, or two curves whose transitions overlap, is said in a box above the table.
 
 Sections, volumes, the 3D view and the sheets all show the tilted road. Each change is one step: {{key:Mod+Z}} undoes it.
+
+## What is not built yet
 
 Curb and gutter, sidewalks, widening, different assemblies on each side or along the road, regions and targets are not available yet. See [Not built yet](topic:not-built-yet).

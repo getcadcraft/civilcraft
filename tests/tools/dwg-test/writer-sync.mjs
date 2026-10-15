@@ -3,7 +3,8 @@
  * writer-sync.mjs — copy cc-dwg's library files into the apps that ship them (apps cannot import outside their build
  * folder; AppBuilds' import map resolves one subfolder level). Each app gets the import closure of what it uses:
  *   civilcraft/dev/dwg   the writer (write.js, civil.js + what they import)
- *   cadcraft/dev/dwg     the reader and the writer (read.js, read-async.js, write.js + what they import) — it opens and saves DWG
+ *   cadcraft/dev/dwg     the reader and the writer (read.js, read-async.js, write.js + what they import) — it opens and saves DWG —
+ *                        and dynblock-write.js (an edited visibility parameter, 0.5 DB.9; only CadCraft edits dynamic blocks)
  *   bimcraft/dev/dwg     the reader (read.js, read-async.js + what they import) — it reads DWG, never writes it
  *   modelcraft/dev/dwg   the reader and the writer — it opens DWG and exports it (0.4 part 2 M2)
  *   detailcraft/dev/dwg  the writer only (write.js + what it imports) — it exports DWG, never reads it (D4)
@@ -35,11 +36,12 @@ export function closure(entries) {
 export const WRITER_FILES = closure(['write.js', 'civil.js', 'bits-write.js', 'container-write.js']);   // civilcraft/dev/dwg-write.js imports these
 export const READER_FILES = closure(['read.js', 'model.js', 'read-async.js']);   // read-async.js: readDwg in a worker (0.4 1.3)
 export const READ_WRITE_FILES = closure(['read.js', 'model.js', 'read-async.js', 'write.js']);   // cadcraft/dev/dwg-save.js imports write.js
+export const CADCRAFT_FILES = closure(['read.js', 'model.js', 'read-async.js', 'write.js', 'dynblock-write.js']);   // + DB.9's visibility encoder (dyn-blocks.js)
 const APPS = 'public_html/assets/apps';
 export const TARGETS = {
   [`${APPS}/civilcraft/dev/dwg`]: closure(['write.js', 'civil.js', 'bits-write.js', 'container-write.js', 'read.js', 'model.js', 'read-async.js']),   // + the reader: Linework (civil V1)
   [`${APPS}/bimcraft/dev/dwg`]: READER_FILES,
-  [`${APPS}/cadcraft/dev/dwg`]: READ_WRITE_FILES,
+  [`${APPS}/cadcraft/dev/dwg`]: CADCRAFT_FILES,
   [`${APPS}/modelcraft/dev/dwg`]: READ_WRITE_FILES,
   [`${APPS}/detailcraft/dev/dwg`]: closure(['write.js']),
 };

@@ -36,6 +36,7 @@
  */
 
 import { pointGroups } from './points.js';
+import { cleanBlk } from './block-points.js';
 import { buildSurface, surfaceFromFaces } from './tin.js';
 import { buildAlignment } from './alignment.js';
 import { buildProfile, sampleSurface } from './profile.js';
@@ -51,7 +52,9 @@ import { cleanParcel } from './parcels.js';   // 0.4 V21
 import { cleanDescKeys, cleanLineCodes, grouper, figures } from './desckeys.js';   // 0.4 V16: description keys, line codes
 import { t } from './i18n.js';
 
-export const DISPLAY_DEFAULTS = { surface: 'eg', triangles: false, contours: true, interval: 1, major: 5, labels: true, bands: false, bandCount: 8, slopes: false, points: true, pointLabels: false, breaklines: true, outline: true, pipes: true };
+// profFeatures / profWithin (0.5 WL.20): feature lines in the profile view — their crossings, and (within > 0) the lines running
+// alongside within that distance of the centerline; gradeOverlay (0.5 WL.21): grades and elevations along feature lines, screen only
+export const DISPLAY_DEFAULTS = { surface: 'eg', triangles: false, contours: true, interval: 1, major: 5, labels: true, bands: false, bandCount: 8, slopes: false, points: true, pointLabels: false, breaklines: true, outline: true, pipes: true, profFeatures: true, profWithin: 0, gradeOverlay: false };
 const MAX_UNDO = 200;
 
 export function emptyState() {
@@ -296,7 +299,7 @@ export class Project {
     return {
       format: 'civilcraft-project', version: 1, saved: new Date().toISOString(),
       name: this.state.name, units: this.state.units, pointsFile: this.pointsFile,
-      points: this.points.map((p) => [p.n, p.x, p.y, p.z, p.d]),
+      points: this.points.map((p) => (p.blk ? [p.n, p.x, p.y, p.z, p.d, p.blk] : [p.n, p.x, p.y, p.z, p.d])),   // 0.5 WL.19: + the block it came from
       surface: this.state.surface, display: this.state.display,
       alignments: this.state.alignments, pads: this.state.pads, network: this.state.network, seq: this.state.seq,
       features: this.state.features || [],   // 0.4 V14
@@ -322,7 +325,13 @@ export class Project {
     s.name = str(obj.name, 120) || t('project.untitled');
     s.units = obj.units === 'm' ? 'm' : 'ft';
     s.seq = Number.isInteger(obj.seq) && obj.seq > 0 ? obj.seq : 1;
-    const pts = list(obj.points, (r) => (Array.isArray(r) && fin(r[1]) && fin(r[2]) ? { n: str(r[0], 40), x: r[1], y: r[2], z: fin(r[3]) ? r[3] : null, d: str(r[4]) } : null), 2e6);
+    const pts = list(obj.points, (r) => {
+      if (!Array.isArray(r) || !fin(r[1]) || !fin(r[2])) return null;
+      const q = { n: str(r[0], 40), x: r[1], y: r[2], z: fin(r[3]) ? r[3] : null, d: str(r[4]) };
+      const blk = cleanBlk(r[5]);   // 0.5 WL.19
+      if (blk) q.blk = blk;
+      return q;
+    }, 2e6);
     if (Array.isArray(obj.points) && pts.length !== obj.points.length) notes.push(t('project.bad.points', { n: obj.points.length - pts.length }));
     const sf = obj.surface || {};
     s.surface.name = str(sf.name, 120) || t('surface.eg');
@@ -353,7 +362,8 @@ export class Project {
         const sup = cleanSuper(c.super, s.units);   // 0.4 V18
         if (sup) corridor.super = sup;
       }
-      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units) };
+      const minR = fin(a.minR) && a.minR > 0 && a.minR < 1e7 ? a.minR : 0;   // 0.5 WL.23: design minimum radius (0 = none)
+      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(minR ? { minR } : {}) };
     }, 1000);
     s.pads = list(obj.pads, (d) => {
       const q = list(d?.pts, xy, 1e4);

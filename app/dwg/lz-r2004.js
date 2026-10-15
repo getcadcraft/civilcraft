@@ -11,6 +11,7 @@
  * files: with the − 1 every page map, section map and section decodes, page checksums and section CRCs
  * agree and the section sentinels appear where ch. 9/10 put them.
  */
+import { msg } from './messages.js';
 
 export function decompressR2004(src, from, to, outSize) {
   const out = new Uint8Array(outSize);
@@ -42,7 +43,7 @@ export function decompressR2004(src, from, to, outSize) {
   };
   const copyBack = (offset, n) => {
     let s = op - offset - 1;
-    if (s < 0) throw new Error('LZ back-reference before the start of the page');
+    if (s < 0) throw new Error(msg('ccdwg.err.lz_before_start'));
     if (op + n > outSize) n = outSize - op;
     for (let i = 0; i < n; i++) out[op++] = out[s++];
   };
@@ -62,7 +63,7 @@ export function decompressR2004(src, from, to, outSize) {
       else if (op1 >= 0x12 && op1 <= 0x1F) { count = (op1 & 0x0F) + 2; }
       else if (op1 === 0x20) { count = longCount() + 0x21; }
       else if (op1 >= 0x21) { count = op1 - 0x1E; }
-      else throw new Error('LZ opcode 0x' + op1.toString(16) + ' is not used');
+      else throw new Error(msg('ccdwg.err.lz_opcode', { op: op1.toString(16) }));
       const b1 = src[ip++], b2 = src[ip++];
       offset = (b1 >> 2) | (b2 << 6);
       lit = b1 & 3;

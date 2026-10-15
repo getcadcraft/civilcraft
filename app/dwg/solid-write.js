@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* i18n-ignore-file: cc-dwg is a standalone library; its errors and report notes are English (an app translates what it shows). */
+/* i18n-ignore-file: report notes go through msg() (messages.js); what is left is internal checks and file-format text. */
 /**
  * solid-write.js — write REGION / 3DSOLID / BODY with their ACIS data, and LIGHT (cc-dwg, Apache-2.0). Written from the
  * ODA "Open Design Specification for .dwg files" v5.4.1: 20.4.41 (the ACIS entities), 20.4.1/20.4.2 (common entity data:
@@ -19,6 +19,7 @@
  * for a new body); a second copy of the ACIS data after it (acisExtra) is not.
  */
 
+import { msg } from './messages.js';
 import { ObjWriter, begin, finish, entityCommon, CLASSED, SOFT_OWN } from './objects-write.js';
 import { satEncrypt, normAcis, satToBytes } from './acis.js';
 import { writeAcds } from './acds.js';
@@ -178,9 +179,9 @@ export function solidWriter(env) {
   function finish() {
     for (const r of recs) if (r.historySrc) r.history = srcMap.get(hexKey(r.historySrc)) || 0;
     const n = (k, s) => { if (notes[k]) report.notes.push(s(notes[k])); };
-    n('empty', (k) => `${k} ACIS entit${k === 1 ? 'y has' : 'ies have'} no ACIS data (written empty).`);
-    n('satInR2013', (k) => `${k} ACIS entit${k === 1 ? 'y keeps its' : 'ies keep their'} SAT text (as the data storage record; R2013+ files normally hold SAB there — SAT is not converted).`);
-    n('sabInR2000', (k) => `${k} ACIS entit${k === 1 ? 'y keeps its' : 'ies keep their'} SAB data as ACIS version 2 in an R2000 file (AutoCAD 2000 itself writes SAT).`);
+    n('empty', (k) => msg('ccdwg.write.acis_empty', { n: k }));
+    n('satInR2013', (k) => msg('ccdwg.write.acis_sat', { n: k }));
+    n('sabInR2000', (k) => msg('ccdwg.write.acis_sab', { n: k }));
   }
 
   return { convert, finish, dataStorage: () => (ver >= 27 ? writeAcds(acds) : null) };

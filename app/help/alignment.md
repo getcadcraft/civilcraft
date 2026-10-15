@@ -3,7 +3,7 @@ title: Lay out a horizontal alignment
 summary: Draw an alignment by its PIs, set curve radii and the start station, move PIs, and read the curve data and station and offset.
 section: tasks
 order: 40
-keywords: alignment, centerline, pi, horizontal curve, radius, stationing, tangent, create alignment, alignment layout, pc, pt, station offset
+keywords: alignment, no solution, curve does not fit, largest radius, smallest radius, minimum radius, design speed, overlap, centerline, pi, horizontal curve, radius, stationing, tangent, create alignment, alignment layout, pc, pt, station offset
 ---
 
 An alignment in CivilCraft is a chain of tangents through points of intersection (PIs), with a circular curve at any interior PI that has a radius. It is stationed from a start station you choose. A project can hold many alignments.
@@ -39,7 +39,20 @@ With the alignment selected, the right panel shows **Alignment**:
 4. Read the **Curves** list: for each curve, its PC and PT stations, radius R, deflection Δ and direction (left or right), length L, tangent T, external E and chord.
 5. The line under the curves gives the bearing of the first tangent.
 
-If two curves need more tangent than there is between their PIs, a red box says so: "The curves at PI 2 and PI 3 overlap: they need 240.00 of tangent, the PIs are 180.00 apart. Use smaller radii." The alignment is not drawn correctly until you fix it, and it is left out of LandXML exports.
+## When a curve does not fit
+
+If curves need more tangent than there is between their PIs, the alignment has no solution: it is not drawn correctly until you fix it, and it is left out of LandXML exports. A red box says why, in numbers, and offers what would fit:
+
+- "The curves at PI 2 and PI 3 need 240.00 ft of tangent between them (130.00 + 110.00), but the PIs are 180.00 ft apart." — or, when only one of them has a curve, "The curve at PI 2 needs 240.00 ft of tangent towards PI 1 …".
+- A button for each PI sets **the largest radius that fits** there with the other curve kept as it is (it also has to fit the PI's other tangent). Where both PIs have curves, **Both** shrinks the two radii in proportion so they just meet.
+- When one curve alone is longer than the tangent, the box says no curve at the other PI can fit while it is that big.
+- A PI that turns straight back cannot take a curve; the box offers **No curve at PI n**.
+
+Each button is one step: {{key:Mod+Z}} puts the radii back. Radii offered are rounded down to 0.01 so they always fit.
+
+### A design minimum radius
+
+Type a **Design minimum radius** (for example from your design speed) to have every curve checked against it; leave it empty for none. A curve under it is listed with a button for **the smallest radius that meets the minimum**, when that radius fits. When it does not fit, the box says so and gives the largest radius the tangents allow, so you know to move a PI or lower the minimum.
 
 ## Move PIs on the plan
 

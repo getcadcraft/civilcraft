@@ -34,6 +34,7 @@
  * Spec gap: the arrowhead list is present up to R2007 only, the block labels in every version (as 20.4.48's
  * indentation suggests) — the corpus multileaders of all six versions decode to the end of their data that way.
  */
+import { msg } from './messages.js';
 import { BitReader } from './bits-read.js';
 import { stringStreamStart } from './objects-read.js';
 import { b64, sliceBits } from './passthrough.js';
@@ -94,7 +95,7 @@ export function readMleader(rec, ctx, hx, nameOf) {
   return f;
 }
 
-const count = (r, n, minBits) => { if (n < 0 || n * minBits > r.end - r.pos) throw new Error('count ' + n + ' is larger than the data'); return n; };
+const count = (r, n, minBits) => { if (n < 0 || n * minBits > r.end - r.pos) throw new Error(msg('ccdwg.err.count_large', { n })); return n; };
 
 /** 20.4.86 MLeaderAnnotContext as embedded in MLEADER. */
 function context(r, H, ver) {

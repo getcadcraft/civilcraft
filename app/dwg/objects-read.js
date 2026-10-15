@@ -15,6 +15,7 @@
  * Spec gaps found by experiment are marked "Spec gap:" where the code deals with them.
  */
 
+import { msg } from './messages.js';
 import { BitReader, DwgReadError, readMS, readMCu, mod } from './bits-read.js';
 import { crc8 } from './crc.js';
 import { TABLE_DECODERS } from './table-read.js';   // builder T: ACAD_TABLE, TABLESTYLE, CELLSTYLEMAP, TABLECONTENT, TABLEGEOMETRY, FIELD, FIELDLIST
@@ -50,19 +51,19 @@ const CLASS_ALIAS = { LWPOLYLINE: 'LWPOLYLINE', HATCH: 'HATCH', XRECORD: 'XRECOR
  */
 export function decodeObject(buf, offset, ctx) {
   const ver = ctx.ver;
-  if (offset < 0 || offset + 2 > buf.length) throw new DwgReadError('object offset outside the section');
+  if (offset < 0 || offset + 2 > buf.length) throw new DwgReadError(msg('ccdwg.err.offset_outside'));
   const size = readMS(buf, offset);
   let p = mod.pos;
   let hsize = 0;
   if (ver >= 24) { hsize = readMCu(buf, p); p = mod.pos; }
-  if (p + size > buf.length) throw new DwgReadError('object of ' + size + ' bytes runs past the section end');
+  if (p + size > buf.length) throw new DwgReadError(msg('ccdwg.err.object_past_end', { n: size }));
   const objStart = p * 8, objEnd = (p + size) * 8;
   const r = new BitReader(buf, { version: ver, decode: ctx.decode, startBit: objStart, endBit: objEnd });
   const typeNum = r.OT();
   let endbit;
   if (ver >= 24) endbit = objEnd - hsize;
   else if (ver >= 15) endbit = objStart + r.RL();
-  if (endbit !== undefined && (endbit < objStart || endbit > objEnd)) throw new DwgReadError('object size fields do not agree (damaged object)');
+  if (endbit !== undefined && (endbit < objStart || endbit > objEnd)) throw new DwgReadError(msg('ccdwg.err.size_fields'));
   const handle = r.H();
   const rec = { handle, typeNum, type: '', isEntity: false, _h: {} };
   rec._size = size;
@@ -86,7 +87,7 @@ export function decodeObject(buf, offset, ctx) {
   else commonObject(r, rec, ctx);
   if (ver < 15) {
     endbit = objStart + rec._r14bits;
-    if (endbit < objStart || endbit > objEnd) throw new DwgReadError('object size fields do not agree (damaged object)');
+    if (endbit < objStart || endbit > objEnd) throw new DwgReadError(msg('ccdwg.err.size_fields'));
   }
 
   // R2007+: the string stream sits just before the end of the data part
@@ -168,7 +169,7 @@ function readEED(r, rec, ctx) {
           case 40: case 41: case 42: items.push([1000 + code, r.RD()]); break;
           case 70: items.push([1070, r.RS()]); break;
           case 71: items.push([1071, r.RLs()]); break;
-          default: throw new DwgReadError('EED code ' + code);
+          default: throw new DwgReadError(msg('ccdwg.err.eed_code', { code }));
         }
       }
     } catch (e) { rec._eedError = e.message; }
@@ -250,14 +251,14 @@ function commonObjectHandles(h, rec) {
 // ---------------------------------------------------------------- helpers
 /** n handle references (a damaged count larger than the stream can hold fails at once). */
 const hrefs = (h, rec, n) => {
-  if (n < 0 || n * 8 > h.end - h.pos) throw new DwgReadError('handle count ' + n + ' is larger than the handle stream');
+  if (n < 0 || n * 8 > h.end - h.pos) throw new DwgReadError(msg('ccdwg.err.handle_count', { n }));
   const a = new Array(n);
   for (let i = 0; i < n; i++) a[i] = h.H(rec.handle);
   return a;
 };
 /** a count of items of at least `minBits` each must fit in what is left of the stream */
 function fits(r, n, minBits) {
-  if (n < 0 || n * minBits > r.end - r.pos) throw new DwgReadError('count ' + n + ' is larger than the data');
+  if (n < 0 || n * minBits > r.end - r.pos) throw new DwgReadError(msg('ccdwg.err.count_large', { n }));
   return n;
 }
 /** handles until the stream is exhausted (bytes left < 1) */
@@ -624,7 +625,7 @@ DECODERS.XLINE = DECODERS.RAY;
 // ---- 20.4.44/45 DICTIONARY
 function dictionary(r, h, rec, ctx, wdflt) {
   const n = r.BL();
-  if (n < 0 || n > 1e7) throw new DwgReadError('dictionary of ' + n + ' entries');
+  if (n < 0 || n > 1e7) throw new DwgReadError(msg('ccdwg.err.dictionary_size', { n }));
   if (ctx.ver === 14) r.RC();
   if (ctx.ver >= 15) { rec.cloning = r.BS(); rec.hardOwner = r.RC(); }
   rec.names = new Array(n);
@@ -992,7 +993,7 @@ DECODERS.HATCH = (r, h, rec, ctx) => {
             }
           }
           loop.edges.push(e);
-        } else throw new DwgReadError('hatch edge type ' + t);
+        } else throw new DwgReadError(msg('ccdwg.err.hatch_edge', { type: t }));
       }
     } else {
       const bulges = r.B();
@@ -1227,7 +1228,7 @@ function xrecordValue(r, code, ctx) {
     case 'hnd': { const b = r.bytes(8); let v = 0; for (let i = 7; i >= 0; i--) v = v * 256 + b[i]; return v.toString(16).toUpperCase(); }
     case 'bin': { const n = r.RC(); return hexBytes(r.bytes(n)); }
     case 'bool': return r.RC();
-    default: throw new DwgReadError('XRECORD group code ' + code);
+    default: throw new DwgReadError(msg('ccdwg.err.xrecord_code', { code }));
   }
 }
 /** DXF group code → value kind (public DXF reference ranges). */

@@ -21,6 +21,11 @@
  *   spaceQto: true  the space gets Qto_SpaceBaseQuantities NetFloorArea 52.5, NetVolume 152.25 (its shape: 9.6 × 5.6 × 2.9 m = 53.76 m², 155.904 m³)
  *   problems: true  adds a proxy contained nowhere (no storey), a wall with W-102's GlobalId (duplicate),
  *                   a copy of W-103 at the same place (stacked duplicate), and a wall without Fixture_Data
+ *   georef: 'map'   (0.5 WL.4) IfcProjectedCRS EPSG:28356 (GDA94 / MGA zone 56, AHD, map unit metre) + IfcMapConversion:
+ *                   E 334567.8, N 6251234.5, H 42 m, the model's X axis 30° north of east, scale 0.001 (mm → m) — GEOREF
+ *                   holds the numbers; IfcSite also carries a latitude / longitude (the map conversion must win)
+ *   georef: 'site'  only IfcSite RefLatitude −33° 51′ 35.9″, RefLongitude 151° 12′ 33.48″, RefElevation 42 m, and the
+ *                   context's TrueNorth 20° west of the model's +Y (no map conversion)
  *
  *   node tools/bimcraft-test/ifc-fixture.mjs [out.ifc] [--rev b] [--problems]
  *   import { fixtureIfc, FIXTURE } from './ifc-fixture.mjs'   →  fixtureIfc({ rev, problems }) = the text
@@ -31,13 +36,20 @@ import { fileURLToPath } from 'node:url';
 /** GlobalIds (22 characters of IFC base64) fixed per element, so revisions compare by GlobalId. */
 const G = (n) => ('0BimCraftFixture' + String(n).padStart(6, '0')).slice(0, 22);
 
+/** The georeference the `georef` variants write (0.5 WL.4). */
+export const GEOREF = {
+  crs: 'EPSG:28356', e: 334567.8, n: 6251234.5, h: 42, rotationDeg: 30, scale: 0.001,
+  lat: [-33, -51, -35, -900000], lon: [151, 12, 33, 480000], latDeg: -(33 + 51 / 60 + 35.9 / 3600), lonDeg: 151 + 12 / 60 + 33.48 / 3600,
+  elevMm: 42000, northDeg: 20,
+};
+
 export const FIXTURE = {
   walls1: ['W-101', 'W-102', 'W-103', 'W-104'], walls2: ['W-201', 'W-202'], door: 'D-101', desk: 'F-101', space: '101 Office',
   stair: 'ST-1', flights: ['ST-1 flight 1', 'ST-1 flight 2'], slab: 'S-201', storeys: ['Level 1', 'Level 2'],
   guid: G,
 };
 
-export function fixtureIfc({ rev = 'a', problems = false, shift = 0, spaceQto = false } = {}) {
+export function fixtureIfc({ rev = 'a', problems = false, shift = 0, spaceQto = false, georef = null } = {}) {
   const L = [];
   let n = 0;
   const line = (s) => { n++; L.push('#' + n + '=' + s + ';'); return '#' + n; };
@@ -53,11 +65,19 @@ export function fixtureIfc({ rev = 'a', problems = false, shift = 0, spaceQto = 
   const units = line('IFCUNITASSIGNMENT(' + list([
     line('IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.)'), line('IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.)'),
     line('IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.)'), line('IFCSIUNIT(*,.PLANEANGLEUNIT.,$,.RADIAN.)')]) + ')');
-  const ctx = line("IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05," + ax3() + ',$)');
+  const tn = georef === 'site' ? dir(-Math.sin(GEOREF.northDeg * Math.PI / 180), Math.cos(GEOREF.northDeg * Math.PI / 180)) : '$';
+  const ctx = line("IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05," + ax3() + ',' + tn + ')');
+  if (georef === 'map') {
+    const metre = line('IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.)');
+    const crs = line("IFCPROJECTEDCRS('" + GEOREF.crs + "','GDA94 / MGA zone 56','GDA94','AHD','UTM','56'," + metre + ')');
+    const r = GEOREF.rotationDeg * Math.PI / 180;
+    line('IFCMAPCONVERSION(' + ctx + ',' + crs + ',' + GEOREF.e + ',' + GEOREF.n + ',' + num(GEOREF.h) + ',' + Math.cos(r) + ',' + Math.sin(r) + ',' + GEOREF.scale + ')');
+  }
+  const siteRef = georef ? '(' + list(GEOREF.lat.map(String)) + ',' + list(GEOREF.lon.map(String)) + ',' + num(GEOREF.elevMm) + ')' : null;
   const body = line("IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*," + ctx + ',$,.MODEL_VIEW.,$)');
   const project = line('IFCPROJECT(' + str(G(1)) + ',' + oh + ",'BimCraft fixture',$,$,$,$," + list([ctx]) + ',' + units + ')');
   const sitePl = place(null, shift, 0, 0);   // `shift` (mm along X) moves the whole site: federation tests
-  const site = line('IFCSITE(' + str(G(2)) + ',' + oh + ",'Site',$,$," + sitePl + ',$,$,.ELEMENT.,$,$,$,$,$)');
+  const site = line('IFCSITE(' + str(G(2)) + ',' + oh + ",'Site',$,$," + sitePl + ',$,$,.ELEMENT.,' + (siteRef ? siteRef.slice(1, -1) : '$,$,$') + ',$,$)');
   const bldPl = place(sitePl);
   const building = line('IFCBUILDING(' + str(G(3)) + ',' + oh + ",'Fixture building',$,$," + bldPl + ',$,$,.ELEMENT.,$,$,$)');
   const st1Pl = place(bldPl, 0, 0, 0), st2Pl = place(bldPl, 0, 0, 3000);

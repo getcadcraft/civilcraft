@@ -22,6 +22,16 @@ open-source apps for CAD and BIM work, each in its own repository. It is early: 
 5. Keep the build self-contained: the app's modules import each other relatively (`./x.js`), and libraries come only
    from the versioned folders listed in `THIRD_PARTY.md`. No CDN, no tracking, no network calls the user did not ask for.
 
+## How a change gets in
+
+1. Fork the repository, make a branch, and open a pull request against `main`. The pull request template has a short
+   checklist.
+2. **Tests** run on every pull request (`npm test -- --oracles`, the same as on your machine). A red check means something to fix;
+   the log shows which test failed.
+3. A maintainer reviews it. Once it is approved and the tests pass, it is merged.
+4. `main` is the code in development: a merged change goes into the next build in the lab at getcadcraft.com, then into
+   the next release. Releases are the tags (`civilcraft-v0.4.0`, …) and their files are on the Releases page.
+
 ## Rules that are not negotiable
 
 - **License.** CivilCraft is licensed under the Apache License 2.0 (`LICENSE`). By contributing you agree that your

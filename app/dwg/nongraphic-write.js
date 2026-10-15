@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* i18n-ignore-file: cc-dwg is a standalone library; its errors and report notes are English (an app translates what it shows). */
+/* i18n-ignore-file: report notes go through msg() (messages.js); what is left is internal checks and file-format text. */
 /**
  * nongraphic-write.js — the writer copies the source drawing's non-graphical objects (cc-dwg, Apache-2.0).
  *
@@ -35,6 +35,7 @@
  * entity handles, ascending, dealt out in the source's draw order — found by checking the ODA File Converter's
  * DXF of written files (SORTENTS entries in draw order).
  */
+import { msg } from './messages.js';
 import { ObjWriter, begin, finish, objectCommon, xrecordBytes, CLASSED, SOFT_OWN, HARD_OWN, SOFT_PTR, HARD_PTR } from './objects-write.js';
 import { encodeRaw, rawUsable, convertPlan, unb64 } from './passthrough.js';
 import { BitReader } from './bits-read.js';
@@ -450,14 +451,14 @@ export function extendWriter(env) {
     }
     // report
     const total = raw + fields;
-    if (total) report.notes.push(`${total} non-graphical object${total === 1 ? ' was' : 's were'} copied from the source (${raw} bit for bit in the drawing's own version, ${fields} from their fields).`);
+    if (total) report.notes.push(msg('ccdwg.write.nongraphic', { n: total, raw, fields }));
     const dn = Object.entries(dropped).filter(([, n]) => n > 0);
-    if (dn.length) report.notes.push('Not copied (cc-dwg cannot write them in this version, or they depend on them): ' + dn.map(([t, n]) => `${n} ${t}`).join(', ') + '.');
-    for (const [t, n] of Object.entries(notes.droppedEntities)) report.notes.push(`${n} ${t} entit${n === 1 ? 'y was' : 'ies were'} left out: undecoded data can only be written back in the drawing's own version.`);
+    if (dn.length) report.notes.push(msg('ccdwg.write.not_copied', { list: dn.map(([t, n]) => `${n} ${t}`).join(', ') }));
+    for (const [t, n] of Object.entries(notes.droppedEntities)) report.notes.push(msg('ccdwg.write.entities_dropped', { n, type: t }));
     const pn = Object.entries(notes.proxied);
-    if (pn.length) report.notes.push('Written as proxies of their own class (undecoded data in another version, as AutoCAD saves them down): ' + pn.map(([t, n]) => `${n} ${t}`).join(', ') + '.');
+    if (pn.length) report.notes.push(msg('ccdwg.write.proxied', { list: pn.map(([t, n]) => `${n} ${t}`).join(', ') }));
     const rn = Object.entries(notes.rawEntities);
-    if (rn.length) report.notes.push('Copied bit for bit (custom or proxy entities): ' + rn.map(([t, n]) => `${n} ${t}`).join(', ') + '.');
+    if (rn.length) report.notes.push(msg('ccdwg.write.raw', { list: rn.map(([t, n]) => `${n} ${t}`).join(', ') }));
     report.copied = { objects: byType, dropped, proxied: notes.proxied, rawEntities: notes.rawEntities, droppedEntities: notes.droppedEntities, linkedExtDicts: linked };
   };
   return X;

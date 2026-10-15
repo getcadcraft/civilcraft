@@ -25,7 +25,13 @@
  * scene = { units, origin:{x,y,z}, exag, bbox:{min,max} (local), notes:[],
  *           meshes:[{ key, name, positions, normals, colors (Float32 rgb), indices (Uint32), uvs?, owners?, triOwner? }],
  *           lines:[{ key, name, color, positions (Float32, segment pairs), owners?:[{kind, id, name}], segOwner? (Uint32 per segment) }],
- *           points: { positions, ids:[point numbers], color } | null, counts }
+ *           points: { positions, ids:[point numbers], color } | null, counts,
+ *           labels:[{ text, at:[x,y,z] (local), kind, pri, color }] }   (0.5 WL.22, show.labels: drawn facing the camera)
+ * Labels (0.5 WL.22): each alignment's name at its start and its station at every major tick, each major contour's
+ * elevation once (at its middle vertex), pads, feature lines and structures by name, and — with Show › Points — each
+ * survey point's number and elevation (≤ MAX_LABELS in all). `pri` orders them when they crowd (0 first): alignments,
+ * structures, pads, feature lines, stations, contours, points. declutterLabels(labels, project, {w, h}) → Uint8Array
+ * (1 = draw): on screen, nearest first within a priority, never overlapping one already kept.
  * Pipes are cylinders between their inverts: the invert is the bottom of the inside, the crown = invert + inside
  * diameter (inches on feet projects, millimetres on metre projects, as pipes.js). Structures are vertical
  * cylinders from the rim down to the sump (lowest invert − sump depth).
@@ -35,11 +41,15 @@ import { rayTri } from './vec.js';
 import { DIA_UNIT } from './pipes.js';
 import { surfaceSection } from './sections.js';   // 0.4 V4: GIS lines draped on the ground (exact at triangle edges)
 import { t } from './i18n.js';
+import { formatStation, fixed } from './units.js';   // 0.5 WL.22 labels
 
 export const SHOW_DEFAULTS = {
   eg: true, fg: true, triangles: false, contours: true, breaklines: true, boundary: true,
   alignments: true, corridors: true, pads: true, pipes: true, points: false, gis: true,   // gis: 0.4 V4
+  labels: true,   // 0.5 WL.22
 };
+export const MAX_LABELS = 6000;
+export const LABEL_PRI = { alignment: 0, structure: 1, pad: 2, feature: 3, station: 4, contour: 5, point: 6 };
 export const MAX_GIS_SEGMENTS = 300000;
 export const EXAGGERATIONS = [1, 2, 3, 5, 10];
 
@@ -115,7 +125,9 @@ export function buildSite3D(input, opts = {}) {
   const notes = [];
   const origin = siteOrigin(input);
   const L = (x, y, z) => [x - origin.x, y - origin.y, (z - origin.z) * exag];
-  const scene = { units, origin, exag, meshes: [], lines: [], points: null, notes, counts: { triangles: 0, segments: 0, points: 0, pipes: 0, structures: 0 } };
+  const scene = { units, origin, exag, meshes: [], lines: [], points: null, notes, labels: [], counts: { triangles: 0, segments: 0, points: 0, pipes: 0, structures: 0 } };
+  // 0.5 WL.22: labels that face the camera (the view draws them); `at` is local like every position
+  const label = (kind, text, x, y, z, color) => { if (show.labels && scene.labels.length < MAX_LABELS && Number.isFinite(z)) scene.labels.push({ text: String(text), at: L(x, y, z), kind, pri: LABEL_PRI[kind], color }); };
 
   // surfaces
   const surfs = [];
@@ -137,7 +149,10 @@ export function buildSite3D(input, opts = {}) {
       const step = (Number(input.interval) || 1) * (Number(input.major) || 5);
       const isMaj = (z) => step > 0 && Math.abs(z / step - Math.round(z / step)) < 1e-6;
       const maj = [], min = [];
-      for (const c of list) polySegs(isMaj(c.z) ? maj : min, c.pts.map((p) => L(p.x, p.y, c.z)), c.closed);
+      for (const c of list) {
+        polySegs(isMaj(c.z) ? maj : min, c.pts.map((p) => L(p.x, p.y, c.z)), c.closed);
+        if (isMaj(c.z) && c.pts.length >= 4) { const m = c.pts[Math.floor(c.pts.length / 2)]; label('contour', fixed(c.z, step < 1 ? 1 : 0).replace(/,/g, ''), m.x, m.y, c.z, C.major); }
+      }
       if (min.length) scene.lines.push({ key: it.key + '-minor', name: t('s3.contours.minor', { surface: it.name }), color: C.minor, positions: new Float32Array(min) });
       if (maj.length) scene.lines.push({ key: it.key + '-major', name: t('s3.contours.major', { surface: it.name }), color: C.major, positions: new Float32Array(maj) });
     }
@@ -156,7 +171,11 @@ export function buildSite3D(input, opts = {}) {
   // feature lines (0.4 V14/V5), shown with the breaklines
   if (show.breaklines && input.features?.length) {
     const o = owned();
-    for (const f of input.features) o.add({ kind: 'feature', id: f.id, name: f.name }, (seg) => polySegs(seg, f.pts.filter((p) => Number.isFinite(p.z)).map((p) => L(p.x, p.y, p.z)), false));
+    for (const f of input.features) {
+      o.add({ kind: 'feature', id: f.id, name: f.name }, (seg) => polySegs(seg, f.pts.filter((p) => Number.isFinite(p.z)).map((p) => L(p.x, p.y, p.z)), false));
+      const m = f.pts[Math.floor((f.pts.length - 1) / 2)];
+      if (m) label('feature', f.name, m.x, m.y, m.z, C['gis:green']);
+    }
     if (o.seg.length) scene.lines.push(o.done({ key: 'features', name: t('scene.layer.feat'), color: C['gis:green'] }));
   }
 
@@ -184,6 +203,8 @@ export function buildSite3D(input, opts = {}) {
       }
       polySegs(seg, run, false);
       });
+      const p0 = al.pointAt(al.start);
+      if (p0) label('alignment', a.name, p0.x, p0.y, zAt(al.start, p0.x, p0.y), C.alignment);
       const minor = units === 'm' ? 20 : 50, major = 100;
       for (const t of al.ticks(minor)) {
         const z = zAt(t.sta, t.x, t.y);
@@ -192,6 +213,7 @@ export function buildSite3D(input, opts = {}) {
         const k = (units === 'm' ? 1.5 : 5) * (isMaj ? 1.6 : 1);
         const nx = Math.sin(t.dir), ny = -Math.cos(t.dir);
         tick.push(...L(t.x - nx * k, t.y - ny * k, z), ...L(t.x + nx * k, t.y + ny * k, z));
+        if (isMaj) label('station', formatStation(t.sta, units, 0), t.x, t.y, z, C.alignment);
       }
     }
     if (o.seg.length) scene.lines.push(o.done({ key: 'alignments', name: t('s3.alignments'), color: C.alignment }));
@@ -215,6 +237,7 @@ export function buildSite3D(input, opts = {}) {
       if (!Number.isFinite(p.z) || (p.pts || []).length < 3) continue;
       const ow = { kind: 'pad', id: p.id, name: p.name };
       pad.add(ow, (seg) => polySegs(seg, p.pts.map((q) => L(q.x, q.y, p.z)), true));
+      label('pad', p.name, p.pts.reduce((a, q) => a + q.x, 0) / p.pts.length, p.pts.reduce((a, q) => a + q.y, 0) / p.pts.length, p.z, C.pad);
       day.add(ow, (seg) => polySegs(seg, (p.daylight || []).filter((q) => Number.isFinite(q.z)).map((q) => L(q.x, q.y, q.z)), true));
     }
     if (pad.seg.length) scene.lines.push(pad.done({ key: 'pads', name: t('scene.layer.pads'), color: C.pad }));
@@ -249,6 +272,7 @@ export function buildSite3D(input, opts = {}) {
       const r = (Number(s.dia) || 0) / per / 2;
       if (!(r > 0) || bottom >= rim) continue;
       strB.owner({ kind: 'structure', id: s.id, name: s.name });
+      label('structure', s.name, s.x, s.y, rim, C.structure);
       cylinder(strB, [s.x, s.y, bottom], [s.x, s.y, rim], r, 24, true, L, exag, rgb(bad.has(s.id) ? C.problem : C.structure));
       scene.counts.structures++;
     }
@@ -301,14 +325,45 @@ export function buildSite3D(input, opts = {}) {
   // survey points
   if (show.points && input.points?.length) {
     const pos = [], ids = [];
-    for (const p of input.points) { if (p.z === null || !Number.isFinite(p.z)) continue; pos.push(...L(p.x, p.y, p.z)); ids.push(p.n); }
+    for (const p of input.points) {
+      if (p.z === null || !Number.isFinite(p.z)) continue;
+      pos.push(...L(p.x, p.y, p.z)); ids.push(p.n);
+      label('point', t('s3.label.point', { n: p.n, z: fixed(p.z, 2).replace(/,/g, '') }), p.x, p.y, p.z, C.point);
+    }
     if (ids.length) scene.points = { positions: new Float32Array(pos), ids, color: C.point };
     scene.counts.points = ids.length;
   }
 
   for (const l of scene.lines) scene.counts.segments += l.positions.length / 6;
+  if (show.labels && scene.labels.length >= MAX_LABELS) notes.push(t('s3.labels.cut', { n: MAX_LABELS.toLocaleString('en-US') }));
   scene.bbox = bboxOf(scene);
   return scene;
+}
+
+/**
+ * Which labels to draw for this view (0.5 WL.22): each label's box on screen (`w` px wide when the view measured it, else
+ * estimated; `h` px tall, standing on its point) — off screen or behind the eye: not drawn; then by priority and, within
+ * one, nearest first, a label is drawn only when its box overlaps none already drawn. `project(at)` → [x, y, depth] | null.
+ */
+export function declutterLabels(labels, project, { w, h, hPx = 16, charPx = 7, gap = 2 } = {}) {
+  const vis = new Uint8Array(labels.length), cand = [];
+  labels.forEach((l, i) => {
+    const s = project(l.at);
+    if (!s || s[0] < -50 || s[0] > w + 50 || s[1] < -20 || s[1] > h + 20) return;
+    const lw = l.w || l.text.length * charPx + 8;
+    cand.push({ i, x0: s[0] - lw / 2 - gap, x1: s[0] + lw / 2 + gap, y0: s[1] - 6 - hPx - gap, y1: s[1] - 6 + gap, d: s[2], pri: l.pri ?? 9 });
+  });
+  cand.sort((a, b) => a.pri - b.pri || a.d - b.d);
+  const cell = 64, grid = new Map(), key = (cx, cy) => cx + ',' + cy;
+  for (const c of cand) {
+    const cx0 = Math.floor(c.x0 / cell), cx1 = Math.floor(c.x1 / cell), cy0 = Math.floor(c.y0 / cell), cy1 = Math.floor(c.y1 / cell);
+    let hit = false;
+    for (let cx = cx0; cx <= cx1 && !hit; cx++) for (let cy = cy0; cy <= cy1 && !hit; cy++) for (const o of grid.get(key(cx, cy)) || []) if (o.x0 < c.x1 && c.x0 < o.x1 && o.y0 < c.y1 && c.y0 < o.y1) { hit = true; break; }
+    if (hit) continue;
+    vis[c.i] = 1;
+    for (let cx = cx0; cx <= cx1; cx++) for (let cy = cy0; cy <= cy1; cy++) { const k = key(cx, cy); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(c); }
+  }
+  return vis;
 }
 
 /** x, y: the existing ground's local origin (else the first thing with coordinates); z: its lowest elevation, rounded down. */

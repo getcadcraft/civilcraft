@@ -59,7 +59,8 @@ if (!own('dxf-model.js')) console.log('note: civilcraft/' + BUILD + '/dxf-model.
 if (!fs.existsSync(readerFile) || !fs.existsSync(dxfFile)) { console.log('note: no DWG/DXF reader in this checkout: the linework checks are skipped'); console.log('\n0 passed, 0 failed'); process.exit(0); }
 const { readDwg } = await import(pathToFileURL(readerFile).href);
 const { readDxfModel } = await import(pathToFileURL(dxfFile).href);
-if (own('dxf-model.js')) ok(Buffer.compare(fs.readFileSync(path.join(APP, 'dxf-model.js')), fs.readFileSync(path.join(REPO, 'public_html/assets/apps/bimcraft/dev/dxf-model.js'))) === 0, 'dxf-model.js is byte-identical to bimcraft/dev');
+if (own('dxf-model.js') && !fs.existsSync(path.join(REPO, 'public_html/assets/apps/bimcraft/dev/dxf-model.js'))) console.log('  (bimcraft/dev not in this checkout — byte-identical check skipped)');
+else if (own('dxf-model.js')) ok(Buffer.compare(fs.readFileSync(path.join(APP, 'dxf-model.js')), fs.readFileSync(path.join(REPO, 'public_html/assets/apps/bimcraft/dev/dxf-model.js'))) === 0, 'dxf-model.js is byte-identical to bimcraft/dev');
 
 const X0 = 2000500, Y0 = 500500;
 const hill = (x, y) => 120 - 0.0004 * ((x - X0) ** 2 + (y - Y0) ** 2);

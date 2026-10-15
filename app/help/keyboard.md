@@ -46,6 +46,7 @@ The Mac key labeled **delete** is {{key:Backspace}} to the browser. To delete a 
 | {{key:I}} | Turn {{ui:Add PVIs}} on or off (opens the profile view if it is closed) |
 | {{key:F}} | {{ui:Fit}}: show everything |
 | {{key:D}} | {{ui:3D}}: show the site in 3D, or go back to the plan |
+| {{key:E}} | Show or hide grades and elevations along every feature line (on the screen only) |
 
 Pressing the key of the active tool again goes back to {{ui:Select}}. Letters with Shift do nothing.
 

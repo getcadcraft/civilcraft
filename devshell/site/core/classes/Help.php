@@ -42,7 +42,7 @@ final class Help
 
     public const CALLOUTS = ['tip' => 'Tip', 'note' => 'Note', 'warning' => 'Warning'];
 
-    /** Never in a title, summary, heading, keyword or table header (CLAUDE.md trademark rule). */
+    /** Never in a title, summary, heading, keyword or table header (the trademark rule in the site docs). */
     public const TRADEMARKS = ['AutoCAD', 'Revit', 'Civil 3D', 'SketchUp', 'Bluebeam', 'PlanSwift', 'Tekla',
         'SolidWorks', 'Navisworks', 'Inventor', 'Autodesk', 'Trimble', 'Excel', 'Acrobat', 'ArcGIS', 'Esri', 'QGIS'];
 

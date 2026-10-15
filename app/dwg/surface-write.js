@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* i18n-ignore-file: cc-dwg is a standalone library; its errors and report notes are English (an app translates what it shows). */
+/* i18n-ignore-file: report notes go through msg() (messages.js); what is left is internal checks and file-format text. */
 /**
  * surface-write.js — write the SURFACE family: SURFACE, PLANESURFACE, EXTRUDEDSURFACE, LOFTEDSURFACE, REVOLVEDSURFACE,
  * SWEPTSURFACE and NURBSURFACE (cc-dwg, Apache-2.0). Written from the ODA "Open Design Specification for .dwg files"
@@ -33,6 +33,7 @@
  * written to another version it is left out (the value written as 0, noted).
  */
 
+import { msg } from './messages.js';
 import { ObjWriter, begin, finish, entityCommon, CLASSED } from './objects-write.js';
 import { writeAcisBlock, writeWireframe, parseGuid } from './solid-write.js';
 import { SURFACE_TYPES, SURFACE_LAYOUTS, SURFACE_CLASSES } from './surface-layout.js';
@@ -169,9 +170,9 @@ export function surfaceWriter(env, SOL) {
       }
     }
     const n = (k, s) => { if (notes[k]) report.notes.push(s(notes[k])); };
-    n('down', (k) => `${k} NURBS surface${k === 1 ? ' was' : 's were'} written as plain SURFACE (${version} has no NURBSURFACE; as AutoCAD and the ODA File Converter save it down, with the ACAD_XREC_ROUNDTRIP marker that turns it back into a NURBS surface in R2013+).`);
-    n('up', (k) => `${k} surface${k === 1 ? '' : 's'} saved down from NURBSURFACE ${k === 1 ? 'was' : 'were'} written as NURBSURFACE again (its NURBS fields were not kept by the save-down).`);
-    n('embedded', (k) => `${k} embedded profile/path entit${k === 1 ? 'y' : 'ies'} of a surface (an encoding cc-dwg does not know) ${k === 1 ? 'was' : 'were'} left out: it is kept only in the drawing's own version.`);
+    n('down', (k) => msg('ccdwg.write.nurbs_down', { n: k, version }));
+    n('up', (k) => msg('ccdwg.write.nurbs_up', { n: k }));
+    n('embedded', (k) => msg('ccdwg.write.embedded', { n: k }));
   }
 
   return { convert, finish: finishWriter };

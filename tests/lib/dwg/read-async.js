@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
-/* i18n-ignore-file: cc-dwg is a standalone library; its errors and report notes are English (an app translates what it shows). */
+/* i18n-ignore-file: worker plumbing; the reader's own messages come from messages.js (the page's language reaches the worker below). */
 /**
  * read-async.js — readDwgAsync(bytes, opts) → Promise<model>: readDwg (read.js) in a module Worker, so a big drawing
  * no longer freezes the page (cc-dwg, Apache-2.0).
@@ -15,6 +15,8 @@
  * queue on it. The caller's bytes are copied, never transferred away. If a worker cannot start (no Worker, a blocked
  * blob: URL, a fetch that fails), the read runs on this thread instead, and later reads do too.
  * Errors come back as Error objects with the reader's message and `name` (DwgReadError, UnsupportedDwg).
+ * Language: the worker has no page, so it gets the `ccdwg.*` strings of the page's catalog (globalThis.ccI18n, i18n.js) as a
+ * small ccI18n of its own; messages.js finds it there exactly as on the page. No catalog → the reader's English.
  */
 
 const ROOT = 'read.js';
@@ -51,6 +53,15 @@ function startWorker() {
     try {
       const urls = await blobModules([ROOT]);
       const body = `import { readDwg } from '${urls.get(ROOT)}';
+const L = ${JSON.stringify(workerStrings())};
+if (L) {
+  let pr; try { pr = new Intl.PluralRules(L.locale); } catch { pr = { select: () => 'other' }; }
+  self.ccI18n = { has: (k) => Object.prototype.hasOwnProperty.call(L.strings, k), t(k, f = {}) {
+    let v = L.strings[k];
+    if (v && typeof v === 'object') v = v['=' + f.n] ?? v[pr.select(Number(f.n))] ?? v.other;
+    return String(v ?? k).replace(/\\{\\{|\\}\\}|\\{([A-Za-z_][A-Za-z0-9_]*)\\}/g, (m, n) => m === '{{' ? '{' : m === '}}' ? '}' : f[n] != null ? String(f[n]) : m);
+  } };
+}
 self.onmessage = (e) => {
   const { id, bytes, opts } = e.data;
   try { self.postMessage({ id, model: readDwg(new Uint8Array(bytes), opts || {}) }); }
@@ -82,6 +93,15 @@ self.postMessage({ ready: true });`;
     }
   })();
   return worker;
+}
+
+/** The ccdwg.* strings of the page's language catalog ({locale, strings}), or null (no catalog: the worker speaks English). */
+function workerStrings() {
+  const c = typeof globalThis.ccI18n?.catalog === 'function' ? globalThis.ccI18n.catalog() : null;
+  if (!c || !c.strings) return null;
+  const strings = {};
+  for (const k of Object.keys(c.strings)) if (k.startsWith('ccdwg.')) strings[k] = c.strings[k];
+  return Object.keys(strings).length ? { locale: c.locale, strings } : null;
 }
 
 /** This library's modules as blob: URLs, relative imports ('./x.js', single quotes) rewritten: Map file → blob URL. */

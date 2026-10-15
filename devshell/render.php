@@ -136,6 +136,9 @@ ob_start();
 <?php foreach (devshell_shell_css() as $__c): ?>
   <link rel="stylesheet" href="<?= e($__c) ?>">
 <?php endforeach; ?>
+<?php if (AppBuilds::input($__build)): /* menus, keys and mouse (0.5 track IP) */ ?>
+  <link rel="stylesheet" href="<?= $R ?>assets/css/app-input.css">
+<?php endif; ?>
 <?php foreach ($__manifest['css'] ?? [] as $c): ?>
   <link rel="stylesheet" href="<?= e($__build['url'] . $c) ?>">
 <?php endforeach; ?>
@@ -182,7 +185,15 @@ ob_start();
 <?php foreach (devshell_shell_js($__panels, $__offlineData !== null) as $__s): ?>
 <script src="<?= e($__s) ?>" defer></script>
 <?php endforeach; ?>
+<?php if (($__phone = AppBuilds::phone($__build)) !== null): /* phones and fold phones (0.5 track PH) */ ?>
+<script type="application/json" id="cc-phone"><?= json_embed(['app' => $app['slug'], 'phone' => (object)$__phone]) ?></script>
+<script src="<?= $R ?>assets/js/app-phone.js" defer></script>
+<?php endif; ?>
 <script type="module" src="<?= $R ?>assets/js/help-panel.js"></script>
+<?php if ($__input = AppBuilds::input($__build)): ?>
+<script type="application/json" id="cc-input"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name'], 'registry' => $__input]) ?></script>
+<script type="module" src="<?= $R ?>assets/js/app-input-ui.js"></script>
+<?php endif; ?>
 </body>
 </html>
 <?php

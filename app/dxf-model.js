@@ -38,14 +38,35 @@ function typed(code, v) {
 }
 const hx = (v) => String(v || '').trim().toUpperCase().replace(/^0+/, '');
 
+// ---- words (docs/LANG.md § Shared libraries; node tools/lang/lib-keys.mjs copies MESSAGES into the apps' lang/en.json)
+/* i18n-ignore-start: the English source of the keys below */
+export const MESSAGES = {
+  'dxfmodel.not_text': 'This DXF file could not be read as text.',
+  'dxfmodel.binary': 'This is a binary DXF. Save it as ASCII DXF and try again.',
+  'dxfmodel.bad_code': 'This file is not a readable DXF (bad group code on line {line}).',
+};
+/* i18n-ignore-end */
+
+const FILL_RE_ = /\{\{|\}\}|\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
+/** The text for key (dxfmodel.*) with its fills: the page's language through globalThis.ccI18n (i18n.js) when it has the key,
+ * else the English in MESSAGES — so Node and the site's converter read that English (docs/LANG.md § Shared libraries). */
+function msg(key, fills = {}) {
+  const i18n = globalThis.ccI18n;
+  if (i18n && typeof i18n.has === 'function' && i18n.has(key)) return i18n.t(key, fills);
+  let s = MESSAGES[key];
+  if (s === undefined) return key;
+  if (typeof s === 'object') s = s['=' + fills.n] ?? (Number(fills.n) === 1 ? s.one : s.other) ?? s.other;
+  return s.replace(FILL_RE_, (m, k) => (m === '{{' ? '{' : m === '}}' ? '}' : fills[k] !== undefined && fills[k] !== null ? String(fills[k]) : m));
+}
+
 export function readDxfModel(text) {
-  if (typeof text !== 'string') throw new Error('This DXF file could not be read as text.');
-  if (text.startsWith('AutoCAD Binary DXF')) throw new Error('This is a binary DXF. Save it as ASCII DXF and try again.');
+  if (typeof text !== 'string') throw new Error(msg('dxfmodel.not_text'));
+  if (text.startsWith('AutoCAD Binary DXF')) throw new Error(msg('dxfmodel.binary'));   // i18n-ignore: the binary DXF signature
   const lines = text.split(/\r?\n/);
   const codes = [], vals = [];
   for (let i = 0; i + 1 < lines.length; i += 2) {
     const c = parseInt(lines[i], 10);
-    if (Number.isNaN(c)) { if (!lines[i].trim() && i + 2 >= lines.length) break; throw new Error('This file is not a readable DXF (bad group code on line ' + (i + 1) + ').'); }
+    if (Number.isNaN(c)) { if (!lines[i].trim() && i + 2 >= lines.length) break; throw new Error(msg('dxfmodel.bad_code', { line: i + 1 })); }
     const raw = lines[i + 1];
     codes.push(c);
     vals.push(typed(c, c === 1 || c === 3 || (c >= 1000 && c <= 1009) ? raw : raw.trim()));

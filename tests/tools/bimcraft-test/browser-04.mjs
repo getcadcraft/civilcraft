@@ -150,7 +150,7 @@ try {
   if (want('b12')) {
     console.log('== B12 hide, isolate, see-through');
     const labels = await page.$$eval('[data-vis-menu] [data-vis]', (bs) => bs.map((b) => b.childNodes[0].textContent.trim() + ' [' + b.querySelector('kbd').textContent + ']'));
-    ok(labels.join(', ') === 'Hide [H], Isolate [I], See-through [T], Show all [Shift+H]', 'the Show menu: ' + labels.join(', '));
+    ok(labels.join(', ') === 'Hide [H], Isolate [I], See-through [T], Section box round the pick [Shift+X], Show all [Shift+H]', 'the Show menu: ' + labels.join(', '));
     const rows = await page.$$eval('[data-toolbar] .bc-tool', (bs) => new Set(bs.filter((b) => b.offsetParent).map((b) => Math.round(b.getBoundingClientRect().top))).size);
     ok(rows <= 2, 'at 1440 px the toolbar is still two rows (' + rows + ')', rows <= 2 ? '' : await page.$$eval('[data-toolbar] .bc-tool', (bs) => bs.filter((b) => b.offsetParent).map((b) => { const r = b.getBoundingClientRect(); return b.textContent.trim().slice(0, 14) + '@' + Math.round(r.top) + '/' + Math.round(r.width); }).join(' ') + ' | bar ' + Math.round(document.querySelector('[data-toolbar]').getBoundingClientRect().width)));
     ok(await disabled('[data-vis="hide"]') && /Pick one or more/.test(await page.getAttribute('[data-vis="hide"]', 'title')), 'Hide is disabled until something is picked, the reason in its title');
@@ -303,6 +303,7 @@ try {
     await page.keyboard.press('Escape');
 
     const [dl] = await Promise.all([page.waitForEvent('download'), page.click('[data-save]')]);
+    await waitStatus(/^Saved /);   // the change list is cleared once the save finishes (the download starts first)
     const saved = fs.readFileSync(await dl.path(), 'utf8');
     const d = danglingRefs(saved);
     ok(/\(edited\)\.ifc$/.test(dl.suggestedFilename()) && d.length === 0 && /IFCDOOR\(/.test(saved), 'Save as IFC: ' + dl.suggestedFilename() + ', no reference to a missing line');
@@ -427,9 +428,10 @@ try {
     await page.selectOption('[data-color-field]', 'p:Fixture_Data.Cost');
     await waitStatus(/^Colored by Cost: 4 values/);
     ok(/No value/.test(await page.textContent('[data-legend]')), 'Cost: 4 values and a "No value" row for the elements without it');
-    const before = await page.$eval('[data-legend] .bc-sw', (e) => e.style.background);
+    // the swatch is a color input since 0.5 WL.5 (each row's color can be changed)
+    const before = await page.$eval('[data-legend] [data-legend-color]', (e) => e.value);
     await page.evaluate(() => { document.documentElement.dataset.space = 'model'; });
-    await page.waitForFunction((b) => document.querySelector('[data-legend] .bc-sw').style.background !== b, before);
+    await page.waitForFunction((b) => document.querySelector('[data-legend] [data-legend-color]').value !== b, before);
     ok(true, 'the model theme repaints with its own steps');
     await shot(page, 'b15-03-cost-model');
     await page.evaluate(() => { document.documentElement.dataset.space = 'paper'; });

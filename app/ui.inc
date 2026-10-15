@@ -188,6 +188,7 @@ $__more = [
         <label><input type="checkbox" data-show="points"> <?= Lang::e('ui.show.points') ?></label>
         <label><input type="checkbox" data-show="pointLabels"> <?= Lang::e('ui.show.pointlabels') ?></label>
         <label><input type="checkbox" data-show="breaklines"> <?= Lang::e('ui.show.breaklines') ?></label>
+        <label title="<?= Lang::e('ui.show.grades.title') ?>"><input type="checkbox" data-show="gradeOverlay"> <?= Lang::e('ui.show.grades') ?></label>
         <label><input type="checkbox" data-show="outline"> <?= Lang::e('ui.show.outline') ?></label>
         <label><input type="checkbox" data-show="pipes"> <?= Lang::e('ui.show.pipes') ?></label>
       </fieldset>
@@ -228,6 +229,9 @@ $__more = [
         <label class="visually-hidden" for="cv-prof-al"><?= Lang::e('sec.alignment') ?></label>
         <select id="cv-prof-al" class="cv-select cv-prof-al" data-prof-al></select>
         <button type="button" class="cv-toggle" data-pvi-add aria-pressed="false" title="<?= Lang::e('ui.pvi.add.title') ?>"><?= Lang::e('ui.pvi.add') ?></button>
+        <?php /* 0.5 WL.20: feature lines in the profile (crossings; alongside within a distance) — civilcraft.js renderProfile */ ?>
+        <button type="button" class="cv-toggle" data-prof-fl aria-pressed="true" title="<?= Lang::e('ui.prof.fl.title') ?>"><?= Lang::e('ui.prof.fl') ?></button>
+        <label class="cv-prof-within" title="<?= Lang::e('ui.prof.fl.within.title') ?>"><?= Lang::e('ui.prof.fl.within') ?> <input type="text" inputmode="decimal" class="cv-input" data-prof-fl-within placeholder="0"></label>
         <span class="cv-note cv-prof-read" data-prof-read></span>
         <button type="button" class="cv-x" data-prof-close aria-label="<?= Lang::e('ui.prof.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>

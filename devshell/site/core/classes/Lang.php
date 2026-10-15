@@ -284,12 +284,28 @@ final class Lang
 
     // ------------------------------------------------------------------ page
 
-    /** The catalog for i18n.js, once per page: <script type="application/json" id="cc-lang">. */
+    /** Keys no script asks for, only PHP prints: the "@server" list of the shell's en.json and the build's en.json
+     * (every language follows en.json). → [key => true]. bin/test-lang.mjs fails when a script uses one of them. */
+    public static function serverKeys(): array
+    {
+        if (self::$cur === null) return [];
+        $out = [];
+        foreach ([self::shellDir() . '/en.json', rtrim(self::$cur['dir'], '/') . '/lang/en.json'] as $f) {
+            $data = is_file($f) ? json_decode((string)file_get_contents($f), true) : null;
+            if (!is_array($data) || !is_array($data['@server'] ?? null)) continue;
+            foreach ($data['@server'] as $k) if (is_string($k)) $out[$k] = true;
+        }
+        return $out;
+    }
+
+    /** The catalog for i18n.js, once per page: <script type="application/json" id="cc-lang">. Keys only PHP prints
+     * (serverKeys()) stay out: the page is lighter and its text checks never match the catalog. */
     public static function bootTag(): string
     {
         if (self::$booted || self::$cur === null) return '';
         self::$booted = true;
-        $data = ['locale' => self::$cur['locale'], 'chain' => self::$cur['chain'], 'strings' => (object)self::$cur['strings']];
+        $strings = array_diff_key(self::$cur['strings'], self::serverKeys());
+        $data = ['locale' => self::$cur['locale'], 'chain' => self::$cur['chain'], 'strings' => (object)$strings];
         $json = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         return '<script type="application/json" id="cc-lang">' . $json . '</script>';
     }

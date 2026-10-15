@@ -160,6 +160,11 @@ export const VERSIONS = { AC1015: 'R2000', AC1018: 'R2004', AC1021: 'R2007', AC1
  *   damaged   (any entity) the error text when the object could only be read in part
  *
  * Blocks and block records also carry trueName (dynamic block name from xdata AcDbDynamicBlockTrueName[2]).
+ * Dynamic blocks (0.5 DB.2, dynblock-read.js; docs/DWG-DYNAMIC-BLOCKS.md): a definition block has `dynamic` { graph,
+ * params [{ node, kind, handle, name, … visibility: label, point, grip, all, states [{ name, entities, elements }] }],
+ * actions [{ node, kind, handle, name }] }; a reference's copy has `dynamicOf` (the definition's record); an INSERT of
+ * a dynamic block has `dyn` { def, values [{ node, kind, data, …decoded }], state? }. A "*U" record owning a graph is the
+ * definition and is named by its true name. Entities hidden in a block's visibility state keep `invisible: true`.
  *
  * @typedef {Object} Block
  * @property {string} name

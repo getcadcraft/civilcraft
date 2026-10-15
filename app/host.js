@@ -66,6 +66,14 @@
  * (host.control.tool), Settings › Assistants turns them on (host.control.configure), and Studio's requests reach them through
  * the desktop bridge or Studio's window channel. createControlRelay() is Studio's side. See the section near the end.
  *
+ * Studio Live (0.5 LV.5, session live-core; docs/LIVE-PROTOCOL.md): host.live — the app hands over its adapter and gets a
+ * LiveClient (live-client.js, loaded on first use); the transport is picked here. See the section near the end.
+ *
+ * Who is signed in (0.5 SI.9, session live-studio): host.account() → { name, avatar } or null, and an 'account' event when
+ * it becomes known or changes. The site's app pages embed it (#cc-account: the display name and /avatar/<id>, never the
+ * email); Studio and the desktop apps read the shell's account (the name; in Studio also the picture the hub keeps, as a
+ * blob: URL). Apps use the name as the author of what people make (markups, issues, live sessions) instead of asking.
+ *
  * The start screen's list (0.4 item 1.4): put <div data-recent-files></div> (optionally data-max="8") on the app's start
  * screen. getHost() fills it with the files it can reopen (handles in Chromium, paths on the desktop), newest first; a
  * click reopens the file and hands it to the app through onOpenFiles(), like a file opened at launch — so the app needs
@@ -357,6 +365,47 @@ class Host {
     this.openHandlers = [];
     this.wireLaunch();
     this.control = makeControl(this);   // assistants and scripts (W2.14; below)
+    this.live = makeLive(this);         // Studio Live (0.5 LV.5; below)
+    this.wireAccount();                 // who is signed in (0.5 SI.9)
+  }
+
+  /** { name, avatar } of the signed-in person, or null (signed out, or not known yet: listen for 'account'). */
+  account() { return this.acct || null; }
+
+  wireAccount() {
+    this.acct = null;
+    try {
+      const n = this.doc && this.doc.getElementById && this.doc.getElementById('cc-account');
+      const j = n ? JSON.parse(n.textContent || 'null') : null;
+      const name = j && typeof j.name === 'string' ? j.name.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 80) : '';
+      if (name) this.acct = { name, avatar: typeof j.avatar === 'string' && /^\/avatar\/\d+(\?v=\d+)?$/.test(j.avatar) ? j.avatar : null };
+    } catch { this.acct = null; }
+    if (this.acct) { const a = this.acct; Promise.resolve().then(() => this.emit('account', a)); return; }
+    const acc = this.desktop && this.desktop.account;
+    if (!acc || typeof acc.status !== 'function') return;
+    const read = () => acc.status().then((s) => {
+      const u = s && s.state === 'signed_in' && s.user ? s.user : null;
+      const name = u ? (String(u.name || '').trim() || String(u.email || '').split('@')[0]).replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, 80) : '';
+      const next = name ? { name, avatar: this.studioPicture() } : null;
+      if (JSON.stringify(next) !== JSON.stringify(this.acct)) { this.acct = next; this.emit('account', next); }
+    }).catch(() => {});
+    read();
+    // A new sign-in, a new name or picture on the website: read again when the window comes forward.
+    if (this.win && this.win.addEventListener) this.win.addEventListener('focus', read);
+  }
+
+  /** Studio: the picture the hub keeps (studio/hub/avatar.js, the hub's checked bytes) as a blob: URL; else null. */
+  studioPicture() {
+    try {
+      if (!this.desktop || !this.desktop.windows || !this.win || !this.win.localStorage) return null;
+      const j = JSON.parse(this.win.localStorage.getItem('cadcraft.studio.avatar') || 'null');
+      if (!j || typeof j.big !== 'string' || !j.at) return null;
+      if (this.pic && this.pic.at === j.at) return this.pic.url;
+      const bytes = Uint8Array.from(atob(j.big), (c) => c.charCodeAt(0));
+      if (this.pic) URL.revokeObjectURL(this.pic.url);
+      this.pic = { at: j.at, url: URL.createObjectURL(new Blob([bytes], { type: 'image/webp' })) };
+      return this.pic.url;
+    } catch { return null; }
   }
 
   get caps() {
@@ -845,6 +894,8 @@ export function createDispatcher(opts = {}) {
 //   host.control.sessions()           assistants connected now: [{id, client, startedAt, lastAt}]
 //   host.control.disconnect(id?)      end one session (or all); its next request is refused (-32002)
 //   host.control.log                  the activity log (last 500 calls; AGENTS-SPEC §4)
+//   host.control.acting               the session whose edit / save / export call is running now, else null (Studio Live
+//                                     sends its edits on that assistant's own session client, LV.18)
 //   await host.control.handle(message, sessionId)   → the JSON-RPC answer (what the transports call)
 //
 // The desktop bridge (optional members of bridge v1): cadcraftDesktop.control = { onMessage((message, reply, sessionId) => …),
@@ -857,7 +908,7 @@ const CONNECTED_MS = 10 * 60 * 1000;   // a session counts as connected this lon
 const ACTIVE_MS = 60 * 1000;           // … or after its last call
 
 function makeControl(host) {
-  const st = { enabled: false, groups: ['read'], title: host.app, version: 'dev', info: null, undo: null, busy: null, channel: null };
+  const st = { enabled: false, groups: ['read'], title: host.app, version: 'dev', info: null, undo: null, busy: null, channel: null, acting: [] };
   const log = [];
   const ev = new Map();
   const emit = (type, detail) => { for (const fn of ev.get(type) || []) { try { fn(detail); } catch { /* a listener */ } } };
@@ -908,7 +959,13 @@ function makeControl(host) {
         return { jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: st.title + ' is in the middle of ' + doing + ' (the person is working). Try again when it is done.' }], isError: true } };
       }
     }
-    const answer = await d.handle(message, s);
+    // An edit (save, export) call running: whose it is, while it runs (LV.18). Calls may overlap: the newest one counts.
+    const call = message && (message.method === 'tools/call' || message.method === 'tools.call') ? d.get(message.params && message.params.name) : null;
+    const acting = call && call.group !== 'read' ? { id: s.id } : null;
+    if (acting) st.acting.push(acting);
+    let answer;
+    try { answer = await d.handle(message, s); }
+    finally { if (acting) st.acting = st.acting.filter((x) => x !== acting); }
     if (s.client === null && message && message.method === 'initialize' && message.params && message.params.clientInfo) emit('change', 'connect');
     return answer;
   }
@@ -978,6 +1035,7 @@ function makeControl(host) {
     get enabled() { return st.enabled; },
     get groups() { return [...st.groups]; },
     get title() { return st.title; },
+    get acting() { return st.acting.length ? st.acting[st.acting.length - 1].id : null; },
     get log() { return log.slice(); },
     clearLog() { log.length = 0; emit('change', 'log'); },
     sessions: connected,
@@ -1297,6 +1355,150 @@ export function mountRecent(host, root) {
   host.on('recent', () => { render(); });
   render();
   return render;
+}
+
+// ------------------------------------------------------------------ Studio Live: host.live (0.5 LV.5)
+// Owner of this section: session live-core (docs/LIVE-PROTOCOL.md; the client is live-client.js, copied beside this file).
+// The app never sees the network (spec § 3): it passes its adapter (spec § 4) and gets a connected LiveClient back.
+//   host.live.available()   → { studio, page }: Studio's bridge is here / this page was served by a host on the LAN (LV.12)
+//   await host.live.join({ adapter, name, device?, code | link | url, hash?, proof? })   → LiveClient (a joiner)
+//   await host.live.start({ adapter, name, role? })   → the host's own window (or the replica) on Studio's in-process channel
+//   host.live.pageCode()     → the short code a browser joiner's link carried (`…/apps/<slug>/#live=K7-Q4M2X`, the QR on
+//                              the host's screen), taken out of the address bar; null when there is none
+//   host.live.client         → the LiveClient now running here, or null
+//   host.live.on(fn)         → called with the client when one starts, and with null when it ends
+//   await host.live.assistant({ person, name?, device? })   → LV.18: a second LiveClient in this window for an assistant
+//                              connected here, joining as its own session client (role `assistant`; the host approves it,
+//                              the host's own at once) with a one-time key `person` (this window's client) asks for; the
+//                              same way in as the person's. null when the session gives no key (a viewer, too many).
+// Transports, in order: Studio's bridge (window.cadcraftDesktop.live.transport(kind, opts) → a live-client transport;
+// Studio's app pages come from Studio's own origin, which Chromium-based webviews don't let open sockets to LAN addresses),
+// an explicit `url`, else this page's own host (`ws://<host>/live`) when the page came from a live host.
+// Codes and links need live-crypto.js (session live-relay) and the @noble import-map entries in the build's manifest.
+// Studio's bridge may also bring `signIn(aud)` (the joiner's signed-in name, LV.19; `opts.signIn` wins) and `startFrom(state)`
+// (this window becomes the host when the host hands the session over, LV.17); after a handoff the client reaches the new host
+// through the bridge's 'join' transport, else a WebSocket.
+function makeLive(host) {
+  const st = { client: null, fns: new Set(), lib: null, crypto: null };
+  const lib = async () => st.lib || (st.lib = await import('./live-client.js'));
+  const bridge = () => (host.desktop && host.desktop.live && typeof host.desktop.live.transport === 'function' ? host.desktop.live : null);
+  const pageHost = () => {
+    const w = host.win;
+    return w && w.location && w.location.protocol === 'http:' && w.document && w.document.querySelector && w.document.querySelector('meta[name="cc-live"]') ? w.location.host : null;
+  };
+  const set = (c) => {
+    st.client = c;
+    for (const fn of st.fns) { try { fn(c); } catch { /* a listener */ } }
+    if (c) c.on('status', ({ status }) => { if (c.final && st.client === c) set(null); });
+  };
+  const assistant = async ({ person, name = '', device = '' } = {}) => {
+    // After a host handoff the way in has changed (the new host's addresses): the assistant then works through its person's
+    // connection, as before LV.18.
+    if (!person || person.final || person.person || person.relocated || !['host', 'editor'].includes(person.role)) return null;
+    const key = await person.requestAssistant();
+    if (!key) return null;
+    const L = await lib();
+    const b = bridge();
+    const app = person.adapter && person.adapter.app, schema = person.adapter && person.adapter.schema;
+    const local = person.o.role === 'host';   // the host's window: in-process, as the host's own
+    let transport = null;
+    if (b) transport = b.transport(local ? 'local' : 'join', { url: person.joinUrl, app, schema });
+    else if (person.joinUrl) transport = L.webSocketTransport(person.joinUrl);
+    if (!transport) return null;
+    const secure = !local && person.secure && !(b && b.encrypts);
+    const loadCrypto = async () => st.crypto || (st.crypto = await import('./live-crypto.js'));
+    const crypto = secure ? await loadCrypto() : null;
+    const a = new L.LiveClient({ transport, person, assistantKey: key, name: String(name || '').slice(0, 80), device, secure, crypto, loadCrypto,
+      relocate: (url) => (b ? b.transport('join', { url, app, schema }) : L.webSocketTransport(url)) });
+    person.linkAssistant(a);
+    // The person leaves or the session ends: the assistant's client goes too.
+    person.on('status', () => { if (person.final && !a.final) a.leave(); });
+    a.connect();
+    return a;
+  };
+  const run = async (opts, kind) => {
+    if (st.client && !st.client.final) throw new Error('A live session is already running in this window.');
+    const L = await lib();
+    const b = bridge();
+    let transport = null;
+    const app = opts.adapter && opts.adapter.app, schema = opts.adapter && opts.adapter.schema;
+    if (b) transport = b.transport(kind, { code: opts.code, link: opts.link, url: opts.url, app, schema });
+    else if (opts.url) transport = L.webSocketTransport(opts.url);
+    else if (kind === 'join' && pageHost()) transport = L.webSocketTransport('ws://' + pageHost() + '/live');
+    if (!transport) throw new Error('No way to reach a live session from here.');
+    const secure = kind === 'join' && !!(opts.code || opts.link) && !(b && b.encrypts);
+    const loadCrypto = async () => st.crypto || (st.crypto = await import('./live-crypto.js'));
+    const crypto = secure ? await loadCrypto() : null;
+    const signIn = typeof opts.signIn === 'function' ? opts.signIn
+      : kind === 'join' && b && typeof b.signIn === 'function' ? (aud) => b.signIn(aud) : undefined;
+    const takeOver = b && typeof b.startFrom === 'function' ? async (state) => {
+      const s = await b.startFrom(state);
+      return s && s.running ? { addrs: s.addrs || [], port: s.port, transport: b.transport('local', { app, schema }) } : null;
+    } : undefined;
+    const c = new L.LiveClient({
+      transport, adapter: opts.adapter, name: opts.name || '', device: opts.device || '', hash: opts.hash, proof: opts.proof,
+      code: opts.code, link: opts.link, secure, crypto, role: kind === 'join' ? undefined : (opts.role || 'host'),
+      signIn, loadCrypto, takeOver, relocate: (url) => (b ? b.transport('join', { url, app, schema }) : L.webSocketTransport(url)),
+      roomUrl: typeof opts.roomUrl === 'function' ? opts.roomUrl : undefined, newRoom: typeof opts.newRoom === 'function' ? opts.newRoom : undefined,
+    });
+    // A browser page on the old host's LAN address whose session moved somewhere it can't reach: say where it went (LV.17).
+    if (!b && kind === 'join') c.on('status', ({ status, reason, moved }) => { if (status === 'lost' && reason === 'moved') movedNotice(host, c, moved); });
+    // Where an assistant's own client (LV.18) reaches the same session: the URL this one used.
+    c.joinUrl = opts.url || (kind === 'join' && pageHost() ? 'ws://' + pageHost() + '/live' : '');
+    set(c);
+    c.connect();
+    return c;
+  };
+  const pageCode = () => {
+    const w = host.win;
+    if (!w || !w.location || !pageHost()) return null;
+    const m = /(?:^#|&)live=([0-9A-Za-z-]{7,9})(?:&|$)/.exec(w.location.hash || '');
+    if (!m) return null;
+    // The code stays out of the address bar (and so out of history, bookmarks and screenshots).
+    try { w.history.replaceState(null, '', w.location.pathname + w.location.search); } catch { /* no history */ }
+    return m[1].toUpperCase();
+  };
+  return {
+    available: () => ({ studio: !!bridge(), page: !!pageHost() }),
+    pageCode,
+    join: (opts) => run(opts, 'join'),
+    start: (opts) => run(opts, 'local'),
+    assistant,
+    get client() { return st.client; },
+    on(fn) { st.fns.add(fn); return () => st.fns.delete(fn); },
+  };
+}
+
+/** The session moved and this page can't follow (LIVE-PROTOCOL § 4.7): a small notice with the new host's page, if any. */
+function movedNotice(host, c, moved) {
+  const d = host.doc;
+  if (!d || !d.body || d.querySelector('[data-live-moved]')) return;
+  const W = (k, v, en) => { const x = T(k, v); return x === k ? en : x; };   // English when the shell's words aren't loaded
+  let who = '';
+  for (const p of c.peers.values()) if (moved && p.c === moved.host) who = p.name || '';
+  who = who || W('shell.live.moved.someone', {}, 'another person');
+  const addr = moved && Array.isArray(moved.addrs) ? moved.addrs.map(String).find((a) => /^[0-9.]+$/.test(a)) : null;
+  const slug = host.app || (c.adapter && c.adapter.app) || '';
+  const link = addr && moved.port && /^[a-z]+$/.test(slug) ? `http://${addr}:${Number(moved.port)}/apps/${slug}/` : '';
+  const box = d.createElement('div');
+  box.setAttribute('role', 'alert'); box.setAttribute('data-live-moved', '');
+  box.style.cssText = 'position:fixed;left:50%;top:4rem;transform:translateX(-50%);z-index:2147483000;max-width:32rem;padding:1rem 1.25rem;background:var(--sheet,#fff);color:var(--ink,#111);border:2px solid var(--ink,#111);font:inherit';
+  const h = d.createElement('strong'); h.textContent = W('shell.live.moved.title', {}, 'The live session moved');
+  const p1 = d.createElement('p'); p1.textContent = W('shell.live.moved.text', { host: who }, `The host handed the session over to ${who}'s Studio, which this page can't reach. Your copy stays here, unsaved: save it to keep it.`);
+  box.append(h, p1);
+  if (link) {
+    // The sentence with {link} as a real link: text before, the link, text after (never HTML from a string).
+    const full = W('shell.live.moved.link', { link: '\u0000', host: who }, `To join again, open \u0000 and ask ${who} for a new code.`);
+    const [before, after = ''] = full.split('\u0000');
+    const p2 = d.createElement('p'); const a = d.createElement('a');
+    a.href = link; a.textContent = link; a.rel = 'noopener';
+    p2.append(before, a, after);
+    box.append(p2);
+  }
+  const x = d.createElement('button'); x.type = 'button'; x.textContent = W('shell.live.moved.close', {}, 'Close');
+  x.addEventListener('click', () => box.remove());
+  box.append(x);
+  d.body.append(box);
 }
 
 const hosts = new Map();

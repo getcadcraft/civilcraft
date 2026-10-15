@@ -134,7 +134,7 @@ export class Camera {
   fit(bb, dir = null) {
     const d = norm(dir || sub(this.eye, this.target));
     const c = bb ? mul(add(bb.min, bb.max), 0.5) : [0, 0, 0];
-    const r = bb ? Math.max(dist(bb.min, bb.max) / 2, 0.5) : 5;
+    const r = bb ? Math.max(dist(bb.min, bb.max) / 2, 0.01) : 5;
     const fovMin = Math.min(this.fov, this.fov * this.aspect) * Math.PI / 360;
     const dd = (r / Math.sin(fovMin)) * 1.08;
     this.target = c;

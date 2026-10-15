@@ -348,7 +348,7 @@ try {
     const gl = v.view.renderer.getContext(), px = new Uint8Array(4);
     const times = [];
     for (let k = 0; k < 6; k++) { v.cam.orbit(25, 3); t0 = performance.now(); v.view.draw(); gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); times.push(performance.now() - t0); }
-    return { tris, build, frame: times.slice(1).reduce((a, b) => a + b, 0) / (times.length - 1), meshes: v.view.root.children.filter((o) => o.isMesh).length };
+    return { tris, build, frame: times.slice(1).reduce((a, b) => a + b, 0) / (times.length - 1), meshes: v.view.root.children.filter((o) => o.isMesh && o.name !== 'labels').length };   // the labels' mesh (0.5 WL.22) is not a surface
   });
   ok(big.tris >= 100000, `${big.tris} surface triangles in the 3D view`);
   ok(big.meshes === 1, 'one BufferGeometry for the surface');

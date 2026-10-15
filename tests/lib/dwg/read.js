@@ -10,10 +10,12 @@
  *     raw: also return model._records (every decoded record by handle) for tests.
  */
 
+import { msg } from './messages.js';
 import { readContainer, SENTINELS, UnsupportedDwg } from './container-read.js';
 import { BitReader, codepageDecoder, readMC, readMCu, mod, DwgReadError } from './bits-read.js';
 import { decodeHeaderVars } from './header-vars.js';
 import { decodeObject, stringStreamStart } from './objects-read.js';
+import { readDynamic } from './dynblock-read.js';   // 0.5 DB.2: dynamic blocks (after the model is built)
 import { crc8 } from './crc.js';
 import { newModel, handleHex, lineweightFromIndex, transparencyFromWord } from './model.js';
 import { captureRaw } from './passthrough.js';
@@ -36,7 +38,7 @@ export function readDwg(bytes, opts = {}) {
     if (opts.strict) throw e;
     model.version = String.fromCharCode(...bytes.subarray(0, 6)).replace(/[^\x20-\x7e]/g, '?');
     model.report.error = e.message;
-    notes.push(e instanceof UnsupportedDwg ? e.message : 'Could not open the file: ' + e.message);
+    notes.push(e instanceof UnsupportedDwg ? e.message : msg('ccdwg.open.failed', { reason: e.message }));
     return model;
   }
   model.version = c.version;
@@ -44,7 +46,7 @@ export function readDwg(bytes, opts = {}) {
   notes.push(...c.notes);
   const cp = codepageDecoder(c.codepageNum);
   model.codepage = cp.name;
-  if (!cp.known) notes.push('Code page ' + c.codepageNum + ' (' + cp.name + ') is decoded as ANSI_1252.');
+  if (!cp.known) notes.push(msg('ccdwg.read.codepage', { num: c.codepageNum, name: cp.name }));
   const ver = c.ver;
   const ctx = { ver, maint: c.maintenance, decode: cp.decode, classes: new Map(), strict: !!opts.strict, notes };
 
@@ -53,7 +55,7 @@ export function readDwg(bytes, opts = {}) {
     model.header = readHeaderSection(c.sections['AcDb:Header'], ctx);
   } catch (e) {
     if (opts.strict) throw e;
-    notes.push('Header variables could not be read: ' + e.message);
+    notes.push(msg('ccdwg.read.header_failed', { reason: e.message }));
   }
   model.header.ACADVER = c.version;
   model.header.ACADMAINTVER = c.maintenance;
@@ -81,7 +83,7 @@ export function readDwg(bytes, opts = {}) {
     for (const k of model.classes) ctx.classes.set(k.num, k);
   } catch (e) {
     if (opts.strict) throw e;
-    notes.push('Classes could not be read: ' + e.message);
+    notes.push(msg('ccdwg.read.classes_failed', { reason: e.message }));
   }
 
   // ---- object map (ch. 23) and objects (ch. 20)
@@ -89,7 +91,7 @@ export function readDwg(bytes, opts = {}) {
   try { map = readObjectMap(c.sections['AcDb:Handles'], ctx); }
   catch (e) {
     if (opts.strict) throw e;
-    notes.push('Object map could not be read: ' + e.message);
+    notes.push(msg('ccdwg.read.map_failed', { reason: e.message }));
     map = new Map();
   }
   const objs = c.sections['AcDb:AcDbObjects'];
@@ -104,12 +106,12 @@ export function readDwg(bytes, opts = {}) {
       } catch (e) {
         if (opts.strict) throw e;
         damaged++;
-        if (damaged <= 20) notes.push('Object ' + handleHex(handle) + ' could not be read: ' + e.message);
+        if (damaged <= 20) notes.push(msg('ccdwg.read.object_failed', { handle: handleHex(handle), reason: e.message }));
         continue;
       }
       if (rec.handle !== handle) {
         damaged++;
-        if (damaged <= 20) notes.push('Object map entry ' + handleHex(handle) + ' points at object ' + handleHex(rec.handle) + '.');
+        if (damaged <= 20) notes.push(msg('ccdwg.read.map_entry', { handle: handleHex(handle), other: handleHex(rec.handle) }));
         continue;
       }
       if (rec._crcBad) crcBad++;
@@ -119,13 +121,14 @@ export function readDwg(bytes, opts = {}) {
       }
       records.set(handle, rec);
     }
-  } else notes.push('The file has no objects section.');
-  if (damaged > 20) notes.push('… ' + (damaged - 20) + ' more objects could not be read.');
-  if (crcBad) notes.push(crcBad + ' object' + (crcBad === 1 ? '' : 's') + ' failed the CRC check (read anyway).');
-  for (const [t, n] of Object.entries(damagedTypes)) notes.push(n + ' ' + t + ' object' + (n === 1 ? '' : 's') + ' could only be read in part.');
+  } else notes.push(msg('ccdwg.read.no_objects'));
+  if (damaged > 20) notes.push(msg('ccdwg.read.more_failed', { n: damaged - 20 }));
+  if (crcBad) notes.push(msg('ccdwg.read.crc_failed', { n: crcBad }));
+  for (const [t, n] of Object.entries(damagedTypes)) notes.push(msg('ccdwg.read.partial_type', { n, type: t }));
   if (ver >= 27) attachDataStorage(records, c.sections['AcDb:AcDsPrototype_1b'], notes);   // builder S: ch. 24 ACIS data
 
   buildModel(model, records, ctx);
+  try { readDynamic(model); } catch { /* never stops a read: the blocks stay as they are drawn */ }
   if (opts.raw) model._records = records;
   const t1 = typeof performance !== 'undefined' ? performance.now() : Date.now();
   model.report.ms = Math.round(t1 - t0);
@@ -135,8 +138,8 @@ export function readDwg(bytes, opts = {}) {
 
 // ---------------------------------------------------------------- ch. 9 header section
 function readHeaderSection(sec, ctx) {
-  if (!sec) throw new Error('no AcDb:Header section');
-  if (!sameBytes(sec, 0, SENTINELS.header)) ctx.notes.push('Header section sentinel is missing.');
+  if (!sec) throw new Error(msg('ccdwg.err.no_header'));
+  if (!sameBytes(sec, 0, SENTINELS.header)) ctx.notes.push(msg('ccdwg.read.header_sentinel'));
   const d = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
   const size = d.getUint32(16, true);
   let p = 20;
@@ -145,11 +148,11 @@ function readHeaderSection(sec, ctx) {
   // AutoCAD R2010 files with maintenance 2 do not have it (civil_example-imperial.dwg), maintenance 226 do.
   if (ver >= 24 && (ctx.maint > 3 || ver >= 32)) p += 4;
   const dataEnd = Math.min(sec.length, p + size);
-  if (crc8(0xC0C1, sec, 16, dataEnd) !== d.getUint16(dataEnd, true)) ctx.notes.push('Header section CRC does not match.');
+  if (crc8(0xC0C1, sec, 16, dataEnd) !== d.getUint16(dataEnd, true)) ctx.notes.push(msg('ccdwg.read.header_crc'));
   if (ver < 21) {
     const r = new BitReader(sec, { version: ver, decode: ctx.decode, startBit: p * 8, endBit: dataEnd * 8 });
     const { vars, error } = decodeHeaderVars(r, ver);
-    if (error) ctx.notes.push('Header variables stop early: ' + error);
+    if (error) ctx.notes.push(msg('ccdwg.read.header_early', { reason: error }));
     return vars;
   }
   // R2007+: RL size in bits (counted from that RL), then data; strings in a string stream that ends at
@@ -163,21 +166,21 @@ function readHeaderSection(sec, ctx) {
   r.str = s;
   const hr = new BitReader(sec, { version: ver, decode: ctx.decode, startBit: endbit, endBit: dataEnd * 8 });
   const { vars, error } = decodeHeaderVars(r, ver, { handles: hr });
-  if (error) ctx.notes.push('Header variables stop early: ' + error);
+  if (error) ctx.notes.push(msg('ccdwg.read.header_early', { reason: error }));
   return vars;
 }
 
 // ---------------------------------------------------------------- ch. 10 classes
 function readClassesSection(sec, ctx) {
-  if (!sec) throw new Error('no AcDb:Classes section');
-  if (!sameBytes(sec, 0, SENTINELS.classes)) ctx.notes.push('Classes section sentinel is missing.');
+  if (!sec) throw new Error(msg('ccdwg.err.no_classes'));
+  if (!sameBytes(sec, 0, SENTINELS.classes)) ctx.notes.push(msg('ccdwg.read.classes_sentinel'));
   const d = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
   const size = d.getUint32(16, true);
   const ver = ctx.ver;
   let p = 20;
   if (ver >= 24 && (ctx.maint > 3 || ver >= 32)) p += 4;
   const dataEnd = Math.min(sec.length, p + size);
-  if (crc8(0xC0C1, sec, 16, dataEnd) !== d.getUint16(dataEnd, true)) ctx.notes.push('Classes section CRC does not match.');
+  if (crc8(0xC0C1, sec, 16, dataEnd) !== d.getUint16(dataEnd, true)) ctx.notes.push(msg('ccdwg.read.classes_crc'));
   let r, endbit = dataEnd * 8;
   if (ver >= 21) {
     const bits = d.getUint32(p, true);
@@ -196,7 +199,7 @@ function readClassesSection(sec, ctx) {
     const itemClass = r.BS();
     k.isEntity = itemClass === 0x1F2;
     if (ver >= 18) { k.instanceCount = r.BL(); k.dwgVersion = r.BS(); k.maintVersion = r.BS(); r.BL(); r.BL(); }
-    if (k.num < 500 || k.num > 5000) { ctx.notes.push('Class list stops at an unexpected class number ' + k.num + '.'); break; }
+    if (k.num < 500 || k.num > 5000) { ctx.notes.push(msg('ccdwg.read.class_number', { num: k.num })); break; }
     out.push(k);
     if (k.num >= maxNum) break;
   }
@@ -205,7 +208,7 @@ function readClassesSection(sec, ctx) {
 
 // ---------------------------------------------------------------- ch. 23 object map
 function readObjectMap(sec, ctx) {
-  if (!sec) throw new Error('no AcDb:Handles section');
+  if (!sec) throw new Error(msg('ccdwg.err.no_handles'));
   const map = new Map();
   let p = 0, bad = 0;
   // Spec gap: 23.1 says "last handle"/"last loc" start at 0 once; in files each page starts again from 0
@@ -214,7 +217,7 @@ function readObjectMap(sec, ctx) {
     const size = (sec[p] << 8) | sec[p + 1];
     if (size <= 2) break;
     const end = p + size;
-    if (end + 2 > sec.length) { ctx.notes.push('Object map is cut short.'); break; }
+    if (end + 2 > sec.length) { ctx.notes.push(msg('ccdwg.read.map_short')); break; }
     const crc = (sec[end] << 8) | sec[end + 1];
     if (crc8(0xC0C1, sec, p, end) !== crc) bad++;
     let q = p + 2, h = 0, loc = 0;
@@ -225,7 +228,7 @@ function readObjectMap(sec, ctx) {
     }
     p = end + 2;
   }
-  if (bad) ctx.notes.push(bad + ' object map page' + (bad === 1 ? '' : 's') + ' failed the CRC check.');
+  if (bad) ctx.notes.push(msg('ccdwg.read.map_crc', { n: bad }));
   return map;
 }
 
@@ -255,8 +258,8 @@ function b64(u8) {
 function buildModel(model, records, ctx) {
   const buildErrors = { n: 0 };
   try { buildModelParts(model, records, ctx, buildErrors); }
-  catch (err) { model.report.notes.push('The drawing could only be assembled in part: ' + err.message); }
-  if (buildErrors.n) model.report.notes.push(buildErrors.n + ' damaged object' + (buildErrors.n === 1 ? '' : 's') + ' kept with only their common data.');
+  catch (err) { model.report.notes.push(msg('ccdwg.read.assembled_part', { reason: err.message })); }
+  if (buildErrors.n) model.report.notes.push(msg('ccdwg.read.kept_common', { n: buildErrors.n }));
 }
 function buildModelParts(model, records, ctx, buildErrors) {
   const ver = ctx.ver, H = model.header, rep = model.report;
@@ -317,13 +320,24 @@ function buildModelParts(model, records, ctx, buildErrors) {
   // real name in xdata AcDbDynamicBlockTrueName2; it gets its name back (as the ODA File Converter does).
   // (AcDbDynamicBlockTrueName — no "2" — marks the anonymous copy a dynamic block reference uses: that
   // block stays "*U…", its trueName is reported.) Spec gap: xdata conventions, found by experiment.
+  // A "*U" record that owns an evaluation graph (xdictionary entry ACAD_ENHANCEDBLOCK) is the dynamic block's
+  // definition itself, stored anonymous with AcDbDynamicBlockTrueName (no "2"): it takes its true name too (the ODA File
+  // Converter's DXF names it so; its copies are the "*B"/"*U" records without a graph). Spec gap: found on AutoCAD's
+  // blocks-and-tables sample (docs/DWG-DYNAMIC-BLOCKS.md). A name already used by another record is not taken.
+  const ownsGraph = (r) => {
+    const d = r._h && r._h.xdic ? get(r._h.xdic) : null;
+    return !!(d && d.names && d.names.includes('ACAD_ENHANCEDBLOCK'));
+  };
+  const usedNames = new Set();
+  for (const r of records.values()) if (r.type === 'BLOCK_HEADER' && r.name && !/^\*/.test(r.name)) usedNames.add(String(r.name).toUpperCase());
   for (const r of records.values()) {
     if (r.type !== 'BLOCK_HEADER' || !r._eed || !/^\*U/i.test(r.name)) continue;
     for (const x of r._eed) {
       const app = appName(x.app);
       if ((app === 'AcDbDynamicBlockTrueName2' || app === 'AcDbDynamicBlockTrueName') && x.items[0] && x.items[0][0] === 1000) {
         r._trueName = x.items[0][1];
-        if (app === 'AcDbDynamicBlockTrueName2') { r._storedName = r.name; r.name = r._trueName; }
+        const rename = app === 'AcDbDynamicBlockTrueName2' || (ownsGraph(r) && r._trueName && !usedNames.has(String(r._trueName).toUpperCase()));
+        if (rename) { r._storedName = r.name; r.name = r._trueName; usedNames.add(String(r.name).toUpperCase()); }
       }
     }
   }
@@ -685,7 +699,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
     counts[countType(e)] = (counts[countType(e)] || 0) + 1;
     orphans++;
   }
-  if (orphans) rep.notes.push(orphans + ' entit' + (orphans === 1 ? 'y was' : 'ies were') + ' not linked from their block and were added at its end.');
+  if (orphans) rep.notes.push(msg('ccdwg.read.orphans', { n: orphans }));
 
   // ---- layouts
   for (const r of records.values()) {

@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+dstv/bin/
+dstv/.toolchain/
+dstv/*/bin/
+dstv/*/obj/
+dstv/*/target/

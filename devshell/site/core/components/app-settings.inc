@@ -39,7 +39,7 @@ if (!empty($__build['is_dev'])) $__langs[Lang::PSEUDO] = Lang::t('shell.settings
 $__lang_cookie = isset($_COOKIE[Lang::COOKIE]) ? (string)$_COOKIE[Lang::COOKIE] : '';
 $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
 ?>
-<dialog class="shell-settings" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?> aria-labelledby="shell-settings-h">
+<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?> aria-labelledby="shell-settings-h">
   <form method="dialog" class="shell-dlg">
     <div class="shell-dlg-head">
       <h2 id="shell-settings-h"><?= Lang::e('shell.settings.title', $__an) ?></h2>
@@ -55,6 +55,12 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
       <?php if ($__own_settings): ?>
         <section class="shell-pane" id="shell-pane-app" role="tabpanel" aria-labelledby="shell-tab-app" data-settings-pane="app">
           <p class="shell-hint-text shell-pane-lede"><?= Lang::e('shell.settings.app_only', $__an) ?></p>
+          <?php if (AppBuilds::input($__build)): /* menus, keys and mouse (0.5 track IP): assets/js/app-input-ui.js fills it */ ?>
+          <fieldset class="shell-set shell-set-wide" data-input-set>
+            <legend><?= Lang::e('shell.input.legend') ?></legend>
+            <div data-input-settings><p class="shell-hint-text"><?= Lang::e('shell.input.loading') ?></p></div>
+          </fieldset>
+          <?php endif; ?>
           <?php require $__own_settings; ?>
         </section>
       <?php endif; ?>
@@ -109,6 +115,13 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
           <label><input type="radio" name="tb" value="labels"> <i class="bi bi-fonts" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.labels') ?></label>
         </div>
         <label class="shell-check" data-tb-groups-row><input type="checkbox" name="tbGroups"> <?= Lang::e('shell.settings.tb.groups') ?></label>
+        <div data-tb-touch-row hidden>
+          <p class="shell-hint-text mb-1" id="shell-tb-touch-l"><?= Lang::e('shell.settings.tb.touch') ?></p>
+          <div class="shell-seg" role="radiogroup" aria-labelledby="shell-tb-touch-l">
+            <label><input type="radio" name="tbTouch" value="row"> <i class="bi bi-arrow-left-right" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.touch.row') ?></label>
+            <label><input type="radio" name="tbTouch" value="wrap"> <i class="bi bi-text-wrap" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.touch.wrap') ?></label>
+          </div>
+        </div>
         <div class="shell-btns">
           <button type="button" class="btn-line btn-sm-cc" data-tb-arrange><i class="bi bi-arrows-move" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.arrange') ?></button>
           <button type="button" class="btn-line btn-sm-cc" data-tb-order-reset><?= Lang::e('shell.settings.tb.original') ?></button>

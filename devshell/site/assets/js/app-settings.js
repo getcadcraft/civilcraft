@@ -14,6 +14,7 @@
  *                 switching). Full screen needs a gesture, so it starts on the first click or key press
  *                 outside a control; "autohide" hides the bars in the window right away.
  *   tb, tbGroups  toolbar buttons: icons and labels / icons only / labels only; group names on or off
+ *   tbTouch       on a touch screen (html.cc-touch, app-phone.js): the toolbar is one row that swipes ('row') or wraps ('wrap')
  *   order         toolbar order: "Arrange the toolbar…" lets tools be dragged within their group and
  *                 groups by their name (arrow keys move the focused one). Saved as keys (data-* of each
  *                 item, aria-label of each group); new items keep their place, gone ones are ignored.
@@ -37,7 +38,7 @@
   var root = document.documentElement;
   var form = dlg.querySelector('form');
   var KEY = 'cc-app-settings:' + dlg.getAttribute('data-app');
-  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, order: null, tab: 'app' };
+  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', order: null, tab: 'app' };
   var MIN_W = 10, MAX_W = 40, MIN_STAGE = 20;   // rem
   function T(k, v) { return window.ccShellT ? window.ccShellT(k, v) : k; }
 
@@ -54,6 +55,7 @@
       if (['normal', 'full', 'autohide'].indexOf(v.screen) !== -1) out.screen = v.screen;
       if (['both', 'icons', 'labels'].indexOf(v.tb) !== -1) out.tb = v.tb;
       if (typeof v.tbGroups === 'boolean') out.tbGroups = v.tbGroups;
+      if (v.tbTouch === 'row' || v.tbTouch === 'wrap') out.tbTouch = v.tbTouch;
       if (v.order && typeof v.order === 'object') out.order = v.order;
       if (v.tab === 'app' || v.tab === 'general') out.tab = v.tab;
     } catch (e) {}
@@ -342,6 +344,7 @@
     if (!tb) return;
     body.setAttribute('data-shell-tb', s.tb);
     body.classList.toggle('shell-tb-nogroups', !s.tbGroups);
+    body.setAttribute('data-shell-tb-touch', s.tbTouch);
     relayoutSoon();
   }
 
@@ -569,6 +572,9 @@
     tbSet.hidden = !tb;
     form.querySelectorAll('input[name="tb"]').forEach(function (r) { r.checked = r.value === s.tb; });
     form.elements.tbGroups.checked = s.tbGroups;
+    form.querySelectorAll('input[name="tbTouch"]').forEach(function (r) { r.checked = r.value === s.tbTouch; });
+    var touchRow = form.querySelector('[data-tb-touch-row]');
+    if (touchRow) { var coarse = false; try { coarse = matchMedia('(pointer: coarse)').matches; } catch (e) {} touchRow.hidden = !coarse; }   // i18n-ignore (CSS)
     form.querySelector('[data-tb-arrange]').disabled = !!tb && (tb.hidden || tb.offsetParent === null);
     form.querySelector('[data-tb-groups-row]').hidden = !groupsOf().length;
   }
@@ -619,6 +625,7 @@
     else if (t.name === 'screen') { s.screen = t.value; save(); }
     else if (t.name === 'tb') { s.tb = t.value; applyTb(); save(); }
     else if (t.name === 'tbGroups') { s.tbGroups = t.checked; applyTb(); save(); }
+    else if (t.name === 'tbTouch') { s.tbTouch = t.value; applyTb(); save(); }
     else if (t.name === 'left' || t.name === 'right') { setWidth(t.name, parseFloat(t.value), true); }
     else if (t.name === 'lang') setLang(t.value);
   });

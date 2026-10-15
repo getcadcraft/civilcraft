@@ -6,7 +6,11 @@ order: 10
 keywords: switching, migrate, familiar, differences, workflow, commands, mapping, cogo, corridor, grading, pipe network, styles, command line
 ---
 
-If you have used Civil 3D, you already know the ideas in CivilCraft: points and point groups, TIN surfaces with breaklines and boundaries, alignments by PI, profiles by PVI, assemblies swept into corridors, grading to daylight, gravity pipe networks, LandXML. What is different is almost everything around them: there is no drawing file, no command line, no styles, no Prospector and no settings dialogs. CivilCraft is a small, focused tool in a browser, and in this build it does a fraction of what a full civil package does. This page maps what you know to what is here.
+If you have used Civil 3D, you already know the ideas in CivilCraft: points and point groups, TIN surfaces with breaklines and boundaries, alignments by PI, profiles by PVI, assemblies swept into corridors, grading to daylight, gravity pipe networks, LandXML. What is different is almost everything around them: there is no drawing file, no command line (unless you pick the {{ui:Drafting classic}} menu style), no styles, no Prospector and no settings dialogs. CivilCraft is a small, focused tool in a browser, and in this build it does a fraction of what a full civil package does. This page maps what you know to what is here.
+
+:::tip
+If you like the ribbon of Civil 3D, pick the {{ui:Civil ribbon}} menu style in {{ui:Settings}} › {{ui:CivilCraft}} › {{ui:Menus, keys and mouse}}: Home, Surfaces, Modify, Geolocation, View and Output tabs, the middle button pans, and {{key:Shift}} with the middle button orbits the 3D view. If you type commands, {{ui:Drafting classic}} adds a command line (ALIGNMENT, PAD, PROFILE, ZOOM …). See [Menus, keys and mouse](topic:menus-keys-and-mouse).
+:::
 
 ## Workflow map
 

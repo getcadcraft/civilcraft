@@ -3,7 +3,7 @@ title: Design a vertical profile
 summary: Open the profile view, start a design profile from the ground, add and drag PVIs, set vertical curve lengths, and read grades, K values and high and low points.
 section: tasks
 order: 50
-keywords: profile, vertical alignment, pvi, vertical curve, grade, k value, crest, sag, bvc, evc, profile view, finished grade, fg, existing ground profile
+keywords: profile, vertical alignment, pvi, vertical curve, grade, k value, crest, sag, bvc, evc, profile view, finished grade, fg, existing ground profile, feature lines in profile, crossings, projected, curb, ditch, labels
 ---
 
 Each alignment has one design profile: a list of PVIs (station and elevation) joined by straight grades, with a symmetric parabolic vertical curve at any interior PVI that has a length. The existing ground profile is sampled from the surface for you.
@@ -48,13 +48,25 @@ The first and last PVI never take a curve.
 
 K is worked out from L (K = L divided by the algebraic difference in grades, in percent). You type L; typing K directly is not available yet.
 
-If curves overlap, a red box says which: "The vertical curve at PVI 3 (L = 300.00) starts before the curve or PVI before it ends." or "… runs past the next PVI." Shorten the curve or move the PVIs apart.
+If a vertical curve does not fit, a red box says why: it runs back into the PVI or curve before it, or past the next PVI, and how much room there is on that side (a curve needs half its length on each side of its PVI). Its button sets **the longest curve that fits**, with its K, as one step ({{key:Mod+Z}} undoes it). Or move the PVIs apart.
 
 ## Read the facts
 
 Under the PVI table, a list gives each grade in percent ("Grade 1: +1.25%") and each curve, for example "Crest at 2+00.00: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)", then "High point 1+62.40, 254.12".
 
 If the PVIs do not reach both ends of the alignment, a note says so. A corridor is built only where the profile and alignment overlap.
+
+## Feature lines in the profile
+
+Feature lines show in the profile view too, so you can see a curb, a ditch or a wall top against the road's profile.
+
+- Where a feature line **crosses** the alignment, the profile shows a small diamond at that station and elevation, labelled with the line's name and its elevation there (the line's own elevation, worked out along the segment that crosses).
+- Type a distance in {{ui:Alongside within}} to also draw the feature lines that **run beside** the alignment within that distance, as dashed lines at their own elevations. Empty or 0 shows only the crossings.
+- The marks and labels follow every change: move a vertex, type a grade or raise the line, and the profile shows the new elevations at once.
+- Click a crossing's diamond to select that feature line; the selected line is drawn in the highlight color.
+- {{ui:Feature lines}} in the profile bar hides or shows them all. Both settings are saved with the project.
+
+See [Feature lines](topic:feature-lines).
 
 ## Next
 

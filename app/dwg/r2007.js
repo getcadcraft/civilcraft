@@ -14,6 +14,7 @@
  *   (1,0,1,1,1,0,0,0) as the x^0..x^7 coefficients, x^8 implied)
  */
 
+import { msg } from './messages.js';
 import { UnsupportedDwg, plausibleSize } from './container-util.js';
 
 // ---------------------------------------------------------------- GF(256) and Reed-Solomon (5.13)
@@ -211,7 +212,7 @@ export function decompressR21(src, from, len, outSize) {
     instr();
     for (;;) {
       let s = op - offset;
-      if (s < 0) throw new Error('R2007 LZ back-reference before the start');
+      if (s < 0) throw new Error(msg('ccdwg.err.r2007_lz'));
       for (let i = 0; i < count && op < outSize; i++) out[op++] = out[s++];
       length = oc & 7;
       if (length !== 0 || ip >= end) break;
@@ -235,13 +236,13 @@ export function readR2007Container(b, version, ver) {
   const maintenance = b[0x0B];
   const codepageNum = d0.getUint16(0x13, true);
   const security = d0.getUint32(0x18, true);
-  if (security & 1) notes.push('The drawing is password-protected (encrypted data); its sections cannot be read.');
-  if (b.length < 0x480) throw new UnsupportedDwg('R2007 file too short');
+  if (security & 1) notes.push(msg('ccdwg.read.password'));
+  if (b.length < 0x480) throw new UnsupportedDwg(msg('ccdwg.open.r2007_short'));
   // 5.2 file header: 0x3D8 bytes RS (255,239) interleaved over 3 blocks
   const stats = { bad: 0, corrected: 0 };
   const hdr = deinterleave(b, 0x80, 3, 239, true, stats);
-  if (stats.bad) notes.push('The R2007 file header has uncorrectable errors.');
-  else if (stats.corrected) notes.push('Corrected ' + stats.corrected + ' damaged byte(s) in the file header.');
+  if (stats.bad) notes.push(msg('ccdwg.read.r2007_header_bad'));
+  else if (stats.corrected) notes.push(msg('ccdwg.read.r2007_corrected', { n: stats.corrected }));
   const hd = dv(hdr);
   const comprLen = hd.getInt32(0x18, true);
   let fh;
@@ -255,7 +256,7 @@ export function readR2007Container(b, version, ver) {
     sectionsMapCorrection: u64(f, 0xD8),
   };
   // page map (system page)
-  const pm = loadSysPage(b, 0x480 + H.pagesMapOffset, H.pagesMapSizeComp, H.pagesMapSizeUncomp, H.pagesMapCorrection, notes, 'page map');
+  const pm = loadSysPage(b, 0x480 + H.pagesMapOffset, H.pagesMapSizeComp, H.pagesMapSizeUncomp, H.pagesMapCorrection, notes, msg('ccdwg.part.page_map'));
   const pmd = dv(pm);
   const pages = new Map();
   let offset = 0;
@@ -265,8 +266,8 @@ export function readR2007Container(b, version, ver) {
     offset += size;
   }
   const smPage = pages.get(H.sectionsMapId);
-  if (!smPage) throw new UnsupportedDwg('damaged R2007 file: no section map page');
-  const sm = loadSysPage(b, 0x480 + smPage.offset, H.sectionsMapSizeComp, H.sectionsMapSizeUncomp, H.sectionsMapCorrection, notes, 'section map');
+  if (!smPage) throw new UnsupportedDwg(msg('ccdwg.open.r2007_no_section_map'));
+  const sm = loadSysPage(b, 0x480 + smPage.offset, H.sectionsMapSizeComp, H.sectionsMapSizeUncomp, H.sectionsMapCorrection, notes, msg('ccdwg.part.section_map'));
   const sd = dv(sm);
   const sections = {};
   let p = 0;
@@ -286,10 +287,10 @@ export function readR2007Container(b, version, ver) {
       p += 56;
     }
     if (!name) continue;
-    if (encryption === 1) { notes.push('Section ' + name + ' is encrypted and was skipped.'); continue; }
+    if (encryption === 1) { notes.push(msg('ccdwg.read.section_encrypted', { name })); continue; }
     try {
       sections[name] = readDataSection21(b, pages, list, dataSize, maxSize, encoding, name, notes);
-    } catch (e) { notes.push('Section ' + name + ' could not be read: ' + e.message); }
+    } catch (e) { notes.push(msg('ccdwg.read.section_failed', { name, reason: e.message })); }
   }
   return { version, ver, maintenance, codepageNum, notes, sections, objectsAbsolute: false };
 }
@@ -299,10 +300,10 @@ function loadSysPage(b, at, csize, usize, factor, notes, what) {
   plausibleSize(usize, b.length); plausibleSize(csize * factor, b.length);
   const aligned = (csize + 7) & ~7;
   const blocks = Math.ceil((aligned * factor) / 239);
-  if (at + blocks * 255 > b.length) throw new UnsupportedDwg('damaged R2007 file: the ' + what + ' lies past the end');
+  if (at + blocks * 255 > b.length) throw new UnsupportedDwg(msg('ccdwg.open.r2007_past_end', { what }));
   const stats = { bad: 0, corrected: 0 };
   const data = deinterleave(b, at, blocks, 239, true, stats);
-  if (stats.bad) notes.push('The ' + what + ' has uncorrectable errors.');
+  if (stats.bad) notes.push(msg('ccdwg.read.uncorrectable', { what }));
   if (csize < usize) return decompressR21(data, 0, csize, usize);
   return data.slice(0, usize);
 }
@@ -331,6 +332,6 @@ function readDataSection21(b, pages, list, size, maxSize, encoding, name, notes)
     else out.set(page, start);
     pos = start + page.length;
   }
-  if (bad) notes.push(bad + ' page' + (bad === 1 ? '' : 's') + ' of ' + name + ' could not be found.');
+  if (bad) notes.push(msg('ccdwg.read.pages_missing', { n: bad, name }));
   return out;
 }

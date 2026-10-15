@@ -1,9 +1,9 @@
 ---
 title: Open a DWG or DXF as linework
-summary: Open a drawing's linework on the plan, layer by layer, and use its contours, 3D polylines and closed outlines for the surface.
+summary: Open a drawing's linework on the plan, layer by layer, use its contours, 3D polylines and closed outlines for the surface, and turn its point blocks into survey points.
 section: tasks
 order: 22
-keywords: dwg, dxf, cad, drawing, linework, contours, breaklines, boundary, polyline, 3d polyline, layers, base map, topo, survey drawing
+keywords: dwg, dxf, cad, drawing, linework, contours, breaklines, boundary, polyline, 3d polyline, layers, base map, topo, survey drawing, blocks, block references, survey points from blocks, attributes, point blocks, insertion point
 ---
 
 A topographic survey often arrives as a drawing: contours as polylines at their elevation, breaklines as 3D polylines, the site outline as a closed polyline. CivilCraft opens the drawing's **model space** as layers on the plan, and can turn those lines straight into the surface.
@@ -27,6 +27,16 @@ A topographic survey often arrives as a drawing: contours as polylines at their 
 | Lines at elevation 0 (plan linework) | Nothing: it stays on the plan as a base drawing |
 
 Later, use {{ui:Use for the surface}} in the layer's menu under **GIS layers** to do the same for a layer you only showed.
+
+## Survey points from blocks
+
+Survey drawings often carry their points as blocks: a small symbol at each shot, with attributes for the point number, the description and the elevation. When the drawing has block references, the dialog has a **Survey points from blocks** section:
+
+1. Tick the blocks to take (the table says how many references each has, on which layers, and which attributes), or tick layers to take every block reference on them.
+2. Choose where each point's **number**, **description** and **elevation** come from: an attribute, the block's or the layer's name, the next free numbers, or the insertion point's Z. CivilCraft starts on the likely attributes (PT, DESC, ELEV and similar), and takes the elevation from an attribute only when the blocks sit at zero.
+3. Untick the linework layers if you only want the points, then click {{ui:Add}}.
+
+Each reference becomes one survey point at its insertion point. Only references placed in model space count; blocks nested inside other blocks do not. Numbers already in the project, or used twice in the drawing, get new numbers after the highest, and an elevation attribute that is not a number leaves that point without an elevation; the status line counts both. The drawing is never changed, and each point remembers its block: its Properties show **From block** with the block, layer and handle. Adding the points is one step, so {{key:Mod+Z}} takes them all away.
 
 ## How the drawing is read
 
