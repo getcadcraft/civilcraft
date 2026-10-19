@@ -56,6 +56,7 @@ Pressing the key of the active tool again goes back to {{ui:Select}}. Letters wi
 |---|---|
 | {{key:Enter}} | Finish the alignment, pad, pipe run, breakline or boundary |
 | {{key:Backspace}} | Remove the last point clicked |
+| {{key:C}} | Feature line: turn arcs on or off (after a vertex, click a point on the curve, then its end) |
 | {{key:Esc}} | Cancel the drawing (or the paste); pressed again (or with nothing drawn), go back to {{ui:Select}} and clear the selection |
 
 ## Plan view

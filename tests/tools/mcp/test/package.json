@@ -1,0 +1,11 @@
+{
+  "name": "cadcraft-mcp-tests",
+  "private": true,
+  "type": "module",
+  "description": "Test-only packages for bin/test-agents.mjs: the official MCP SDK client and the MCP inspector (never shipped).",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "@modelcontextprotocol/inspector": "2.8.0"
+  }
+}

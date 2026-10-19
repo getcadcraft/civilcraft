@@ -1093,7 +1093,7 @@
     }, 1000);
     if (!mosOn) {
       mosOn = [new MutationObserver(syncTheme), new MutationObserver(syncZoom), new MutationObserver(syncZoom)];
-      mosOn[0].observe(root, { attributes: true, attributeFilter: ['data-space'] });
+      mosOn[0].observe(root, { attributes: true, attributeFilter: ['data-space', 'class', 'style'] });   // + the interface size (0.6 DF.28)
       mosOn[1].observe(main, { attributes: true, attributeFilter: ['style'] });
       mosOn[2].observe(body, { attributes: true, attributeFilter: ['class'] });
     }
@@ -1105,6 +1105,10 @@
     openWins().forEach(function (n) {
       var de = winOf(n).document.documentElement;
       if (sp) de.setAttribute('data-space', sp); else de.removeAttribute('data-space');
+      // 0.6 DF.28: the interface size (app-settings.js: --shell-ui + html.shell-ui-sized) follows into the panels windows
+      var ui = root.style.getPropertyValue('--shell-ui');
+      if (ui) de.style.setProperty('--shell-ui', ui); else de.style.removeProperty('--shell-ui');
+      de.classList.toggle('shell-ui-sized', root.classList.contains('shell-ui-sized'));
     });
   }
   function syncZoom() {

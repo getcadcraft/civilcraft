@@ -20,6 +20,6 @@ and the help. Do not suggest that your version is made or endorsed by The Data D
 
 ## Other names
 
-CadCraft and the CadCraft logo are trademarks of The Data Design Group, Inc. AutoCAD, Revit and Civil 3D are registered trademarks of Autodesk, Inc. SketchUp and Tekla are trademarks of Trimble Inc. Bluebeam is a trademark of Bluebeam, Inc. PlanSwift is a trademark of ConstructConnect. SolidWorks is a registered trademark of Dassault Systèmes. CadCraft is independent and not affiliated with or endorsed by any of them.
+CadCraft and the CadCraft logo are trademarks of The Data Design Group, Inc. AutoCAD, Revit and Civil 3D are registered trademarks of Autodesk, Inc. SketchUp and Tekla are trademarks of Trimble Inc. Bluebeam is a trademark of Bluebeam, Inc. PlanSwift is a trademark of ConstructConnect. SolidWorks is a registered trademark of Dassault Systèmes. All other company and product names, logos and brands are the property of their respective owners and are used only to identify their products. CadCraft is independent and not affiliated with, sponsored by or endorsed by any of them.
 
 Questions about the names: https://getcadcraft.com/support

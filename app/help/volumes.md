@@ -22,6 +22,12 @@ The **Earthwork** block shows:
 
 Volumes are in cubic yards in a feet project and cubic metres in a metre project.
 
+## Send them to TakeoffCraft
+
+To price the earthwork, choose {{ui:Send to TakeoffCraft}} at the foot of the **Earthwork** block. CivilCraft saves a quantities file (`<site>.quantities.json`) with two quantities: cut and fill, in cubic yards (feet project) or cubic metres (metre project), the same numbers as the block, to the hundredth. Open it in TakeoffCraft with **Open takeoff**, or drop it there: they become two items you can price ([Cut and fill from CivilCraft](app:takeoffcraft/earthwork#cut-and-fill-from-civilcraft)). Send again after a change and open the new file: the same items take the new numbers.
+
+Only the totals are sent, so nothing is counted twice; the file's note lists each pad's and corridor's own cut and fill.
+
 ## How they are worked out
 
 CivilCraft uses the **grid method**:

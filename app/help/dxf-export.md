@@ -33,7 +33,8 @@ Coordinates are written in your project units, at their real values (state plane
 | Corridor edges | Polylines | C-ROAD-CORR |
 | Sample lines | Polylines | C-ROAD-SCTN |
 | Pads, daylight lines, slope lines | Polylines | C-GRAD-PADS, C-GRAD-DAYL, C-GRAD-SLOP |
-| Feature lines | 3D polylines | C-GRAD-FEAT |
+| Feature lines | 3D polylines (arcs as pieces within 0.01; see [Feature lines](topic:feature-lines)) | C-GRAD-FEAT |
+| Swept paths | Polylines, text | C-ROAD-SWPT |
 | Pipes, structures, labels | Polylines, text | C-STRM-PIPE, C-STRM-STRC, C-STRM-TEXT |
 | Pipes and structures with problems | Polylines | C-STRM-PROB |
 

@@ -16,6 +16,14 @@
  *   a rebase); apply must skip ops on objects that don't exist (a refused create's dependants).
  * - onLocalChange(cb): the app reports each finished step as cb({ label, ops, inverse }) after applying it itself.
  *
+ * The edit log (0.6 DC.23, session studio-extra_PART_2): every commit this window applies is noted — who (the commit's
+ * author `c`, named from the people list at that moment), what (its label), which keys it wrote (not its reads), and when
+ * (this window's clock; null for commits decided before this connection was welcomed: a log catch-up or a rejoin, so their
+ * time is unknown). `editLog({ limit, keys })` → newest first; `lastEdit(key)` / `lastEditOf(keys)` → who changed it last.
+ * Kept in memory only, for this session: never written to the file, storage or the network. A snapshot joiner's log starts
+ * at its snapshot (`editsBefore()` says whether edits came before it); a rejoin that needed a snapshot leaves a `gap` entry
+ * and forgets the last authors (edits were missed).
+ *
  * Assistants as their own clients (0.5 LV.18, final sweep): an assistant connected to a person's window (Studio's control
  * channel) joins the session as a second LiveClient in that window — `new LiveClient({ person, assistantKey, … })`, made by
  * host.live.assistant() with a one-time key the person's client asked for (`requestAssistant()`). Both share ONE model,
@@ -259,6 +267,7 @@ export function webSocketTransport(url, WS = globalThis.WebSocket) {
 }
 
 const keyOf = (k, f) => k + '\u0000' + f;
+const EDIT_LOG_MAX = 2000, EDIT_KEYS_MAX = 50;   // DC.23: entries kept; keys kept per entry (the rest counted in `more`)
 
 export class LiveClient {
   /**
@@ -279,6 +288,7 @@ export class LiveClient {
     this.o = opts;
     this.person = opts.person || null;           // LV.18: this client is that person's assistant (shares its model)
     this.assistants = new Set();                 // LV.18: on a person's client, its assistants' clients
+    this.limit = null;                           // the host's: the session's people limit {max (0 = none), default} (DEC-2-5)
     this.route = null;                           // LV.18: (step | {undo}) → an assistant's client to take it, or null
     this.adapter = this.person ? assistantAdapter(this.person.adapter) : opts.adapter;
     this.now = opts.now || (() => (globalThis.performance ? performance.now() : Date.now()));
@@ -298,6 +308,10 @@ export class LiveClient {
     this.redoStack = [];
     this.revs = new Map();         // key → seq of its last write
     this.propRevs = new Map();     // key\0field → [seq, client]
+    this.edits = [];               // DC.23 edit log, oldest first: {q, c, name, of, label, keys[], more, at}; memory only
+    this.lastEdits = new Map();    // DC.23: key → its newest entry in this.edits
+    this.liveFrom = 0;             // DC.23: commits up to this seq were decided before this connection's welcome
+    this.logBase = null;           // DC.23: the seq before the first commit this window logged
     this.peers = new Map();        // c → {c, name, role, via, state}
     this.presence = new Map();     // c → presence
     this.holds = new Map();        // key → c
@@ -577,6 +591,7 @@ export class LiveClient {
       case 'rekey': this.emit('rekey', {}); break;
       // host
       case 'join': this.emit('join', b); break;
+      case 'limit': this.limit = { max: Number(b.max) || 0, default: Number(b.default) || 0 }; this.emit('limit', this.limit); break;
       case 'code': this.emit('code', b); break;
       case 'code-gone': this.emit('code-gone', b); break;
       case 'handover-off': this.emit('handover-off', b); break;
@@ -596,8 +611,10 @@ export class LiveClient {
     const first = !this.everWelcomed;
     this.c = b.c; this.role = b.role; this.prefix = b.prefix; this.token = b.token; this.session = b.session;
     this.saved = b.saved || this.saved;
+    this.liveFrom = m.q || 0;
     this.holds = new Map(Object.entries(b.holds || {}).map(([k, c]) => [k, c]));
     this.locks = new Set(b.locks || []);
+    if (b.limit) this.limit = { max: Number(b.limit.max) || 0, default: Number(b.limit.default) || 0 };   // the host's (DEC-2-5)
     if (first) this.peers = new Map();
     for (const p of b.peers || []) this.peers.set(p.c, Object.assign({ state: 'in' }, p));
     this.welcomed = true; this.everWelcomed = true; this.retryMs = 250; this.move = null;
@@ -651,6 +668,7 @@ export class LiveClient {
       for (let i = this.pending.length - 1; i >= 0; i--) this.pending[i].applied = false;
       this.adapter.load(data, s.q);
       this.q = s.q;
+      this.logGap(s.q);
       this.reapplyPending();
       this.loading = false;
       this.emit('loaded', { q: s.q, bytes: data.length });
@@ -724,6 +742,7 @@ export class LiveClient {
   /** Key versions from a commit's touched list (LIVE-PROTOCOL.md § 6.2). */
   track(cm) {
     this.q = cm.q;
+    this.logEdit(cm);
     for (const t of cm.touched || []) {
       if (t.m === 'r') continue;
       this.revs.set(t.k, cm.q);
@@ -732,6 +751,60 @@ export class LiveClient {
       if (t.m === 'd') { this.myHolds.delete(t.k); }
     }
   }
+
+  // ---- the edit log (DC.23) -------------------------------------------------------------------------------------
+
+  logEdit(cm) {
+    if (this.logBase === null) this.logBase = cm.q - 1;
+    const keys = [];
+    let more = 0;
+    for (const t of cm.touched || []) {
+      if (t.m === 'r' || !t.k || keys.includes(t.k)) continue;
+      if (keys.length < EDIT_KEYS_MAX) keys.push(t.k); else more++;
+    }
+    const p = cm.c === this.c ? null : this.peers.get(cm.c);
+    const name = cm.c === this.c ? String((this.o && this.o.name) || '') : String((p && p.name) || '');
+    const of = p && p.of ? Number(p.of) || 0 : 0;
+    const clock = (this.o && this.o.clock) || Date.now;
+    const e = { q: cm.q, c: cm.c || 0, name, of, label: String(cm.label || ''), keys, more, at: cm.q > this.liveFrom ? clock() : null };
+    this.edits.push(e);
+    for (const k of keys) this.lastEdits.set(k, e);
+    if (this.edits.length > EDIT_LOG_MAX) {
+      const old = this.edits.shift();
+      for (const k of old.keys) if (this.lastEdits.get(k) === old) this.lastEdits.delete(k);
+    }
+  }
+
+  /** A snapshot replaced the document (a rejoin after the log moved on): who changed what before it is no longer known
+   *  here. The log keeps what it had and marks the gap; nobody is named as the last to change a key. */
+  logGap(q) {
+    if (this.logBase === null) { this.logBase = q; return; }
+    this.lastEdits.clear();
+    this.logGaps = (this.logGaps || 0) + 1;
+    this.edits.push({ q, c: 0, name: '', of: 0, label: '', keys: [], more: 0, at: null, gap: true });
+  }
+
+  /** The edit log, newest first: at most `limit` entries; with `keys`, only edits that wrote one of them. */
+  editLog({ limit = 50, keys = null } = {}) {
+    const want = keys ? new Set(keys) : null;
+    const out = [];
+    for (let i = this.edits.length - 1; i >= 0 && out.length < limit; i--) {
+      const e = this.edits[i];
+      if (!want || e.keys.some((k) => want.has(k))) out.push(e);
+    }
+    return out;
+  }
+  /** Who changed this key last in this session, as far as this window saw: an entry of editLog(), or null. */
+  lastEdit(key) { return this.lastEdits.get(key) || null; }
+  /** The newest edit of any of these keys, or null. */
+  lastEditOf(keys) {
+    let best = null;
+    for (const k of keys || []) { const e = this.lastEdits.get(k); if (e && (!best || e.q > best.q)) best = e; }
+    return best;
+  }
+  /** Whether the session had edits this window's log doesn't hold (it joined from a snapshot or a saved file later on, or
+   *  missed some while it was away). */
+  editsBefore() { return this.logBase === null ? this.q > 0 : this.logBase > 0 || !!this.logGaps; }
 
   rollbackPending() {
     for (let i = this.pending.length - 1; i >= 0; i--) {
@@ -975,7 +1048,11 @@ export class LiveClient {
   // ---- host controls ---------------------------------------------------------------------------------------------
 
   approve(c, role = 'editor') { this.send({ t: 'approve', b: { c, role } }); }
-  deny(c) { this.send({ t: 'deny', b: { c } }); }
+  /** `reason: 'full'`: the host keeps the session at its people limit (the joiner is told so); otherwise "host". */
+  deny(c, reason) { this.send({ t: 'deny', b: reason === 'full' ? { c, reason } : { c } }); }
+  /** Host: this session's people limit (DEC-2-5: soft; a knock above it reaches the host marked `over`). 0 = no limit.
+   *  Every host window hears `limit {max, default}` (this.limit, event 'limit'). */
+  setLimit(max) { this.send({ t: 'limit', b: { max: Math.max(0, Math.floor(Number(max) || 0)) } }); }
   remove(c) { this.send({ t: 'remove', b: { c } }); }
   setRole(c, role) { this.send({ t: 'role', b: { c, role } }); }
   lock(keys) { this.send({ t: 'lock', b: { keys } }); }

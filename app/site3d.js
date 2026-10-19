@@ -42,6 +42,8 @@ import { DIA_UNIT } from './pipes.js';
 import { surfaceSection } from './sections.js';   // 0.4 V4: GIS lines draped on the ground (exact at triangle edges)
 import { t } from './i18n.js';
 import { formatStation, fixed } from './units.js';   // 0.5 WL.22 labels
+import { flatten as flattenFeature } from './featureline.js';   // 0.6 WL.24: feature lines with arcs
+import { structGeom } from './structs.js';   // 0.6 WL.27: structure types (outside size, rectangles)
 
 export const SHOW_DEFAULTS = {
   eg: true, fg: true, triangles: false, contours: true, breaklines: true, boundary: true,
@@ -76,7 +78,7 @@ export function siteInput(project) {
     interval: Number(d.interval) || 1, major: Number(d.major) || 5, bandCount: Number(d.bandCount) || 8,
     // 0.4 V5: each breakline knows what it is (picking in 3D): a drawn one (its index), a point group's, or a feature line's
     breaklines: project.egBreaklines().filter((b) => !b.feature).map((b) => ({ ...b, owner: b.fromGroup ? { kind: 'breakline', id: 'group:' + b.name, name: b.name } : { kind: 'breakline', id: 'drawn:' + s.surface.breaklines.indexOf(b), name: b.name } })),
-    features: (s.features || []).map((f) => ({ id: f.id, name: f.name, pts: f.closed ? [...f.pts, f.pts[0]] : f.pts })),   // 0.4 V5
+    features: (s.features || []).map((f) => ({ id: f.id, name: f.name, pts: flattenFeature(f) })),   // 0.4 V5; 0.6 WL.24: arcs in pieces
     alignments: s.alignments.map((a) => ({ id: a.id, name: a.name, alignment: project.alignment(a), profile: project.designProfile(a) })),
     corridors: items.filter((x) => x.kind === 'corridor' && x.lines).map((x) => ({ id: x.id, name: x.name, lines: x.lines })),
     pads: s.pads.map((p) => ({ id: p.id, name: p.name, pts: p.pts, z: Number(p.z), daylight: items.find((x) => x.id === p.id)?.daylight || [] })),
@@ -269,11 +271,15 @@ export function buildSite3D(input, opts = {}) {
       if (!Number.isFinite(rim)) { noRim++; continue; }
       let bottom = info?.sump;
       if (!Number.isFinite(bottom)) bottom = rim - (units === 'm' ? 1.5 : 5);
-      const r = (Number(s.dia) || 0) / per / 2;
+      const g = structGeom(s, net, units);   // 0.6 WL.27: a type gives the outside size; a rectangular one is a box
+      const r = g.type ? g.outW / 2 : (Number(s.dia) || 0) / per / 2;
       if (!(r > 0) || bottom >= rim) continue;
       strB.owner({ kind: 'structure', id: s.id, name: s.name });
       label('structure', s.name, s.x, s.y, rim, C.structure);
-      cylinder(strB, [s.x, s.y, bottom], [s.x, s.y, rim], r, 24, true, L, exag, rgb(bad.has(s.id) ? C.problem : C.structure));
+      if (g.type && g.shape === 'rect') {
+        const out = net.pipes.find((p) => p.from === s.id), to = out && byId.get(out.to), ang = to ? Math.atan2(to.y - s.y, to.x - s.x) : 0;
+        box(strB, s.x, s.y, ang, g.outL / 2, g.outW / 2, bottom, rim, L, exag, rgb(bad.has(s.id) ? C.problem : C.structure));
+      } else cylinder(strB, [s.x, s.y, bottom], [s.x, s.y, rim], r, 24, true, L, exag, rgb(bad.has(s.id) ? C.problem : C.structure));
       scene.counts.structures++;
     }
     if (noInv) notes.push(t('s3.noinv', { n: noInv }));
@@ -504,6 +510,25 @@ function meshBuilder() {
     count() { return owners.length; },
     done() { return { positions: new Float32Array(pos), normals: new Float32Array(nor), colors: new Float32Array(col), indices: new Uint32Array(idx), owners, triOwner: new Uint32Array(triOwner) }; },
   };
+}
+
+/** 0.6 WL.27: an upright box centred on (x, y), turned by ang, half sizes hl (along) × hw (across), from z0 to z1. */
+function box(B, x, y, ang, hl, hw, z0, z1, L, exag, color) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  const P = (a, b, z) => L(x + a * c - b * s, y + a * s + b * c, z);
+  const nrm = (n) => { const m = [n[0], n[1], n[2] / exag], l = Math.hypot(...m) || 1; return m.map((v) => v / l); };
+  const corners = [[-hl, -hw], [hl, -hw], [hl, hw], [-hl, hw]];
+  for (let k = 0; k < 4; k++) {
+    const [a0, b0] = corners[k], [a1, b1] = corners[(k + 1) % 4];
+    const ex = a1 - a0, ey = b1 - b0, el = Math.hypot(ex, ey), nx = ey / el, ny = -ex / el;   // outward (corners run anticlockwise)
+    const n = nrm([nx * c - ny * s, nx * s + ny * c, 0]);
+    const v = [P(a0, b0, z0), P(a1, b1, z0), P(a1, b1, z1), P(a0, b0, z1)].map((p) => B.vert(p, n, color));
+    B.tri(v[0], v[1], v[2]); B.tri(v[0], v[2], v[3]);
+  }
+  for (const [z, up] of [[z0, false], [z1, true]]) {
+    const n = nrm([0, 0, up ? 1 : -1]), v = corners.map(([a, b]) => B.vert(P(a, b, z), n, color));
+    if (up) { B.tri(v[0], v[1], v[2]); B.tri(v[0], v[2], v[3]); } else { B.tri(v[0], v[2], v[1]); B.tri(v[0], v[3], v[2]); }
+  }
 }
 
 /** A cylinder of radius r around the segment a → b (project coordinates, true scale), then mapped by L (local + exaggeration). */

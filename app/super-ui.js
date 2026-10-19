@@ -29,7 +29,7 @@ export function superProps(ctx, a, item) {
   const tbody = el('tbody', { 'data-se-rate': '' });
   cur.rate.forEach(([r, e], i) => {
     const rIn = ctx.numInput(String(r), (v) => { const x = Number(v); if (!(x >= 0) || v === '') return false; set(t('se.undo.rate'), (sp) => { sp.rate[i][0] = x; sp.rate.sort((m, n) => n[0] - m[0]); }); return true; }, { label: t('se.rate.r.of', { n: i + 1 }), width: '6rem' });
-    const eIn = ctx.numInput(e === null ? '' : (e * 100).toFixed(1), (v) => { const s = String(v).trim(); const x = s === '' ? null : Number(s) / 100; if (x !== null && !(x >= 0 && x <= 0.2)) return false; set(t('se.undo.rate'), (sp) => { sp.rate[i][1] = x; }); return true; }, { label: t('se.rate.e.of', { n: i + 1 }), text: true, width: '5rem' });
+    const eIn = ctx.numInput(e === null ? '' : (e * 100).toFixed(1), (v) => { const s = String(v).trim(); const x = s === '' ? null : Number(s) / 100; if (x !== null && !(x >= 0 && x <= 0.2)) return false; set(t('se.undo.rate'), (sp) => { sp.rate[i][1] = x; }); return true; }, { label: t('se.rate.e.of', { n: i + 1 }), text: true, calc: false, width: '5rem' });
     tbody.append(el('tr', {}, el('td', {}, rIn), el('td', {}, eIn),
       el('td', {}, cur.rate.length > 1 ? el('button', { type: 'button', className: 'cv-x', 'aria-label': t('se.rate.remove', { n: i + 1 }), onclick: () => set(t('se.undo.rate'), (sp) => { sp.rate.splice(i, 1); }) }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })) : '')));
   });

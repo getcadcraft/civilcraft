@@ -16,6 +16,7 @@
 
 import { t } from './i18n.js';
 import { formatStation, fixed } from './units.js';
+import { structGeom } from './structs.js';   // 0.6 WL.27: rectangular structure types
 
 export const LAYERS = [
   { name: 'C-TOPO-MINR', token: 'minor', aci: 8, get label() { return t('scene.layer.minr'); } },
@@ -35,7 +36,8 @@ export const LAYERS = [
   { name: 'C-GRAD-PADS', token: 'blue', aci: 5, get label() { return t('scene.layer.pads'); } },
   { name: 'C-GRAD-DAYL', token: 'magenta', aci: 6, get label() { return t('scene.layer.dayl'); } },
   { name: 'C-GRAD-SLOP', token: 'magenta', aci: 6, get label() { return t('scene.layer.gradslop'); } },
-  { name: 'C-GRAD-FEAT', token: 'green', aci: 3, get label() { return t('scene.layer.feat'); } },   // 0.4 V14 feature lines (features-ui.js adds them)
+  { name: 'C-GRAD-FEAT', token: 'green', aci: 3, get label() { return t('scene.layer.feat'); } },
+  { name: 'C-ROAD-SWPT', token: 'orange', aci: 30, get label() { return t('scene.layer.swpt'); } },   // 0.6 WL.28 swept paths (swept-ui.js adds them)   // 0.4 V14 feature lines (features-ui.js adds them)
   { name: 'V-PROP', token: 'ink2', aci: 7, get label() { return t('scene.layer.prop'); } },   // 0.4 V21 parcels (parcels-ui.js adds them)
   { name: 'V-PROP-TEXT', token: 'ink2', aci: 7, get label() { return t('scene.layer.proptext'); } },
   { name: 'C-STRM-PIPE', token: 'blue', aci: 5, get label() { return t('scene.layer.pipe'); } },
@@ -155,7 +157,16 @@ export function planScene(state, { mmPerUnit = 1, show = {} } = {}) {
       if (L < 1e-9) continue;
       const ux = (b.x - a.x) / L, uy = (b.y - a.y) / L;
       // from the edge of one structure to the next
-      const ra = Math.max((a.dia || 0) / per / 2, 1.2 * unitPerMm), rb = Math.max((b.dia || 0) / per / 2, 1.2 * unitPerMm);
+      // 0.6 WL.27: from the structure's centre to its wall along the pipe (a rectangle lies along its outlet pipe)
+      const half = (x, dx, dy) => {
+        const g = structGeom(x, net, u);
+        if (!g.type) return (x.dia || 0) / per / 2;
+        if (g.shape !== 'rect') return g.outW / 2;
+        const out = net.pipes.find((q) => q.from === x.id), to = out && byId.get(out.to), ang = to ? Math.atan2(to.y - x.y, to.x - x.x) : 0;
+        const lx = Math.abs(dx * Math.cos(ang) + dy * Math.sin(ang)), ly = Math.abs(-dx * Math.sin(ang) + dy * Math.cos(ang));
+        return Math.min(lx > 1e-12 ? g.outL / 2 / lx : Infinity, ly > 1e-12 ? g.outW / 2 / ly : Infinity);
+      };
+      const ra = Math.max(half(a, ux, uy), 1.2 * unitPerMm), rb = Math.max(half(b, -ux, -uy), 1.2 * unitPerMm);
       const p0 = { x: a.x + ux * ra, y: a.y + uy * ra }, p1 = { x: b.x - ux * rb, y: b.y - uy * rb };
       items.push({ layer: bad.has(p.id) ? 'C-STRM-PROB' : 'C-STRM-PIPE', kind: 'poly', pts: [p0, p1] });
       // flow arrow at the middle
@@ -170,8 +181,18 @@ export function planScene(state, { mmPerUnit = 1, show = {} } = {}) {
       }
     }
     for (const x of net.structures) {
-      const r = Math.max((x.dia || 0) / per / 2, 1.2 * unitPerMm), pts = [];
-      for (let k = 0; k <= 24; k++) pts.push({ x: x.x + Math.cos(k * Math.PI / 12) * r, y: x.y + Math.sin(k * Math.PI / 12) * r });
+      // 0.6 WL.27: a structure of a rectangular type is drawn as its outside rectangle, square to its outlet pipe
+      const g = structGeom(x, net, u);
+      let r = Math.max((x.dia || 0) / per / 2, 1.2 * unitPerMm), pts = [];
+      if (g.type && g.shape === 'rect') {
+        const out = net.pipes.find((p) => p.from === x.id), to = out && byId.get(out.to), ang = to ? Math.atan2(to.y - x.y, to.x - x.x) : 0;
+        const c = Math.cos(ang), s = Math.sin(ang), hl = Math.max(g.outL / 2, 0.6 * unitPerMm), hw = Math.max(g.outW / 2, 0.6 * unitPerMm);
+        for (const [a, b] of [[-hl, -hw], [hl, -hw], [hl, hw], [-hl, hw]]) pts.push({ x: x.x + a * c - b * s, y: x.y + a * s + b * c });
+        r = Math.hypot(hl, hw);
+      } else {
+        if (g.type) r = Math.max(g.outW / 2, 1.2 * unitPerMm);
+        for (let k = 0; k <= 24; k++) pts.push({ x: x.x + Math.cos(k * Math.PI / 12) * r, y: x.y + Math.sin(k * Math.PI / 12) * r });
+      }
       items.push({ layer: bad.has(x.id) ? 'C-STRM-PROB' : 'C-STRM-STRC', kind: 'poly', pts, closed: true });
       const st = check?.structs.get(x.id);
       items.push({ layer: 'C-STRM-TEXT', kind: 'text', x: x.x + r + 1 * unitPerMm, y: x.y + r, rot: 0, mm: 1.6, align: 'left', text: st?.rim !== null && st?.rim !== undefined ? t('scene.strc.rim', { name: x.name, rim: fixed(st.rim, 2) }) : x.name });
@@ -213,7 +234,7 @@ export function labelsAlong(pts, spacing, minLen) {
 export function toDxfEntities(scene, mmPerUnit) {
   const out = [];
   for (const it of scene.items) {
-    if (it.kind === 'poly') out.push(it.z ? { type: 'poly3d', layer: it.layer, pts: it.pts, closed: it.closed } : { type: 'poly', layer: it.layer, pts: it.pts, closed: it.closed, elev: it.elev || 0 });
+    if (it.kind === 'poly') out.push(it.z ? { type: 'poly3d', layer: it.layer, pts: it.pts, closed: it.closed, ...(it.xdata ? { xdata: it.xdata } : {}) } : { type: 'poly', layer: it.layer, pts: it.pts, closed: it.closed, elev: it.elev || 0 });
     else if (it.kind === 'arc') out.push({ type: 'arc', layer: it.layer, c: it.c, r: it.r, a0: it.a0, a1: it.a1 });
     else if (it.kind === 'point') out.push({ type: 'point', layer: it.layer, x: it.x, y: it.y, z: it.z });
     else if (it.kind === 'text') {

@@ -78,6 +78,7 @@ export default {
   'res.ot.win-awning': 'Awning',
   'res.ot.win-picture': 'Picture window',
   'res.ot.win-transom': 'Transom',
+  'res.ot.win-basement-egress': 'Basement egress with well',   // bimcraft #2 (contributor), brought in 2026-10-17
   // RC.4 countertops
   'res.tool.countertop': 'Countertop',
   'res.tool.countertop.title': 'Put a countertop on a run of base cabinets from the library',
@@ -392,6 +393,7 @@ export default {
   'res.style.device': 'Device',
   'res.style.panel': 'Panel',
   'res.sh.continued': '{title} (continued)',
+  'res.sh.rcp': '{level} ceiling plan',   // 0.6 DC.117 (b), bim-views_PART_2
   // RC.8 TakeoffCraft
   'res.to.button': 'Takeoff',
   'res.to.title': 'The model\'s quantities to TakeoffCraft: a plan of each level with the takeoff inside, the trade packs\' assemblies on the items',
@@ -418,4 +420,13 @@ export default {
   'res.to.sent': 'Sent to TakeoffCraft: {items} items, {marks} marks. Open the takeoff it found in the PDF there.',
   'res.to.saved': 'Downloaded {file}: open it in TakeoffCraft, which finds the takeoff inside.',
   'res.to.failed': 'The takeoff could not be made: {why}',
+  // 0.6 DF.24 (session bim-draw): CivilCraft's LandXML surfaces as the ground
+  'res.err.landxml': 'This file holds no LandXML surface BimCraft can read (a TIN surface with points and faces).',
+  'res.lx.unit': 'Its unit "{unit}" is not one BimCraft knows: read as meters.',
+  'res.lx.surface': 'Surface {n}',
+  'res.lx.notin': '{name} is not a TIN surface: left out.',
+  'res.lx.empty': '{name} has fewer than three points: left out.',
+  'res.lx.choose': 'Which surface is the ground?',
+  'res.lx.option': '{name} ({n} points)',
+  'res.lx.done': 'The ground is {name} from LandXML ({n} points, its own triangles).',
 };

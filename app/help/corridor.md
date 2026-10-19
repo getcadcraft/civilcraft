@@ -3,7 +3,7 @@ title: Sweep a road corridor
 summary: Turn on a corridor for an alignment, set lane, shoulder and side slope values, and read the sections, daylight lines and earthwork it produces.
 section: tasks
 order: 60
-keywords: superelevation, super, banking, runoff, runout, rate table, cross slope, rotation, corridor, assembly, subassembly, typical section, road, lane, shoulder, cross slope, side slope, daylight, cut, fill, sections
+keywords: superelevation, super, banking, runoff, runout, rate table, cross slope, rotation, corridor, assembly, subassembly, typical section, road, lane, shoulder, cross slope, side slope, daylight, cut, fill, sections, target, targets, width target, elevation target, offset target, widening, edge of pavement, follow another corridor
 ---
 
 A corridor sweeps one simple typical section (an assembly) along an alignment and its design profile, grades it into the existing ground and adds the result to the proposed surface. In this build each alignment can carry one corridor, and the assembly is the same on both sides.
@@ -74,6 +74,23 @@ Through a curve the road can tilt toward the inside, so traffic is pushed less t
 
 Sections, volumes, the 3D view and the sheets all show the tilted road. Each change is one step: {{key:Mod+Z}} undoes it.
 
+## Targets
+
+A target moves one point of one side of the road to a line: the **Edge of pavement** or the **Shoulder edge**, on the **Left** or the **Right**. Each section meets the line square to the centerline, going out on that side only, so a target on the right never moves the left side.
+
+| Sets | What happens where a section meets the line |
+|---|---|
+| **Width** | The point sits on the line: the lane (or the shoulder) widens or narrows to it, keeping its cross slope. |
+| **Elevation** | The point takes the line's elevation there, at its own offset: the lane's (or shoulder's) cross slope follows. |
+
+The line can be a feature line (whatever its **Use**) or a line of another corridor: its centerline, edges of pavement, shoulder edges or daylight lines. A corridor's line follows that corridor: change the other road and this one follows. CivilCraft builds the other corridor first; two corridors that would target each other in a loop are refused on one side, and the table says which.
+
+1. Select the alignment and turn its corridor on.
+2. Under **Targets**, click {{ui:Add a target}}.
+3. Choose the **Side**, the **Point**, what it **Sets** and **To the line**. Each change is one undo step.
+
+**Result** says at how many sections the line was reached. Sections that do not reach it (past its ends, or where it is behind the centerline) keep the assembly's values. A line that is deleted leaves the corridor as it was before the target, and the table says so. One side can have one width and one elevation target for each point.
+
 ## What is not built yet
 
-Curb and gutter, sidewalks, widening, different assemblies on each side or along the road, regions and targets are not available yet. See [Not built yet](topic:not-built-yet).
+Curb and gutter, sidewalks, different assemblies on each side or along the road, regions, and targets for the daylight slope are not available yet. See [Not built yet](topic:not-built-yet).

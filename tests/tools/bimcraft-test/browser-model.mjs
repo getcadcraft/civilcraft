@@ -391,6 +391,9 @@ try {
     ok(await page.isVisible('[data-sec-turn]'), 'the section bar offers "Square to the building" (its walls run at 30°)');
     const along = (n) => Math.abs(n.x * Math.cos(Math.PI / 6) - n.z * Math.sin(Math.PI / 6));   // the wall's direction in the viewer: (cos 30°, −sin 30°) in x, z
     const normal = () => page.evaluate(() => { const n = document.querySelector('[data-canvas]').viewer.section.plane.normal; return { x: n.x, y: n.y, z: n.z }; });
+    // 0.6 DC.57: with Settings › A building turned in its site = Square to the building (the default) a new cut starts square
+    ok(along(await normal()) < 1e-6 && await page.getAttribute('[data-sec-turn]', 'aria-pressed') === 'true', 'a new cut starts square to the wall (0.6 DC.57)');
+    await page.click('[data-sec-turn]');
     ok(along(await normal()) > 0.4, 'off: the Front plane cuts the wall at an angle (it runs along the model\'s axes)');
     await page.click('[data-sec-turn]');
     ok(along(await normal()) < 1e-6 && await page.getAttribute('[data-sec-turn]', 'aria-pressed') === 'true' && /turned 30°/.test(await statusOf()), 'on: the Front plane runs square to the wall — "' + await statusOf() + '"');

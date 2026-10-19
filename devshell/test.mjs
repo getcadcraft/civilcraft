@@ -45,7 +45,13 @@ function copyTree(from, to) {
 function link(target, at) {
   fs.mkdirSync(path.dirname(at), { recursive: true });
   try { fs.rmSync(at, { recursive: true, force: true }); } catch {}
-  fs.symlinkSync(path.relative(path.dirname(at), target), at);
+  try { fs.symlinkSync(path.relative(path.dirname(at), target), at); }
+  catch (e) {
+    // Windows without Developer Mode may not make symlinks: a junction for a folder, a copy for a file
+    if (e.code !== 'EPERM' || process.platform !== 'win32') throw e;
+    const abs = path.resolve(path.dirname(at), target);
+    if (fs.statSync(abs).isDirectory()) fs.symlinkSync(abs, at, 'junction'); else fs.copyFileSync(abs, at);
+  }
 }
 
 export function buildMirror() {
@@ -68,8 +74,8 @@ export function buildMirror() {
     fs.mkdirSync(dir, { recursive: true });
     link(dir, path.join(MIRROR, 'public_html/assets/vendor', lib, v.version));
     const cur = path.join(MIRROR, 'public_html/assets/vendor', lib, 'current');   // current → "<version>", as on the site
-    try { fs.rmSync(cur, { force: true }); } catch {}
-    fs.symlinkSync(v.version, cur);
+    try { fs.rmSync(cur, { recursive: true, force: true }); } catch {}
+    link(path.join(path.dirname(cur), v.version), cur);
   }
   if (fs.existsSync(path.join(ROOT, 'fixtures'))) link(path.join(ROOT, 'fixtures'), path.join(MIRROR, 'fixtures'));
   fs.mkdirSync(path.join(MIRROR, 'tmp'), { recursive: true });

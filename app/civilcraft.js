@@ -43,7 +43,7 @@ import { writeDxf } from './dxf.js';
 import { PAPERS, paperBy, scalesFor, fitScale, planSheet, toPdf, sheetWindow } from './plot.js';
 import { PlanView, mix, LABEL_FONT } from './view.js';
 import { ProfileView } from './profile-view.js';
-import { unitOf, formatStation, parseStation, fixed, pct, volumeText, areaText, dms, bearing } from './units.js';
+import { unitOf, formatStation, parseStation, fixed, pct, volumeText, areaText, dms, bearing, isNum, readLength, grouped } from './units.js';
 import { buildProfile } from './profile.js';
 import { polyArea, pointInPoly } from './tin.js';
 import { normAng } from './alignment.js';
@@ -57,10 +57,14 @@ import { t, has } from './i18n.js';
 import { editPoint, movePoint } from './point-edit.js';   // 0.4 V2
 import { createSections } from './sections-ui.js';   // 0.4 V13
 import { createFeatures } from './features-ui.js';   // 0.4 V14
-import { featureProfile } from './featureline.js';   // 0.5 WL.20
+import { featureProfile, bulgeThrough, flatten as flattenFl, cleanFeature } from './featureline.js';   // 0.5 WL.20, 0.6 WL.24
 import { createSheetsDialog } from './pp-ui.js';   // 0.4 V15
 import { createCodes } from './codes-ui.js';   // 0.4 V16
 import { superProps } from './super-ui.js';   // 0.4 V18
+import { targetProps } from './targets-ui.js';   // 0.6 WL.25
+import { cleanType } from './structs.js';   // 0.6 WL.27
+import { createStructs } from './structs-ui.js';   // 0.6 WL.27
+import { createSwept } from './swept-ui.js';   // 0.6 WL.28
 import { createDrainage } from './drainage-ui.js';   // 0.4 V19/V20
 import { createParcels } from './parcels-ui.js';   // 0.4 V21
 import { createTraverse } from './traverse-ui.js';   // 0.4 V22
@@ -68,6 +72,8 @@ import { createStaking } from './staking-ui.js';   // 0.4 V23
 import { getHost } from "./host.js";   // W2.19: files through the host adapter (browser or desktop)
 import { Autosave } from "./app-autosave.js";   // 0.4 1.2
 import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-civilcraft.js)
+import { earthworkFile, QTY_EXT } from './qtyout.js';   // 0.6 TK.5+: cut and fill for TakeoffCraft
+import { createSewer } from './sewer-ui.js';   // 0.6 LC.16 S1: sanitary design flows
 
 const root = document.querySelector('[data-civilcraft]');
 if (root) init(root);
@@ -110,6 +116,8 @@ function init(root) {
     select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); }, command: (c) => command(c), eg: () => eg().surface });
   const drUi = createDrainage({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m),   // 0.4 V19/V20
     select: (x) => { picked.clear(); sel = x; selPvi = -1; refresh(); }, refresh: () => refresh(), tool: (x) => { if (tool !== x) setTool(x); } });
+  const seUi = createSewer({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m),   // 0.6 LC.16 S1
+    select: (x) => { picked.clear(); sel = x; selPvi = -1; refresh(); }, refresh: () => refresh() });
   const pcUi = createParcels({ root, el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m),   // 0.4 V21
     select: (x) => { picked.clear(); sel = x; selPvi = -1; refresh(); }, tool: (x) => { if (tool !== x) setTool(x); }, refocus: () => refocus(),
     download: (name, blob) => download(blob, name), fileStem: () => fileStem() });
@@ -118,13 +126,27 @@ function init(root) {
     afterPoints: (ns) => { picked = new Set(ns); sel = null; selPvi = -1; refresh(); } });
   const skUi = createStaking({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(),   // 0.4 V23
     download: (name, blob) => download(blob, name), fileStem: () => fileStem() });
+  const stUi = createStructs({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(),   // 0.6 WL.27
+    download: (...x) => download(...x), select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); } });
+  const swUi = createSwept({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(),   // 0.6 WL.28
+    select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); }, command: (c) => command(c), redraw: () => view.invalidate() });
   let draftClosed = false;   // 0.4 V14: the Feature line tool closed its line on the first vertex
+  // 0.6 WL.24: arcs in the Feature line tool — C (or the touch bar's Arc) turns arc mode on/off; in it, after a vertex the
+  // next click is a point on the curve (flMid), the click after that ends the arc (the earlier vertex gets its bulge)
+  let flArc = false, flMid = null;
+  function toggleFlArc() {
+    if (tool !== 'feature') return;
+    flArc = !flArc; flMid = null;
+    say(t(flArc ? 'fl.arc.on' : 'fl.arc.off'));
+    root.querySelector('[data-draft-act="arc"]')?.setAttribute('aria-pressed', String(flArc));
+    view.invalidate();
+  }
   // 0.4 V15: plan and profile sheets (pp-ui.js)
   const codesUi = createCodes({ root, el, project: () => project, say: (m) => say(m), refocus: () => refocus() });   // 0.4 V16
   root.querySelector('[data-codes-open]')?.addEventListener('click', () => codesUi.open());
   const ppUi = createSheetsDialog({ root, el, project: () => project, units: () => units(), buildScene: (mm) => buildScene(mm), download: (...x) => download(...x), fileStem: () => fileStem(), say: (m) => say(m), refocus: () => refocus() });
   window.civilcraft = {
-    get project() { return project; }, view, pview, setTool, command, openText, select: (s) => { sel = s; selPvi = -1; refresh(); },
+    get project() { return project; }, view, pview, structs: stUi, swept: swUi, setTool, command, openText, select: (s) => { sel = s; selPvi = -1; refresh(); },
     get tool() { return tool; }, get sel() { return sel; }, get selPvi() { return selPvi; }, get picked() { return [...picked]; },
     pick: (nums) => { picked = new Set(nums.map(String)); sel = null; selPvi = -1; refresh(); }, clip: () => clip || storedClip(), get settings() { return settings; }, toScreen: (x, y) => { const r = ui.over.getBoundingClientRect(), s = view.toScreen(x, y); return { x: r.left + s.x, y: r.top + s.y }; },
     profToScreen: (sta, z) => { const r = ui.prof.getBoundingClientRect(), s = pview.toScreen(sta, z); return { x: r.left + s.x, y: r.top + s.y }; },
@@ -293,6 +315,7 @@ function init(root) {
     }, { mmPerUnit: mm, show: { ...d, pointLabelText: settings.labels } });
     if (d.alignments !== false) scene.items.push(...secUi.sceneItems(s.alignments));   // 0.4 V13 sample lines
     scene.items.push(...flUi.sceneItems());   // 0.4 V14 feature lines
+    scene.items.push(...swUi.sceneItems(1 / mm));   // 0.6 WL.28 swept paths
     scene.items.push(...pcUi.sceneItems(mm));   // 0.4 V21 parcels, their courses and areas
     if (d.points) scene.items.push(...codesUi.sceneItems());   // 0.4 V16 lines from line codes (groups that are not breaklines)
     for (const it of gr.items || []) {   // 0.4 V14: a daylighted feature line's slopes, as a pad's
@@ -363,15 +386,22 @@ function init(root) {
       case 'redo': return project.redoStack.length ? '' : t('cv.redo.none');
       case 'copy': case 'cut': case 'duplicate': return sp ? '' : pts ? needPts : t('cv.edit.no.pts.open');
       case 'paste': case 'paste-in-place': return clip || storedClip() || navigator.clipboard?.readText ? '' : t('cv.edit.no.paste');
-      case 'delete': return selAl() || selPad() || selStruct() || selPipe() || selPvi >= 0 || sp || ['catchment', 'feature', 'parcel'].includes(sel?.kind) ? '' : t('cv.delete.none');
+      case 'delete': return selAl() || selPad() || selStruct() || selPipe() || selPvi >= 0 || sp || ['catchment', 'feature', 'parcel', 'swept'].includes(sel?.kind) ? '' : t('cv.delete.none');
       case 'select-all': return pts ? '' : t('cv.pts.none');
       case 'select-none': return sp || sel || selPvi >= 0 ? '' : t('cv.sel.none');
       default: return '';
     }
   }
   function updateTools() {
+    const hasData = project.points.length || project.state.surface.tin || project.state.alignments.length || project.state.gis?.layers?.length;   // GIS: layers count as data
+    const hasWork = hasData || project.state.pads.length || (project.state.features || []).length;
     for (const b of root.querySelectorAll('[data-cmd]')) {
       const c = b.dataset.cmd;
+      // nothing to save, export, fit or clear yet: greyed out (the Edit buttons below say why in their title)
+      if (c === 'new') b.disabled = !hasWork && !project.dirty;
+      else if (['save', 'landxml', 'dxf', 'dwg', 'pdf', 'gis-export', 'fit', 'view3d'].includes(c)) b.disabled = !hasWork;
+      else if (c === 'breakline' || c === 'boundary') b.disabled = !project.points.length;
+      else if (c === 'profile') b.disabled = !project.state.alignments.length;
       if (['select', 'alignment', 'pad', 'breakline', 'boundary', 'pipe'].includes(c)) b.setAttribute('aria-pressed', String(tool === c));
       if (c === 'feature') b.setAttribute(b.getAttribute('role') === 'menuitemcheckbox' ? 'aria-checked' : 'aria-pressed', String(tool === c));   // 0.4 V14
       if (c === 'profile') b.setAttribute('aria-pressed', String(!ui.profPanel.hidden));
@@ -385,7 +415,6 @@ function init(root) {
       }
     }
     ui.over.classList.toggle('is-select', tool === 'select');
-    const hasData = project.points.length || project.state.surface.tin || project.state.alignments.length || project.state.gis?.layers?.length;   // GIS: layers count as data
     ui.hint.hidden = !!hasData || tool !== 'select';
   }
 
@@ -453,7 +482,8 @@ function init(root) {
     pendingProps = false;
     const a = selAl(), pd = selPad(), st = selStruct(), pp = selPipe();
     if (sel?.kind === 'gis') { for (const f of gisReg.props) if (f(sel, ui.props, ui.propsH)) return; sel = null; }   // GIS: a picked feature
-    if (sel?.kind === 'feature') { const f = flUi.find(sel.id); if (f) { ui.propsH.textContent = t('fl.props.head'); ui.props.replaceChildren(...flUi.props(f)); return; } sel = null; }   // 0.4 V14
+    if (sel?.kind === 'feature') { const f = flUi.find(sel.id); if (f) { ui.propsH.textContent = t('fl.props.head'); ui.props.replaceChildren(...flUi.props(f), el('div', { className: 'cv-actions' }, swUi.button('feature', f.id))); return; } sel = null; }   // 0.4 V14; 0.6 WL.28
+    if (sel?.kind === 'swept') { const w = swUi.find(sel.id); if (w) { ui.propsH.textContent = t('sw.head'); ui.props.replaceChildren(...swUi.props(w)); return; } sel = null; }   // 0.6 WL.28
     if (sel?.kind === 'parcel') { const pc = pcUi.find(sel.id); if (pc) { ui.propsH.textContent = t('pc.props.head'); ui.props.replaceChildren(...pcUi.props(pc), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.4 V21
     if (sel?.kind === 'catchment') { if (drUi.find(sel.id)) { ui.propsH.textContent = t('dr.c.head'); ui.props.replaceChildren(...drUi.props(drUi.find(sel.id)), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.4 V19
     if (sel && !a && !pd && !st && !pp) sel = null;
@@ -468,15 +498,28 @@ function init(root) {
   let pendingProps = false;
   ui.props.addEventListener('focusout', () => setTimeout(() => { if (pendingProps && !ui.props.contains(ui.props.ownerDocument.activeElement)) renderProps(); }, 0));
 
-  function numInput(value, onCommit, { label, step = 'any', min, id, text = false, width } = {}) {
-    const inp = el('input', { type: text ? 'text' : 'number', className: 'cv-input', step: text ? undefined : step, min, value: value ?? '', 'aria-label': label, id, inputMode: text ? 'decimal' : undefined, style: width ? 'width:' + width : undefined });
+  // 0.6 DF.3: every number box is a text box (a number box can't hold "4+7/16"); what is not a plain number is read as a
+  // length or a sum of lengths in the project's units (units.js readLength) and the box shows the result. `calc: false`
+  // for boxes that are not lengths (grades in %, arc radius words, point numbers and descriptions), `station: true` for
+  // stations ("10+00" is a station, never a sum)
+  function numInput(value, onCommit, { label, id, text = false, width, calc = true, station = false } = {}) {
+    void text;   // (kept for the callers: every box is text now)
+    const inp = el('input', { type: 'text', className: 'cv-input', value: value ?? '', 'aria-label': label, id, inputMode: 'decimal', style: width ? 'width:' + width : undefined });
     // Enter commits at once (a synthetic change); the browser's own change when the box then loses focus must not commit
     // the same text again — "Raise 2" would raise twice (0.5: found by the WL.20 browser test)
     let entered = null;
     inp.addEventListener('change', (e) => {
       if (e.isTrusted && entered !== null && inp.value === entered) { entered = null; return; }
       entered = e.isTrusted ? null : inp.value;
-      if (onCommit(inp.value) === false) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid');
+      let v = inp.value;
+      if (calc && !station && v.trim() !== '' && !isNum(v)) {
+        const r = readLength(v, units());
+        if (!r.ok) { inp.setAttribute('aria-invalid', 'true'); say(r.error); return; }
+        v = String(Number(r.value.toFixed(9)));
+        inp.value = v;
+        if (entered !== null) entered = v;
+      }
+      if (onCommit(v) === false) inp.setAttribute('aria-invalid', 'true'); else inp.removeAttribute('aria-invalid');
     });
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.dispatchEvent(new Event('change')); } });
     return inp;
@@ -516,7 +559,16 @@ function init(root) {
       el('dt', {}, t('cv.ew.net')), el('dd', {}, Math.abs(net) < 1e-9 ? volumeText(Math.abs(net), s.units) : t(net > 0 ? 'cv.ew.net.fill' : 'cv.ew.net.cut', { v: volumeText(Math.abs(net), s.units) }))));
     if (v.items?.length > 1) wrap.append(el('ul', { className: 'cv-plainlist cv-note' }, ...v.items.map((it) => el('li', {}, t('cv.ew.item', { name: it.name, cut: volumeText(it.cut, s.units), fill: volumeText(it.fill, s.units) })))));
     wrap.append(el('p', { className: 'cv-note' }, t('cv.ew.grid', { n: v.cells, cells: num(v.cells), cell: fixed(v.cell, 3).replace(/\.?0+$/, ''), u: u().short })));
+    wrap.append(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'cv-linkbtn', dataset: { qtySend: '' }, title: t('cv.qty.send.title'), onclick: sendEarthwork }, el('i', { className: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' }), ' ', t('cv.qty.send'))));
     return wrap;
+  }
+  /** TK.5+: cut and fill as a quantities file TakeoffCraft opens (File › Open takeoff, or a drop) as typed quantities. */
+  function sendEarthwork() {
+    const r = earthworkFile({ name: project.state.name, units: project.state.units, volumes: project.volumes() });
+    if (!r.ok) { say(r.why); return; }
+    const name = fileStem() + QTY_EXT;
+    download(JSON.stringify(r.json, null, 1), name, 'application/json');
+    say(t('cv.qty.saved', { name, cut: grouped(r.cut, 2), fill: grouped(r.fill, 2), unit: r.unit }));
   }
 
   function alignmentProps(a) {
@@ -524,7 +576,7 @@ function init(root) {
     const al = project.alignment(a), U = u(), out = [];
     const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-name', value: a.name, maxLength: 120 });
     nm.addEventListener('change', () => project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = nm.value.trim().slice(0, 120) || t('sec.alignment'); }));
-    const st = numInput(formatStation(Number(a.start) || 0, units()), (v) => { const x = parseStation(v, units()); if (x === null) return false; project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); }, { text: true, id: 'cv-al-start' });
+    const st = numInput(formatStation(Number(a.start) || 0, units()), (v) => { const x = parseStation(v, units()); if (x === null) return false; project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); }, { text: true, station: true, id: 'cv-al-start' });
     // 0.5 WL.23: a design minimum radius (empty = none): curves under it are said, with the smallest radius that fits
     const minR = numInput(a.minR > 0 ? String(a.minR) : '', (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }); }, { text: true, id: 'cv-al-minr', width: '7rem' });
     minR.placeholder = t('why.minr.none');
@@ -568,6 +620,7 @@ function init(root) {
     out.push(el('div', { className: 'cv-actions' },
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => showProfile(true, a.id) }, el('i', { className: 'bi bi-graph-up', 'aria-hidden': 'true' }), ' ', t('cv.prof.view')),
       al.ok ? skUi.button(a) : null,   // 0.4 V23
+      al.ok ? swUi.button('alignment', a.id) : null,   // 0.6 WL.28
       al.ok ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-pp-open': '', onclick: () => ppUi.open(a.id) }, el('i', { className: 'bi bi-file-earmark-pdf', 'aria-hidden': 'true' }), ' ', t('pp.ui.open')) : null,   // 0.4 V15
       el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
@@ -628,7 +681,7 @@ function init(root) {
       const interior = i > 0 && i < a.pvis.length - 1;
       tbody.append(el('tr', { className: selPvi === i ? 'is-sel' : '' },
         el('td', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { selPvi = i; renderProfile(); renderProps(); } }, String(i + 1))),
-        el('td', {}, numInput(formatStation(v.sta, units()), (x) => { const s = parseStation(x, units()); if (s === null) return false; project.change(t('cv.undo.pvi.sta'), () => { const p = findAl(a.id).pvis; p[i].sta = s; p.sort((m, n) => m.sta - n.sta); }); }, { text: true, label: t('cv.pvi.sta.of', { n: i + 1 }) })),
+        el('td', {}, numInput(formatStation(v.sta, units()), (x) => { const s = parseStation(x, units()); if (s === null) return false; project.change(t('cv.undo.pvi.sta'), () => { const p = findAl(a.id).pvis; p[i].sta = s; p.sort((m, n) => m.sta - n.sta); }); }, { text: true, station: true, label: t('cv.pvi.sta.of', { n: i + 1 }) })),
         el('td', {}, numInput(fixed(v.z, 2), (x) => { const z = Number(x); if (!Number.isFinite(z) || x === '') return false; project.change(t('cv.undo.pvi.z'), () => { findAl(a.id).pvis[i].z = z; }); }, { label: t('cv.pvi.z.of', { n: i + 1 }) })),
         el('td', {}, interior ? numInput(v.L || 0, (x) => { const L = Number(x); if (!(L >= 0)) return false; project.change(t('cv.undo.pvi.l'), () => { findAl(a.id).pvis[i].L = L; }); }, { label: t('cv.pvi.l.of', { n: i + 1 }), min: 0 }) : '—'),
         el('td', {}, el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.pvi.remove.of', { n: i + 1 }), onclick: () => { project.change(t('cv.undo.pvi.remove'), () => { findAl(a.id).pvis.splice(i, 1); }); selPvi = -1; } }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })))));
@@ -670,6 +723,7 @@ function init(root) {
       const vi = project.volumes()?.items?.find((x) => x.id === a.id);
       out.push(el('p', { className: 'cv-note', 'data-corridor-facts': '' }, vi ? t('cv.co.facts.vol', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()), cut: volumeText(vi.cut, units()), fill: volumeText(vi.fill, units()) }) : t('cv.co.facts', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()) })));
     }
+    out.push(...targetProps({ el, project: () => project, say: (m) => say(m) }, a, it));   // 0.6 WL.25
     out.push(...superProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, it));   // 0.4 V18
     return out;
   }
@@ -727,7 +781,8 @@ function init(root) {
     const probs = chk?.problems || [];
     out.push(probs.length ? el('div', { className: 'cv-report is-error', 'data-net-problems': '' }, el('ul', {}, ...probs.slice(0, 40).map((p) => el('li', {}, p.id ? el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { sel = { kind: p.kind === 'pipe' ? 'pipe' : 'structure', id: p.id }; refresh(); } }, p.msg) : p.msg)))) : el('p', { className: 'cv-note', 'data-net-ok': '' }, t('cv.net.ok')));
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-auto-inverts': '', onclick: () => setInverts(null) }, t('cv.net.auto'))));
-    out.push(...drUi.block());   // 0.4 V19/V20
+    out.push(...(n.type === 'sanitary' ? seUi.block() : drUi.block()));   // 0.4 V19/V20 storm; 0.6 LC.16 S1 sanitary design flows
+    out.push(...stUi.block());   // 0.6 WL.27: structure types
     return out;
   }
   function setInverts(only) {
@@ -745,6 +800,7 @@ function init(root) {
     rim.placeholder = info?.rim !== null && info?.rim !== undefined ? t('cv.st.rim.ph', { z: fixed(info.rim, 2) }) : t('cv.st.rim.off');
     const sump = numInput(x.sumpDepth || 0, (v) => { const z = Number(v); if (!(z >= 0)) return false; project.change(t('cv.st.sump'), () => { findStruct(x.id).sumpDepth = z; }); }, { id: 'cv-st-sump', min: 0 });
     const dia = numInput(x.dia, (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.st.size'), () => { findStruct(x.id).dia = z; }); }, { id: 'cv-st-dia', min: 1 });
+    if (x.type) { dia.disabled = true; dia.title = t('st.dia.typed'); }   // 0.6 WL.27: a type sets the size
     out.push(el('div', { className: 'cv-props' },
       ...row(t('fl.props.name'), nm, 'cv-st-name'),
       ...row(t('cv.st.rim'), el('div', { className: 'cv-row' }, rim, el('span', { className: 'cv-unit' }, U.short)), 'cv-st-rim'),
@@ -754,12 +810,13 @@ function init(root) {
       ...row(t('cv.st.sump.z'), info?.sump !== null && info?.sump !== undefined ? fixed(info.sump, 2) : '—'),
       ...row(t('pt.props.easting'), fixed(x.x, 2)), ...row(t('pt.props.northing'), fixed(x.y, 2))));
     out.push(el('p', { className: 'cv-note' }, t('cv.st.rim.note')));
+    out.push(...stUi.structureRow(x));   // 0.6 WL.27
     const lines = [];
     for (const p of net().pipes) { if (p.to === x.id) lines.push(t('cv.st.in', { pipe: p.name, z: Number.isFinite(p.invDn) ? fixed(p.invDn, 2) : '—' })); if (p.from === x.id) lines.push(t('cv.st.out', { pipe: p.name, z: Number.isFinite(p.invUp) ? fixed(p.invUp, 2) : '—' })); }
     if (lines.length) out.push(el('ul', { className: 'cv-plainlist' }, ...lines.map((l) => el('li', {}, l))));
     const probs = (chk?.problems || []).filter((p) => p.id === x.id);
     if (probs.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((p) => el('li', {}, p.msg)))));
-    out.push(...drUi.structureRows(x));   // 0.4 V19/V20
+    out.push(...(net().type === 'sanitary' ? seUi.structureRows(x) : drUi.structureRows(x)));   // 0.4 V19/V20; 0.6 LC.16 S1
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
   }
@@ -783,7 +840,7 @@ function init(root) {
       ...row(t('cv.net.mincover'), info?.cover !== null && info?.cover !== undefined ? fixed(info.cover, 2) + ' ' + U.short : '—')));
     const probs = (chk?.problems || []).filter((x) => x.id === p.id);
     out.push(probs.length ? el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((x) => el('li', {}, x.msg)))) : el('p', { className: 'cv-note' }, t('cv.pp.ok')));
-    out.push(...drUi.pipeRows(p));   // 0.4 V19/V20
+    out.push(...(net().type === 'sanitary' ? seUi.pipeRows(p) : drUi.pipeRows(p)));   // 0.4 V19/V20; 0.6 LC.16 S1
     out.push(el('div', { className: 'cv-actions' },
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => setInverts(new Set([p.id])) }, t('cv.pp.auto')),
       el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
@@ -800,7 +857,7 @@ function init(root) {
       say(r.message);
       return true;
     };
-    const f = (field, value, opts) => numInput(value, commit(field), { ...opts, id: 'cv-pt-' + field, label: t('pt.props.' + opts.key), text: true });
+    const f = (field, value, opts) => numInput(value, commit(field), { ...opts, id: 'cv-pt-' + field, label: t('pt.props.' + opts.key), text: true, calc: ['x', 'y', 'z'].includes(field) });   // 0.6 DF.3: the number and description are words
     const grid = el('div', { className: 'cv-props', 'data-point-edit': '' },
       ...row(t('pt.props.number'), f('n', p.n, { key: 'number', width: '8rem' }), 'cv-pt-n'),
       ...row(t('pt.props.easting'), f('x', fixed(p.x, 3).replace(/,/g, ''), { key: 'easting' }), 'cv-pt-x'),
@@ -955,7 +1012,7 @@ function init(root) {
     paste: 'cv.hint.paste',
   };
   function setTool(tl) {
-    if (tl !== tool) draft = [];
+    if (tl !== tool) { draft = []; flMid = null; if (tl !== 'feature') flArc = false; }
     if (tl !== 'paste') pasteJob = null;
     tool = tl;
     ui.toolhint.hidden = !TOOL_HINT[tl];
@@ -1017,6 +1074,7 @@ function init(root) {
     if (sel?.kind === 'feature' && flUi.remove(sel.id)) { sel = null; refresh(); return; }   // 0.4 V14
     if (sel?.kind === 'catchment' && drUi.remove(sel.id)) { sel = null; refresh(); return; }   // 0.4 V19
     if (sel?.kind === 'parcel' && pcUi.remove(sel.id)) { sel = null; refresh(); return; }   // 0.4 V21
+    if (sel?.kind === 'swept' && swUi.remove(sel.id)) { sel = null; refresh(); return; }   // 0.6 WL.28
     const pp = selPipe();
     if (pp) { project.change(t('cv.undo.pp.delete'), (s) => { s.network.pipes = s.network.pipes.filter((p) => p.id !== pp.id); }); sel = null; refresh(); say(t('fl.deleted', { name: pp.name })); return; }
     if (picked.size) { const n = picked.size; removePoints(t('cv.undo.pts.delete', { n, count: num(n) })); say(t('cv.pts.deleted', { n, count: num(n), surface: rebuilt() })); return; }
@@ -1168,6 +1226,7 @@ function init(root) {
     } else if (tool === 'feature') {   // 0.4 V14
       const closed = draftClosed;
       draftClosed = false;
+      flMid = null;   // 0.6 WL.24: a curve point with no end is dropped
       if (flUi.finish(pts, closed)) setTool('select');
       else draft = pts;   // too few vertices: keep drawing
     } else if (tool === 'breakline') {
@@ -1202,13 +1261,20 @@ function init(root) {
   const local = (e) => { const r = ui.over.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   const draftBar = $('[data-draftbar]');
   /** The draft bar shows while a line is being drawn on a touch screen. */
-  function syncDraftBar() { const b = root.querySelector('[data-draftbar]'); if (b) b.hidden = !(root.classList.contains('is-touch') && draft.length); }
+  function syncDraftBar() {
+    const b = root.querySelector('[data-draftbar]');
+    if (b) b.hidden = !(root.classList.contains('is-touch') && draft.length);
+    const a = b?.querySelector('[data-draft-act="arc"]');
+    if (a) { a.hidden = tool !== 'feature'; a.setAttribute('aria-pressed', String(flArc)); }   // 0.6 WL.24
+  }
   draftBar?.addEventListener('click', (e) => {
     const b = e.target.closest('[data-draft-act]');
     if (!b) return;
     const act = b.dataset.draftAct;
     if (act === 'finish' && draft.length) finishDraft();
-    else if (act === 'back' && draft.length) { draft.pop(); say(t('touch.back.done', { n: draft.length })); }
+    else if (act === 'arc') toggleFlArc();   // 0.6 WL.24
+    else if (act === 'back' && flMid) flMid = null;
+    else if (act === 'back' && draft.length) { draft.pop(); if (draft.length) delete draft[draft.length - 1].b; say(t('touch.back.done', { n: draft.length })); }
     else if (act === 'cancel') { draft = []; say(t('cv.cancelled')); }
     view.invalidate();
     syncDraftBar();
@@ -1336,8 +1402,11 @@ function init(root) {
       return;
     }
     if (tool === 'feature') {   // 0.4 V14: a survey point's place and elevation, else the ground's (finish); the first vertex closes
-      if (draft.length >= 3) { const q = view.toScreen(draft[0].x, draft[0].y); if (Math.hypot(q.x - s.x, q.y - s.y) < 8) { draftClosed = true; finishDraft(); return; } }
-      const p = nearestPoint(s, 10, true);
+      const p = nearestPoint(s, 10, true), at = p ? { x: p.x, y: p.y } : { x: w.x, y: w.y };
+      if (flArc && draft.length && !flMid) { flMid = at; say(t('fl.arc.mid')); view.invalidate(); return; }   // 0.6 WL.24: a point on the curve
+      const bendTo = (end) => { if (flMid) { const b = bulgeThrough(draft[draft.length - 1], flMid, end); if (b) draft[draft.length - 1].b = b; else delete draft[draft.length - 1].b; flMid = null; } };
+      if (draft.length >= 3 || (flMid && draft.length >= 2)) { const q = view.toScreen(draft[0].x, draft[0].y); if (Math.hypot(q.x - s.x, q.y - s.y) < 8) { bendTo(draft[0]); draftClosed = true; finishDraft(); return; } }
+      bendTo(at);
       draft.push(p ? { x: p.x, y: p.y, z: p.z, n: p.n } : { x: w.x, y: w.y });
       say(p ? t('fl.click.point', { n: p.n, z: fixed(p.z, 2) }) : t('fl.click.ground', { n: draft.length }));
       view.invalidate();
@@ -1460,7 +1529,7 @@ function init(root) {
     const pt = nearestPoint(s, 6, false);
     if (pt) return { kind: 'point', p: pt };
     for (const f of gisReg.pick) { const h = f(w, tol); if (h) return h; }   // GIS: a feature of a GIS layer
-    const area = drUi.pick(w) || pcUi.pick(w);   // 0.4 V19/V21: inside a catchment, else a parcel (anything nearer wins)
+    const area = drUi.pick(w) || pcUi.pick(w) || swUi.pick(w);   // 0.4 V19/V21: inside a catchment, else a parcel (anything nearer wins); 0.6 WL.28 a swept path
     if (area) return area;
     return null;
   }
@@ -1487,6 +1556,7 @@ function init(root) {
     for (const f of gisReg.overlay) f(ctx, v, sel);   // GIS: the picked feature
     secUi.overlay(ctx, (x, y) => v.toScreen(x, y), C.action);   // 0.4 V13: the section on show
     if (project.state.display.gradeOverlay) flUi.gradeLayer(ctx, (x, y) => v.toScreen(x, y), C, sel, LABEL_FONT);   // 0.5 WL.21: screen only
+    swUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.6 WL.28: the selected swept path, its vehicle where the slider is
     flUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel, LABEL_FONT);   // 0.4 V14: the selected feature line, its elevations and grades
     const a = selAl();
     if (a) {
@@ -1562,7 +1632,13 @@ function init(root) {
       const pts = cursor && tool !== 'breakline' ? [...draft, cursor] : snapPt ? [...draft, snapPt] : draft;
       ctx.strokeStyle = tool === 'parcel' ? C.ink2 : tool === 'catchment' ? C.cyan || C.blue : tool === 'pad' || tool === 'pipe' ? C.blue : tool === 'alignment' ? C.red : tool === 'boundary' ? C.ink2 : tool === 'feature' ? C.green || C.orange : C.orange;
       ctx.lineWidth = 2; ctx.setLineDash(tool === 'boundary' ? [7, 5] : []);
-      if (pts.length >= 2) { path(pts, (tool === 'pad' || tool === 'boundary' || tool === 'catchment' || tool === 'parcel') && pts.length >= 3); ctx.stroke(); }
+      if (tool === 'feature' && draft.length) {   // 0.6 WL.24: arcs drawn as arcs, the one being drawn through its curve point
+        const dp = draft.map((p) => ({ ...p, z: 0 }));
+        if (flMid && cursor) { const b = bulgeThrough(dp[dp.length - 1], flMid, cursor); if (b) dp[dp.length - 1].b = b; }
+        if (cursor) dp.push({ x: cursor.x, y: cursor.y, z: 0 });
+        path(flattenFl({ pts: dp, closed: false }), false); ctx.stroke();
+        if (flMid) { const q = S(flMid); ctx.strokeStyle = C.orange; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(q.x, q.y, 5, 0, Math.PI * 2); ctx.stroke(); }
+      } else if (pts.length >= 2) { path(pts, (tool === 'pad' || tool === 'boundary' || tool === 'catchment' || tool === 'parcel') && pts.length >= 3); ctx.stroke(); }
       ctx.setLineDash([]);
       draft.forEach((p) => grip(p, true));
       if (snapPt) { const q = S(snapPt); ctx.strokeStyle = C.orange; ctx.lineWidth = 2; ctx.strokeRect(q.x - 6, q.y - 6, 12, 12); }
@@ -1623,12 +1699,14 @@ function init(root) {
       if (drag?.kind === 'point') { drag.cancelled = true; view.invalidate(); say(t('pt.drag.cancel')); return; }   // 0.4 V2
       if (root.querySelector('details.cv-menu[open]')) { closeMenus(); return; }
       if (tool === 'paste') { setTool('select'); say(t('cv.paste.cancelled')); return; }
-      if (draft.length) { draft = []; view.invalidate(); say(t('cv.cancelled')); } else { setTool('select'); if (sel || picked.size || selPvi >= 0) { sel = null; selPvi = -1; picked.clear(); refresh(); } }
+      if (draft.length) { draft = []; flMid = null; view.invalidate(); say(t('cv.cancelled')); } else { setTool('select'); if (sel || picked.size || selPvi >= 0) { sel = null; selPvi = -1; picked.clear(); refresh(); } }
       return;
     }
     if (k === 'Enter' && tool === 'paste' && pasteJob) { e.preventDefault(); const j = pasteJob; commitPaste(j.pts, 0, 0, j.label === 'Paste' ? 'Paste in place' : j.label, j.from, j.note); return; }   // i18n-ignore: internal labels
     if (k === 'Enter' && draft.length) { e.preventDefault(); finishDraft(); return; }
-    if (k === 'Backspace' && draft.length) { e.preventDefault(); draft.pop(); view.invalidate(); return; }
+    if (k === 'Backspace' && flMid) { e.preventDefault(); flMid = null; view.invalidate(); return; }   // 0.6 WL.24: the curve point first
+    if (k === 'Backspace' && draft.length) { e.preventDefault(); draft.pop(); if (draft.length) delete draft[draft.length - 1].b; view.invalidate(); return; }
+    if (k.toLowerCase() === 'c' && tool === 'feature' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); toggleFlArc(); return; }   // 0.6 WL.24
     if (k === 'Delete' || (k === 'Backspace' && e.target === ui.prof)) { e.preventDefault(); command('delete'); return; }
     const keyCmd = { v: 'select', a: 'alignment', g: 'pad', p: 'pipe', b: 'breakline', o: 'boundary', r: 'profile', f: 'fit', d: 'view3d', x: 'sections', l: 'feature', e: 'grades' }[k.toLowerCase()];
     if (keyCmd && !e.shiftKey) { e.preventDefault(); command(keyCmd); return; }
@@ -1794,7 +1872,7 @@ function init(root) {
   async function openLandXml(text, name) {
     let d;
     try { d = readLandXml(text); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
-    if (!d.points.length && !d.surfaces.length && !d.alignments.length && !d.networks?.length) { say(t('cv.lx.empty', { file: name }) + (d.notes.length ? ' ' + d.notes.join(' ') : '')); return; }
+    if (!d.points.length && !d.surfaces.length && !d.alignments.length && !d.networks?.length && !d.features?.length) { say(t('cv.lx.empty', { file: name }) + (d.notes.length ? ' ' + d.notes.join(' ') : '')); return; }
     if (!(await confirmDiscard())) return;
     const p = new Project(), notes = [...d.notes];
     p.state.units = d.units || 'ft';
@@ -1818,10 +1896,32 @@ function init(root) {
       p.state.network = { ...defaultNetwork(p.state.units), name: n0.name.slice(0, 60), type: n0.type, structures: n0.structures.map((x) => ({ ...x, id: p.nextId('s'), _old: x.id, name: x.name.slice(0, 60), dia: x.dia || defaultStructDia(p.state.units) })), pipes: [] };
       const map = new Map(p.state.network.structures.map((x) => [x._old, x.id]));
       for (const x of p.state.network.structures) delete x._old;
+      // 0.6 WL.27: structures read with a shape (RectStruct, or a wall thickness) get a type each distinct size
+      const types = new Map();
+      for (const x of p.state.network.structures) {
+        const si = x.shapeIn;
+        delete x.shapeIn;
+        if (!si) continue;
+        const key = JSON.stringify([si.shape, si.dia, si.w, si.l, si.wall]);
+        if (!types.has(key)) { const k = cleanType({ ...si, sump: x.sumpDepth || 0 }, p.state.units); if (k) { k.id = p.nextId('u'); k.name = si.name ? si.name.slice(0, 80) : k.name; types.set(key, k); } }
+        const k = types.get(key);
+        if (k) Object.assign(x, { type: k.id, dia: k.shape === 'round' ? k.dia : k.w });
+      }
+      if (types.size) p.state.network.types = [...types.values()];
       p.state.network.pipes = n0.pipes.map((q) => ({ ...q, id: p.nextId('q'), name: q.name.slice(0, 60), from: map.get(q.from), to: map.get(q.to), dia: q.dia || defaultPipeDia(p.state.units) }));
       notes.push(t('cv.lx.net.rules'));
       if (d.networks.length > 1) notes.push(t('cv.lx.nets.more', { n: d.networks.length - 1 }));
     }
+    // 0.6 WL.24: feature lines (with their arcs); a line from another program is drawn only until its use is chosen
+    let flOff = 0;
+    for (const f of d.features || []) {
+      const c = cleanFeature({ ...f, use: f.use || 'off' }, p.state.units);
+      if (!c) continue;
+      if (!f.use) flOff++;
+      c.id = p.nextId('f');
+      (p.state.features ||= []).push(c);
+    }
+    if (flOff) notes.push(t('cv.lx.fl.off', { n: flOff }));
     p.undoStack = []; p.version++; p.saved = p.version;
     project = p; rebind(); sel = null; selPvi = -1; lastReport = notes.length ? notes : null;
     refresh(); fitAll();
@@ -1903,7 +2003,7 @@ function init(root) {
 
   function exportLandXml() {
     const s = project.state, r = eg();
-    if (!project.points.length && !r.surface && !s.alignments.length) { say(t('cv.export.none')); return; }
+    if (!project.points.length && !r.surface && !s.alignments.length && !(s.features || []).length) { say(t('cv.export.none')); return; }
     const surfaces = [];
     if (r.surface) surfaces.push({ name: s.surface.name || t('surface.eg'), desc: t('surface.eg'), surface: r.surface, breaklines: project.egBreaklines(), boundary: s.surface.boundary });
     const g = graded();
@@ -1911,6 +2011,7 @@ function init(root) {
     const xml = writeLandXml({
       name: s.name, units: s.units, points: project.points, surfaces, crs: s.crs,   // GIS: <CoordinateSystem> when the project has one
       alignments: s.alignments.map((a) => ({ name: a.name, alignment: project.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: project.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: project.designProfile(a) } : null })),
+      features: s.features || [],   // 0.6 WL.24
       networks: s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = project.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [],
     });
     download(xml, fileStem() + '.xml', 'application/xml');
@@ -1918,6 +2019,7 @@ function init(root) {
     const als = t('cv.als.n', { n: s.alignments.length - skipped });
     const list = [t('cv.pts.n', { n: project.points.length, count: num(project.points.length) }), t('cv.surfaces.n', { n: surfaces.length }), skipped ? t('cv.lx.als.skipped', { alignments: als, n: skipped }) : als];
     if (s.network) list.push(t('cv.lx.network'));
+    if ((s.features || []).length) list.push(t('cv.lx.features', { n: s.features.length }));   // 0.6 WL.24
     say(t('cv.lx.exported', { list: list.join(', ') }));
   }
 
@@ -2081,14 +2183,14 @@ function init(root) {
     });
   }
   async function confirmDiscard() {
-    if (!project.dirty || (!project.points.length && !project.state.alignments.length && !project.state.pads.length && !gisReg.hasWork.some((f) => f()))) return true;
+    if (!project.dirty || (!project.points.length && !project.state.alignments.length && !project.state.pads.length && !(project.state.features || []).length && !gisReg.hasWork.some((f) => f()))) return true;
     const c = await ask({ title: t('cv.ask.unsaved.title'), text: t('cv.ask.unsaved'), buttons: [['cancel', t('cad.ui.cancel'), 'btn-line'], ['discard', t('cv.ask.dont'), 'btn-line'], ['save', t('cv.ask.save'), 'btn-plot']] });
     if (c === 'save') return saveProject();
     return c === 'discard';
   }
   // Leaving by a link on the page asks in the page; the browser's own "Leave site?" is left for what no page can
   // catch (closing the tab, reloading, typing an address). After "save first", wait for the download to start.
-  const unsaved = () => project.dirty && !!(project.points.length || project.state.alignments.length || project.state.pads.length || gisReg.hasWork.some((f) => f()));
+  const unsaved = () => project.dirty && !!(project.points.length || project.state.alignments.length || project.state.pads.length || (project.state.features || []).length || gisReg.hasWork.some((f) => f()));
   let leaving = false;
   window.addEventListener('beforeunload', (e) => { if (unsaved() && !leaving) { e.preventDefault(); e.returnValue = ''; } });
   document.addEventListener('click', async (e) => {

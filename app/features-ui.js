@@ -18,8 +18,10 @@
  */
 
 import { t } from './i18n.js';
-import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel, gradeOverlay } from './featureline.js';
+import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel, gradeOverlay, flatten, setArc, arcText, parseArc, pointOnSeg, cadPolyline } from './featureline.js';
 import { fixed, unitOf } from './units.js';
+
+const okB = (b) => Number.isFinite(b) && b !== 0 && Math.abs(b) < 100;
 
 export function createFeatures(ctx) {
   const { el } = ctx;
@@ -45,8 +47,9 @@ export function createFeatures(ctx) {
       let z = Number.isFinite(p.z) ? p.z : sf?.elevationAt(p.x, p.y, 1e-6);
       if (z === null || z === undefined) { z = prev ?? 0; guessed++; }
       prev = z;
-      return { x: p.x, y: p.y, z };
+      return okB(p.b) ? { x: p.x, y: p.y, z, b: p.b } : { x: p.x, y: p.y, z };   // 0.6 WL.24: an arc drawn with C
     });
+    out.forEach((q, i) => { if (q.b && !closed && i === out.length - 1) delete q.b; });
     const p = P(), id = p.nextId('f'), n = (p.state.features || []).length + 1, d = FEATURE_DEFAULTS(U());
     const name = t('fl.name', { n });
     p.change(t('fl.undo.draw'), (s) => { (s.features ||= []).push({ id, name, pts: out, closed: !!closed, use: d.use, daylight: false, cut: d.cut, fill: d.fill }); });
@@ -66,7 +69,8 @@ export function createFeatures(ctx) {
     closed.addEventListener('change', () => edit(id, t(closed.checked ? 'fl.undo.close' : 'fl.undo.open'), (x) => ({ ...x, closed: closed.checked })));
     const st = stations(f), sg = segments(f);
     out.push(el('div', { className: 'cv-props' }, ...ctx.row(t('fl.props.name'), nm, 'cv-fl-name'), ...ctx.row(t('fl.props.use'), use, 'cv-fl-use'),
-      ...ctx.row(t('fl.props.length'), fixed(st[st.length - 1], 2) + ' ' + u.short)));
+      ...ctx.row(t('fl.props.length'), fixed(st[st.length - 1], 2) + ' ' + u.short),
+      ...ctx.row(t('fl.props.length3d'), fixed(sg.reduce((a, s) => a + s.len3d, 0), 2) + ' ' + u.short)));
     out.push(el('label', { className: 'cv-check', for: 'cv-fl-closed' }, closed, ' ', t('fl.props.closed')));
     out.push(el('p', { className: 'cv-note', 'data-fl-use-note': '' }, t('fl.use.note.' + f.use + (f.use === 'design' && !f.closed ? '.open' : ''))));
     if (f.use === 'design' && f.closed) {
@@ -85,12 +89,23 @@ export function createFeatures(ctx) {
     f.pts.forEach((p, i) => {
       const s = sg[i];
       const zIn = ctx.numInput(fixed(p.z, 3).replace(/,/g, ''), (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; edit(id, t('fl.undo.elev', { n: i + 1 }), (x) => setElevation(x, i, z)); return true; }, { label: t('fl.props.elev.of', { n: i + 1 }), width: '6.5rem' });
-      const gIn = s ? ctx.numInput(s.grade === null ? '' : (s.grade * 100).toFixed(2), (v) => { const g = Number(String(v).replace('%', '')) / 100; if (!Number.isFinite(g) || v === '') return false; edit(id, t('fl.undo.grade', { n: i + 1 }), (x) => setGrade(x, i, g)); return true; }, { label: t('fl.props.grade.of', { n: i + 1 }), text: true, width: '5rem' }) : '—';
-      tbody.append(el('tr', {}, el('td', {}, String(i + 1)), el('td', { className: 'num' }, fixed(st[i], 2)), el('td', {}, zIn), el('td', {}, gIn)));
+      const gIn = s ? ctx.numInput(s.grade === null ? '' : (s.grade * 100).toFixed(2), (v) => { const g = Number(String(v).replace('%', '')) / 100; if (!Number.isFinite(g) || v === '') return false; edit(id, t('fl.undo.grade', { n: i + 1 }), (x) => setGrade(x, i, g)); return true; }, { label: t('fl.props.grade.of', { n: i + 1 }), text: true, calc: false, width: '4.25rem' }) : '—';
+      // 0.6 WL.24: the segment from this vertex as an arc — "50 L" / "50 R", empty = straight
+      const rIn = s ? ctx.numInput(arcText(f, i), (v) => {
+        const r = parseArc(v, !(s.arc && s.arc.sweep < 0));
+        if (!r) return false;
+        if (!r.r && !s.arc) return true;   // straight already
+        const next = setArc(find(id), i, r.r, r.left);
+        if (next === find(id)) { if (r.r) ctx.say(t('fl.arc.short', { n: i + 1, min: fixed(s.chord / 2, 2) })); return !r.r; }
+        edit(id, t(r.r ? 'fl.undo.arc' : 'fl.undo.straight', { n: i + 1 }), () => next);
+        return true;
+      }, { label: t('fl.props.radius.of', { n: i + 1 }), text: true, calc: false, width: '4.75rem' }) : '—';
+      tbody.append(el('tr', {}, el('td', {}, String(i + 1)), el('td', { className: 'num' }, fixed(st[i], 2)), el('td', {}, zIn), el('td', {}, gIn), el('td', { 'data-fl-arc': String(i) }, rIn)));
     });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-fl-table': '' },
-      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, '#'), el('th', { scope: 'col', className: 'num' }, t('fl.props.station')), el('th', { scope: 'col' }, t('fl.props.elev')), el('th', { scope: 'col' }, t('fl.props.grade')))), tbody)));
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, '#'), el('th', { scope: 'col', className: 'num' }, t('fl.props.station')), el('th', { scope: 'col' }, t('fl.props.elev')), el('th', { scope: 'col' }, t('fl.props.grade')), el('th', { scope: 'col' }, t('fl.props.radius')))), tbody)));
     out.push(el('p', { className: 'cv-note' }, t('fl.props.grade.note')));
+    out.push(el('p', { className: 'cv-note' }, t('fl.props.radius.note')));
     // whole-line actions
     const dz = ctx.numInput('', (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '' || x === 0) return false; edit(id, t('fl.undo.raise'), (q) => raise(q, x)); return true; }, { id: 'cv-fl-raise' });
     out.push(el('div', { className: 'cv-props' }, ...ctx.row(t('fl.props.raise'), el('div', { className: 'cv-row' }, dz, el('span', { className: 'cv-unit' }, u.short)), 'cv-fl-raise')));
@@ -126,12 +141,13 @@ export function createFeatures(ctx) {
   }
 
   function sceneItems() {
-    return (P().state.features || []).map((f) => ({ layer: 'C-GRAD-FEAT', kind: 'poly', pts: f.pts, closed: f.closed, z: true }));
+    // 0.6 WL.24: arcs in pieces; the extended data lets CivilCraft read the arcs back from a DXF or DWG
+    return (P().state.features || []).map((f) => { const c = cadPolyline(f); return { layer: 'C-GRAD-FEAT', kind: 'poly', pts: c.pts, closed: c.closed, z: true, xdata: c.xdata }; });
   }
   function pick(w, tol) {
     let best = null, bd = tol;
     for (const f of P().state.features || []) {
-      const pts = f.closed ? [...f.pts, f.pts[0]] : f.pts;
+      const pts = flatten(f);   // 0.6 WL.24: arcs as pieces
       for (let i = 1; i < pts.length; i++) {
         const a = pts[i - 1], b = pts[i], dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy;
         const u = L ? Math.max(0, Math.min(1, ((w.x - a.x) * dx + (w.y - a.y) * dy) / L)) : 0;
@@ -148,19 +164,21 @@ export function createFeatures(ctx) {
   function overlay(c2d, toScreen, C, sel, font) {
     const f = sel?.kind === 'feature' ? find(sel.id) : null;
     if (!f) return;
-    const pts = f.closed ? [...f.pts, f.pts[0]] : f.pts;
+    const pts = flatten(f);   // 0.6 WL.24: arcs as pieces
     c2d.strokeStyle = C.action; c2d.lineWidth = 3; c2d.setLineDash([]); c2d.beginPath();
     pts.forEach((p, i) => { const q = toScreen(p.x, p.y); i ? c2d.lineTo(q.x, q.y) : c2d.moveTo(q.x, q.y); });
     c2d.stroke();
     c2d.font = '600 11px ' + font; c2d.textBaseline = 'bottom';
     const sg = segments(f);
     for (const s of sg) {
-      const a = toScreen(f.pts[s.i].x, f.pts[s.i].y), b = toScreen(f.pts[s.j].x, f.pts[s.j].y);
-      if (Math.hypot(b.x - a.x, b.y - a.y) < 70) continue;
-      let ang = Math.atan2(b.y - a.y, b.x - a.x);
+      const A = f.pts[s.i], B = f.pts[s.j], a = toScreen(A.x, A.y), b = toScreen(B.x, B.y);
+      // 0.6 WL.24: on an arc the label sits at its middle along its tangent, with its radius
+      const mid = pointOnSeg(A, B, A.b, 0.5), m = toScreen(mid.x, mid.y), ah = toScreen(mid.x + Math.cos(mid.dir), mid.y + Math.sin(mid.dir));
+      if (Math.max(Math.hypot(b.x - a.x, b.y - a.y), 2 * Math.hypot(m.x - a.x, m.y - a.y)) < 70) continue;
+      let ang = Math.atan2(ah.y - m.y, ah.x - m.x);
       if (Math.abs(ang) > Math.PI / 2) ang += Math.PI;   // upright; the grade is always in the line's own direction
-      c2d.save(); c2d.translate((a.x + b.x) / 2, (a.y + b.y) / 2); c2d.rotate(ang);
-      c2d.fillStyle = C.bg; const txt = gradeLabel(s.grade), w = c2d.measureText(txt).width;
+      c2d.save(); c2d.translate(m.x, m.y); c2d.rotate(ang);
+      c2d.fillStyle = C.bg; const txt = gradeLabel(s.grade) + (s.arc ? '  R ' + fixed(s.arc.r, 2) : ''), w = c2d.measureText(txt).width;
       c2d.fillRect(-w / 2 - 2, -16, w + 4, 13); c2d.fillStyle = C.action; c2d.textAlign = 'center'; c2d.fillText(txt, 0, -4); c2d.restore();
     }
     c2d.textAlign = 'left';

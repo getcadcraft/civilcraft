@@ -57,6 +57,9 @@ def landxml(path):
     out['alignments'] = als
     out['networks'] = [{'name': n.get('name'), 'type': n.get('pipeNetType'), 'structs': len(n.findall(f'.//{NS}Struct')), 'pipes': len(n.findall(f'.//{NS}Pipe')),
                         'inverts': len(n.findall(f'.//{NS}Invert'))} for n in root.findall(f'.//{NS}PipeNetwork')]
+    # 0.6 WL.24: feature lines (PlanFeature CoordGeom Line / Curve)
+    out['planfeatures'] = [{'name': f.get('name'), 'lines': len(f.findall(f'.//{NS}Line')), 'curves': len(f.findall(f'.//{NS}Curve')),
+                            'radii': [float(c.get('radius')) for c in f.findall(f'.//{NS}Curve')]} for f in root.findall(f'.//{NS}PlanFeature')]
     u = root.find(f'{NS}Units')
     out['units'] = [c.tag.replace(NS, '') + ':' + (c.get('linearUnit') or '') for c in u] if u is not None else []
     return out
@@ -120,7 +123,22 @@ def dxfdump(path, encoding=None):
             'insunits': doc.header.get('$INSUNITS'), 'measurement': doc.header.get('$MEASUREMENT')}
 
 
+def xdata(path, app='CADCRAFT'):
+    """0.6 WL.24: every model-space POLYLINE's vertices and its extended data for `app` (ezdxf), plus the audit."""
+    try:
+        import ezdxf
+    except ImportError:
+        return {'skipped': True}
+    doc = ezdxf.readfile(path)
+    aud = doc.audit()
+    out = []
+    for e in doc.modelspace().query('POLYLINE'):
+        xd = [[c, v] for c, v in e.get_xdata(app)] if e.has_xdata(app) else None
+        out.append({'is3d': e.is_3d_polyline, 'closed': bool(e.is_closed), 'pts': [list(v.dxf.location) for v in e.vertices], 'xdata': xd, 'layer': e.dxf.layer})
+    return {'version': doc.dxfversion, 'errors': len(aud.errors), 'polylines': out, 'apps': [a.dxf.name for a in doc.appids]}
+
+
 if __name__ == '__main__':
     mode, path = sys.argv[1], sys.argv[2]
-    fn = {'landxml': landxml, 'dxf': dxf, 'dxfdump': dxfdump}[mode]
+    fn = {'landxml': landxml, 'dxf': dxf, 'dxfdump': dxfdump, 'xdata': xdata}[mode]
     print(json.dumps(fn(path, *sys.argv[3:])))

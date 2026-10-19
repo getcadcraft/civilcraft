@@ -44,6 +44,7 @@ import { convertMleader, encodeMleaderStyle, ensureMleaderStyle } from './mleade
 
 const ver = (v) => VERSION_NUM[v];
 const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
+const fin = (...v) => v.every(Number.isFinite);
 /** Names in the named-object dictionary that the writer makes itself. */
 const WRITER_NOD = new Set(['ACAD_GROUP', 'ACAD_LAYOUT', 'ACAD_MLINESTYLE', 'ACAD_PLOTSTYLENAME', 'ACAD_IMAGE_DICT', 'ACAD_IMAGE_VARS', 'ACAD_WIPEOUT_VARS']);
 /** Object types the writer makes itself (never copied, only referenced). */
@@ -132,6 +133,30 @@ simple('PLOTSETTINGS', (w, o, M) => {
   // LAYOUT (20.4.84); found in the corpus' R2007–R2018 PLOTSETTINGS (two handles after the common ones).
   if (w.r2007) w.H(SOFT_PTR, 0);
 });
+// 20.4.78 GEODATA (0.6 GEO-DWG): always the 2010 format (objectVersion 3, as AutoCAD 2013 and later write it), so only in
+// R2010 and later files; R2000–R2007 leave it out (COPY_SKIP below) — a 2009-format object (1) read from a file is
+// written in the 2010 format from the same fields. The host is the model space's block record.
+CLASSED.GEODATA = { dxf: 'GEODATA', cpp: 'AcDbGeoData', app: 'ObjectDBX Classes', entity: false, proxy: 4095 };
+const P3 = (w, p, d = 0) => w.BD3(num(p?.x, d), num(p?.y, d), num(p?.z, d));
+simple('GEODATA', (w, o, M) => {
+  w.BL(3);
+  w.H(SOFT_PTR, M.ref(o.host));
+  w.BS(o.coordType ?? 2);
+  P3(w, o.designPoint); P3(w, o.referencePoint);
+  w.BD(num(o.unitScaleH, 1)); w.BL(o.unitsH | 0); w.BD(num(o.unitScaleV, 1)); w.BL(o.unitsV | 0);
+  w.BD3(num(o.up?.x), num(o.up?.y), num(o.up?.z, 1));
+  w.RD2(num(o.north?.x), num(o.north?.y, 1));   // Spec gap: 2RD, not 3RD (see objects-read.js)
+  w.BL(o.scaleMethod ?? 1); w.BD(num(o.userScale, 1)); w.B(o.seaLevel ? 1 : 0); w.BD(num(o.seaElevation)); w.BD(num(o.projRadius, 6378137));
+  w.TV(String(o.csDef ?? '')); w.TV(String(o.geoRss ?? ''));
+  w.TV(String(o.obsFrom ?? '')); w.TV(String(o.obsTo ?? '')); w.TV(String(o.obsCoverage ?? ''));
+  const pts = (Array.isArray(o.meshPoints) ? o.meshPoints : []).filter((p) => fin(p?.source?.x, p?.source?.y, p?.dest?.x, p?.dest?.y));
+  w.BL(pts.length);
+  for (const p of pts) { w.RD2(p.source.x, p.source.y); w.RD2(p.dest.x, p.dest.y); }
+  const faces = (Array.isArray(o.meshFaces) ? o.meshFaces : []).filter((f) => Array.isArray(f) && f.length === 3 && f.every((i) => Number.isInteger(i) && i >= 0 && i < pts.length));
+  w.BL(faces.length);
+  for (const f of faces) { w.BL(f[0]); w.BL(f[1]); w.BL(f[2]); }
+});
+COPY_SKIP.push((o, version) => o.type === 'GEODATA' && ver(version) < 24);
 FIELD_ENCODERS.MLEADERSTYLE = (rec, ctx) => encodeMleaderStyle(rec, ctx);
 CLASSED.RASTERVARIABLES = CLASSED.RASTERVARIABLES || { dxf: 'RASTERVARIABLES', cpp: 'AcDbRasterVariables', app: 'ISM', entity: false, proxy: 0 };
 simple('RASTERVARIABLES', (w, o) => { w.BL(o.classVersion | 0); w.BS(o.displayFrame ?? 1); w.BS(o.displayQuality ?? 1); w.BS(o.units | 0); });

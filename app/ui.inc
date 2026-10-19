@@ -203,6 +203,7 @@ $__more = [
       <?php /* touch (0.4 S.8): Enter / Backspace / Esc as buttons while a line is being drawn; shown only on a touch screen */ ?>
       <div class="cv-draftbar" role="group" aria-label="<?= Lang::e('touch.draft') ?>" data-draftbar hidden>
         <button type="button" class="cv-tool" data-draft-act="finish"><i class="bi bi-check2" aria-hidden="true"></i><span><?= Lang::e('touch.finish') ?></span></button>
+        <button type="button" class="cv-tool" data-draft-act="arc" aria-pressed="false" hidden><i class="bi bi-bezier2" aria-hidden="true"></i><span><?= Lang::e('fl.arc.btn') ?></span></button>
         <button type="button" class="cv-tool" data-draft-act="back"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span><?= Lang::e('touch.back') ?></span></button>
         <button type="button" class="cv-tool" data-draft-act="cancel"><i class="bi bi-x-lg" aria-hidden="true"></i><span><?= Lang::e('touch.cancel') ?></span></button>
       </div>

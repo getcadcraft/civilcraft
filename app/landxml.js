@@ -9,6 +9,9 @@
  *     alignments  [{ name, alignment, eg: {name, pts:[{sta,z}]}, profile: {name, profile} }]
  *                   → Alignment/CoordGeom (Line, Curve crvType="arc") + Profile (ProfSurf, ProfAlign PVI/ParaCurve)
  *     networks    [{ name, type, structures, pipes }] (pipes.js shape; structures may carry rimShown/sump to write) → PipeNetworks
+ *     features    [feature line (featureline.js)] (0.6 WL.24) → PlanFeatures/PlanFeature/CoordGeom: Line and Curve
+ *                   (crvType="arc") with 3D Start/End ("N E Z"), the arc's Center 2D, + Feature code="CivilCraft" with
+ *                   Property use / closed. An arc's ends may sit at different elevations (z along the arc, one grade).
  *     crs         state.crs (GIS) → <CoordinateSystem name epsgCode (when it has one) ogcWktCode (a .prj's WKT, no code)
  *                   desc (ground/local coordinates: the scale and base, so a reader knows they are not grid)>
  *   readLandXml(text) → { units, linearUnit, name, points, surfaces, alignments, networks, coordinateSystem, notes }
@@ -16,6 +19,8 @@
  *                       project's system when opened)
  *     surfaces    [{ name, desc, pts:[{x,y,z}|null], faces:[[i,j,k]], breaklines:[{name,pts}], boundary:[{x,y}]|null }]
  *     alignments  [{ name, start, pis:[{x,y,r}], profiles:[{name, pvis:[{sta,z,L}]}], surfProfiles:[{name, pts}] }]
+ *     features    [{ name, pts:[{x,y,z,b?}], closed, use|null }] (0.6 WL.24) from PlanFeatures (Line, Curve, IrregularLine
+ *                 PntList3D; Start/Center/End, rot); use from our Feature/Property, else null (the app decides)
  *   scaleImport(data, k)   multiplies every length/elevation/station (unit conversion)
  *
  * LandXML writes coordinates northing first ("N E Z"); here x = easting, y = northing. Anything the
@@ -38,7 +43,7 @@ const ne = (p, d) => num(p.y, d) + ' ' + num(p.x, d);
 const nez = (p, d) => ne(p, d) + ' ' + num(p.z, d);
 
 // i18n-ignore: the default <Project name> written into the file (file content)
-export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points = [], surfaces = [], alignments = [], networks = [], date = new Date(), crs = null }) {
+export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points = [], surfaces = [], alignments = [], networks = [], features = [], date = new Date(), crs = null }) {
   const L = [];
   const pad = (x) => String(x).padStart(2, '0');
   const ds = date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
@@ -166,7 +171,12 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
       if (!inv.length) inv.push(`<Invert elev="${num(x.sump ?? 0)}" flowDir="both" refPipe=""/>`);
       const rim = Number.isFinite(x.rimShown) ? ` elevRim="${num(x.rimShown)}"` : '';
       const sump = Number.isFinite(x.sump) ? ` elevSump="${num(x.sump)}"` : '';
-      L.push(`        <Struct name="${esc(x.name)}"${rim}${sump}><Center>${ne(x)}</Center><CircStruct diameter="${num(x.dia)}"/>${inv.join('')}</Struct>`);
+      // 0.6 WL.27: a structure of a type writes its inside size, wall thickness and type name; a rectangular type RectStruct
+      const k = x.type ? (n.types || []).find((q) => q.id === x.type) : null;
+      const shapeEl = !k ? `<CircStruct diameter="${num(x.dia)}"/>`
+        : k.shape === 'rect' ? `<RectStruct length="${num(k.l)}" width="${num(k.w)}" thickness="${num(k.wall || 0)}" desc="${esc(k.name)}"/>`
+        : `<CircStruct diameter="${num(k.dia)}" thickness="${num(k.wall || 0)}" desc="${esc(k.name)}"/>`;
+      L.push(`        <Struct name="${esc(x.name)}"${rim}${sump}><Center>${ne(x)}</Center>${shapeEl}${inv.join('')}</Struct>`);
     }
     L.push('      </Structs>');
     L.push('      <Pipes>');
@@ -178,6 +188,26 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
     L.push('      </Pipes>');
     L.push('    </PipeNetwork>');
     L.push('  </PipeNetworks>');
+  }
+  // 0.6 WL.24: feature lines, arcs and all
+  const fls = features.filter((f) => f?.pts?.length >= 2);
+  if (fls.length) {
+    L.push(`  <PlanFeatures name="${esc(name)}">`);
+    for (const f of fls) {
+      L.push(`    <PlanFeature name="${esc(f.name)}">`);
+      L.push('      <CoordGeom>');
+      const n = f.pts.length, m = f.closed ? n : n - 1;
+      for (let i = 0; i < m; i++) {
+        const a = f.pts[i], b = f.pts[(i + 1) % n], A = arcGeom(a, b);
+        if (!A) { L.push(`        <Line length="${num(Math.hypot(b.x - a.x, b.y - a.y))}"><Start>${nez(a)}</Start><End>${nez(b)}</End></Line>`); continue; }
+        L.push(`        <Curve rot="${A.sweep > 0 ? 'ccw' : 'cw'}" crvType="arc" radius="${num(A.r)}" length="${num(A.L)}" chord="${num(Math.hypot(b.x - a.x, b.y - a.y))}" delta="${num(Math.abs(A.sweep) * 180 / Math.PI, 8)}">` +
+          `<Start>${nez(a)}</Start><Center>${ne({ x: A.cx, y: A.cy })}</Center><End>${nez(b)}</End></Curve>`);
+      }
+      L.push('      </CoordGeom>');
+      L.push(`      <Feature code="CivilCraft"><Property label="use" value="${esc(f.use || 'eg')}"/><Property label="closed" value="${f.closed ? 1 : 0}"/></Feature>`);
+      L.push('    </PlanFeature>');
+    }
+    L.push('  </PlanFeatures>');
   }
   L.push('</LandXML>');
   return L.join('\n') + '\n';
@@ -329,7 +359,13 @@ export function readLandXml(text) {
       if (c.length < 2) { note(t('lx.st.nocentre')); continue; }
       const shape = kid(st, 'CircStruct') || kid(st, 'RectStruct') || kid(st, 'InletStruct') || kid(st, 'OutletStruct');
       const rec = { id: 's' + ++k, name: st.attrs.name || 'S' + k, x: c[1], y: c[0], rim: Number.isFinite(Number(st.attrs.elevRim)) && st.attrs.elevRim !== undefined ? Number(st.attrs.elevRim) : null, sumpElev: st.attrs.elevSump !== undefined ? Number(st.attrs.elevSump) : null, dia: Number(shape?.attrs.diameter) || 0, sumpDepth: 0 };
-      if (shape && shape.name !== 'CircStruct') note(t('lx.st.round'));
+      // 0.6 WL.27: a rectangular structure, or one with a wall thickness, is read as a structure type (the app makes them)
+      const thick = Number(shape?.attrs.thickness);
+      if (shape?.name === 'RectStruct' && Number(shape.attrs.length) > 0 && Number(shape.attrs.width) > 0) {
+        rec.shapeIn = { shape: 'rect', l: Number(shape.attrs.length), w: Number(shape.attrs.width), wall: thick >= 0 ? thick : 0, name: shape.attrs.desc || '' };
+        rec.dia = rec.shapeIn.w;
+      } else if (shape?.name === 'CircStruct' && rec.dia > 0 && Number.isFinite(thick) && shape.attrs.thickness !== undefined) rec.shapeIn = { shape: 'round', dia: rec.dia, wall: thick >= 0 ? thick : 0, name: shape.attrs.desc || '' };
+      else if (shape && shape.name !== 'CircStruct') note(t('lx.st.round'));
       byName.set(rec.name, rec); net.structures.push(rec);
       for (const iv of kids(st, 'Invert')) inv.set(rec.name + '|' + iv.attrs.refPipe + '|' + iv.attrs.flowDir, Number(iv.attrs.elev));
     }
@@ -352,8 +388,66 @@ export function readLandXml(text) {
     }
     if (net.pipes.length) out.networks.push(net);
   }
-  for (const k of ['Parcels', 'PlanFeatures', 'Roadways', 'GradeModel', 'Survey']) if (kid(root, k)) note(t('lx.notyet', { what: k }));
+  // 0.6 WL.24: feature lines (PlanFeatures): consecutive Line / Curve / IrregularLine pieces joined into one line
+  out.features = [];
+  for (const pfs of kids(root, 'PlanFeatures')) for (const pf of kids(pfs, 'PlanFeature')) {
+    const pts = [];
+    let gaps = 0, noZ = false;
+    const P = (el) => { const v = nums(textOf(el)); if (v.length < 2 || !v.every(Number.isFinite)) return null; if (v.length < 3) noZ = true; return { x: v[1], y: v[0], z: v.length >= 3 ? v[2] : 0 }; };
+    const join = (a) => {
+      const last = pts[pts.length - 1];
+      if (!last) { pts.push(a); return pts[0]; }
+      if (Math.hypot(a.x - last.x, a.y - last.y) > 1e-6) { gaps++; pts.push(a); }
+      return pts[pts.length - 1];
+    };
+    for (const cg of kids(pf, 'CoordGeom')) for (const c of cg.children) {
+      if (c.name === 'Line' || c.name === 'Curve') {
+        const a = P(kid(c, 'Start')), b = P(kid(c, 'End'));
+        if (!a || !b) { note(t('lx.fl.bad', { name: pf.attrs.name || '' })); continue; }
+        const from = join(a);
+        if (c.name === 'Curve') {
+          const cc = P(kid(c, 'Center'));
+          const bulge = cc ? curveBulge(from, cc, b, c.attrs.rot) : 0;
+          if (bulge) from.b = bulge; else note(t('lx.fl.bad', { name: pf.attrs.name || '' }));
+        }
+        pts.push(b);
+      } else if (c.name === 'IrregularLine') {
+        const v = nums(kid(c, 'PntList3D') ? textOf(kid(c, 'PntList3D')) : textOf(kid(c, 'PntList2D')));
+        const three = !!kid(c, 'PntList3D'), k = three ? 3 : 2;
+        if (!three) noZ = true;
+        for (let i = 0; i + k - 1 < v.length; i += k) { const q = { x: v[i + 1], y: v[i], z: three ? v[i + 2] : 0 }; if (i === 0) join(q); else pts.push(q); }
+      } else if (c.name === 'Spiral') note(t('lx.fl.spiral'));
+    }
+    if (pts.length < 2) continue;
+    const props = {};
+    for (const ft of kids(pf, 'Feature')) if (ft.attrs.code === 'CivilCraft') for (const pr of kids(ft, 'Property')) props[pr.attrs.label] = pr.attrs.value;
+    const first = pts[0], last = pts[pts.length - 1];
+    let closed = props.closed === '1';
+    if (pts.length >= 3 && Math.hypot(first.x - last.x, first.y - last.y) < 1e-6) {   // ends where it began: a closed line
+      pts.pop(); closed = true;
+    }
+    if (gaps) note(t('lx.fl.gaps', { name: pf.attrs.name || '', n: gaps }));
+    if (noZ) note(t('lx.fl.noz', { name: pf.attrs.name || '' }));
+    out.features.push({ name: pf.attrs.name || '', pts, closed, use: ['eg', 'design', 'off'].includes(props.use) ? props.use : null });
+  }
+  for (const k of ['Parcels', 'Roadways', 'GradeModel', 'Survey']) if (kid(root, k)) note(t('lx.notyet', { what: k }));
   return out;
+}
+
+/** The arc from a to b with bulge a.b (+ = left), or null (featureline.js arcOf, kept here so this module stands alone). */
+function arcGeom(a, b) {
+  const bb = Number.isFinite(a.b) && a.b !== 0 && Math.abs(a.b) < 100 ? a.b : 0, dx = b.x - a.x, dy = b.y - a.y, c = Math.hypot(dx, dy);
+  if (!bb || !(c > 1e-12)) return null;
+  const k = (1 - bb * bb) / (4 * bb), r = (c * (1 + bb * bb)) / (4 * Math.abs(bb)), sweep = 4 * Math.atan(bb);
+  return { cx: (a.x + b.x) / 2 - k * dy, cy: (a.y + b.y) / 2 + k * dx, r, sweep, L: r * Math.abs(sweep) };
+}
+/** A LandXML Curve (Start, Center, End, rot cw|ccw) → the bulge of the segment from start to end (0 = not an arc). */
+function curveBulge(s, c, e, rot) {
+  const a0 = Math.atan2(s.y - c.y, s.x - c.x), a1 = Math.atan2(e.y - c.y, e.x - c.x), ccw = rot !== 'cw';
+  let sw = ccw ? a1 - a0 : a0 - a1;
+  sw = ((sw % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  if (sw < 1e-12) return 0;
+  return (ccw ? 1 : -1) * Math.tan(sw / 4);
 }
 
 /** The point where the tangents at a curve's start and end meet (from its centre). */
@@ -375,6 +469,7 @@ export function scaleImport(d, k) {
     for (const pr of a.profiles) pr.pvis = pr.pvis.map((v) => ({ sta: v.sta * k, z: v.z * k, L: v.L * k }));
     for (const ps of a.surfProfiles) ps.pts = ps.pts.map((v) => ({ sta: v.sta * k, z: v.z * k }));
   }
+  for (const f of d.features || []) f.pts = f.pts.map(p);   // bulges are ratios: they stay
   for (const n of d.networks || []) {
     n.structures = n.structures.map((x) => ({ ...x, x: x.x * k, y: x.y * k, rim: x.rim === null ? null : x.rim * k, sumpDepth: x.sumpDepth * k }));
     n.pipes = n.pipes.map((p) => ({ ...p, invUp: p.invUp === null ? null : p.invUp * k, invDn: p.invDn === null ? null : p.invDn * k }));

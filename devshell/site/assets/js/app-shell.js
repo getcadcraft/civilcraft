@@ -13,6 +13,10 @@
  *
  * The bars are the app bar plus any toolbar that is a direct child of <main> (CadCraft,
  * MarkupCraft, TakeoffCraft); every app redraws through its ResizeObserver when they go.
+ *
+ * 0.6 DF.8 (dev builds and releases from 0.6: the Settings dialog carries data-shell-ui): while the bars are hidden a small
+ * "Show bars" tab stays at the top middle of the window (.shell-showbars), so a person who never found the top edge still
+ * sees the way back; a click (or Enter) shows the bars, and from the keyboard puts the focus in the app bar so they stay.
  */
 /* Shell strings (0.4 item 0.2; docs/LANG.md): assets/lang/shell/<locale>.json, embedded in the page with the app's
  * strings as #cc-lang by Lang::bootTag() (app-shell.inc). window.ccShellT(key, vars) is the shell's t() for its classic
@@ -92,6 +96,37 @@
   hint.setAttribute('role', 'status');
   body.append(edge, hint);
 
+  // 0.6 DF.8: the always-visible way back while the bars are hidden
+  var tab = null;
+  if (document.querySelector('[data-app-settings][data-shell-ui]')) {
+    tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'shell-showbars';
+    tab.setAttribute('data-show-bars', '');
+    tab.title = T('shell.showbars.title', { key: 'Ctrl+Shift+F' });
+    var ti = document.createElement('i');
+    ti.className = 'bi bi-chevron-bar-down';
+    ti.setAttribute('aria-hidden', 'true');
+    tab.append(ti, document.createTextNode(' ' + T('shell.showbars')));
+    // no reveal on hover: the bars would slide in under the pointer and take the click meant for the tab
+    tab.addEventListener('click', function (e) {
+      if (mode !== 'autohide') return;
+      reveal(true);
+      if (e.detail === 0) {   // keyboard: into the app bar, where the focus keeps the bars shown
+        var first = document.querySelector('.app-bar button:not([hidden]), .app-bar summary, .app-bar a');
+        if (first) first.focus();
+      } else hideSoon();
+    });
+    // Enter / Space here, not on the document: several apps take Enter for their own command line
+    tab.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      e.stopPropagation();
+      tab.click();
+    });
+    body.append(tab);
+  }
+
   function bars() {
     var out = [];
     var bar = document.querySelector('.app-bar');
@@ -131,7 +166,7 @@
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function () {
       var a = document.activeElement;
-      var busy = bars().some(function (b) { return b.matches(':hover') || (a && b.contains(a)) || b.querySelector('details[open]'); });
+      var busy = body.classList.contains('shell-arranging') || bars().some(function (b) { return b.matches(':hover') || (a && b.contains(a)) || b.querySelector('details[open]'); });
       if (busy) hideSoon(); else reveal(false);
     }, 700);
   }
@@ -201,7 +236,8 @@
     apply(m);
     if (m === 'normal' && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function () {});
   }
-  window.ccShellScreen = { goTo: goTo, mode: function () { return mode; }, canFull: canFull, say: say };
+  // reveal(true) shows hidden bars until the pointer leaves them (app-settings.js: Arrange the toolbar keeps them out meanwhile)
+  window.ccShellScreen = { goTo: goTo, mode: function () { return mode; }, canFull: canFull, say: say, reveal: function (on) { if (mode !== 'autohide') return; reveal(on); if (!on) return; hideSoon(); } };
 
   btn.hidden = false;
   render();
@@ -225,10 +261,10 @@
   edge.addEventListener('pointerdown', function () { reveal(true); hideSoon(); });
   document.addEventListener('pointerover', function (e) {
     if (mode !== 'autohide' || !body.classList.contains('shell-reveal')) return;
-    if (!e.target.closest || !e.target.closest('.shell-bar, .shell-edge')) hideSoon();
+    if (!e.target.closest || !e.target.closest('.shell-bar, .shell-edge, .shell-showbars')) hideSoon();
   });
   document.addEventListener('pointerdown', function (e) {
-    if (mode === 'autohide' && e.target.closest && !e.target.closest('.shell-bar, .shell-edge')) reveal(false);
+    if (mode === 'autohide' && !body.classList.contains('shell-arranging') && e.target.closest && !e.target.closest('.shell-bar, .shell-edge, .shell-showbars')) reveal(false);
   });
   document.addEventListener('focusin', function (e) {
     if (mode !== 'autohide') return;

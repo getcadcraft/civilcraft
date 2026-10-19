@@ -186,6 +186,23 @@ export async function resMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, arg
     tx2 = txtOf(b2.ed);
     ok((tx2.match(/IFCWALL\([^;]*'Gable end'/g) || []).length === 2 && (tx2.match(/\.ROOF\.\)/g) || []).length === 4, 'gables on both wing ends: four faces, two gable walls, still one valley');
     saved.lroof = b2.ed.save();
+    // 0.6 BIM-F1: posts drawn as short walls (one at the L's inner corner), an inside wall poking out and a garden wall run off
+    // a corner leave the automatic roof's outline alone
+    const b3 = await building({ loops: [LB] });
+    const lvA = b3.levels[0].guid, upA = b3.levels[1].guid;
+    b3.ed.modelChange(OPS.drawWalls({ storey: lvA, segs: [{ a: [4000, 6000], b: [4150, 6000] }, { a: [6000, 4000 + 1500], b: [6150, 4000 + 1500] }], typeKey: 'int-2x6', height: 2400 }));
+    b3.ed.modelChange(OPS.drawWalls({ storey: lvA, segs: [{ a: [2000, 4000], b: [2000, 9800] }], typeKey: 'int-2x4', topLevel: upA, height: 3000 }));
+    b3.ed.modelChange(OPS.drawWalls({ storey: lvA, segs: [{ a: [10000, 0], b: [13000, -2000] }], typeKey: 'ext-2x6', height: 1200 }));
+    const SLB = await import(path.join(APP, 'model-slabs.js'));
+    const { ModelWriter: MW3 } = await import(path.join(APP, 'model-write.js'));
+    const o3 = SLB.storeyLoops(new MW3(b3.ed.W, b3.ed.api, b3.ed.mid), b3.levels[0].id).outlines;
+    ok(o3.length === 1 && o3[0].poly.length === 6, 'posts, an inside wall poking out and a garden wall: the building outline is still the L (6 corners)');
+    b3.ed.modelChange(OPS.placeRoof({ storey: lvA, seed: [2000, 2000], pitch: pd, overhang: 300 }));
+    ok((txtOf(b3.ed).match(/\.ROOF\.\)/g) || []).length === 6, 'its hip roof: six faces, as without them');
+    // a building of inside wall types only still gets its outline (nothing exterior to prefer)
+    const b4 = await building({ loops: [[[0, 0], [5000, 0], [5000, 4000], [0, 4000]]], typeKey: 'int-2x4' });
+    const o4 = SLB.storeyLoops(new MW3(b4.ed.W, b4.ed.api, b4.ed.mid), b4.levels[0].id).outlines;
+    ok(o4.length === 1 && o4[0].poly.length === 4, 'a room of inside wall types only: its outline is found');
     // a manual roof plane: a porch roof against the house, drawn on Level 1, eave at 2400
     const RP = await import(path.join(APP, 'res-roofplane.js'));
     const { ModelWriter } = await import(path.join(APP, 'model-write.js'));

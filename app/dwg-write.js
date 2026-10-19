@@ -35,6 +35,10 @@ const KIND = { LWPOLYLINE: 'lwpolyline', POLYLINE_3D: 'polyline3d', LINE: 'line'
 
 export function writeDwg({ units, layers = [], entities = [], created = new Date(), version = 'AC1015', images = [] } = {}) {
   const model = fromCivilList({ units, layers, entities, created });
+  // 0.6 WL.24: extended data on the list's items (feature lines name their arcs); fromCivilList keeps model space 1:1 with
+  // the list (an item it cannot draw becomes an empty LINE the writer leaves out), so item i is model-space entity i
+  const msEnts = model.blocks.find((b) => b.name === '*Model_Space')?.entities || [];
+  entities.forEach((e, i) => { if (e?.xdata && msEnts[i] && msEnts[i].type !== 'LINE') msEnts[i].xdata = e.xdata; });
   // 0.4 V8: map pictures as IMAGE entities pointing at a file beside the drawing (a DWG cannot hold the picture itself):
   // images [{ fileName, pxW, pxH, box: {minX, minY, maxX, maxY}, layer }] — the picture's lower-left pixel corner at
   // (minX, minY), one pixel = u (east) × v (north)

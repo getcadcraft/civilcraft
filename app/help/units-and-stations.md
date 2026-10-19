@@ -3,7 +3,7 @@ title: Units, stations and number formats
 summary: Feet and metre projects, how stations, grades, side slopes, bearings, areas, volumes and pipe sizes are written and typed, and what changing units does.
 section: reference
 order: 40
-keywords: units, feet, us survey feet, metres, meters, metric, imperial, station format, stationing, grade, percent, side slope, h:v, bearing, cubic yards, diameter
+keywords: type a length, arithmetic, calculator, sum, fraction, feet and inches, 4+7/16, units, feet, us survey feet, metres, meters, metric, imperial, station format, stationing, grade, percent, side slope, h:v, bearing, cubic yards, diameter
 ---
 
 ## Project units
@@ -29,6 +29,22 @@ What depends on the units:
 | LandXML linear unit | USSurveyFoot | meter |
 
 When you open LandXML, the project takes the file's units. A file in international feet opens as a feet project; the numbers are not changed.
+
+## Typing lengths and sums
+
+Any box that takes a length or an elevation reads more than a plain number: press {{key:Enter}} and the box shows the result in the project's units.
+
+| You type | In a feet project | In a metre project |
+|---|---|---|
+| `12.5` | 12.5 ft | 12.5 m |
+| `12'6"`, `12' 6 1/2"`, `6"`, `3 ft 6 in` | 12.5 ft, 12.54 ft, 0.5 ft, 3.5 ft | the same lengths in metres |
+| `4 7/16`, `4-7/16` | 4.4375 ft | 4.4375 m |
+| `450 mm`, `1.2 m`, `90 cm` | in feet | 0.45 m, 1.2 m, 0.9 m |
+| `4+7/16`, `12'6" + 3/4"`, `(24'-0")/3`, `2*450mm` | the sum, in feet | the sum, in metres |
+
+Use `+ - * /` and brackets, and `abs`, `round`, `ceil` and `floor`. A dash written into a length is part of it (`24'-6"`, `6-1/2`); with spaces round it, it subtracts (`24' - 6"` = 23.5 ft). A plain number multiplies or divides a length, and is a length in the project's units when it is added to one. If CivilCraft can't read what you typed, the box is marked and the status bar says where.
+
+Stations are not sums: `10+00` in a station box is station 10+00. Grades in percent, point numbers and descriptions are read as they are.
 
 ## Stations
 

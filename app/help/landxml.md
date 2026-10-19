@@ -29,6 +29,7 @@ What becomes what:
 | Every alignment of lines and arcs | An alignment with its PIs and radii rebuilt from the curves |
 | The first design profile of each alignment | Its design profile, with parabolic vertical curves |
 | The first pipe network | The pipe network, with its rims, sumps and inverts |
+| Plan features of lines and arcs | Feature lines, arcs kept; from another program they start as **Only drawn** |
 
 The full list of elements and attributes is in [LandXML: what is read and written](topic:landxml-reference).
 
@@ -48,6 +49,7 @@ The file holds:
 - **Surfaces**: the existing ground as a TIN, with its breaklines and outer boundary as source data; and, when pads or corridors grade, a second TIN surface named "Proposed".
 - **Alignments**: lines and arcs with their stations, each with a profile holding the existing ground sampled along it and the design profile (PVIs and parabolic curves) when it has at least two PVIs.
 - **PipeNetworks**: structures with their rims, sumps and invert per pipe, and the pipes with diameter, length and slope.
+- **PlanFeatures**: every feature line as lines and arcs with the elevation at each end, and what it is used for.
 
 ## What does not make the trip
 
@@ -58,7 +60,7 @@ The file holds:
 - Network rules (least slope, cover, drop): LandXML has no place for them.
 - Display settings and point groups' surface choices: save a CivilCraft project for those.
 
-When opening, CivilCraft does not read spirals, grid surfaces, points that only refer to other points, parcels, plan features, roadways or survey data. Each is named in the notes, never guessed.
+When opening, CivilCraft does not read spirals, grid surfaces, points that only refer to other points, parcels, spirals in plan features, roadways or survey data. Each is named in the notes, never guessed.
 
 ## Round trips
 

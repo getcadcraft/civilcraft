@@ -26,6 +26,8 @@ A topographic survey often arrives as a drawing: contours as polylines at their 
 | Points with an elevation | Survey points, described with the layer name |
 | Lines at elevation 0 (plan linework) | Nothing: it stays on the plan as a base drawing |
 
+A drawing CivilCraft wrote holds its feature lines as 3D polylines that remember their arcs. The dialog then shows **Feature lines**: leave it ticked to bring them back as feature lines with their arcs and uses (one undo step), or untick it to read them as linework like any other layer.
+
 Later, use {{ui:Use for the surface}} in the layer's menu under **GIS layers** to do the same for a layer you only showed.
 
 ## Survey points from blocks

@@ -87,6 +87,12 @@ const E0 = 6150000, N0 = 2080000;
 let ctx;
 try {
   ctx = await signedInContext({ viewport: { width: 1440, height: 900 } });
+  // 0.4 1.2: a reload after unsaved work offers "Recover your work?" (app-autosave.js; browser-part2.mjs a12 tests it); this
+  // suite reloads on purpose (settings kept), so the offer is discarded whenever it shows (as browser-04/05/06 do)
+  await ctx.addInitScript(() => {
+    new MutationObserver(() => { const b = document.querySelector('[data-autosave-dialog][open] [data-autosave-discard]'); if (b) b.click(); })
+      .observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['open'] });
+  });
   const page = await ctx.newPage();
   watch(page);
   console.log('\n== open the lab app');

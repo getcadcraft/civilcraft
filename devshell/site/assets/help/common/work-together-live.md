@@ -3,7 +3,7 @@ title: Work together live
 summary: Share the file open in an app so teammates edit it with you on your own network with a short code, and join someone else's session. Invite links over the internet are not open yet.
 section: tasks
 order: 90
-keywords: live, studio live, work together, collaborate, share live, join, code, qr, invite link, link, host, approve, guest, network, relay, license
+keywords: live, studio live, work together, collaborate, share live, join, code, qr, invite link, link, host, approve, guest, network, relay, license, many people, limit, allow anyway, slow, recent edits, edit log, who changed, history
 ---
 
 ## What you will learn
@@ -27,6 +27,19 @@ Nobody gets in without you. When someone knocks, a card shows their name and dev
 - {{ui:Deny}} turns them away.
 
 The list under {{ui:In the session}} shows everyone. Change a person's role there, or {{ui:Remove}} them: they keep a copy of what they had, and they can't come back without a new invitation.
+
+## When many people join
+
+A session's usual size is up to 20 people besides you. It is not a hard limit: how many people can work well together depends on their computers, the file and the network, so Studio asks you before a session grows past it instead of deciding for you.
+
+When someone knocks and would make more than 20, their card says so, and Studio explains what to expect: every change goes to everyone, so with many people each change takes longer to reach each person, and slower laptops and connections fall behind first. Then you choose:
+
+- {{ui:Allow anyway}} lets more people in for this session. Each person still waits for your {{ui:Edit}}, {{ui:View only}} or {{ui:Deny}}.
+- {{ui:Keep it at 20}} turns away the people waiting over the limit; they are told you are keeping the session small.
+
+To allow more before anyone knocks, choose {{ui:Allow more people…}} under {{ui:In the session}}. {{ui:Back to 20}} puts the usual size back. Your choice lasts for this session only; the next one starts at 20 again.
+
+If things slow down, fewer people, a quieter file (fewer people changing it at the same moment) or a better connection (a cable instead of Wi-Fi) helps.
 
 ## Codes on your own network
 
@@ -62,6 +75,12 @@ In CadCraft, if you already have the same file open in a Studio window, you can 
 :::note
 Guest, hotel and school Wi-Fi often keep devices apart, so a code can't find the host there. Use a network that lets devices see each other, such as the office network. Invite links, for when you are not on the same network, are not open yet.
 :::
+
+## Who changed what: Recent edits
+
+The Live panel lists **Recent edits**: who made each change and what it was (the step's name, such as Line or Move), newest first, with how long ago. {{ui:Show more}} lists more of them. With something selected in CadCraft or MarkupCraft, the panel also says who changed it last, and {{ui:Only what is selected}} keeps just the edits that touched it.
+
+The list is made in your own window from the session's edits while the session runs. It is gone when the session ends: it is never saved in the file or sent anywhere. Everyone in the session can see who made each change. If you joined after people had started, or were away for a while, the edits from before are not in your list, and the panel says so.
 
 ## Assistants in a session
 

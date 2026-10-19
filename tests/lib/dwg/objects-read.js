@@ -1146,6 +1146,37 @@ DECODERS.SORTENTSTABLE = (r, h, rec) => {
   rec._h.ownerBlock = h.H(rec.handle);
   rec._h.ents = hrefs(h, rec, n);
 };
+// ---- 20.4.78 GEODATA: a drawing's geographic location (0.6 GEO-DWG). The 2010 format (objectVersion 2, 3) is read as
+// it is; the 2009 one (1) into the same names. The R2007-and-older "civil data" tail is not read (nothing after it).
+DECODERS.GEODATA = (r, h, rec) => {
+  rec.objectVersion = r.BL();
+  rec._h.host = h.H(rec.handle);
+  rec.coordType = r.BS();
+  if (rec.objectVersion >= 2) {
+    rec.designPoint = r.BD3(); rec.referencePoint = r.BD3();
+    rec.unitScaleH = r.BD(); rec.unitsH = r.BL(); rec.unitScaleV = r.BD(); rec.unitsV = r.BL();
+    rec.up = r.BD3();
+    // Spec gap: the spec gives the north direction as 3RD; it is two RDs (2D vector, DXF 12/22) — files written both
+    // ways and read by the ODA File Converter: only 2RD keeps the fields after it in place
+    rec.north = r.RD2();
+    rec.scaleMethod = r.BL(); rec.userScale = r.BD(); rec.seaLevel = !!r.B(); rec.seaElevation = r.BD(); rec.projRadius = r.BD();
+    rec.csDef = r.TV(); rec.geoRss = r.TV();
+  } else {
+    rec.referencePoint = r.BD3(); rec.unitsH = r.BL(); rec.designPoint = r.BD3(); r.BD3();
+    rec.up = r.BD3();
+    const a = r.BD();   // radians, clockwise from (0, 1)
+    rec.north = { x: Math.sin(a), y: Math.cos(a) };
+    r.BD3();
+    rec.csDef = r.TV(); rec.geoRss = r.TV(); rec.unitScaleH = r.BD(); rec.datumName = r.TV(); rec.wkt = r.TV();
+  }
+  rec.obsFrom = r.TV(); rec.obsTo = r.TV(); rec.obsCoverage = r.TV();
+  const np = fits(r, r.BL(), 256);
+  rec.meshPoints = [];
+  for (let i = 0; i < np; i++) { const s = r.RD2(); rec.meshPoints.push({ source: s, dest: r.RD2() }); }
+  const nf = fits(r, r.BL(), 6);
+  rec.meshFaces = [];
+  for (let i = 0; i < nf; i++) rec.meshFaces.push([r.BL(), r.BL(), r.BL()]);
+};
 DECODERS.SPATIAL_FILTER = (r, h, rec) => {
   const n = r.BS(); rec.points = []; for (let i = 0; i < n; i++) rec.points.push(r.RD2());
   rec.extrusion = r.BD3(); rec.origin = r.BD3(); rec.displayBoundary = r.BS();

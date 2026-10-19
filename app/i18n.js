@@ -24,6 +24,9 @@ const KEY_RE = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
 const FILL_RE = /\{\{|\}\}|\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
 export const CATEGORIES = ['zero', 'one', 'two', 'few', 'many', 'other'];
 export const DEFAULT_LOCALE = 'en';
+/** Languages written right to left (by base language subtag). */
+export const RTL = new Set(['ar', 'arc', 'ckb', 'dv', 'fa', 'ha', 'he', 'khw', 'ks', 'ku', 'ps', 'sd', 'ug', 'ur', 'yi']);
+export const isRtl = (loc = locale()) => RTL.has(String(loc).split('-')[0]);
 
 let state = null;            // {locale, chain, strings}
 const missingKeys = new Set();
@@ -33,8 +36,10 @@ const pluralCache = new Map();
 export function init({ locale = DEFAULT_LOCALE, chain = null, strings = {} } = {}) {
   state = { locale, chain: chain || [locale], strings: strings || {} };
   missingKeys.clear();
-  if (typeof document !== 'undefined' && document.documentElement && document.documentElement.lang !== locale) {
-    document.documentElement.lang = locale;
+  if (typeof document !== 'undefined' && document.documentElement) {
+    if (document.documentElement.lang !== locale) document.documentElement.lang = locale;
+    const dir = RTL.has(locale.split('-')[0]) ? 'rtl' : 'ltr';
+    if (document.documentElement.dir !== dir) document.documentElement.dir = dir;
   }
   return state;
 }
@@ -120,6 +125,6 @@ export function setLocale(loc) {
 
 // globalThis.ccI18n: how shared libraries (lib/dwg, lib/skp, libitem.js — docs/LANG.md § Shared libraries) reach the
 // page's language without importing this file; catalog() lets one hand it to its worker.
-const api = { t, has, locale, missing, init, setLocale, fill, choosePlural, pluralCategory, catalog };
+const api = { t, has, locale, missing, init, setLocale, fill, choosePlural, pluralCategory, catalog, isRtl };
 if (typeof globalThis !== 'undefined' && !globalThis.ccI18n) globalThis.ccI18n = api;
 export default api;

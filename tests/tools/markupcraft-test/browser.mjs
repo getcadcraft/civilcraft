@@ -484,7 +484,7 @@ try {
   await page.click('[data-edit-menu] > summary');
   ok(await page.locator('[data-edit-menu][open] .mc-menu-list').isVisible(), 'More opens the menu');
   const items = await page.locator('[data-edit-menu] [role="menuitem"]').evaluateAll((els) => els.map((e) => e.textContent.replace(/\s+/g, ' ').trim()));
-  ok(items.join('|') === 'Cut Ctrl+X|Copy Ctrl+C|Paste Ctrl+V|Paste in place Ctrl+Shift+V|Duplicate Ctrl+D|Delete Delete|Select all Ctrl+A|Select none Esc', 'More lists cut, copy, paste, paste in place, duplicate, delete, select all, select none with their keys', items);
+  ok(items.join('|') === 'Cut Ctrl+X|Copy Ctrl+C|Paste Ctrl+V|Paste in place Ctrl+Shift+V|Paste a picture Ctrl+V|Duplicate Ctrl+D|Delete Delete|Select all Ctrl+A|Select none Esc', 'More lists cut, copy, paste, paste in place, paste a picture (0.6 DF.6), duplicate, delete, select all, select none with their keys', items);
   await page.click('[data-edit-menu] [data-act="paste-in-place"]');
   ok(!(await page.locator('[data-edit-menu]').evaluate((d) => d.open)), 'the menu closes after a choice');
   ok(await count() === n0 + 1 && JSON.stringify((await selected())[0].rect) === JSON.stringify(rect0), 'Paste in place: the same position on the sheet');

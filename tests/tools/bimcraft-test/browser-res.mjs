@@ -71,6 +71,9 @@ try {
   // a 9 × 6 m room
   await page.click('[data-mtool="wall"]');
   await page.selectOption('[data-model-walltype]', 'ext-2x6');
+  // Fit again under the Draw bar as the Wall tool left it: its options rows (shape, location line, side; 0.6 round 2) make it
+  // taller than at the first fit, and in Split at 1440 px it then covers the top of the plan where y 6000 would be clicked
+  await page.click('[data-model-fit]');
   for (const [x, y] of [[0, 0], [9000, 0], [9000, 6000], [0, 6000], [0, 0]]) { await planClick(x, y); }
   await settled();
   ok((await page.evaluate(() => window.bimcraftPlan.state.data.walls.length)) === 4, 'a room of four walls drawn by clicks');

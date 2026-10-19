@@ -155,11 +155,11 @@ export const MESSAGES = {
   },
   'ccdwg.write.nurbs_up': {
     one: '{n} surface saved down from NURBSURFACE was written as NURBSURFACE again (its NURBS fields were not kept by the save-down).',
-    other: '{n} surfaces saved down from NURBSURFACE were written as NURBSURFACE again (its NURBS fields were not kept by the save-down).',
+    other: '{n} surfaces saved down from NURBSURFACE were written as NURBSURFACE again (their NURBS fields were not kept by the save-down).',
   },
   'ccdwg.write.embedded': {
     one: '{n} embedded profile/path entity of a surface (an encoding cc-dwg does not know) was left out: it is kept only in the drawing\'s own version.',
-    other: '{n} embedded profile/path entities of a surface (an encoding cc-dwg does not know) were left out: it is kept only in the drawing\'s own version.',
+    other: '{n} embedded profile/path entities of a surface (an encoding cc-dwg does not know) were left out: they are kept only in the drawing\'s own version.',
   },
   'ccdwg.write.table_fields': {
     one: '{n} table cell field could not be written and kept its text.',

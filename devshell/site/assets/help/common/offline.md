@@ -42,4 +42,4 @@ You are offline now. If this app was saved for offline use, everything below wor
 Safari removes saved site data from sites you have not visited for several weeks. Open the app now and then while online, or save it again before a trip.
 :::
 
-- Desktop builds, which will not need a browser, are not available yet.
+- CadCraft Studio, the desktop app with all eight apps in one install, is on getcadcraft.com/download.

@@ -21,6 +21,10 @@ const add = Object.entries(words).map(([k, v]) => '  ' + JSON.stringify(k) + ': 
 add[add.length - 1] = add[add.length - 1].replace(/,$/, '');
 const out = [...keep, ...add, '}'].join('\n') + '\n';
 JSON.parse(out);
-if (process.argv.includes('--check')) { if (out !== text) { console.error('lang/en.json: res.* keys not up to date (run node tools/bimcraft-test/res-lang.mjs)'); process.exit(1); } console.log('res.* keys up to date (' + add.length + ')'); process.exit(0); }
-if (out !== text) fs.writeFileSync(FILE, out);
+// up to date = every res.* key there with its words and no other res.* key, wherever the block sits (families-lang.mjs also
+// puts its block last, so the order of the two depends on which ran last; neither check looks at it)
+const J = JSON.parse(text), resKeys = Object.keys(J).filter((k) => k.startsWith('res.'));
+const same = Object.entries(words).every(([k, v]) => J[k] === v) && resKeys.length === Object.keys(words).length;
+if (process.argv.includes('--check')) { if (!same) { console.error('lang/en.json: res.* keys not up to date (run node tools/bimcraft-test/res-lang.mjs)'); process.exit(1); } console.log('res.* keys up to date (' + add.length + ')'); process.exit(0); }
+if (!same) fs.writeFileSync(FILE, out);   // nothing moves when the words are already there
 console.log('wrote ' + add.length + ' res.* keys');

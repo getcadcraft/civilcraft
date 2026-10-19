@@ -38,8 +38,16 @@ foreach (Lang::locales((string)($__build['dir'] ?? '')) as $__l) {
 if (!empty($__build['is_dev'])) $__langs[Lang::PSEUDO] = Lang::t('shell.settings.lang.pseudo');
 $__lang_cookie = isset($_COOKIE[Lang::COOKIE]) ? (string)$_COOKIE[Lang::COOKIE] : '';
 $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
+// 0.6 layout tools (session shell-ui: DF.8 Reset the layout + Show bars, DF.27 toolbar menu + lock + ribbon pin, DF.28 Interface
+// size): dev builds and releases from 0.6 on. Worked out here, not in AppBuilds, so the browser edition / Studio page
+// (devshell/render.php and its AppBuilds stub) agrees; the 0.5 releases in /use load the same shell files and see none of it.
+$__ver = (string)($__build['version'] ?? '');
+$__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $__ver) === 1 && version_compare($__ver, '0.6', '>='));
 ?>
-<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?> aria-labelledby="shell-settings-h">
+<?php if ($__shell_ui): /* 0.6 DF.28: the interface size before the app's own scripts measure anything (app-settings.js keeps it after) */ ?>
+<script>(function () { try { var v = JSON.parse(localStorage.getItem(<?= json_embed('cc-app-settings:' . $app['slug']) ?>) || '{}').ui; if (typeof v === 'number' && v >= 0.8 && v <= 1.4 && v !== 1) { document.documentElement.style.setProperty('--shell-ui', String(v)); document.documentElement.classList.add('shell-ui-sized'); } } catch (e) {} })();</script>
+<?php endif; ?>
+<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?><?= $__shell_ui ? ' data-shell-ui' : '' ?> aria-labelledby="shell-settings-h">
   <form method="dialog" class="shell-dlg">
     <div class="shell-dlg-head">
       <h2 id="shell-settings-h"><?= Lang::e('shell.settings.title', $__an) ?></h2>
@@ -65,6 +73,16 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
         </section>
       <?php endif; ?>
       <section class="shell-pane" id="shell-pane-general"<?= $__own_settings ? ' role="tabpanel" aria-labelledby="shell-tab-general"' : '' ?> data-settings-pane="general">
+<?php if ($__shell_ui): /* 0.6 DF.8: the way back when a bar, a menu or a panel went missing */ ?>
+      <fieldset class="shell-set" data-layout-set>
+        <legend><?= Lang::e('shell.layout') ?></legend>
+        <p class="shell-hint-text"><?= Lang::e('shell.layout.lost') ?></p>
+        <div class="shell-btns">
+          <button type="button" class="btn-line btn-sm-cc" data-layout-reset><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> <?= Lang::e('shell.layout.reset') ?></button>
+        </div>
+        <p class="shell-hint-text"><?= Lang::e('shell.layout.hint', $__an) ?></p>
+      </fieldset>
+<?php endif; ?>
       <fieldset class="shell-set">
         <legend><?= Lang::e('shell.settings.theme') ?></legend>
         <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('shell.settings.theme') ?>">
@@ -127,10 +145,55 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
           <button type="button" class="btn-line btn-sm-cc" data-tb-order-reset><?= Lang::e('shell.settings.tb.original') ?></button>
         </div>
         <p class="shell-hint-text"><?= Lang::e('shell.settings.tb.hint') ?></p>
+        <?php if ($__shell_ui): /* 0.6 DF.27: the lock and the right-click menu */ ?>
+        <label class="shell-check"><input type="checkbox" name="tbLock" data-tb-lock> <?= Lang::e('shell.settings.tb.lock') ?></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.settings.tb.menu_hint') ?></p>
+        <?php endif; ?>
       </fieldset>
 
+      <?php if ($__shell_ui): /* 0.6 DC.102: pen and touch on the drawing (app-phone.js wires it; shown with a touch screen or a pen) */ ?>
+      <fieldset class="shell-set" data-pen-set hidden>
+        <legend><?= Lang::e('shell.pen.title') ?></legend>
+        <label class="shell-check"><input type="checkbox" name="penPalm" data-pen="palm"> <?= Lang::e('shell.pen.palm') ?></label>
+        <p class="shell-hint-text mb-1" id="shell-pen-fingers-l"><?= Lang::e('shell.pen.fingers') ?></p>
+        <div class="shell-seg" role="radiogroup" aria-labelledby="shell-pen-fingers-l">
+          <label><input type="radio" name="penFingers" value="draw" data-pen="fingers"> <i class="bi bi-hand-index" aria-hidden="true"></i> <?= Lang::e('shell.pen.fingers.draw') ?></label>
+          <label><input type="radio" name="penFingers" value="view" data-pen="fingers"> <i class="bi bi-arrows-move" aria-hidden="true"></i> <?= Lang::e('shell.pen.fingers.view') ?></label>
+        </div>
+        <label class="shell-check"><input type="checkbox" name="penTaps" data-pen="taps"> <?= Lang::e('shell.pen.taps') ?></label>
+        <div class="shell-row">
+          <label for="shell-pen-side"><?= Lang::e('shell.pen.side') ?></label>
+          <select id="shell-pen-side" class="select-cc" name="penSide" data-pen="side">
+            <option value="app"><?= Lang::e('shell.pen.app.side') ?></option>
+            <option value="undo"><?= Lang::e('shell.pen.undo') ?></option>
+            <option value="redo"><?= Lang::e('shell.pen.redo') ?></option>
+          </select>
+        </div>
+        <div class="shell-row">
+          <label for="shell-pen-eraser"><?= Lang::e('shell.pen.eraser') ?></label>
+          <select id="shell-pen-eraser" class="select-cc" name="penEraser" data-pen="eraser">
+            <option value="app"><?= Lang::e('shell.pen.app.eraser') ?></option>
+            <option value="undo"><?= Lang::e('shell.pen.undo') ?></option>
+            <option value="redo"><?= Lang::e('shell.pen.redo') ?></option>
+          </select>
+        </div>
+        <p class="shell-hint-text"><?= Lang::e('shell.pen.hint') ?></p>
+      </fieldset>
+      <?php endif; ?>
+
       <fieldset class="shell-set">
-        <legend><?= Lang::e('shell.settings.panels') ?></legend>
+        <legend><?= Lang::e($__shell_ui ? 'shell.settings.sizes' : 'shell.settings.panels') ?></legend>
+        <?php if ($__shell_ui): /* 0.6 DF.28: the whole app's size, beside the panel text size */ ?>
+        <div class="shell-row">
+          <label for="shell-ui"><?= Lang::e('shell.settings.ui') ?></label>
+          <select id="shell-ui" class="select-cc" name="ui" data-ui-size>
+            <?php foreach (['0.8', '0.9', '1', '1.1', '1.2', '1.3', '1.4'] as $__u): $__pct = (int)round((float)$__u * 100); ?>
+              <option value="<?= $__u ?>"><?= Lang::e($__u === '1' ? 'shell.settings.ui.normal' : 'shell.settings.ui.pct', ['pct' => $__pct]) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <p class="shell-hint-text"><?= Lang::e('shell.settings.ui.hint', $__an) ?></p>
+        <?php endif; ?>
         <div class="shell-row">
           <label for="shell-zoom"><?= Lang::e('shell.settings.zoom') ?></label>
           <select id="shell-zoom" class="select-cc" name="zoom">
@@ -163,7 +226,7 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
         <label class="shell-check"><input type="checkbox" name="tips"> <?= Lang::e('shell.settings.tips') ?></label>
       </fieldset>
 
-      <fieldset class="shell-set" data-addons-set hidden>
+      <fieldset class="shell-set shell-set-wide" data-addons-set hidden>
         <legend><?= Lang::e('shell.addons') ?></legend>
         <ul class="shell-addons" data-addons-list></ul>
         <p class="shell-hint-text"><?= Lang::e('shell.addons.hint', $__an) ?></p>

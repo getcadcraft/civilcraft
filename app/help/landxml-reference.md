@@ -3,7 +3,7 @@ title: LandXML: what is read and written
 summary: The LandXML 1.2 elements and attributes CivilCraft reads and writes, element by element, and everything it skips.
 section: reference
 order: 50
-keywords: landxml, xml, cgpoints, surface, tin, breaklines, boundary, alignment, coordgeom, profile, profalign, pvi, paracurve, pipenetworks, struct, pipe, schema
+keywords: landxml, xml, cgpoints, surface, tin, breaklines, boundary, alignment, coordgeom, profile, profalign, pvi, paracurve, pipenetworks, struct, pipe, planfeatures, planfeature, feature line, schema
 ---
 
 CivilCraft writes LandXML 1.2 with the official namespace and schema location. It reads any file whose root element is `LandXML` and takes the elements below by name (namespace prefixes are ignored; the version is not checked). Its XML reader accepts only the five standard entities and numeric character references; it never loads a DTD or external file. For the steps, see [Exchange LandXML](topic:landxml).
@@ -30,6 +30,7 @@ LandXML writes coordinates northing first: a point is "N E" or "N E Z".
 | `PipeNetworks` / `PipeNetwork` | `name`, `pipeNetType` storm or sanitary |
 | `Struct` | `name`, `elevRim` (the rim used, set or from the surface), `elevSump`; `Center`; `CircStruct` with `diameter`; `Invert` with `elev`, `flowDir` in or out, `refPipe` |
 | `Pipe` | `name`, `refStart`, `refEnd`, `length`, `slope`; `CircPipe` with `diameter` |
+| `PlanFeatures` / `PlanFeature` | one per feature line: `name`; `CoordGeom` with `Line` (`length`, `Start`, `End`) and `Curve` (`rot`, `crvType` arc, `radius`, `length`, `chord`, `delta`; `Start` and `End` as "N E Z", `Center` as "N E"); `Feature` `code="CivilCraft"` with `Property` use and closed |
 
 Not written: pads and corridors as objects (their result is the "Proposed" surface), alignments with errors, pipes without both inverts, network rules.
 
@@ -45,6 +46,7 @@ Not written: pads and corridors as objects (their result is the "Proposed" surfa
 | `SourceData` / `Boundaries` | the outer boundary |
 | `Alignment` / `CoordGeom` | `Line` and `Curve` elements; PIs rebuilt from each curve's `PI`, or from its `Center` and tangents; `staStart` |
 | `Profile` / `ProfAlign` | `PVI` and `ParaCurve` (with `length`); the first design profile with at least two PVIs |
+| `PlanFeatures` / `PlanFeature` | each one as a feature line: `Line`, `Curve` (its `Start`, `Center`, `End` and `rot`) and `IrregularLine` (`PntList3D` or `PntList2D`) joined end to end (a gap is joined with a straight segment and noted); closed when it ends where it began; use and closed from CivilCraft's own `Feature`, else **Only drawn**. Points without an elevation get 0 (noted). |
 | `PipeNetwork` | the first network that has pipes: `Struct` (`Center`, `elevRim`, `elevSump`, `CircStruct` diameter, `Invert` per pipe) and `Pipe` (`refStart`, `refEnd`, `CircPipe` diameter) |
 
 ## Skipped, and named in the notes
@@ -57,7 +59,8 @@ Not written: pads and corridors as objects (their result is the "Proposed" surfa
 - Hide, show and data-clip boundaries; breaklines without 3D points
 - Pipe networks after the first; network types other than storm and sanitary (read as storm)
 - Rectangular, inlet and outlet structures (read as round); egg, elliptical and box pipes and channels (read as round pipes of no size)
-- `Parcels`, `PlanFeatures`, `Roadways`, `GradeModel` and `Survey`
+- `Spiral` elements in plan features
+- `Parcels`, `Roadways`, `GradeModel` and `Survey`
 
 Ground profiles (`ProfSurf`) in a file are not used: CivilCraft samples the ground from the surface itself.
 

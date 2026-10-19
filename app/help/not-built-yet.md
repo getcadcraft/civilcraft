@@ -49,16 +49,18 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 |---|---|
 | Curb and gutter, sidewalks, ditches, other subassemblies | One lane, one shoulder and a side slope each side |
 | Different left and right sides, or changes along the road | Split the work into separate alignments |
-| Widening, spiral transitions for superelevation, rotation about an edge, superelevation in LandXML | Superelevation rotates about the centerline on circular curves; widen by hand with a second alignment |
-| Regions, targets, corridor surfaces of their own | The corridor is graded into the proposed surface |
+| Spiral transitions for superelevation, rotation about an edge, superelevation in LandXML | Superelevation rotates about the centerline on circular curves; widen a lane with a width target to a feature line |
+| Regions, targets for the side slopes (daylight to a line or a surface), corridor surfaces of their own | Targets move the edges of pavement and shoulders ([Corridors](topic:corridor)); the corridor is graded into the proposed surface |
 | Corridors exported as LandXML roadways | The proposed surface is exported |
+| Swept paths with speed, tyre slip, steering time, steering trailers or body clearance; a library of standard design vehicles; a swept path drawn by dragging the vehicle | Low-speed swept paths along a feature line or an alignment, with your own vehicle sizes ([Vehicle swept paths](topic:swept-paths)) |
 
 ## Grading and volumes
 
 | Not built yet | Instead, today |
 |---|---|
 | Benches, open feature lines graded into the design, grading to a feature line from elsewhere | Close the feature line ([Feature lines](topic:feature-lines)), or use it as a breakline of the existing ground |
-| Inserting or removing a feature line vertex, arcs in feature lines | Draw the line again, or make a stepped offset of it |
+| Inserting or removing a feature line vertex | Draw the line again, or make a stepped offset of it |
+| Arcs in drawn breaklines (through survey points), spirals in feature lines | Draw a feature line with arcs and use it as a breakline of the existing ground |
 | Grading to a distance, elevation or another surface | Daylight to existing ground only |
 | Adding or removing a pad corner | Delete the pad and draw it again |
 | TIN-to-TIN (prism) volumes, choosing the grid cell size | Grid method, cell size chosen for you |
@@ -70,9 +72,11 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Not built yet | Instead, today |
 |---|---|
 | More than one network per project | Separate projects for storm and sanitary |
+| Water mains (pressure networks: demands, pressures, fire flow, tanks, pumps, valves) | Check them in water distribution software; sanitary design flows are in [Sanitary design flows](topic:sanitary-design) |
+| Sewer flows over time (hydrographs, dynamic routing, storage, pumps, overflows) | [Sanitary design flows](topic:sanitary-design) gives the steady peak flow a design sheet uses |
 | Inlet capacity, gutter spread, detention routing, hydrographs, energy losses other than one junction coefficient | Check them in other software; flows, sizes and the grade lines are in [Storm drainage](topic:storm-drainage) |
 | Catchments in the PDF plot, DWG, DXF or LandXML; catchments from the surface (watersheds) | Draw catchments by hand; they are saved in the project file |
-| Parts catalogs, rectangular structures, non-round pipes | Round structures and pipes with a diameter |
+| Pipe catalogs, non-round pipes, structures that are not upright boxes or cylinders (cones, steps, benching), a drainage category in the library | Structure types from parameters ([Pipe network](topic:pipe-network)); pipes with a diameter |
 | Pipes in the profile view, curved pipes | Read inverts and cover in the right panel |
 
 ## Parcels
@@ -109,7 +113,7 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Plotting elevation bands and profiles | Bands are screen only; take a screenshot if you need them |
 | Changing layer names, colors or label styles | Change them in a CAD program after DXF export |
 | Cloud saving and version history | Save `.civilcraft.json` files and keep them backed up; to work on one project together, use a live session in CadCraft Studio ([Design one site together, live](topic:work-live)) |
-| CadCraft Studio for iPad, Android tablets and phones, and iPhone (planned for 0.6) | Use CivilCraft in the browser on the device |
+| CadCraft Studio for iPad and iPhone (planned for 0.6), and from Google Play | Use CivilCraft in the browser on the device; on Android, CadCraft Studio installs from its APK on getcadcraft.com/download |
 | Opening several point or project files at once | One file per open (GIS files that belong together, such as a shapefile's parts, open together) |
 
 ## GIS and coordinate systems

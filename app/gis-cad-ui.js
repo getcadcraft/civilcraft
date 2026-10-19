@@ -13,11 +13,14 @@
  * layer, each insertion point → one survey point (description from the block name, its layer or an attribute; elevation
  * from the insertion or an attribute; number from an attribute or the next free ones), added as ONE undo step; the
  * drawing is not changed and every point keeps the block it came from (`blk`). Attribute choices start on likely tags.
+ * CivilCraft's own feature lines (0.6 WL.24; cad-linework.js cadFeatureLines): when the drawing holds 3D polylines CivilCraft
+ * wrote as feature lines, a box (`[data-cad-fl]`, on at first) brings them back as feature lines with their arcs (one undo
+ * step) instead of as linework.
  * window.civilcraft.gis.cad (host.cad) = { open(files), last } for tests. Every word goes through t() (lang/en.json, cad.*).
  */
 
 import { t } from './i18n.js';
-import { cadLinework, unitScale } from './cad-linework.js';
+import { cadLinework, unitScale, cadFeatureLines } from './cad-linework.js';
 import { blockRefs, pointsFromBlocks } from './block-points.js';
 import { addLayers, useChoices, useForSurface, layerOf } from './gis-layers.js';
 
@@ -90,9 +93,10 @@ export async function install(host) {
     return new Promise((done) => {
       const projectUnit = P().state.units === 'm' ? 'm' : 'ft';
       let unitCode = null;   // null = what the file says
-      let r = cadLinework(model, { file, projectUnit });
+      let flOn = true, fls = cadFeatureLines(model, { projectUnit });   // 0.6 WL.24
+      let r = cadLinework(model, { file, projectUnit, skipFeatureLines: fls.length > 0 });
       let br = blockRefs(model, { projectUnit, scale: r.scale });
-      if (!r.layers.length && !br.refs.length) { host.say([t('cad.ui.nothing', { file }), ...r.notes].join(' ')); done(null); return; }
+      if (!r.layers.length && !br.refs.length && !fls.length) { host.say([t('cad.ui.nothing', { file }), ...r.notes].join(' ')); done(null); return; }
       const pick = new Set(r.cadLayers.filter((l) => l.on).map((l) => l.name));
       const use = new Map();   // cad layer name + geom → choice index (into useChoices of that layer)
       const tbody = el('tbody', {});
@@ -102,6 +106,10 @@ export async function install(host) {
       const unitNote = el('p', { className: 'cv-note', 'data-cad-unit-note': '' });
       const what = el('p', { className: 'cv-note', 'data-cad-what': '' });
       const go = el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-cad-go': '' }, t('cad.ui.add'));
+      const flBox = el('input', { type: 'checkbox', checked: true, 'data-cad-fl': '' });
+      const flSec = el('section', { className: 'cv-blk', 'data-cad-fl-sec': '', hidden: !fls.length },
+        el('h3', { className: 'cv-h3' }, t('cad.fl.head')), el('label', { className: 'cv-check' }, flBox, ' ', el('span', { 'data-cad-fl-label': '' })));
+      flBox.onchange = () => { flOn = flBox.checked; rebuild(); };
       // ---- survey points from blocks (WL.19) ----
       const bPick = new Set(), lPick = new Set();
       const bBody = el('tbody', {}), lList = el('div', { className: 'cv-blk-layers', 'data-blk-layers': '' });
@@ -161,7 +169,9 @@ export async function install(host) {
       const choicesFor = (l) => useChoices({ geom: l.geom, fields: l.fields }, l.features);
       function rebuild() {
         const header = unitCode === null ? model.header : { ...model.header, INSUNITS: unitCode };
-        r = cadLinework({ ...model, header }, { file, projectUnit });
+        fls = cadFeatureLines({ ...model, header }, { projectUnit, scale: unitScale(header, projectUnit).scale });
+        r = cadLinework({ ...model, header }, { file, projectUnit, skipFeatureLines: flOn && fls.length > 0 });
+        flSec.querySelector('[data-cad-fl-label]').textContent = t('cad.fl.take', { n: fls.length, arcs: fls.reduce((a, f) => a + f.pts.filter((p) => p.b).length, 0) });
         const us = unitScale(header, projectUnit);
         unitNote.textContent = us.note || t('cad.ui.units.same', { unit: t('cad.unit.' + projectUnit) });
         const rows = [];
@@ -199,9 +209,10 @@ export async function install(host) {
         const ls = chosen();
         const uses = ls.filter((l) => (use.get(l.cadLayer + '|' + l.geom) ?? -1) >= 0).length;
         const nPts = chosenRefs().length;
-        what.textContent = [ls.length ? t('cad.ui.what', { n: ls.length, uses }) : '', nPts ? t('cad.blk.what', { n: nPts }) : ''].filter(Boolean).join(' ') || t('cad.ui.what.none');
+        const nFl = flOn ? fls.length : 0;
+        what.textContent = [ls.length ? t('cad.ui.what', { n: ls.length, uses }) : '', nPts ? t('cad.blk.what', { n: nPts }) : '', nFl ? t('cad.fl.what', { n: nFl }) : ''].filter(Boolean).join(' ') || t('cad.ui.what.none');
         bWhat.textContent = nPts ? t('cad.blk.what', { n: nPts }) : t('cad.blk.what.none');
-        go.disabled = !ls.length && !nPts;
+        go.disabled = !ls.length && !nPts && !nFl;
       }
       unitSel.onchange = () => { unitCode = unitSel.value === '' ? null : Number(unitSel.value); rebuild(); };
 
@@ -213,6 +224,7 @@ export async function install(host) {
           tbody)),
         el('div', { className: 'cv-props' }, el('label', { for: unitSel.id }, t('cad.ui.units')), unitSel), unitNote,
         notesBox,
+        flSec,
         blkSec,
         el('h3', { className: 'cv-h3' }, t('cad.ui.what.head')), what]);
       let result = null;
@@ -229,6 +241,11 @@ export async function install(host) {
           if (blk.skipped.noZ) msgs.push(t('cad.blk.noz', { n: blk.skipped.noZ }));
           if (blk.skipped.noNumber) msgs.push(t('cad.blk.nonum', { n: blk.skipped.noNumber }));
         }
+        if (flOn && fls.length) {   // 0.6 WL.24: the feature lines, arcs and all, as one undo step
+          const p = P();
+          p.change(t('cad.fl.undo', { file }), (s) => { for (const f of fls) (s.features ||= []).push({ ...f, id: p.nextId('f') }); });
+          msgs.push(t('cad.fl.added', { n: fls.length, file }));
+        }
         ls.forEach((l, i) => {
           const k = use.get(l.cadLayer + '|' + l.geom) ?? -1;
           if (k < 0 || !ids[i]) return;
@@ -237,7 +254,7 @@ export async function install(host) {
           const u = useForSurface(P(), ids[i], { use: c.use, from: c.from, field });
           msgs.push(u.message);
         });
-        result = { ids, layers: ids.map((id) => layerOf(P(), id)?.name), notes: r.notes, scale: r.scale, points: blk ? blk.points.length : 0 };
+        result = { ids, layers: ids.map((id) => layerOf(P(), id)?.name), notes: r.notes, scale: r.scale, points: blk ? blk.points.length : 0, features: flOn ? fls.length : 0 };
         api.last = result;
         dlg.close();
         host.fitAll();

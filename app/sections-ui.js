@@ -112,7 +112,7 @@ export function createSections(ctx) {
         if (x === null) return false;
         p.change(t('sec.undo.extra'), (s) => { const q = s.alignments.find((m) => m.id === a.id).sampling; q.extra = [...new Set([...q.extra, x])].sort((m, n) => m - n); });
         return true;
-      }, { id: 'cv-sec-extra', text: true }), 'cv-sec-extra')));
+      }, { id: 'cv-sec-extra', text: true, station: true }), 'cv-sec-extra')));
     if (smp.extra.length) {
       out.push(el('ul', { className: 'cv-plainlist cv-note' }, ...smp.extra.map((x) => el('li', {}, sta(x), ' ', el('button', { type: 'button', className: 'cv-linkbtn', 'aria-label': t('sec.props.extra.remove', { sta: sta(x) }), onclick: () => p.change(t('sec.undo.extra.remove'), (s) => { const q = s.alignments.find((m) => m.id === a.id).sampling; q.extra = q.extra.filter((y) => y !== x); }) }, t('sec.props.remove'))))));
     }

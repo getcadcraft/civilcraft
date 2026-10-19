@@ -433,11 +433,13 @@ export function readState(text, reg) {
   if (Number.isFinite(v.familyAt) && v.familyAt > 0) st.familyAt = v.familyAt;
   if (v.mine && typeof v.mine === 'object') for (const f of FAMILIES) if (own(v.mine, f) && valid(v.mine[f])) st.mine[f] = v.mine[f];
   if (Array.isArray(v.carried)) st.carried = v.carried.filter((x) => typeof x === 'string' && /^[\w.:-]{1,60}$/.test(x)).slice(0, 10);
+  if (v.collapsed === true) st.collapsed = true;   // 0.6 DF.27: a ribbon style shows its tab names only
   return st;
 }
 export function writeState(st) {
   return JSON.stringify({ style: st.style, custom: st.custom, tab: st.tab, family: st.family || undefined, familyAt: st.familyAt || undefined,
-    mine: Object.keys(st.mine || {}).length ? st.mine : undefined, carried: (st.carried || []).length ? st.carried : undefined });
+    mine: Object.keys(st.mine || {}).length ? st.mine : undefined, carried: (st.carried || []).length ? st.carried : undefined,
+    collapsed: st.collapsed ? true : undefined });
 }
 /** Add a person's own profile (id my-<n>; at most LIMITS.custom, the oldest goes). Returns { state, profile }. */
 export function addCustom(st, p) {
@@ -483,6 +485,16 @@ export const writeFamily = (family, at) => JSON.stringify({ family, at });
 export function applyFamily(st, reg, shared) {
   if (!shared || shared.at <= (st.familyAt || 0)) return st;
   return { ...st, style: styleForFamily(reg, st, shared.family), tab: 0, family: shared.family, familyAt: shared.at };
+}
+/**
+ * 0.6 DF.8 "Reset the layout": the style this app starts with — the built-in member of the family chosen for every app
+ * (IP.4), else the app's own style. The person's own styles stay in the list (only the choice moves); it counts as this
+ * app's own choice from `now` on. Returns the new state.
+ */
+export function resetStyle(st, reg, shared, now) {
+  const fam = shared && FAMILIES.includes(shared.family) ? shared.family : '';
+  const id = (fam && reg.STYLE_ORDER.find((x) => reg.FAMILY && reg.FAMILY[x] === fam)) || reg.STYLE_ORDER[0];
+  return { ...st, style: id, tab: 0, familyAt: Math.max(st.familyAt || 0, now || 0) };
 }
 /** A person picks a style in this app: remembered as their member of its family; this app's own choice from now on. */
 export function pickStyle(st, reg, id, now) {

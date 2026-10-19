@@ -1,0 +1,179 @@
+{
+ "format": "takeoffcraft-project",
+ "version": 1,
+ "app": "TakeoffCraft",
+ "savedAt": "2026-10-13T00:00:00.000Z",
+ "name": "Fixture job",
+ "seq": 10,
+ "files": [
+  {
+   "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "name": "Plan.pdf",
+   "size": 1000,
+   "pages": 1
+  },
+  {
+   "hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "name": "Details.pdf",
+   "size": 1000,
+   "pages": 1
+  }
+ ],
+ "sheets": {
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0": {
+   "scale": {
+    "method": "preset",
+    "ftPerUnit": 0.05555555555555555,
+    "preset": "arch-1/4",
+    "label": "1/4\" = 1'-0\"",
+    "cal": null
+   }
+  }
+ },
+ "items": [
+  {
+   "id": "i1",
+   "name": "Partition wall",
+   "type": "linear",
+   "color": "#D62728",
+   "unit": "LF",
+   "heightFt": 8,
+   "waste": 0,
+   "mat": 125000,
+   "lab": 80000,
+   "components": [
+    {
+     "id": "c2",
+     "name": "Drywall sheets",
+     "unit": "EA",
+     "formula": "ceil(A*2/32)",
+     "waste": 0,
+     "mat": 150000,
+     "lab": 0
+    }
+   ]
+  },
+  {
+   "id": "i3",
+   "name": "Floor tile",
+   "type": "area",
+   "color": "#1F77B4",
+   "unit": "SF",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 40000,
+   "lab": 30000,
+   "components": []
+  },
+  {
+   "id": "i4",
+   "name": "Duplex outlet",
+   "type": "count",
+   "color": "#2CA02C",
+   "unit": "EA",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 25000,
+   "lab": 450000,
+   "components": []
+  }
+ ],
+ "marks": [
+  {
+   "id": "m5",
+   "item": "i1",
+   "sheet": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+   "kind": "linear",
+   "pts": [
+    [
+     0,
+     0
+    ],
+    [
+     540,
+     0
+    ],
+    [
+     540,
+     180
+    ]
+   ]
+  },
+  {
+   "id": "m6",
+   "item": "i3",
+   "sheet": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+   "kind": "area",
+   "pts": [
+    [
+     0,
+     0
+    ],
+    [
+     216,
+     0
+    ],
+    [
+     216,
+     180
+    ],
+    [
+     0,
+     180
+    ]
+   ]
+  },
+  {
+   "id": "m7",
+   "item": "i4",
+   "sheet": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+   "kind": "count",
+   "pts": [
+    [
+     10,
+     5
+    ]
+   ]
+  },
+  {
+   "id": "m8",
+   "item": "i4",
+   "sheet": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+   "kind": "count",
+   "pts": [
+    [
+     20,
+     5
+    ]
+   ]
+  },
+  {
+   "id": "m9",
+   "item": "i4",
+   "sheet": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:0",
+   "kind": "count",
+   "pts": [
+    [
+     30,
+     5
+    ]
+   ]
+  },
+  {
+   "id": "m10",
+   "item": "i1",
+   "sheet": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:0",
+   "kind": "linear",
+   "pts": [
+    [
+     0,
+     0
+    ],
+    [
+     100,
+     0
+    ]
+   ]
+  }
+ ]
+}

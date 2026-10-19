@@ -28,6 +28,7 @@ Everything on the plan belongs to a layer. The names follow the common civil lay
 | C-GRAD-DAYL | Daylight lines | Magenta (6) | Always |
 | C-GRAD-SLOP | Grading slope lines | Magenta (6) | Always |
 | C-GRAD-FEAT | Feature lines (3D) | Green (3) | Always |
+| C-ROAD-SWPT | Swept paths: outline, outermost wheel paths, name | Orange (30) | Always |
 | C-STRM-PIPE | Pipes | Blue (5) | {{ui:Pipes}} |
 | C-STRM-STRC | Structures | Blue (5) | {{ui:Pipes}} |
 | C-STRM-TEXT | Pipe and structure labels | Blue (5) | {{ui:Pipes}} |

@@ -110,6 +110,27 @@ export async function renderMode({ APP, ROOT, WebIFC, IfcModel, quiet, require }
   ed.undo();
   let threw = false; try { PB.paintOp({ ids: [W0], mat: 'unobtainium' }); } catch { threw = true; }
   ok(threw, 'an unknown material is refused');
+  // 0.6 BIM-F6: a wall the Draw tools reshape keeps its painted colour (its body is made again)
+  {
+    const g0 = snap.walls.find((x) => w.byGuid(x.guid) === W0)?.guid;
+    const bodyStyled = () => {
+      const wr = new ModelWriter(ed.W, ed.api, ed.mid), id = wr.byGuid(g0), items = wr.bodyItemsOf(id);
+      return items.length > 0 && items.every((it) => lines(ed, 'IFCSTYLEDITEM').some((x) => x.l.Item?.value === it && (x.l.Styles || []).some((h) => h.value === style.id)));
+    };
+    ok(bodyStyled(), 'before: the painted wall\'s body carries the brick style');
+    const before = OPS.snapshotModel(ed).walls.find((x) => x.guid === g0);
+    ed.modelChange(OPS.changeWall(g0, { a: [before.a[0] - 500, before.a[1]] }), { label: 'reshape' });
+    ok(bodyStyled() && PB.readPaint(ed.api, ed.mid).get(new ModelWriter(ed.W, ed.api, ed.mid).byGuid(g0))?.all === 'brick-red', 'its start moved 500 mm: the new body is still styled brick, the material still read');
+    const e3 = await quiet(IfcModel.create)(WebIFC, null);
+    const m3 = await quiet((b) => e3.load(b))(ed.save());
+    const id3 = new ModelWriter(ed.W, ed.api, ed.mid).byGuid(g0);
+    const b3 = m3.batches.find((b) => b.elems.ids.includes(id3));
+    const want3 = MAT.material('brick-red').color.toLowerCase();
+    const hex3 = b3 ? '#' + b3.color.slice(0, 3).map((c) => Math.round(c * 255).toString(16).padStart(2, '0')).join('') : '';
+    ok(!!b3 && hex3 === want3, 'reopened: the reshaped wall draws in the brick colour', hex3 + ' vs ' + want3);
+    ed.undo();
+    ok(bodyStyled(), 'undo: the old shape and its style come back');
+  }
 
   console.log('== render-bim.js: a batch split by element and side, with UVs');
   {

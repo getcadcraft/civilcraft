@@ -22,9 +22,30 @@
  * vertices every 5° at most. Object coordinate systems (extrusion) are applied (the arbitrary axis algorithm). A vertex
  * keeps its z unless every z of the object is 0 (plan linework is 2D, so it never makes a flat breakline at 0).
  * Text, hatches, dimensions and anything else are counted in `skipped`, never guessed at.
+ *
+ * CivilCraft's own feature lines (0.6 WL.24): a model-space 3D polyline carrying CivilCraft's extended data (featureline.js
+ * cadPolyline) is a feature line with its arcs:
+ *   cadFeatureLines(model, { projectUnit, scale }) → [feature]   (featureline.js featureFromCad, scaled to project units)
+ *   cadLinework(…, { skipFeatureLines: true }) leaves those polylines out of the linework (they come in as feature lines)
  */
 
 import { t } from './i18n.js';
+import { featureFromCad, CAD_TAG } from './featureline.js';
+
+const isFeatureLine = (e) => e?.type === 'POLYLINE_3D' && e.xdata?.CADCRAFT?.[0]?.[1] === CAD_TAG;
+/** CivilCraft feature lines written into this drawing (top-level model space only), in project units. */
+export function cadFeatureLines(model, { projectUnit = 'ft', scale = null } = {}) {
+  const ms = (model?.blocks || []).find((b) => String(b.name).toUpperCase() === '*MODEL_SPACE');
+  const k = Number.isFinite(scale) && scale > 0 ? scale : unitScale(model?.header || {}, projectUnit).scale;
+  const out = [];
+  for (const e of ms?.entities || []) {
+    if (!isFeatureLine(e) || e.invisible) continue;
+    const vs = (e.vertices || []).filter((v) => !(v.flags & 16)).map((v) => ({ x: v.x * k, y: v.y * k, z: (v.z || 0) * k }));
+    const f = featureFromCad(vs, !!e.closed, e.xdata, projectUnit);
+    if (f) out.push(f);
+  }
+  return out;
+}
 
 // $INSUNITS → metres per unit (DXF reference, header variables). Feet and US survey feet count as one family: drawings
 // say "feet" (2) for survey-foot coordinates far more often than not, and scaling by 2 ppm would move state-plane
@@ -223,7 +244,7 @@ function dedupe(r) { const out = []; for (const p of r) { const l = out[out.leng
 
 const LINEWORK = new Set(['LINE', 'POINT', 'CIRCLE', 'ARC', 'ELLIPSE', 'LWPOLYLINE', 'POLYLINE_2D', 'POLYLINE_3D', 'SPLINE', 'SOLID', 'TRACE', '3DFACE', 'INSERT', 'MINSERT']);
 
-export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null, layers: only = null } = {}) {
+export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null, layers: only = null, skipFeatureLines = false } = {}) {
   const notes = [], skipped = {};
   const header = model?.header || {};
   const us = unitScale(header, projectUnit);
@@ -260,6 +281,7 @@ export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null
       if (!e || e.invisible) continue;
       const layer = e.layer === '0' && inherit ? inherit : String(e.layer ?? '0');
       if (!LINEWORK.has(e.type)) { skipped[e.type] = (skipped[e.type] || 0) + 1; continue; }
+      if (skipFeatureLines && depth === 0 && isFeatureLine(e)) continue;   // 0.6 WL.24: brought in as feature lines
       if (e.type === 'INSERT' || e.type === 'MINSERT') {
         const b = blocks.get(String(e.block || '').toUpperCase());
         if (!b) { skipped['INSERT_NO_BLOCK'] = (skipped['INSERT_NO_BLOCK'] || 0) + 1; continue; }

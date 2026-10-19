@@ -108,6 +108,12 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
   .app-bar-more .space-toggle + .app-bar-more-item { border-top: var(--pen-1) solid var(--line); }
 }
 
+/* ---- 0.6 DF.28: Interface size (app-settings.js s.ui; only builds with the 0.6 layout tools set the class). The root font
+   size of tokens.css × the size, so every rem of the bars, toolbars, panels and dialogs scales; the drawing keeps its own zoom. ---- */
+html.shell-ui-sized { font-size: calc(clamp(100%, 0.75rem + 0.2083vw, 125%) * var(--shell-ui, 1)); }
+/* Bigger bars must overflow, not wrap, so app-phone.js's measure switches the app bar to its narrow "More" layout. */
+html.shell-ui-sized .app-bar-links a { white-space: nowrap; }
+
 /* ---- Screen modes (assets/js/app-shell.js): normal → full screen → full screen with the bars hidden ---- */
 .app-bar-fs {
   flex: 0 0 auto;
@@ -158,6 +164,35 @@ body.shell-autohide .shell-edge {
   z-index: 59;
 }
 body.shell-autohide.shell-reveal .shell-edge { height: calc(var(--bars-h, 6rem) + .5rem); }
+/* 0.6 DF.8: the "Show bars" tab hangs from the top middle while the bars are hidden (app-shell.js; only builds with the
+   0.6 layout tools create it). Above the edge strip, under the bars when they slide in. */
+.shell-showbars { display: none; }
+body.shell-autohide:not(.shell-reveal) .shell-showbars {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 61;
+  transform: translateX(-50%);
+  min-height: 1.75rem;
+  padding: .1rem .7rem .2rem;
+  font: inherit;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--sheet-2);
+  border: var(--pen-1) solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  opacity: .8;
+  cursor: pointer;
+}
+body.shell-autohide:not(.shell-reveal) .shell-showbars:is(:hover, :focus-visible) { opacity: 1; border-color: var(--ink); }
+.shell-showbars:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
+.shell-showbars .bi { color: var(--layer); }
+html.cc-touch body.shell-autohide:not(.shell-reveal) .shell-showbars, html.cc-phone body.shell-autohide:not(.shell-reveal) .shell-showbars { min-height: 2.75rem; }
 
 /* A short note when the mode changes (role=status, so screen readers hear it too). */
 .shell-hint {
@@ -299,7 +334,8 @@ body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user
    not a fieldset span both. One column again on narrow screens. Phone rules live in their own block (session phones). */
 .shell-settings.shell-settings-wide { width: min(46rem, calc(100vw - 2rem)); }
 .shell-settings-wide .shell-dlg-body { font-size: .8125rem; }
-.shell-settings-wide .shell-set legend { font-size: .6875rem; }
+.shell-settings-wide .shell-set legend { font-size: var(--fs-sm); font-weight: 700; font-stretch: 112%; text-transform: none; letter-spacing: 0; color: var(--ink); margin-bottom: .25rem; }   /* same as a panel title (.cc-h) */
+.shell-settings-wide .shell-dlg-body .select-cc { min-height: 2rem; padding: .25rem 2rem .25rem .6rem; font-size: .8125rem; background-position: calc(100% - 1rem) 50%, calc(100% - .625rem) 50%; }
 .shell-settings-wide .shell-pane { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; align-items: start; }
 .shell-settings-wide .shell-pane > :not(fieldset), .shell-settings-wide .shell-pane > .shell-set-wide { grid-column: 1 / -1; }
 .shell-settings-wide .shell-seg { gap: .25rem; }
@@ -370,6 +406,23 @@ body.shell-arranging .shell-tb > :is(button, span):hover { outline: var(--pen-1)
 @media (max-width: 760px) { .shell-arrange-bar { flex-wrap: wrap; } }
 .shell-arrange-bar button { flex: 0 0 auto; white-space: nowrap; }
 
+/* 0.6 DF.27: the toolbar's right-click menu (app-settings.js; builds with the 0.6 layout tools only) */
+.shell-ctx {
+  position: fixed; z-index: 90; min-width: 13rem; max-width: calc(100vw - .5rem); padding: .25rem 0;
+  font-size: var(--fs-sm); color: var(--ink); background: var(--sheet-2);
+  border: var(--pen-2) solid var(--ink); border-radius: var(--radius);
+}
+.shell-ctx[hidden] { display: none; }
+.shell-ctx hr { margin: .25rem 0; border: 0; border-top: var(--pen-1) solid var(--line); opacity: 1; }
+.shell-ctx [role="menuitem"] {
+  display: flex; align-items: center; gap: .55rem; width: 100%; min-height: 2rem; padding: .25rem .8rem;
+  font: inherit; color: inherit; text-align: left; background: none; border: 0; cursor: pointer; white-space: nowrap;
+}
+.shell-ctx [role="menuitem"] .bi { width: 1rem; color: var(--layer); }
+.shell-ctx [role="menuitem"]:is(:hover, :focus) { background: var(--sheet); outline: none; box-shadow: inset var(--pen-2) 0 0 var(--action); }
+.shell-ctx [role="menuitem"][aria-disabled="true"] { color: var(--ink-2); cursor: default; }
+.shell-ctx [role="menuitem"][aria-disabled="true"] .bi { color: var(--ink-2); }
+html.cc-touch .shell-ctx [role="menuitem"], html.cc-phone .shell-ctx [role="menuitem"] { min-height: 2.75rem; }
 /* ---- Movable panels and the panels window (assets/js/app-panels.js; only builds with manifest "panels") ----
  * Every rule hangs off a class app-panels.js adds, so builds without the flag are untouched. */
 .shell-grip {

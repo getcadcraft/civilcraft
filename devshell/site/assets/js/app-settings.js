@@ -23,6 +23,24 @@
  * their own, named after the app, beside "General" (last tab used remembered: s.tab). Its JS owns those fields and
  * resets them on the dialog's "cc-settings-reset" event.
  * Everything but the theme is per app: localStorage "cc-app-settings:<slug>". Ctrl+, opens the dialog.
+ *
+ * 0.6 layout tools (session shell-ui; DF.8 / DF.27 / DF.28), only where app-settings.inc printed data-shell-ui on the dialog
+ * (dev builds and releases from 0.6 on — the 0.5 releases in /use load this same file and stay as they were):
+ *   Reset the layout  Settings › General › Layout ([data-layout-reset]): toolbar order, lock and buttons, panel widths and places
+ *                     (app-panels.js), screen mode (now and on open), the menu style (app-input-ui.js: the app's own, or the
+ *                     family chosen for every app), the phone toolbar (app-phone.js). Not the theme, language, text sizes or
+ *                     the app's own settings. The Studio hub's "Reset the layout in every app" writes localStorage
+ *                     cc-layout-reset {at}: an app opened later (or open now: the storage event) resets once (s.layoutAt).
+ *   window.ccShellLayout = { reset() } (the hub's reset, the palette, tests).
+ *   Interface size    DF.28: s.ui 0.8–1.4 (Settings › General › Sizes and panels, beside the panel text size): the root font size
+ *                     × s.ui (html.shell-ui-sized + --shell-ui; app-shell.css), so every rem of the bars, toolbars, panels and
+ *                     dialogs scales and the drawing keeps its own zoom. app-settings.inc applies it before the app's scripts run;
+ *                     panels windows follow (app-panels.js). Settings' own Reset puts it back; Reset the layout leaves it.
+ *   Toolbar menu      DF.27: a right-click (long press, the context-menu key, Shift+F10) on the toolbar or a menu style's bar opens
+ *                     .shell-ctx: Arrange the toolbar / Done arranging, Lock / Unlock the toolbar (s.tbLock: no arranging and no
+ *                     reset of the order while locked; also a Settings checkbox), Reset the toolbar, Collapse the ribbon / Pin
+ *                     the ribbon open (a ribbon style: app-input-ui.js ccInput.ribbon / setRibbon), Toolbar settings…. Text
+ *                     fields keep the browser's own menu.
  * The toolbar is <main>'s direct-child role=toolbar (BimCraft: the [data-toolbar] one in its stage);
  * groups are its role=group children, tools the children of each group's *-tool-row.
  * The panels are found by shape, not by name: <main>'s direct-child <aside>s whose class ends in
@@ -38,7 +56,9 @@
   var root = document.documentElement;
   var form = dlg.querySelector('form');
   var KEY = 'cc-app-settings:' + dlg.getAttribute('data-app');
-  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', order: null, tab: 'app' };
+  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', order: null, tab: 'app', layoutAt: 0, tbLock: false, ui: 1 };
+  var UI = dlg.hasAttribute('data-shell-ui');   // 0.6 layout tools (see the header)
+  var RESET_KEY = 'cc-layout-reset';
   var MIN_W = 10, MAX_W = 40, MIN_STAGE = 20;   // rem
   function T(k, v) { return window.ccShellT ? window.ccShellT(k, v) : k; }
 
@@ -58,6 +78,9 @@
       if (v.tbTouch === 'row' || v.tbTouch === 'wrap') out.tbTouch = v.tbTouch;
       if (v.order && typeof v.order === 'object') out.order = v.order;
       if (v.tab === 'app' || v.tab === 'general') out.tab = v.tab;
+      if (typeof v.layoutAt === 'number' && v.layoutAt > 0) out.layoutAt = v.layoutAt;
+      if (v.tbLock === true) out.tbLock = true;
+      if (typeof v.ui === 'number' && v.ui >= 0.8 && v.ui <= 1.4) out.ui = Math.round(v.ui * 100) / 100;
     } catch (e) {}
     return out;
   }
@@ -117,6 +140,14 @@
   function applyZoom() {
     main.style.setProperty('--shell-panel-zoom', String(s.zoom));
     body.classList.toggle('shell-zoomed', s.zoom !== 1);
+  }
+  /** 0.6 DF.28: the interface size (the root font size × s.ui; nothing for builds without the 0.6 layout tools). */
+  function applyUi() {
+    if (!UI) return;
+    if (s.ui !== 1) root.style.setProperty('--shell-ui', String(s.ui)); else root.style.removeProperty('--shell-ui');
+    root.classList.toggle('shell-ui-sized', s.ui !== 1);
+    relayoutSoon();
+    requestAnimationFrame(function () { try { window.dispatchEvent(new Event('resize')); } catch (e) {} });   // apps that size on window resize
   }
 
   /** Clamp a width so the drawing keeps at least MIN_STAGE rem between the panels. */
@@ -263,6 +294,8 @@
   }
   if (!tb) tb = main.querySelector('[role="toolbar"][data-toolbar]');
   if (tb) tb.classList.add('shell-tb');
+  /** In the page and drawn (offsetParent is null for the fixed bars of the "bars hidden" screen mode, so not that). */
+  function shown(el) { return !el.hidden && el.getClientRects().length > 0; }
 
   function groupsOf() {
     return tb ? Array.prototype.filter.call(tb.children, function (c) { return c.getAttribute('role') === 'group'; }) : [];
@@ -332,8 +365,8 @@
     s.order = { groups: keysOf(groupsOf()), rows: rows };
     save();
   }
-  function resetOrder() {
-    if (!original) return;
+  function resetOrder(force) {
+    if (!original || (UI && s.tbLock && force !== true)) return;
     original.groups.forEach(function (g) { tb.appendChild(g); });
     original.rows.forEach(function (o) { o.items.forEach(function (el) { o.row.appendChild(el); }); });
     s.order = null;
@@ -345,6 +378,7 @@
     body.setAttribute('data-shell-tb', s.tb);
     body.classList.toggle('shell-tb-nogroups', !s.tbGroups);
     body.setAttribute('data-shell-tb-touch', s.tbTouch);
+    body.classList.toggle('shell-tb-locked', UI && !!s.tbLock);
     relayoutSoon();
   }
 
@@ -353,12 +387,17 @@
 
   function startArrange() {
     if (!tb || arranging) return;
-    if (tb.hidden || tb.offsetParent === null) {
+    if (UI && s.tbLock) {
+      if (window.ccShellScreen) ccShellScreen.say(T('shell.tbmenu.why.locked'));
+      return;
+    }
+    if (!shown(tb)) {
       if (window.ccShellScreen) ccShellScreen.say(T('shell.arrange.no_toolbar'));
       return;
     }
     arranging = true;
     body.classList.add('shell-arranging');
+    if (window.ccShellScreen && ccShellScreen.reveal) ccShellScreen.reveal(true);   // bars hidden: out while arranging
     if (!bar) {
       bar = document.createElement('div');
       bar.className = 'shell-arrange-bar';
@@ -387,6 +426,7 @@
     if (!arranging) return;
     arranging = false;
     body.classList.remove('shell-arranging');
+    if (window.ccShellScreen && ccShellScreen.reveal) ccShellScreen.reveal(true);   // hidden bars go again once the pointer leaves
     if (bar) bar.hidden = true;
     groupsOf().forEach(function (g) { var l = g.querySelector('[class$="-tool-label"]'); if (l) { l.removeAttribute('tabindex'); l.setAttribute('aria-hidden', 'true'); } });
     saveOrder();
@@ -462,8 +502,9 @@
     var items = d.list(), i = items.indexOf(d.el);
     var j = i + (e.key === 'ArrowLeft' ? -1 : 1);
     if (j < 0 || j >= items.length) return;
+    var f = document.activeElement;   // moving the node takes the focus away: give it back
     d.parent.insertBefore(d.el, e.key === 'ArrowLeft' ? items[j] : items[j].nextSibling);
-    document.activeElement.focus();
+    f.focus();
     saveOrder();
   }, true);
 
@@ -555,6 +596,7 @@
   function syncForm() {
     var th = themeChoice();
     form.querySelectorAll('input[name="theme"]').forEach(function (r) { r.checked = r.value === th; });
+    if (form.elements.ui) form.elements.ui.value = String(s.ui);
     var z = form.elements.zoom;
     z.value = String(s.zoom);
     if (z.value !== String(s.zoom)) z.value = '1';
@@ -575,7 +617,9 @@
     form.querySelectorAll('input[name="tbTouch"]').forEach(function (r) { r.checked = r.value === s.tbTouch; });
     var touchRow = form.querySelector('[data-tb-touch-row]');
     if (touchRow) { var coarse = false; try { coarse = matchMedia('(pointer: coarse)').matches; } catch (e) {} touchRow.hidden = !coarse; }   // i18n-ignore (CSS)
-    form.querySelector('[data-tb-arrange]').disabled = !!tb && (tb.hidden || tb.offsetParent === null);
+    form.querySelector('[data-tb-arrange]').disabled = !!tb && (!shown(tb) || (UI && s.tbLock));
+    form.querySelector('[data-tb-order-reset]').disabled = UI && s.tbLock;
+    if (form.elements.tbLock) form.elements.tbLock.checked = !!s.tbLock;
     form.querySelector('[data-tb-groups-row]').hidden = !groupsOf().length;
   }
 
@@ -621,11 +665,13 @@
     var t = e.target;
     if (t.name === 'theme') setTheme(t.value);
     else if (t.name === 'zoom') { s.zoom = parseFloat(t.value) || 1; applyZoom(); requestAnimationFrame(placeHandles); save(); }
+    else if (t.name === 'ui') { var u = parseFloat(t.value); s.ui = u >= 0.8 && u <= 1.4 ? u : 1; applyUi(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.ui.now', { pct: Math.round(s.ui * 100) })); }
     else if (t.name === 'tips') { s.tips = t.checked; if (!s.tips) hideTip(); save(); }
     else if (t.name === 'screen') { s.screen = t.value; save(); }
     else if (t.name === 'tb') { s.tb = t.value; applyTb(); save(); }
     else if (t.name === 'tbGroups') { s.tbGroups = t.checked; applyTb(); save(); }
     else if (t.name === 'tbTouch') { s.tbTouch = t.value; applyTb(); save(); }
+    else if (t.name === 'tbLock') { setLock(t.checked); syncForm(); }
     else if (t.name === 'left' || t.name === 'right') { setWidth(t.name, parseFloat(t.value), true); }
     else if (t.name === 'lang') setLang(t.value);
   });
@@ -654,19 +700,169 @@
     }
   });
   dlg.querySelector('[data-settings-reset]').addEventListener('click', function () {
-    resetOrder();
+    resetOrder(true);
     dlg.dispatchEvent(new CustomEvent('cc-settings-reset'));   // the app's own settings (its settings.inc)
     s = Object.assign({}, DEFAULTS);
     try { localStorage.removeItem(KEY); } catch (e) {}
     applyZoom();
+    applyUi();
     applyTb();
     layout();
     syncForm();
   });
   dlg.querySelector('[data-tb-arrange]').addEventListener('click', function () { dlg.close(); startArrange(); });
   dlg.querySelector('[data-tb-order-reset]').addEventListener('click', resetOrder);
+
+  /* ---------------- 0.6 DF.8: Reset the layout ----------------
+   * Everything that can hide or move a bar, a menu or a panel goes back to how the app starts; the theme, language, text
+   * sizes and the app's own settings stay. `at` = the Studio hub's reset being applied (else now). */
+  function resetLayout(at, quiet) {
+    stopArrange();
+    resetOrder(true);
+    s.tbLock = false;
+    if (window.ccInput && ccInput.setRibbon) ccInput.setRibbon(false);
+    s.tb = DEFAULTS.tb; s.tbGroups = DEFAULTS.tbGroups; s.tbTouch = DEFAULTS.tbTouch;
+    s.left = null; s.right = null; s.screen = 'normal';
+    s.layoutAt = at || Date.now();
+    save();
+    if (window.ccShellPanels && ccShellPanels.reset) ccShellPanels.reset();
+    if (window.ccInput && ccInput.resetLayout) ccInput.resetLayout();
+    if (window.ccShellPhone) { try { ccShellPhone.tools(true); ccShellPhone.toolbarAt('top'); } catch (e) {} }
+    if (window.ccShellScreen && ccShellScreen.mode() !== 'normal') ccShellScreen.goTo('normal');
+    applyTb();
+    layout();
+    syncForm();
+    if (!quiet && window.ccShellScreen) ccShellScreen.say(T('shell.layout.done', { app: dlg.getAttribute('data-app-name') }));
+  }
+  function hubReset() {   // the Studio hub's "Reset the layout in every app" ({at}), applied once per app
+    var v = null;
+    try { v = JSON.parse(localStorage.getItem(RESET_KEY) || 'null'); } catch (e) { v = null; }
+    if (v && typeof v.at === 'number' && v.at > (s.layoutAt || 0) && v.at <= Date.now() + 60000) resetLayout(v.at, false);
+  }
+  if (UI) {
+    var layoutBtn = dlg.querySelector('[data-layout-reset]');
+    if (layoutBtn) layoutBtn.addEventListener('click', function () { resetLayout(0, false); });
+    window.addEventListener('storage', function (e) { if (e.key === RESET_KEY) hubReset(); });
+    window.ccShellLayout = { reset: function () { resetLayout(0, false); } };
+  }
+
+  /* ---------------- 0.6 DF.27: the toolbar's own menu (right-click) and the lock ---------------- */
+  function setLock(on) {
+    s.tbLock = !!on;
+    if (s.tbLock) stopArrange();
+    save();
+    applyTb();
+    if (window.ccShellScreen) ccShellScreen.say(T(s.tbLock ? 'shell.tb.locked' : 'shell.tb.unlocked'));
+  }
+  var ctx = null, ctxBack = null;
+  function closeCtx(refocus) {
+    if (!ctx || ctx.hidden) return;
+    ctx.hidden = true;
+    if (refocus && ctxBack && ctxBack.isConnected) ctxBack.focus();
+  }
+  function ctxItems() {
+    var styled = !!(tb && tb.classList.contains('cc-in-styled'));
+    var rib = window.ccInput && ccInput.ribbon ? ccInput.ribbon() : null;
+    var out = [];
+    if (arranging) out.push({ k: 'done', icon: 'bi-check2', label: T('shell.tbmenu.done'), run: stopArrange });
+    else out.push({ k: 'arrange', icon: 'bi-arrows-move', label: T('shell.tbmenu.arrange'), run: startArrange,
+      why: s.tbLock ? T('shell.tbmenu.why.locked') : styled ? T('shell.tbmenu.why.style') : !shown(tb) ? T('shell.arrange.no_toolbar') : '' });
+    out.push(s.tbLock
+      ? { k: 'unlock', icon: 'bi-unlock', label: T('shell.tbmenu.unlock'), run: function () { setLock(false); } }
+      : { k: 'lock', icon: 'bi-lock', label: T('shell.tbmenu.lock'), run: function () { setLock(true); } });
+    out.push({ k: 'reset', icon: 'bi-arrow-counterclockwise', label: T('shell.tbmenu.reset'), run: function () { resetOrder(); },
+      why: s.tbLock ? T('shell.tbmenu.why.locked') : styled ? T('shell.tbmenu.why.style') : !s.order ? T('shell.tbmenu.why.original') : '' });
+    if (rib && rib.on) {
+      out.push('-');
+      out.push(rib.collapsed
+        ? { k: 'pin', icon: 'bi-pin-angle', label: T('shell.tbmenu.pin'), run: function () { ccInput.setRibbon(false); } }
+        : { k: 'collapse', icon: 'bi-chevron-bar-up', label: T('shell.tbmenu.collapse'), run: function () { ccInput.setRibbon(true); } });
+    }
+    out.push('-');
+    out.push({ k: 'settings', icon: 'bi-gear', label: T('shell.tbmenu.settings'), run: function () {
+      s.tab = 'general'; open();
+      var set = form.querySelector('[data-tb-set]');
+      if (set) { set.scrollIntoView({ block: 'nearest' }); var f = set.querySelector('input, button'); if (f) f.focus(); }
+    } });
+    return out;
+  }
+  function openCtx(x, y, back) {
+    if (!ctx) {
+      ctx = document.createElement('div');
+      ctx.className = 'shell-ctx';
+      ctx.setAttribute('role', 'menu');
+      ctx.setAttribute('data-tb-menu', '');
+      ctx.setAttribute('aria-label', T('shell.tbmenu'));
+      ctx.addEventListener('click', function (e) {
+        var b = e.target.closest('[role="menuitem"]');
+        if (!b || b.getAttribute('aria-disabled') === 'true') return;
+        var it = b.__ccItem;
+        closeCtx(true);
+        if (it) it.run();
+      });
+      ctx.addEventListener('keydown', function (e) {
+        var items = [].slice.call(ctx.querySelectorAll('[role="menuitem"]'));
+        var i = items.indexOf(document.activeElement);
+        e.stopPropagation();   // the apps take arrows, letters and Enter on the document
+        if (e.key === 'Escape') { e.preventDefault(); closeCtx(true); }
+        else if (e.key === 'Tab') { closeCtx(false); }
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); items[(i + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus(); }
+        else if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); items[e.key === 'Home' ? 0 : items.length - 1].focus(); }
+        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (document.activeElement && ctx.contains(document.activeElement)) document.activeElement.click(); }
+      });
+      document.addEventListener('pointerdown', function (e) { if (ctx && !ctx.hidden && !ctx.contains(e.target)) closeCtx(false); }, true);
+      window.addEventListener('blur', function () { closeCtx(false); });
+      window.addEventListener('resize', function () { closeCtx(false); });
+      body.appendChild(ctx);
+    }
+    ctx.replaceChildren();
+    ctxItems().forEach(function (it) {
+      if (it === '-') { ctx.appendChild(document.createElement('hr')); return; }
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('role', 'menuitem');
+      b.setAttribute('data-tb-menu-item', it.k);
+      b.tabIndex = -1;
+      var i = document.createElement('i');
+      i.className = 'bi ' + it.icon;
+      i.setAttribute('aria-hidden', 'true');
+      var sp = document.createElement('span');
+      sp.textContent = it.label;
+      b.append(i, sp);
+      if (it.why) { b.setAttribute('aria-disabled', 'true'); b.title = it.why; }
+      b.__ccItem = it;
+      ctx.appendChild(b);
+    });
+    ctxBack = back;
+    ctx.hidden = false;
+    var r = ctx.getBoundingClientRect();
+    ctx.style.left = Math.max(4, Math.min(x, innerWidth - r.width - 4)) + 'px';
+    ctx.style.top = Math.max(4, Math.min(y, innerHeight - r.height - 4)) + 'px';
+    var first = ctx.querySelector('[role="menuitem"]:not([aria-disabled="true"])') || ctx.querySelector('[role="menuitem"]');
+    if (first) first.focus();
+  }
+  if (UI && tb) {
+    tb.addEventListener('contextmenu', function (e) {
+      if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"]')) return;   // the browser's own menu for text
+      e.preventDefault();
+      e.stopPropagation();
+      var x = e.clientX, y = e.clientY;
+      if (!x && !y) { var r = (e.target.getBoundingClientRect ? e.target : tb).getBoundingClientRect(); x = r.left; y = r.bottom; }   // the context-menu key
+      openCtx(x, y, document.activeElement && document.activeElement !== body ? document.activeElement : null);
+    });
+    // Shift+F10 and the menu key, before the apps (CadCraft takes F10 for polar tracking)
+    window.addEventListener('keydown', function (e) {
+      if (!(e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey))) return;
+      var a = document.activeElement;
+      if (!a || !tb.contains(a) || (a.closest && a.closest('input, textarea, select, [contenteditable="true"]'))) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var r = a.getBoundingClientRect();
+      openCtx(r.left, r.bottom, a);
+    }, true);
+  }
   dlg.addEventListener('close', function () {
-    if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+    if (btn) { btn.setAttribute('aria-expanded', 'false'); if (!arranging) btn.focus(); }   // Arrange put the focus on the first tool
   });
   dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });   // backdrop
   // The apps listen for keys and wheel on the window (shortcuts, zoom): stop them at the dialog's edge.
@@ -690,8 +886,15 @@
   if (tb) { original = snapshot(); applyOrder(); }
   applyTb();
   applyZoom();
+  applyUi();
   layout();
   screenOnOpen();
   // Apps may finish building their panels after this script; place the handles again once they have.
   window.addEventListener('load', relayoutSoon);
+  // A reset the Studio hub asked for while this app was closed: once app-panels.js and the menu style (a module that loads
+  // its registry) are up.
+  if (UI) window.addEventListener('load', function () {
+    if (document.getElementById('cc-input') && !window.ccInput) window.addEventListener('cc-input-ready', hubReset, { once: true });
+    else hubReset();
+  });
 })();

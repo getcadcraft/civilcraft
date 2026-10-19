@@ -26,7 +26,11 @@
  * Stored: localStorage <registry STORE or '<slug>.input'> (app-input.js readState); the family for every app in
  * 'cc-input-family' (one origin: every app and the Studio hub read it; a change in another window follows at once).
  * window.ccInput = { current, setStyle, run, state, styles, commands, keysOf, paletteItems, covers, macros, setMacros,
- * family, useEverywhere } for the palette, tests and the console.
+ * family, useEverywhere, resetLayout, ribbon, setRibbon } for the palette, tests and the console.
+ * 0.6 DF.27 (only where the Settings dialog carries data-shell-ui: dev builds and releases from 0.6 on): a ribbon style can
+ * collapse to its tab names (S.collapsed, stored with the style): a click on a tab opens its panels over the drawing (.cc-in-peek)
+ * until a command runs, a click lands elsewhere or Esc; a double-click on a tab, the pin button at the end of the tab row, or the
+ * toolbar's right-click menu (app-settings.js) collapses it or pins it open. Phones keep their one-row ribbon (CSS).
  * Words: shell strings shell.input.*; the registry's own (input.cmd.*, input.grp.*, input.m.*, input.style.*) from the app.
  */
 import * as IP from './app-input.js';
@@ -36,6 +40,7 @@ const has = (k) => !!(window.ccShellT && window.ccShellT.has && window.ccShellT.
 const tx = (k) => (k && has(k) ? T(k) : String(k || ''));
 const PASS = new Set(['Escape', 'Enter', 'Tab', 'Delete', 'Backspace', 'Space', 'Shift+Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+const UI06 = () => !!document.querySelector('[data-app-settings][data-shell-ui]');   // 0.6 layout tools (DF.27)
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* this tab keeps it */ } } };
 
 /** el(tag, props, ...children): text only (never HTML); null children skipped. */
@@ -93,7 +98,7 @@ function mount(cfg, reg) {
   function save() { store.set(STORE, IP.writeState(S)); }
   save();
 
-  let prof = null, matcher = null, last = null, waitTimer = 0, recording = null;
+  let prof = null, matcher = null, last = null, waitTimer = 0, recording = null, peek = false, rbody = null;
   const hist = [];
   const raw = (id) => IP.rawStyle(S, reg, id);
   const nameOf = (p) => (p.builtin ? tx(p.name) : p.name);
@@ -203,6 +208,8 @@ function mount(cfg, reg) {
     } else if (prof.layout === 'ribbon') {
       const tabs = prof.tabs || [];
       const ex = extras();
+      const coll = UI06() && !!S.collapsed;
+      if (!coll) peek = false;
       const all = ex.length ? [...tabs, { label: 'shell.input.addons', panels: [{ label: 'shell.input.addons', extra: true }] }] : tabs;
       if (S.tab >= all.length) S.tab = 0;
       const head = el('div', { className: 'cc-in-rhead' });
@@ -210,8 +217,12 @@ function mount(cfg, reg) {
       if (fileM) head.append(fileM);
       const tl = el('div', { className: 'cc-in-tabs', role: 'tablist', 'aria-label': T('shell.input.tabs') });
       all.forEach((tb, i) => {
-        const b = el('button', { type: 'button', role: 'tab', className: 'cc-in-tab', 'aria-selected': i === S.tab ? 'true' : 'false', tabIndex: i === S.tab ? 0 : -1 }, tx(tb.label));
-        b.addEventListener('click', () => { S.tab = i; save(); render(); bar.querySelector('[role="tab"][aria-selected="true"]')?.focus(); });
+        const b = el('button', { type: 'button', role: 'tab', className: 'cc-in-tab', 'aria-selected': i === S.tab ? 'true' : 'false', tabIndex: i === S.tab ? 0 : -1, 'aria-expanded': coll ? (peek && i === S.tab ? 'true' : 'false') : null }, tx(tb.label));
+        b.addEventListener('click', () => {
+          if (coll) peek = !(peek && i === S.tab);   // collapsed: a tab opens its panels over the drawing; the same tab again closes them
+          S.tab = i; save(); render(); bar.querySelector('[role="tab"][aria-selected="true"]')?.focus();
+        });
+        if (UI06()) b.addEventListener('dblclick', () => setRibbon(!S.collapsed));
         tl.append(b);
       });
       tl.addEventListener('keydown', (e) => {
@@ -224,8 +235,18 @@ function mount(cfg, reg) {
       const quick = el('div', { className: 'cc-in-quick', role: 'group', 'aria-label': T('shell.input.quick') });
       for (const x of prof.quick || []) { const b = toolBtn(x); if (b) { b.classList.add('cc-in-icon'); quick.append(b); } }
       head.append(quick);
+      if (UI06()) {
+        const pin = el('button', { type: 'button', className: 'cc-in-pin', 'data-ribbon-pin': '', 'aria-pressed': coll ? 'false' : 'true',
+          title: T(coll ? 'shell.input.ribbon.pin' : 'shell.input.ribbon.collapse'), 'aria-label': T(coll ? 'shell.input.ribbon.pin' : 'shell.input.ribbon.collapse') },
+          el('i', { className: 'bi ' + (coll ? 'bi-pin-angle' : 'bi-chevron-bar-up'), 'aria-hidden': 'true' }));
+        pin.addEventListener('click', () => setRibbon(!S.collapsed));
+        head.append(pin);
+      }
       bar.append(head);
-      const body = el('div', { className: 'cc-in-rbody', role: 'tabpanel', 'aria-label': tx(all[S.tab]?.label) });
+      const body = el('div', { className: 'cc-in-rbody' + (coll && !peek ? ' cc-in-folded' : ''), role: 'tabpanel', 'aria-label': tx(all[S.tab]?.label) });
+      rbody = body;
+      bar.classList.toggle('cc-in-collapsed', coll);
+      bar.classList.toggle('cc-in-peek', coll && peek);
       for (const pn of (all[S.tab]?.panels || [])) {
         const btns = pn.extra ? ex.map((b) => extraBtn(b, false)) : pn.items.map((x) => toolBtn(x, true)).filter(Boolean);
         if (!btns.length) continue;
@@ -259,12 +280,29 @@ function mount(cfg, reg) {
 
   bar.addEventListener('click', (e) => {
     const b = e.target.closest('[data-cmd]');
-    if (b && bar.contains(b)) { e.preventDefault(); run(b.dataset.cmd); }
+    if (b && bar.contains(b)) { e.preventDefault(); if (peek) fold(); run(b.dataset.cmd); }
   });
+  /** A collapsed ribbon's open panels go away again (a command ran, a click elsewhere, Esc). */
+  function fold() {
+    if (!peek) return;
+    peek = false;
+    bar.classList.remove('cc-in-peek');
+    rbody?.classList.add('cc-in-folded');
+    for (const t of bar.querySelectorAll('.cc-in-tab')) t.setAttribute('aria-expanded', 'false');
+  }
+  bar.addEventListener('keydown', (e) => { if (peek && e.key === 'Escape' && !e.target.closest('details[data-in-menu]')) { e.preventDefault(); e.stopPropagation(); fold(); bar.querySelector('[role="tab"][aria-selected="true"]')?.focus(); } });
+  /** DF.27: collapse a ribbon style to its tab names (true) or pin it open (false). */
+  function setRibbon(c) {
+    if (!!S.collapsed === !!c) return;
+    S = { ...S, collapsed: c ? true : undefined };
+    peek = false;
+    save(); render();
+    if (prof?.layout === 'ribbon') status(T(c ? 'shell.input.ribbon.collapsed' : 'shell.input.ribbon.pinned'));
+  }
   // menus: one open at a time, a click elsewhere or Esc closes, arrows move between items and menus
   function closeMenus(except) { for (const d of bar.querySelectorAll('details[open]')) if (d !== except) d.open = false; }
   bar.addEventListener('toggle', (e) => { if (e.target.open) { closeMenus(e.target); syncStates(); } }, true);
-  document.addEventListener('pointerdown', (e) => { if (!bar.contains(e.target)) closeMenus(); }, true);
+  document.addEventListener('pointerdown', (e) => { if (!bar.contains(e.target)) { closeMenus(); fold(); } }, true);
   bar.addEventListener('pointerover', (e) => {   // a menu bar: moving over the next title opens it while one is open
     const s = e.target.closest('summary');
     if (!s || !bar.querySelector('details[open]')) return;
@@ -654,6 +692,10 @@ function mount(cfg, reg) {
     app: cfg.app, current: () => prof, setStyle, run, get state() { return S; }, styles: STYLES, commands: COMMANDS,
     keysOf: (id) => (matcher ? matcher.keysOf(id).map(IP.showSeq) : []), paletteItems, covers, macros, setMacros,
     family: () => IP.familyOf(reg, S, S.style), useEverywhere, importText,
+    // 0.6 DF.8 (app-settings.js "Reset the layout"): the style this app starts with; the person's own styles stay listed
+    resetLayout() { S = { ...IP.resetStyle(S, reg, sharedFamily(), Date.now()), collapsed: undefined }; peek = false; save(); render(); },
+    ribbon: () => ({ on: UI06() && prof?.layout === 'ribbon', collapsed: !!S.collapsed, open: peek }),
+    setRibbon,
   };
   window.ccInput = api;
   window.dispatchEvent(new CustomEvent('cc-input-ready', { detail: { app: cfg.app } }));

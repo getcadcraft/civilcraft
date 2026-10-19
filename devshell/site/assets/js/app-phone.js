@@ -37,6 +37,21 @@
  * side panels float (ccShellPanels, app-panels.js) and slide in from their edge from a button each in the app bar
  * (`.app-bar-sheet`), a tap on the drawing or Esc puts them away; turned sideways, the panels it floated dock back home.
  *
+ * Pen and touch (0.6 DC.102, session studio-extra_PART_2; dev builds and releases from 0.6 only: the Settings dialog carries
+ * data-shell-ui). What every app gets from the shell, on the drawing (the stage) only — the app's own handling is unchanged:
+ * - A pen is noticed the first time one is used (`html.cc-pen`, remembered for the device). From then on, **palm
+ *   rejection**: a touch that lands while the pen is down, within 0.6 s of it (lifting, or hovering above the screen), or
+ *   with a palm-sized contact (over 40 px) never reaches the app.
+ * - **Fingers with a pen** (`fingers`): "draw" (as before) or "view": one finger on the drawing does nothing; when a second
+ *   finger lands the first is handed to the app after all (a pointerdown at where it is now), so the app's own two-finger
+ *   pan and zoom work.
+ * - **Taps**: two fingers tapped together = Undo, three = Redo (the app's own commands, window.ccInput.run).
+ * - **The pen's side (barrel) button and eraser end**: "app" (what the app does: a right click; ModelCraft's eraser) or Undo
+ *   / Redo.
+ * - `window.ccShellPen` → { seen(), down(), state() (pressure, tiltX, tiltY, twist, hover of the last pen event), prefs(),
+ *   set(key, value) } for apps that want pressure or hover. Settings › General › Pen and touch (shown with a touch screen or
+ *   once a pen was seen); the choices are the device's, for every app (localStorage `cc-pen`).
+ *
  *   window.ccShellPhone → { on(), size(), compact(), open(id), close(), sheets(), tools(show?), toolbarAt('top'|'bottom'),
  *                           layout(), segments(rects|null) (tests: pretend a hinge), tablet(on?) (the host: a tablet),
  *                           tabletSheets() (true while the tablet sheets are on) }
@@ -431,6 +446,165 @@
   document.addEventListener('focusout', function () { setTimeout(viewport, 50); });
   layout();
   if (document.readyState !== 'complete') window.addEventListener('load', layout, { once: true });
+
+  // ---- Pen and touch (0.6 DC.102; see the header) ----
+  if (document.querySelector('[data-app-settings][data-shell-ui]')) penAndTouch();
+  function penAndTouch() {
+    var PKEY = 'cc-pen';
+    var P = { palm: true, fingers: 'draw', taps: true, side: 'app', eraser: 'app', seen: false };
+    var CHOICES = { fingers: ['draw', 'view'], side: ['app', 'undo', 'redo'], eraser: ['app', 'undo', 'redo'] };
+    try {
+      var v = JSON.parse(localStorage.getItem(PKEY) || '{}') || {};
+      ['palm', 'taps', 'seen'].forEach(function (k) { if (typeof v[k] === 'boolean') P[k] = v[k]; });
+      Object.keys(CHOICES).forEach(function (k) { if (CHOICES[k].indexOf(v[k]) >= 0) P[k] = v[k]; });
+    } catch (e) { /* defaults */ }
+    function savePen() { try { localStorage.setItem(PKEY, JSON.stringify(P)); } catch (e) { /* private mode: this visit only */ } }
+    var PALM_MS = 600, PALM_PX = 40, TAP_MS = 400, TAP_LAND_MS = 200, TAP_MOVE = 12;
+    var penDown = false, penAt = -1e9, last = { pressure: 0, tiltX: 0, tiltY: 0, twist: 0, hover: false };
+    var dropped = new Set(), penOwn = new Set(), held = new Map(), passed = new Set();
+    var tap = null, eatMenuAt = -1e9, replaying = false;
+    var now = function () { return performance.now(); };
+    var stageOf = function () { return classify().stage; };
+    function inStage(t) { var st = stageOf(); return !!(st && t && t.nodeType === 1 && st.contains(t)); }
+    function swallow(e) { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
+    function seen() {
+      root.classList.add('cc-pen');
+      if (!P.seen) { P.seen = true; savePen(); }
+      syncSet();
+    }
+    if (P.seen) root.classList.add('cc-pen');
+    function act(what) {
+      var id = what === 'undo' ? 'edit.undo' : what === 'redo' ? 'edit.redo' : null;
+      if (!id) return;
+      if (window.ccInput && typeof window.ccInput.run === 'function') {
+        Promise.resolve(window.ccInput.run(id)).then(function (ok) { if (ok && window.ccShellScreen && ccShellScreen.say) ccShellScreen.say(T(what === 'undo' ? 'shell.pen.did.undo' : 'shell.pen.did.redo')); });
+      }
+    }
+    function record(e) {
+      penAt = now();
+      last = { pressure: e.pressure || 0, tiltX: e.tiltX || 0, tiltY: e.tiltY || 0, twist: e.twist || 0, hover: e.buttons === 0 };
+    }
+    function palmSized(e) { return (e.width || 0) > PALM_PX || (e.height || 0) > PALM_PX; }
+    function replay(h) {
+      var o = h.ev;
+      var init = { bubbles: true, cancelable: true, composed: true, pointerId: o.pointerId, pointerType: 'touch', isPrimary: o.isPrimary,
+        clientX: o.clientX, clientY: o.clientY, screenX: o.screenX, screenY: o.screenY, button: 0, buttons: 1, width: o.width, height: o.height,
+        pressure: o.pressure || 0.5 };
+      replaying = true;
+      try { (h.target.isConnected ? h.target : stageOf() || main).dispatchEvent(new PointerEvent('pointerdown', init)); } finally { replaying = false; }
+    }
+    // taps: two or three fingers landing together and lifting soon, without moving
+    function tapDown(e) {
+      var t = now();
+      if (!tap) tap = { ids: new Map(), max: 0, t0: t, moved: false, late: false, active: 0 };
+      else if (t - tap.t0 > TAP_LAND_MS) tap.late = true;
+      tap.ids.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      tap.active++;
+      if (tap.active > tap.max) tap.max = tap.active;
+    }
+    function tapMove(e) {
+      var d = tap && tap.ids.get(e.pointerId);
+      if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) > TAP_MOVE) tap.moved = true;
+    }
+    function tapUp(e) {
+      if (!tap || !tap.ids.has(e.pointerId)) return;
+      tap.active--;
+      if (tap.active > 0) return;
+      var t = tap;
+      tap = null;
+      if (P.taps && !t.moved && !t.late && now() - t.t0 < TAP_MS && (t.max === 2 || t.max === 3)) act(t.max === 2 ? 'undo' : 'redo');
+    }
+
+    window.addEventListener('pointerdown', function (e) {
+      if (replaying) return;
+      if (e.pointerType === 'pen') {
+        seen(); record(e); penDown = true;
+        if (!inStage(e.target)) return;
+        var eraser = e.button === 5 || (e.buttons & 32) !== 0, barrel = e.button === 2;
+        var what = eraser ? P.eraser : barrel ? P.side : 'app';
+        if (what !== 'app') { swallow(e); penOwn.add(e.pointerId); if (barrel) eatMenuAt = now(); act(what); }
+        return;
+      }
+      if (e.pointerType !== 'touch' || !inStage(e.target)) return;
+      if (P.seen && P.palm && (penDown || now() - penAt < PALM_MS || palmSized(e))) { dropped.add(e.pointerId); swallow(e); return; }
+      tapDown(e);
+      if (P.seen && P.fingers === 'view') {
+        if (!held.size && !passed.size) { held.set(e.pointerId, { target: e.target, ev: e }); swallow(e); return; }
+        held.forEach(function (h, id) { replay(h); passed.add(id); });
+        held.clear();
+        passed.add(e.pointerId);
+      }
+    }, true);
+    window.addEventListener('pointermove', function (e) {
+      if (replaying) return;
+      if (e.pointerType === 'pen') { record(e); if (penOwn.has(e.pointerId)) swallow(e); return; }
+      if (e.pointerType !== 'touch') return;
+      if (dropped.has(e.pointerId)) { swallow(e); return; }
+      tapMove(e);
+      var h = held.get(e.pointerId);
+      if (h) { h.ev = e; swallow(e); }
+    }, true);
+    function ended(e) {
+      if (replaying) return;
+      if (e.pointerType === 'pen') {
+        record(e); penDown = false;
+        if (penOwn.delete(e.pointerId)) swallow(e);
+        return;
+      }
+      if (e.pointerType !== 'touch') return;
+      if (dropped.delete(e.pointerId)) { swallow(e); return; }
+      tapUp(e);
+      if (held.delete(e.pointerId)) { swallow(e); return; }   // one finger alone, with "only move the view": nothing happened
+      passed.delete(e.pointerId);
+    }
+    window.addEventListener('pointerup', ended, true);
+    window.addEventListener('pointercancel', ended, true);
+    // the side button's own right click, after the shell took the press
+    window.addEventListener('contextmenu', function (e) { if (now() - eatMenuAt < 800) { eatMenuAt = -1e9; swallow(e); } }, true);
+    // a pen hovering out of range: the palm window starts from then
+    window.addEventListener('pointerleave', function (e) { if (e.pointerType === 'pen') penAt = now(); }, true);
+
+    // Settings › General › Pen and touch (app-settings.inc prints it on 0.6 builds; hidden without a touch screen or a pen)
+    var set = document.querySelector('[data-app-settings] [data-pen-set]');
+    function anyCoarse() { try { return matchMedia('(any-pointer: coarse)').matches; } catch (e) { return false; } }   // i18n-ignore (CSS)
+    function syncSet() {
+      if (!set) return;
+      set.hidden = !(anyCoarse() || P.seen);
+      set.querySelectorAll('input, select').forEach(function (f) {
+        var k = f.getAttribute('data-pen');
+        if (!k) return;
+        if (f.type === 'checkbox') f.checked = !!P[k];
+        else if (f.type === 'radio') f.checked = f.value === P[k];
+        else f.value = P[k];
+      });
+    }
+    function setPref(k, val) {
+      if (k === 'palm' || k === 'taps') P[k] = !!val;
+      else if (CHOICES[k] && CHOICES[k].indexOf(val) >= 0) P[k] = val;
+      else return false;
+      savePen(); syncSet();
+      return true;
+    }
+    if (set) {
+      set.addEventListener('change', function (e) {
+        var f = e.target, k = f.getAttribute && f.getAttribute('data-pen');
+        if (k) setPref(k, f.type === 'checkbox' ? f.checked : f.value);
+      });
+      var dlg = set.closest('dialog');
+      if (dlg) new MutationObserver(function () { if (dlg.open) syncSet(); }).observe(dlg, { attributes: true, attributeFilter: ['open'] });
+      syncSet();
+    }
+    Object.defineProperty(window, 'ccShellPen', {
+      value: {
+        seen: function () { return P.seen; },
+        down: function () { return penDown; },
+        state: function () { return Object.assign({ at: penAt }, last); },
+        prefs: function () { return Object.assign({}, P); },
+        set: setPref,
+        forget: function () { P.seen = false; root.classList.remove('cc-pen'); savePen(); syncSet(); },   // tests, and "no pen here any more"
+      },
+    });
+  }
 
   Object.defineProperty(window, 'ccShellPhone', {
     value: {

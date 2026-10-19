@@ -370,3 +370,8 @@ body.app-shell .sp-tab { bottom: 2.6rem; }
 /* ---- A phone (0.5 Track PH; the layout is the shell's assets/js/app-phone.js + app-shell.css § Phones). CivilCraft's own:
    the tool hint is one line along the drawing's foot, clear of the view cube in the corner (a tap shows all of it). ---- */
 html.cc-compact .cv-toolhint { left: .5rem; right: 5.75rem; transform: none; max-width: none; text-align: left; bottom: .5rem; }
+
+/* 0.6 WL.27: the structure builder (structs-ui.js) */
+.cv-st-canvas { display: block; width: 100%; height: auto; margin: 0.5rem 0; background: var(--sheet); border: var(--pen-1) solid var(--line); }
+.cv-st-types li { margin: 0.25rem 0; }
+.cv-st-part { display: contents; }

@@ -141,7 +141,8 @@ try {
     await page.setInputFiles('[data-file]', { name: 'Tower.pln', mimeType: 'application/octet-stream', buffer: Buffer.from('not read') });
     await waitStatus(/project file/);
     const msg = await page.evaluate(() => document.querySelector('[data-status]').textContent);
-    ok(/^Tower\.pln is a project file BimCraft does not read yet\. Export IFC .* DWG/.test(msg), '"Tower.pln is a project file … Export IFC … DWG"', msg);
+    // 0.6 DF.12 (bim-interop): bytes that don't start like an Archicad project are said to be named like one (open.pln.renamed)
+    ok(/^Tower\.pln is named like an Archicad file but does not start like one: .* export IFC .* DWG/.test(msg), '"Tower.pln is named like an Archicad file but does not start like one … export IFC … DWG"', msg);
     await shot(page, 'n7-01-pln-refused');
     await page.keyboard.press('F1');
     await page.waitForTimeout(800);

@@ -25,7 +25,8 @@
  *           parcels: [{ id, name, pts:[{x,y,b?}] }] (0.4 V21, parcels.js)
  *           features: [{ id, name, pts:[{x,y,z}], closed, use: 'eg'|'design'|'off', daylight, cut, fill }] (0.4 V14, featureline.js:
  *           'eg' lines are breaklines of the existing ground, closed 'design' lines grading items after the corridors) }
- *   alignments also carry corridor: null | { on, lane, laneSlope, shoulder, shoulderSlope, cut, fill, step, super? } (corridor.js;
+ *   alignments also carry corridor: null | { on, lane, laneSlope, shoulder, shoulderSlope, cut, fill, step, super?, targets? (0.6
+ *   WL.25: corridor.js cleanTargets; corridorOrder() grades a corridor after the ones it targets) } (corridor.js;
  *   super: superelev.js, 0.4 V18)
  *   and sampling: null | { step, left, right, extra: [sta] } (0.4 V13 sample lines; p.sections(a), sections.js)
  *   state.crs: null | the project's coordinate system (crs.js; docs/GIS-SPEC.md §1) — an undoable change like any other;
@@ -42,12 +43,15 @@ import { buildAlignment } from './alignment.js';
 import { buildProfile, sampleSurface } from './profile.js';
 import { gradedSurface, gridVolume } from './grading.js';
 import { analyzeNetwork } from './pipes.js';
-import { corridorPatch, defaultAssembly } from './corridor.js';
+import { corridorPatch, defaultAssembly, cleanTargets } from './corridor.js';
 import { readGisState, gisFeaturesJSON } from './gis-state.js';   // GIS: layer data in the project file (docs/GIS-SPEC.md §2)
 import { cleanSampling, buildSections } from './sections.js';   // 0.4 V13: sample lines and sections
 import { cleanSuper } from './superelev.js';   // 0.4 V18
 import { cleanCatchment, cleanHydro } from './hydro.js';   // 0.4 V19/V20
-import { cleanFeature, featureBreaklines, featureItem } from './featureline.js';   // 0.4 V14: feature lines
+import { cleanSewer, cleanSewLoad } from './sewer.js';   // 0.6 LC.16 S1
+import { cleanType, MAX_TYPES } from './structs.js';   // 0.6 WL.27: structure types
+import { cleanSwept, simulate, envelope, alignmentPath } from './swept.js';   // 0.6 WL.28: swept paths
+import { cleanFeature, featureBreaklines, featureItem, flatten as flattenFeature } from './featureline.js';   // 0.4 V14: feature lines
 import { cleanParcel } from './parcels.js';   // 0.4 V21
 import { cleanDescKeys, cleanLineCodes, grouper, figures } from './desckeys.js';   // 0.4 V16: description keys, line codes
 import { t } from './i18n.js';
@@ -237,18 +241,71 @@ export class Project {
 
   padsDeps(tag = 'fg') { return tag === 'eg' ? '' : this.gradeDeps(); }
   /** What the graded surface depends on besides the existing ground: pads, and alignments with a corridor on. */
-  gradeDeps() { return JSON.stringify([this.state.pads, this.state.alignments.filter((a) => a.corridor?.on), (this.state.features || []).filter((f) => f.use === 'design')]); }
+  gradeDeps() {
+    const on = this.state.alignments.filter((a) => a.corridor?.on);
+    // 0.6 WL.25: a corridor that targets a feature line depends on that line, whatever its use
+    const tf = new Set(on.flatMap((a) => (a.corridor.targets || []).filter((g) => g.from.kind === 'feature').map((g) => g.from.id)));
+    return JSON.stringify([this.state.pads, on, (this.state.features || []).filter((f) => f.use === 'design' || tf.has(f.id))]);
+  }
+  /** 0.6 WL.25: the corridors in an order where every corridor comes after the corridors it targets; a target that would
+   *  close a loop is marked { loop: true } (index per alignment id). */
+  corridorOrder() {
+    const on = this.state.alignments.filter((a) => a.corridor?.on), byId = new Map(on.map((a) => [a.id, a]));
+    const order = [], mark = new Map(), loops = new Map();
+    const visit = (a) => {
+      if (mark.get(a.id) === 2) return;
+      mark.set(a.id, 1);
+      (a.corridor.targets || []).forEach((g, i) => {
+        if (g.from.kind !== 'corridor') return;
+        const b = byId.get(g.from.id);
+        if (!b) return;
+        if (mark.get(b.id) === 1 || b.id === a.id) { if (!loops.has(a.id)) loops.set(a.id, new Set()); loops.get(a.id).add(i); return; }
+        visit(b);
+      });
+      mark.set(a.id, 2);
+      order.push(a);
+    };
+    for (const a of on) visit(a);
+    return { order, loops };
+  }
   /** The items graded into the existing ground, in order: corridors first, then pads. */
   gradeItems() {
     const items = [];
-    for (const a of this.state.alignments) {
-      if (!a.corridor?.on) continue;
+    // 0.6 WL.25: corridors in target order; each one's lines are kept as it is graded, so a corridor targeting another's
+    // edge reads that edge as it is now (it moves when the other corridor changes)
+    const { order, loops } = this.corridorOrder(), done = new Map();
+    for (const a of order) {
       const al = this.alignment(a), prof = this.designProfile(a), asm = { ...defaultAssembly(this.state.units), ...a.corridor };
-      items.push({ id: a.id, kind: 'corridor', name: t('project.corridor', { name: a.name }), patch: (surf) => corridorPatch(surf, al, prof, asm) });
+      const resolve = () => (a.corridor.targets || []).map((g, i) => {
+        if (g.from.kind === 'feature') {
+          const f = (this.state.features || []).find((x) => x.id === g.from.id);
+          return { ...g, line: f ? flattenFeature(f) : null, label: f ? f.name : t('corr.tg.gone') };
+        }
+        const b = this.state.alignments.find((x) => x.id === g.from.id);
+        const label = b ? t('corr.tg.of', { name: b.name, line: t('corr.line.' + g.from.line.toLowerCase()) }) : t('corr.tg.gone');
+        if (loops.get(a.id)?.has(i)) return { ...g, line: null, label, loop: true };
+        return { ...g, line: done.get(g.from.id)?.lines?.[g.from.line] || null, label };
+      });
+      items.push({ id: a.id, kind: 'corridor', name: t('project.corridor', { name: a.name }), patch: (surf) => {
+        const r = corridorPatch(surf, al, prof, asm, { targets: resolve() });
+        done.set(a.id, r.info);
+        return r;
+      } });
     }
     for (const f of this.state.features || []) { const it = featureItem(f); if (it) items.push(it); }   // 0.4 V14: closed design feature lines
     for (const p of this.state.pads) if (p.pts.length >= 3) items.push({ ...p, kind: 'pad', z: Number(p.z), cut: Number(p.cut), fill: Number(p.fill) });
     return items;
+  }
+  /** 0.6 WL.28: a swept path worked out: { path, sim, env } (null without its line), kept until it or its line changes. */
+  sweptOf(rec) {
+    let path = null, dep = '';
+    if (rec.from.kind === 'feature') { const f = (this.state.features || []).find((x) => x.id === rec.from.id); if (f) { path = f.closed ? [...f.pts, { ...f.pts[0], b: undefined }] : f.pts; dep = JSON.stringify(f.pts) + f.closed; } }
+    else { const a = this.state.alignments.find((x) => x.id === rec.from.id); const al = a && this.alignment(a); if (al?.ok) { path = alignmentPath(al); dep = JSON.stringify(path); } }
+    return this.memo('swept:' + rec.id, JSON.stringify(rec) + '|' + dep, () => {
+      if (!path || path.length < 2) return null;
+      const sim = simulate(rec.vehicle, path, { mode: rec.mode });
+      return { path, sim, env: envelope(sim, rec.vehicle) };
+    });
   }
   graded() {
     return this.memo('graded', this.surfaceDeps() + '|' + this.gradeDeps(), () => {
@@ -304,6 +361,7 @@ export class Project {
       alignments: this.state.alignments, pads: this.state.pads, network: this.state.network, seq: this.state.seq,
       features: this.state.features || [],   // 0.4 V14
       parcels: this.state.parcels || [],   // 0.4 V21
+      swept: this.state.swept || [],   // 0.6 WL.28
       crs: this.state.crs,
       gis: this.state.gis, gisFeatures: gisFeaturesJSON(this.gisFeatures),   // GIS: { id: [[geometry, props], …] }
       crsGrids: crsGridsJSON(this),   // 0.4 V11: { name: base64 } for the grid state.crs.grid names
@@ -361,6 +419,8 @@ export class Project {
         corridor = { on: c.on === true, lane: pos(c.lane, 'lane'), laneSlope: pos(c.laneSlope, 'laneSlope'), shoulder: pos(c.shoulder, 'shoulder'), shoulderSlope: pos(c.shoulderSlope, 'shoulderSlope'), cut: pos(c.cut, 'cut') || d.cut, fill: pos(c.fill, 'fill') || d.fill, step: pos(c.step, 'step') || d.step };
         const sup = cleanSuper(c.super, s.units);   // 0.4 V18
         if (sup) corridor.super = sup;
+        const tg = cleanTargets(c.targets);   // 0.6 WL.25
+        if (tg.length) corridor.targets = tg;
       }
       const minR = fin(a.minR) && a.minR > 0 && a.minR < 1e7 ? a.minR : 0;   // 0.5 WL.23: design minimum radius (0 = none)
       return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(minR ? { minR } : {}) };
@@ -372,11 +432,15 @@ export class Project {
     }, 1000);
     s.features = list(obj.features, (f) => { const c = cleanFeature(f, s.units); if (c) c.id = id(f?.id, 'f'); return c; }, 1000);   // 0.4 V14
     s.parcels = list(obj.parcels, (f) => { const c = cleanParcel(f); if (c) c.id = id(f?.id, 'r'); return c; }, 2000);   // 0.4 V21
+    s.swept = list(obj.swept, (w) => { const c = cleanSwept(w, s.units); if (c) c.id = id(w?.id, 'w'); return c; }, 200);   // 0.6 WL.28
     const nw = obj.network;
     if (nw && typeof nw === 'object' && Array.isArray(nw.structures) && Array.isArray(nw.pipes)) {
       const r = nw.rules || {};
       const pos = (v, d) => (fin(v) && v >= 0 ? v : d);
-      const structures = list(nw.structures, (x) => (xy(x) ? { id: id(x.id, 's'), name: str(x.name, 60) || t('project.def.structure'), ...xy(x), rim: fin(x.rim) ? x.rim : null, sumpDepth: pos(x.sumpDepth, 0), dia: pos(x.dia, 48) } : null), 1e4);
+      // 0.6 WL.27: structure types (structs.js); a structure keeps a type that exists
+      const types = list(nw.types, (k) => { const c = cleanType(k, s.units); if (c) c.id = id(k?.id, 'u'); return c; }, MAX_TYPES);
+      const typeIds = new Set(types.map((k) => k.id));
+      const structures = list(nw.structures, (x) => (xy(x) ? { id: id(x.id, 's'), name: str(x.name, 60) || t('project.def.structure'), ...xy(x), rim: fin(x.rim) ? x.rim : null, sumpDepth: pos(x.sumpDepth, 0), dia: pos(x.dia, 48), ...(typeIds.has(x.type) ? { type: x.type } : {}), ...(cleanSewLoad(x.sew) ? { sew: cleanSewLoad(x.sew) } : {}) } : null), 1e4);
       const ids = new Set(structures.map((x) => x.id));
       const pipes = list(nw.pipes, (x) => (x && ids.has(x.from) && ids.has(x.to) && x.from !== x.to ? { id: id(x.id, 'q'), name: str(x.name, 60) || t('project.def.pipe'), from: x.from, to: x.to, dia: pos(x.dia, 12) || 12, invUp: fin(x.invUp) ? x.invUp : null, invDn: fin(x.invDn) ? x.invDn : null } : null), 1e4);
       if (pipes.length !== nw.pipes.length) notes.push(t('project.bad.pipes', { n: nw.pipes.length - pipes.length }));
@@ -385,6 +449,8 @@ export class Project {
       const cs = list(nw.catchments, (x) => { const c = cleanCatchment(x); if (!c) return null; c.id = id(x.id, 'k'); if (c.to && !ids.has(c.to)) c.to = null; return c; }, 1e4);
       if (cs.length) s.network.catchments = cs;
       if (nw.hydro && typeof nw.hydro === 'object') s.network.hydro = cleanHydro(nw.hydro, s.units);
+      if (types.length) s.network.types = types;
+      if (nw.sewer && typeof nw.sewer === 'object') s.network.sewer = cleanSewer(nw.sewer, s.units);   // 0.6 LC.16 S1: sanitary design flows
     }
     s.crs = readCrs(obj.crs, str, fin, notes);
     { const g = readGisState(obj.gis, obj.gisFeatures, notes); s.gis = g.gis; p.gisFeatures = g.features; p.gisVersion++; }   // GIS (untrusted)
@@ -394,7 +460,7 @@ export class Project {
     }
     p.gisImages = readGisImages(obj.gisImages, s.gis.maps, notes);   // GIS: map layer pictures (builder C; gis-map-ui.js reads the layers)
     p.points = pts; p.pointsFile = str(obj.pointsFile, 200); p.pointsVersion++;
-    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
+    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.swept || [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
     return { project: p, notes };
   }
 }

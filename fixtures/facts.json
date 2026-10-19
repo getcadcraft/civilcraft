@@ -678,8 +678,8 @@
   "dxf": {
    "file": "fixtures/electrical/electrical-sample.dxf",
    "version": "AC1015",
-   "bytes": 237058,
-   "sha256": "5e90269a308a8996da0ff3ce8b71d102cf75a1a52a4837d3a7f8dc21f9084634"
+   "bytes": 237067,
+   "sha256": "a2cf1782de5891f9b60735c36c541606c89ad706d223844cca10293ca490aa34"
   },
   "generator": "node public_html/assets/apps/cadcraft/dev/addons/electrical/test/make-sample.mjs --out fixtures/electrical",
   "checkedBy": "public_html/assets/apps/cadcraft/dev/addons/electrical/test/test.mjs (E.11 the sample project)"

@@ -3,7 +3,7 @@ title: Lay out a gravity pipe network
 summary: Draw storm or sanitary pipe runs structure by structure, set your slope, cover and drop rules, let CivilCraft set inverts, and fix the problems it lists.
 section: tasks
 order: 90
-keywords: pipe network, storm, sanitary, sewer, structures, manholes, inlets, inverts, cover, slope, drop, rim, sump, gravity pipes
+keywords: structure builder, structure type, rectangular structure, catch basin, frame, cover, wall thickness, library item, pipe network, storm, sanitary, sewer, structures, manholes, inlets, inverts, cover, slope, drop, rim, sump, gravity pipes
 ---
 
 A project holds one gravity pipe network, storm or sanitary. It is made of structures (manholes, inlets) and straight pipes between them. Flow runs in the direction you draw. CivilCraft checks every pipe and structure against three rules you set, and can set every invert from those rules.
@@ -52,6 +52,8 @@ Click a structure or pipe with {{ui:Select}} to see it in the right panel.
 - Leave **Rim** empty to take it from the surface; the box then shows the surface value in gray. Type a value to fix the rim.
 - Drag the structure's grip on the plan to move it. Its pipes follow; their inverts stay as they were, so check the problems afterwards.
 
+**Type**: choose one of the network's structure types (below), or none for a round structure of its own diameter.
+
 **Pipe**: **Name**, the structures it runs between, **Diameter**, **Upper invert**, **Lower invert**, then **Length**, **Slope** and **Least cover**.
 
 Press {{key:Enter}} after each value.
@@ -75,10 +77,26 @@ The **Pipe network** block lists every problem (up to 40); click one to select t
 
 Problem pipes and structures are also marked in red on the plan.
 
+## Structure types
+
+A structure type is a structure built from its parameters: a manhole, inlet, junction box or outlet, **round** (inside diameter) or **rectangular** (inside width and length), with its **wall thickness**, **floor slab**, a **sump** below the lowest pipe and a **frame and cover** (round or rectangular opening, frame height). Types belong to the network, under **Structure types** in the project's Properties.
+
+1. Click {{ui:New structure type}}. The dialog draws the structure in plan and in section as you type.
+2. Click {{ui:Add the type}}.
+3. Select a structure and choose the type under **Type**. It takes the type's size and sump; its own sump can still be changed.
+
+Edit a type and every structure of that type follows its sizes. Remove a type and its structures stay as round structures of the same width. Each change is one step: {{key:Mod+Z}} undoes it.
+
+A rectangular structure is drawn on the plan, in DXF, DWG and PDF, and in 3D as a rectangle with its length along its outlet pipe; pipes start at its wall. LandXML writes it as a rectangular structure (`RectStruct`) with its wall thickness, and reads such structures back as types.
+
+### Share a type through the library
+
+{{ui:Save as library item}} writes the type as a CadCraft library item (a `.json` file): its plan symbol, a 3D body to a typical depth, and every size. Upload it to the library to share it. {{ui:Open a library item}} reads a structure saved this way back into the network, converted to the project's units. Library items that are not structures made in CivilCraft are refused, with the reason.
+
 ## Delete
 
 Select a pipe and press {{key:Delete}} to remove it. Deleting a structure removes the pipes connected to it as well. On a Mac, press Fn and delete, or click {{ui:Delete}}.
 
 ## Not built yet
 
-Flows, pipe sizes and the hydraulic grade line are in [Storm drainage](topic:storm-drainage). Parts catalogs, pipes in the profile view, curved pipes, rectangular structures and more than one network per project are not available yet. See [Not built yet](topic:not-built-yet).
+Flows, pipe sizes and the hydraulic grade line are in [Storm drainage](topic:storm-drainage). Pipe catalogs, non-round pipes, pipes in the profile view, curved pipes and more than one network per project are not available yet. See [Not built yet](topic:not-built-yet).

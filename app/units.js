@@ -5,9 +5,16 @@
  * A project is in US feet ('ft') or metres ('m'); every coordinate, elevation and length is in
  * that unit. Stations: feet use 100 ft stations ("12+34.56"), metres 1000 m ("1+234.567").
  * Grades are stored as fractions (0.02) and shown in percent; side slopes as H:V (3 = 3:1).
+ *
+ * Typed lengths (0.6 DF.3): readLength(text, unit) → { ok, value } | { ok: false, error } — a plain number (project units),
+ * or a length with its own marks (12'6", 12' 6 1/2", 6", 3 ft 6 in, 4 7/16, 450 mm, 1.2 m, 90 cm), or arithmetic over them
+ * (4+7/16, 12'6" + 3/4", (24'-0")/3, 2*450mm) through lencalc.js. Feet and inches are international feet in a metre
+ * project and project feet in a feet project (US survey feet: the 2 ppm is not a typing matter). Never for stations:
+ * "10+00" is a station (parseStation).
  */
 
 import { t } from "./i18n.js";
+import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets (a copy: tools/lencalc/sync.mjs; never edit it)
 
 export const UNITS = {
   ft: { key: 'ft', get name() { return t('units.ft'); }, short: 'ft', area: 'sq ft', vol: 'cu yd', volPer: 27, staLen: 100, staDec: 2, dec: 2, landxml: 'USSurveyFoot' },   // i18n-ignore: unit symbols and the LandXML unit name
@@ -42,6 +49,41 @@ export function parseStation(s, unit = 'ft') {
     return m[1] === '-' ? -v : v;
   }
   return isNum(t) ? Number(t) : null;
+}
+
+const M_PER_IN = 0.0254;
+/** One length as CivilCraft reads it → its value in project units (null when it is not one). */
+function oneLength(x, unit) {
+  let s = String(x).trim().toLowerCase().replace(/\s+/g, ' ');
+  if (isNum(s)) return Number(s);
+  const toUnit = (metres) => (unit === 'm' ? metres : metres / M_PER_IN / 12);   // feet project: inches to feet as 12 to 1
+  const m = s.match(/^(\d+(?:\.\d*)?|\.\d+) ?(mm|cm|m)$/);
+  if (m) return toUnit(Number(m[1]) * (m[2] === 'mm' ? 0.001 : m[2] === 'cm' ? 0.01 : 1));
+  // a number with a fraction: 4 7/16, 4-7/16, 7/16 (in the unit it stands in)
+  const frac = (q) => { const f = q.trim().match(/^(?:(\d+)[ -])?(\d+)\/(\d+)$/); if (f) return f[3] === '0' ? null : (Number(f[1] || 0) + Number(f[2]) / Number(f[3])); return isNum(q.trim()) ? Number(q) : null; };
+  const bare = frac(s);
+  if (bare !== null) return bare;
+  // feet and inches: 12'6", 12' 6 1/2", 12'-6", 6", 3 ft 6 in, 3ft, 6 in
+  s = s.replace(/\b(feet|foot|ft)\b\.?/g, "'").replace(/\b(inches|inch|in)\b\.?/g, '"').replace(/''/g, '"');
+  const fi = s.match(/^(?:([\d./ -]+?) ?')?(?: ?-? ?([\d./ -]+?) ?")?$/);
+  if (!fi || (!fi[1] && !fi[2])) return null;
+  const ft = fi[1] ? frac(fi[1]) : 0, inch = fi[2] ? frac(fi[2]) : 0;
+  if (ft === null || inch === null) return null;
+  const feet = ft + inch / 12;
+  return unit === 'm' ? feet * 12 * M_PER_IN : feet;
+}
+/** A typed length or sum of lengths (see the header) → { ok, value } | { ok: false, error }. */
+export function readLength(text, unit = 'ft') {
+  const s = String(text ?? '').trim().replace(/[′’‘`]/g, "'").replace(/[″“”]/g, '"').replace(/[−–—]/g, '-').replace(/,/g, '');
+  if (!s) return { ok: false, error: t('cv.len.bad', { text: '' }) };
+  if (hasArithmetic(s)) {
+    // a bare number is a plain factor until it is used as a length: then it is in project units (plain 1)
+    const r = calc(s, (x) => { const bare = /^[\d.\s/-]+$/.test(x), v = oneLength(x, unit); return v === null ? null : { value: v, unit: !bare }; }, { plain: 1 });
+    return r.ok ? { ok: true, value: r.value } : { ok: false, error: t('calc.err.' + r.code, { pos: r.pos + 1, text: r.text }) };
+  }
+  // a leading sign stays a sign (-5, -6"); hasArithmetic leaves those to us
+  const sign = s.startsWith('-') ? -1 : 1, v = oneLength(s.replace(/^[+-]/, ''), unit);
+  return v === null ? { ok: false, error: t('cv.len.bad', { text: s }) } : { ok: true, value: sign * v };
 }
 
 export function isNum(s) { return typeof s === 'number' ? Number.isFinite(s) : /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(String(s).trim()); }

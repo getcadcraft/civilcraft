@@ -1,0 +1,28 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* frame-panel.css — the frame analysis panel (0.6 LC.4; lib/frame/frame-panel.js), the same in DetailCraft and BimCraft
+   (copied by tools/frame/sync.mjs; listed in each app's manifest css). Theme tokens only; sizes in rem. */
+.fa-aid { margin: 0 0 .6rem; padding: .4rem .6rem; border-left: var(--pen-3, 2px) solid var(--layer-ochre); background: var(--sheet); color: var(--ink); font-size: .8125rem; }
+.fa-block + .fa-block { margin-top: .9rem; padding-top: .75rem; border-top: var(--pen-1, 1px) solid var(--grid); }
+.fa-head { display: flex; align-items: baseline; gap: .6rem 1rem; flex-wrap: wrap; margin: 0 0 .35rem; }
+.fa-head h3 { font-size: .875rem; font-weight: 700; margin: 0; }
+.fa-wrap { max-width: 100%; overflow-x: auto; }
+.fa-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .5rem .9rem; margin: .35rem 0 .6rem; }
+.fa-field { display: flex; flex-direction: column; gap: .15rem; font-size: .8125rem; color: var(--ink-2); margin: 0; }
+.fa-field > span { font-weight: 600; }
+.fa-field input, .fa-input { min-width: 0; width: 8rem; padding: .2rem .4rem; font-size: .8125rem; color: var(--ink); background: var(--sheet-2, transparent); border: var(--pen-1, 1px) solid var(--line, var(--grid)); border-radius: var(--radius, 2px); }
+.fa-table .fa-input { width: 10rem; }
+.fa-table .fa-factor { width: 4.5rem; text-align: right; }
+.fa-select { font-size: .8125rem; padding-top: .15rem; padding-bottom: .15rem; min-width: 7rem; }
+.fa-lead { font-size: .8125rem; font-weight: 600; color: var(--ink-2); align-self: center; }
+.fa-warn { border-left: var(--pen-3, 2px) solid var(--layer-ochre); padding-left: .5rem; }
+.fa-error { margin: .3rem 0 .6rem; padding: .4rem .6rem; border-left: var(--pen-3, 2px) solid var(--layer-red); background: var(--sheet); color: var(--ink); font-size: .875rem; }
+.fa-table td .fa-select { min-width: 6rem; }
+/* BimCraft's Points tab (0.6 LC.22, layout-bim-ui.js) uses the same panel pieces */
+.fa-check { display: inline-flex; align-items: center; gap: .35rem; font-size: .8125rem; color: var(--ink); }
+.fa-h3 { margin-top: 1rem; }
+.fa-table tr.fp-out td:nth-child(2) { color: var(--layer-red); font-weight: 700; }
+.fa-table tr.fp-ok td:nth-child(2) { color: var(--layer-green); }
+.fa-table tr.fp-missing td, .fa-table tr.fp-extra td { color: var(--ink-2); }
+@media (pointer: coarse) {
+  .fa-field input, .fa-input, .fa-select { min-height: 2.5rem; }
+}

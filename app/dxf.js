@@ -6,6 +6,7 @@
  *   writeDxf({ units, layers: [{name, color}], entities }) → { text, report }
  *   entities: { type:'poly', layer, pts:[{x,y}], closed, elev }      2D POLYLINE at an elevation (contours)
  *             { type:'poly3d', layer, pts:[{x,y,z}], closed }       3D POLYLINE (breaklines, daylight lines)
+ *                 + xdata { APP: [[code, value]…] } (0.6 WL.24: CivilCraft's feature lines; codes 1000 text, 1040 numbers)
  *             { type:'line', layer, a:{x,y}, b:{x,y} }
  *             { type:'arc', layer, c:{x,y}, r, a0, a1 }             counter-clockwise, radians
  *             { type:'text', layer, x, y, h, rot, text, align:'left'|'center'|'right' }
@@ -63,6 +64,11 @@ export function writeDxf({ units = 'ft', layers = [], entities = [] }) {
   w(0, 'TABLE'); w(2, 'LAYER'); w(70, layerList.size);
   for (const [n, c] of layerList) { w(0, 'LAYER'); w(2, n); w(70, 0); w(62, c); w(6, 'CONTINUOUS'); }
   w(0, 'ENDTAB');
+  // 0.6 WL.24: every application named in extended data needs its APPID (ACAD is always there)
+  const apps = [...new Set(entities.flatMap((e) => Object.keys(e.xdata || {})))].filter((a) => /^[A-Z0-9_$-]{1,31}$/.test(a));
+  w(0, 'TABLE'); w(2, 'APPID'); w(70, apps.length + 1);
+  for (const a of ['ACAD', ...apps.filter((x) => x !== 'ACAD')]) { w(0, 'APPID'); w(2, a); w(70, 0); }
+  w(0, 'ENDTAB');
   w(0, 'TABLE'); w(2, 'STYLE'); w(70, 1);
   w(0, 'STYLE'); w(2, 'STANDARD'); w(70, 0); w(40, '0.0'); w(41, '1.0'); w(50, '0.0'); w(71, 0); w(42, '2.5'); w(3, 'txt'); w(4, '');
   w(0, 'ENDTAB');
@@ -80,6 +86,11 @@ export function writeDxf({ units = 'ft', layers = [], entities = [] }) {
         if (pts.length < 2) break;
         const three = e.type === 'poly3d';
         w(0, 'POLYLINE'); w(8, L); w(66, 1); w(10, '0.0'); w(20, '0.0'); w(30, three ? '0.0' : f(e.elev || 0)); w(70, (e.closed ? 1 : 0) | (three ? 8 : 0));
+        for (const [app, items] of Object.entries(e.xdata || {})) {   // 0.6 WL.24
+          if (!apps.includes(app) || !Array.isArray(items)) continue;
+          w(1001, app);
+          for (const [c, v] of items) { if (c === 1000) w(1000, encodeText(String(v)).slice(0, 255)); else if (c >= 1040 && c <= 1042 && Number.isFinite(v)) w(c, f(v)); else if (c === 1070 || c === 1071) w(c, v | 0); }
+        }
         for (const p of pts) { w(0, 'VERTEX'); w(8, L); w(10, f(p.x)); w(20, f(p.y)); w(30, three ? f(p.z || 0) : f(e.elev || 0)); if (three) w(70, 32); }
         w(0, 'SEQEND'); w(8, L);
         count(e.type); break;

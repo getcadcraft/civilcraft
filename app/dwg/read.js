@@ -760,6 +760,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
       case 'SORTENTSTABLE': f.ownerBlock = hx(H2.ownerBlock); f.entities = (H2.ents || []).map(hx); f.sortHandles = (r._sort || []).map(hx); break;
       case 'IDBUFFER': f.ids = (H2.ids || []).map(hx); break;
       case 'FIELDLIST': f.fields = (H2.fields || []).map(hx); break;
+      case 'GEODATA': f.host = hx(H2.host); break;
       case 'TABLESTYLE': case 'CELLSTYLEMAP': case 'TABLECONTENT': case 'TABLEGEOMETRY': case 'FIELD': tableObjectFields(r, f, { hx, nameOf, get }); break;   // table-read.js
       case 'LAYER_INDEX': f.entries = (r.entries || []).map((e, i) => ({ ...e, handle: hx(H2.entries[i]) })); break;
       case 'MLINESTYLE': if (f.elements) for (const e of f.elements) { if (e._ltype !== undefined) { e.linetype = hx(e._ltype); delete e._ltype; } } break;

@@ -93,7 +93,7 @@ try {
   ok(tb.rows === 2, 'the toolbar still takes two rows at 1440 px', tb.rows + ' rows');
   ok(tb.editCount === 1 && tb.names.every((n) => n), 'exactly one group is named Edit; every group has a name', tb.names.join(', '));
   ok(JSON.stringify(tb.editTools) === JSON.stringify(['Undo', 'Redo', 'Copy', 'Paste', 'menu:More']), 'Edit holds Undo, Redo, Copy, Paste and More, as children of its tool row', JSON.stringify(tb.editTools));
-  ok(JSON.stringify(tb.items) === JSON.stringify([['Cut', 'Ctrl+X'], ['Copy', 'Ctrl+C'], ['Paste', 'Ctrl+V'], ['Paste in place', 'Ctrl+Shift+V'], ['Duplicate and move', 'Ctrl+D'], ['Delete', 'Delete'], ['Select all', 'Ctrl+A'], ['Select none', 'Esc'], ['Quick select', 'QS'], ['Select similar', 'SIM'], ['Find and replace', 'FIND']]), 'More lists Cut, Copy, Paste, Paste in place, Duplicate and move, Delete, Select all, Select none, Quick select, Select similar, Find and replace with their keys', JSON.stringify(tb.items));
+  ok(JSON.stringify(tb.items) === JSON.stringify([['Cut', 'Ctrl+X'], ['Copy', 'Ctrl+C'], ['Paste', 'Ctrl+V'], ['Paste in place', 'Ctrl+Shift+V'], ['Paste a picture', null], ['Duplicate and move', 'Ctrl+D'], ['Delete', 'Delete'], ['Select all', 'Ctrl+A'], ['Select none', 'Esc'], ['Quick select', 'QS'], ['Select similar', 'SIM'], ['Find and replace', 'FIND']]), 'More lists Cut, Copy, Paste, Paste in place, Paste a picture (0.6 DF.6), Duplicate and move, Delete, Select all, Select none, Quick select, Select similar, Find and replace with their keys', JSON.stringify(tb.items));
   if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'edit-01-toolbar.png'), clip: { x: 0, y: 0, width: 1440, height: 220 } });
 
   console.log('\n== draw, select all, copy');
