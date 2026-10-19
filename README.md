@@ -20,7 +20,7 @@ Use it now at https://getcadcraft.com/use/civilcraft, or install CadCraft Studio
 |---|---|
 | [Browser](web/) | 0.6: `civilcraft-browser-edition-v0.6.0.zip` in [Releases](https://github.com/getcadcraft/civilcraft/releases), or [`web/v0.4/`](web/v0.4/) (older) from a clone |
 | Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.6](https://github.com/getcadcraft/studio/releases/tag/studio-v0.6.0) (installer, `.deb`, AppImage); not code-signed yet |
-| [macOS](macos/) | Studio 0.6 for macOS follows; Studio 0.5 for Mac is on the [download page](https://getcadcraft.com/download#studio) |
+| [macOS](macos/) | In [CadCraft Studio 0.6](https://github.com/getcadcraft/studio/releases/tag/studio-v0.6.0) (universal disk image; not code-signed or notarized yet) |
 | [Android](android/) | The Studio APK, on the [download page](https://getcadcraft.com/download#studio) |
 | [iPad](ios/) | Planned, in 0.7 at the earliest |
 
