@@ -1,8 +1,6 @@
 # CivilCraft for Linux
 
-**Available from 0.4.** The `.deb` and AppImage are in [Releases](https://github.com/getcadcraft/civilcraft/releases).
-
-Both are the [browser edition](../web/), unchanged, in a WebKitGTK window, built by [getcadcraft/desktop-shell](https://github.com/getcadcraft/desktop-shell).
+CivilCraft comes inside [CadCraft Studio](https://github.com/getcadcraft/studio) (all eight apps in one install) from 0.5 on; there are no separate CivilCraft installers any more. Get Studio 0.6 from the [download page](https://getcadcraft.com/download#studio) or its [GitHub release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.6.0). Studio ships as a `.deb` and an AppImage.
 
 ## Flathub
 

@@ -1,10 +1,6 @@
 # CivilCraft for Windows
 
-**Available from 0.4.** Download `CivilCraft-0.4-setup.exe` from [Releases](https://github.com/getcadcraft/civilcraft/releases).
-
-The installer is the [browser edition](../web/), unchanged, in a WebView2 window (part of Windows 10 and 11), built by [getcadcraft/desktop-shell](https://github.com/getcadcraft/desktop-shell) (`node build.mjs civilcraft --edition <zip>`). Nothing here to compile.
-
-**Not code-signed yet:** Windows SmartScreen shows "Windows protected your PC"; choose **More info › Run anyway**, and check the file against SHA256SUMS first. The Microsoft Store package follows once it is signed.
+CivilCraft comes inside [CadCraft Studio](https://github.com/getcadcraft/studio) (all eight apps in one install) from 0.5 on; there are no separate CivilCraft installers any more. Get Studio 0.6 from the [download page](https://getcadcraft.com/download#studio) or its [GitHub release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.6.0). The Windows installer is not code-signed yet: SmartScreen shows "Windows protected your PC"; choose **More info › Run anyway**, and check the file against SHA256SUMS first. Signing and a Microsoft Store build come in 0.7. The 0.4 per-app installer stays on the 0.4 release.
 
 ## File types
 

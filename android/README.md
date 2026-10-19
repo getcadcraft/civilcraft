@@ -1,5 +1,3 @@
 # CivilCraft for Android
 
-**Planned.** Tablets first. Until then, use https://getcadcraft.com/try/civilcraft in Chrome.
-
-The Android app will be the same browser edition in the Android WebView (Tauri mobile, [getcadcraft/desktop-shell](https://github.com/getcadcraft/desktop-shell)), released through Google Play after a touch pass: long-press for right-click, larger targets, touch orbit in 3D.
+CivilCraft comes inside CadCraft Studio for Android: the signed APK is on the [download page](https://getcadcraft.com/download#studio) and in the [Studio 0.6 release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.6.0). It is not in Google Play yet (0.7 at the earliest).

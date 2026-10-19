@@ -4,26 +4,25 @@
 
 From survey points to finished grade.
 
-**[Website](https://getcadcraft.com/apps/civilcraft) | [Try it in your browser](https://getcadcraft.com/try/civilcraft) | [Download](https://getcadcraft.com/download/civilcraft) | [Help and tutorials](https://getcadcraft.com/tutorials/civilcraft) | [News](https://getcadcraft.com/news) | [Suggest a feature](https://getcadcraft.com/suggest)**
+**[Website](https://getcadcraft.com/apps/civilcraft) | [Use it in your browser](https://getcadcraft.com/use/civilcraft) | [Download CadCraft Studio](https://getcadcraft.com/download#studio) | [Help and tutorials](https://getcadcraft.com/tutorials/civilcraft) | [News](https://getcadcraft.com/news) | [Suggest a feature](https://getcadcraft.com/suggest)**
 
-[![CivilCraft 0.4](screenshots/paper.png)](https://getcadcraft.com/try/civilcraft)
+[![CivilCraft](screenshots/paper.png)](https://getcadcraft.com/use/civilcraft)
 
-<sub>Paper space above; [the same in model space](screenshots/model.png). Both are the 0.4 browser edition.</sub>
+<sub>Paper space above; [the same in model space](screenshots/model.png). Both are from the browser edition.</sub>
 
 CivilCraft is the civil & site design app in the [CadCraft](https://getcadcraft.com) family: Surfaces from points and breaklines, alignments, profiles, corridors, grading and pipe networks. LandXML in and out.
 
 ## Use it
 
-Try it now at https://getcadcraft.com/try/civilcraft, or get it for your platform. Your files stay on your computer either way.
+Use it now at https://getcadcraft.com/use/civilcraft, or install CadCraft Studio, which carries all eight apps. Your files stay on your computer either way.
 
 | Platform | Status |
 |---|---|
-| [Browser](web/) | 0.4: `civilcraft-browser-edition-v0.4.0.zip` in [Releases](https://github.com/getcadcraft/civilcraft/releases), or [`web/v0.4/`](web/v0.4/) from a clone |
-| [Windows](windows/) | 0.4: installer in [Releases](https://github.com/getcadcraft/civilcraft/releases) (not code-signed yet) |
-| [Linux](linux/) | 0.4: `.deb` and AppImage in [Releases](https://github.com/getcadcraft/civilcraft/releases); Flathub manifest in [`linux/flathub/`](linux/flathub/) |
-| [macOS](macos/) | Coming in 0.5 |
-| [iPad](ios/) | Planned |
-| [Android](android/) | Planned |
+| [Browser](web/) | 0.6: `civilcraft-browser-edition-v0.6.0.zip` in [Releases](https://github.com/getcadcraft/civilcraft/releases), or [`web/v0.4/`](web/v0.4/) (older) from a clone |
+| Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.6](https://github.com/getcadcraft/studio/releases/tag/studio-v0.6.0) (installer, `.deb`, AppImage); not code-signed yet |
+| [macOS](macos/) | Studio 0.6 for macOS follows; Studio 0.5 for Mac is on the [download page](https://getcadcraft.com/download#studio) |
+| [Android](android/) | The Studio APK, on the [download page](https://getcadcraft.com/download#studio) |
+| [iPad](ios/) | Planned, in 0.7 at the earliest |
 
 ## Work on it
 
