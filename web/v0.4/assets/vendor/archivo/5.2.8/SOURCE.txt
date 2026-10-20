@@ -1,3 +1,0 @@
-Archivo (font) 5.2.8 — https://github.com/Omnibus-Type/Archivo
-The variable Archivo font (width and weight axes), latin and latin-ext subsets as WOFF2, from the npm package @fontsource-variable/archivo of that version, unchanged.
-Copied into this edition from getcadcraft.com's vendored copy (assets/vendor/archivo/5.2.8/ there).

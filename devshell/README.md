@@ -29,7 +29,9 @@ The tests use the drawings in `fixtures/` (made for testing; no customer files).
 |---|---|
 | `app/` | the app: `ui.inc` (markup), `manifest.json` (stylesheets, entry module, import map), ES modules, `help/`, `lang/` |
 | `devshell/serve.mjs` | the local server |
-| `devshell/render.php` | builds the page from `app/ui.inc` |
+| `devshell/render.php` | builds the page from `app/ui.inc` (`--edition` for the browser edition's page) |
+| `devshell/edition.mjs` | packs the browser edition into `dist/` (BUILDING.md § The browser edition) |
+| `devshell/edition/` | what edition.mjs needs from getcadcraft.com: service worker, INSTALL.md template, `kit.json` (written by the sync; do not edit) |
 | `devshell/index.html` | the page, pre-rendered — used when PHP is not installed |
 | `devshell/app.json` | the app's name and colour, and the exact library versions it runs on |
 | `devshell/site/` | the shared shell from getcadcraft.com (app bar styles, settings dialog, help panel, fonts) |
@@ -45,6 +47,14 @@ The tests use the drawings in `fixtures/` (made for testing; no customer files).
 - Help (`app/help/*.md`): `php devshell/build-help.php` compiles `app/help/help.js` (`--check` only lints).
 - Words people read go in `app/lang/en.json` and are used with `t('key')` in JavaScript or `Lang::e('key')` in
   `ui.inc` — see the language-files guide in the main repository.
+
+## The browser edition
+
+```sh
+node devshell/edition.mjs [--version x.y] [--zip] [--out dir] [--offline]
+```
+
+The whole app as static files for any web server, as on the Releases page; needs PHP 8.1+ besides Node. See BUILDING.md.
 
 ## What the dev shell does not do
 

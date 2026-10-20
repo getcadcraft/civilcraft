@@ -1,3 +1,0 @@
-Bootstrap 5.3.8 — https://github.com/twbs/bootstrap
-dist/css/bootstrap.min.css and dist/js/bootstrap.bundle.min.js from the release of that version, unchanged.
-Copied into this edition from getcadcraft.com's vendored copy (assets/vendor/bootstrap/5.3.8/ there).

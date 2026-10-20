@@ -1,3 +1,0 @@
-Bootstrap Icons 1.13.2 — https://github.com/twbs/icons
-font/bootstrap-icons.min.css and font/fonts/ from the release of that version, unchanged.
-Copied into this edition from getcadcraft.com's vendored copy (assets/vendor/bootstrap-icons/1.13.2/ there).

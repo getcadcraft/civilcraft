@@ -1,0 +1,130 @@
+{
+    "format": "cadcraft-edition-kit",
+    "version": 1,
+    "note": "What devshell/edition.mjs needs from getcadcraft.com to build the browser edition. Written by the site's packer; do not edit by hand.",
+    "site": "https://getcadcraft.com",
+    "notice": "CivilCraft — browser edition\nCopyright 2026 The Data Design Group, Inc.\n\nThis product is licensed under the Apache License, Version 2.0 (see LICENSE).\nIt uses third-party software under their own permissive licenses: see THIRD_PARTY.md and the LICENSE and\nSOURCE.txt files in each folder under assets/vendor/.\n\nCadCraft and the names of the apps in the CadCraft family are trademarks of The Data Design Group, Inc.\nThe Apache License does not grant permission to use them (section 6); a fork must use another name.\n",
+    "privacy": "Your files stay on your computer: nothing is uploaded, and the app never contacts getcadcraft.com. Map layers from the internet are off until you turn them on in Settings; then the map tiles come from the services you choose. A grid shift file you choose to download comes from the PROJ project's server.",
+    "trademarkNotice": "CadCraft and the CadCraft logo are trademarks of The Data Design Group, Inc. AutoCAD, Revit and Civil 3D are registered trademarks of Autodesk, Inc. SketchUp and Tekla are trademarks of Trimble Inc. Bluebeam is a trademark of Bluebeam, Inc. PlanSwift is a trademark of ConstructConnect. SolidWorks is a registered trademark of Dassault Systèmes. All other company and product names, logos and brands are the property of their respective owners and are used only to identify their products. CadCraft is independent and not affiliated with, sponsored by or endorsed by any of them.",
+    "shell": {
+        "bootstrap": {
+            "from": "assets/js/bootstrap",
+            "version": "5.3.8",
+            "name": "Bootstrap",
+            "url": "https://github.com/twbs/bootstrap",
+            "source": "dist/css/bootstrap.min.css and dist/js/bootstrap.bundle.min.js from the release of that version, unchanged.",
+            "license": "The MIT License (MIT)\n\nCopyright (c) 2011-2025 The Bootstrap Authors\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n"
+        },
+        "bootstrap-icons": {
+            "from": "assets/vendor/bootstrap-icons",
+            "version": "1.13.2",
+            "name": "Bootstrap Icons",
+            "url": "https://github.com/twbs/icons",
+            "source": "font/bootstrap-icons.min.css and font/fonts/ from the release of that version, unchanged.",
+            "license": "The MIT License (MIT)\n\nCopyright (c) 2019-2024 The Bootstrap Authors\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n"
+        },
+        "archivo": {
+            "from": "assets/fonts/archivo",
+            "version": "5.2.8",
+            "name": "Archivo (font)",
+            "url": "https://github.com/Omnibus-Type/Archivo",
+            "source": "The variable Archivo font (width and weight axes), latin and latin-ext subsets as WOFF2, from the npm package @fontsource-variable/archivo of that version, unchanged.",
+            "license": "Copyright 2020 The Archivo Project Authors (https://github.com/Omnibus-Type/Archivo)\n\r\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\r\nThis license is copied below, and is also available with a FAQ at:\r\nhttps://openfontlicense.org\r\n\r\n\r\n-----------------------------------------------------------\r\nSIL OPEN FONT LICENSE Version 1.1 - 26 February 2007\r\n-----------------------------------------------------------\r\n\r\nPREAMBLE\r\nThe goals of the Open Font License (OFL) are to stimulate worldwide\r\ndevelopment of collaborative font projects, to support the font creation\r\nefforts of academic and linguistic communities, and to provide a free and\r\nopen framework in which fonts may be shared and improved in partnership\r\nwith others.\r\n\r\nThe OFL allows the licensed fonts to be used, studied, modified and\r\nredistributed freely as long as they are not sold by themselves. The\r\nfonts, including any derivative works, can be bundled, embedded, \r\nredistributed and/or sold with any software provided that any reserved\r\nnames are not used by derivative works. The fonts and derivatives,\r\nhowever, cannot be released under any other type of license. The\r\nrequirement for fonts to remain under this license does not apply\r\nto any document created using the fonts or their derivatives.\r\n\r\nDEFINITIONS\r\n\"Font Software\" refers to the set of files released by the Copyright\r\nHolder(s) under this license and clearly marked as such. This may\r\ninclude source files, build scripts and documentation.\r\n\r\n\"Reserved Font Name\" refers to any names specified as such after the\r\ncopyright statement(s).\r\n\r\n\"Original Version\" refers to the collection of Font Software components as\r\ndistributed by the Copyright Holder(s).\r\n\r\n\"Modified Version\" refers to any derivative made by adding to, deleting,\r\nor substituting -- in part or in whole -- any of the components of the\r\nOriginal Version, by changing formats or by porting the Font Software to a\r\nnew environment.\r\n\r\n\"Author\" refers to any designer, engineer, programmer, technical\r\nwriter or other person who contributed to the Font Software.\r\n\r\nPERMISSION & CONDITIONS\r\nPermission is hereby granted, free of charge, to any person obtaining\r\na copy of the Font Software, to use, study, copy, merge, embed, modify,\r\nredistribute, and sell modified and unmodified copies of the Font\r\nSoftware, subject to the following conditions:\r\n\r\n1) Neither the Font Software nor any of its individual components,\r\nin Original or Modified Versions, may be sold by itself.\r\n\r\n2) Original or Modified Versions of the Font Software may be bundled,\r\nredistributed and/or sold with any software, provided that each copy\r\ncontains the above copyright notice and this license. These can be\r\nincluded either as stand-alone text files, human-readable headers or\r\nin the appropriate machine-readable metadata fields within text or\r\nbinary files as long as those fields can be easily viewed by the user.\r\n\r\n3) No Modified Version of the Font Software may use the Reserved Font\r\nName(s) unless explicit written permission is granted by the corresponding\r\nCopyright Holder. This restriction only applies to the primary font name as\r\npresented to the users.\r\n\r\n4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font\r\nSoftware shall not be used to promote, endorse or advertise any\r\nModified Version, except to acknowledge the contribution(s) of the\r\nCopyright Holder(s) and the Author(s) or with their explicit written\r\npermission.\r\n\r\n5) The Font Software, modified or unmodified, in part or in whole,\r\nmust be distributed entirely under this license, and must not be\r\ndistributed under any other license. The requirement for fonts to\r\nremain under this license does not apply to any document created\r\nusing the Font Software.\r\n\r\nTERMINATION\r\nThis license becomes null and void if any of the above conditions are\r\nnot met.\r\n\r\nDISCLAIMER\r\nTHE FONT SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\r\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF\r\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT\r\nOF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE\r\nCOPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\r\nINCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL\r\nDAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\r\nFROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\r\nOTHER DEALINGS IN THE FONT SOFTWARE.\r\n"
+        }
+    },
+    "shellMeta": {
+        "bootstrap": {
+            "name": "Bootstrap",
+            "spdx": "MIT",
+            "url": "https://github.com/twbs/bootstrap"
+        },
+        "bootstrap-icons": {
+            "name": "Bootstrap Icons",
+            "spdx": "MIT",
+            "url": "https://github.com/twbs/icons"
+        },
+        "archivo": {
+            "name": "Archivo (font)",
+            "spdx": "OFL-1.1",
+            "url": "https://github.com/Omnibus-Type/Archivo"
+        }
+    },
+    "known": {
+        "delaunator": {
+            "name": "Delaunator",
+            "spdx": "ISC",
+            "url": "https://github.com/mapbox/delaunator"
+        },
+        "geotiff": {
+            "name": "geotiff.js (and bundled libraries)",
+            "spdx": "MIT",
+            "url": "https://github.com/geotiffjs/geotiff.js"
+        },
+        "laz-perf": {
+            "name": "laz-perf",
+            "spdx": "Apache-2.0",
+            "url": "https://github.com/hobuinc/laz-perf"
+        },
+        "noble-ciphers": {
+            "name": "noble-ciphers",
+            "spdx": "MIT",
+            "url": "https://github.com/paulmillr/noble-ciphers"
+        },
+        "noble-curves": {
+            "name": "noble-curves",
+            "spdx": "MIT",
+            "url": "https://github.com/paulmillr/noble-curves"
+        },
+        "noble-hashes": {
+            "name": "noble-hashes",
+            "spdx": "MIT",
+            "url": "https://github.com/paulmillr/noble-hashes"
+        },
+        "proj4": {
+            "name": "Proj4js",
+            "spdx": "MIT",
+            "url": "https://github.com/proj4js/proj4js"
+        },
+        "robust-predicates": {
+            "name": "robust-predicates",
+            "spdx": "Unlicense",
+            "url": "https://github.com/mourner/robust-predicates"
+        },
+        "sql.js": {
+            "name": "sql.js",
+            "spdx": "MIT",
+            "url": "https://github.com/sql-js/sql.js"
+        },
+        "three": {
+            "name": "three.js",
+            "spdx": "MIT",
+            "url": "https://github.com/mrdoob/three.js"
+        }
+    },
+    "embedded": {
+        "earcut.js": {
+            "name": "earcut (Mapbox)",
+            "spdx": "ISC",
+            "url": "https://github.com/mapbox/earcut",
+            "text": "ISC License\n\nCopyright (c) 2016, Mapbox\n\nPermission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND ISC DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL ISC BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE."
+        }
+    },
+    "permissive": [
+        "Apache-2.0",
+        "MIT",
+        "Apache-2.0 AND MIT",
+        "ISC",
+        "Unlicense",
+        "BSD-3-Clause",
+        "OFL-1.1",
+        "LicenseRef-NIST AND BSD-3-Clause",
+        "0BSD AND PSF-2.0"
+    ],
+    "extra": {
+        "proj4": {
+            "2.22.0": {
+                "LICENSE.md": "IyMgUHJvajRqcyAtLSBKYXZhc2NyaXB0IHJlcHJvamVjdGlvbiBsaWJyYXJ5LiAKIApBdXRob3JzOgotIE1pa2UgQWRhaXIgbWFkYWlyQVRkbXNvbHV0aW9ucy5jYQotIFJpY2hhcmQgR3JlZW53b29kIHJpY2hBVGdyZWVud29vZG1hcC5jb20KLSBEaWRpZXIgUmljaGFyZCBkaWRpZXIucmljaGFyZEFUaWduLmZyCi0gU3RlcGhlbiBJcm9ucyBzdGVwaGVuLmlyb25zQVRjbGVhci5uZXQubnoKLSBPbGl2aWVyIFRlcnJhbCBvdGVycmFsQVRnbWFpbC5jb20KLSBDYWx2aW4gTWV0Y2FsZiBjbWV0Y2FsZkFUYXBwZ2VvLmNvbQoKQ29weXJpZ2h0IChjKSAyMDE0LCBNaWtlIEFkYWlyLCBSaWNoYXJkIEdyZWVud29vZCwgRGlkaWVyIFJpY2hhcmQsIFN0ZXBoZW4gSXJvbnMsIE9saXZpZXIgVGVycmFsIGFuZCBDYWx2aW4gTWV0Y2FsZgoKIFBlcm1pc3Npb24gaXMgaGVyZWJ5IGdyYW50ZWQsIGZyZWUgb2YgY2hhcmdlLCB0byBhbnkgcGVyc29uIG9idGFpbmluZyBhCiBjb3B5IG9mIHRoaXMgc29mdHdhcmUgYW5kIGFzc29jaWF0ZWQgZG9jdW1lbnRhdGlvbiBmaWxlcyAodGhlICJTb2Z0d2FyZSIpLAogdG8gZGVhbCBpbiB0aGUgU29mdHdhcmUgd2l0aG91dCByZXN0cmljdGlvbiwgaW5jbHVkaW5nIHdpdGhvdXQgbGltaXRhdGlvbgogdGhlIHJpZ2h0cyB0byB1c2UsIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsCiBhbmQvb3Igc2VsbCBjb3BpZXMgb2YgdGhlIFNvZnR3YXJlLCBhbmQgdG8gcGVybWl0IHBlcnNvbnMgdG8gd2hvbSB0aGUKIFNvZnR3YXJlIGlzIGZ1cm5pc2hlZCB0byBkbyBzbywgc3ViamVjdCB0byB0aGUgZm9sbG93aW5nIGNvbmRpdGlvbnM6CgogVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUgaW5jbHVkZWQKIGluIGFsbCBjb3BpZXMgb3Igc3Vic3RhbnRpYWwgcG9ydGlvbnMgb2YgdGhlIFNvZnR3YXJlLgoKIF9USEUgU09GVFdBUkUgSVMgUFJPVklERUQgIkFTIElTIiwgV0lUSE9VVCBXQVJSQU5UWSBPRiBBTlkgS0lORCwgRVhQUkVTUwogT1IgSU1QTElFRCwgSU5DTFVESU5HIEJVVCBOT1QgTElNSVRFRCBUTyBUSEUgV0FSUkFOVElFUyBPRiBNRVJDSEFOVEFCSUxJVFksCiBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9TRSBBTkQgTk9OSU5GUklOR0VNRU5ULiBJTiBOTyBFVkVOVCBTSEFMTAogVEhFIEFVVEhPUlMgT1IgQ09QWVJJR0hUIEhPTERFUlMgQkUgTElBQkxFIEZPUiBBTlkgQ0xBSU0sIERBTUFHRVMgT1IgT1RIRVIKIExJQUJJTElUWSwgV0hFVEhFUiBJTiBBTiBBQ1RJT04gT0YgQ09OVFJBQ1QsIFRPUlQgT1IgT1RIRVJXSVNFLCBBUklTSU5HCiBGUk9NLCBPVVQgT0YgT1IgSU4gQ09OTkVDVElPTiBXSVRIIFRIRSBTT0ZUV0FSRSBPUiBUSEUgVVNFIE9SIE9USEVSCiBERUFMSU5HUyBJTiBUSEUgU09GVFdBUkUuXwo="
+            }
+        }
+    }
+}
