@@ -47,7 +47,7 @@ async function fresh() {
   await ctx.addCookies([{ name: minted.name, value: minted.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
   page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
-  page.on('pageerror', (e) => problems.push('pageerror: ' + e.message + ' ' + String(e.stack || '').split('\n').slice(1, 3).join(' | ')));
+  page.on('pageerror', (e) => problems.push('pageerror: ' + e.message + ' ' + String(e.stack || '').split('\n').slice(1, 16).join(' | ')));
   await page.goto(BASE + '/lab/bimcraft?space=paper', { waitUntil: 'networkidle' });
   await page.evaluate(() => { try { localStorage.setItem('bimcraft.model.units', 'mm'); } catch (e) { /* none */ } });
   await page.reload({ waitUntil: 'networkidle' });

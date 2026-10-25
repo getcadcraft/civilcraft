@@ -1,0 +1,302 @@
+{
+ "box.step": {
+  "volume": 60000,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    50,
+    40,
+    30
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "planes only"
+ },
+ "box-ap203.step": {
+  "volume": 60000,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    50,
+    40,
+    30
+   ]
+  ],
+  "schema": "AP203",
+  "unit": "MM",
+  "note": "the same box in AP203"
+ },
+ "box-ap242.step": {
+  "volume": 60000,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    50,
+    40,
+    30
+   ]
+  ],
+  "schema": "AP242DIS",
+  "unit": "MM",
+  "note": "the same box in AP242"
+ },
+ "box-inch.step": {
+  "volume": 16387.064,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    50.8,
+    25.4,
+    12.7
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "INCH",
+  "note": "2 x 1 x 0.5 in, written in inches"
+ },
+ "plate.step": {
+  "volume": 57989.3807,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    100,
+    60,
+    10
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "four through holes (cylinders with seams)"
+ },
+ "rounded.step": {
+  "volume": 57592.1822,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    50,
+    40,
+    30
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "every edge rounded r5: cylinders and sphere corners"
+ },
+ "sphere.step": {
+  "volume": 33510.3216,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -20,
+    -20,
+    -20
+   ],
+   [
+    20,
+    20,
+    20
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a whole sphere (seam, poles)"
+ },
+ "torus.step": {
+  "volume": 37899.2809,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -41.1309,
+    -41.1309,
+    -8
+   ],
+   [
+    41.1309,
+    41.1309,
+    8
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a whole torus"
+ },
+ "cone.step": {
+  "volume": 5890.4862,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -15,
+    -15,
+    0
+   ],
+   [
+    15,
+    15,
+    25
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a cone to its apex (revolved triangle)"
+ },
+ "frustum.step": {
+  "volume": 19603.5382,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -20,
+    -20,
+    0
+   ],
+   [
+    20,
+    20,
+    30
+   ]
+  ],
+  "schema": "AP242DIS",
+  "unit": "MM",
+  "note": "a frustum"
+ },
+ "vase.step": {
+  "volume": 33292.9062,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -17.1356,
+    -17.1356,
+    0
+   ],
+   [
+    17.1356,
+    17.1356,
+    60
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a B-spline profile revolved (surface of revolution)"
+ },
+ "loft.step": {
+  "volume": 37296.0337,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -39.3033,
+    -20.1135,
+    0
+   ],
+   [
+    26.4877,
+    20.1135,
+    60
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a loft: B-spline surfaces"
+ },
+ "extrusion.step": {
+  "volume": 24338.5475,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    -7.3321,
+    -2.7024,
+    0
+   ],
+   [
+    39.8321,
+    32.7024,
+    20
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a closed B-spline outline extruded (surface of linear extrusion)"
+ },
+ "boss.step": {
+  "volume": 51309.7336,
+  "solids": 1,
+  "instances": 1,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    80,
+    50,
+    35
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a boss on a plate (a face with a hole in it, a circle on a plane)"
+ },
+ "assembly.step": {
+  "volume": 44712.389,
+  "solids": 2,
+  "instances": 3,
+  "bbox": [
+   [
+    0,
+    0,
+    0
+   ],
+   [
+    100,
+    40,
+    40
+   ]
+  ],
+  "schema": "AP214IS",
+  "unit": "MM",
+  "note": "a plate and a peg placed twice (XCAF components), one turned 30°"
+ }
+}

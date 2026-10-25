@@ -1,0 +1,315 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* app-workspace.css — the workspace layout engine's building blocks (assets/js/app-workspace.js; 0.7 WS.6; map docs/apps/app-workspace.md).
+   From BimCraft's two layouts (Doc's docked ribbon, drsurfbum/bimcraft-SDH F28, and the toolbox and info box), keyed on the engine's own
+   classes, never on an app's markup: body.ws-on + ws-b-<block> for each block in the layout, ws-look-<outline>, ws-tabs-<style>, ws-dense;
+   the app's <main> = .ws-host, its drawing area = .ws-stage, regions .ws-<place>, the drawing's own parts .ws-fill / .ws-flow.
+   Our tokens only (Paper and Model follow), rem sizes (hairlines px), no shadows, motion only with prefers-reduced-motion: no-preference. */
+
+/* ---- the scope: the page with a layout on, a panels window holding the palettes, the ribbon's and the toolbox's own windows ---- */
+:is(body.ws-on, :where(.shell-pw:has(.ws-palettes)), .ws-ribbon-window, .ws-popout) {
+  --ws-ink: var(--ink); --ws-line: var(--line); --ws-chrome: var(--sheet-2); --ws-panel-bg: var(--sheet); --ws-blue: var(--layer, var(--action));
+  --ws-soft: color-mix(in srgb, var(--ws-blue) 14%, var(--sheet)); --ws-hover: color-mix(in srgb, var(--ws-blue) 55%, var(--sheet)); --ws-muted: var(--ink-2);
+}
+.ws-hide { display: none !important; }
+body.ws-chrome-on { height: 100dvh !important; min-height: 0 !important; overflow: hidden !important; }
+body.ws-b-titlebar > .app-bar { display: none; }
+body.ws-b-titlebar .ws-host { background: var(--ws-chrome); }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-region, .ws-ribbon-box) { color: var(--ws-ink); font: 0.75rem var(--font); }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-region, .ws-ribbon-box, .ws-empty-view) [hidden], .ws-dialog [hidden] { display: none !important; }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-ribbon-box, .ws-drawing-tabs, .ws-view-controls, .ws-empty-view) button, .ws-dialog button {
+  font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 1px; cursor: pointer; padding: 0.1875rem 0.375rem; line-height: 1rem;
+}
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-ribbon-box, .ws-drawing-tabs, .ws-view-controls, .ws-empty-view) button:hover, .ws-dialog button:hover { border-color: var(--ws-hover); background: var(--ws-soft); }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-region, .ws-ribbon-box, .ws-dialog) :is(button, select, input, [tabindex]):focus-visible { outline: 2px solid var(--action); outline-offset: -2px; }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-ribbon-box, .ws-drawing-tabs, .ws-view-controls, .ws-empty-view, .ws-options) [aria-disabled="true"] { color: var(--ws-muted); }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-ribbon-box, .ws-drawing-tabs, .ws-view-controls, .ws-empty-view, .ws-options) [aria-disabled="true"] :is(.ws-icon, .ws-icon-bi) { opacity: .7; }
+:is(.ws-top, .ws-bottom, .ws-palettes, .ws-ribbon-box, .ws-drawing-tabs, .ws-view-controls, .ws-options) select { font: 0.6875rem var(--font); border: 1px solid var(--ws-line); border-radius: 0; padding: 2px 0.1875rem; background: var(--ws-panel-bg); color: var(--ws-ink); min-width: 4.0625rem; max-width: 100%; }
+.ws-icon { display: block; width: 1.4375rem; height: 1.4375rem; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.ws-icon-bi { display: block; font-size: 1.375rem; line-height: 1; color: var(--ws-blue); }
+
+/* ---- around <main>: the top and bottom stacks ---- */
+.ws-top { position: relative; display: flex; flex-direction: column; flex-shrink: 0; background: var(--ws-chrome); }
+.ws-bottom { display: flex; flex-direction: column; flex-shrink: 0; background: var(--ws-chrome); }
+.ws-top > *, .ws-bottom > * { display: flex; min-width: 0; min-height: 0; }
+
+/* ---- in the drawing area: regions placed by the heights and widths the engine measures (--ws-st, --ws-sb, --ws-vt, --ws-vb, --ws-sl, --ws-sr) ---- */
+.ws-stage { position: relative; }
+.ws-region { position: absolute; z-index: 3; display: flex; flex-direction: column; min-width: 0; }
+.ws-stage-top { top: 0; left: 0; right: 0; }
+.ws-stage-bottom { bottom: 0; left: 0; right: 0; }
+.ws-stage-left { left: 0; top: var(--ws-st, 0px); bottom: var(--ws-sb, 0px); overflow-y: auto; overflow-x: hidden; }
+.ws-stage-right { right: 0; top: var(--ws-st, 0px); bottom: var(--ws-sb, 0px); overflow-y: auto; overflow-x: hidden; }
+.ws-region.ws-out { display: none; }
+.ws-view-top { top: var(--ws-st, 0px); left: var(--ws-sl, 0px); right: var(--ws-sr, 0px); }
+.ws-view-bottom { bottom: var(--ws-sb, 0px); left: var(--ws-sl, 0px); right: var(--ws-sr, 0px); }
+/* the bars across the drawing area lie over the side columns: a menu the app's toolbar opens from stage-top (or up from stage-bottom)
+   covers the toolbox column and takes its own clicks; a region holding an open menu lies over every other region */
+.ws-stage-top { z-index: 5; }
+.ws-stage-bottom { z-index: 4; }
+.ws-region:has(details[open]:not(.tbx-group), [aria-haspopup][aria-expanded="true"]) { z-index: 6; }   /* the toolbox's own groups are <details> too */
+.ws-stage > .ws-fill { position: absolute !important; top: calc(var(--ws-st, 0px) + var(--ws-vt, 0px)) !important; bottom: calc(var(--ws-sb, 0px) + var(--ws-vb, 0px)) !important; left: var(--ws-sl, 0px) !important; right: var(--ws-sr, 0px) !important; }
+/* a replaced element (a canvas, an image, a frame) keeps its own size under the four sides: it is sized from the same measures, so the
+   bars never cover its edges and Zoom extents and picks land where they look */
+.ws-stage > .ws-fill:is(canvas, video, img, iframe, object, embed, svg) {
+  box-sizing: border-box !important; width: calc(100% - var(--ws-sl, 0px) - var(--ws-sr, 0px)) !important;
+  height: calc(100% - var(--ws-st, 0px) - var(--ws-vt, 0px) - var(--ws-sb, 0px) - var(--ws-vb, 0px)) !important;
+}
+.ws-stage > .ws-flow { margin-top: calc(var(--ws-st, 0px) + var(--ws-vt, 0px)); margin-left: var(--ws-sl, 0px); margin-right: var(--ws-sr, 0px); margin-bottom: calc(var(--ws-sb, 0px) + var(--ws-vb, 0px)); }
+.ws-no-view > .ws-fill:not(.ws-empty-view) { visibility: hidden !important; }
+body.ws-b-titlebar .ws-stage { height: auto; min-height: 0; min-width: 0; border: 0; background: var(--sheet); }
+
+/* ---- titlebar ---- */
+.ws-titlebar { align-items: center; gap: 0.5rem; padding: 0 0.5rem; min-height: 2rem; background: color-mix(in srgb, var(--ws-chrome) 85%, var(--ws-muted)); border-bottom: 1px solid var(--ws-line); white-space: nowrap; }
+.ws-brand { font-size: 0.875rem; font-weight: 700; font-stretch: 112%; color: var(--ws-ink); display: flex; align-items: center; gap: 0.45rem; }
+.ws-brand a { display: inline-flex; color: var(--ws-ink); } .ws-brand .layer-swatch { flex-shrink: 0; }
+.ws-quick { display: flex; gap: 1px; border-right: 1px solid var(--ws-line); padding-right: 0.5rem; }
+.ws-quick .ws-tool { width: 1.5625rem; min-width: 1.5625rem; max-width: 1.5625rem; height: 1.5625rem; display: grid; place-items: center; padding: 2px; }
+.ws-quick .ws-tool.ws-compact { min-width: 1.5625rem; max-width: 1.5625rem; width: 1.5625rem; display: grid; place-items: center; padding: 2px; }
+.ws-quick .ws-tool span { display: none; } .ws-quick :is(.ws-icon, .ws-icon-bi) { width: 1.0625rem; height: 1.0625rem; font-size: 1rem; }
+.ws-project { flex: 1; min-width: 3.125rem; text-align: center; text-overflow: ellipsis; overflow: hidden; }
+.ws-titlebar > button { font-size: 0.6875rem; flex-shrink: 0; }
+.ws-shell-btn { font-size: 1rem !important; padding: .125rem .375rem !important; }
+
+/* ---- ribbon ---- */
+.ws-ribbon-tabs { align-items: stretch; background: var(--ws-chrome); border-bottom: 1px solid var(--ws-line); overflow-x: auto; scrollbar-width: thin; white-space: nowrap; }
+.ws-ribbon-tabs button { padding: 0.25rem 0.6875rem; flex-shrink: 0; border-bottom: 0; }
+.ws-ribbon-tabs .ws-file-tab { padding-inline: 1.0625rem; }
+.ws-ribbon-tabs .ws-context-tab { background: color-mix(in srgb, var(--layer-green) 16%, var(--sheet)); color: var(--ink); }
+/* the open tab is the lit one (look.tabs "filled") or underlined ("underline"); File looks like the other tabs (owner 2026-10-24) */
+.ws-tabs-filled .ws-ribbon-tabs button[aria-selected="true"], .ws-ribbon-window.ws-tabs-filled .ws-ribbon-tabs button[aria-selected="true"] { background: var(--ws-blue); color: var(--sheet); border: 1px solid var(--ws-blue); border-bottom: 0; }
+.ws-tabs-underline .ws-ribbon-tabs button[aria-selected="true"] { background: var(--ws-panel-bg); border-bottom: 2px solid var(--ws-blue); font-weight: 600; }
+.ws-ribbon-tabs .ws-tear { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; }
+.ws-ribbon { overflow-x: auto; overflow-y: hidden; background: var(--ws-panel-bg); padding: 0.1875rem 0.3125rem 0; scrollbar-width: thin; }
+/* a group is its tools above its name; the name is in the flow, so a group is never narrower than its name (owner 2026-10-24) */
+.ws-group { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--ws-line); flex-shrink: 0; padding: 0 0.3125rem; height: 6.0625rem; }
+.ws-group-tools { flex: 1 1 auto; display: flex; align-items: flex-start; gap: .1875rem; min-height: 0; }
+.ws-group-title { flex: 0 0 auto; align-self: stretch; padding-inline: .125rem; text-align: center; font-size: 0.6875rem; line-height: 1.0625rem; color: var(--ws-muted); white-space: nowrap; }
+.ws-tool { position: relative; min-width: 2.6875rem; max-width: 7rem; height: 4.6875rem; padding: 0.25rem 0.3125rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.1875rem; text-align: center; line-height: 0.9375rem; white-space: normal; font-size: 0.6875rem; }
+.ws-tool .ws-icon { width: 1.9375rem; height: 2rem; color: var(--ws-blue); stroke-width: 1.3; margin-bottom: 1px; }
+.ws-stack { display: flex; flex-direction: column; gap: .125rem; }
+:is(.ws-stack .ws-tool, .ws-tool.ws-compact) { height: 1.5625rem; min-width: 5.1875rem; max-width: none; flex-direction: row; gap: 0.3125rem; justify-content: flex-start; padding: 2px 0.25rem; white-space: nowrap; text-align: left; }
+:is(.ws-stack .ws-tool, .ws-tool.ws-compact) .ws-icon { width: 1.125rem; height: 1.125rem; margin: 0; stroke-width: 1.4; }
+:is(.ws-stack .ws-tool, .ws-tool.ws-compact) .ws-icon-bi { font-size: 1rem; }
+.ws-notbuilt :is(.ws-icon, .ws-icon-bi) { opacity: .45; }
+/* the toolbar style (Settings › Global › Toolbar) applies to the ribbon too: icons only compacts it (two rows of small icons per group,
+   the name in the tooltip), labels only hides the icons; "Show group names" off hides the group titles */
+body[data-shell-tb="icons"] .ws-ribbon .ws-tool > span { display: none; }
+body.shell-tb-nogroups .ws-ribbon .ws-group-title { display: none; }
+body[data-shell-tb="labels"] .ws-ribbon .ws-tool > :is(.ws-icon, .ws-icon-bi) { display: none; }
+body[data-shell-tb="labels"] .ws-ribbon .ws-tool { min-height: 0; }
+body[data-shell-tb="icons"] .ws-ribbon .ws-group { height: auto; padding: .125rem .3125rem 0; }
+body[data-shell-tb="icons"] .ws-ribbon .ws-group-tools { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, 1.5rem); grid-auto-columns: 1.5rem; align-content: start; gap: .125rem; }
+body[data-shell-tb="icons"].shell-tb-nogroups .ws-ribbon .ws-group { padding-bottom: .1875rem; }
+body[data-shell-tb="icons"] .ws-ribbon .ws-stack { display: contents; }
+body[data-shell-tb="icons"] .ws-ribbon .ws-tool { width: 1.5rem; min-width: 0; max-width: none; height: 1.5rem !important; padding: 0; display: grid; place-items: center; }
+body[data-shell-tb="icons"] .ws-ribbon { padding-top: .125rem; }
+body[data-shell-tb="icons"] .ws-ribbon .ws-tool :is(.ws-icon, .ws-icon-bi) { width: 1.125rem; height: 1.125rem; font-size: 1rem; margin: 0; }
+body[data-shell-tb="icons"] .ws-ribbon .ws-group-title { font-size: .5625rem; line-height: .75rem; }
+/* collapsed to its tabs; a tab click shows its tools over the drawing (.ws-peek) until a tool runs or a click lands elsewhere */
+.ws-collapsed > .ws-ribbon { display: none !important; }
+.ws-collapsed.ws-peek > .ws-ribbon { display: flex !important; position: absolute; left: 0; right: 0; top: var(--ws-peek-top, 3.75rem); z-index: 40; border-bottom: 1px solid var(--ws-line); }
+/* the ribbon's own window */
+.ws-ribbon-window { display: block !important; height: 100dvh; overflow: hidden; background: var(--ws-chrome); margin: 0; }
+.ws-ribbon-window .ws-ribbon-box { display: flex; flex-direction: column; height: 100%; }
+.ws-ribbon-window .ws-ribbon-tabs { display: flex; } .ws-ribbon-window .ws-ribbon { flex: 1 1 auto; display: flex; }
+/* bars hidden: the top slides away with the app's bars and comes back with the shell's reveal */
+body.shell-autohide.ws-chrome-on .ws-top { position: fixed; top: 0; left: 0; right: 0; z-index: 60; transform: translateY(-100%); }
+body.shell-autohide.shell-reveal.ws-chrome-on .ws-top { transform: none; }
+@media (prefers-reduced-motion: no-preference) { body.shell-autohide.ws-chrome-on .ws-top { transition: transform .18s ease; } }
+
+/* ---- look: button outlines (look.outline) for ribbon and toolbox tools; other buttons keep a hairline box ---- */
+:is(.ws-quick .ws-tool, .ws-titlebar > button, .ws-options > button, .ws-options .ws-tool, .ws-view-controls button, .ws-palette-heading button, .ws-empty-view button, .ws-ribbon-tabs .ws-tear) { border: 1px solid var(--line); background: var(--sheet); border-radius: var(--radius, 2px); }
+:is(.ws-quick .ws-tool, .ws-titlebar > button, .ws-options > button, .ws-view-controls button, .ws-palette-heading button):hover { border-color: var(--ws-hover); background: var(--ws-soft); }
+:is(.ws-ribbon .ws-tool, .tbx-tool) { border: 1px solid var(--line); background: var(--sheet); border-radius: var(--radius, 2px); }
+:is(.ws-look-faint, .ws-ribbon-window.ws-look-faint) :is(.ws-ribbon .ws-tool, .tbx-tool) { border-color: color-mix(in srgb, var(--line) 32%, transparent); }
+:is(.ws-look-none, .ws-ribbon-window.ws-look-none) :is(.ws-ribbon .ws-tool, .tbx-tool) { border-color: transparent; background: transparent; }
+:is(.ws-ribbon .ws-tool, .tbx-tool):hover { border-color: var(--ws-hover); }
+.ws-ribbon .ws-tool.ws-notbuilt { border-style: dashed; }
+/* the running tool or an on/off command (pressed()) is lit in every block, as in the toolbox */
+:is(.ws-top, .ws-bottom, .ws-region, .ws-ribbon-box, .ws-palettes, .tbx-popout) :is(.ws-tool, .tbx-tool)[aria-pressed="true"] { background: color-mix(in srgb, var(--layer, var(--action)) 16%, var(--sheet)); border-color: var(--layer, var(--action)); }
+.ws-dense .ws-group { height: 5.125rem; } .ws-dense .ws-tool { height: 3.75rem; } .ws-dense :is(.ws-stack .ws-tool, .ws-tool.ws-compact) { height: 1.25rem; }
+.ws-dense .tbx-tool { min-height: 1.625rem; padding-block: .125rem; }
+
+/* ---- options bar ---- */
+.ws-options { align-items: center; gap: 0.75rem; padding: 0.1875rem 0.625rem; background: var(--ws-chrome); border-block: 1px solid var(--ws-line); white-space: nowrap; overflow: auto; scrollbar-width: thin; }
+.ws-options strong { font-size: 0.75rem; font-weight: 500; } .ws-options > span { flex: 1; color: var(--ws-muted); overflow: hidden; text-overflow: ellipsis; min-width: 5rem; }
+.ws-tool-options { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; min-width: 0; }
+.ws-tool-options:empty { display: none; }
+.ws-tool-options label { display: inline-flex; align-items: center; gap: .25rem; margin: 0; }
+.ws-has-tool-options > [data-ws-options-text] { flex: 0 0 auto; min-width: 0; }
+
+/* ---- the app's own toolbar as a strip (place stage-top / stage-bottom); with the bars hidden it is one of the shell's bars
+   (app-shell.js bars(): .shell-bar, fixed, slides away with the app bar) ---- */
+.ws-region > .ws-toolbar-strip:not(.shell-bar) { position: static !important; inset: auto !important; width: auto !important; max-width: none !important; border-radius: 0 !important; border-width: 0 0 var(--pen-1) !important; transform: none !important; }
+
+/* ---- palettes: the content of an app panel (its grip stays: drag, dock, float, "Move to a new window") ---- */
+.ws-panel-host { display: flex !important; flex-direction: column; overflow: hidden !important; padding: 0 !important; }
+.ws-panel-host > .ws-palettes, .ws-palettes { flex: 1 1 auto; min-height: 0; display: grid; grid-template-rows: minmax(6.25rem, var(--ws-props, 50%)) 0.3125rem minmax(6.25rem, 1fr); background: var(--ws-panel-bg); overflow: hidden; }
+.ws-palettes.ws-one { grid-template-rows: minmax(0, 1fr); }
+.ws-palette { min-height: 0; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+.ws-palette-heading { display: flex; align-items: center; justify-content: space-between; min-height: 1.625rem; padding: 0 0.4375rem; background: var(--ws-chrome); font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--ws-line); flex-shrink: 0; }
+.ws-palette-heading button { font-size: 0.625rem; padding: 1px 0.1875rem; font-weight: 400; }
+.ws-palette-scroll { overflow: auto; overscroll-behavior: contain; min-height: 0; flex: 1; scrollbar-width: thin; }
+.ws-hsplit { background: var(--ws-line); cursor: row-resize; touch-action: none; }
+.ws-hsplit:hover, .ws-hsplit[data-dragging="true"] { background: var(--ws-hover) !important; }
+.ws-lower-tabs { display: flex; gap: .125rem; }
+.ws-lower-tabs [aria-selected="true"] { font-weight: 600; border-bottom: 2px solid var(--ws-blue); }
+.ws-browser-hint { font-size: 0.625rem; line-height: 0.875rem; color: var(--ws-muted); margin: 0; padding: 0.25rem 0.4375rem; border-bottom: 1px solid var(--ws-line); }
+.ws-model-slot { zoom: .85; }   /* the panel's own content at the palettes' text size (rem layouts kept in proportion) */
+/* the app's panels dressed like the palettes while a layout with palettes is on; in classic and in a panels window they keep their own look */
+body.ws-b-palettes main > aside { border-color: var(--ws-line); border-width: 0; background: var(--ws-panel-bg); }
+body.ws-b-palettes main > aside[class$="-left"], body.ws-b-palettes main > aside[class*="-left "] { border-right-width: 1px; }
+body.ws-b-palettes main > aside[class$="-right"], body.ws-b-palettes main > aside[class*="-right "] { border-left-width: 1px; }
+body.ws-b-palettes main > aside > .shell-grip { min-height: 1.625rem; font-size: .75rem; color: var(--ws-ink); background: var(--ws-chrome); border-bottom: 1px solid var(--ws-line); }
+body.ws-b-palettes main > .shell-split::after { width: 1px; }
+body.ws-b-palettes main > .shell-split:hover::after, body.ws-b-palettes.shell-resizing main > .shell-split::after { width: 3px; }
+
+/* ---- view tabs: 'open' (a tab per opened view, closable) and 'all' (a tab for every view) ---- */
+.ws-drawing-tabs { display: flex; align-items: stretch; height: 1.8125rem; overflow-x: auto; scrollbar-width: thin; background: var(--ws-chrome); border-bottom: 1px solid var(--ws-line); font: 0.75rem var(--font); }
+.ws-drawing-tab { display: flex; white-space: nowrap; border-right: 1px solid var(--ws-line); flex-shrink: 0; }
+.ws-drawing-tab [aria-selected="true"] { background: var(--ws-panel-bg); border-bottom: 2px solid var(--ws-blue); font-weight: 600; }
+.ws-drawing-tab button { padding: 0.1875rem 0.5rem; } .ws-drawing-tab button + button { font-size: 1rem; padding-inline: 0.3125rem; }
+.ws-drawing-tab .bi { color: var(--ws-blue); }
+.tbx-tabs { display: flex; overflow-x: auto; background: var(--sheet-2); border-bottom: var(--pen-1) solid var(--line); }
+.tbx-tab { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .85rem; font: inherit; font-size: .8125rem; color: var(--ink-2); white-space: nowrap; background: transparent; border: 0; border-right: var(--pen-1) solid var(--line); border-bottom: var(--pen-2) solid transparent; cursor: pointer; }
+.tbx-tab .bi { color: var(--layer, var(--action)); }
+.tbx-tab[aria-selected="true"] { color: var(--ink); font-weight: 600; background: var(--sheet); border-bottom-color: var(--layer, var(--action)); }
+.tbx-tab:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: -2px; }
+.ws-empty-view { z-index: 2; display: flex; align-items: center; justify-content: center; flex-direction: column; background: var(--sheet); color: var(--ink); text-align: center; padding: 1.25rem; gap: 0.625rem; font: 0.75rem var(--font); }
+.ws-empty-view p { margin: 0; }
+.ws-empty-view[hidden] { display: none !important; }
+/* the app shows a file that is not one of its views (a drawing, a card, a report): the view blocks step aside */
+.ws-other :is(.ws-drawing-tabs, .ws-view-controls, .ws-empty-view, .tbx-tabs) { display: none !important; }
+
+/* ---- view bar, quick bar, status bar ---- */
+.ws-view-controls { display: flex; align-items: center; gap: 0.5rem; height: 1.875rem; padding: 0 0.4375rem; background: var(--ws-chrome); border-top: 1px solid var(--ws-line); overflow-x: auto; scrollbar-width: thin; white-space: nowrap; font: 0.75rem var(--font); }
+.ws-view-controls label { display: flex; align-items: center; gap: 0.3125rem; font-size: 0.6875rem; }
+.ws-view-controls .ws-tool.ws-compact { min-width: fit-content; max-width: none; flex-shrink: 0; }
+.ws-drawing-title { font-size: 0.6875rem; max-width: 8.75rem; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+.tbx-quick { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; padding: .3rem .6rem; background: var(--sheet-2); border-top: var(--pen-1) solid var(--line); font-size: var(--fs-sm); }
+.ws-statusbar { align-items: center; gap: 1rem; padding: 0 0.5rem; min-height: 1.5rem; border-top: 1px solid var(--ws-line); font-size: 0.6875rem; white-space: nowrap; overflow: hidden; }
+.ws-layout-label { color: var(--ws-muted); flex-shrink: 0; } .ws-status-slot { flex: 1; overflow: hidden; min-width: 0; }
+.ws-status-slot > * { position: static !important; margin: 0 !important; padding: 0 !important; min-height: 0 !important; background: transparent !important; border: 0 !important; color: inherit; font-size: 0.6875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- info box ---- */
+.tbx-info { display: flex; flex-wrap: wrap; align-items: stretch; background: var(--sheet-2); border-bottom: var(--pen-1) solid var(--line); font-size: var(--fs-sm); }
+.tbx-ig { display: flex; flex-direction: column; gap: .15rem; padding: .3rem .7rem .4rem; border-right: var(--pen-1) solid var(--line); min-width: 0; }
+.tbx-ig-tool { flex: 1 1 22rem; min-width: 0; }
+.tbx-ig-title { font-size: .6875rem; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.tbx-ig-body { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; min-height: 1.9rem; }
+.tbx-ig-body label { display: inline-flex; align-items: center; gap: .3rem; margin: 0; }
+/* the selection note is one line, cut with an ellipsis (Settings' tooltip shows the whole text): it never wraps, so the info box keeps
+   its height on every pick and the drawing under it does not jump (contain: its width never pushes the box wider either) */
+.tbx-sel { color: var(--ink-2); flex: 1 1 auto; min-width: 0; contain: inline-size; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-props-btn { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .45rem; font: inherit; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.ws-props-btn:hover { border-color: var(--layer, var(--action)); }
+
+/* ---- toolbox ---- */
+.tbx-toolbox { display: flex; flex-direction: column; min-height: 100%; background: var(--sheet-2); border-right: var(--pen-1) solid var(--line); }
+.ws-stage-right .tbx-toolbox { border-right: 0; border-left: var(--pen-1) solid var(--line); }
+.tbx-head { display: flex; align-items: center; justify-content: space-between; gap: .4rem; padding: .3rem .4rem .3rem .6rem; font-size: .75rem; font-weight: 600; border-bottom: var(--pen-1) solid var(--line); }
+.tbx-group > summary, .tbx-group-title { padding: .35rem .6rem .2rem; font-size: .6875rem; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.tbx-tools { display: grid; grid-template-columns: minmax(0, 1fr); gap: .15rem; padding: .15rem .35rem .45rem; }
+.tbx-tool { display: flex; align-items: center; gap: .55rem; min-height: 2rem; padding: .25rem .55rem; font: inherit; font-size: .8125rem; color: var(--ink); text-align: left; white-space: nowrap; cursor: pointer; }
+.tbx-tool .bi { font-size: 1.05rem; color: var(--layer, var(--action)); }
+.tbx-tool .ws-icon { width: 1.25rem; height: 1.25rem; color: var(--layer, var(--action)); }
+.tbx-tool:hover { border-color: var(--layer, var(--action)); }
+.tbx-tool[aria-pressed="true"] { background: color-mix(in srgb, var(--layer, var(--action)) 16%, var(--sheet)); border-color: var(--layer, var(--action)); font-weight: 600; }
+.tbx-tool[aria-disabled="true"] { color: var(--ink-2); }
+.tbx-tool[aria-disabled="true"] :is(.bi, .ws-icon) { opacity: .6; }
+.tbx-tool:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: -2px; }
+body[data-shell-tb="icons"] .tbx-tools { grid-template-columns: repeat(2, 2rem); gap: .2rem; }
+body[data-shell-tb="icons"] .tbx-tool { width: 2rem; height: 2rem; min-height: 0; padding: 0; justify-content: center; }
+body[data-shell-tb="icons"] .tbx-tool > span, body[data-shell-tb="icons"] .tbx-head > span { display: none; }
+body[data-shell-tb="labels"] .tbx-tool :is(.bi, .ws-icon) { display: none; }
+body.shell-tb-nogroups :is(.tbx-group > summary, .tbx-group-title) { display: none; }
+.tbx-popout { margin: 0; height: 100dvh; overflow: hidden; background: var(--sheet-2); }
+.tbx-popout .ws-popout-box { height: 100%; }
+.tbx-popout .tbx-toolbox { height: 100%; overflow-y: auto; }
+
+/* ---- My tools (toolbox option mine, WS.21): empty slots a person fills ---- */
+.tbx-tool.tbx-empty { color: var(--ink-2); border-style: dashed; background: transparent; }
+.tbx-tool.tbx-empty .bi { color: var(--ink-2); }
+.tbx-tool.tbx-empty:hover { color: var(--ink); }
+.tbx-mine { padding-bottom: .55rem; border-bottom: var(--pen-1) solid var(--line); }
+.ws-ctx-menu { position: fixed; z-index: 100001; display: flex; flex-direction: column; min-width: 14rem; padding: .3rem; background: var(--sheet); color: var(--ink); border: var(--pen-1) solid var(--line); font: .9375rem var(--font); }
+.ws-ctx-menu button { text-align: left; min-height: 2.25rem; padding: .4rem .75rem; font: inherit; color: inherit; background: transparent; border: var(--pen-1) solid transparent; cursor: pointer; }
+.ws-ctx-menu button:is(:hover, :focus-visible) { border-color: var(--layer, var(--action)); background: color-mix(in srgb, var(--layer, var(--action)) 12%, var(--sheet)); outline: none; }
+.ws-dialog.ws-mine-pick { width: min(36rem, 94vw); }
+.ws-mine-pick input[type="search"] { width: 100%; padding: .5rem; margin-bottom: .5rem; }
+.ws-mine-list { display: grid; gap: .15rem; max-height: 55dvh; overflow-y: auto; }
+.ws-dialog .ws-mine-item { display: flex; align-items: center; gap: .6rem; width: 100%; margin: 0; text-align: left; }
+.ws-mine-item .bi { color: var(--layer, var(--action)); font-size: 1.05rem; }
+.ws-mine-item small { margin-left: auto; color: var(--ink-2); }
+
+/* ---- pet palette (block petpalette, place float, WS.22): by the pointer over the drawing, only while something is picked ---- */
+.ws-pet { position: absolute; z-index: 7; display: flex; gap: .15rem; padding: .2rem; background: var(--sheet); border: var(--pen-1) solid var(--line); }
+.ws-pet[hidden] { display: none; }
+.ws-pet-tool { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; font: inherit; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.ws-pet-tool .bi { font-size: 1.05rem; color: var(--layer, var(--action)); }
+.ws-pet-tool:hover { border-color: var(--layer, var(--action)); background: color-mix(in srgb, var(--layer, var(--action)) 12%, var(--sheet)); }
+.ws-pet-tool[aria-disabled="true"] .bi { opacity: .45; }
+.ws-pet-close { margin-left: .2rem; border-left: var(--pen-1) solid var(--line); border-radius: 0; }
+.ws-pet-close .bi { color: var(--ink-2); }
+
+/* ---- info box: the picked element's main fields (WS.20); one line, so the box keeps its height ---- */
+.tbx-ig-tool .tbx-ig-body { flex-wrap: nowrap; }
+.tbx-fields { display: flex; flex: 0 1 auto; min-width: 0; gap: .6rem; overflow: hidden; }
+.tbx-ig-body .tbx-field { flex: 0 0 auto; gap: .3rem; font-size: .75rem; color: var(--ink-2); white-space: nowrap; }
+.tbx-field > span { max-width: 8rem; overflow: hidden; text-overflow: ellipsis; }
+.tbx-field :is(input, select) { height: 1.6rem; font: .75rem var(--font); color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: 0; padding: 0 .3rem; }
+.tbx-field input:not([type="checkbox"]) { width: 5.5rem; }
+.tbx-field select { max-width: 10rem; }
+
+/* ---- Arrange your own layout (WS.25) ---- */
+.ws-dialog.ws-arrange { width: min(46rem, 94vw); }
+.ws-arr-form { display: grid; gap: .75rem; }
+.ws-arr-group { display: grid; gap: .45rem; margin: 0; padding: .6rem .75rem .75rem; border: var(--pen-1) solid var(--line); }
+.ws-arr-group legend { padding: 0 .3rem; font-weight: 600; font-size: .8125rem; }
+.ws-arr-field { display: grid; grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr); gap: .6rem; align-items: center; margin: 0; }
+.ws-arr-field > span { color: var(--ink-2); }
+.ws-arr-field :is(input[type="text"], select) { width: 100%; min-width: 0; padding: .3rem .45rem; font: inherit; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.ws-arr-check { display: inline-flex; align-items: center; gap: .35rem; margin: 0; }
+.ws-arr-slots { display: flex; flex-wrap: wrap; gap: .3rem 1rem; padding-left: 1.4rem; }
+.ws-arr-hint { margin: 0; color: var(--ink-2); }
+.ws-arr-msg { margin: 0; color: var(--ink-2); min-height: 1.2rem; }
+.ws-dialog .ws-arr-primary { background: var(--action); color: var(--on-action); border-color: var(--action); }
+@media (max-width: 760px) { .ws-arr-field { grid-template-columns: minmax(0, 1fr); gap: .2rem; } }
+
+/* ---- tooltip and dialogs ---- */
+.ws-tooltip { position: fixed; z-index: 100000; max-width: 21.25rem; padding: 0.5625rem 0.6875rem; background: var(--sheet); color: var(--ink); border: 1px solid var(--line); font: 0.75rem/1.0625rem var(--font); pointer-events: none; }
+.ws-tooltip[hidden] { display: none; }
+/* every engine dialog: a size that fits the job (owner 2026-10-24: "too tiny for the function") — body text at the app's reading size,
+   a real heading, buttons at least 2.25rem tall, actions in one row at the bottom right */
+.ws-dialog { font: 0.9375rem/1.55 var(--font); background: var(--sheet); color: var(--ink); border: 1px solid var(--line); padding: 1.5rem 1.75rem 1.25rem; width: min(32rem, 92vw); max-width: min(48rem, 94vw); max-height: 88dvh; overflow: auto; }
+.ws-dialog h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.875rem; }
+.ws-dialog p { margin: 0 0 0.75rem; }
+.ws-dialog button { min-height: 2.25rem; border: 1px solid var(--line); padding: 0.4rem 0.9rem; margin: 0; }
+.ws-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem; }
+.ws-dialog input[type="search"], .ws-dialog input[type="text"] { font: inherit; min-height: 2.25rem; }
+.ws-dialog.ws-inventory { width: min(44rem, 94vw); }
+.ws-inventory .ws-inventory-list { max-height: 55dvh; overflow-y: auto; }
+
+/* the File tab's menu: a drop-down under the tab, rows a hand can hit */
+.ws-file-menu { position: fixed; z-index: 100001; display: flex; flex-direction: column; min-width: 24rem; max-width: min(28rem, 94vw); overflow-y: auto; padding: .35rem; background: var(--sheet); color: var(--ink); border: var(--pen-1) solid var(--line); font: .9375rem var(--font); }
+.ws-file-item { display: flex; align-items: center; gap: .75rem; min-height: 2.5rem; padding: .35rem .75rem; font: inherit; color: inherit; text-align: left; background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.ws-file-item .bi, .ws-file-item .ws-icon { font-size: 1.2rem; width: 1.35rem; height: 1.35rem; flex: 0 0 auto; color: var(--layer, var(--action)); }
+.ws-file-label { flex: 1 1 auto; }
+.ws-file-item kbd { font: .75rem var(--font); color: var(--ink-2); border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .05rem .35rem; background: var(--sheet-2); }
+.ws-file-item:is(:hover, :focus-visible) { border-color: var(--layer, var(--action)); background: color-mix(in srgb, var(--layer, var(--action)) 10%, var(--sheet)); outline: none; }
+.ws-file-item[aria-disabled="true"] { color: var(--ink-2); }
+.ws-file-item[aria-disabled="true"] :is(.bi, .ws-icon) { opacity: .5; }
+.ws-file-sep { height: 0; margin: .3rem .5rem; border-top: var(--pen-1) solid var(--line); }
+.ws-dialog::backdrop { background: color-mix(in srgb, var(--ink) 40%, transparent); }
+.ws-inventory input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; } .ws-inventory article { padding: 0.5625rem 0; border-bottom: 1px solid var(--line); } .ws-inventory article p { margin: 0.25rem 0; }
+
+/* ---- narrow windows (phones keep the phone layout: the engine does not mount a layout there) ---- */
+@media (max-width: 1000px) { .ws-project { text-align: left; } .ws-titlebar > button { font-size: 0.625rem; } .ws-view-controls { gap: 0.375rem; } .ws-drawing-title { max-width: 5rem; } }
+.ws-region > :is(.ws-ribbon-tabs, .ws-ribbon, .ws-options, .ws-titlebar) { display: flex; }
+.ws-arrange .ws-arr-field select.select-cc { min-height: 0; height: auto; padding-block: .3rem; }
+
+/* ---- a panel in a window of its own (api.tearable(), WS.26): the grip on top, the panel filling the window ---- */
+.panel-popout { margin: 0; height: 100dvh; overflow: hidden; background: var(--ws-panel-bg, var(--sheet)); color: var(--ink); font: .8125rem var(--font); }
+.panel-popout .ws-popout-box { height: 100%; display: flex; flex-direction: column; min-height: 0; overflow: auto; }
+.panel-popout .ws-popout-box > .ws-palettes { flex: 1 1 auto; min-height: 0; }
+.panel-popout .ws-popout-box > aside { position: static !important; flex: 1 1 auto; width: auto !important; max-width: none !important; height: auto !important; min-height: 0; overflow: auto; border: 0 !important; }

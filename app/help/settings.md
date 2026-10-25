@@ -52,4 +52,4 @@ How the status bar shows the pointer's latitude and longitude when the project h
 
 ## Assistants
 
-**Let AI assistants and scripts use CivilCraft** (off at the start) lets an assistant on your computer reach the open site through CadCraft Studio: **Read** describes the site and lists points, surface elevations and stations; the second switch lets it select survey points. **Activity** lists its calls. See [Let an AI assistant work with your site](topic:assistants).
+**Let AI assistants and scripts use CivilCraft** (off at the start) lets an assistant on your computer reach the open site through CadCraft Studio: **Read** describes the site and gives points, surface elevations, stations, profiles, volumes and parcels; **Edit** lets it select and add survey points; **Save** and **Export** let it save the project and write LandXML or DWG. **Folders it may use** (in Studio) are where it may save and export. **Activity** lists its calls. See [Let an AI assistant work with your site](topic:assistants).

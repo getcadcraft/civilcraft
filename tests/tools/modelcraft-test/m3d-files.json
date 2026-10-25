@@ -1,0 +1,25 @@
+{
+  "note": "written by tools/modelcraft-test/m3d-sync.mjs: the m3d kernel copy (i18n.js is the language shell's)",
+  "files": [
+    "bvh.js",
+    "camera.js",
+    "collide.js",
+    "earcut.js",
+    "infer.js",
+    "io.js",
+    "lencalc.js",
+    "mesh.js",
+    "model.js",
+    "strokefont.js",
+    "sun.js",
+    "tools.js",
+    "unit-table.js",
+    "units.js",
+    "vec.js",
+    "view3d.js",
+    "viewcube-camera.js",
+    "viewcube.js",
+    "viewimage.js",
+    "xml.js"
+  ]
+}

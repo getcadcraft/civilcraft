@@ -86,8 +86,11 @@
   });
 
   /* ---------------- State ---------------- */
+  /* State version (0.7 PANEL-COMPACT item 2). 1 = everything before 0.7 (no "v"); 2 adds per-panel hidden / pinned.
+   * A state without "v", or with v 1, loads as it always did; a newer v loads the fields this file knows. */
+  var STATE_V = 3;   // 3 (item 3): per-panel tabs / act, per-dock sizes (stacks of any number of frames)
   function freshState() {
-    var st = { p: {}, docks: { left: {}, right: {}, bottom: {} }, wins: {} };
+    var st = { v: STATE_V, p: {}, docks: { left: {}, right: {}, bottom: {} }, wins: {} };
     panels.forEach(function (p, n) { st.p[p.id] = { dock: p.id, order: n }; });
     return st;
   }
@@ -107,6 +110,12 @@
       if (typeof q.order === 'number') t.order = q.order;
       if (['left', 'right', 'bottom', 'float'].indexOf(q.prev) !== -1) t.prev = q.prev;
       if (q.float && ['x', 'y', 'w', 'h'].every(function (k) { return typeof q.float[k] === 'number' && isFinite(q.float[k]); })) t.float = q.float;
+      if (CAN_MOVE && t.dock !== 'window') {
+        if (q.hidden === true) t.hidden = true;
+        if (q.pinned === true && DOCKS.indexOf(t.dock) !== -1) t.pinned = true;
+        if (typeof q.tabs === 'string' && q.tabs !== p.id && byId(q.tabs) && DOCKS.indexOf(t.dock) !== -1) t.tabs = q.tabs;   // tabbed into that panel's frame
+        if (q.act === true) t.act = true;
+      }
     });
     DOCKS.forEach(function (d) {
       var q = v.docks && v.docks[d];
@@ -114,6 +123,7 @@
       if (typeof q.w === 'number') st.docks[d].w = clamp(q.w, MIN_W, MAX_W);
       if (typeof q.h === 'number') st.docks[d].h = clamp(q.h, MIN_H, 60);
       if (typeof q.split === 'number') st.docks[d].split = clamp(q.split, 0.15, 0.85);
+      if (Array.isArray(q.sizes) && q.sizes.length >= 2 && q.sizes.length <= 12 && q.sizes.every(function (v) { return typeof v === 'number' && isFinite(v) && v > 0; })) st.docks[d].sizes = q.sizes.slice();
     });
     // Window places per window number (1.6); "win" is the one-window layout of 0.3/0.4 part 1 = window 1.
     var ws = v.wins && typeof v.wins === 'object' ? v.wins : (v.win && typeof v.win === 'object' ? { 1: v.win } : {});
@@ -128,8 +138,8 @@
     return st;
   }
   function isDefault(st) {
-    return panels.every(function (p) { return st.p[p.id].dock === p.id; }) &&
-      DOCKS.every(function (d) { return st.docks[d].w == null && st.docks[d].h == null && st.docks[d].split == null; }) &&
+    return panels.every(function (p) { return st.p[p.id].dock === p.id && !st.p[p.id].hidden && !st.p[p.id].pinned && !st.p[p.id].tabs; }) &&
+      DOCKS.every(function (d) { return st.docks[d].w == null && st.docks[d].h == null && st.docks[d].split == null && st.docks[d].sizes == null; }) &&
       Object.keys(st.wins).every(function (n) { return !st.wins[n].x && !st.wins[n].screen; });
   }
   function save() {
@@ -216,12 +226,55 @@
   /** Where a panel shows in this window: one waiting for its window (after a reload) shows at its previous place. */
   function eff(p) {
     var st = S.p[p.id];
+    if (p.el.ownerDocument === document) {
+      if (st.hidden) return 'hidden';                                        // 0.7: hidden (closed) panel: its edge tab shows it again
+      if (st.pinned && DOCKS.indexOf(st.dock) !== -1) return 'pin';          // 0.7: pinned = auto-hide to an edge tab
+    }
     if (st.dock === 'window' && p.el.ownerDocument === document) return st.prev && st.prev !== 'window' ? st.prev : p.id;
     return st.dock;
   }
   function inDock(d) {
     return panels.filter(function (p) { return eff(p) === d && p.el.ownerDocument === document; })
       .sort(function (a, b) { return S.p[a.id].order - S.p[b.id].order; });
+  }
+  /** The frames of a dock, top to bottom (left to right in the bottom dock): a frame is one panel, or several grouped as tabs
+   *  (members tabbed into a head; `act` marks the one showing). A link that doesn't hold (head elsewhere, itself tabbed) is a frame of its own. */
+  function frames(d) {
+    var heads = [], by = {};
+    inDock(d).forEach(function (p) {
+      var t = S.p[p.id].tabs, h = t && byId(t);
+      if (h && h !== p && h.el.ownerDocument === document && eff(h) === d && !S.p[h.id].tabs) (by[h.id] = by[h.id] || []).push(p);
+      else heads.push(p);
+    });
+    return heads.map(function (h) {
+      var members = [h].concat(by[h.id] || []);
+      var act = members.filter(function (m) { return S.p[m.id].act; })[0] || h;
+      return { head: h, members: members, active: act };
+    });
+  }
+  /** Shares of the dock for n frames (sum 1). Old states keep their one `split` for two. */
+  function sizesFor(d, n) {
+    var q = S.docks[d], s = q.sizes;
+    if (!(Array.isArray(s) && s.length === n)) s = n === 2 && q.split != null ? [q.split, 1 - q.split] : null;
+    if (!s) { s = []; for (var k = 0; k < n; k++) s.push(1 / n); }
+    var sum = s.reduce(function (a, b) { return a + b; }, 0) || 1;
+    return s.map(function (v) { return v / sum; });
+  }
+  /** Move the boundary after frame i to `c` (a share of the dock, 0–1); neighbours keep a minimum. */
+  function setBoundary(d, i, c) {
+    var n = frames(d).length, s = sizesFor(d, n), min = n === 2 ? 0.15 : 0.1, cum = [], acc = 0;
+    s.forEach(function (v) { acc += v; cum.push(acc); });
+    var from = i > 0 ? cum[i - 1] : 0;
+    c = clamp(c, from + min, cum[i + 1] - min);
+    s[i] = c - from; s[i + 1] = cum[i + 1] - c;
+    S.docks[d].sizes = s;
+    if (n === 2) S.docks[d].split = s[0]; else delete S.docks[d].split;
+    return c;
+  }
+  function boundary(d, i) {
+    var s = sizesFor(d, frames(d).length), a = 0;
+    for (var k = 0; k <= i; k++) a += s[k];
+    return a;
   }
   function dockW(d) {
     if (S.docks[d].w != null) return S.docks[d].w;
@@ -238,14 +291,16 @@
     main.style.removeProperty('grid-template-rows');
     main.style.removeProperty('grid-template-columns');
     panels.forEach(function (p) {
-      ['grid-area', 'align-self', 'justify-self', 'height', 'width', 'left', 'top', 'min-height'].forEach(function (k) { p.el.style.removeProperty(k); });
-      p.el.classList.remove('shell-float', 'shell-docked');
+      ['grid-area', 'align-self', 'justify-self', 'height', 'width', 'left', 'top', 'min-height', 'position'].forEach(function (k) { p.el.style.removeProperty(k); });
+      p.el.classList.remove('shell-float', 'shell-docked', 'shell-tab-off');
       p.el.removeAttribute('data-shell-dock');
+      p.el.removeAttribute('data-shell-tabs');
     });
     if (centerEl) { centerEl.style.removeProperty('grid-area'); centerEl = null; }
   }
 
-  function layout() {
+  function layout() { layoutGrid(); visibility(); }
+  function layoutGrid() {
     var want = wantsManaged();
     // The phone layout (app-phone.js, html.cc-phone) turns panels into sheets of its own: stand aside as on narrow layouts.
     var pl = want && !(FIT && root.classList.contains('cc-phone')) ? plan() : null;
@@ -306,23 +361,32 @@
     main.style.gridTemplateAreas = areas.join(' ');
     if (pl.center) { centerEl = pl.center; centerEl.style.gridArea = 'shell-center'; }
 
+    // Frames (one panel, or several as tabs) share a dock by their sizes: each is placed by percentages of the dock's grid area
+    // (height + top for the side docks, width + left for the bottom one; `top` / `left` of a relative item resolve against that area).
     [['left', L], ['right', R], ['bottom', B]].forEach(function (dl) {
-      var d = dl[0], list = dl[1];
-      list.forEach(function (p, n) {
-        p.el.classList.add('shell-docked');
-        p.el.setAttribute('data-shell-dock', d);
-        p.el.style.gridArea = 'shell-dock-' + d;
-        if (list.length > 1) {
-          var f = S.docks[d].split != null ? S.docks[d].split : 0.5;
-          var part = n === 0 ? f : 1 - f;
-          if (d === 'bottom') {
-            p.el.style.justifySelf = n === 0 ? 'start' : 'end';
-            p.el.style.width = (part * 100) + '%';
-          } else {
-            p.el.style.alignSelf = n === 0 ? 'start' : 'end';
-            p.el.style.height = (part * 100) + '%';
+      var d = dl[0], fr = frames(d), sz = sizesFor(d, fr.length), acc = 0;
+      fr.forEach(function (f, n) {
+        var part = sz[n], at = acc;
+        acc += part;
+        f.members.forEach(function (p) {
+          p.el.classList.add('shell-docked');
+          p.el.classList.toggle('shell-tab-off', p !== f.active);
+          if (f.members.length > 1) p.el.setAttribute('data-shell-tabs', String(f.members.length));
+          p.el.setAttribute('data-shell-dock', d);
+          p.el.style.gridArea = 'shell-dock-' + d;
+          if (fr.length > 1) {
+            p.el.style.position = 'relative';
+            if (d === 'bottom') {
+              p.el.style.justifySelf = 'start';
+              p.el.style.width = (part * 100) + '%';
+              p.el.style.left = (at * 100) + '%';
+            } else {
+              p.el.style.alignSelf = 'start';
+              p.el.style.height = (part * 100) + '%';
+              p.el.style.top = (at * 100) + '%';
+            }
           }
-        }
+        });
       });
     });
     // Every floating panel out of the grid before any is measured against it (band, dock cap).
@@ -507,7 +571,7 @@
 
   /* Handles: dock sizes (inner edge of a side dock, top edge of the bottom dock) and the split between
    * two panels sharing a dock. Placed over <main> like app-settings.js's own width handles. */
-  function makeHandle(kind, dock) {
+  function makeHandle(kind, dock, idx) {
     var h = document.createElement('div');
     h.className = 'shell-dock-split shell-dock-split-' + kind;
     h.setAttribute('role', 'separator');
@@ -518,6 +582,7 @@
     h.title = T('shell.split.title');
     h.setAttribute('data-kind', kind);
     h.setAttribute('data-dock', dock);
+    if (idx != null) h.setAttribute('data-index', String(idx));
     h.classList.toggle('is-vertical', vertical);
     main.appendChild(h);
     var start = null;
@@ -525,7 +590,7 @@
       if (e.button !== 0) return;
       e.preventDefault();
       h.setPointerCapture(e.pointerId);
-      start = { x: e.clientX, y: e.clientY, w: dockW(dock), h: FIT && dock === 'bottom' ? dockShown(dockCap) : dockH(), split: S.docks[dock].split != null ? S.docks[dock].split : 0.5, rect: dockRect(dock) };
+      start = { x: e.clientX, y: e.clientY, w: dockW(dock), h: FIT && dock === 'bottom' ? dockShown(dockCap) : dockH(), rect: dockRect(dock) };
       body.classList.add('shell-resizing');
     });
     h.addEventListener('pointermove', function (e) {
@@ -537,7 +602,7 @@
       } else {
         var r = start.rect;
         var f = dock === 'bottom' ? (e.clientX - r.left) / r.width : (e.clientY - r.top) / r.height;
-        S.docks[dock].split = clamp(f, 0.15, 0.85);
+        setBoundary(dock, idx, f);
       }
       layout();
     });
@@ -551,7 +616,7 @@
     h.addEventListener('pointerup', end);
     h.addEventListener('pointercancel', end);
     h.addEventListener('dblclick', function () {
-      if (kind === 'size') { delete S.docks[dock].w; delete S.docks[dock].h; } else delete S.docks[dock].split;
+      if (kind === 'size') { delete S.docks[dock].w; delete S.docks[dock].h; } else { delete S.docks[dock].split; delete S.docks[dock].sizes; }
       layout(); save();
     });
     h.addEventListener('keydown', function (e) {
@@ -566,8 +631,7 @@
         if (dock === 'bottom') S.docks.bottom.h = round(clamp((FIT ? dockShown(dockCap) : dockH()) - d * step, MIN_H, 60));
         else S.docks[dock].w = round(clamp(dockW(dock) + (dock === 'left' ? d : -d) * step, MIN_W, MAX_W));
       } else {
-        var cur = S.docks[dock].split != null ? S.docks[dock].split : 0.5;
-        S.docks[dock].split = clamp(cur + d * 0.05, 0.15, 0.85);
+        setBoundary(dock, idx, boundary(dock, idx) + d * 0.05);
       }
       layout(); save();
       h.focus();
@@ -575,7 +639,7 @@
     return h;
   }
   function dockRect(d) {
-    var list = inDock(d);
+    var list = frames(d).map(function (f) { return f.active; });
     if (!list.length) return null;
     var r = null;
     list.forEach(function (p) {
@@ -587,9 +651,9 @@
     return r;
   }
   var handleSet = {};
-  function handle(kind, dock) {
-    var k = kind + ':' + dock;
-    if (!handleSet[k]) { handleSet[k] = makeHandle(kind, dock); handles.push(handleSet[k]); }
+  function handle(kind, dock, idx) {
+    var k = kind + ':' + dock + (idx != null ? ':' + idx : '');
+    if (!handleSet[k]) { handleSet[k] = makeHandle(kind, dock, idx); handles.push(handleSet[k]); }
     return handleSet[k];
   }
   function placeHandles() {
@@ -610,10 +674,11 @@
         h.style.height = r.height + 'px'; h.style.width = '';
         h.setAttribute('aria-valuenow', String(dockW(d)));
       }
-      if (list.length > 1) {
-        var s = handle('stack', d);
-        used['stack:' + d] = 1;
-        var b0 = list[0].el.getBoundingClientRect();
+      var fr = frames(d);
+      for (var i = 0; i < fr.length - 1; i++) {
+        var s = handle('stack', d, i);
+        used['stack:' + d + ':' + i] = 1;
+        var b0 = fr[i].active.el.getBoundingClientRect();
         if (d === 'bottom') {
           s.style.left = (b0.right - mr.left) + 'px'; s.style.top = (r.top - mr.top) + 'px';
           s.style.height = r.height + 'px'; s.style.width = '';
@@ -621,6 +686,7 @@
           s.style.left = (r.left - mr.left) + 'px'; s.style.top = (b0.bottom - mr.top) + 'px';
           s.style.width = r.width + 'px'; s.style.height = '';
         }
+        s.setAttribute('aria-valuenow', String(Math.round(boundary(d, i) * 100)));
       }
     });
     Object.keys(handleSet).forEach(function (k) { handleSet[k].hidden = !used[k]; });
@@ -647,8 +713,27 @@
     mb.setAttribute('aria-expanded', 'false');
     mb.setAttribute('aria-label', T('shell.panels.menu.aria', { panel: p.name }));
     mb.title = T('shell.panels.menu.title');
+    mb.classList.add('shell-grip-btn');
     mb.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i>';
-    g.append(hd, mb);
+    // 0.7 PANEL-COMPACT item 2: pin (auto-hide to an edge tab) and close (hide; the edge tab or the menu brings it back)
+    var pb = d.createElement('button');
+    pb.type = 'button';
+    pb.className = 'shell-grip-btn shell-grip-pin';
+    pb.setAttribute('aria-pressed', 'false');
+    pb.innerHTML = '<i class="bi bi-pin-angle" aria-hidden="true"></i>';
+    var cb = d.createElement('button');
+    cb.type = 'button';
+    cb.className = 'shell-grip-btn shell-grip-close';
+    cb.setAttribute('aria-label', T('shell.panels.close.aria', { panel: p.name }));
+    cb.title = T('shell.panels.close.title');
+    cb.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
+    pb.addEventListener('click', function (e) { e.stopPropagation(); setPinned(p, !S.p[p.id].pinned, true); });
+    cb.addEventListener('click', function (e) { e.stopPropagation(); setHidden(p, true, true); });
+    [pb, cb].forEach(function (b) {
+      b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); b.click(); } });
+    });
+    p.pinBtn = pb; p.closeBtn = cb;
+    g.append(hd, mb, pb, cb);
     mb.addEventListener('click', function (e) { e.stopPropagation(); openMenu(p, mb); });
     // Our own keys: some apps take Enter/Space on the document (CadCraft's command line) before a button acts.
     mb.addEventListener('keydown', function (e) {
@@ -685,6 +770,8 @@
         out.push({ label: x[1], icon: x[2], run: function () { moveTo(p, x[0]); } });
       });
       if (CAN_MOVE && (st.dock !== 'float' || !here)) out.push({ label: T('shell.panels.float'), icon: 'bi-window-stack', run: function () { moveTo(p, 'float'); } });
+      if (CAN_MOVE && here && DOCKS.indexOf(st.dock) !== -1) out.push({ label: st.pinned ? T('shell.panels.unpin') : T('shell.panels.pin'), icon: st.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle', run: function () { setPinned(p, !st.pinned, true); } });
+      if (CAN_MOVE && here) out.push({ label: T('shell.panels.hide'), icon: 'bi-eye-slash', run: function () { setHidden(p, true, true); } });
     }
     if (CAN_WIN) {
       var mine = here ? 0 : st.win;
@@ -697,6 +784,14 @@
       if (here && HAS_WM && window.screen && screen.isExtended) out.push({ label: T('shell.panels.other_screen'), icon: 'bi-display', run: function () { toWindow(panels, true); } });
     }
     if (!here) out.push({ label: T('shell.panels.all_back'), icon: 'bi-box-arrow-in-down-left', run: function () { closeWindow(st.win); } });
+    if (here && CAN_MOVE && DOCKS.indexOf(st.dock) !== -1 && !st.hidden && !st.pinned) {
+      var fm = frameOf(p);
+      panels.forEach(function (q) {
+        if (q === p || q.el.ownerDocument !== document || DOCKS.indexOf(eff(q)) === -1 || (fm && fm.members.indexOf(q) !== -1)) return;
+        out.push({ label: T('shell.panels.tab_with', { panel: q.name }), icon: 'bi-collection', run: function () { groupInto(p, q); } });
+      });
+      if (fm && fm.members.length > 1) out.push({ label: T('shell.panels.untab'), icon: 'bi-box-arrow-up-right', run: function () { ungroup(p); } });
+    }
     if (here && CAN_MOVE && st.dock !== p.id) out.push({ label: T('shell.panels.put_back'), icon: 'bi-arrow-counterclockwise', run: function () { moveTo(p, p.id); } });
     return out;
   }
@@ -743,10 +838,260 @@
     if (items[0]) items[0].focus();
   }
 
+  /* ---------------- Tabs in one frame (0.7 PANEL-COMPACT item 3) ----------------
+   * Panels grouped in one frame show one at a time; the frame's title bar carries a tab strip. A member says which head it is tabbed
+   * into (`tabs`), and `act` marks the showing one. Anything that takes a panel out of its dock (move, hide, pin, window) leaves the
+   * frame first, so a group never keeps a link to a panel that went elsewhere. */
+  function frameOf(p) {
+    var d = eff(p);
+    if (DOCKS.indexOf(d) === -1 || p.el.ownerDocument !== document) return null;
+    var fr = frames(d);
+    for (var k = 0; k < fr.length; k++) if (fr[k].members.indexOf(p) !== -1) return fr[k];
+    return null;
+  }
+  function leaveFrame(p) {
+    var st = S.p[p.id], f = frameOf(p);
+    if (f && f.head === p && f.members.length > 1) {
+      var nh = f.members[1];
+      f.members.slice(1).forEach(function (m) { if (m === nh) delete S.p[m.id].tabs; else S.p[m.id].tabs = nh.id; });
+      var sh = f.members.filter(function (m) { return m !== p && S.p[m.id].act; })[0];
+      if (!sh) S.p[nh.id].act = true;
+    }
+    delete st.tabs; delete st.act;
+  }
+  function setActive(q, focusTab) {
+    var f = frameOf(q);
+    if (!f) return;
+    f.members.forEach(function (m) { if (m === q) S.p[m.id].act = true; else delete S.p[m.id].act; });
+    layout(); save();
+    announce(T('shell.panels.tab.shown', { panel: q.name }));
+    if (focusTab && q.strip) { var b = q.strip.querySelector('[aria-selected="true"]'); if (b) b.focus(); }
+  }
+  /** p joins target's frame as a tab (from another dock, a float or a frame of its own). */
+  function groupInto(p, target) {
+    if (p === target || p.el.ownerDocument !== document || target.el.ownerDocument !== document) return;
+    var tf = frameOf(target);
+    if (!tf) return;
+    var d = eff(target), st = S.p[p.id];
+    leaveFrame(p);
+    delete st.pinned; delete st.hidden;
+    if (st.dock !== d && st.dock !== 'window') st.prev = st.dock;
+    st.dock = d; delete st.win;
+    st.tabs = tf.head.id;
+    st.order = ++orderSeq;
+    tf.members.forEach(function (m) { delete S.p[m.id].act; });
+    st.act = true;
+    layout(); save();
+    announce(T('shell.panels.grouped', { panel: p.name, other: target.name }));
+    if (p.strip) { var b = p.strip.querySelector('[aria-selected="true"]'); if (b) b.focus(); }
+  }
+  function ungroup(p) {
+    var f = frameOf(p);
+    if (!f || f.members.length < 2) return;
+    leaveFrame(p);
+    S.p[p.id].order = ++orderSeq;
+    layout(); save();
+    announce(T('shell.panels.ungrouped', { panel: p.name }));
+  }
+  /** The tab strip sits in the showing panel's title bar. Rebuilt only when what it shows changes (focus survives resizes). */
+  function tabStrip() {
+    panels.forEach(function (p) {
+      var f = p.el.ownerDocument === document && managed ? frameOf(p) : null;
+      var on = !!f && f.members.length > 1 && f.active === p && !S.p[p.id].hidden;
+      if (p.grip) p.grip.classList.toggle('has-tabs', on);
+      if (!on) { if (p.strip) { p.strip.remove(); p.strip = null; p.stripSig = ''; } return; }
+      var sig = f.members.map(function (m) { return m.id + ':' + m.name; }).join('|') + '#' + p.id;
+      if (p.strip && p.strip.parentNode === p.grip && p.stripSig === sig) return;
+      if (p.strip) p.strip.remove();
+      var ul = document.createElement('div');
+      ul.className = 'shell-grip-tabs';
+      ul.setAttribute('role', 'tablist');
+      ul.setAttribute('aria-label', T('shell.panels.tabs.group'));
+      var btns = f.members.map(function (m) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'shell-grip-tab';
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', m === p ? 'true' : 'false');
+        b.tabIndex = m === p ? 0 : -1;
+        b.textContent = m.name;
+        b.title = m.name;
+        b.addEventListener('click', function (e) { e.stopPropagation(); if (m !== p) setActive(m, true); });
+        b.addEventListener('keydown', function (e) {
+          var i = btns.indexOf(b), to = -1;
+          if (e.key === 'ArrowRight') to = (i + 1) % btns.length;
+          else if (e.key === 'ArrowLeft') to = (i - 1 + btns.length) % btns.length;
+          else if (e.key === 'Home') to = 0;
+          else if (e.key === 'End') to = btns.length - 1;
+          else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); b.click(); return; }
+          else return;
+          e.preventDefault(); e.stopPropagation();   // the apps pan the drawing with arrow keys
+          setActive(f.members[to], true);
+        });
+        return b;
+      });
+      btns.forEach(function (b) { ul.appendChild(b); });
+      p.grip.insertBefore(ul, p.grip.querySelector('.shell-grip-menu'));
+      p.strip = ul; p.stripSig = sig;
+    });
+  }
+
+  /* ---------------- Pin, hide and the edge tabs (0.7 PANEL-COMPACT item 2) ----------------
+   * Hide (the bar's x): the panel leaves the layout, its docks close up, and a small tab at its edge shows it again.
+   * Pin (the bar's pin): the panel leaves the dock and becomes the same kind of tab; hover, focus or a click slides it out over the
+   * drawing, and it slides back when the pointer and focus leave (Esc too). Both are saved in the panel state (v 2) and every action
+   * works from the keyboard (the bar's buttons, the tab, the menu) and is announced. Only in the main window, and not on the phone
+   * layout (its sheets own the panels there). */
+  var tabBoxes = {}, openPin = null, pinTimer = 0, quietFocus = false;   // quietFocus: focus we move to a tab ourselves doesn't slide it out
+  function dockSide(p) {
+    var st = S.p[p.id];
+    if (DOCKS.indexOf(st.dock) !== -1) return st.dock;
+    return DOCKS.indexOf(st.prev) !== -1 ? st.prev : p.id;
+  }
+  function setPinned(p, on, focusTab) {
+    var st = S.p[p.id];
+    if (on && DOCKS.indexOf(st.dock) === -1) return;
+    if (on) leaveFrame(p);
+    if (on) st.pinned = true; else delete st.pinned;
+    if (!on && openPin === p) openPin = null;
+    layout(); save();
+    announce(T(on ? 'shell.panels.pinned' : 'shell.panels.unpinned', { panel: p.name, where: where(dockSide(p)) }));
+    if (on && focusTab && p.tab) { quietFocus = true; p.tab.focus(); quietFocus = false; }
+    if (!on && focusTab && p.pinBtn) try { p.pinBtn.focus(); } catch (e) {}
+  }
+  function setHidden(p, on, focusTab) {
+    var st = S.p[p.id];
+    if (on) { leaveFrame(p); st.hidden = true; delete st.pinned; } else delete st.hidden;
+    if (openPin === p) openPin = null;
+    layout(); save();
+    announce(T(on ? 'shell.panels.hidden' : 'shell.panels.shown', { panel: p.name, where: where(dockSide(p)) }));
+    if (on && focusTab && p.tab) { quietFocus = true; p.tab.focus(); quietFocus = false; }
+    if (!on && p.closeBtn) { try { (p.pinBtn || p.closeBtn).focus(); } catch (e) {} }
+  }
+  function closePin(p, focusBack) {
+    if (!p || openPin !== p) return;
+    clearTimeout(pinTimer);
+    openPin = null;
+    p.el.classList.remove('is-open');
+    if (p.tab) { p.tab.setAttribute('aria-expanded', 'false'); if (focusBack) p.tab.focus(); }
+  }
+  function openPinned(p) {
+    clearTimeout(pinTimer);
+    if (openPin && openPin !== p) closePin(openPin);
+    openPin = p;
+    p.el.classList.add('is-open');
+    if (p.tab) p.tab.setAttribute('aria-expanded', 'true');
+  }
+  function leavePinned(p) {
+    clearTimeout(pinTimer);
+    pinTimer = setTimeout(function () {
+      if (openPin !== p || menu || drag) return;
+      var a = document.activeElement;
+      if (a && p.el.contains(a)) return;
+      if (p.el.matches(':hover') || (p.tab && p.tab.matches(':hover'))) return;
+      closePin(p);
+    }, 350);
+  }
+  function tabFor(p) {
+    if (!p.tab) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'shell-pintab';
+      b.addEventListener('click', function () {
+        if (S.p[p.id].hidden) { setHidden(p, false, true); return; }
+        openPinned(p);   // a hover already opened it: a click keeps it open (Esc or leaving closes)
+      });
+      b.addEventListener('pointerenter', function (e) { if (S.p[p.id].pinned && e.pointerType === 'mouse') openPinned(p); });
+      b.addEventListener('pointerleave', function () { if (S.p[p.id].pinned) leavePinned(p); });
+      b.addEventListener('focus', function () { if (S.p[p.id].pinned && !quietFocus) openPinned(p); });
+      b.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); b.click(); }
+        else if (e.key === 'Escape' && openPin === p) { e.preventDefault(); e.stopPropagation(); closePin(p); }
+      });
+      p.tab = b;
+    }
+    return p.tab;
+  }
+  function tabBox(side) {
+    var b = tabBoxes[side];
+    if (!b) {
+      b = tabBoxes[side] = document.createElement('div');
+      b.className = 'shell-pintabs';
+      b.setAttribute('data-shell-dock', side);
+      b.setAttribute('role', 'toolbar');
+      b.setAttribute('aria-label', T('shell.panels.tabs.aria', { where: where(side) }));
+      main.appendChild(b);
+    }
+    return b;
+  }
+  /** Classes, geometry and tabs for hidden and pinned panels. Runs after every layout. */
+  function visibility() {
+    var phone = FIT && root.classList.contains('cc-phone');
+    var bd = managed ? band() : null;
+    var seen = {};
+    panels.forEach(function (p) {
+      var st = S.p[p.id], here = p.el.ownerDocument === document;
+      var hid = here && !phone && !!st.hidden;
+      var pin = here && !phone && managed && !hid && !!st.pinned && DOCKS.indexOf(st.dock) !== -1;
+      p.el.classList.toggle('shell-hidden', hid);
+      p.el.classList.toggle('shell-pinned', pin);
+      if (!pin) p.el.classList.remove('is-open');
+      if (pin) {
+        var d = st.dock, rp = bd;
+        p.el.setAttribute('data-shell-dock', d);
+        if (d === 'bottom') {
+          var h = Math.min(dockH(), rp.h);
+          p.el.style.height = h + 'rem'; p.el.style.top = (rp.top + rp.h - h) + 'rem'; p.el.style.left = '0'; p.el.style.width = '100%';
+        } else {
+          p.el.style.width = Math.min(dockW(d), Math.max(MIN_W, main.clientWidth / remPx() - 4)) + 'rem';
+          p.el.style.top = rp.top + 'rem'; p.el.style.height = rp.h + 'rem';
+        }
+      }
+      if (hid || pin) {
+        var side = dockSide(p), t = tabFor(p);
+        t.setAttribute('data-kind', pin ? 'pin' : 'hidden');
+        t.setAttribute('data-shell-dock', side);
+        t.setAttribute('aria-label', T(pin ? 'shell.panels.tab.pinned' : 'shell.panels.tab.hidden', { panel: p.name }));
+        if (pin) t.setAttribute('aria-expanded', openPin === p ? 'true' : 'false'); else t.removeAttribute('aria-expanded');
+        t.innerHTML = '<i class="bi ' + (pin ? 'bi-pin-angle' : 'bi-eye') + '" aria-hidden="true"></i><span></span>';
+        t.lastChild.textContent = p.name;
+        var box = tabBox(side);
+        if (t.parentNode !== box) box.appendChild(t);
+        seen[side] = true;
+      } else if (p.tab && p.tab.parentNode) p.tab.remove();
+      if (p.pinBtn) {
+        var canPin = here && DOCKS.indexOf(st.dock) !== -1;
+        p.pinBtn.hidden = !canPin;
+        p.pinBtn.setAttribute('aria-pressed', st.pinned ? 'true' : 'false');
+        p.pinBtn.setAttribute('aria-label', T(st.pinned ? 'shell.panels.unpin.aria' : 'shell.panels.pin.aria', { panel: p.name }));
+        p.pinBtn.title = T(st.pinned ? 'shell.panels.unpin' : 'shell.panels.pin');
+        p.pinBtn.firstChild.className = 'bi ' + (st.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle');
+      }
+      if (p.closeBtn) p.closeBtn.hidden = !here;
+    });
+    tabStrip();
+    Object.keys(tabBoxes).forEach(function (side) {
+      var b = tabBoxes[side];
+      b.hidden = !seen[side];
+      if (seen[side] && bd) {
+        b.style.top = side === 'bottom' ? (bd.top + bd.h) + 'rem' : bd.top + 'rem';
+        b.style.setProperty('--shell-band-h', bd.h + 'rem');
+      }
+    });
+  }
+  // A pinned panel slides back when the pointer and focus have left it.
+  panels.forEach(function (p) {
+    p.el.addEventListener('pointerleave', function () { if (S.p[p.id].pinned) leavePinned(p); });
+    p.el.addEventListener('focusout', function () { if (S.p[p.id].pinned) leavePinned(p); });
+    p.el.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S.p[p.id].pinned && openPin === p && !menu) { e.preventDefault(); e.stopPropagation(); closePin(p, true); } });
+  });
+
   /* ---------------- Moving ---------------- */
   var orderSeq = Date.now();
   function moveTo(p, dock, at) {
     var st = S.p[p.id];
+    leaveFrame(p);
+    delete st.pinned; delete st.hidden;
     if (p.el.ownerDocument !== document) {
       st.dock = dock;
       if (dock === 'float' && at) st.float = at;
@@ -834,6 +1179,16 @@
   function markWin(n) {
     openWins().forEach(function (m) { var w = winOf(m); if (w) w.document.body.classList.toggle('shell-pw-drop', m === n); });
   }
+  /** The docked panel whose title bar is under the pointer (a drop there groups the dragged panel as a tab). */
+  function gripAt(x, y, except) {
+    var hit = null;
+    panels.forEach(function (q) {
+      if (q === except || !q.grip || q.el.ownerDocument !== document || DOCKS.indexOf(eff(q)) === -1 || q.el.classList.contains('shell-tab-off')) return;
+      var r = q.grip.getBoundingClientRect();
+      if (r.width && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) hit = q;
+    });
+    return hit;
+  }
   function startDrag(p, e) {
     var here = p.el.ownerDocument === document;
     if (e.button !== 0 || (here && narrow)) return;
@@ -886,7 +1241,13 @@
       var x = e.clientX - mr.left - drag.dx, y = e.clientY - mr.top - drag.dy;
       if (drag.ghost) { drag.ghost.style.left = x + 'px'; drag.ghost.style.top = y + 'px'; drag.ghost.hidden = t.kind === 'win'; }
       else if (t.kind !== 'win') { var rp = remPx(); adopt(drag.p); S.p[drag.p.id].float.x = x / rp; S.p[drag.p.id].float.y = y / rp; placeFloat(drag.p, true); }
-      var z = t.kind === 'win' ? null : zoneAt(e.clientX, e.clientY);
+      var onto = t.kind === 'win' ? null : gripAt(e.clientX, e.clientY, drag.p);
+      if (onto !== drag.onto) {
+        if (drag.onto && drag.onto.grip) drag.onto.grip.classList.remove('shell-grip-drop');
+        drag.onto = onto;
+        if (onto && onto.grip) onto.grip.classList.add('shell-grip-drop');
+      }
+      var z = t.kind === 'win' || onto ? null : zoneAt(e.clientX, e.clientY);
       if (z !== drag.zone) { drag.zone = z; hot(z); }
     } else {
       // From a panels window: the main window shows its drop zones while the pointer is over it.
@@ -905,6 +1266,7 @@
     d.hd.removeEventListener('pointercancel', onDragEnd);
     try { if (d.hd.hasPointerCapture(e.pointerId)) d.hd.releasePointerCapture(e.pointerId); } catch (err) {}
     d.hd.ownerDocument.body.classList.remove('shell-panel-dragging');
+    if (d.onto && d.onto.grip) d.onto.grip.classList.remove('shell-grip-drop');
     showZones(false);
     markWin(0);
     if (!d.moved || e.type === 'pointercancel') { if (d.ghost) d.ghost.remove(); return; }
@@ -919,6 +1281,11 @@
       return;   // let go in its own window or off every window: it stays
     }
     var rp = remPx(), mr = main.getBoundingClientRect();
+    if (d.onto) {
+      if (d.ghost) d.ghost.remove();
+      groupInto(d.p, d.onto);
+      return;
+    }
     if (d.zone) {
       if (d.ghost) d.ghost.remove();
       moveTo(d.p, d.zone);
@@ -992,6 +1359,8 @@
     list.forEach(function (p) {
       var st = S.p[p.id];
       if (p.el.ownerDocument === w.document) return;
+      leaveFrame(p);
+      delete st.pinned; delete st.hidden;
       if (st.dock === 'window' && st.win) froms[st.win] = 1;
       if (st.dock !== 'window') st.prev = st.dock;
       st.dock = 'window';
@@ -1093,7 +1462,7 @@
     }, 1000);
     if (!mosOn) {
       mosOn = [new MutationObserver(syncTheme), new MutationObserver(syncZoom), new MutationObserver(syncZoom)];
-      mosOn[0].observe(root, { attributes: true, attributeFilter: ['data-space', 'class', 'style'] });   // + the interface size (0.6 DF.28)
+      mosOn[0].observe(root, { attributes: true, attributeFilter: ['data-space', 'data-cc-density', 'class', 'style'] });   // + the interface size (0.6 DF.28)
       mosOn[1].observe(main, { attributes: true, attributeFilter: ['style'] });
       mosOn[2].observe(body, { attributes: true, attributeFilter: ['class'] });
     }
@@ -1105,6 +1474,9 @@
     openWins().forEach(function (n) {
       var de = winOf(n).document.documentElement;
       if (sp) de.setAttribute('data-space', sp); else de.removeAttribute('data-space');
+      // 0.7 PANEL-COMPACT: the layout density follows into the panels windows too
+      var dn = root.getAttribute('data-cc-density');
+      if (dn) de.setAttribute('data-cc-density', dn); else de.removeAttribute('data-cc-density');
       // 0.6 DF.28: the interface size (app-settings.js: --shell-ui + html.shell-ui-sized) follows into the panels windows
       var ui = root.style.getPropertyValue('--shell-ui');
       if (ui) de.style.setProperty('--shell-ui', ui); else de.style.removeProperty('--shell-ui');
@@ -1185,6 +1557,9 @@
     var a = document.adoptNode(p.el);
     // Back into <main> in the app's own order: before the first later sibling we know of.
     var anchor = null;
+    // 2026-10-24: the left panel goes straight before the stage. "Before the next panel" put it after the stage whenever the right
+    // panel was home (stage, left, right: the drawing squeezed into the left column) — in every app, after a panels window closed.
+    if (p.id === 'left') [].forEach.call(main.children, function (ch) { if (!anchor && (/(^|\s)\S*-stage(\s|$)/.test(ch.className) || ch === centerEl)) anchor = ch; });
     var ids = panels.map(function (q) { return q.id; });
     for (var k = ids.indexOf(p.id) + 1; k < panels.length && !anchor; k++) {
       if (panels[k].el.ownerDocument === document && panels[k].el.parentNode === main) anchor = panels[k].el;
@@ -1374,7 +1749,15 @@
       if (FIT) panels.forEach(function (p) { var q = o.p[p.id]; if (q.dock === 'float' && !q.float && p.shown) q.float = { x: p.shown.x, y: p.shown.y, w: p.shown.w, h: p.shown.h }; });
       return o;
     },
-    panels: function () { return panels.map(function (p) { return { id: p.id, name: p.name, dock: S.p[p.id].dock, win: S.p[p.id].win || null, inWindow: p.el.ownerDocument !== document }; }); },
+    panels: function () { return panels.map(function (p) { var f = frameOf(p); return { id: p.id, name: p.name, dock: S.p[p.id].dock, win: S.p[p.id].win || null, inWindow: p.el.ownerDocument !== document, hidden: !!S.p[p.id].hidden, pinned: !!S.p[p.id].pinned, tabbed: !!f && f.members.length > 1, showing: f ? f.active === p : null, frame: f ? f.head.id : null }; }); },
+    frames: function (d) { return frames(d).map(function (f) { return { head: f.head.id, members: f.members.map(function (m) { return m.id; }), active: f.active.id }; }); },
+    group: function (id, target) { var p = byId(id), q = byId(target); if (p && q && CAN_MOVE) groupInto(p, q); },
+    ungroup: function (id) { var p = byId(id); if (p && CAN_MOVE) ungroup(p); },
+    activate: function (id) { var p = byId(id); if (p) setActive(p); },
+    hide: function (id) { var p = byId(id); if (p && CAN_MOVE) setHidden(p, true); },
+    show: function (id) { var p = byId(id); if (p) setHidden(p, false); },
+    pin: function (id) { var p = byId(id); if (p && CAN_MOVE) setPinned(p, true); },
+    unpin: function (id) { var p = byId(id); if (p) setPinned(p, false); },
     move: function (id, dock) { var p = byId(id); if (p) moveTo(p, dock); },
     openWindow: function (ids, n) { return toWindow(ids ? panels.filter(function (p) { return ids.indexOf(p.id) !== -1; }) : panels, false, n); },
     closeWindow: function (n) { closeWindow(n); },

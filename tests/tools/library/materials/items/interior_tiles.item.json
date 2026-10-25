@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Interior Tiles",
+ "kind": "material",
+ "category": "materials/tile",
+ "description": "Interior Tiles: a CC0 texture set from Poly Haven, one tile 1.9 × 1.9 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Interior Tiles\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":1.9,\"height\":1.9,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "interior_tiles_ao_1k.jpg",
+    "sha256": "810a992b1e0cdb2f90029922c67d1998ff9f334b0dc157a9013a060daed34e5b",
+    "media": "image/jpeg",
+    "bytes": 244338
+   },
+   "color": {
+    "file": "interior_tiles_diff_1k.jpg",
+    "sha256": "f267c4357e629f5ca2ab86f30da4fb0ae8c655a566cec6d81278df8d78dcca4a",
+    "media": "image/jpeg",
+    "bytes": 694562
+   },
+   "height": {
+    "file": "interior_tiles_disp_1k.jpg",
+    "sha256": "cee95db185f5a848379001b697130002f635cbbc6c8c2c94235648938348cd3d",
+    "media": "image/jpeg",
+    "bytes": 278771
+   },
+   "normal": {
+    "file": "interior_tiles_nor_gl_1k.jpg",
+    "sha256": "fdfb9fe192d438176508290fe873e181d88c5e6444a43bbab2ec156c9a78aa33",
+    "media": "image/jpeg",
+    "bytes": 414639,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "interior_tiles_rough_1k.jpg",
+    "sha256": "478b5cad03a064b9b25369223f8334d26c1bdc2cba08e3398c16234a4b2a1aaf",
+    "media": "image/jpeg",
+    "bytes": 521038
+   }
+  },
+  "size": [
+   1.9,
+   1.9
+  ]
+ }
+}

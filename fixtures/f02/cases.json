@@ -1,0 +1,106 @@
+[
+  {
+    "name": "mm-local",
+    "unit": "mm",
+    "unitMm": 1,
+    "origin": [
+      0.000123,
+      -0.000321
+    ],
+    "project": [
+      0,
+      0
+    ]
+  },
+  {
+    "name": "mm-translated",
+    "unit": "mm",
+    "unitMm": 1,
+    "origin": [
+      1000000.000123,
+      -1000000.000321
+    ],
+    "project": [
+      10000000,
+      -10000000
+    ]
+  },
+  {
+    "name": "m-local",
+    "unit": "m",
+    "unitMm": 1000,
+    "origin": [
+      0.000123,
+      -0.000321
+    ],
+    "project": [
+      0,
+      0
+    ]
+  },
+  {
+    "name": "m-translated",
+    "unit": "m",
+    "unitMm": 1000,
+    "origin": [
+      1000000.000123,
+      -1000000.000321
+    ],
+    "project": [
+      10000000,
+      -10000000
+    ]
+  },
+  {
+    "name": "inch-local",
+    "unit": "inch",
+    "unitMm": 25.4,
+    "origin": [
+      0.000123,
+      -0.000321
+    ],
+    "project": [
+      0,
+      0
+    ]
+  },
+  {
+    "name": "inch-translated",
+    "unit": "inch",
+    "unitMm": 25.4,
+    "origin": [
+      1000000.000123,
+      -1000000.000321
+    ],
+    "project": [
+      10000000,
+      -10000000
+    ]
+  },
+  {
+    "name": "foot-local",
+    "unit": "foot",
+    "unitMm": 304.8,
+    "origin": [
+      0.000123,
+      -0.000321
+    ],
+    "project": [
+      0,
+      0
+    ]
+  },
+  {
+    "name": "foot-translated",
+    "unit": "foot",
+    "unitMm": 304.8,
+    "origin": [
+      1000000.000123,
+      -1000000.000321
+    ],
+    "project": [
+      10000000,
+      -10000000
+    ]
+  }
+]

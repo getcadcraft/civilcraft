@@ -1,0 +1,443 @@
+# SPDX-License-Identifier: CC0-1.0
+# The seed species list of the `plants` library (0.7 LD.1, session `landscape`). Written by CadCraft, 2026, from general
+# horticultural knowledge: typical sizes of a plant grown in a garden or a street, rounded; not copied from any nursery,
+# commercial or other database. Check sizes and hardiness with a local nursery. Common names in English, Spanish and
+# Portuguese where we know a usual one (blank otherwise). The best-known invasive plants of Iberia and much of the temperate
+# world (Acacia dealbata, Ailanthus, Carpobrotus, Cortaderia, Eucalyptus globulus, Pennisetum setaceum, Ipomoea indica,
+# Agave americana…) are left out on purpose; a few others that are invasive somewhere carry a note. Check your local list.
+# Built into seed.csv (the export format) and plants-seed.json by `node tools/plants/build-seed.mjs`.
+#
+# botanical|en|es|pt|type|form|foliage|height m|spread m|growth|light|water|soil|zone|region|notes
+# type T tree S shrub H hedge G grass P perennial C groundcover V climber
+# form bl broadleaf co conifer cl columnar pa palm we weeping ms multistem ro rounded up upright sp spreading mo mounded
+#      cu clumping tu turf ma mat vi vine fe fern su succulent
+# foliage E evergreen D deciduous S semi-evergreen · growth s m f · light s sun p part h shade · water L M H
+# soil * any w well-drained m moist W wet d dry s sandy l loam c clay k chalk a acid n neutral b alkaline x saline
+# zone USDA min-max · region t temperate m mediterranean u subtropical c coastal
+#
+# ---- trees ----
+Acer campestre|Field maple|Arce campestre|Bordo-comum|T|bl|D|10|8|m|sp|M|*|5-8|t|tolerates clipping; good street and hedge tree
+Acer platanoides|Norway maple|Arce real|Ácer-da-noruega|T|bl|D|20|14|f|sp|M|*|4-7|t|dense shade; yellow autumn colour
+Acer pseudoplatanus|Sycamore maple|Arce blanco|Bordo|T|bl|D|25|18|f|sp|M|*|4-7|t|exposed and coastal sites
+Acer rubrum|Red maple|Arce rojo|Ácer-vermelho|T|bl|D|15|10|f|sp|M|ma|3-9|t|red autumn colour; needs acid soil
+Acer saccharum|Sugar maple|Arce de azúcar|Ácer-sacarino|T|bl|D|20|12|s|sp|M|wl|3-8|t|orange autumn colour
+Acer palmatum|Japanese maple|Arce japonés|Ácer-japonês|T|ms|D|5|5|s|ph|M|wma|5-8|t|shelter from wind and hot sun
+Acer negundo|Box elder|Arce negundo|Bordo-negundo|T|bl|D|12|10|f|s|M|*|2-9|t|short-lived; weak wood; invasive in parts of Europe
+Acer monspessulanum|Montpellier maple|Arce de Montpellier|Zelha|T|bl|D|9|8|s|s|L|wdbk|6-9|tm|dry chalky soils
+Aesculus hippocastanum|Horse chestnut|Castaño de Indias|Castanheiro-da-índia|T|bl|D|25|15|m|sp|M|ml|4-7|t|large parks; fruit drop
+Aesculus × carnea|Red horse chestnut|Castaño de Indias rojo|Castanheiro-da-índia-vermelho|T|bl|D|15|10|m|sp|M|ml|5-8|t|smaller than the white one
+Alnus glutinosa|Common alder|Aliso|Amieiro|T|up|D|18|8|f|sp|H|mWc|3-7|t|wet ground and stream banks
+Alnus cordata|Italian alder|Aliso de Italia|Amieiro-italiano|T|up|D|18|8|f|s|M|*|5-8|tm|tolerates dry soils better than other alders
+Amelanchier lamarckii|Juneberry|Guillomo|Amelanquier|T|ms|D|8|6|m|sp|M|ma|4-8|t|white spring flowers; autumn colour
+Arbutus unedo|Strawberry tree|Madroño|Medronheiro|T|ro|E|6|6|s|sp|L|wd|7-10|mc|red fruit in autumn; native in Iberia
+Betula pendula|Silver birch|Abedul|Bétula|T|up|D|18|8|f|s|M|wsa|2-7|t|light shade; white bark
+Betula utilis|Himalayan birch|Abedul del Himalaya||T|up|D|12|7|m|s|M|w|4-7|t|bright white bark
+Betula nigra|River birch|Abedul de río||T|ms|D|15|10|f|s|H|ma|4-9|t|tolerates wet and hot sites
+Brachychiton populneus|Kurrajong|Braquiquito|Braquiquito|T|ro|E|12|7|m|s|L|wd|9-11|mu|drought tolerant street tree
+Carpinus betulus|Hornbeam|Carpe|Carpino|T|bl|D|18|12|m|sp|M|*|4-8|t|clips well as a hedge or pleached row
+Castanea sativa|Sweet chestnut|Castaño|Castanheiro|T|bl|D|25|15|m|s|M|wa|5-7|tm|needs acid soil; edible nuts
+Catalpa bignonioides|Indian bean tree|Catalpa|Catalpa|T|bl|D|12|12|m|s|M|*|5-9|t|large leaves; late to leaf out
+Cedrus atlantica|Atlas cedar|Cedro del Atlas|Cedro-do-atlas|T|co|E|25|12|m|s|L|w|6-9|tm|large lawns and parks
+Cedrus deodara|Deodar cedar|Cedro del Himalaya|Cedro-do-himalaia|T|co|E|25|12|m|s|M|w|7-9|tm|drooping branch tips
+Cedrus libani|Cedar of Lebanon|Cedro del Líbano|Cedro-do-líbano|T|co|E|25|18|s|s|L|w|6-8|tm|flat tiers with age
+Celtis australis|European nettle tree|Almez|Lódão-bastardo|T|bl|D|20|15|m|s|L|*|6-9|m|tough street tree; drought tolerant
+Ceratonia siliqua|Carob|Algarrobo|Alfarrobeira|T|ro|E|10|10|s|s|L|wdb|9-11|mu|very drought tolerant once established
+Cercidiphyllum japonicum|Katsura tree|Árbol de Katsura||T|bl|D|15|10|m|sp|M|ma|4-8|t|autumn leaves smell of caramel
+Cercis siliquastrum|Judas tree|Árbol del amor|Olaia|T|ms|D|8|8|m|s|L|wb|6-9|tm|pink flowers on bare wood in spring
+Cercis canadensis|Eastern redbud|Ciclamor americano||T|ms|D|8|8|m|sp|M|w|4-9|t|pink spring flowers
+Citrus × sinensis|Sweet orange|Naranjo|Laranjeira|T|ro|E|6|5|m|s|M|w|9-11|mu|frost tender; feed and water in summer
+Citrus × limon|Lemon|Limonero|Limoeiro|T|ro|E|5|4|m|s|M|w|9-11|mu|frost tender
+Cornus florida|Flowering dogwood|Cornejo florido||T|bl|D|7|7|s|sp|M|ma|5-9|t|white bracts in spring
+Cornus kousa|Kousa dogwood|Cornejo kousa||T|ms|D|7|6|s|sp|M|wa|5-8|t|white bracts in early summer
+Corylus colurna|Turkish hazel|Avellano turco||T|up|D|18|8|m|s|M|*|4-7|t|tough formal street tree
+Crataegus monogyna|Hawthorn|Majuelo|Pilriteiro|T|ro|D|8|7|m|sp|M|*|4-8|tm|wildlife; also a field hedge
+Crataegus laevigata|Midland hawthorn|Espino navarro|Escalheiro|T|ro|D|7|7|m|sp|M|*|5-8|t|small street tree
+Cryptomeria japonica|Japanese cedar|Cedro japonés|Criptoméria|T|co|E|20|8|m|sp|M|ma|6-9|tc|moist mild sites
+Cupressus sempervirens|Italian cypress|Ciprés|Cipreste-comum|T|cl|E|18|2|m|s|L|wd|7-10|m|narrow vertical accent
+Cupressus arizonica|Arizona cypress|Ciprés de Arizona|Cipreste-do-arizona|T|co|E|15|5|f|s|L|wd|7-9|m|blue-grey foliage; dry sites
+Cupressus macrocarpa|Monterey cypress|Ciprés de Monterrey|Cipreste-de-monterey|T|co|E|20|10|f|s|L|ws|7-10|c|coastal shelter belts
+Davidia involucrata|Handkerchief tree|Árbol de los pañuelos||T|bl|D|12|8|m|sp|M|ml|6-8|t|white bracts in late spring
+Eriobotrya japonica|Loquat|Níspero|Nespereira|T|ro|E|6|6|m|sp|M|w|8-10|mu|large leaves; edible fruit
+Fagus sylvatica|European beech|Haya|Faia|T|bl|D|25|18|m|sp|M|wk|4-7|t|dense shade; clips well as a hedge
+Ficus carica|Fig|Higuera|Figueira|T|sp|D|6|7|f|s|L|wb|7-10|m|edible fruit; roots seek water
+Fraxinus excelsior|European ash|Fresno común|Freixo-europeu|T|bl|D|25|15|f|s|M|mb|4-7|t|ash dieback: check locally before planting
+Fraxinus angustifolia|Narrow-leaved ash|Fresno de hoja estrecha|Freixo|T|bl|D|18|10|f|s|M|m|6-9|m|stream banks; native in Iberia
+Fraxinus ornus|Manna ash|Fresno florido|Freixo-florido|T|ro|D|12|10|m|s|L|wb|6-9|tm|creamy flowers in late spring
+Ginkgo biloba|Ginkgo|Ginkgo|Ginkgo|T|up|D|20|10|s|s|M|*|3-9|t|plant male trees: female fruit smells
+Gleditsia triacanthos|Honey locust|Acacia de tres espinas|Espinheiro-da-virgínia|T|sp|D|15|12|f|s|L|*|4-9|t|light shade; choose thornless forms
+Jacaranda mimosifolia|Jacaranda|Jacarandá|Jacarandá|T|sp|D|12|10|f|s|M|ws|10-11|u|blue flowers in late spring; frost tender
+Juglans regia|Walnut|Nogal|Nogueira|T|bl|D|20|15|m|s|M|wl|5-9|tm|edible nuts; roots inhibit some plants
+Koelreuteria paniculata|Golden rain tree|Jabonero de China|Coreutéria|T|ro|D|9|8|m|s|L|*|5-9|tm|yellow summer flowers; papery pods
+Lagerstroemia indica|Crape myrtle|Árbol de Júpiter|Árvore-de-júpiter|T|ms|D|6|5|m|s|L|w|7-10|mu|summer flowers; mildew in shade
+Laurus nobilis|Bay laurel|Laurel|Loureiro|T|co|E|10|6|m|sp|L|w|8-10|m|clips into topiary and hedges; native in Iberia
+Ligustrum lucidum|Glossy privet|Aligustre del Japón|Alfeneiro-do-japão|T|ro|E|10|8|f|sp|M|*|7-10|m|street tree; invasive in some warm regions
+Liquidambar styraciflua|Sweetgum|Liquidámbar|Liquidâmbar|T|up|D|20|10|m|s|M|ma|5-9|t|red autumn colour; spiky fruit
+Liriodendron tulipifera|Tulip tree|Tulipero|Tulipeiro|T|up|D|30|15|f|s|M|ml|4-9|t|large parks only
+Magnolia grandiflora|Southern magnolia|Magnolio|Magnólia|T|ro|E|15|10|m|sp|M|wa|6-10|tm|large white summer flowers
+Magnolia × soulangeana|Saucer magnolia|Magnolio de flor rosa|Magnólia|T|ms|D|7|7|m|sp|M|ma|5-9|t|flowers before the leaves
+Malus domestica|Apple|Manzano|Macieira|T|ro|D|5|5|m|s|M|wl|4-8|t|fruit tree; size depends on the rootstock
+Malus sylvestris|Crab apple|Manzano silvestre|Macieira-brava|T|ro|D|8|7|m|s|M|*|4-8|t|spring blossom; wildlife fruit
+Melia azedarach|Chinaberry|Cinamomo|Amargoseira|T|ro|D|12|10|f|s|L|*|7-11|mu|fragrant lilac flowers; toxic berries
+Metasequoia glyptostroboides|Dawn redwood|Metasecuoya|Metasequóia|T|co|D|25|7|f|s|H|mW|5-8|t|deciduous conifer; wet ground
+Morus alba|White mulberry|Morera|Amoreira-branca|T|ro|D|10|10|f|s|L|*|4-9|tm|fruitless forms for paving
+Morus nigra|Black mulberry|Moral|Amoreira-negra|T|ro|D|8|8|s|s|L|w|6-9|tm|staining fruit: keep off paving
+Nyssa sylvatica|Black gum|Tupelo||T|up|D|15|8|s|sp|M|ma|4-9|t|brilliant autumn colour; wet tolerant
+Olea europaea|Olive|Olivo|Oliveira|T|ro|E|8|8|s|s|L|wdb|8-11|m|very long-lived; native in Iberia
+Ostrya carpinifolia|Hop hornbeam|Carpe negro|Carpino-negro|T|bl|D|15|10|m|sp|L|wb|5-8|tm|tough street tree
+Parrotia persica|Persian ironwood|Parrotia||T|ms|D|8|8|s|sp|M|w|4-8|t|red and orange autumn colour
+Paulownia tomentosa|Foxglove tree|Paulownia|Paulównia|T|sp|D|15|12|f|s|M|w|5-9|t|large leaves; can self-seed
+Phoenix canariensis|Canary Island date palm|Palmera canaria|Palmeira-das-canárias|T|pa|E|15|10|s|s|L|w|9-11|mu|very large crown; check for red palm weevil
+Phoenix dactylifera|Date palm|Palmera datilera|Tamareira|T|pa|E|20|7|s|s|L|ws|9-11|mu|hot dry sites
+Washingtonia robusta|Mexican fan palm|Washingtonia|Washingtónia|T|pa|E|20|4|f|s|L|w|9-11|mu|tall slender trunk
+Washingtonia filifera|California fan palm|Palmera de abanico|Washingtónia|T|pa|E|15|5|m|s|L|w|8-11|mu|stout trunk
+Trachycarpus fortunei|Chinese windmill palm|Palmito elevado|Palmeira-moinho|T|pa|E|8|2.5|s|sp|M|w|7-11|tm|the hardiest palm for temperate gardens
+Pinus pinea|Stone pine|Pino piñonero|Pinheiro-manso|T|co|E|18|14|m|s|L|wsd|7-10|m|umbrella crown; native in Iberia
+Pinus halepensis|Aleppo pine|Pino carrasco|Pinheiro-de-alepo|T|co|E|15|8|f|s|L|wdb|8-10|m|very drought tolerant
+Pinus pinaster|Maritime pine|Pino resinero|Pinheiro-bravo|T|co|E|25|8|f|s|L|ws|7-9|mc|sandy coastal soils; native in Portugal
+Pinus sylvestris|Scots pine|Pino silvestre|Pinheiro-silvestre|T|co|E|20|8|m|s|L|wsa|3-7|t|orange upper bark
+Pinus nigra|Black pine|Pino negro|Pinheiro-negro|T|co|E|25|8|m|s|L|*|4-8|tm|tough on chalk and wind
+Pinus strobus|Eastern white pine|Pino blanco|Pinheiro-branco|T|co|E|25|10|f|s|M|wa|3-8|t|soft blue-green needles
+Pinus mugo|Mountain pine|Pino negro de montaña|Pinheiro-anão|S|mo|E|2|3|s|s|L|w|3-7|t|dwarf pine for rock gardens
+Picea abies|Norway spruce|Abeto rojo|Espruce-europeu|T|co|E|30|8|m|sp|M|ma|2-7|t|cool moist climates
+Picea pungens|Blue spruce|Pícea azul|Espruce-azul|T|co|E|15|6|s|s|M|w|2-7|t|blue needles
+Abies alba|Silver fir|Abeto blanco|Abeto-branco|T|co|E|30|8|m|sp|M|m|4-6|t|cool moist climates
+Taxodium distichum|Swamp cypress|Ciprés calvo|Cipreste-calvo|T|co|D|25|8|m|s|H|mWa|4-10|t|wet ground and pond edges
+Sequoiadendron giganteum|Giant sequoia|Secuoya gigante|Sequóia-gigante|T|co|E|30|10|f|s|M|wm|6-8|t|very large parks only
+Thuja plicata|Western red cedar|Tuya gigante|Tuia-gigante|T|co|E|25|8|f|sp|M|m|5-7|t|screens and tall hedges
+Chamaecyparis lawsoniana|Lawson cypress|Ciprés de Lawson|Cipreste-de-lawson|T|co|E|20|6|m|sp|M|wm|5-8|t|many sizes and colours of cultivars
+Juniperus virginiana|Eastern red cedar|Enebro de Virginia|Junípero-da-virgínia|T|co|E|12|4|m|s|L|*|3-9|t|tough screen
+Ilex aquifolium|Holly|Acebo|Azevinho|T|co|E|10|5|s|ph|M|w|6-8|t|female plants berry; spiny leaves
+Platanus × hispanica|London plane|Plátano de sombra|Plátano|T|bl|D|30|20|f|s|M|*|5-8|tm|the classic city street tree; pollards well
+Populus alba|White poplar|Álamo blanco|Choupo-branco|T|bl|D|20|15|f|s|M|*|3-8|tm|suckers widely; keep away from drains
+Populus nigra|Black poplar|Chopo|Choupo-negro|T|cl|D|25|6|f|s|H|m|3-9|tm|columnar forms for windbreaks; thirsty roots
+Populus tremula|Aspen|Álamo temblón|Choupo-tremedor|T|up|D|18|8|f|s|M|m|2-6|t|leaves tremble in the wind; suckers
+Prunus avium|Wild cherry|Cerezo|Cerejeira|T|bl|D|18|10|f|s|M|wl|4-8|t|white spring blossom
+Prunus cerasifera|Cherry plum|Ciruelo mirobolán|Abrunheiro-de-jardim|T|ro|D|8|6|m|s|M|*|4-8|tm|purple-leaved forms common
+Prunus dulcis|Almond|Almendro|Amendoeira|T|ro|D|7|6|m|s|L|wdb|7-9|m|pink-white blossom in late winter
+Prunus serrulata|Japanese cherry|Cerezo japonés|Cerejeira-do-japão|T|sp|D|8|8|m|s|M|w|5-8|t|spring blossom
+Prunus padus|Bird cherry|Cerezo aliso|Azereiro-dos-danados|T|bl|D|12|8|m|sp|M|m|3-7|t|spikes of white flowers
+Prunus lusitanica|Portugal laurel|Loro de Portugal|Azereiro|T|ro|E|8|8|m|sph|M|*|7-9|tm|also clipped as a hedge; native in Iberia
+Pyrus calleryana|Callery pear|Peral de Callery|Pereira-de-callery|T|up|D|12|6|f|s|M|*|5-8|t|street tree; can self-seed in some regions
+Pyrus communis|Pear|Peral|Pereira|T|up|D|10|6|m|s|M|wl|4-8|t|fruit tree
+Quercus robur|English oak|Roble común|Carvalho-roble|T|bl|D|25|20|s|s|M|*|4-8|t|very long-lived; wildlife
+Quercus petraea|Sessile oak|Roble albar|Carvalho-branco|T|bl|D|25|18|s|s|M|wa|4-8|t|acid soils
+Quercus ilex|Holm oak|Encina|Azinheira|T|ro|E|20|15|s|sp|L|*|7-10|mc|clips into hedges; native in Iberia
+Quercus suber|Cork oak|Alcornoque|Sobreiro|T|ro|E|15|15|s|s|L|wsa|8-10|m|cork bark; protected in Portugal
+Quercus rubra|Red oak|Roble americano|Carvalho-americano|T|bl|D|25|18|f|s|M|wa|4-8|t|red autumn colour; acid soils
+Quercus palustris|Pin oak|Roble de los pantanos|Carvalho-dos-pântanos|T|bl|D|20|12|f|s|M|ma|4-8|t|tolerates wet soils
+Quercus faginea|Portuguese oak|Quejigo|Carvalho-cerquinho|T|bl|S|15|12|s|s|L|wb|7-9|m|native in Iberia
+Quercus pyrenaica|Pyrenean oak|Rebollo|Carvalho-negral|T|bl|D|20|12|m|s|L|wa|6-9|tm|native in Iberia; acid soils
+Quercus coccifera|Kermes oak|Coscoja|Carrasco|S|ro|E|3|3|s|s|L|wdb|8-10|m|tough dense native shrub
+Robinia pseudoacacia|Black locust|Falsa acacia|Robínia|T|sp|D|20|12|f|s|L|*|4-9|t|invasive in Portugal and other regions: check the local list
+Salix alba|White willow|Sauce blanco|Salgueiro-branco|T|bl|D|20|12|f|s|H|mW|2-8|t|stream banks; roots seek water
+Salix babylonica|Weeping willow|Sauce llorón|Chorão|T|we|D|12|12|f|s|H|mW|6-8|t|large lawns by water; keep away from drains
+Styphnolobium japonicum|Japanese pagoda tree|Sófora|Sófora|T|ro|D|18|15|m|s|L|*|5-9|tm|late summer flowers; city tolerant; formerly Sophora japonica
+Schinus molle|Peruvian pepper tree|Falso pimentero|Aroeira-mole|T|we|E|12|10|f|s|L|wd|9-11|mu|drought tolerant; can self-seed
+Sorbus aucuparia|Rowan|Serbal de cazadores|Tramazeira|T|up|D|10|6|m|sp|M|wa|3-7|t|red berries; wildlife
+Sorbus aria|Whitebeam|Mostajo|Mostajeiro|T|ro|D|12|8|m|s|M|wk|5-7|t|silver undersides; chalk
+Sorbus domestica|Service tree|Serbal común|Sorveira|T|ro|D|15|10|s|s|L|wb|5-8|tm|edible fruit once softened
+Tilia cordata|Small-leaved lime|Tilo de hoja pequeña|Tília-de-folhas-pequenas|T|bl|D|20|12|m|sp|M|*|3-7|t|street tree; scented flowers
+Tilia platyphyllos|Large-leaved lime|Tilo de hoja grande|Tília-de-folhas-grandes|T|bl|D|25|15|m|sp|M|*|4-7|t|parks and avenues
+Tilia tomentosa|Silver lime|Tilo plateado|Tília-prateada|T|bl|D|20|12|m|s|L|*|4-7|tm|drought tolerant lime; no aphid drip
+Tipuana tipu|Tipu tree|Tipuana|Tipuana|T|sp|S|15|15|f|s|M|w|9-11|mu|wide shade tree for warm cities
+Ulmus minor|Field elm|Olmo común|Ulmeiro|T|bl|D|20|12|f|s|M|*|5-9|tm|choose disease-resistant selections
+Zelkova serrata|Japanese zelkova|Zelkova|Zelkova|T|bl|D|20|15|m|s|M|*|5-8|t|elm-like street tree
+Pistacia chinensis|Chinese pistache|Pistachero chino||T|ro|D|12|10|m|s|L|w|6-9|tm|red autumn colour; drought tolerant
+Albizia julibrissin|Silk tree|Acacia de Constantinopla|Acácia-de-constantinopla|T|sp|D|8|9|f|s|L|w|6-10|tm|pink summer flowers; light shade
+Gymnocladus dioicus|Kentucky coffee tree|Árbol del café de Kentucky||T|bl|D|18|12|s|s|M|*|3-8|t|bold winter outline
+Cladrastis kentukea|Yellowwood|Palo amarillo||T|ro|D|12|12|m|sp|M|w|4-8|t|hanging white flowers
+Amelanchier canadensis|Shadbush|Guillomo de Canadá||T|ms|D|7|5|m|sp|M|m|3-8|t|white spring flowers
+Cornus mas|Cornelian cherry|Cornejo macho|Corniso|T|ms|D|6|5|s|sp|M|*|4-8|t|yellow flowers in late winter
+Tamarix gallica|French tamarisk|Taray|Tamargueira|T|ms|D|5|5|f|s|L|sx|7-10|mc|salt and wind tolerant
+Arbutus × andrachnoides|Hybrid strawberry tree|Madroño híbrido||T|ms|E|7|6|s|s|L|w|7-10|m|red peeling bark
+Laburnum × watereri|Golden chain tree|Lluvia de oro|Chuva-de-ouro|T|up|D|7|5|m|s|M|w|5-7|t|yellow flowers; all parts toxic
+Malus × purpurea|Purple crab apple|Manzano rojo||T|ro|D|6|6|m|s|M|*|4-8|t|purple leaves and pink flowers
+# ---- shrubs ----
+Abelia × grandiflora|Glossy abelia|Abelia|Abélia|S|ro|S|1.8|1.8|m|sp|M|w|6-9|tm|long summer flowering
+Berberis thunbergii|Japanese barberry|Agracejo japonés|Bérberis|S|ro|D|1.2|1.2|m|sp|L|*|4-8|t|thorny; invasive in parts of North America
+Buddleja davidii|Butterfly bush|Arbusto de las mariposas|Budleia|S|up|D|3|3|f|s|L|w|5-9|t|butterflies; can self-seed: choose sterile forms
+Callistemon citrinus|Bottlebrush|Limpiatubos|Escovinha|S|up|E|3|2.5|m|s|L|w|9-11|mu|red brush flowers
+Callicarpa bodinieri|Beautyberry|Calicarpa||S|up|D|2|2|m|sp|M|w|6-8|t|purple autumn berries
+Camellia japonica|Camellia|Camelia|Camélia|S|ro|E|3|2.5|s|ph|M|ma|7-9|t|winter and spring flowers; acid soil
+Camellia sasanqua|Sasanqua camellia|Camelia sasanqua|Camélia|S|ro|E|3|2|s|sp|M|wa|7-9|t|autumn flowers; acid soil
+Ceanothus thyrsiflorus|Californian lilac|Ceanoto|Ceanoto|S|ro|E|3|3|f|s|L|wd|7-10|mc|blue spring flowers; short-lived
+Choisya ternata|Mexican orange blossom|Naranjo de México|Laranjeira-do-méxico|S|ro|E|2|2|m|sp|M|w|7-10|t|scented white flowers
+Cistus albidus|Grey-leaved rockrose|Jara blanca|Roselha-grande|S|mo|E|1|1|f|s|L|wdb|8-10|m|native Mediterranean; pink flowers
+Cistus ladanifer|Gum rockrose|Jara pringosa|Esteva|S|up|E|2|1.5|f|s|L|wsa|8-10|m|native in Portugal; sticky scented leaves
+Cistus salviifolius|Sage-leaved rockrose|Jaguarzo morisco|Saganho-mouro|S|mo|E|0.6|1|f|s|L|wd|8-10|m|white flowers; banks and slopes
+Cistus × purpureus|Purple rockrose|Jara púrpura||S|mo|E|1|1.2|f|s|L|wd|8-10|m|magenta flowers with dark spots
+Cornus alba|Red-barked dogwood|Cornejo blanco|Corniso-branco|S|ms|D|2.5|2.5|f|sp|H|mW|3-7|t|red winter stems; cut back hard
+Cornus sanguinea|Common dogwood|Cornejo|Sanguinho|S|ms|D|3|3|f|sp|M|*|5-8|t|native hedgerow shrub
+Corylus avellana|Hazel|Avellano|Aveleira|S|ms|D|5|4|m|sp|M|*|4-8|t|catkins; coppices well
+Cotinus coggygria|Smoke bush|Árbol de las pelucas|Árvore-da-peruca|S|ro|D|4|4|m|s|L|w|5-8|tm|smoky summer plumes; purple forms
+Cotoneaster franchetii|Franchet cotoneaster|Cotoneaster|Cotoneaster|S|sp|S|3|3|f|sp|L|*|6-8|t|orange berries
+Cytisus scoparius|Common broom|Retama negra|Giesta|S|up|D|2|1.5|f|s|L|wsa|5-8|tm|yellow spring flowers; poor soils
+Spartium junceum|Spanish broom|Retama de olor|Giesta|S|up|D|2.5|2|f|s|L|wdb|7-10|m|yellow scented flowers; native Mediterranean
+Daphne odora|Winter daphne|Dafne|Dafne|S|mo|E|1|1.2|s|ph|M|wm|7-9|t|very scented late-winter flowers
+Elaeagnus × ebbingei|Ebbinge's silverberry|Eleagno|Eleagno|H|ro|E|3|3|f|sp|L|*|6-9|tc|wind and salt tolerant hedge
+Erica arborea|Tree heath|Brezo blanco|Urze-branca|S|up|E|3|1.5|m|s|L|wa|8-10|m|native in Iberia; acid soils
+Erica carnea|Winter heath|Brezo de invierno|Urze|C|ma|E|0.25|0.5|s|sp|M|w|5-7|t|winter flowers; tolerates lime
+Escallonia rubra|Escallonia|Escalonia|Escalónia|S|ro|E|2.5|2.5|f|s|M|w|7-9|c|seaside hedge; pink flowers
+Euonymus japonicus|Japanese spindle|Bonetero del Japón|Evónimo|S|up|E|3|1.5|m|sph|L|*|6-9|tmc|tough hedge; coastal
+Euonymus alatus|Winged spindle|Evónimo alado||S|ro|D|2|2.5|s|sp|M|*|4-8|t|red autumn colour
+Euonymus europaeus|Spindle|Bonetero|Evónimo-europeu|S|up|D|4|3|m|sp|M|*|4-7|t|pink fruits in autumn
+Fatsia japonica|Japanese aralia|Aralia japonesa|Fátsia|S|ro|E|3|3|m|ph|M|m|7-10|t|bold leaves for shade
+Forsythia × intermedia|Forsythia|Forsitia|Forsítia|S|up|D|2.5|2.5|f|sp|M|*|5-8|t|yellow flowers in early spring
+Hibiscus syriacus|Rose of Sharon|Rosa de Siria|Hibisco-da-síria|S|up|D|3|2|m|s|M|w|5-9|tm|late summer flowers
+Hydrangea macrophylla|Bigleaf hydrangea|Hortensia|Hortênsia|S|mo|D|1.5|1.5|m|p|H|ma|6-9|tc|flower colour follows soil acidity
+Hydrangea paniculata|Panicle hydrangea|Hortensia paniculata|Hortênsia-paniculada|S|up|D|2.5|2.5|f|sp|M|m|3-8|t|cone flowers; hardy
+Hydrangea quercifolia|Oakleaf hydrangea|Hortensia de hoja de roble||S|mo|D|2|2|m|ph|M|m|5-9|t|autumn colour
+Ilex crenata|Japanese holly|Acebo japonés|Azevinho-japonês|S|ro|E|1.5|1.5|s|sp|M|wa|5-8|t|small-leaved hedging and topiary
+Lavandula angustifolia|English lavender|Lavanda|Alfazema|S|mo|E|0.6|0.8|m|s|L|wdb|5-8|tm|cut back after flowering
+Lavandula stoechas|French lavender|Cantueso|Rosmaninho|S|mo|E|0.6|0.6|f|s|L|wsa|7-9|m|native in Iberia; early summer
+Lavandula dentata|Fringed lavender|Lavanda dentada|Alfazema-de-folha-recortada|S|mo|E|0.8|1|f|s|L|wd|8-10|m|long flowering in mild climates
+Lavandula × intermedia|Lavandin|Lavandín|Lavandim|S|mo|E|0.8|1|f|s|L|wdb|5-8|tm|large scented spikes
+Ligustrum ovalifolium|Oval-leaf privet|Aligustre|Alfenheiro|H|up|S|3|2|f|sph|M|*|5-8|t|classic fast hedge
+Ligustrum vulgare|Common privet|Aligustre común|Alfenheiro-comum|H|up|S|3|2|f|sph|M|*|4-7|t|native hedge in Europe
+Lonicera nitida|Box honeysuckle|Madreselva de hoja pequeña|Lonicera|H|ro|E|1.5|1.5|f|sph|M|*|6-9|t|fast low hedge
+Mahonia aquifolium|Oregon grape|Mahonia|Mahónia|S|up|E|1.2|1.5|m|ph|M|*|5-8|t|yellow late-winter flowers
+Myrtus communis|Myrtle|Mirto|Murta|S|ro|E|2.5|2|m|s|L|w|8-10|m|scented; native in Iberia
+Nandina domestica|Heavenly bamboo|Bambú sagrado|Nandina|S|up|E|1.5|1|s|sp|M|w|6-10|t|red winter leaves; berries toxic
+Nerium oleander|Oleander|Adelfa|Loendro|S|ro|E|3|3|m|s|L|*|8-11|mu|all parts toxic; very drought tolerant
+Osmanthus × burkwoodii|Burkwood osmanthus|Osmanto|Osmanto|S|ro|E|2.5|2.5|s|sp|M|*|6-8|t|scented white spring flowers
+Osmanthus heterophyllus|Holly olive|Osmanto de hoja de acebo|Osmanto|S|ro|E|3|3|s|sp|M|w|6-9|t|holly-like hedge
+Philadelphus coronarius|Mock orange|Celinda|Filadelfo|S|up|D|3|2.5|m|sp|M|*|4-8|t|scented early summer flowers
+Phillyrea angustifolia|Narrow-leaved mock privet|Labiérnago|Lentisco-bastardo|S|ro|E|2.5|2|s|sp|L|w|8-10|m|native Mediterranean hedge
+Phlomis fruticosa|Jerusalem sage|Salvia de Jerusalén|Salva-de-jerusalém|S|mo|E|1|1.2|m|s|L|wd|7-10|m|yellow flowers; grey leaves
+Photinia × fraseri|Red tip photinia|Fotinia|Fotínia|H|up|E|4|3|f|sp|M|w|7-9|tm|red new growth
+Pittosporum tobira|Japanese pittosporum|Pitosporo|Pitósporo|S|ro|E|3|3|m|sp|L|*|8-11|mc|scented flowers; salt tolerant
+Pittosporum tenuifolium|Kohuhu|Pitosporo de hoja fina||S|up|E|4|2.5|f|sp|M|w|8-10|tc|fine hedging
+Prunus laurocerasus|Cherry laurel|Laurel cerezo|Louro-cerejo|H|ro|E|5|5|f|sph|M|*|6-9|t|big fast hedge; seeds into woods
+Pyracantha coccinea|Firethorn|Espino de fuego|Piracanta|S|up|E|3|3|f|sp|L|w|6-9|tm|thorny; red or orange berries
+Rhamnus alaternus|Italian buckthorn|Aladierno|Sanguinho-das-sebes|S|ro|E|3|2.5|m|sp|L|*|7-10|m|native Mediterranean hedge
+Rhododendron catawbiense|Catawba rhododendron|Rododendro|Rododendro|S|ro|E|2.5|2.5|s|ph|M|ma|4-8|t|needs acid soil
+Ribes sanguineum|Flowering currant|Grosellero de flor|Groselheira-ornamental|S|up|D|2|2|m|sp|M|*|6-8|t|pink spring flowers
+Rosa rugosa|Japanese rose|Rosa rugosa|Roseira-rugosa|S|ro|D|1.5|1.5|f|s|L|ws|2-8|tc|salt tolerant; hips
+Rosa canina|Dog rose|Rosal silvestre|Roseira-brava|S|sp|D|2.5|2.5|f|sp|L|*|4-8|tm|native hedgerow rose
+Salvia rosmarinus|Rosemary|Romero|Alecrim|S|up|E|1.2|1.2|m|s|L|wdb|7-10|m|formerly Rosmarinus officinalis
+Ruscus aculeatus|Butcher's broom|Rusco|Gilbardeira|S|cu|E|0.8|0.8|s|ph|L|*|7-9|tm|dry shade under trees
+Salvia officinalis|Sage|Salvia|Salva|S|mo|E|0.6|0.8|m|s|L|wd|5-8|tm|culinary herb
+Salvia greggii|Autumn sage|Salvia de otoño||S|mo|E|0.8|0.8|f|s|L|w|7-10|tm|long flowering
+Santolina chamaecyparissus|Cotton lavender|Santolina|Santolina|S|mo|E|0.5|0.8|m|s|L|wd|6-9|m|silver leaves; low hedges
+Sambucus nigra|Elder|Saúco|Sabugueiro|S|ms|D|5|4|f|sp|M|*|5-7|t|flowers and berries
+Skimmia japonica|Skimmia|Skimmia|Skímia|S|mo|E|1|1.2|s|h|M|ma|6-8|t|shade; red berries on females
+Spiraea japonica|Japanese spiraea|Espirea japonesa|Espireia|S|mo|D|1|1.2|m|s|M|*|4-9|t|pink summer flowers
+Spiraea × vanhouttei|Bridal wreath|Corona de novia|Grinalda-de-noiva|S|ro|D|2|2|m|s|M|*|3-8|t|white arching sprays
+Syringa vulgaris|Lilac|Lilo|Lilás|S|up|D|4|3|m|s|M|wb|3-7|t|scented spring flowers
+Teucrium fruticans|Shrubby germander|Olivilla|Teucrio|S|ro|E|1.5|1.5|f|s|L|wd|8-10|m|silver hedge; blue flowers
+Viburnum tinus|Laurustinus|Durillo|Folhado|S|ro|E|3|2.5|m|sph|L|*|7-10|tm|winter flowers; native Mediterranean
+Viburnum opulus|Guelder rose|Mundillo|Novelo|S|ro|D|4|4|m|sp|H|m|3-8|t|wet ground; red berries
+Viburnum lantana|Wayfaring tree|Barbadejo|Viburno|S|ro|D|4|4|m|sp|L|wk|4-7|t|chalk hedgerows
+Viburnum plicatum|Japanese snowball|Viburno japonés||S|sp|D|3|3.5|m|sp|M|m|5-8|t|tiered white flowers
+Viburnum davidii|David viburnum|Viburno de David||S|mo|E|1|1.5|s|ph|M|m|7-9|t|blue berries
+Weigela florida|Weigela|Weigela|Weigela|S|ro|D|2|2|m|sp|M|*|4-8|t|pink early summer flowers
+Westringia fruticosa|Coastal rosemary|Westringia||S|ro|E|1.5|1.5|m|s|L|w|9-11|mc|salt and wind tolerant
+Polygala myrtifolia|Myrtle-leaf milkwort|Polígala|Polígala|S|ro|E|2|1.5|f|s|L|w|9-11|mu|long flowering; short-lived
+Coronilla valentina|Shrubby scorpion vetch|Coronilla|Pascoinhas|S|mo|E|1|1|m|s|L|wd|8-10|m|yellow scented winter flowers
+Grevillea rosmarinifolia|Rosemary grevillea|Grevillea|Grevílea|S|ro|E|1.5|1.5|m|s|L|wa|8-10|mu|no phosphate fertiliser
+Atriplex halimus|Sea orache|Orgaza|Salgadeira|S|ro|E|2|2|f|s|L|sdx|8-10|mc|silver salt-tolerant hedge
+Dodonaea viscosa|Hopbush|Dodonea|Dodoneia|S|up|E|3|2|f|s|L|w|9-11|mu|tough screen in hot dry sites
+Leptospermum scoparium|Manuka|Árbol del té|Leptospermo|S|up|E|3|2|m|s|M|wa|8-10|c|small flowers; acid soil
+Juniperus communis|Common juniper|Enebro común|Zimbro|S|up|E|3|1.5|s|s|L|*|2-7|t|very hardy
+Juniperus chinensis|Chinese juniper|Enebro chino|Zimbro-chinês|S|sp|E|1.5|3|m|s|L|*|4-9|t|many forms
+Taxus baccata|Yew|Tejo|Teixo|H|co|E|10|6|s|sph|M|w|5-7|t|the best formal hedge; all parts toxic
+Thuja occidentalis|Eastern white cedar|Tuya|Tuia|H|co|E|8|3|m|sp|M|*|3-7|t|narrow hedge and screen
+× Cuprocyparis leylandii|Leyland cypress|Ciprés de Leyland|Cipreste-de-leyland|H|co|E|20|6|f|sp|M|*|6-10|t|very fast: keep clipped
+Buxus sempervirens|Box|Boj|Buxo|H|ro|E|2|1.5|s|sph|M|wb|5-8|t|low formal edging; watch for box blight
+Griselinia littoralis|New Zealand broadleaf|Griselinia||H|up|E|4|2.5|m|sp|M|w|7-9|c|seaside hedge
+Sarcococca confusa|Sweet box|Sarcococa||S|mo|E|1.5|1.5|s|h|M|*|6-9|t|scented winter flowers in shade
+Pieris japonica|Japanese andromeda|Pieris|Píeris|S|ro|E|2.5|2|s|ph|M|ma|5-8|t|red new growth; acid soil
+Kalmia latifolia|Mountain laurel|Kalmia|Kálmia|S|ro|E|2.5|2.5|s|ph|M|ma|5-9|t|acid soil
+Aucuba japonica|Japanese laurel|Aucuba|Aucuba|S|ro|E|2.5|2|s|h|M|*|7-10|t|deep shade
+Hamamelis × intermedia|Witch hazel|Hamamelis|Hamamélis|S|sp|D|3|3|s|sp|M|ma|5-8|t|scented winter flowers
+Chaenomeles speciosa|Flowering quince|Membrillero japonés|Marmeleiro-do-japão|S|sp|D|2|2.5|m|sp|M|*|5-8|t|early flowers; thorny
+Kerria japonica|Kerria|Kerria|Kérria|S|up|D|2|2|f|sph|M|*|4-9|t|yellow spring flowers
+Deutzia scabra|Deutzia|Deutzia|Deutzia|S|up|D|2.5|2|m|sp|M|*|5-8|t|white early summer flowers
+Dasiphora fruticosa|Shrubby cinquefoil|Potentilla arbustiva|Potentila|S|mo|D|1|1.2|m|s|L|*|2-7|t|long flowering; formerly Potentilla fruticosa
+Caryopteris × clandonensis|Bluebeard|Barba azul|Cariópteris|S|mo|D|1|1|f|s|L|wb|5-9|tm|blue late summer flowers
+Salvia yangii|Russian sage|Salvia rusa|Pérovskia|S|up|D|1.2|1|f|s|L|wdb|4-9|tm|formerly Perovskia atriplicifolia
+Helichrysum italicum|Curry plant|Siempreviva|Perpétua-das-areias|S|mo|E|0.5|0.6|m|s|L|wsd|7-10|m|silver leaves; native Mediterranean
+Artemisia arborescens|Tree wormwood|Ajenjo arbustivo|Losna-arbórea|S|ro|E|1.5|1.5|f|s|L|wd|8-10|m|silver foliage
+Bupleurum fruticosum|Shrubby hare's ear|Adelfilla|Beleza|S|ro|E|2|2|m|s|L|wbx|7-10|mc|yellow summer flowers; coastal
+Vitex agnus-castus|Chaste tree|Sauzgatillo|Agnocasto|S|ms|D|4|4|m|s|L|w|6-10|m|lilac summer flowers
+Punica granatum|Pomegranate|Granado|Romãzeira|S|ms|D|4|3|m|s|L|w|7-11|m|red flowers; edible fruit
+Acca sellowiana|Pineapple guava|Feijoa|Goiabeira-serrana|S|ro|E|4|4|m|s|M|w|8-11|mu|edible fruit; hedges; formerly Feijoa sellowiana
+Pistacia lentiscus|Mastic tree|Lentisco|Aroeira|S|ro|E|3|3|s|s|L|*|9-11|mc|native Mediterranean; very tough
+Pistacia terebinthus|Terebinth|Cornicabra|Cornalheira|S|ro|D|4|3|s|s|L|wb|8-10|m|red autumn colour
+Chamaerops humilis|European fan palm|Palmito|Palmeira-anã|S|pa|E|2.5|2.5|s|s|L|wd|8-11|mc|the native palm of Iberia
+Hebe × franciscana|Hebe|Verónica arbustiva|Hebe|S|mo|E|1|1|m|s|M|w|8-10|c|coastal; formerly Hebe, now in Veronica
+Abutilon megapotamicum|Trailing abutilon|Farolillo|Lanterna-japonesa|S|sp|E|2|2|f|sp|M|w|8-10|u|wall shrub; red and yellow flowers
+Ceratostigma willmottianum|Chinese plumbago|Ceratostigma||S|mo|D|1|1|m|s|L|w|6-9|t|blue late flowers
+Cotoneaster lacteus|Late cotoneaster|Cotoneaster||H|ro|E|3|3|m|sp|L|*|6-8|t|informal hedge; red berries
+# ---- grasses (incl. lawns) ----
+Calamagrostis × acutiflora|Feather reed grass|Calamagrostis|Calamagróstis|G|up|D|1.5|0.6|m|s|M|*|4-9|t|stays upright through winter
+Carex testacea|Orange sedge|Carex naranja||G|cu|E|0.4|0.5|m|sp|M|m|7-9|t|orange-bronze leaves
+Carex morrowii|Japanese sedge|Carex japonés||G|cu|E|0.4|0.5|s|ph|M|m|5-9|t|shade groundcover sedge
+Carex pendula|Pendulous sedge|Carex péndulo|Carriço|G|cu|E|1.2|1.2|f|ph|H|mW|5-9|t|pond margins; can self-seed
+Festuca glauca|Blue fescue|Festuca azul|Festuca-azul|G|cu|E|0.3|0.3|m|s|L|wd|4-8|tm|blue tufts; replace every few years
+Helictotrichon sempervirens|Blue oat grass|Avena azul||G|cu|E|0.6|0.6|m|s|L|w|4-8|t|steel blue leaves
+Miscanthus sinensis|Chinese silver grass|Miscanto|Miscanto|G|cu|D|1.8|1.2|f|s|M|*|5-9|t|plumes in autumn; self-seeds in warm climates
+Molinia caerulea|Purple moor grass|Molinia||G|cu|D|1|0.6|m|s|M|ma|4-8|t|airy flower heads
+Nassella tenuissima|Mexican feather grass|Estipa|Estipa|G|cu|E|0.6|0.4|f|s|L|wd|6-10|tm|self-seeds freely; invasive in some regions
+Panicum virgatum|Switchgrass|Panizo|Pânico|G|up|D|1.5|0.8|m|s|M|*|4-9|t|airy panicles; autumn colour
+Cenchrus alopecuroides|Fountain grass|Pennisetum|Penisetum|G|mo|D|0.9|0.9|m|s|M|w|5-9|t|bottlebrush flowers; formerly Pennisetum alopecuroides
+Celtica gigantea|Giant feather grass|Estipa gigante|Estipa-gigante|G|cu|E|2|1|m|s|L|wd|6-9|tm|tall golden oats; formerly Stipa gigantea
+Sesleria autumnalis|Autumn moor grass|Sesleria||G|cu|E|0.5|0.4|m|sp|L|*|5-9|t|meadow-style groundcover grass
+Deschampsia cespitosa|Tufted hair grass|Deschampsia||G|cu|E|0.8|0.6|m|sp|M|m|4-9|t|clouds of flowers
+Hakonechloa macra|Japanese forest grass|Hakonechloa||G|mo|D|0.4|0.6|s|ph|M|m|5-9|t|cascading leaves for shade
+Briza media|Quaking grass|Tembladera|Bole-bole|G|cu|E|0.5|0.3|m|s|L|w|4-9|t|nodding flower heads
+Lomandra longifolia|Spiny-head mat rush|Lomandra|Lomandra|G|cu|E|0.8|0.8|m|sph|L|*|8-11|mu|very tough; slopes and verges
+Schizachyrium scoparium|Little bluestem|Schizachyrium||G|up|D|0.9|0.5|m|s|L|wd|3-9|t|red autumn colour
+Sporobolus heterolepis|Prairie dropseed|Sporobolus||G|mo|D|0.6|0.6|s|s|L|w|3-9|t|fine leaves; scented flowers
+Bouteloua gracilis|Blue grama|Navajita azul||G|cu|D|0.4|0.3|m|s|L|wd|3-9|t|drought tolerant meadow grass
+Chasmanthium latifolium|Northern sea oats|Avena de mar||G|cu|D|0.9|0.6|m|sp|M|*|4-9|t|flat seed heads; self-seeds
+Ampelodesmos mauritanicus|Diss grass|Carrizo|Albardina|G|cu|E|2|1.5|m|s|L|wd|8-10|m|large native Mediterranean tussock
+Luzula sylvatica|Great wood-rush|Lúzula|Luzula|G|cu|E|0.6|0.6|m|h|M|*|4-9|t|dry shade groundcover
+Juncus effusus|Soft rush|Junco|Junco|G|up|E|1|0.6|m|sp|H|W|4-9|t|wet ground and ponds
+Festuca arundinacea|Tall fescue lawn|Festuca alta|Festuca-alta|G|tu|E|0.08|0.08|m|sp|M|*|4-8|tm|hard-wearing lawn; deep roots
+Lolium perenne|Perennial ryegrass lawn|Raigrás inglés|Azevém-perene|G|tu|E|0.06|0.06|f|s|M|*|3-8|t|quick to establish; sports lawns
+Poa pratensis|Kentucky bluegrass lawn|Poa de los prados|Poa|G|tu|E|0.06|0.06|m|s|H|wl|3-7|t|cool-season lawn
+Festuca rubra|Red fescue lawn|Festuca roja|Festuca-vermelha|G|tu|E|0.05|0.05|m|sp|M|*|3-7|t|fine shade-tolerant lawn
+Cynodon dactylon|Bermuda grass lawn|Grama|Grama|G|tu|E|0.04|0.04|f|s|L|*|7-10|mu|warm-season lawn; brown in winter
+Zoysia japonica|Zoysia lawn|Zoysia|Zóisia|G|tu|E|0.04|0.04|s|s|L|*|6-10|mu|warm-season lawn; slow to establish
+Paspalum vaginatum|Seashore paspalum lawn|Paspalum|Paspalum|G|tu|E|0.03|0.03|f|s|M|sx|8-11|mc|salt tolerant warm-season lawn
+# ---- perennials ----
+Achillea millefolium|Yarrow|Milenrama|Milefólio|P|up|S|0.6|0.6|f|s|L|*|3-9|tm|meadows; spreads
+Agapanthus praecox|African lily|Agapanto|Agapanto|P|cu|E|0.8|0.6|m|s|M|w|8-11|mu|blue summer flowers
+Alchemilla mollis|Lady's mantle|Alquemila|Alquemila|P|mo|D|0.4|0.6|m|sp|M|*|3-8|t|edging; self-seeds
+Anemone × hybrida|Japanese anemone|Anémona japonesa|Anémona-do-japão|P|up|D|1.2|0.6|m|sp|M|m|4-8|t|late summer flowers; spreads
+Symphyotrichum novae-angliae|New England aster|Áster|Áster|P|up|D|1.5|0.8|m|s|M|m|4-8|t|autumn daisies; formerly Aster
+Astilbe × arendsii|Astilbe|Astilbe|Astilbe|P|cu|D|0.8|0.5|m|ph|H|m|4-8|t|moist shade
+Bergenia cordifolia|Elephant's ears|Bergenia|Bergénia|P|ma|E|0.4|0.6|s|sph|M|*|3-8|t|bold leaves; edging
+Brunnera macrophylla|Siberian bugloss|Brunnera||P|mo|D|0.4|0.5|m|h|M|m|3-8|t|blue spring flowers in shade
+Campanula portenschlagiana|Dalmatian bellflower|Campanilla|Campainha|C|ma|E|0.15|0.5|m|sp|M|w|4-8|t|walls and edges
+Centranthus ruber|Red valerian|Valeriana roja|Alfinetes|P|up|E|0.7|0.6|f|s|L|wb|5-9|tmc|walls and dry banks; self-seeds
+Coreopsis verticillata|Threadleaf coreopsis|Coreopsis|Coreópsis|P|mo|D|0.6|0.5|m|s|L|w|4-9|t|long summer flowering
+Digitalis purpurea|Foxglove|Dedalera|Dedaleira|P|up|D|1.5|0.5|f|ph|M|ma|4-9|t|biennial; toxic; native in Portugal
+Echinacea purpurea|Purple coneflower|Equinácea|Equinácea|P|up|D|1|0.5|m|s|L|w|3-9|t|pollinators
+Echinops ritro|Globe thistle|Cardo yesquero|Cardo-azul|P|up|D|1|0.6|m|s|L|wd|3-9|tm|blue globes; dry soil
+Erigeron karvinskianus|Mexican fleabane|Erigeron|Erígero|C|mo|E|0.3|0.6|f|s|L|w|7-10|tm|walls and paving cracks; self-seeds
+Eryngium planum|Flat sea holly|Cardo azul|Cardo-azul|P|up|D|0.9|0.5|m|s|L|wd|4-9|t|blue bracts
+Euphorbia characias|Mediterranean spurge|Lechetrezna|Trovisco-macho|P|up|E|1.2|1|m|s|L|wd|7-10|m|sap irritates skin; native in Iberia
+Oenothera lindheimeri|Gaura|Gaura|Gaura|P|up|D|1|0.8|f|s|L|w|5-9|tm|long airy flowering; formerly Gaura
+Geranium sanguineum|Bloody cranesbill|Geranio sanguíneo|Gerânio-sanguíneo|P|mo|D|0.3|0.5|m|sp|L|*|3-8|t|tough edging
+Geranium macrorrhizum|Bigroot geranium|Geranio de raíz grande||C|ma|S|0.4|0.6|m|sph|L|*|3-8|t|dry shade groundcover; scented leaves
+Helleborus orientalis|Lenten rose|Eléboro|Heléboro|P|mo|E|0.45|0.45|s|ph|M|*|4-9|t|winter flowers; toxic
+Hemerocallis fulva|Daylily|Lirio de día|Hemerocale|P|cu|D|0.9|0.8|f|sp|M|*|3-9|t|tough; many cultivars
+Heuchera micrantha|Coral bells|Heuchera|Heuchera|P|mo|E|0.4|0.4|m|ph|M|w|4-9|t|coloured leaves
+Hosta sieboldiana|Plantain lily|Hosta|Hosta|P|mo|D|0.8|1|m|h|M|m|3-8|t|slugs love it
+Iris germanica|Bearded iris|Lirio|Lírio|P|up|S|0.8|0.4|m|s|L|wb|3-9|tm|plant rhizomes at the surface
+Iris sibirica|Siberian iris|Lirio de Siberia||P|up|D|0.9|0.5|m|sp|M|m|3-9|t|moist borders
+Iris pseudacorus|Yellow flag|Lirio amarillo|Lírio-amarelo|P|up|D|1.2|0.6|f|sp|H|W|4-9|t|pond margins; spreads
+Kniphofia uvaria|Red hot poker|Tritoma|Tritoma|P|cu|S|1.2|0.6|m|s|L|w|6-9|tc|orange spikes
+Leucanthemum × superbum|Shasta daisy|Margarita|Margarida|P|up|S|0.8|0.6|m|s|M|*|5-9|t|white summer daisies
+Liatris spicata|Blazing star|Liatris||P|up|D|0.9|0.4|m|s|M|w|3-9|t|purple spikes; pollinators
+Lupinus polyphyllus|Lupin|Altramuz|Tremoceiro|P|up|D|1|0.6|m|s|M|wa|4-8|t|short-lived; invasive in Scandinavia
+Nepeta × faassenii|Catmint|Nébeda|Erva-dos-gatos|P|mo|D|0.5|0.6|f|s|L|w|3-8|t|long flowering edging
+Paeonia lactiflora|Peony|Peonía|Peónia|P|mo|D|0.8|0.8|s|s|M|wl|3-8|t|long-lived; do not plant deep
+Penstemon digitalis|Foxglove beardtongue|Penstemon|Penstémon|P|up|S|0.9|0.5|m|s|M|w|3-8|t|white spikes
+Phlomis russeliana|Turkish sage|Flomis|Flómis|P|mo|E|0.9|0.8|m|sp|L|w|4-9|t|seed heads in winter
+Phlox paniculata|Garden phlox|Flox|Flox|P|up|D|1|0.6|m|sp|M|m|4-8|t|scented summer flowers
+Rudbeckia fulgida|Black-eyed Susan|Rudbeckia|Rudbéquia|P|up|D|0.7|0.5|m|s|M|*|4-9|t|late summer daisies
+Salvia nemorosa|Woodland sage|Salvia de los bosques|Salva|P|up|D|0.5|0.5|m|s|L|w|4-8|t|long flowering
+Salvia leucantha|Mexican bush sage|Salvia mexicana|Salva-mexicana|P|mo|E|1.2|1.2|f|s|L|w|8-11|mu|velvety purple autumn flowers
+Hylotelephium spectabile|Showy stonecrop|Sedum|Sedum|P|su|D|0.5|0.5|m|s|L|wd|4-9|t|late flowers; formerly Sedum spectabile
+Stachys byzantina|Lamb's ears|Oreja de oso|Orelha-de-cordeiro|C|ma|E|0.3|0.6|m|s|L|wd|4-8|tm|woolly silver leaves
+Verbena bonariensis|Purpletop vervain|Verbena|Verbena|P|up|S|1.5|0.5|f|s|L|w|7-11|tm|see-through; self-seeds
+Veronica spicata|Spiked speedwell|Verónica|Verónica|P|up|D|0.5|0.4|m|s|M|w|3-8|t|blue spikes
+Acanthus mollis|Bear's breeches|Acanto|Acanto|P|cu|S|1.2|0.9|m|ph|M|*|7-10|m|bold leaves; native Mediterranean
+Aquilegia vulgaris|Columbine|Aguileña|Aquilégia|P|up|D|0.7|0.4|m|ph|M|*|3-8|t|self-seeds
+Armeria maritima|Sea thrift|Armeria|Armeria|C|cu|E|0.2|0.3|s|s|L|wsx|4-8|c|coastal cushions; native in Portugal
+Asclepias tuberosa|Butterfly weed|Algodoncillo||P|up|D|0.7|0.5|s|s|L|wd|3-9|t|monarch butterflies
+Baptisia australis|Blue false indigo|Índigo falso||P|ro|D|1.2|1|s|s|L|w|3-9|t|long-lived; deep roots
+Canna indica|Indian shot|Caña de las Indias|Cana-da-índia|P|up|D|1.5|0.6|f|s|H|m|8-11|u|bold leaves; lift in cold winters
+Clivia miniata|Bush lily|Clivia|Clívia|P|cu|E|0.5|0.6|s|h|M|w|9-11|u|dry shade in mild climates
+Dietes grandiflora|Fairy iris|Dietes|Dietes|P|cu|E|1|0.8|m|sp|L|*|8-11|mu|tough evergreen clumps
+Euphorbia myrsinites|Myrtle spurge|Euforbia||C|ma|E|0.15|0.4|m|s|L|wd|5-9|t|sap irritates skin; invasive in parts of the US
+Gaillardia × grandiflora|Blanket flower|Gallardia|Gailárdia|P|mo|D|0.6|0.5|f|s|L|ws|3-9|t|long flowering; short-lived
+Monarda didyma|Bee balm|Monarda|Monarda|P|up|D|1|0.6|m|sp|M|m|4-9|t|pollinators; mildew in dry soil
+Origanum vulgare|Oregano|Orégano|Orégão|P|mo|D|0.5|0.5|m|s|L|wd|4-9|tm|culinary herb; pollinators
+Thymus vulgaris|Thyme|Tomillo|Tomilho|S|mo|E|0.3|0.4|m|s|L|wd|5-9|m|culinary herb; edging
+Strelitzia reginae|Bird of paradise|Ave del paraíso|Estrelícia|P|cu|E|1.5|1|s|s|M|w|10-11|u|frost tender
+Aloe arborescens|Candelabra aloe|Áloe arborescente|Babosa|S|su|E|2|2|m|s|L|wd|9-11|mu|winter flowers; frost tender
+Polystichum setiferum|Soft shield fern|Helecho|Fentanha|P|fe|E|0.7|0.9|m|h|M|m|5-8|t|shade
+Dryopteris filix-mas|Male fern|Helecho macho|Feto-macho|P|fe|D|1|1|m|h|M|*|4-8|t|dry shade tolerant fern
+Athyrium filix-femina|Lady fern|Helecho hembra|Feto-fêmea|P|fe|D|0.8|0.8|m|h|H|m|4-8|t|moist shade
+Matteuccia struthiopteris|Ostrich fern|Helecho avestruz||P|fe|D|1.2|0.9|f|h|H|mW|2-8|t|spreads in moist shade
+Osmunda regalis|Royal fern|Helecho real|Feto-real|P|fe|D|1.5|1.5|m|ph|H|Wa|3-9|t|wet acid ground
+Euphorbia amygdaloides|Wood spurge|Lechetrezna de bosque||P|mo|E|0.6|0.6|m|ph|L|*|6-9|t|dry shade
+Teucrium chamaedrys|Wall germander|Camedrio|Germandrina|S|mo|E|0.3|0.4|m|s|L|wdb|5-9|m|low hedging
+Lythrum salicaria|Purple loosestrife|Salicaria|Salgueirinha|P|up|D|1.2|0.6|m|s|H|mW|4-9|t|wet ground; invasive in North America
+Filipendula ulmaria|Meadowsweet|Reina de los prados|Ulmária|P|up|D|1.2|0.6|m|sp|H|mW|3-9|t|wet meadows
+Caltha palustris|Marsh marigold|Calta|Calta|P|mo|D|0.4|0.5|m|sp|H|W|3-7|t|pond edges
+Phormium tenax|New Zealand flax|Formio|Fórmio|P|cu|E|2|1.5|m|sp|M|*|8-11|tc|bold sword leaves
+Salvia microphylla|Baby sage|Salvia microfila||S|mo|E|1|1|f|s|L|w|7-10|tm|long flowering; scented leaves
+Limonium perezii|Sea lavender|Limonium|Limónio|P|mo|E|0.6|0.6|m|s|L|wsx|9-11|mc|coastal gardens
+Osteospermum fruticosum|Trailing African daisy|Margarita del Cabo|Margarida-do-cabo|C|ma|E|0.3|0.9|f|s|L|w|9-11|mu|slopes and banks
+Gazania rigens|Treasure flower|Gazania|Gazânia|C|ma|E|0.25|0.4|f|s|L|ws|9-11|mc|opens in sun; coastal
+# ---- groundcovers ----
+Ajuga reptans|Bugle|Búgula|Erva-carpinteira|C|ma|E|0.15|0.6|f|ph|M|m|3-9|t|spreads by runners
+Arctostaphylos uva-ursi|Bearberry|Gayuba|Uva-de-urso|C|ma|E|0.15|1|s|sp|L|wsa|2-6|t|acid sandy soils
+Calluna vulgaris|Heather|Brecina|Torga|C|mo|E|0.4|0.5|m|s|M|wa|4-6|t|acid soils; late summer flowers
+Cerastium tomentosum|Snow-in-summer|Cerastio|Orelha-de-rato|C|ma|E|0.2|0.6|f|s|L|wd|3-7|t|silver mats; spreads
+Ceratostigma plumbaginoides|Leadwort|Plumbago rastrero||C|ma|D|0.3|0.5|m|sp|M|w|5-9|t|blue autumn flowers
+Convolvulus sabatius|Ground morning glory|Campanilla azul|Corriola-azul|C|ma|E|0.2|0.6|m|s|L|w|8-10|m|blue flowers all summer
+Cotoneaster dammeri|Bearberry cotoneaster|Cotoneaster rastrero||C|ma|E|0.2|2|f|sp|L|*|5-8|t|banks and slopes
+Cotoneaster horizontalis|Rockspray cotoneaster|Cotoneaster horizontal|Cotoneaster|C|sp|D|0.6|1.5|m|sp|L|*|5-8|t|herringbone branches on banks and walls
+Euonymus fortunei|Wintercreeper|Evónimo rastrero|Evónimo-rasteiro|C|ma|E|0.5|1.5|m|sph|M|*|5-9|t|climbs walls if allowed
+Hypericum calycinum|Rose of Sharon|Hipérico|Hipericão|C|ma|S|0.4|1|f|sph|L|*|5-8|t|dry shade under trees; spreads
+Juniperus horizontalis|Creeping juniper|Enebro rastrero|Zimbro-rasteiro|C|ma|E|0.3|2|m|s|L|w|3-9|t|banks and slopes
+Lamium maculatum|Spotted dead-nettle|Lamio|Lâmio|C|ma|S|0.2|0.6|f|h|M|m|4-8|t|silver leaves in shade
+Liriope muscari|Lilyturf|Liriope|Liríope|C|cu|E|0.3|0.4|m|sph|M|*|6-10|t|edging; purple spikes
+Lysimachia nummularia|Creeping Jenny|Lisimaquia|Lisimáquia|C|ma|E|0.05|0.6|f|sp|H|m|4-8|t|moist ground and pond edges
+Ophiopogon japonicus|Mondo grass|Ophiopogon|Ofiopógon|C|cu|E|0.2|0.3|s|ph|M|*|7-10|t|edging and between pavers
+Pachysandra terminalis|Japanese spurge|Paquisandra||C|ma|E|0.2|0.4|m|h|M|ma|4-8|t|deep shade groundcover
+Phlox subulata|Moss phlox|Flox rastrero|Flox-rasteiro|C|ma|E|0.15|0.5|m|s|L|w|3-9|t|spring carpets
+Sagina subulata|Irish moss|Sagina||C|ma|E|0.03|0.3|m|sp|M|m|4-7|t|between paving stones
+Thymus serpyllum|Creeping thyme|Serpol|Serpão|C|ma|E|0.08|0.5|m|s|L|wd|4-9|tm|between paving; light foot traffic
+Vinca minor|Lesser periwinkle|Vinca menor|Pervinca|C|ma|E|0.15|1|m|ph|M|*|4-8|t|shade groundcover; spreads
+Vinca major|Greater periwinkle|Vinca mayor|Pervinca-maior|C|ma|E|0.4|1.5|f|ph|M|*|7-9|tm|vigorous; invasive in some regions
+Waldsteinia ternata|Barren strawberry|Waldsteinia||C|ma|E|0.1|0.6|m|ph|M|*|4-8|t|yellow spring flowers
+Dichondra repens|Kidney weed|Oreja de ratón|Dicondra|C|ma|E|0.05|0.5|f|sp|M|m|9-11|mu|lawn alternative in mild climates
+Frankenia laevis|Sea heath|Albohol|Frankénia|C|ma|E|0.1|0.5|m|s|L|sx|8-10|mc|lawn alternative; coastal; native in Iberia
+Delosperma cooperi|Hardy ice plant|Delosperma|Chorão-rasteiro|C|su|E|0.1|0.6|f|s|L|wd|6-10|tm|magenta flowers; gravel gardens
+Fragaria vesca|Wild strawberry|Fresa silvestre|Morangueiro-silvestre|C|ma|E|0.2|0.4|f|sp|M|*|4-9|t|edible fruit; spreads
+Galium odoratum|Sweet woodruff|Asperilla|Aspérula|C|ma|D|0.2|0.5|f|h|M|m|4-8|t|scented; spreads in shade
+Epimedium × versicolor|Barrenwort|Epimedio||C|ma|E|0.3|0.6|s|h|L|*|5-8|t|dry shade under trees
+Asarum europaeum|Asarabacca|Ásaro|Ásaro|C|ma|E|0.1|0.3|s|h|M|m|4-8|t|glossy leaves in deep shade
+Sedum album|White stonecrop|Uña de gato|Arroz-dos-telhados|C|su|E|0.1|0.4|f|s|L|wd|3-9|tm|green roofs and gravel
+Phedimus spurius|Two-row stonecrop|Sedum rastrero||C|su|E|0.1|0.5|f|s|L|wd|3-9|t|green roofs; formerly Sedum spurium
+Achillea tomentosa|Woolly yarrow|Milenrama lanuda||C|ma|E|0.15|0.4|m|s|L|wd|3-7|t|yellow flowers; dry ground
+Dymondia margaretae|Silver carpet|Dymondia|Dimondia|C|ma|E|0.05|0.4|s|s|L|w|9-11|mu|between stepping stones; drought tolerant
+Trifolium repens|White clover|Trébol blanco|Trevo-branco|C|ma|E|0.1|0.4|f|sp|M|*|3-10|t|lawn mixes; fixes nitrogen; bees
+Thymus pseudolanuginosus|Woolly thyme|Tomillo lanudo||C|ma|E|0.05|0.4|s|s|L|wd|5-8|tm|grey mats between paving
+# ---- climbers ----
+Bougainvillea glabra|Bougainvillea|Buganvilla|Buganvília|V|vi|E|6|4|f|s|L|w|9-11|mu|thorny; needs support; frost tender
+Campsis radicans|Trumpet vine|Bignonia|Bignónia|V|vi|D|10|5|f|s|M|*|4-9|t|self-clinging; vigorous
+Clematis armandii|Evergreen clematis|Clemátide perenne|Clematite|V|vi|E|6|3|f|sp|M|w|7-9|t|scented spring flowers
+Clematis montana|Anemone clematis|Clemátide montana|Clematite|V|vi|D|8|4|f|sp|M|wb|6-8|t|masses of spring flowers
+Clematis vitalba|Old man's beard|Hierba de los pordioseros|Vide-branca|V|vi|D|10|5|f|sp|M|k|4-9|t|native; wild and vigorous
+Hedera helix|English ivy|Hiedra|Hera|V|vi|E|15|5|m|sph|M|*|5-9|tm|self-clinging; also a groundcover; invasive in North America
+Hedera hibernica|Irish ivy|Hiedra irlandesa|Hera-irlandesa|V|vi|E|12|5|f|sph|M|*|6-9|t|vigorous groundcover and climber
+Hydrangea anomala subsp. petiolaris|Climbing hydrangea|Hortensia trepadora|Hortênsia-trepadeira|V|vi|D|10|4|s|ph|M|m|4-8|t|self-clinging; north walls
+Jasminum officinale|Common jasmine|Jazmín|Jasmim|V|vi|D|8|3|f|sp|M|w|7-10|tm|scented summer flowers
+Jasminum polyanthum|Pink jasmine|Jazmín chino|Jasmim-dos-poetas|V|vi|E|6|3|f|sp|M|w|8-11|mu|very scented late-winter flowers
+Lonicera periclymenum|Honeysuckle|Madreselva|Madressilva|V|vi|D|6|3|f|sp|M|*|4-9|t|scented; native in Europe
+Lonicera japonica|Japanese honeysuckle|Madreselva japonesa|Madressilva-do-japão|V|vi|S|8|4|f|sp|M|*|4-10|t|very vigorous; invasive in some regions
+Parthenocissus quinquefolia|Virginia creeper|Parra virgen|Vinha-virgem|V|vi|D|15|8|f|sph|M|*|3-9|t|red autumn colour
+Parthenocissus tricuspidata|Boston ivy|Parra virgen japonesa|Hera-japonesa|V|vi|D|15|8|f|sph|M|*|4-8|t|self-clinging; red autumn colour
+Passiflora caerulea|Blue passion flower|Pasionaria|Maracujá-azul|V|vi|S|8|4|f|s|M|w|7-10|tm|exotic flowers; orange fruit
+Rosa banksiae|Lady Banks' rose|Rosal de Banks|Roseira-de-banks|V|vi|E|8|5|f|s|L|w|7-10|tm|thornless; spring flowers
+Solanum laxum|Potato vine|Solano|Jasmim-de-batateira|V|vi|S|6|3|f|sp|M|w|8-10|tm|white flowers summer to autumn
+Trachelospermum jasminoides|Star jasmine|Falso jazmín|Jasmim-estrela|V|vi|E|6|3|m|sp|M|w|8-10|tm|scented flowers; also a groundcover
+Vitis vinifera|Grape vine|Vid|Videira|V|vi|D|8|5|f|s|L|wb|6-10|m|pergolas; edible fruit
+Wisteria sinensis|Chinese wisteria|Glicinia|Glicínia|V|vi|D|15|8|f|s|M|w|5-9|t|very strong supports needed
+Wisteria floribunda|Japanese wisteria|Glicinia japonesa|Glicínia-japonesa|V|vi|D|12|6|f|s|M|w|5-9|t|long flower chains
+Plumbago auriculata|Cape leadwort|Celestina|Bela-emília|V|vi|E|3|3|f|s|L|w|9-11|mu|blue flowers; wall shrub
+Podranea ricasoliana|Pink trumpet vine|Bignonia rosa|Bignónia-rosa|V|vi|E|6|4|f|s|L|w|9-11|u|vigorous; frost tender
+Pandorea jasminoides|Bower vine|Pandorea|Pandorea|V|vi|E|5|3|m|sp|M|w|9-11|u|pink trumpets
+Akebia quinata|Chocolate vine|Akebia|Aquébia|V|vi|S|8|3|f|sp|M|*|5-9|t|scented flowers
+Humulus lupulus|Hop|Lúpulo|Lúpulo|V|vi|D|6|2|f|sp|M|m|4-8|t|dies back each winter
+Ficus pumila|Creeping fig|Ficus trepador|Hera-de-parede|V|vi|E|8|4|m|ph|M|w|8-11|mu|self-clinging; small leaves
+Mandevilla laxa|Chilean jasmine|Jazmín de Chile|Mandevila|V|vi|D|5|2|f|sp|M|w|8-10|tm|scented white trumpets
+Lathyrus latifolius|Everlasting pea|Guija|Chícharo|V|vi|D|2|1|f|s|M|w|4-9|t|annual-looking perennial pea

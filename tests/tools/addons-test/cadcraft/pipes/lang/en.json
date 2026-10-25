@@ -1,0 +1,13 @@
+{
+  "@locale": "en",
+  "pipe.name": "Pipe",
+  "run.name": "Pipe run",
+  "pipe.from": "Pipe from",
+  "pipe.to": "Pipe to",
+  "pipe.help": "Draw a pipe between two points",
+  "run.help": "Draw a pipe run through points",
+  "run.next": "Next point",
+  "pipe.section": "Pipe",
+  "pipe.label": "Label",
+  "pts.label": "Point list"
+}

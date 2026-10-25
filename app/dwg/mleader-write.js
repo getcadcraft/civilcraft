@@ -8,7 +8,7 @@
  *
  *   convertMleader(e, env, c)         → [record]   (nongraphic-write.js X.convert, for write.js)
  *   encodeMleaderStyle(rec, ctx)      → bytes      (a copied MLEADERSTYLE, nongraphic-write.js)
- *   ensureMleaderStyle({ recs, H, next, styleOf })  a Standard style + ACAD_MLEADERSTYLE when multileaders have none
+ *   ensureMleaderStyle({ recs, H, next, defaults })  a Standard style (or the style a multileader brings) + ACAD_MLEADERSTYLE when multileaders have none
  *
  * Versions: the entity is a class (MULTILEADER / AcDbMLeader / ACDB_MLEADER_CLASS) in every version from R2000 on,
  * as the ODA File Converter writes it when it saves a drawing down. Up to R2007 the per-line overrides and the
@@ -184,7 +184,11 @@ export function encodeMleaderStyle(rec, ctx) {
 
 /**
  * Multileaders whose style is not in the written file (a model built by a program, or a style left out) get a
- * Standard style, in an ACAD_MLEADERSTYLE dictionary of the named-object dictionary.
+ * Standard style, in an ACAD_MLEADERSTYLE dictionary of the named-object dictionary. 0.6.1: a multileader that brings
+ * its style along (`styleObject`, a MLEADERSTYLE model object, + `styleName`: CadCraft keeps them on multileaders it
+ * opened, dwg-keep.js) gets that style instead, one per name; its text style, linetype, arrowhead and block are found by
+ * name (`textStyleName`, `leaderLinetypeName`, `arrowheadName`, `blockName` on the style object) through
+ * `defaults.styleRef` / `defaults.blockRef`, else the Standard text style, ByBlock and none.
  */
 export function ensureMleaderStyle({ recs, H, next, mleaderEed, defaults = {} }) {
   const mls = recs.filter((r) => r.t === 'MULTILEADER' && r.R && !r.R.style());
@@ -193,18 +197,43 @@ export function ensureMleaderStyle({ recs, H, next, mleaderEed, defaults = {} })
   let dict = null;
   const have = nod && nod.items.find((x) => x[0] === 'ACAD_MLEADERSTYLE');
   if (have) dict = recs.find((r) => r.h === have[1]);
-  const styleH = next();
   if (!dict) {
     dict = { t: 'DICTIONARY', h: next(), owner: H.nod, reactors: [H.nod], items: [], cloning: 1 };
     recs.push(dict);
     if (nod) { nod.items.push(['ACAD_MLEADERSTYLE', dict.h]); nod.items.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)); }
   }
+  const byRef = (name, fn) => (name && fn ? fn(name) || 0 : 0);
+  const own = new Map();   // style name (upper case) → handle
+  const plain = [];
+  for (const r of mls) {
+    const so = r.src && r.src.styleObject, nm = r.src && typeof r.src.styleName === 'string' ? r.src.styleName.trim() : '';
+    if (!so || typeof so !== 'object' || !nm || nm.length > 255) { plain.push(r); continue; }
+    const k = nm.toUpperCase();
+    if (!own.has(k)) {
+      const there = dict.items.find((x) => String(x[0]).toUpperCase() === k);
+      if (there) own.set(k, there[1]);
+      else {
+        const h = next();
+        dict.items.push([nm, h]);
+        const refs = { '*TS': byRef(so.textStyleName, defaults.styleRef) || defaults.textStyle || 0, '*LT': defaults.ltByBlock || 0,
+          '*AH': byRef(so.arrowheadName, defaults.blockRef), '*BL': byRef(so.blockName, defaults.blockRef) };
+        recs.push({ t: 'MLEADERSTYLE', h, owner: dict.h, reactors: [dict.h], eed: mleaderEed, newFormat: true,
+          src: { ...so, textStyle: '*TS', leaderLinetype: '*LT', arrowhead: '*AH', block: '*BL' },
+          M: { ref: (x) => refs[x] || 0 }, encode: encodeMleaderStyle });
+        own.set(k, h);
+      }
+    }
+    const h = own.get(k);
+    r.R.style = () => h;
+  }
+  if (!plain.length) return own.values().next().value;
+  const styleH = next();
   let name = 'Standard', k = 2;
   while (dict.items.some((x) => x[0] === name)) name = 'Standard_' + k++;
   dict.items.push([name, styleH]);
   recs.push({ t: 'MLEADERSTYLE', h: styleH, owner: dict.h, reactors: [dict.h], eed: mleaderEed, newFormat: true,
     src: { description: name, textStyle: '*TS', leaderLinetype: '*LT' },
     M: { ref: (k) => (k === '*TS' ? defaults.textStyle || 0 : k === '*LT' ? defaults.ltByBlock || 0 : 0) }, encode: encodeMleaderStyle });
-  for (const r of mls) r.R.style = () => styleH;
+  for (const r of plain) r.R.style = () => styleH;
   return styleH;
 }

@@ -493,6 +493,100 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     ok(sq2 && Math.abs(sq2.angle) < 0.15, 'after Turn square: the walls run at ' + sq2?.angle.toFixed(2) + '°');
     const thin = CS.slicePoints(pos, n, M, { cutZ: 1200, thick: 100, max: 100 });
     ok(thin.n === 100 && thin.total === sl.total, 'a slice thinned evenly to its budget (100 of ' + sl.total + ')');
+
+    // 0.6.1 FIX-061-SQUARE (Discord, scan-to-BIM: in Model coordinates "Turn it square" once gave -4.17° and swung the scan
+    // out of view; undone and done again, -3.2°). The turn's centre is the middle of the walls that gave the angle, and the
+    // angle does not depend on how far from the origin the scan lies (a national grid puts it 460 km out).
+    {
+      const T = (x, y) => [1000, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 1000, 0, x, y, 0, 1];   // cloud metres → plan mm, moved
+      const pts2 = [], rnd2 = (() => { let x = 777; return () => { x = (x * 1103515245 + 12345) % 2147483648; return x / 2147483648; }; })();
+      const b = 3.2 * Math.PI / 180, Rb = (x, y) => [x * Math.cos(b) - y * Math.sin(b), x * Math.sin(b) + y * Math.cos(b)];
+      for (let k = 0; k < 20000; k++) {
+        const t = rnd2(), e = (rnd2() - 0.5) * 0.01, s4 = k % 4, z = 1.15 + rnd2() * 0.1;
+        const q = Rb(...(s4 === 0 ? [t * 12, e] : s4 === 1 ? [12 + e, t * 9] : s4 === 2 ? [t * 12, 9 + e] : [e, t * 9]));
+        pts2.push(q[0], q[1], z);
+      }
+      for (let k = 0; k < 3000; k++) pts2.push(55 + rnd2() * 4, 40 + rnd2() * 4, 1.15 + rnd2() * 0.1);   // a tree 60 m off
+      const pos2 = new Float32Array(pts2), n2 = pts2.length / 3;
+      const res = [[0, 0], [155000e3, 463000e3]].map(([x, y]) => {
+        const s2 = CS.slicePoints(pos2, n2, T(x, y), { cutZ: 1200, thick: 100 });
+        let cx = 0, cy = 0; for (let i = 0; i < s2.n; i++) { cx += s2.xy[2 * i] - x; cy += s2.xy[2 * i + 1] - y; }
+        const q = CS.squareAngle(s2.xy, s2.n);
+        return { q, about: q && [q.about[0] - x, q.about[1] - y], all: [cx / s2.n, cy / s2.n], f64: s2.xy instanceof Float64Array };
+      });
+      const [o, far] = res;
+      const room = Rb(6, 4.5).map((v) => v * 1000);
+      ok(o.q && near(o.q.angle, 3.2, 0.1) && far.q && Math.abs(far.q.angle - o.q.angle) < 1e-6 && Math.abs(far.q.strength - o.q.strength) < 1e-9,
+        'squareAngle 460 km from the origin = beside it (' + o.q?.angle.toFixed(3) + '° / ' + far.q?.angle.toFixed(3) + '°, strength ' + o.q?.strength.toFixed(2) + ' / ' + far.q?.strength.toFixed(2) + ')');
+      ok(far.f64 && Math.hypot(far.about[0] - o.about[0], far.about[1] - o.about[1]) < 1, 'slicePoints keeps plan millimetres in a Float64Array: the walls\' middle lands on the same spot there too');
+      ok(Math.hypot(o.about[0] - room[0], o.about[1] - room[1]) < 300 && Math.hypot(o.all[0] - room[0], o.all[1] - room[1]) > 5000 && o.q.walls > 1000,
+        'the turn\'s centre = the middle of the walls (' + o.about.map(Math.round) + ', the room\'s ' + room.map(Math.round) + '), not of every slice point (' + o.all.map(Math.round) + ': the tree pulls it ' + (Math.hypot(o.all[0] - room[0], o.all[1] - room[1]) / 1000).toFixed(1) + ' m away)');
+    }
+
+    // Discord (scan-to-BIM, 2026-10-19): walls drawn on an empty model made the cloud "jump" ~1.5 m. cc-ifc centres a model
+    // on its first element; the reload after an edit (bimcraft.js rebuildNow) found a new centre, so the model moved in the
+    // scene and the cloud did not. The reload now keeps the coordination matrix.
+    const Bc = await building();
+    const L1 = Bc.levels[0].guid, L2 = Bc.levels[1].guid, room = [[10000, 5000], [22000, 5000], [22000, 14000], [10000, 14000]];
+    const Ct = (e, m) => [...e.api.GetCoordinationMatrix(m.modelID)];
+    const box = (m) => { const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity]; for (const b of m.batches) for (let i = 0; i < b.positions.length; i += 3) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], b.positions[i + k]); hi[k] = Math.max(hi[k], b.positions[i + k]); } return [lo, hi]; };
+    let mk = await quiet((b) => Bc.eng.load(b))(Bc.ed.save());
+    const C0 = Ct(Bc.eng, mk);
+    let firstBox = null, drift = 0, oldWay = null;
+    for (let i = 0; i < 4; i++) {
+      Bc.ed.modelChange(Bc.OPS.drawWalls({ storey: L1, segs: [{ a: room[i], b: room[(i + 1) % 4] }], typeKey: 'ext-2x6', topLevel: L2 }), { label: 'w', verb: 'Drew' });
+      const bytes = Bc.ed.save();
+      if (i === 0) { const e2 = await quiet(IfcModel.create)(WebIFC, null); const m2 = await quiet((b) => e2.load(b))(bytes); oldWay = Ct(e2, m2); }
+      mk = await quiet((b) => Bc.eng.load(b, undefined, { keyBase: mk.keyBase, coordination: Bc.eng.api.GetCoordinationMatrix(mk.modelID) }))(bytes);
+      Bc.ed.reindex();
+      drift = Math.max(drift, ...Ct(Bc.eng, mk).map((v, k) => Math.abs(v - C0[k])));
+      if (i === 0) firstBox = box(mk);
+    }
+    ok(near(oldWay[13], -1.5, 1e-6) && Math.hypot(oldWay[12], oldWay[14]) > 1, 'without it: the first wall moves the model\'s frame 1.5 m down and ' + Math.hypot(oldWay[12], oldWay[14]).toFixed(1) + ' m across (the reported jump)');
+    ok(drift === 0, 'reloaded after each of four walls with the matrix kept: the frame never moves');
+    const b4 = box(mk);
+    ok(near(b4[0][1], firstBox[0][1], 1e-6) && near(b4[1][1], firstBox[1][1], 1e-6) && near(firstBox[0][1], 0, 1e-6) && b4[0][0] < firstBox[0][0] + 0.2,
+      'the walls stay where they were drawn in the scene (floor at 0, the first wall unmoved)', JSON.stringify([firstBox, b4]));
+  }
+
+  // ============================================================================================ 0.6.1 FIX-061-WALL-SIDE
+  if (want('wallside')) {
+    console.log('== 0.6.1 FIX-061-WALL-SIDE: walls drawn on a face, both ways round (model-tools.js wallPath, model-ops.js drawWallPath)');
+    const { wallType, typeThickness, locationLine } = await import(path.join(APP, 'model-walls.js'));
+    const th = typeThickness(wallType('ext-2x6'));
+    const rect = [[0, 0], [8000, 0], [8000, 5000], [0, 5000]];
+    // the chain as model-ui.js wallPoint draws it: one drawWallPath per click with every point so far, the walls already
+    // made updated, the last click on the first point closing the room
+    const drawChain = async (pts, reference, side) => {
+      const B = await building();
+      const L1 = B.levels[0].guid, L2 = B.levels[1].guid, chain = { points: [pts[0]], guids: [] };
+      const just = reference === 'outside' ? 'exterior' : reference === 'inside' ? 'interior' : 'center';
+      for (const q of [...pts.slice(1), pts[0]]) {
+        chain.points.push(q);
+        const r = B.ed.modelChange(B.OPS.drawWallPath({ storey: L1, points: chain.points.slice(), guids: chain.guids, typeKey: 'ext-2x6', thickness: th, reference, extSide: side, justification: just, topLevel: L2 }), { label: 'w' });
+        for (const g of r.made.keys()) chain.guids.push(g);
+      }
+      return B.OPS.snapshotModel(B.ed).walls;
+    };
+    // where the body lies: + = outside the drawn rectangle (its centre line further out than the drawn line), − = inside
+    const inRect = (p) => p[0] > 1 && p[0] < 7999 && p[1] > 1 && p[1] < 4999;
+    const mid = (w) => [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
+    const bodyOut = (walls) => walls.every((w) => !inRect(mid(w)));
+    const bodyIn = (walls) => walls.every((w) => inRect(mid(w)));
+    const extOut = (w) => { // the face extSide names is the one away from the rectangle's middle
+      const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]), n = [-(w.b[1] - w.a[1]) / L, (w.b[0] - w.a[0]) / L], s = w.extSide === 'right' ? -1 : 1, m = mid(w);
+      return Math.hypot(m[0] + n[0] * s * 100 - 4000, m[1] + n[1] * s * 100 - 2500) > Math.hypot(m[0] - 4000, m[1] - 2500);
+    };
+    const onLine = (walls) => walls.every((w) => { const l = locationLine(w), p = [(l.a[0] + l.b[0]) / 2, (l.a[1] + l.b[1]) / 2]; return Math.min(Math.abs(p[0]), Math.abs(p[0] - 8000), Math.abs(p[1]), Math.abs(p[1] - 5000)) < 0.5; });
+    const ccw = rect, cw = [rect[0], rect[3], rect[2], rect[1]];
+    for (const [name, pts, outSide] of [['anticlockwise', ccw, 'right'], ['clockwise', cw, 'left']]) {
+      for (const reference of ['inside', 'outside']) {
+        const walls = await drawChain(pts, reference, outSide);
+        const ok1 = walls.length === 4 && (reference === 'inside' ? bodyOut(walls) : bodyIn(walls)) && walls.every(extOut) && onLine(walls);
+        ok(ok1, name + ', ' + (reference === 'inside' ? 'Inside face' : 'Outside face') + ', Outside on ' + outSide + ' (the outside of the loop): the body ' + (reference === 'inside' ? 'outside' : 'inside') + ' the drawn line, the outside face outside, the location line on the line drawn',
+          JSON.stringify(walls.map((w) => [mid(w).map(Math.round), w.extSide, w.justification])));
+      }
+    }
   }
 
   // ============================================================================================ DF.23 traced drawing → walls
@@ -735,7 +829,7 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     let x = await call('walls_add', { points: [[0, 0], [6000, 0]] });
     ok(x.r.isError && /edit permission/.test(x.text) && ed.changes.length === 0, 'walls_add refused without edit; nothing changes');
     allowed = ['read', 'edit'];
-    ok(d.list().length === 7, 'with edit: 7 tools');
+    ok(d.list().length === 12, 'with edit: 12 tools (0.7 AS.5: + element_set, elements_delete, elements_move, wall_change, opening_change)');
     x = await call('model_describe');
     ok(x.v.units === 'mm' && x.v.levels.length === 2 && x.v.levels[0].name === 'Level 1' && x.v.walls.count === 0 && x.v.types.walls.includes('ext-2x6') && x.v.types.doors.includes('door-single'), 'model_describe: two levels, no walls, the types the edit tools take');
     x = await call('walls_add', { points: [[0, 0], [6000, 0], [6000, 4000], [0, 4000]], closed: true, type: 'ext-2x6' });

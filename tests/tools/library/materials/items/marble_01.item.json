@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Marble 01",
+ "kind": "material",
+ "category": "materials/stone",
+ "description": "Marble 01: a CC0 texture set from Poly Haven, one tile 1.5 × 1.5 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Marble 01\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":1.5,\"height\":1.5,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "marble_01_ao_1k.jpg",
+    "sha256": "293647199a12dc369d19f8a2ca1f6ccdf305cb2bedc5f5e014c7bf8d0380d474",
+    "media": "image/jpeg",
+    "bytes": 196544
+   },
+   "color": {
+    "file": "marble_01_diff_1k.jpg",
+    "sha256": "b10dabea976d68baa976a0d4e8dac58789df8d26a1b50697f320106f1b00a229",
+    "media": "image/jpeg",
+    "bytes": 305029
+   },
+   "height": {
+    "file": "marble_01_disp_1k.jpg",
+    "sha256": "c5646fe077ec6d5c0304ad2ba2b49f89268325dfaf67d5c909e427b7ab09dadc",
+    "media": "image/jpeg",
+    "bytes": 78919
+   },
+   "normal": {
+    "file": "marble_01_nor_gl_1k.jpg",
+    "sha256": "77c2a9b549a6a408659f8197be91945aeb0abc33e697f1dd2ce24ee8dc7c2bc0",
+    "media": "image/jpeg",
+    "bytes": 110230,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "marble_01_rough_1k.jpg",
+    "sha256": "a3e9f373d22aebc449af73f6a18c9817e2146f17e567a083609ba8fbb62a72f5",
+    "media": "image/jpeg",
+    "bytes": 91848
+   }
+  },
+  "size": [
+   1.5,
+   1.5
+  ]
+ }
+}

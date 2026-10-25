@@ -10,6 +10,7 @@
  *   const api = new WebIFC.IfcAPI(); await api.Init({ manifold });   // manifold-3d module (openings, booleans); optional
  *   const mid = api.OpenModel(bytes, { COORDINATE_TO_ORIGIN: true });
  *   api.AdoptModel(file)                           a model opened elsewhere (open-async.js) → modelID
+ *   (both take COORDINATION_MATRIX: the matrix an earlier open found, so a reloaded edit stays where it was)
  *
  * Lines: GetLine(mid, id, flatten) · GetLineType · GetLineIDsWithType(mid, code, inherited) · GetAllTypesOfModel · GetMaxExpressID ·
  *   GetNameFromTypeCode · GetTypeCodeFromName · IsIfcElement · GetHeaderLine · GetModelSchema
@@ -95,9 +96,13 @@ export class IfcAPI {
     return this.AdoptModel(file, settings);
   }
 
+  /** settings.COORDINATION_MATRIX (16 numbers, column-major): use it as the model's coordination matrix instead of finding
+   *  one — a reload of an edited file keeps the frame it had (its first element may have changed or moved). */
   AdoptModel(file, settings = {}) {
     const mid = this.nextModel++;
-    this.models.set(mid, { file, toOrigin: settings.COORDINATE_TO_ORIGIN === true, C: null, geo: null });
+    const keep = settings.COORDINATION_MATRIX;
+    const C = keep && keep.length === 16 && [...keep].every(Number.isFinite) ? [...keep] : null;
+    this.models.set(mid, { file, toOrigin: settings.COORDINATE_TO_ORIGIN === true, C, geo: null });
     return mid;
   }
 

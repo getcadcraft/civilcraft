@@ -1,0 +1,17 @@
+{
+ "note": "hand counts: what make-cad-fixtures.mjs placed",
+ "shelves": 22,
+ "shelvesFrozen": 3,
+ "tablesTop": 4,
+ "tablesNested": 6,
+ "tablesHidden": 2,
+ "prepZones": 3,
+ "sinks": 3,
+ "lights": 6,
+ "circlesLite": 12,
+ "textA3": 5,
+ "textB1": 2,
+ "tagA3": 3,
+ "tagC7": 2,
+ "scale": "1/2\" = 1'-0\""
+}

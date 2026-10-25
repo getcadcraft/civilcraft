@@ -303,6 +303,20 @@ try {
   await page.waitForTimeout(300);
   const narrow = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, w: innerWidth, tl: document.querySelector('[data-timeline]').getBoundingClientRect().width }));
   ok(narrow.sw <= narrow.w + 1 && narrow.tl <= narrow.w + 1, '390 px wide: the timeline fits, no sideways scroll', JSON.stringify(narrow));
+  // 0.6.1 FIX-TIMELINE-PHONE: on a phone (app-phone.js) the timeline is under the view, never a phone sheet of height 0
+  const ph = await page.evaluate(() => {
+    const st = document.querySelector('[data-stage]').getBoundingClientRect(), tl = document.querySelector('[data-timeline]').getBoundingClientRect();
+    const head = document.querySelector('.mc-tl-head'), play = document.querySelector('[data-tl-play]').getBoundingClientRect();
+    return { phone: document.documentElement.classList.contains('cc-phone'), sheetBtn: !!document.querySelector('[data-phone-sheet="timeline"]'), sheet: document.querySelector('[data-timeline]').classList.contains('shell-sheet'),
+      tlH: tl.height, tlTop: tl.top, tlBottom: tl.bottom, stageH: st.height, stageBottom: st.bottom, vh: innerHeight, headH: head.getBoundingClientRect().height, playIn: play.width > 0 && play.right <= innerWidth + 1 && play.bottom <= innerHeight + 1 };
+  });
+  ok(ph.phone && !ph.sheetBtn && !ph.sheet, '390 px wide (phone layout): the timeline is no phone sheet, no sheet button for it', JSON.stringify(ph));
+  ok(ph.tlH > 80 && ph.tlTop >= ph.stageBottom - 1 && ph.tlBottom <= ph.vh + 1 && ph.stageH >= 0.4 * ph.vh, 'the timeline shows under the view, inside the screen; the view keeps ≥ 40 % of the height', `timeline ${Math.round(ph.tlH)} px, view ${Math.round(ph.stageH)} of ${ph.vh}`);
+  ok(ph.headH < 64 && ph.playIn, 'its controls are one row (scrolling sideways) and Play is on screen', `head ${Math.round(ph.headH)} px`);
+  await scrubTo(page, 0);
+  await page.click('[data-tl-play]');
+  await page.waitForFunction(() => Number(document.querySelector('[data-tl-time]').value) > 0.3, null, { timeout: 8000 }).catch(() => {});
+  ok(await page.evaluate(() => Number(document.querySelector('[data-tl-time]').value) > 0.3), 'Play on the phone runs the playhead');
   await page.screenshot({ path: path.join(OUT, '04-phone.png'), fullPage: true });
   await page.evaluate(() => document.documentElement.setAttribute('data-space', 'model'));
   await page.setViewportSize({ width: 1440, height: 900 });

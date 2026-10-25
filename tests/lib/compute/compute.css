@@ -1,0 +1,20 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* compute.css — the "Your machine" card (lib/compute/machine-card.js, 0.7 CU.1). rem only; colours from the shell's tokens. */
+.cc-machine { width: 100%; border-collapse: collapse; font-size: .8125rem; margin: .25rem 0 .5rem; }
+.cc-machine th, .cc-machine td { text-align: left; vertical-align: top; padding: .3rem .5rem .3rem 0; border-top: 1px solid var(--line, currentColor); }
+.cc-machine tr:first-child th, .cc-machine tr:first-child td { border-top: 0; }
+.cc-machine th { font-weight: 600; width: 32%; white-space: normal; }
+.cc-machine-v { display: block; overflow-wrap: anywhere; }
+.cc-machine-note { display: block; font-size: .75rem; color: var(--ink-2, inherit); margin-top: .125rem; }
+/* the render bench page (bench-page.js, 0.7 CU.8) */
+.cc-bench-dlg { width: min(60rem, calc(100vw - 2rem)); }
+.cc-bench-run { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.cc-bench-results { overflow-x: auto; }
+.cc-bench-table th { font-weight: 600; width: auto; white-space: nowrap; }
+.cc-bench-table td { white-space: nowrap; }
+.cc-bench-num { text-align: right; font-variant-numeric: tabular-nums; }
+/* LAN render nodes in Settings › Rendering (lan-ui.js, 0.7 CU.7) */
+.cc-lan-list { list-style: none; margin: .25rem 0; padding: 0; display: grid; gap: .35rem; }
+.cc-lan-list li { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.cc-lan-code strong { font-family: var(--font-mono, ui-monospace, monospace); letter-spacing: .05em; }
+.cc-lan-code { margin: .25rem 0 .5rem; }

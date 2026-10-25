@@ -622,7 +622,7 @@ ok(ra.surfProfiles.length >= 1 && ra.surfProfiles[0].pts.length > 100, 'Profile:
     + '<Alignments><Alignment name="S" length="1" staStart="0"><CoordGeom><Line><Start>0 0</Start><End>0 10</End></Line><Spiral length="5" radiusEnd="50" radiusStart="INF" rot="cw" spiType="clothoid"><Start>0 10</Start><PI>0 12</PI><End>1 15</End></Spiral></CoordGeom></Alignment></Alignments>'
     + '<PipeNetworks/><!-- c --><CgPoints><CgPoint name="1">1 2 3</CgPoint><CgPoint name="2" pntRef="1"/></CgPoints></LandXML>';
   const sr = LX.readLandXml(spiral);
-  ok(sr.alignments.length === 0 && sr.notes.some((n) => /spirals/.test(n)), 'an alignment with a spiral is skipped and named (not guessed)');
+  ok(sr.alignments.length === 0 && sr.notes.some((n) => /could not be read/.test(n)), 'an alignment with a spiral that ends in nothing (0.7: clothoids are read, see test-civilcraft-spirals.mjs) is skipped and named, not guessed');
   ok(sr.notes.some((n) => /pntRef/.test(n)) && sr.points.length === 1 && sr.networks.length === 0, 'point references are named as not read; an empty pipe network gives nothing');
   let threw = false; try { LX.readLandXml('<foo/>'); } catch { threw = true; }
   ok(threw, 'XML that is not LandXML is refused');

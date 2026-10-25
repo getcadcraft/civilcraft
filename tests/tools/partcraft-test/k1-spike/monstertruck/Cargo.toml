@@ -1,0 +1,23 @@
+[package]
+name = "k1-monstertruck"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "k1m"
+path = "src/main.rs"
+
+[dependencies]
+monstertruck-modeling = { version = "0.4.1", features = ["fillet"] }
+monstertruck-solid = "0.4.1"
+monstertruck-meshing = "0.4.1"
+monstertruck-io = { version = "0.4.1", features = ["step"] }
+monstertruck-topology = "0.4.1"
+
+[profile.release]
+opt-level = 3
+lto = true

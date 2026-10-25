@@ -34,7 +34,7 @@ const adminPhp = path.join(REPO, 'tools/cadcraft-test/admin.php');
 const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', adminPhp, 'session', 'bimmodel'], { encoding: 'utf8' }));
 
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+const ctx = await browser.newContext({ viewport: { width: 1920, height: 1200 }, acceptDownloads: true });
 const problems = [];
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -81,15 +81,17 @@ try {
   await openSettings();
   const w = await page.evaluate(() => document.querySelector('[data-app-settings]').getBoundingClientRect().width);
   ok(w > 700, 'Settings is wider with BimCraft\'s panel: ' + Math.round(w) + ' px');
-  const cols = await page.evaluate(() => getComputedStyle(document.querySelector('[data-settings-pane="app"]')).gridTemplateColumns.split(' ').length);
-  ok(cols === 2, 'BimCraft\'s settings in two columns');
+  // since the 0.7 sections (app-shell.css § 0.7 sections) the dialog is two columns: the section list, then one section at a time
+  const cols = await page.evaluate(() => ({ body: getComputedStyle(document.querySelector('[data-app-settings] .shell-dlg-body')).gridTemplateColumns.split(' ').length,
+    nav: !!document.querySelector('[data-app-settings] .shell-sec-nav') }));
+  ok(cols.body === 2 && cols.nav, 'BimCraft\'s settings: the section list beside the section ' + JSON.stringify(cols));
   ok((await page.$$('[data-input-settings] .cc-in-card')).length === 5, 'five style cards (Viewer since 0.5 IP.3)');
   await shot(page, 'in-01-settings');
   await page.click('[data-input-settings] input[value="home"]', { force: true });
   await closeSettings();
 
   console.log('== Home design');
-  ok(await style() === 'home' && await visible('[data-input-bar] .cc-in-menus') && !(await visible('[data-toolbar] > [data-view="iso"]')), 'Home design: a menu bar instead of the toolbar buttons');
+  ok(await style() === 'home' && await visible('[data-input-bar] .cc-in-menus') && !(await visible('[data-toolbar] .bc-tool-row > [data-view="iso"]')), 'Home design: a menu bar instead of the toolbar buttons');
   const titles = await page.$$eval('[data-input-bar] .cc-in-menus > details > summary', (s) => s.map((x) => x.textContent));
   ok(titles.slice(0, 8).join() === 'File,Edit,Build,Library,3D,CAD,Tools,View', 'menus: ' + titles.join(', '));
   await page.waitForFunction(() => document.querySelector('[data-modelbar]').getBoundingClientRect().top >= document.querySelector('[data-toolbar]').getBoundingClientRect().bottom, null, { timeout: 3000 }).catch(() => {});   // the model bar follows the bar's height a frame later

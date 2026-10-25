@@ -20,6 +20,8 @@
  *     select(id), print(text), download(name, data, type), fileName()
  *     show(frame, sol, key, { mode, scale }) → { max, scale }, hide()   results on the model
  *     settings: ['bases', 'beamEnds', 'braces']                    which assumption rules this app offers
+ *     design: true                                                 (0.7 SU.878) the app gives its sections an I `shape`, so the Design block shows
+ *     showUtil(frame, Map(drawn id → utilisation | null) | null)   colour the drawn members by utilisation, or hide that again
  *   }
  * Words: keys frame.ui.*, frame.case.*, frame.note.*, frame.err.*, frame.warn.*, frame.dof.*, frame.kind.*, frame.rep.*
  * (tools/frame/lang.mjs is the one table; tools/frame/sync.mjs writes it into both apps' language files).
@@ -29,6 +31,8 @@ import { memberExtremes } from './frame-solve.js';
 import { reportData, reportTables, reportCsv, KN, KNM } from './frame-report.js';
 import { reportPdf } from './frame-pdf.js';
 import { toCraftScript } from './frame-craft.js';
+import { generateCombos } from './frame-combos.js';
+import { cleanDesign, checkFrame, designTables, utilRamp, GRADES, DEFAULT_GRADE } from './frame-design.js';
 
 export const MODES = ['deflected', 'My', 'Mz', 'N', 'Vz', 'Vy', 'T', 'off'];
 export const DIRS = ['down', 'X', 'Y', 'Z', 'x', 'y', 'z'];
@@ -42,7 +46,7 @@ export function defaultAnalysis(t) {
     bases: 'fixed', beamEnds: 'rigid', braces: 'pinned',
     cases: [{ id: 'D', name: t('frame.case.dead'), kind: 'dead', selfWeight: 1, loads: [] }, { id: 'L', name: t('frame.case.live'), kind: 'live', selfWeight: 0, loads: [] }],
     combos: [{ id: 'C1', name: t('frame.case.dl'), factors: [{ case: 'D', f: 1 }, { case: 'L', f: 1 }] }],
-    supports: [], ends: [],
+    supports: [], ends: [], design: cleanDesign({}),
   };
 }
 
@@ -57,7 +61,7 @@ const flags = (a) => (Array.isArray(a) && a.length === 6 ? a.map((x) => x === tr
  *  back with an undo; the app's frame builder skips them. */
 export function cleanAnalysis(a) {
   if (!a || typeof a !== 'object') return null;
-  const out = { bases: a.bases === 'pinned' ? 'pinned' : 'fixed', beamEnds: a.beamEnds === 'pinned' ? 'pinned' : 'rigid', braces: a.braces === 'rigid' ? 'rigid' : 'pinned', cases: [], combos: [], supports: [], ends: [] };
+  const out = { bases: a.bases === 'pinned' ? 'pinned' : 'fixed', beamEnds: a.beamEnds === 'pinned' ? 'pinned' : 'rigid', braces: a.braces === 'rigid' ? 'rigid' : 'pinned', cases: [], combos: [], supports: [], ends: [], design: cleanDesign(a.design) };
   const ids = new Set();
   for (const c of (Array.isArray(a.cases) ? a.cases : []).slice(0, 50)) {
     const id = txt(c?.id, 20);
@@ -68,12 +72,14 @@ export function cleanAnalysis(a) {
     out.cases.push({ id, name: txt(c.name) || id, kind: CASE_KINDS.includes(c.kind) ? c.kind : 'other', selfWeight: fin(c.selfWeight ?? 0, -100, 100) ?? 0, loads });
   }
   const cids = new Set();
-  for (const c of (Array.isArray(a.combos) ? a.combos : []).slice(0, 100)) {
+  for (const c of (Array.isArray(a.combos) ? a.combos : []).slice(0, 200)) {
     const id = txt(c?.id, 20);
     if (!id || cids.has(id)) continue;
     cids.add(id);
     const factors = (Array.isArray(c.factors) ? c.factors : []).slice(0, 50).map((f) => ({ case: txt(f?.case, 20), f: fin(f?.f, -1000, 1000) })).filter((f) => ids.has(f.case) && f.f !== null);
-    out.combos.push({ id, name: txt(c.name) || id, factors });
+    const cb = { id, name: txt(c.name) || id, factors };
+    if (c.limit === 'strength' || c.limit === 'service') { cb.limit = c.limit; cb.clause = txt(c.clause, 120); }     // made by frame-combos.js
+    out.combos.push(cb);
   }
   for (const s of (Array.isArray(a.supports) ? a.supports : []).slice(0, 5000)) { const at = vec3(s?.at), fix = flags(s?.fix); if (at && fix) out.supports.push({ at, fix }); }
   for (const e of (Array.isArray(a.ends) ? a.ends : []).slice(0, 20000)) {
@@ -136,6 +142,8 @@ export function framePanel(host) {
   let scale = 0;
   const form = { kind: 'udl', dir: 'down', value: '', a: '', b: '', case: '' };
 
+  let design = null;       // { version, res } — the last member check, valid while the model is unchanged
+  const designNow = () => (design && design.version === host.version() && design.res.ok ? design.res : null);
   const current = () => host.analysis() || defaultAnalysis(t);
   function change(label, fn) { const next = JSON.parse(JSON.stringify(current())); fn(next); return host.setAnalysis(label, next); }
   const stale = () => !result || result.version !== host.version();
@@ -171,7 +179,9 @@ export function framePanel(host) {
   function tablesNow() {
     const data = reportData(result.frame.model, result.sol);
     const notes = result.frame.notes.map((x) => t(x.key, { n: x.n }));
-    return reportTables(data, t, { notes, model: result.frame.model });
+    const tables = reportTables(data, t, { notes, model: result.frame.model });
+    if (designNow()) tables.push(...designTables(designNow(), t));
+    return tables;
   }
   function exportPdf() {
     const today = new Date().toISOString().slice(0, 10);
@@ -337,6 +347,100 @@ export function framePanel(host) {
     return el('div', { className: 'fa-row' }, el('span', { className: 'fa-lead' }, t('frame.ui.ends-of', { name: m.label })), ...out);
   }
 
+  // ---- design checks (0.7 SU.878) ----
+  const numIn = (value, onchange, attrs = {}) => el('input', { type: 'text', inputMode: 'decimal', className: C.input + ' fa-factor', value: String(value), onchange: (e) => { const v = Number(String(e.target.value).replace(',', '.')); if (Number.isFinite(v)) onchange(v); else rerender(); }, ...attrs });
+  function makeCombos() {
+    const a = current(), D = cleanDesign(a.design);
+    if (D.code === 'none') { host.print(t('frame.des.err.no-code')); return; }
+    const gen = generateCombos(D.code, a.cases.map((c) => ({ id: c.id, name: c.name, kind: c.kind })), { na: D.na.combos, eq: D.eq });
+    if (!gen.combos.length) { host.print(t('frame.des.err.no-made')); return; }
+    change(t('frame.des.undo-gen'), (x) => {
+      x.combos = [...x.combos.filter((c) => !c.limit), ...gen.combos];
+      x.design = D;
+    });
+    host.print(t('frame.des.made', { n: gen.combos.length, clause: D.code === 'en' ? 'EN 1990' : 'ASCE 7' }) + (gen.warnings.some((w) => w.code === 'other-skipped') ? ' ' + t('frame.des.other-skipped') : ''));
+  }
+  function runDesign() {
+    const a = current(), D = cleanDesign(a.design);
+    if (D.code === 'none') { host.print(t('frame.des.err.no-code')); return; }
+    if (!result || result.error || stale()) run();
+    if (!result || result.error) return;
+    const res = checkFrame(result.frame.model, result.sol, D);
+    design = { version: host.version(), res };
+    if (!res.ok) { host.print(t('frame.des.err.' + res.error)); host.showUtil?.(result.frame, null); rerender(); return; }
+    host.print(t('frame.des.checked', { n: res.counts.checked, bad: res.counts.failed, skip: res.counts.notChecked }));
+    showUtil();
+    rerender();
+  }
+  function utilMap() {
+    const res = designNow();
+    if (!res || !result?.frame) return null;
+    const out = new Map();
+    for (const [id, list] of result.frame.parts) {
+      let u = null;
+      for (const q of list) { const v = res.members[q.k]?.util; if (v !== null && v !== undefined) u = Math.max(u ?? 0, v); }
+      out.set(id, u);
+    }
+    return out;
+  }
+  function showUtil() { const m = utilMap(); if (m) host.showUtil?.(result.frame, m); }
+  const pct = (v) => (v === null || v === undefined || !Number.isFinite(v) ? '' : (Math.round(v * 1000) / 10).toFixed(1) + ' %');
+  function designBlock() {
+    if (!host.design) return null;
+    const a = current(), D = cleanDesign(a.design);
+    const set = (label, fn) => change(label, (x) => { x.design = cleanDesign(fn(cleanDesign(x.design))); });
+    const grades = D.code === 'none' ? [] : Object.keys(GRADES[D.code]);
+    const na = D.na;
+    const naRow = (label, get, put) => field(label, numIn(get, (v) => set(t('frame.des.undo-settings'), (d) => put(d, v))));
+    const out = [head(t('frame.des.h'), btn(t('frame.des.make'), makeCombos, { 'data-fa-des-make': '', disabled: D.code === 'none' }), btn(t('frame.des.check'), runDesign, { 'data-fa-des-run': '', disabled: D.code === 'none' })),
+      el('p', { className: 'fa-aid', 'data-fa-des-aid': '' }, t('frame.des.aid')),
+      el('div', { className: 'fa-row' },
+        field(t('frame.des.f-code'), sel(D.code, ['none', 'asce-aisc', 'en'].map((v) => [v, t('frame.des.code-' + v)]), (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, code: v, grade: DEFAULT_GRADE[v] || '' })), { 'data-fa-des': 'code' })),
+        D.code === 'none' ? null : field(t('frame.des.f-grade'), sel(D.grade, grades.map((g) => [g, g]), (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, grade: v })), { 'data-fa-des': 'grade' })),
+        D.code === 'en' ? field(t('frame.des.f-eq'), sel(D.eq, [['6.10', t('frame.des.eq-610')], ['6.10ab', t('frame.des.eq-610ab')]], (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, eq: v })), { 'data-fa-des': 'eq' })) : null)];
+    if (D.code === 'none') { out.push(note(t('frame.des.pick'))); return el('div', { className: C.block + ' fa-design' }, ...out); }
+    out.push(el('div', { className: 'fa-row' },
+      field(t('frame.des.f-ky'), numIn(D.ky, (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, ky: v })), { 'data-fa-des': 'ky' })),
+      field(t('frame.des.f-kz'), numIn(D.kz, (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, kz: v })), { 'data-fa-des': 'kz' })),
+      field(t('frame.des.f-lb'), numIn(D.lbRatio, (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, lbRatio: v })), { 'data-fa-des': 'lb' })),
+      field(t('frame.des.f-defl'), numIn(D.deflLimit, (v) => set(t('frame.des.undo-settings'), (d) => ({ ...d, deflLimit: v })), { 'data-fa-des': 'defl' }))));
+    out.push(note(t('frame.des.lengths-note')));
+    if (D.code === 'en') {
+      const kinds = ['live', 'roof', 'snow', 'wind'];
+      out.push(el('details', { className: 'fa-na', 'data-fa-na': '' }, el('summary', {}, t('frame.des.na-h')),
+        note(t('frame.des.na-note')),
+        el('div', { className: 'fa-row' },
+          naRow('γG', na.combos.gammaG, (d, v) => { d.na.combos.gammaG = v; return d; }), naRow('γG,inf', na.combos.gammaGinf, (d, v) => { d.na.combos.gammaGinf = v; return d; }),
+          naRow('γQ', na.combos.gammaQ, (d, v) => { d.na.combos.gammaQ = v; return d; }), naRow('ξ', na.combos.xi, (d, v) => { d.na.combos.xi = v; return d; }),
+          naRow('γM0', na.steel.gammaM0, (d, v) => { d.na.steel.gammaM0 = v; return d; }), naRow('γM1', na.steel.gammaM1, (d, v) => { d.na.steel.gammaM1 = v; return d; }),
+          naRow('γM2', na.steel.gammaM2, (d, v) => { d.na.steel.gammaM2 = v; return d; }), naRow('η', na.steel.eta, (d, v) => { d.na.steel.eta = v; return d; })),
+        table([t('frame.des.psi'), ...kinds.map((k) => t('frame.kind.' + k))], [1, 2, 3, 4], ['psi0', 'psi1', 'psi2'].map((key) => el('tr', {}, td('ψ' + key.slice(3)),
+          ...kinds.map((k) => el('td', {}, numIn(na.combos[key][k], (v) => set(t('frame.des.undo-settings'), (d) => { d.na.combos[key][k] = v; return d; }), { 'data-fa-psi': key + ':' + k }))))))));
+    }
+    const res = designNow();
+    const nStrength = a.combos.filter((c) => c.limit === 'strength').length;
+    if (!nStrength) out.push(note(t('frame.des.no-combos'), { 'data-fa-des-nocombos': '' }));
+    else out.push(note(t('frame.des.have-combos', { n: nStrength, m: a.combos.filter((c) => c.limit === 'service').length })));
+    if (!res) { out.push(note(design && design.version !== host.version() ? t('frame.des.stale') : t('frame.des.none-yet'), { 'data-fa-des-state': '' })); return el('div', { className: C.block + ' fa-design' }, ...out); }
+    out.push(note(t('frame.des.counts-text', { n: res.counts.checked, partial: res.counts.partial, bad: res.counts.failed, skip: res.counts.notChecked, combos: res.combos }), { 'data-fa-des-summary': '' }));
+    if (res.modulus) out.push(note(t('frame.des.modulus-text', res.modulus)));
+    const rows = [...res.members.entries()].sort((x, y) => (y[1].util ?? -1) - (x[1].util ?? -1));
+    const idOf = (k) => { for (const [id, list] of result.frame.parts) if (list.some((q) => q.k === k)) return id; return null; };
+    out.push(table([t('frame.rep.member'), t('frame.rep.section'), t('frame.des.util'), t('frame.des.state'), t('frame.des.governs'), t('frame.des.set')], [2], rows.map(([k, m]) => {
+      const id = idOf(k), lab = id ? host.member(id)?.label || id : m.id;
+      const rgb = m.util === null ? null : utilRamp(m.util).map((v) => Math.round(v * 255)).join(',');
+      return el('tr', { 'data-fa-des-row': m.status },
+        el('td', {}, id ? el('button', { type: 'button', className: C.link, onclick: () => host.select(id) }, lab) : lab),
+        td(m.section),
+        el('td', { className: 'n' }, rgb ? el('span', { className: 'fa-util', style: '--fa-util:rgb(' + rgb + ')' }, pct(m.util)) : ''),
+        td(t('frame.des.st.' + m.status)),
+        td(m.status === 'not-checked' ? t('frame.des.why.' + m.why) : t('frame.des.check.' + m.check.id) + ' · ' + m.check.clause + (m.partial?.length ? ' · ' + t('frame.des.partial', { why: t('frame.des.why.' + m.partial[0]) }) : '')),
+        td(m.status === 'not-checked' ? '' : (m.sets.find((q) => q.set === m.set)?.name || '')));
+    }), { 'data-fa-des-table': '' }));
+    out.push(note(t('frame.des.signs')));
+    return el('div', { className: C.block + ' fa-design' }, ...out);
+  }
+
   function resultsBlock() {
     const out = [];
     const ok = result && !result.error && !stale();
@@ -384,9 +488,11 @@ export function framePanel(host) {
   }
 
   return {
-    panel() { return [el('p', { className: 'fa-aid', 'data-fa-aid': '' }, t('frame.ui.aid')), ...resultsBlock(), loadsBlock(), casesBlock(), settingsBlock()]; },
-    modelChanged() { if (result && stale()) host.hide(); },
-    clear() { result = null; host.hide(); },
+    panel() { return [el('p', { className: 'fa-aid', 'data-fa-aid': '' }, t('frame.ui.aid')), ...resultsBlock(), designBlock(), loadsBlock(), casesBlock(), settingsBlock()].filter(Boolean); },
+    modelChanged() { if (result && stale()) { host.hide(); host.showUtil?.(null, null); } },
+    clear() { result = null; design = null; host.hide(); host.showUtil?.(null, null); },
+    get design() { return designNow(); },
+    runDesign, makeCombos,
     get result() { return result; },
     get set() { return setKey; },
     run,

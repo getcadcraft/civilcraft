@@ -25,8 +25,9 @@
  * style in every app", Customize…, Export, Import, Delete.
  * Stored: localStorage <registry STORE or '<slug>.input'> (app-input.js readState); the family for every app in
  * 'cc-input-family' (one origin: every app and the Studio hub read it; a change in another window follows at once).
- * window.ccInput = { current, setStyle, run, state, styles, commands, keysOf, paletteItems, covers, macros, setMacros,
- * family, useEverywhere, resetLayout, ribbon, setRibbon } for the palette, tests and the console.
+ * window.ccInput = { current, setStyle, run, why, state, styles, commands, keysOf, paletteItems, covers, macros, setMacros,
+ * family, useEverywhere, resetLayout, ribbon, setRibbon } for the palette, the workspace layouts (app-workspace-input.js), tests and
+ * the console. why(id) → '' when run(id) would run it now, else the reason (the app's hooks().why first, as run asks).
  * 0.6 DF.27 (only where the Settings dialog carries data-shell-ui: dev builds and releases from 0.6 on): a ribbon style can
  * collapse to its tab names (S.collapsed, stored with the style): a click on a tab opens its panels over the drawing (.cc-in-peek)
  * until a command runs, a click lands elsewhere or Esc; a double-click on a tab, the pin button at the end of the tab row, or the
@@ -125,6 +126,11 @@ function mount(cfg, reg) {
     }
     target(c)?.click();
     last = id;
+    if (rememberSplit(id)) {   // the used tool is now the split's face
+      const inBar = bar.contains(document.activeElement);
+      render();
+      if (inBar) bar.querySelector('.cc-in-split [data-cmd="' + id + '"]')?.focus();
+    }
     syncStates();
     return true;
   }
@@ -158,11 +164,11 @@ function mount(cfg, reg) {
     if (!list.children.length) return null;
     return el('details', { className: 'cc-in-menu ' + cls, 'data-in-menu': '' }, el('summary', { className: 'cc-in-mtitle' }, tx(lbl)), list);
   }
-  function toolBtn(id, big) {
+  function toolBtn(id, big, small) {
     const c = byId.get(id);
     if (!c || (c.optional && !target(c))) return null;
     const k = matcher?.keysOf(id)[0];
-    return el('button', { type: 'button', className: big ? 'cc-in-tool cc-in-big' : 'cc-in-tool', 'data-cmd': id, title: label(id) + (k ? ' (' + IP.showSeq(k) + ')' : '') },
+    return el('button', { type: 'button', className: small ? 'cc-in-tool cc-in-sm' : (big ? 'cc-in-tool cc-in-big' : 'cc-in-tool'), 'data-cmd': id, title: label(id) + (k ? ' (' + IP.showSeq(k) + ')' : '') },
       el('i', { className: 'bi ' + (c.icon || 'bi-dot'), 'aria-hidden': 'true' }), el('span', {}, label(id)));
   }
   /** Toolbar buttons no command knows (an add-on's exporter, …): offered in a More menu / an Add-ons tab. */
@@ -180,6 +186,83 @@ function mount(cfg, reg) {
       el('i', { className: 'bi ' + ((b.querySelector('i.bi')?.className.match(/bi-[\w-]+/) || ['bi-puzzle'])[0]), 'aria-hidden': 'true' }), el('span', {}, name));
     n.addEventListener('click', () => { closeMenus(); b.click(); queueSync(); });
     return n;
+  }
+
+  // ---- 0.7 RIBBON-COMPACT: split buttons, inline controls, a group's extra tools, arrows inside a group ----
+  const live = (id) => { const c = byId.get(id); return !!c && !(c.optional && !target(c)); };
+  /** A split button: the face is the last tool used (S.splits, per app), a small arrow lists them all. */
+  function splitBtn(ids, size) {
+    const have = ids.filter(live);
+    if (!have.length) return null;
+    const key = ids.join('+'), saved = (S.splits || {})[key];
+    const face = have.includes(saved) ? saved : have[0];
+    const big = size === 'lg';
+    const btn = toolBtn(face, big, !big);
+    const list = el('div', { className: 'cc-in-list', role: 'menu', 'aria-label': label(face) });
+    for (const id of have) list.append(menuItem(id));
+    const sum = el('summary', { className: 'cc-in-splitarrow cc-in-rv', 'aria-label': T('shell.input.split.more', { tool: label(face) }), title: T('shell.input.split.more', { tool: label(face) }) },
+      el('i', { className: 'bi bi-caret-down-fill', 'aria-hidden': 'true' }));
+    return el('div', { className: 'cc-in-split cc-in-split-' + size, 'data-split': key }, btn, el('details', { className: 'cc-in-menu cc-in-splitmenu', 'data-in-menu': '' }, sum, list));
+  }
+  /** An inline control the app draws (CadCraft: the layer list, colour, linetype, lineweight). Skipped when the app has no such control. */
+  const controls = new Map(Object.entries(H.controls || {}));
+  function controlNode(name, size) {
+    const fn = controls.get(name);
+    if (typeof fn !== 'function') return null;
+    let node = null;
+    try { node = fn({ size, t: T, run, root }); } catch (e) { console.warn('input: control ' + name, e); }
+    if (!node || !node.nodeType) return null;
+    return el('div', { className: 'cc-in-ctl cc-in-ctl-' + size, 'data-control': name }, node);
+  }
+  /** The group name's arrow: the group's extra tools in a menu. */
+  function moreMenu(pn) {
+    const have = (pn.more || []).filter(live);
+    if (!have.length) return null;
+    const list = el('div', { className: 'cc-in-list', role: 'menu', 'aria-label': tx(pn.label) });
+    for (const id of have) list.append(menuItem(id));
+    const sum = el('summary', { className: 'cc-in-moresum cc-in-rv', 'aria-label': T('shell.input.group.more', { group: tx(pn.label) }), title: T('shell.input.group.more', { group: tx(pn.label) }) },
+      el('i', { className: 'bi bi-chevron-down', 'aria-hidden': 'true' }));
+    return el('details', { className: 'cc-in-menu cc-in-pmore', 'data-in-menu': '' }, sum, list);
+  }
+  /** One tab stop per group (arrows move inside it, Tab leaves it): the group's buttons and arrows share it. */
+  function rove(panel) {
+    const items = () => [...panel.querySelectorAll('button.cc-in-tool, summary.cc-in-rv')];
+    const set = (cur) => items().forEach((n) => { n.tabIndex = n === cur ? 0 : -1; });
+    set(items()[0]);
+    panel.addEventListener('focusin', (e) => { if (items().includes(e.target)) set(e.target); });
+    panel.addEventListener('keydown', (e) => {
+      const list = items(), i = list.indexOf(e.target);
+      if (i < 0 || e.altKey || e.ctrlKey || e.metaKey) return;
+      const sum = e.target.tagName === 'SUMMARY';
+      let j = -1;
+      if (e.key === 'ArrowRight' || (!sum && e.key === 'ArrowDown')) j = (i + 1) % list.length;
+      else if (e.key === 'ArrowLeft' || (!sum && e.key === 'ArrowUp')) j = (i - 1 + list.length) % list.length;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = list.length - 1;
+      else return;
+      e.preventDefault(); e.stopPropagation();
+      if (e.target.parentElement?.open) e.target.parentElement.open = false;
+      list[j].focus();
+    });
+  }
+  /** A ribbon group's buttons: all large as before, or mixed (large, small stacked three high, splits, controls). */
+  function panelButtons(pn) {
+    const lay = IP.panelLayout(pn);
+    const plain = lay.every((x) => x.kind === 'cmd' && x.size === 'lg');
+    const nodes = lay.map((x) => (x.kind === 'cmd' ? toolBtn(x.id, true, x.size === 'sm') : x.kind === 'split' ? splitBtn(x.ids, x.size) : controlNode(x.name, x.size))).filter(Boolean);
+    return { nodes, plain };
+  }
+  /** The last tool used becomes a split's face (per app, remembered). */
+  function rememberSplit(id) {
+    if (prof?.layout !== 'ribbon') return false;
+    let changed = false;
+    for (const tab of prof.tabs || []) for (const pn of tab.panels || []) for (const it of pn.items || []) {
+      if (!it || typeof it !== 'object' || !Array.isArray(it.split) || !it.split.includes(id)) continue;
+      const key = it.split.join('+');
+      if ((S.splits || {})[key] !== id) { S.splits = { ...(S.splits || {}), [key]: id }; changed = true; }
+    }
+    if (changed) save();
+    return changed;
   }
 
   function render() {
@@ -248,9 +331,13 @@ function mount(cfg, reg) {
       bar.classList.toggle('cc-in-collapsed', coll);
       bar.classList.toggle('cc-in-peek', coll && peek);
       for (const pn of (all[S.tab]?.panels || [])) {
-        const btns = pn.extra ? ex.map((b) => extraBtn(b, false)) : pn.items.map((x) => toolBtn(x, true)).filter(Boolean);
+        const { nodes: btns, plain } = pn.extra ? { nodes: ex.map((b) => extraBtn(b, false)), plain: true } : panelButtons(pn);
         if (!btns.length) continue;
-        body.append(el('div', { className: 'cc-in-panel', role: 'group', 'aria-label': tx(pn.label) }, el('div', { className: 'cc-in-pbtns' }, btns), el('div', { className: 'cc-in-plabel' }, tx(pn.label))));
+        const more = pn.extra ? null : moreMenu(pn);
+        const box = el('div', { className: 'cc-in-panel' + (plain ? '' : ' cc-in-mixed'), role: 'group', 'aria-label': tx(pn.label) },
+          el('div', { className: 'cc-in-pbtns' }, btns), el('div', { className: 'cc-in-plabel' }, el('span', { className: 'cc-in-pname' }, tx(pn.label)), more));
+        body.append(box);
+        rove(box);
       }
       bar.append(body);
     }
@@ -531,7 +618,7 @@ function mount(cfg, reg) {
       if (draft.layout === 'ribbon') {
         const mi = (draft.menus || []).findIndex((mm) => mm.items.includes(id));
         if (mi >= 0) return 'm' + mi;
-        for (let ti = 0; ti < (draft.tabs || []).length; ti++) for (let pi = 0; pi < draft.tabs[ti].panels.length; pi++) if (draft.tabs[ti].panels[pi].items.includes(id)) return ti + '/' + pi;
+        for (let ti = 0; ti < (draft.tabs || []).length; ti++) for (let pi = 0; pi < draft.tabs[ti].panels.length; pi++) if (IP.panelHas(draft.tabs[ti].panels[pi], id)) return ti + '/' + pi;
       }
       return '';
     };
@@ -689,13 +776,16 @@ function mount(cfg, reg) {
   // the toolbar's own content changes (an add-on adds a button, the DetailCraft hand-off appears): offer it
   if (toolbar) new MutationObserver((recs) => { if (prof.layout !== 'toolbar' && recs.some((r) => !bar.contains(r.target) && r.target !== bar)) render(); }).observe(toolbar, { childList: true });
   const api = {
-    app: cfg.app, current: () => prof, setStyle, run, get state() { return S; }, styles: STYLES, commands: COMMANDS,
+    app: cfg.app, current: () => prof, setStyle, run, why: (id) => (byId.has(id) ? why(byId.get(id), target(byId.get(id))) : T('shell.input.why.nothere')), get state() { return S; }, styles: STYLES, commands: COMMANDS,
     keysOf: (id) => (matcher ? matcher.keysOf(id).map(IP.showSeq) : []), paletteItems, covers, macros, setMacros,
     family: () => IP.familyOf(reg, S, S.style), useEverywhere, importText,
     // 0.6 DF.8 (app-settings.js "Reset the layout"): the style this app starts with; the person's own styles stay listed
     resetLayout() { S = { ...IP.resetStyle(S, reg, sharedFamily(), Date.now()), collapsed: undefined }; peek = false; save(); render(); },
     ribbon: () => ({ on: UI06() && prof?.layout === 'ribbon', collapsed: !!S.collapsed, open: peek }),
     setRibbon,
+    /** 0.7 RIBBON-COMPACT: an app registers the drawing of an inline ribbon control: fn({size, t, run, root}) → an element (or null). */
+    registerControl(name, fn) { if (IP.CONTROL_RE.test(name) && typeof fn === 'function') { controls.set(name, fn); if (prof?.layout === 'ribbon') render(); return true; } return false; },
+    controlNames: () => [...controls.keys()],
   };
   window.ccInput = api;
   window.dispatchEvent(new CustomEvent('cc-input-ready', { detail: { app: cfg.app } }));

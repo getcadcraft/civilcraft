@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Laminate Floor 02",
+ "kind": "material",
+ "category": "materials/wood",
+ "description": "Laminate Floor 02: a CC0 texture set from Poly Haven, one tile 1.7 × 1.7 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Laminate Floor 02\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":1.7,\"height\":1.7,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "laminate_floor_02_ao_1k.jpg",
+    "sha256": "456e26260c0b46171d4005701dd17c3c073fc325b65c3b2b2c9c2383d46c4a6b",
+    "media": "image/jpeg",
+    "bytes": 419048
+   },
+   "color": {
+    "file": "laminate_floor_02_diff_1k.jpg",
+    "sha256": "c112a8fb107d8600a2974af2f9fa9b595c491a33a59982e22706e9650990bf8f",
+    "media": "image/jpeg",
+    "bytes": 721641
+   },
+   "height": {
+    "file": "laminate_floor_02_disp_1k.jpg",
+    "sha256": "2c80b1b3af652e8d3c31f2929d74152dcd2332cb04dd6d1a0f2ee04c7f1cd8ae",
+    "media": "image/jpeg",
+    "bytes": 544686
+   },
+   "normal": {
+    "file": "laminate_floor_02_nor_gl_1k.jpg",
+    "sha256": "ec501e1c76269cabc1648ab0e3f38db1b062ffef7ff4ce037fdc369383afd005",
+    "media": "image/jpeg",
+    "bytes": 515725,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "laminate_floor_02_rough_1k.jpg",
+    "sha256": "1d48d21a8497d83d4148e4378bf6891e052c98b58cdce1f79003bcc24a3aff8f",
+    "media": "image/jpeg",
+    "bytes": 560815
+   }
+  },
+  "size": [
+   1.7,
+   1.7
+  ]
+ }
+}

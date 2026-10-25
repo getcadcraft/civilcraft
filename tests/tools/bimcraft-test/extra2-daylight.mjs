@@ -16,7 +16,7 @@
  */
 import path from 'node:path';
 
-function building({ block = false, balcony = false, post = false } = {}) {
+export function building({ block = false, balcony = false, post = false, site = null } = {}) {   // site (0.7 bim-ops): { lat: [d, m, s], lon: [d, m, s], north: [x, y] }
   const L = [];
   let n = 0, g = 0;
   const add = (s) => { L.push('#' + (++n) + '=' + s + ';'); return '#' + n; };
@@ -30,15 +30,17 @@ function building({ block = false, balcony = false, post = false } = {}) {
   const own = add(`IFCOWNERHISTORY(${po},${app},$,.ADDED.,$,$,$,0)`);
   const unit = add('IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.)'), units = add(`IFCUNITASSIGNMENT((${unit}))`);
   const o = pt(0, 0, 0), ax = add(`IFCAXIS2PLACEMENT3D(${o},$,$)`);
-  const ctx = add(`IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,${ax},$)`);
+  const tn = site?.north ? add(`IFCDIRECTION((${site.north[0]},${site.north[1]}))`) : '$';
+  const ctx = add(`IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,${ax},${tn})`);
   const body = add(`IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*,${ctx},$,.MODEL_VIEW.,$)`);
   const proj = add(`IFCPROJECT(${guid()},${own},'Daylight test',$,$,$,$,(${ctx}),${units})`);
   const lp0 = add(`IFCLOCALPLACEMENT($,${ax})`);
-  const site = add(`IFCSITE(${guid()},${own},'Site',$,$,${lp0},$,$,.ELEMENT.,$,$,$,$,$)`);
+  const dms = (a) => '(' + a.join(',') + ')';
+  const siteL = add(`IFCSITE(${guid()},${own},'Site',$,$,${lp0},$,$,.ELEMENT.,${site ? dms(site.lat) : '$'},${site ? dms(site.lon) : '$'},${site ? '0.' : '$'},$,$)`);
   const bld = add(`IFCBUILDING(${guid()},${own},'B',$,$,${lp0},$,$,.ELEMENT.,$,$,$)`);
   const st = add(`IFCBUILDINGSTOREY(${guid()},${own},'Level 1',$,$,${lp0},$,$,.ELEMENT.,0.)`);
-  add(`IFCRELAGGREGATES(${guid()},${own},$,$,${proj},(${site}))`);
-  add(`IFCRELAGGREGATES(${guid()},${own},$,$,${site},(${bld}))`);
+  add(`IFCRELAGGREGATES(${guid()},${own},$,$,${proj},(${siteL}))`);
+  add(`IFCRELAGGREGATES(${guid()},${own},$,$,${siteL},(${bld}))`);
   add(`IFCRELAGGREGATES(${guid()},${own},$,$,${bld},(${st}))`);
   const zdir = add('IFCDIRECTION((0.,0.,1.))');
   const box = (x0, y0, z0, x1, y1, z1) => {

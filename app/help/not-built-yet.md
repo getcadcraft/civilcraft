@@ -27,13 +27,13 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Editing a surface read from LandXML (breaklines, boundary) | {{ui:Rebuild the surface from the points}} |
 | Editing a surface made from an elevation grid | Import the grid again with other choices |
 | Converting a surface read from LandXML when the coordinate system changes | {{ui:Rebuild the surface from the points}} first |
-| Labeled spot elevations and slope values | Read them in the status bar |
+| Labeled spot elevations and slope values | Read them in the status bar, or colour the surface by slope with **Slope analysis** in the Landscape workspace ([Grading for landscape](topic:landscape-grading#grading-checks)) |
 
 ## Alignments and profiles
 
 | Not built yet | Instead, today |
 |---|---|
-| Spirals (transition curves) | Circular curves only; LandXML alignments with spirals are skipped |
+| Spirals other than clothoid; a spiral between two curves (compound transitions) | Clothoid spirals at the ends of a curve are available; the others are named and skipped on LandXML import |
 | Inserting a PI between two others | Redraw the alignment, or retype PI coordinates |
 | Alignments from objects, offsets, widenings | Draw by PIs |
 | Typing K for a vertical curve | Type L (K is shown) |
@@ -47,9 +47,9 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 
 | Not built yet | Instead, today |
 |---|---|
-| Curb and gutter, sidewalks, ditches, other subassemblies | One lane, one shoulder and a side slope each side |
-| Different left and right sides, or changes along the road | Split the work into separate alignments |
-| Spiral transitions for superelevation, rotation about an edge, superelevation in LandXML | Superelevation rotates about the centerline on circular curves; widen a lane with a width target to a feature line |
+| Ditches, medians, barriers and other parts beyond lanes, shoulder, gutter, curb, planting strip, sidewalk and side slope | Build each side from those parts ([Corridors](topic:corridor#build-each-side-from-parts)) |
+| Assemblies that change along the road | Split the work into separate alignments |
+| Rotation about an edge, superelevation in LandXML | Superelevation rotates about the centerline on circular curves; widen a lane with a width target to a feature line |
 | Regions, targets for the side slopes (daylight to a line or a surface), corridor surfaces of their own | Targets move the edges of pavement and shoulders ([Corridors](topic:corridor)); the corridor is graded into the proposed surface |
 | Corridors exported as LandXML roadways | The proposed surface is exported |
 | Swept paths with speed, tyre slip, steering time, steering trailers or body clearance; a library of standard design vehicles; a swept path drawn by dragging the vehicle | Low-speed swept paths along a feature line or an alignment, with your own vehicle sizes ([Vehicle swept paths](topic:swept-paths)) |
@@ -113,8 +113,45 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Plotting elevation bands and profiles | Bands are screen only; take a screenshot if you need them |
 | Changing layer names, colors or label styles | Change them in a CAD program after DXF export |
 | Cloud saving and version history | Save `.civilcraft.json` files and keep them backed up; to work on one project together, use a live session in CadCraft Studio ([Design one site together, live](topic:work-live)) |
-| CadCraft Studio for iPad and iPhone (planned for 0.6), and from Google Play | Use CivilCraft in the browser on the device; on Android, CadCraft Studio installs from its APK on getcadcraft.com/download |
+| CadCraft Studio for iPad and iPhone, and from Google Play | Use CivilCraft in the browser on the device; on Android, CadCraft Studio installs from its APK on getcadcraft.com/download |
 | Opening several point or project files at once | One file per open (GIS files that belong together, such as a shapefile's parts, open together) |
+
+## Landscape
+
+| Not built yet | Instead, today |
+|---|---|
+| Manufacturers' heads and nozzles | Generic heads, or add your own heads from a file; makers' data comes in as they give permission |
+| Maximum lateral lengths for drip lines, flows over time, pumps, looped pipe networks | Keep drip runs to the maker's published length; the check needs a branching network |
+| The exact outline of a concave freeform object; its below-ground volume measured exactly | The convex hull is graded and the below-ground volume is an estimate (said in Properties) |
+| Plants in BimCraft's and ModelCraft's own Place from library | Export landscape IFC and open it in BimCraft beside the building |
+| Plant models scattered in the 3D view from the planting | The 3D view shows the ground and hardscape; ModelCraft's scatter makes planting pictures |
+| Walls that retain a graded level behind them on the surface | Grade the level behind a wall with a platform or a grading area |
+| Sections through the terrain along a line you draw | Sections along an alignment ([Sections](topic:sections)); wall sections on the details sheet |
+| The landscape tools for assistants without the window (the file server and the command line) | They work with the CivilCraft window open ([Let an AI assistant work with your site](topic:assistants)) |
+
+## Power lines
+
+| Not built yet | Instead, today |
+|---|---|
+| A country's standard built in (load cases, clearances, factors) | Set your standard's values in {{ui:Load cases and limits…}} and save them, with your library, as a pack to reuse and share ([Packs](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
+| The sideways distance from a conductor to a tree crown or a wall beside the line | The clearance straight up over plants and walls the line crosses ([Power-line checks](topic:power-line-checks#clearances)) |
+| Conductor creep and the stretch of a new conductor | Allow for them through the temperatures in the stringing table |
+| Thermal rating of buried cables (current rating from how they are laid) | Enter your supplier's current rating on the cable item |
+| Short-circuit, protection and earthing studies | Use a dedicated electrical program; CivilCraft gives the network's lengths and cables |
+| Lattice towers designed member by member, and stay anchors in the soil | Supports are checked by their nominal load; stays by their rated load |
+| A `.DON` study file checked in the program that reads it | Check the file there; send us a sample so we can test against a real one |
+| Power lines in the 3D view and in IFC | The plan, the line profile, the sheets and GIS layers |
+| The power-line tools for assistants without the window | They work with the CivilCraft window open ([Let an AI assistant work with your site](topic:assistants)) |
+
+## Building masses
+
+| Not built yet | Instead, today |
+|---|---|
+| A library of zoning codes or any city's rules | Type the limits from your own ordinance ([Zoning limits](topic:zoning-limits)) |
+| Sky light on the walls (facade daylight), wind | [Sun hours](topic:sun-hours) counts direct sun only |
+| Shade from trees, plants or anything not drawn as a mass | Draw neighbouring buildings as masses |
+| Roof shapes on masses | Flat-topped masses |
+| Openings, roofs and wall types when a mass is developed in BimCraft | BimCraft builds plain exterior walls on every level and a floor; add the rest there |
 
 ## GIS and coordinate systems
 
@@ -147,4 +184,4 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Selecting corridor feature lines or GIS features by clicking in 3D | Click them in the plan |
 | Exporting the exaggerated view or in feet | Exports are true scale in meters; see [Export the site in 3D](topic:export-3d) |
 | Labels in GLB or OBJ exports, label sizes and styles in 3D | Labels show in the 3D view only, one size; see [View the site in 3D](topic:site-3d) |
-| Textures from photos, recording a drive as video, shadows from beyond the site, sun studies over a day | Map layers draped on the surfaces; drive and the sun's position at one time |
+| Textures from photos, recording a drive as video, shadows from beyond the site, sun hours shown in the 3D view | Map layers draped on the surfaces; drive and the sun's position at one time; [sun hours](topic:sun-hours) for a day or a season on the plan |

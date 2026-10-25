@@ -1,0 +1,318 @@
+{
+ "format": "partcraft",
+ "version": 4,
+ "name": "Mounting plate",
+ "units": "mm",
+ "resolution": 64,
+ "seq": 5,
+ "rollback": null,
+ "features": [
+  {
+   "id": "f1",
+   "type": "sketch",
+   "name": "Plate",
+   "plane": {
+    "kind": "base",
+    "name": "top"
+   },
+   "sketch": {
+    "seq": 8,
+    "entities": [
+     {
+      "id": "a",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "b",
+      "type": "point",
+      "x": 120,
+      "y": 0
+     },
+     {
+      "id": "c",
+      "type": "point",
+      "x": 120,
+      "y": 60
+     },
+     {
+      "id": "d",
+      "type": "point",
+      "x": 0,
+      "y": 60
+     },
+     {
+      "id": "bottom",
+      "type": "line",
+      "p1": "a",
+      "p2": "b"
+     },
+     {
+      "id": "right",
+      "type": "line",
+      "p1": "b",
+      "p2": "c"
+     },
+     {
+      "id": "top",
+      "type": "line",
+      "p1": "c",
+      "p2": "d"
+     },
+     {
+      "id": "left",
+      "type": "line",
+      "p1": "d",
+      "p2": "a"
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k1",
+      "type": "coincident",
+      "refs": [
+       "a",
+       "O"
+      ]
+     },
+     {
+      "id": "k2",
+      "type": "horizontal",
+      "refs": [
+       "bottom"
+      ]
+     },
+     {
+      "id": "k3",
+      "type": "horizontal",
+      "refs": [
+       "top"
+      ]
+     },
+     {
+      "id": "k4",
+      "type": "vertical",
+      "refs": [
+       "left"
+      ]
+     },
+     {
+      "id": "k5",
+      "type": "vertical",
+      "refs": [
+       "right"
+      ]
+     },
+     {
+      "id": "k6",
+      "type": "distance",
+      "refs": [
+       "bottom"
+      ],
+      "value": 120
+     },
+     {
+      "id": "k7",
+      "type": "distance",
+      "refs": [
+       "left"
+      ],
+      "value": 60
+     }
+    ]
+   }
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Base",
+   "sketch": "f1",
+   "op": "add",
+   "end": "blind",
+   "depth": 8,
+   "reverse": false
+  },
+  {
+   "id": "f3",
+   "type": "sketch",
+   "name": "HoleCentres",
+   "plane": {
+    "kind": "face",
+    "feature": "f2",
+    "face": "end"
+   },
+   "sketch": {
+    "seq": 7,
+    "entities": [
+     {
+      "id": "h1",
+      "type": "point",
+      "x": 12.75000000000544,
+      "y": 12.75000000000544
+     },
+     {
+      "id": "h2",
+      "type": "point",
+      "x": 107.24999999998222,
+      "y": 12.75000000000544
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k3",
+      "type": "hdistance",
+      "refs": [
+       "O",
+       "h1"
+      ],
+      "value": 12.75,
+      "sign": 1
+     },
+     {
+      "id": "k4",
+      "type": "vdistance",
+      "refs": [
+       "O",
+       "h1"
+      ],
+      "value": 12.75,
+      "sign": 1
+     },
+     {
+      "id": "k5",
+      "type": "hdistance",
+      "refs": [
+       "O",
+       "h2"
+      ],
+      "value": 107.25,
+      "sign": 1
+     },
+     {
+      "id": "k6",
+      "type": "vdistance",
+      "refs": [
+       "O",
+       "h2"
+      ],
+      "value": 12.75,
+      "sign": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "f4",
+   "type": "hole",
+   "name": "Bolts",
+   "sketch": "f3",
+   "kind": "simple",
+   "d": 8.5,
+   "depth": 10,
+   "through": true,
+   "cboreD": 11,
+   "cboreDepth": 6,
+   "reverse": false
+  }
+ ],
+ "params": {
+  "vars": [
+   {
+    "name": "width",
+    "expr": "120",
+    "note": "Plate width"
+   },
+   {
+    "name": "depth",
+    "expr": "60"
+   },
+   {
+    "name": "thick",
+    "expr": "8"
+   },
+   {
+    "name": "bolt",
+    "expr": "8.5"
+   },
+   {
+    "name": "margin",
+    "expr": "bolt * 1.5"
+   }
+  ],
+  "links": [
+   {
+    "target": "f1.k6",
+    "expr": "width"
+   },
+   {
+    "target": "f1.k7",
+    "expr": "depth"
+   },
+   {
+    "target": "f2.depth",
+    "expr": "thick"
+   },
+   {
+    "target": "f3.k3",
+    "expr": "margin"
+   },
+   {
+    "target": "f3.k4",
+    "expr": "margin"
+   },
+   {
+    "target": "f3.k5",
+    "expr": "width - margin"
+   },
+   {
+    "target": "f3.k6",
+    "expr": "margin"
+   },
+   {
+    "target": "f4.d",
+    "expr": "bolt"
+   }
+  ]
+ },
+ "configs": {
+  "rows": [
+   {
+    "name": "Small",
+    "values": {
+     "width": 80,
+     "depth": 50,
+     "thick": 6
+    }
+   },
+   {
+    "name": "Medium",
+    "values": {
+     "width": 120,
+     "depth": 60,
+     "thick": 8
+    }
+   },
+   {
+    "name": "Large",
+    "values": {
+     "width": 180,
+     "depth": 90,
+     "thick": 10
+    }
+   },
+   {
+    "name": "Medium, no holes",
+    "values": {
+     "width": 120,
+     "depth": 60,
+     "thick": 8
+    },
+    "off": [
+     "f4"
+    ]
+   }
+  ],
+  "active": "Medium"
+ }
+}

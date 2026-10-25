@@ -290,6 +290,10 @@ try {
     await fresh();
     await newBuilding('Drafting test');
     await room(0, 0, 8000, 5000);
+    // Since SU.751 (0.7, bim-07) the plan is fitted beside the narrow Draw bar, so x 11000 (the cross-hatch's corners) fell
+    // off the canvas onto the right panel. Zoom out one wheel step about the room, as a person would, so the whole working
+    // area (-1000…11000 × -1000…8000) is on the plan; a wheel zoom also stops the automatic re-fit (userMoved).
+    { const [cx, cy] = await at(4000, 2500); await page.mouse.move(cx, cy); await page.mouse.wheel(0, 150); await page.waitForTimeout(100); }
     const L = await S(() => window.bimcraftPlan.state.data.levels.map((l) => ({ id: l.id, guid: l.guid })));
     const items = () => S(() => window.bimcraftDrafting.api.items().map((d) => ({ guid: d.guid, id: d.id, kind: d.kind, view: d.view, n: d.pts.length, closed: d.closed, pattern: d.pattern, x0: d.pts[0][0], y0: d.pts[0][1] })));
     await annot('dline');

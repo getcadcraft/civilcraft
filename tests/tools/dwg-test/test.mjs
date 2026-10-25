@@ -4,7 +4,7 @@
  * test.mjs — cc-dwg unit tests (docs/DWG-LIB-SPEC.md "Done means" 4). Imports whatever lib/dwg exposes
  * and skips — with the reason — what is not built yet.
  *
- *   node tools/dwg-test/test.mjs [--verbose] [--only bits,crc,lz,r2007,rs,header,read]
+ *   node tools/dwg-test/test.mjs [--verbose] [--only bits,crc,lz,r2007,rs,header,read,underlay]
  *
  *   bits    bit codes against the worked examples of the ODA spec v5.4.1 ch. 2 (BS, BL, BD, 3B, MC, MS,
  *           handle 5.2.05E7, the BS-in-an-object example of 2.14.1), reader and writer, + random round trips
@@ -323,6 +323,45 @@ if (section('read', 'readDwg never crashes')) {
   }
 }
 
+// 0.6.1 FIX-061-DWG2013: damage that costs part of a drawing must not cost all of it (container-read.js page-map rebuild,
+// per-page tolerance, read.js object scan, per-step model assembly). Known answers on the AC1027 corpus: a cut-short file
+// (page map + section map gone) still opens with its blocks; a zeroed page of the object map, a bad byte in one objects
+// page, header size fields laid out for the other maintenance version — each keeps most of the entities.
+if (section('recover', 'damaged and odd R2004+ files open with what can be read (0.6.1)')) {
+  const readDwg = R.index?.readDwg || R.read?.readDwg;
+  const entN = (m) => m.blocks.reduce((s, b) => s + b.entities.length, 0);
+  const files = ['AC1027/kitchen-equipment.dwg', 'AC1027/architectural-annotation-scaling-and-multileaders.dwg', 'AC1018/kitchen-equipment.dwg', 'AC1032/example-2013.dwg', 'AC1015/kitchen-equipment.dwg']
+    .map((f) => path.join(CORPUS, f)).filter((f) => fs.existsSync(f));
+  if (!readDwg || !files.length) skipT('recover: ' + (readDwg ? 'corpus not there' : 'no readDwg'));
+  for (const f of readDwg ? files : []) {
+    const name = f.split('/').slice(-2).join('/');
+    const orig = new Uint8Array(fs.readFileSync(f));
+    const base = readDwg(orig), n0 = entN(base);
+    // cut short: keep 90% of the file (the maps sit at the end)
+    const cut = readDwg(orig.slice(0, Math.floor(orig.length * 0.9)));
+    ok(!cut.report.error && cut.blocks.some((b) => /^\*model_space$/i.test(b.name)) && entN(cut) > n0 * 0.3, `${name}: 90% of the file opens (${entN(cut)}/${n0} entities; ${cut.report.notes.length} notes)`);
+    if (base.version < 'AC1018') continue;
+    // one flipped byte inside every 7th objects page (a page fails to decompress after that byte): most survives
+    const d = new DataView(orig.buffer, orig.byteOffset, orig.byteLength);
+    const pages = [];
+    for (let at = 0x100; at + 32 <= orig.length; at += 0x20) { const mask = (0x4164536B ^ at) >>> 0; if (((d.getUint32(at, true) ^ mask) >>> 0) === 0x4163043B) pages.push(at); }
+    if (base.version !== 'AC1021' && pages.length > 6) {
+      const b = orig.slice();
+      const at = pages[Math.floor(pages.length / 2)];
+      b[at + 32 + 40] ^= 0x5A;
+      const m = readDwg(b);
+      ok(!m.report.error && entN(m) > n0 * 0.5, `${name}: a damaged page costs only part of the drawing (${entN(m)}/${n0} entities)`);
+    }
+  }
+  // header/classes size fields laid out for the other maintenance version (a writer that sets the byte at 0x0B to 0)
+  const f13 = path.join(CORPUS, 'AC1027/kitchen-equipment.dwg');
+  if (readDwg && fs.existsSync(f13)) {
+    const b = new Uint8Array(fs.readFileSync(f13)); b[0x0B] = 0;
+    const m = readDwg(b), base = readDwg(new Uint8Array(fs.readFileSync(f13)));
+    ok(m.classes.length === base.classes.length && entN(m) === entN(base) && m.header.HANDSEED === base.header.HANDSEED, `AC1027 maintenance 0: header + classes read by their CRC (${m.classes.length} classes)`);
+  }
+}
+
 if (section('async', 'readDwgAsync (read-async.js: readDwg in a worker, 0.4 1.3)')) {
   // the worker is linked from blob: URLs, which needs the reader's import graph to be a tree (no cycles)
   const cycles = [];
@@ -409,6 +448,13 @@ if (section('dyn', 'dynamic blocks (dynblock-read.js, 0.5 DB.2; docs/DWG-DYNAMIC
       }
     }
   }
+}
+
+if (section('underlay', 'PDF underlays: PDFDEFINITION + PDFUNDERLAY (0.7 D7.24; tools/dwg-test/underlay.mjs)')) {
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [path.join(REPO, 'tools/dwg-test/underlay.mjs')], { encoding: 'utf8', timeout: 900000 });
+  const m = /(\d+) passed, (\d+) failed/.exec(r.stdout || '');
+  ok(m && +m[2] === 0 && r.status === 0, `underlay.mjs: ${m ? m[1] + ' passed, ' + m[2] + ' failed' : 'did not run'}` + (r.status ? '\n' + (r.stdout || '').split('\n').filter((l) => /FAIL/.test(l)).join('\n') : ''));
 }
 
 console.log(`\n${pass} passed, ${fail} failed, ${skip} skipped`);

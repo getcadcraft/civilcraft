@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Denim Fabric 02",
+ "kind": "material",
+ "category": "materials/fabric",
+ "description": "Denim Fabric 02: a CC0 texture set from Poly Haven, one tile 0.1 × 0.1 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Denim Fabric 02\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":0.1,\"height\":0.1,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "denmin_fabric_02_ao_1k.jpg",
+    "sha256": "9c68259090b487df077cb8c2c433b2f65c7d274bc47beee9928ef7a2a4a2b488",
+    "media": "image/jpeg",
+    "bytes": 939172
+   },
+   "color": {
+    "file": "denmin_fabric_02_diff_1k.jpg",
+    "sha256": "fba56bdb36b4a68cd5b01e8afa69c59f52970508e0042d4189562a08c77021cc",
+    "media": "image/jpeg",
+    "bytes": 1306211
+   },
+   "height": {
+    "file": "denmin_fabric_02_disp_1k.jpg",
+    "sha256": "c8e3bfaa09c9cd026a975d5cfd38dcfcd0498757c762421707e47bf7cbf5547b",
+    "media": "image/jpeg",
+    "bytes": 695131
+   },
+   "normal": {
+    "file": "denmin_fabric_02_nor_gl_1k.jpg",
+    "sha256": "665e0bc009f29c2fdeb5e72791e66f6955e2e7b90c317112a6c873f9492cb3c4",
+    "media": "image/jpeg",
+    "bytes": 1046367,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "denmin_fabric_02_rough_1k.jpg",
+    "sha256": "950fbf74a861bbb1c50f62a4fe36e999e657252ab5a7aaab55c0ba674f5f36a0",
+    "media": "image/jpeg",
+    "bytes": 981756
+   }
+  },
+  "size": [
+   0.1,
+   0.1
+  ]
+ }
+}

@@ -26,3 +26,6 @@
 @media (pointer: coarse) {
   .fa-field input, .fa-input, .fa-select { min-height: 2.5rem; }
 }
+
+/* utilisation chip of the design table (0.7 SU.878): the colour comes from frame-design.js utilRamp */
+.fa-util { border-left: 0.6rem solid var(--fa-util, currentColor); padding-left: 0.35rem; }

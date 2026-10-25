@@ -20,6 +20,11 @@ $__lx = static function (string $key, array $html): string {
     foreach (array_keys($html) as $i => $k) $mark[$k] = "\u{E000}" . $i . "\u{E001}";
     return strtr(Lang::e($key, $mark), array_combine(array_values($mark), array_values($html)));
 };
+// "Develop in BimCraft" (0.7 LC.1 B1): only where BimCraft is open in this area and the build it runs here takes a building mass
+// (manifest "accepts": ["mass"], bimcraft/dev/handoff-in.js); else the masses are saved as an IFC file instead.
+$__bim = Catalog::app('bimcraft');
+$__bimBuild = $__bim && Catalog::openIn($__bim, $__area['key']) ? AppBuilds::resolve($__bim['slug'], $__area['key']) : null;
+$__bimUrl = $__bimBuild && in_array('mass', $__bimBuild['manifest']['accepts'] ?? [], true) ? $__area['path'] . '/' . $__bim['slug'] : '';
 $__tools = [
     'File' => [   // i18n-ignore: the group's key (also its aria-label and data-group-menu); the visible name is ui.tb.group.*
         ['new', 'file-earmark-plus', Lang::t('ui.tb.new'), Lang::t('ui.tb.new.title')],
@@ -66,10 +71,14 @@ $__more = [
         ['cad-open', Lang::t('toolbar.cad'), Lang::t('toolbar.cad.title'), '', 'menuitem'],
         ['feature', Lang::t('toolbar.feature'), Lang::t('toolbar.feature.title'), 'L', 'menuitemcheckbox'],
         ['sections', Lang::t('toolbar.sections'), Lang::t('toolbar.sections.title'), 'X', 'menuitemcheckbox'],
+        ['mass', Lang::t('ms.tb'), Lang::t('ms.tb.title'), '', 'menuitemcheckbox'],   // 0.7 LC.1: the Mass tool (massing-ui.js)
+        ['measure', Lang::t('ui.tb.measure'), Lang::t('ui.tb.measure.title'), 'M', 'menuitemcheckbox'],   // 0.7 PL.10: in a More menu, so the toolbar keeps one row at 1440 px
+        ['landscape', Lang::t('ls.tb.workspace'), Lang::t('ls.tb.workspace.title'), '', 'menuitemcheckbox'],   // 0.7 LD: the Landscape workspace (landscape/landscape-ui.js)
+        ['powerlines', Lang::t('pl.tb.workspace'), Lang::t('pl.tb.workspace.title'), '', 'menuitemcheckbox'],   // 0.7 PL: the Power lines workspace (powerline/powerline-ui.js)
     ],
 ];
 ?>
-<main id="main" class="cv" data-civilcraft>
+<main id="main" class="cv" data-civilcraft<?php if ($__bimUrl): ?> data-bim-url="<?= e($__bimUrl) ?>" data-bim-app="<?= e($__bim['name']) ?>"<?php endif; ?>>
   <h1 class="visually-hidden"><?= Lang::e('ui.h1', ['app' => $app['name']]) ?></h1>
 
   <div class="cv-tools" role="toolbar" aria-label="<?= Lang::e('ui.tools') ?>">

@@ -37,6 +37,15 @@ const adminPhp = path.join(REPO, 'tools/cadcraft-test/admin.php');
 const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', adminPhp, 'session', 'bimdraw06'], { encoding: 'utf8' }));
 
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+
+// BimCraft opens drawings in 3D by default (Settings › BimCraft › Drawings open in); these checks are written for the 2D view,
+// so every page starts with "2D" unless the test itself sets bimcraft.settings.dwgStart.
+{
+  const pin2d = () => { try { const k = 'bimcraft.settings', v = JSON.parse(localStorage.getItem(k) || '{}') || {}; if (!v.dwgStart) { v.dwgStart = '2d'; localStorage.setItem(k, JSON.stringify(v)); } } catch { /* another origin */ } };
+  const nc = browser.newContext.bind(browser), np = browser.newPage.bind(browser);
+  browser.newContext = async (...a) => { const c = await nc(...a); await c.addInitScript(pin2d); return c; };
+  browser.newPage = async (...a) => { const p = await np(...a); await p.addInitScript(pin2d); return p; };
+}
 const problems = [];
 let ctx = null, page = null;
 /** A fresh browser context (its own storage: no autosave from an earlier section), signed in, on /lab/bimcraft in mm. */
@@ -479,11 +488,154 @@ try {
       await page.click('[data-scan-floor]');
       ok(/needs a newer point cloud viewer/.test(await statusOf()), 'without cloud-ui.js\'s pc.adjust (asked of pointcloud): Align says so', await statusOf());
     }
+    // Discord (scan-to-BIM, 2026-10-19): drawing walls must not move the cloud — not in the scene, not on the plan
+    {
+      const where = () => page.evaluate(() => ({ box: window.bimcraftCloud.state().box, key: window.bimcraftScan.state.key }));
+      await page.evaluate(() => { document.querySelector('[data-scan-tools]').open = false; });
+      const w0 = await where();
+      await page.click('[data-mtool="wall"]');
+      await planClick(6000, 0); await planClick(6000, 4000); await planClick(0, 4000); await planClick(0, 0); await page.keyboard.press('Escape');
+      await settled();
+      await page.evaluate(() => window.bimcraftScan.api.changed());
+      const w1 = await where();
+      const same = (a, b) => a.every((p, i) => p.every((v, k) => Math.abs(v - b[i][k]) < 1e-6));
+      ok(same(w0.box, w1.box) && w0.key === w1.key, 'three more walls drawn: the cloud stays where it was (its box in the scene and its slice on the plan)', JSON.stringify([w0.box, w1.box]));
+    }
     await page.evaluate(() => { document.querySelector('[data-scan-tools]').open = true; });
     await page.click('[data-scan-slice]');
     ok((await sliceN()) === 0 && await page.evaluate(() => !window.bimcraftPlan.view.scene.cloud), 'Show the slice off: the plan drops it');
     await page.click('[data-scan-slice]');
     await shot(page, 'df22-02-aligned');
+    // the reported case: the cloud opened on an empty model, then its first walls drawn (cc-ifc used to centre the reloaded
+    // model on its first wall, so the model moved 1.5 m down and sideways in the scene and the plan's slice went with it)
+    await fresh();
+    await newBuilding('Scan jump');
+    await page.setInputFiles('[data-cloud-input]', { name: 'room-scan.xyz', mimeType: 'text/plain', buffer: Buffer.from(lines.join('\n')) });
+    await page.waitForFunction(() => window.bimcraftCloud?.state?.()?.kept > 0, null, { timeout: 60000 });
+    await page.evaluate(() => window.bimcraftScan.api.changed());
+    const sliceAt = () => page.evaluate(() => { const s = window.bimcraftScan.state.slice; return { key: window.bimcraftScan.state.key, n: s?.n || 0, p: s?.n ? [s.xy[0], s.xy[1]] : null }; });
+    const j0 = await sliceAt();
+    await page.click('[data-mtool="wall"]');
+    await planClick(2000, 1000); await planClick(8000, 1000); await planClick(8000, 5000); await planClick(2000, 5000); await page.keyboard.press('Escape');
+    await settled();
+    await page.evaluate(() => window.bimcraftScan.api.changed());
+    const j1 = await sliceAt();
+    ok(j0.n > 200 && j0.key === j1.key && j0.p[0] === j1.p[0] && j0.p[1] === j1.p[1], 'cloud first, then the first walls drawn: the slice stays put on the plan (' + j0.n + ' points)', JSON.stringify([j0.p, j1.p]));
+    await shot(page, 'df22-03-walls-on-scan');
+  }
+
+  if (want('wallside')) {
+    // 0.6.1 FIX-061-WALL-SIDE (Discord, scan-to-BIM): exterior walls drawn clockwise on their inside face, "Outside on left",
+    // came out with the body inside the line drawn. Each way round, each face: the body on the side it should be.
+    console.log('== wallside: walls drawn on a face, clockwise and anticlockwise');
+    await fresh();
+    await newBuilding('Side test');
+    const R = [[0, 0], [8000, 0], [8000, 5000], [0, 5000]];
+    const ways = [['clockwise', [R[0], R[3], R[2], R[1]], 'left'], ['anticlockwise', R, 'right']];
+    let n = 0;
+    for (const [name, pts, side] of ways) for (const ref of ['inside', 'outside']) {
+      n++;
+      const dx = (n - 1) * 12000;
+      await page.click('[data-mtool="wall"]');
+      await page.selectOption('[data-model-wallref]', ref);
+      await page.selectOption('[data-model-wallside]', side);
+      await page.evaluate((b) => {   // this room's place in view, below the Draw bar
+        const pv = window.bimcraftPlan.view, c = pv.canvas.getBoundingClientRect(), bar = document.querySelector('[data-modelbar]').getBoundingClientRect();
+        pv.padTop = Math.max(0, bar.bottom - c.top) + 12; pv.fit(b); pv.render();
+      }, { x0: dx - 1500, y0: -1500, x1: dx + 9500, y1: 6500 });
+      for (const p of [...pts, pts[0]]) await planClick(p[0] + dx, p[1]);
+      await page.keyboard.press('Escape');
+      await settled();
+      const got = await page.evaluate(([x0]) => window.bimcraftPlan.state.data.walls.filter((w) => w.a[0] > x0 - 1000 && w.a[0] < x0 + 9000)
+        .map((w) => ({ m: [(w.a[0] + w.b[0]) / 2 - x0, (w.a[1] + w.b[1]) / 2], ext: w.extSide, j: w.justification, t: w.t })), [dx]);
+      const inR = (m) => m[0] > 1 && m[0] < 7999 && m[1] > 1 && m[1] < 4999;
+      const want_ = ref === 'inside' ? 'outside' : 'inside';
+      ok(got.length === 4 && got.every((w) => (want_ === 'outside' ? !inR(w.m) : inR(w.m)) && w.ext === side), name + ', ' + ref + ' face, Outside on ' + side + ': four walls, the body ' + want_ + ' the line drawn, the outside where it was asked', JSON.stringify(got.map((w) => [w.m.map(Math.round), w.ext, w.j])));
+    }
+    // the centre line: the Outside select counts for walls that do not close a room (it was always left); a room closed
+    // on the centre line still gets its outside to the outside of the loop, whichever way it was drawn
+    const dxC = 4 * 12000;
+    await page.click('[data-mtool="wall"]');
+    await page.selectOption('[data-model-wallref]', 'center');
+    await page.selectOption('[data-model-wallside]', 'right');
+    await page.evaluate((b) => { const pv = window.bimcraftPlan.view, c = pv.canvas.getBoundingClientRect(), bar = document.querySelector('[data-modelbar]').getBoundingClientRect(); pv.padTop = Math.max(0, bar.bottom - c.top) + 12; pv.fit(b); pv.render(); }, { x0: dxC - 1500, y0: -1500, x1: dxC + 21500, y1: 6500 });
+    await planClick(dxC, 0); await planClick(dxC + 8000, 0); await planClick(dxC + 8000, 5000);
+    await page.keyboard.press('Escape');
+    await settled();
+    await page.click('[data-mtool="wall"]');
+    for (const p of [[0, 0], [0, 5000], [8000, 5000], [8000, 0], [0, 0]]) await planClick(dxC + 12000 + p[0], p[1]);
+    await page.keyboard.press('Escape');
+    await settled();
+    const cl = await page.evaluate(([x0]) => window.bimcraftPlan.state.data.walls.filter((w) => w.a[0] > x0 - 1000).map((w) => ({ x: (w.a[0] + w.b[0]) / 2 - x0, ext: w.extSide, j: w.justification })), [dxC]);
+    const open_ = cl.filter((w) => w.x < 10000), room = cl.filter((w) => w.x >= 10000);
+    ok(open_.length === 2 && open_.every((w) => w.ext === 'right' && w.j === 'center'), 'Centerline, Outside on right, two walls not closing a room: both have their outside on the right', JSON.stringify(open_));
+    ok(room.length === 4 && room.every((w) => w.ext === 'left'), 'Centerline, a room closed clockwise: every wall\'s outside to the outside of the room (left), whatever the select said', JSON.stringify(room));
+    await shot(page, 'wallside-01');
+  }
+
+  if (want('square')) {
+    // 0.6.1 FIX-061-SQUARE (Discord, scan-to-BIM): "Turn it square to the building" once swung the scan out of view in Model
+    // coordinates. In 0.6 the turn was made against where the cloud was drawn and then laid on a placement worked out again
+    // (the model's frame had moved: 61.1), so it turned about a point the cloud had left. The alignment now lives in the
+    // cloud's own frame: placed again (here: Place › Centered on the model, then back to Model coordinates), the aligned scan
+    // moves exactly as the scan itself does, and stays square.
+    console.log('== square: Turn it square, then the cloud placed again');
+    await fresh();
+    await newBuilding('Square test');
+    await page.click('[data-mtool="wall"]');
+    await planClick(0, 0); await planClick(6000, 0); await page.keyboard.press('Escape');
+    await settled();
+    const lines = [], a = 10 * Math.PI / 180, R2 = (x, y) => [x * Math.cos(a) - y * Math.sin(a) + 2, x * Math.sin(a) + y * Math.cos(a) + 1];
+    let seed = 11; const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+    const put = (x, y, z) => { const q = R2(x, y); lines.push(q[0].toFixed(4) + ' ' + q[1].toFixed(4) + ' ' + (z + 0.35).toFixed(4)); };
+    for (let k = 0; k < 24000; k++) { const z = rnd() * 2.7, tt = rnd(), side = k % 4; if (side === 0) put(tt * 6, 0, z); else if (side === 1) put(6, tt * 4, z); else if (side === 2) put(tt * 6, 4, z); else put(0, tt * 4, z); }
+    for (let k = 0; k < 12000; k++) put(rnd() * 6, rnd() * 4, 0);
+    for (let k = 0; k < 400; k++) put(40 + rnd() * 3, 25 + rnd() * 3, 1.2 + rnd() * 0.1);   // a tree 40 m off, at the cut height
+    await page.setInputFiles('[data-cloud-input]', { name: 'room-scan.xyz', mimeType: 'text/plain', buffer: Buffer.from(lines.join('\n')) });
+    await page.waitForFunction(() => window.bimcraftCloud?.state?.()?.kept > 0, null, { timeout: 60000 });
+    await page.evaluate(() => window.bimcraftScan.api.changed());
+    const box = () => page.evaluate(() => window.bimcraftCloud.state().box);
+    const place = async (v) => { await page.selectOption('[data-cloud-place]', v); await page.waitForTimeout(200); await page.evaluate(() => window.bimcraftScan.api.changed()); };
+    await place('model');
+    const bM = await box();
+    await place('center');
+    const bC = await box();
+    const d = [0, 1, 2].map((k) => bC[0][k] - bM[0][k]);   // Model coordinates → Centered: a plain move
+    ok(Math.hypot(...d) > 1, 'Centered on the model puts the scan elsewhere than Model coordinates (' + Math.hypot(...d).toFixed(2) + ' m away)');
+    await page.evaluate(() => { document.querySelector('[data-scan-tools]').open = true; });
+    await page.click('[data-scan-floor]');
+    await page.waitForTimeout(300);
+    await page.evaluate(() => { document.querySelector('[data-scan-tools]').open = true; });
+    await page.click('[data-scan-square]');
+    await page.waitForTimeout(300);
+    const msg = await statusOf();
+    const turned = Number((/turned (-?[\d.]+)°/.exec(msg) || [])[1]);
+    ok(Math.abs(Math.abs(turned) - 10) < 0.3, 'Turn it square: about 10° (' + msg + ')');
+    const bA = await box();
+    const sq0 = await page.evaluate(() => { const s = window.bimcraftScan.state.slice; return s?.n || 0; });
+    ok(sq0 > 200, 'the slice after the turn (' + sq0 + ' points)');
+    // placed again: the aligned scan moves by the same d, it does not swing round the old place
+    await place('model');
+    const bAM = await box();
+    const off = Math.max(...[0, 1].flatMap((i) => [0, 1, 2].map((k) => Math.abs(bAM[i][k] - (bA[i][k] - d[k])))));
+    ok(off < 0.005, 'aligned, then placed in Model coordinates: the scan keeps its turn and moves only as the placement does (off by ' + (off * 1000).toFixed(1) + ' mm)', JSON.stringify([bA, bAM, d]));
+    await place('center');
+    const bAC = await box();
+    const back = Math.max(...[0, 1].flatMap((i) => [0, 1, 2].map((k) => Math.abs(bAC[i][k] - bA[i][k]))));
+    ok(back < 0.005, 'and back to Centered: where it was aligned', String(back));
+    // the room's walls in the slice still run square: turning again finds next to nothing to do
+    await page.evaluate(() => { document.querySelector('[data-scan-tools]').open = true; });
+    await page.click('[data-scan-square]');
+    await page.waitForTimeout(300);
+    const again = Number((/turned (-?[\d.]+)°/.exec(await statusOf()) || [])[1]);
+    ok(Math.abs(again) < 0.3, 'placed again, Turn it square once more: ' + again + '° (it stayed square)', await statusOf());
+    await page.evaluate(() => { document.querySelector('[data-scan-tools]').open = true; });
+    await page.click('[data-scan-reset]');
+    await page.waitForTimeout(300);
+    const bR = await box();
+    const reset = Math.max(...[0, 1].flatMap((i) => [0, 1, 2].map((k) => Math.abs(bR[i][k] - bC[i][k]))));
+    ok(reset < 0.005, 'Undo the alignment: the scan is back where Centered put it', String(reset));
+    await shot(page, 'square-01');
   }
 
   if (want('df23')) {

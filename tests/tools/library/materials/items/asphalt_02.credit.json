@@ -1,0 +1,13 @@
+{
+ "title": "Asphalt 02",
+ "author": "Rob Tuytel",
+ "authors": {
+  "Rob Tuytel": "All"
+ },
+ "license": "CC0-1.0",
+ "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "library": "Poly Haven",
+ "source_url": "https://polyhaven.com/a/asphalt_02",
+ "attribution": "“Asphalt 02” by Rob Tuytel, Poly Haven (https://polyhaven.com/a/asphalt_02), CC0 1.0",
+ "changes": "The 1k JPEG pictures as published; wired into a CadCraft node material (shading/texset.js); the preview rendered by CadCraft."
+}

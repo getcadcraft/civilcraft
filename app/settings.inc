@@ -13,8 +13,9 @@
  *   exag      2 (default) / 1 / 3 / 5 / 10: the 3D view's vertical exaggeration (its bar has the same list)
  *   latlon    dms (default) / dd: latitude and longitude in the status bar (GIS, gis-crs-ui.js)
  *   internet  off (default) / on: map layers from the internet (GIS, gis-map-ui.js) — off, no map server is ever asked
- *   cvAssist, cvAssistRead, cvAssistEdit   AI assistants and scripts (0.4 X.12, AGENTS-SPEC §7): on/off (default off), then
- *             which groups (read on, edit off when first turned on); the Activity list is filled by civilcraft.js
+ *   cvAssist, cvAssistRead, cvAssistEdit, cvAssistSave, cvAssistExport   AI assistants and scripts (0.4 X.12, AGENTS-SPEC §7;
+ *             save/export 0.7 AS.3): on/off (default off), then which groups (read on, the rest off when first turned on); the
+ *             Activity list is filled by civilcraft.js; [data-assistants-folders] = host.js's Folders list (0.7 MCP-PATHS, Studio)
  */
 ?>
 <fieldset class="shell-set" data-cv-settings>
@@ -89,6 +90,9 @@
   <p class="shell-hint-text"><?= Lang::e('set.assist.hint') ?></p>
   <label class="shell-check cv-set-sub"><input type="checkbox" name="cvAssistRead"> <?= Lang::e('set.assist.read') ?></label>
   <label class="shell-check cv-set-sub"><input type="checkbox" name="cvAssistEdit"> <?= Lang::e('set.assist.edit') ?></label>
+  <label class="shell-check cv-set-sub"><input type="checkbox" name="cvAssistSave"> <?= Lang::e('set.assist.save') ?></label>
+  <label class="shell-check cv-set-sub"><input type="checkbox" name="cvAssistExport"> <?= Lang::e('set.assist.export') ?></label>
+  <div data-assistants-folders></div>
   <details class="cv-assist-log" data-cv-assist-log>
     <summary><?= Lang::e('set.assist.activity') ?></summary>
     <ol></ol>

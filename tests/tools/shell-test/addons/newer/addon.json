@@ -1,0 +1,1 @@
+{ "id": "newer", "name": "Needs API 2", "version": "3.0.0", "apps": ["cadcraft", "markupcraft"], "api": "2.0", "license": "MIT", "entry": "main.js" }

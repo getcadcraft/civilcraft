@@ -1,0 +1,24 @@
+[package]
+name = "k1-truck"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "k1"
+path = "src/main.rs"
+
+[dependencies]
+truck-modeling = "0.6"
+truck-shapeops = "0.4"
+truck-meshalgo = "0.4"
+truck-stepio = "0.3"
+truck-topology = "0.6"
+truck-polymesh = "0.6"
+
+[profile.release]
+opt-level = 3
+lto = true

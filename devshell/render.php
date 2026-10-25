@@ -71,6 +71,11 @@ $imports = [];
 foreach ($__manifest['imports'] ?? [] as $spec => $path) $imports[$spec] = $path;
 if (is_file("$__appDir/help/help.js")) $imports['app-help'] = $__build['url'] . 'help/help.js';
 $__panels = AppBuilds::panels($__build);
+// workspace layouts (0.7 WS.6): the engine is imported as 'cc-workspace'; its modules import each other relatively
+$__wsCfg = AppBuilds::hasWorkspaces($__build) ? AppBuilds::workspaceConfig($__build, $app) : null;
+// menus, keys and mouse: as the site's import map (AppBuilds::headTags), a module may import the engine by its absolute path
+if (AppBuilds::input($__build)) foreach ([AppBuilds::INPUT_ENGINE, AppBuilds::INPUT_SCRIPT] as $__m) $imports[$__m] = $R . ltrim($__m, '/');
+if ($__wsCfg) { $imports['cc-workspace'] = $R . 'assets/js/app-workspace.js'; foreach (AppBuilds::WORKSPACE_MODULES as $__m) $imports[$__m] = $R . ltrim($__m, '/'); }
 $__site = 'https://getcadcraft.com';
 // The edition's own facts for the apps and the shell (0.4 part 2 D.4): features that live only on getcadcraft.com are off.
 $__editionData = $edition === null ? null : [
@@ -139,6 +144,10 @@ ob_start();
 <?php if (AppBuilds::input($__build)): /* menus, keys and mouse (0.5 track IP) */ ?>
   <link rel="stylesheet" href="<?= $R ?>assets/css/app-input.css">
 <?php endif; ?>
+<?php if ($__wsCfg): /* workspace layouts (0.7 WS.6) */ ?>
+  <link rel="stylesheet" href="<?= $R ?>assets/css/app-workspace.css">
+  <script>(function(){try{if(window.matchMedia&&matchMedia('(max-width: 760px)').matches)return;var w=new URLSearchParams(location.search).get('workspace')||localStorage.getItem('cc-workspace');if(w==='live')w='docked';var ok=<?= json_encode($__wsCfg['layouts']) ?>.indexOf(w)>=0||/^addon:/.test(w||'');if(!ok&&/^file:[a-z][a-z0-9-]{1,39}$/.test(w||'')){var f=JSON.parse(localStorage.getItem('cc-workspace-files')||'{}');ok=!!f&&typeof f[w.slice(5)]==='string';}if(ok)document.documentElement.setAttribute('data-cc-ws-boot',w)}catch(e){}})()</script>
+<?php endif; ?>
 <?php foreach ($__manifest['css'] ?? [] as $c): ?>
   <link rel="stylesheet" href="<?= e($__build['url'] . $c) ?>">
 <?php endforeach; ?>
@@ -190,9 +199,16 @@ ob_start();
 <script src="<?= $R ?>assets/js/app-phone.js" defer></script>
 <?php endif; ?>
 <script type="module" src="<?= $R ?>assets/js/help-panel.js"></script>
+<?php if ($__wsCfg): ?>
+<script type="application/json" id="cc-workspace"><?= json_embed($__wsCfg) ?></script>
+<?php endif; ?>
 <?php if ($__input = AppBuilds::input($__build)): ?>
 <script type="application/json" id="cc-input"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name'], 'registry' => $__input]) ?></script>
 <script type="module" src="<?= $R ?>assets/js/app-input-ui.js"></script>
+<?php endif; ?>
+<?php if (AppBuilds::hardware($__build)): /* hardware specs (0.7 HW.2): same report and switch as the site; desktop opt-in */ ?>
+<script type="application/json" id="cc-hardware"><?= json_embed(['app' => $app['slug'], 'build' => (string)$__ver]) ?></script>
+<script type="module" src="<?= $R ?>assets/js/app-hardware.js"></script>
 <?php endif; ?>
 </body>
 </html>

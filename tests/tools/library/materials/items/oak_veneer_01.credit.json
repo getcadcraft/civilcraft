@@ -1,0 +1,13 @@
+{
+ "title": "Oak Veneer 01",
+ "author": "Jenelle van Heerden",
+ "authors": {
+  "Jenelle van Heerden": "All"
+ },
+ "license": "CC0-1.0",
+ "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "library": "Poly Haven",
+ "source_url": "https://polyhaven.com/a/oak_veneer_01",
+ "attribution": "“Oak Veneer 01” by Jenelle van Heerden, Poly Haven (https://polyhaven.com/a/oak_veneer_01), CC0 1.0",
+ "changes": "The 1k JPEG pictures as published; wired into a CadCraft node material (shading/texset.js); the preview rendered by CadCraft."
+}

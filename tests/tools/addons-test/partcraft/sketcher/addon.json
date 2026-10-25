@@ -1,0 +1,1 @@
+{ "id": "zz-test.sketcher", "name": "Test sketcher", "version": "1.0.0", "apps": ["partcraft"], "api": "1.0", "license": "Apache-2.0", "entry": "./main.js", "permissions": ["commands", "panel", "files"], "lang": "./lang/" }

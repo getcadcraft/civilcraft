@@ -43,7 +43,7 @@ import { buildAlignment } from './alignment.js';
 import { buildProfile, sampleSurface } from './profile.js';
 import { gradedSurface, gridVolume } from './grading.js';
 import { analyzeNetwork } from './pipes.js';
-import { corridorPatch, defaultAssembly, cleanTargets } from './corridor.js';
+import { corridorPatch, defaultAssembly, cleanTargets, cleanSides } from './corridor.js';
 import { readGisState, gisFeaturesJSON } from './gis-state.js';   // GIS: layer data in the project file (docs/GIS-SPEC.md §2)
 import { cleanSampling, buildSections } from './sections.js';   // 0.4 V13: sample lines and sections
 import { cleanSuper } from './superelev.js';   // 0.4 V18
@@ -53,6 +53,12 @@ import { cleanType, MAX_TYPES } from './structs.js';   // 0.6 WL.27: structure t
 import { cleanSwept, simulate, envelope, alignmentPath } from './swept.js';   // 0.6 WL.28: swept paths
 import { cleanFeature, featureBreaklines, featureItem, flatten as flattenFeature } from './featureline.js';   // 0.4 V14: feature lines
 import { cleanParcel } from './parcels.js';   // 0.4 V21
+import { cleanZone } from './zoning.js';   // 0.7 LC.1 M3: the zoning limits a person typed
+import { cleanMass, MAX_MASSES } from './massing.js';   // 0.7 LC.1: building masses (session massing)
+import { cleanLandscape } from './landscape/planting.js';   // 0.7 LD: the Landscape workspace (session landscape)
+import { gradeItems as lsGradeItems, gradeDeps as lsGradeDeps } from './landscape/grade.js';   // 0.7 LD.3: platforms, berms, swales, grading areas
+import { readPlants } from './landscape/plants.js';
+import { cleanPowerlines } from './powerline/model.js';   // 0.7 PL: the Power lines workspace (docs/0.7-PART8.md)
 import { cleanDescKeys, cleanLineCodes, grouper, figures } from './desckeys.js';   // 0.4 V16: description keys, line codes
 import { t } from './i18n.js';
 
@@ -66,7 +72,7 @@ export function emptyState() {
     name: t('project.untitled'), units: 'ft',
     surface: { name: t('surface.eg'), groups: {}, breaklines: [], boundary: null, maxEdge: 0, tin: null, descKeys: [], lineCodes: cleanLineCodes() },   // 0.4 V16: descKeys, lineCodes
     display: { ...DISPLAY_DEFAULTS },
-    alignments: [], pads: [], network: null, seq: 1, crs: null, features: [], parcels: [],
+    alignments: [], pads: [], network: null, seq: 1, crs: null, features: [], parcels: [], masses: [], zoning: [],
     gis: { layers: [], maps: [] },   // GIS: vector layers (builder A) and map layers (builder C)
   };
 }
@@ -245,7 +251,7 @@ export class Project {
     const on = this.state.alignments.filter((a) => a.corridor?.on);
     // 0.6 WL.25: a corridor that targets a feature line depends on that line, whatever its use
     const tf = new Set(on.flatMap((a) => (a.corridor.targets || []).filter((g) => g.from.kind === 'feature').map((g) => g.from.id)));
-    return JSON.stringify([this.state.pads, on, (this.state.features || []).filter((f) => f.use === 'design' || tf.has(f.id))]);
+    return JSON.stringify([this.state.pads, on, (this.state.features || []).filter((f) => f.use === 'design' || tf.has(f.id))]) + lsGradeDeps(this.state.landscape);   // 0.7 LD.3
   }
   /** 0.6 WL.25: the corridors in an order where every corridor comes after the corridors it targets; a target that would
    *  close a loop is marked { loop: true } (index per alignment id). */
@@ -287,13 +293,14 @@ export class Project {
         return { ...g, line: done.get(g.from.id)?.lines?.[g.from.line] || null, label };
       });
       items.push({ id: a.id, kind: 'corridor', name: t('project.corridor', { name: a.name }), patch: (surf) => {
-        const r = corridorPatch(surf, al, prof, asm, { targets: resolve() });
+        const r = corridorPatch(surf, al, prof, asm, { targets: resolve(), units: this.state.units });
         done.set(a.id, r.info);
         return r;
       } });
     }
     for (const f of this.state.features || []) { const it = featureItem(f); if (it) items.push(it); }   // 0.4 V14: closed design feature lines
     for (const p of this.state.pads) if (p.pts.length >= 3) items.push({ ...p, kind: 'pad', z: Number(p.z), cut: Number(p.cut), fill: Number(p.fill) });
+    items.push(...lsGradeItems(this.state.landscape, this.state.units));   // 0.7 LD.3: the Landscape workspace's grading, last
     return items;
   }
   /** 0.6 WL.28: a swept path worked out: { path, sim, env } (null without its line), kept until it or its line changes. */
@@ -361,7 +368,11 @@ export class Project {
       alignments: this.state.alignments, pads: this.state.pads, network: this.state.network, seq: this.state.seq,
       features: this.state.features || [],   // 0.4 V14
       parcels: this.state.parcels || [],   // 0.4 V21
+      ...((this.state.masses || []).length ? { masses: this.state.masses } : {}),   // 0.7 LC.1: building masses
+      ...((this.state.zoning || []).length ? { zoning: this.state.zoning } : {}),   // 0.7 LC.1 M3: the limits typed per parcel
       swept: this.state.swept || [],   // 0.6 WL.28
+      ...(this.state.landscape ? { landscape: this.state.landscape } : {}),   // 0.7 LD: plants, beds, hedges, the project's own plant list
+      ...(this.state.powerlines ? { powerlines: this.state.powerlines } : {}),   // 0.7 PL: lines, routes, equipment, the project's library copy
       crs: this.state.crs,
       gis: this.state.gis, gisFeatures: gisFeaturesJSON(this.gisFeatures),   // GIS: { id: [[geometry, props], …] }
       crsGrids: crsGridsJSON(this),   // 0.4 V11: { name: base64 } for the grid state.crs.grid names
@@ -410,7 +421,12 @@ export class Project {
     if (obj.display && typeof obj.display === 'object') for (const k of Object.keys(DISPLAY_DEFAULTS)) { const v = obj.display[k]; if (typeof v === typeof DISPLAY_DEFAULTS[k] && (typeof v !== 'number' || (fin(v) && v > 0)) && (k !== 'surface' || v === 'eg' || v === 'fg')) s.display[k] = v; }
     const id = (v, pre) => (/^[a-z]+\d+$/.test(String(v)) ? String(v) : p.nextId(pre));
     s.alignments = list(obj.alignments, (a) => {
-      const pis = list(a?.pis, (q) => (xy(q) ? { ...xy(q), r: fin(q.r) && q.r > 0 ? q.r : 0 } : null), 1e4);
+      const lsOf = (v) => (fin(v) && v > 0 && v < 1e7 ? v : 0);   // 0.7 D7.35: a spiral's length (ls = both ends)
+      const pis = list(a?.pis, (q) => {
+        if (!xy(q)) return null;
+        const r = fin(q.r) && q.r > 0 ? q.r : 0, ls1 = r ? lsOf(q.ls1) || lsOf(q.ls) : 0, ls2 = r ? lsOf(q.ls2) || lsOf(q.ls) : 0;
+        return { ...xy(q), r, ...(ls1 ? { ls1 } : {}), ...(ls2 ? { ls2 } : {}) };
+      }, 1e4);
       if (pis.length < 2) return null;
       const pvis = list(a.pvis, (v) => (v && fin(v.sta) && fin(v.z) ? { sta: v.sta, z: v.z, L: fin(v.L) && v.L > 0 ? v.L : 0 } : null), 1e4);
       let corridor = null;
@@ -419,6 +435,8 @@ export class Project {
         corridor = { on: c.on === true, lane: pos(c.lane, 'lane'), laneSlope: pos(c.laneSlope, 'laneSlope'), shoulder: pos(c.shoulder, 'shoulder'), shoulderSlope: pos(c.shoulderSlope, 'shoulderSlope'), cut: pos(c.cut, 'cut') || d.cut, fill: pos(c.fill, 'fill') || d.fill, step: pos(c.step, 'step') || d.step };
         const sup = cleanSuper(c.super, s.units);   // 0.4 V18
         if (sup) corridor.super = sup;
+        const parts = cleanSides(c.parts, s.units);   // 0.7 D7.35: the assembly editor's parts, left and right
+        if (parts) corridor.parts = parts;
         const tg = cleanTargets(c.targets);   // 0.6 WL.25
         if (tg.length) corridor.targets = tg;
       }
@@ -432,7 +450,11 @@ export class Project {
     }, 1000);
     s.features = list(obj.features, (f) => { const c = cleanFeature(f, s.units); if (c) c.id = id(f?.id, 'f'); return c; }, 1000);   // 0.4 V14
     s.parcels = list(obj.parcels, (f) => { const c = cleanParcel(f); if (c) c.id = id(f?.id, 'r'); return c; }, 2000);   // 0.4 V21
+    s.masses = list(obj.masses, (f) => { const c = cleanMass(f, s.units); if (c) c.id = id(f?.id, 'm'); return c; }, MAX_MASSES);   // 0.7 LC.1 (untrusted)
+    s.zoning = list(obj.zoning, (z) => cleanZone(z, s.units), 2000).filter((z, i, a) => a.findIndex((y) => y.parcel === z.parcel) === i);   // 0.7 LC.1 M3 (untrusted; one per parcel)
     s.swept = list(obj.swept, (w) => { const c = cleanSwept(w, s.units); if (c) c.id = id(w?.id, 'w'); return c; }, 200);   // 0.6 WL.28
+    if (obj.landscape && typeof obj.landscape === 'object') s.landscape = cleanLandscape(obj.landscape, s.units, (rows) => readPlants({ format: 'cadcraft-plants', version: 1, species: rows }).library.species);   // 0.7 LD (untrusted)
+    if (obj.powerlines && typeof obj.powerlines === 'object') s.powerlines = cleanPowerlines(obj.powerlines);   // 0.7 PL (untrusted)
     const nw = obj.network;
     if (nw && typeof nw === 'object' && Array.isArray(nw.structures) && Array.isArray(nw.pipes)) {
       const r = nw.rules || {};
@@ -460,7 +482,7 @@ export class Project {
     }
     p.gisImages = readGisImages(obj.gisImages, s.gis.maps, notes);   // GIS: map layer pictures (builder C; gis-map-ui.js reads the layers)
     p.points = pts; p.pointsFile = str(obj.pointsFile, 200); p.pointsVersion++;
-    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.swept || [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
+    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.masses || []), ...(s.swept || []), ...(s.landscape ? [...s.landscape.plants, ...s.landscape.beds, ...s.landscape.hedges, ...s.landscape.grading, ...s.landscape.hardscape, ...(s.landscape.irrigation ? ['heads', 'pipes', 'valves', 'drips'].flatMap((w) => s.landscape.irrigation[w]) : []), ...(s.landscape.freeform || [])] : []), ...(s.powerlines ? [...s.powerlines.lines, ...s.powerlines.lines.flatMap((l) => l.supports), ...s.powerlines.routes, ...s.powerlines.equipment, ...s.powerlines.obstacles] : [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
     return { project: p, notes };
   }
 }

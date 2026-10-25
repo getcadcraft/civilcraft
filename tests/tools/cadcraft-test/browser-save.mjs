@@ -242,6 +242,23 @@ try {
     await page.evaluate(() => window.cadcraft.doc.markSaved());
   }
 
+  // 0.6.1 FIX-061-PDF-CHARS: Polish, Cyrillic and Greek text plots as itself (the font comes through the page's import map)
+  {
+    console.log('\n== PLOT: text in any script (FIX-061-PDF-CHARS)');
+    const lines = ['Rozdzielnica RG-1: Zażółć gęślą jaźń ŁÓDŹ', 'Щит освещения ЩО-1', 'Πίνακας Ω'];
+    await typeCmd('NEW');
+    await page.evaluate((lines) => { const { doc } = window.cadcraft; doc.change('t', () => lines.forEach((s, i) => doc.add({ type: 'text', layer: '0', x: 0, y: -i * 8, h: 5, rot: 0, s, ha: 'left', va: 'baseline' }))); }, lines);
+    await typeCmd('ZOOM'); await typeCmd('E');
+    await typeCmd('PLOT'); await page.waitForSelector('dialog[data-plot][open]');
+    const pdf = await download(() => page.click('[data-plot-save]'));
+    let text = null;
+    try { text = execFileSync('pdftotext', [pdf.file, '-'], { encoding: 'utf8' }); } catch { /* poppler not installed */ }
+    const hist = (await log()) || '';
+    ok(pdf.bytes.toString('latin1').includes('/FontFile2') && !/printed as "\?"/.test(hist), 'the PDF embeds the font and nothing printed as "?"', hist.slice(-160));
+    if (text !== null) ok(lines.every((s) => text.includes(s)), 'pdftotext reads every line back exactly', JSON.stringify(text.slice(0, 160)));
+    await page.evaluate(() => window.cadcraft.doc.markSaved());
+  }
+
   console.log('\n== model space');
   await page.goto(BASE + '/lab/cadcraft?space=model', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => !!window.cadcraft);

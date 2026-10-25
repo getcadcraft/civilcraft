@@ -58,6 +58,15 @@ const adminPhp = path.join(REPO, 'tools/bimcraft-test/admin.php');
 const admin = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', adminPhp, 'up'], { encoding: 'utf8' }));
 
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+
+// BimCraft opens drawings in 3D by default (Settings › BimCraft › Drawings open in); these checks are written for the 2D view,
+// so every page starts with "2D" unless the test itself sets bimcraft.settings.dwgStart.
+{
+  const pin2d = () => { try { const k = 'bimcraft.settings', v = JSON.parse(localStorage.getItem(k) || '{}') || {}; if (!v.dwgStart) { v.dwgStart = '2d'; localStorage.setItem(k, JSON.stringify(v)); } } catch { /* another origin */ } };
+  const nc = browser.newContext.bind(browser), np = browser.newPage.bind(browser);
+  browser.newContext = async (...a) => { const c = await nc(...a); await c.addInitScript(pin2d); return c; };
+  browser.newPage = async (...a) => { const p = await np(...a); await p.addInitScript(pin2d); return p; };
+}
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
 const problems = [];
 const requests = [];

@@ -10,9 +10,10 @@
  *     raw: also return model._records (every decoded record by handle) for tests.
  */
 
+import { fitSplineControl } from './spline-fit.js';
 import { msg } from './messages.js';
 import { readContainer, SENTINELS, UnsupportedDwg } from './container-read.js';
-import { BitReader, codepageDecoder, readMC, readMCu, mod, DwgReadError } from './bits-read.js';
+import { BitReader, codepageDecoder, readMC, readMCu, readMS, mod, DwgReadError } from './bits-read.js';
 import { decodeHeaderVars } from './header-vars.js';
 import { decodeObject, stringStreamStart } from './objects-read.js';
 import { readDynamic } from './dynblock-read.js';   // 0.5 DB.2: dynamic blocks (after the model is built)
@@ -93,8 +94,15 @@ export function readDwg(bytes, opts = {}) {
     if (opts.strict) throw e;
     notes.push(msg('ccdwg.read.map_failed', { reason: e.message }));
     map = new Map();
+    ctx.mapTrouble = true;
   }
   const objs = c.sections['AcDb:AcDbObjects'];
+  if (objs && (ctx.mapTrouble || !map.size || c.recovered)) {
+    try {
+      const added = scanObjects(objs, c.objectsAbsolute ? (c.objectsFrom || 0) : 4, objs.length, ctx, map);
+      if (added) notes.push(msg('ccdwg.read.map_scanned', { n: added }));
+    } catch (e) { if (opts.strict) throw e; }
+  }
   const records = new Map();
   let damaged = 0, crcBad = 0;
   const damagedTypes = {};
@@ -125,7 +133,10 @@ export function readDwg(bytes, opts = {}) {
   if (damaged > 20) notes.push(msg('ccdwg.read.more_failed', { n: damaged - 20 }));
   if (crcBad) notes.push(msg('ccdwg.read.crc_failed', { n: crcBad }));
   for (const [t, n] of Object.entries(damagedTypes)) notes.push(msg('ccdwg.read.partial_type', { n, type: t }));
-  if (ver >= 27) attachDataStorage(records, c.sections['AcDb:AcDsPrototype_1b'], notes);   // builder S: ch. 24 ACIS data
+  if (ver >= 27) {   // builder S: ch. 24 ACIS data
+    try { attachDataStorage(records, c.sections['AcDb:AcDsPrototype_1b'], notes); }
+    catch (e) { if (opts.strict) throw e; notes.push(msg('ccdwg.read.section_failed', { name: 'AcDb:AcDsPrototype_1b', reason: e.message })); }
+  }
 
   buildModel(model, records, ctx);
   try { readDynamic(model); } catch { /* never stops a read: the blocks stay as they are drawn */ }
@@ -142,11 +153,10 @@ function readHeaderSection(sec, ctx) {
   if (!sameBytes(sec, 0, SENTINELS.header)) ctx.notes.push(msg('ccdwg.read.header_sentinel'));
   const d = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
   const size = d.getUint32(16, true);
-  let p = 20;
   const ver = ctx.ver;
   // Spec gap: ch. 9 says the extra RL follows only for R2010/R2013 with maintenance > 3, and R2018+;
   // AutoCAD R2010 files with maintenance 2 do not have it (civil_example-imperial.dwg), maintenance 226 do.
-  if (ver >= 24 && (ctx.maint > 3 || ver >= 32)) p += 4;
+  const p = dataStart(sec, ctx);
   const dataEnd = Math.min(sec.length, p + size);
   if (crc8(0xC0C1, sec, 16, dataEnd) !== d.getUint16(dataEnd, true)) ctx.notes.push(msg('ccdwg.read.header_crc'));
   if (ver < 21) {
@@ -170,6 +180,25 @@ function readHeaderSection(sec, ctx) {
   return vars;
 }
 
+/**
+ * Where the data of the header or classes section starts: after the RL size (20 bytes in), and for R2010/R2013 with
+ * maintenance > 3 and R2018+ after one more RL (ch. 9/10). 0.6.1: programs other than AutoCAD do not all follow the
+ * maintenance rule (the field they write is not always the one ch. 9 means), so when the section CRC disagrees with
+ * the rule and agrees with the other layout, the other layout is read (noted once). Spec gap: found by experiment.
+ */
+function dataStart(sec, ctx) {
+  const d = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
+  const rule = ctx.ver >= 24 && (ctx.maint > 3 || ctx.ver >= 32) ? 24 : 20;
+  if (ctx.ver < 24 || sec.length < 26) return rule;
+  const size = d.getUint32(16, true);
+  const crcOk = (p) => { const end = p + size; return end + 2 <= sec.length && crc8(0xC0C1, sec, 16, end) === d.getUint16(end, true); };
+  if (crcOk(rule)) return rule;
+  const other = rule === 24 ? 20 : 24;
+  if (!crcOk(other)) return rule;
+  if (!ctx.offsetNoted) { ctx.offsetNoted = true; ctx.notes.push(msg('ccdwg.read.header_offset')); }
+  return other;
+}
+
 // ---------------------------------------------------------------- ch. 10 classes
 function readClassesSection(sec, ctx) {
   if (!sec) throw new Error(msg('ccdwg.err.no_classes'));
@@ -177,8 +206,7 @@ function readClassesSection(sec, ctx) {
   const d = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
   const size = d.getUint32(16, true);
   const ver = ctx.ver;
-  let p = 20;
-  if (ver >= 24 && (ctx.maint > 3 || ver >= 32)) p += 4;
+  const p = dataStart(sec, ctx);
   const dataEnd = Math.min(sec.length, p + size);
   if (crc8(0xC0C1, sec, 16, dataEnd) !== d.getUint16(dataEnd, true)) ctx.notes.push(msg('ccdwg.read.classes_crc'));
   let r, endbit = dataEnd * 8;
@@ -215,9 +243,13 @@ function readObjectMap(sec, ctx) {
   // (handles and offsets are deltas within the page) — the first entry of each page is absolute.
   while (p + 2 <= sec.length) {
     const size = (sec[p] << 8) | sec[p + 1];
-    if (size <= 2) break;
+    if (size <= 2) {
+      // the last (empty) page; anything but zeros after it means the map was cut here by damage
+      for (let i = p + 4; i < sec.length; i++) if (sec[i]) { ctx.mapTrouble = true; break; }
+      break;
+    }
     const end = p + size;
-    if (end + 2 > sec.length) { ctx.notes.push(msg('ccdwg.read.map_short')); break; }
+    if (end + 2 > sec.length) { ctx.notes.push(msg('ccdwg.read.map_short')); ctx.mapTrouble = true; break; }
     const crc = (sec[end] << 8) | sec[end + 1];
     if (crc8(0xC0C1, sec, p, end) !== crc) bad++;
     let q = p + 2, h = 0, loc = 0;
@@ -228,8 +260,41 @@ function readObjectMap(sec, ctx) {
     }
     p = end + 2;
   }
-  if (bad) ctx.notes.push(msg('ccdwg.read.map_crc', { n: bad }));
+  if (bad) { ctx.notes.push(msg('ccdwg.read.map_crc', { n: bad })); ctx.mapTrouble = true; }
   return map;
+}
+
+/**
+ * 0.6.1 recovery: the objects of a section whose object map is missing or damaged, found by walking the section —
+ * each object is MS size (+ MC handle-stream size from R2010), data, CRC (20.1, seed 0xC0C1) — and resynchronising
+ * byte by byte where the CRC does not hold. Adds the handles the map does not have; returns how many. Bounded work.
+ */
+function scanObjects(buf, from, to, ctx, map) {
+  const known = new Set(map.values());
+  let p = from, added = 0, work = 0;
+  const budget = 32 * (to - from) + 1e6;
+  while (p + 4 < to) {
+    if (work > budget) { ctx.notes.push(msg('ccdwg.read.scan_stopped')); break; }
+    const size = readMS(buf, p);
+    let q = mod.pos;
+    if (ctx.ver >= 24) { readMCu(buf, q); q = mod.pos; }
+    if (size >= 4 && q + size + 2 <= to) {
+      work += size;
+      if (crc8(0xC0C1, buf, p, q + size) === (buf[q + size] | (buf[q + size + 1] << 8))) {
+        if (!known.has(p)) {
+          try {
+            const rec = decodeObject(buf, p, ctx);
+            if (rec.handle > 0 && !map.has(rec.handle) && !/^TYPE_/.test(rec.type)) { map.set(rec.handle, p); added++; }
+          } catch { /* not an object after all */ }
+        }
+        p = q + size + 2;
+        continue;
+      }
+    }
+    work++;
+    p++;
+  }
+  return added;
 }
 
 // ---------------------------------------------------------------- model assembly
@@ -267,6 +332,8 @@ function buildModelParts(model, records, ctx, buildErrors) {
   const num = (hexStr) => (hexStr ? parseInt(hexStr, 16) : 0);
   const nameOf = (h) => { const r = get(h); return r && r.name !== undefined ? r.name : undefined; };
   const appName = (h) => nameOf(h) ?? hx(h);
+  // 0.6.1: one record that cannot be put together costs that record (noted), never the whole drawing
+  const fail = (what, err) => { buildErrors.steps = (buildErrors.steps || 0) + 1; if (buildErrors.steps <= 10) rep.notes.push(msg('ccdwg.read.step_failed', { what, reason: err && err.message })); };
 
   // ---- tables (control objects → entries)
   const controls = {
@@ -275,19 +342,19 @@ function buildModelParts(model, records, ctx, buildErrors) {
     vports: H.VPORT_CONTROL_OBJECT, appids: H.APPID_CONTROL_OBJECT, dimstyles: H.DIMSTYLE_CONTROL_OBJECT,
   };
   const tableRecs = {};
-  for (const [t, ch] of Object.entries(controls)) {
+  for (const [t, ch] of Object.entries(controls)) { try {
     const c = get(num(ch));
     const seen = new Set(), list = [];
     if (c && c._h.entries) for (const h of c._h.entries) { const r = get(h); if (r && !seen.has(h) && TABLE_OF[r.type] === t) { seen.add(h); list.push(r); } }
     // entries the control does not list (damaged control objects): add them in handle order
     for (const r of records.values()) if (TABLE_OF[r.type] === t && !seen.has(r.handle)) { seen.add(r.handle); list.push(r); }
     tableRecs[t] = list;
-  }
+  } catch (err) { fail('tables', err); } }
   // Round-trip data of files saved down to R13/R14 (also kept by later saves): extension dictionary
   // ACAD_XREC_ROUNDTRIP, XRECORD [102 "EXTNAMES"] [1 short name] [2 long name] — the real (mixed-case, long)
   // table record name. Spec gap: not in the spec; found on R14/R13 files written by the ODA File Converter,
   // which reads the long names back the same way.
-  for (const r of records.values()) {
+  for (const r of records.values()) { try {
     if (!TABLE_OF[r.type] || !r._h.xdic) continue;
     const d = get(r._h.xdic);
     if (!d || d.type !== 'DICTIONARY' || !d.names) continue;
@@ -303,10 +370,10 @@ function buildModelParts(model, records, ctx, buildErrors) {
       const pb = x.data.findIndex((g) => g[0] === 102 && g[1] === 'PLOTBIT');
       if (pb >= 0 && x.data[pb + 1]) r.plot = !!x.data[pb + 1][1];
     }
-  }
+  } catch (err) { fail('ACAD_XREC_ROUNDTRIP', err); } }
   // R13/R14: the R2000+ header variables a save down keeps in the named dictionary ACDBHEADERROUNDTRIPXREC
   // (one XRECORD per variable). Spec gap: found on R13/R14 files from the ODA File Converter.
-  if (ver < 15) {
+  if (ver < 15) { try {
     const nod = get(num(H.DICTIONARY_NAMED_OBJECTS));
     const k = nod && nod.names ? nod.names.indexOf('ACDBHEADERROUNDTRIPXREC') : -1;
     const d = k >= 0 ? get(nod._h.items[k]) : null;
@@ -315,7 +382,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
       if (!x || x.type !== 'XRECORD' || !x.data || x.data.length !== 1 || H[name] !== undefined) return;
       H[name] = x.data[0][1];
     });
-  }
+  } catch (err) { fail('ACDBHEADERROUNDTRIPXREC', err); } }
   // A dynamic block definition saved down to an older version becomes an anonymous "*U" block with the
   // real name in xdata AcDbDynamicBlockTrueName2; it gets its name back (as the ODA File Converter does).
   // (AcDbDynamicBlockTrueName — no "2" — marks the anonymous copy a dynamic block reference uses: that
@@ -330,7 +397,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
   };
   const usedNames = new Set();
   for (const r of records.values()) if (r.type === 'BLOCK_HEADER' && r.name && !/^\*/.test(r.name)) usedNames.add(String(r.name).toUpperCase());
-  for (const r of records.values()) {
+  for (const r of records.values()) { try {
     if (r.type !== 'BLOCK_HEADER' || !r._eed || !/^\*U/i.test(r.name)) continue;
     for (const x of r._eed) {
       const app = appName(x.app);
@@ -340,11 +407,11 @@ function buildModelParts(model, records, ctx, buildErrors) {
         if (rename) { r._storedName = r.name; r.name = r._trueName; usedNames.add(String(r.name).toUpperCase()); }
       }
     }
-  }
+  } catch (err) { fail('AcDbDynamicBlockTrueName', err); } }
   // Anonymous block names. Spec gap: the file stores "*D", "*U", "*T", "*X" (and "*Paper_Space" for every
   // layout block); readers number them. Matching the ODA File Converter's DXF: the number is the record's
   // position in the BLOCK_CONTROL entry list, null entries skipped (the active paper space keeps "*Paper_Space").
-  {
+  { try {
     const c = get(num(H.BLOCK_CONTROL_OBJECT));
     const psH = num(H.BLOCK_RECORD_PAPER_SPACE), msH = num(H.BLOCK_RECORD_MODEL_SPACE);
     const list = c && c._h.entries ? c._h.entries : [];
@@ -356,7 +423,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
       if (!r || r.type !== 'BLOCK_HEADER' || h === psH || h === msH) return;
       if (/^\*[A-Za-z]$/.test(r.name) || /^\*Paper_Space$/i.test(r.name)) { r._storedName = r.name; r.name = r.name + i; }
     });
-  }
+  } catch (err) { fail('BLOCK_CONTROL', err); } }
   const xdataOf = (rec) => {
     if (!rec._eed) return undefined;
     const x = {};
@@ -372,7 +439,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
     return o;
   };
   const T = model.tables;
-  for (const r of tableRecs.layers) {
+  for (const r of tableRecs.layers) { try {
     const lt = get(r._h.ltype);
     T.layers.push({
       ...commonObj(r), name: r.name,
@@ -382,8 +449,8 @@ function buildModelParts(model, records, ctx, buildErrors) {
       plot: r.plot, off: !r.on, frozen: r.frozen, locked: r.locked, frozenInNewViewports: r.frozenNew,
       plotStyle: r._h.plotstyle ? hx(r._h.plotstyle) : undefined, material: r._h.material ? hx(r._h.material) : undefined,
     });
-  }
-  for (const r of tableRecs.linetypes) {
+  } catch (err) { fail('LAYER', err); } }
+  for (const r of tableRecs.linetypes) { try {
     T.linetypes.push({
       ...commonObj(r), name: r.name, flags: (r._xdep ? 16 : 0) | (r._flag64 ? 64 : 0), description: r.description,
       patternLength: r.patternLength,
@@ -393,26 +460,26 @@ function buildModelParts(model, records, ctx, buildErrors) {
         return o;
       }),
     });
-  }
-  for (const r of tableRecs.styles) {
+  } catch (err) { fail('LTYPE', err); } }
+  for (const r of tableRecs.styles) { try {
     T.styles.push({
       ...commonObj(r), name: r.name, flags: (r.isShapeFile ? 1 : 0) | (r.vertical ? 4 : 0) | (r._xdep ? 16 : 0) | (r._flag64 ? 64 : 0),
       height: r.height, widthFactor: r.widthFactor, oblique: r.oblique, generation: r.generation, lastHeight: r.lastHeight,
       font: r.font, bigFont: r.bigFont, shapeFile: r.isShapeFile,
     });
-  }
-  for (const r of tableRecs.dimstyles) {
+  } catch (err) { fail('STYLE', err); } }
+  for (const r of tableRecs.dimstyles) { try {
     const vars = { ...r.vars };
     for (const k of ['DIMTXSTY', 'DIMLDRBLK', 'DIMBLK', 'DIMBLK1', 'DIMBLK2', 'DIMLTYPE', 'DIMLTEX1', 'DIMLTEX2']) {
       if (r._h[k] !== undefined) { vars[k] = hx(r._h[k]); const n = nameOf(r._h[k]); if (n !== undefined) vars[k + '_NAME'] = n; }
     }
     T.dimstyles.push({ ...commonObj(r), name: r.name, flags: (r._xdep ? 16 : 0) | (r._flag64 ? 64 : 0), vars });
-  }
-  for (const [t, list] of [['views', tableRecs.views], ['ucs', tableRecs.ucs], ['vports', tableRecs.vports], ['appids', tableRecs.appids]]) {
+  } catch (err) { fail('DIMSTYLE', err); } }
+  for (const [t, list] of [['views', tableRecs.views], ['ucs', tableRecs.ucs], ['vports', tableRecs.vports], ['appids', tableRecs.appids]]) { try {
     for (const r of list) T[t].push({ ...commonObj(r), ...plain(r), flags: (r._xdep ? 16 : 0) | (r._flag64 ? 64 : 0) });
-  }
+  } catch (err) { fail('tables', err); } }
   const msRec = num(H.BLOCK_RECORD_MODEL_SPACE), psRec = num(H.BLOCK_RECORD_PAPER_SPACE);
-  for (const r of tableRecs.blockRecords) {
+  for (const r of tableRecs.blockRecords) { try {
     const o = {
       ...commonObj(r), name: r.name, flags: blockFlags(r), layout: hx(r._h.layout),
       base: r.base, xrefPath: r.xrefPath, description: r.description,
@@ -421,17 +488,17 @@ function buildModelParts(model, records, ctx, buildErrors) {
     if (r.insertUnits !== undefined) { o.insertUnits = r.insertUnits; o.explodable = r.explodable; o.scalable = r.scalable; }
     if (r.preview) o.preview = b64(r.preview);
     T.blockRecords.push(o);
-  }
+  } catch (err) { fail('BLOCK_RECORD', err); } }
 
   // ---- entities
   const layerName = (h) => { const r = get(h); return r ? r.name : '0'; };
   const recSpace = new Map();   // block record handle → 'model' | 'paper'
   const layoutBlocks = new Set();
   for (const r of records.values()) if (r.type === 'LAYOUT' && r._h.block) layoutBlocks.add(r._h.block);
-  for (const r of tableRecs.blockRecords) {
+  for (const r of tableRecs.blockRecords) { try {
     if (r.handle === msRec || /^\*model_space$/i.test(r.name)) recSpace.set(r.handle, 'model');
-    else if (r.handle === psRec || /^\*paper_space/i.test(r.name) || (layoutBlocks.has(r.handle) && r.name.startsWith('*'))) recSpace.set(r.handle, 'paper');
-  }
+    else if (r.handle === psRec || /^\*paper_space/i.test(r.name) || (layoutBlocks.has(r.handle) && String(r.name || '').startsWith('*'))) recSpace.set(r.handle, 'paper');
+  } catch (err) { fail('LAYOUT', err); } }
   const ownerOf = (rec) => {
     if (rec._h.owner) return rec._h.owner;
     if (rec._entmode === 2) return msRec;
@@ -493,11 +560,11 @@ function buildModelParts(model, records, ctx, buildErrors) {
     return x && x.type === 'XRECORD' && x.data ? x.data : null;
   };
   const mlattFold = new Set();
-  for (const r of records.values()) {
+  for (const r of records.values()) { try {
     if ((r.type !== 'ATTRIB' && r.type !== 'ATTDEF') || !r._h.xdic) continue;
     const data = mlattOf(r);
     if (data) for (const g of data) if (g[0] === 340) mlattFold.add(parseInt(g[1], 16));
-  }
+  } catch (err) { fail('ACAD_MLATT', err); } }
   const applyMlatt = (rec, f) => {
     const data = mlattOf(rec);
     if (!data) return;
@@ -591,6 +658,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
       case 'LEADER': f.annotation = hx(H2.annotation); f.style = nameOf(H2.dimstyle) ?? hx(H2.dimstyle); break;
       case 'TOLERANCE': f.style = nameOf(H2.dimstyle) ?? hx(H2.dimstyle); break;
       case 'MLINE': f.style = nameOf(H2.style) ?? hx(H2.style); break;
+      case 'PDFUNDERLAY': f.definition = hx(H2.def); break;
       case 'IMAGE': case 'WIPEOUT': f.def = hx(H2.def); f.defReactor = hx(H2.defReactor); break;
       case 'VIEWPORT':
         if (ver < 15) Object.assign(f, mviewXdata(rec._eed && rec._eed.find((x) => appName(x.app) === 'ACAD')));
@@ -601,10 +669,13 @@ function buildModelParts(model, records, ctx, buildErrors) {
         for (const l of f.loops) { l.boundary = (l._boundary || []).map(hx); delete l._boundary; delete l._nbound; }
         break;
       case 'SPLINE':
-        // a fit tolerance > 0 asks for an approximating fit (not reproduced: knots/control stay empty)
-        if (rec.scenario === 2 && f.fit && f.fit.length >= 2 && !(f.knots && f.knots.length) && !(f.fitTolerance > 1e-9)) {
+        // a fit tolerance > 0 asks for an approximating fit (not reproduced: knots/control stay empty). 0.6.1: such a
+        // spline gets `approxKnots` / `approxControl` — the curve through its fit points, for drawing only (the program
+        // that made it passes within the tolerance of them; straight lines between the fit points are much further off)
+        if (rec.scenario === 2 && f.fit && f.fit.length >= 2 && !(f.knots && f.knots.length)) {
           const c = fitSplineControl(f.fit, f.degree, f.startTangent, f.endTangent, f.knotParam ?? 0);
-          if (c) { f.knots = c.knots; f.control = c.control; f.controlComputed = true; }
+          if (c && !(f.fitTolerance > 1e-9)) { f.knots = c.knots; f.control = c.control; f.controlComputed = true; }
+          else if (c) { f.approxKnots = c.knots; f.approxControl = c.control; }
         }
         break;
       case 'MULTILEADER': case 'MLEADER':
@@ -652,7 +723,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
   if (ms) recsInOrder.push(ms);
   if (ps && ps !== ms) recsInOrder.push(ps);
   for (const r of tableRecs.blockRecords) if (r !== ms && r !== ps) recsInOrder.push(r);
-  for (const br of recsInOrder) {
+  for (const br of recsInOrder) { try {
     const blk = get(br._h.block);
     const b = {
       name: br.name, handle: hx(br._h.block), record: hx(br.handle), base: br.base, flags: blockFlags(br),
@@ -683,26 +754,35 @@ function buildModelParts(model, records, ctx, buildErrors) {
       }
     }
     model.blocks.push(b);
-  }
+  } catch (err) { fail('blocks', err); } }
 
   // ---- entities nobody lists (damaged chains): keep them in their owner block, noted
-  let orphans = 0;
-  for (const r of records.values()) {
+  let orphans = 0, recoveredMs = 0;
+  for (const r of records.values()) { try {
     if (!r.isEntity || used.has(r.handle) || SUB_TYPES.has(r.type)) continue;
     const owner = ownerOf(r);
-    const b = model.blocks.find((x) => x.record === hx(owner));
+    let b = model.blocks.find((x) => x.record === hx(owner));
+    // 0.6.1: no model space block at all (its record did not decode): the entities whose block is missing go into a
+    // recovered model space, so the drawing still opens
+    if (!b && !model.blocks.some((x) => /^\*model_space$/i.test(x.name))) {
+      b = { name: '*Model_Space', handle: '0', record: hx(msRec || owner), base: { x: 0, y: 0, z: 0 }, flags: 0, xrefPath: '', description: '', entities: [], recovered: true };
+      model.blocks.unshift(b);
+      recSpace.set(msRec || owner, 'model');
+    }
     if (!b) continue;
+    if (b.recovered) recoveredMs++;
     const e = convert(r, owner);
-    const space = recSpace.get(owner);
+    const space = b.recovered ? 'model' : recSpace.get(owner);
     if (space) e.space = space;
     b.entities.push(e);
     counts[countType(e)] = (counts[countType(e)] || 0) + 1;
     orphans++;
-  }
-  if (orphans) rep.notes.push(msg('ccdwg.read.orphans', { n: orphans }));
+  } catch (err) { fail('entities', err); } }
+  if (recoveredMs) rep.notes.push(msg('ccdwg.read.model_space_recovered', { n: recoveredMs }));
+  if (orphans - recoveredMs) rep.notes.push(msg('ccdwg.read.orphans', { n: orphans - recoveredMs }));
 
   // ---- layouts
-  for (const r of records.values()) {
+  for (const r of records.values()) { try {
     if (r.type !== 'LAYOUT') continue;
     const p = r.plot || {};
     const blockRec = r._h.block;
@@ -724,12 +804,12 @@ function buildModelParts(model, records, ctx, buildErrors) {
       ucs: { origin: r.ucsOrigin, xAxis: r.ucsXAxis, yAxis: r.ucsYAxis }, elevation: r.elevation,
       lastActiveViewport: hx(r._h.lastViewport), viewports: vps,
     });
-  }
+  } catch (err) { fail('LAYOUT', err); } }
   model.layouts.sort((a, b) => a.tabOrder - b.tabOrder);
 
   // ---- non-graphical objects
   const isTableThing = (t) => TABLE_OF[t] || /_CONTROL$/.test(t) || t === 'VPENT_HEADER';
-  for (const r of records.values()) {
+  for (const r of records.values()) { try {
     if (r.isEntity || isTableThing(r.type)) continue;
     const o = { ...commonObj(r), type: r.type };
     if (r._unknown) { o.undecoded = true; o.typeNum = r.typeNum; if (r.className) o.className = r.className; unknown[r.type] = (unknown[r.type] || 0) + 1; }
@@ -740,7 +820,7 @@ function buildModelParts(model, records, ctx, buildErrors) {
     if (r._error) o.damaged = r._error;
     const raw = captureRaw(r, ver); if (raw) o.raw = raw;   // passthrough.js (same-version copy)
     model.objects.push(o);
-  }
+  } catch (err) { fail('objects', err); } }
   model.objects.sort((a, b) => parseInt(a.handle, 16) - parseInt(b.handle, 16));
 
   function objectFields(r) {
@@ -789,89 +869,7 @@ function mviewXdata(x) {
   };
 }
 
-/**
- * Control points of a spline the file stores by fit points only (scenario 2, 20.4.40): the DWG holds the fit
- * points, end tangents and knot parameterization; programs compute the curve. Spec gap: the spec does not say
- * how. Found by matching the ODA File Converter's DXF to 1e-9: clamped cubic (degree p) B-spline through the
- * fit points at parameters = cumulative chord length (knotParam 0; square root of it for 1, uniform for 2), with
- * the end derivatives equal to the given unit tangents, or a zero second derivative (natural end) when a
- * tangent is (0,0,0); knots [0×(p+1), the inner parameters, total×(p+1)]. Only for a fit tolerance of 0 (with a
- * tolerance the program approximates). Returns null when it cannot.
- */
-export function fitSplineControl(fit, degree, t0, t1, knotParam = 0) {
-  const n = fit.length, p = degree || 3;
-  if (p !== 3 || n < 2 || n > 2000) return null;
-  const u = [0];
-  for (let i = 1; i < n; i++) {
-    const a = fit[i - 1], b = fit[i];
-    let d = Math.hypot(b.x - a.x, b.y - a.y, (b.z || 0) - (a.z || 0));
-    if (knotParam === 1) d = Math.sqrt(d); else if (knotParam === 2) d = 1;
-    u.push(u[i - 1] + d);
-  }
-  const L = u[n - 1];
-  if (!(L > 0)) return null;
-  const knots = [0, 0, 0, 0, ...u.slice(1, n - 1), L, L, L, L];
-  const m = n + 2;   // control points
-  // basis functions of degree 3 at parameter t (span search on the knot vector)
-  const basis = (t) => {
-    let span = 3;
-    while (span < m - 1 && t >= knots[span + 1]) span++;
-    const N = [1, 0, 0, 0], left = [], right = [];
-    for (let j = 1; j <= 3; j++) {
-      left[j] = t - knots[span + 1 - j]; right[j] = knots[span + j] - t;
-      let saved = 0;
-      for (let r = 0; r < j; r++) {
-        const tmp = N[r] / (right[r + 1] + left[j - r]);
-        N[r] = saved + right[r + 1] * tmp;
-        saved = left[j - r] * tmp;
-      }
-      N[j] = saved;
-    }
-    return { span, N };
-  };
-  // linear system A·P = B, rows: start end condition, n interpolation rows, end condition
-  const A = Array.from({ length: m }, () => new Float64Array(m));
-  const B = Array.from({ length: m }, () => [0, 0, 0]);
-  const has = (t) => t && (t.x || t.y || t.z);
-  // row 0: P0 = Q0
-  A[0][0] = 1; B[0] = [fit[0].x, fit[0].y, fit[0].z || 0];
-  // row 1: start condition on P1
-  const u4 = knots[4], u5 = knots[5];
-  if (has(t0)) { A[1][0] = -1; A[1][1] = 1; B[1] = [t0.x * u4 / 3, t0.y * u4 / 3, (t0.z || 0) * u4 / 3]; }
-  else { A[1][0] = 1 / u4; A[1][1] = -1 / u4 - 1 / (u5 - knots[1] || u5); A[1][2] = 1 / (u5 - knots[1] || u5); }
-  // interior interpolation rows
-  for (let k = 1; k < n - 1; k++) {
-    const { span, N } = basis(u[k]);
-    for (let j = 0; j <= 3; j++) A[k + 1][span - 3 + j] = N[j];
-    B[k + 1] = [fit[k].x, fit[k].y, fit[k].z || 0];
-  }
-  // end condition on P(m-2), then P(m-1) = Q(n-1)
-  const ua = knots[m - 1], ub = knots[m - 2];   // u_{m-1} and u_{m-2} (inner knots next to the end)
-  const e1 = L - ua, e2 = L - ub;
-  if (has(t1)) { A[m - 2][m - 2] = -1; A[m - 2][m - 1] = 1; B[m - 2] = [t1.x * e1 / 3, t1.y * e1 / 3, (t1.z || 0) * e1 / 3]; }
-  else { A[m - 2][m - 1] = 1 / e1; A[m - 2][m - 2] = -1 / e1 - 1 / e2; A[m - 2][m - 3] = 1 / e2; }
-  A[m - 1][m - 1] = 1; B[m - 1] = [fit[n - 1].x, fit[n - 1].y, fit[n - 1].z || 0];
-  // Gaussian elimination with partial pivoting (the matrix is banded; m is small)
-  for (let c = 0; c < m; c++) {
-    let piv = c;
-    for (let r = c + 1; r < Math.min(m, c + 5); r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
-    if (!A[piv][c]) return null;
-    if (piv !== c) { [A[piv], A[c]] = [A[c], A[piv]]; [B[piv], B[c]] = [B[c], B[piv]]; }
-    for (let r = c + 1; r < Math.min(m, c + 5); r++) {
-      const f = A[r][c] / A[c][c];
-      if (!f) continue;
-      for (let k = c; k < Math.min(m, c + 6); k++) A[r][k] -= f * A[c][k];
-      for (let k = 0; k < 3; k++) B[r][k] -= f * B[c][k];
-    }
-  }
-  const P = new Array(m);
-  for (let r = m - 1; r >= 0; r--) {
-    const v = B[r].slice();
-    for (let k = r + 1; k < Math.min(m, r + 6); k++) if (A[r][k]) for (let q = 0; q < 3; q++) v[q] -= A[r][k] * P[k][q];
-    P[r] = v.map((x) => x / A[r][r]);
-  }
-  return { knots, control: P.map(([x, y, z]) => ({ x, y, z })) };
-}
+export { fitSplineControl };   // spline-fit.js
 
 function blockFlags(r) {
   return (r.anonymous ? 1 : 0) | (r.hasAttribs ? 2 : 0) | (r.isXref ? 4 : 0) | (r.isOverlaid ? 8 : 0) | (r._xdep ? 16 : 0) | (r._flag64 ? 64 : 0);

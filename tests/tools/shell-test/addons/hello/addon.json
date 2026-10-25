@@ -1,0 +1,12 @@
+{
+  "id": "hello",
+  "name": "Hello test add-on",
+  "version": "1.2.0",
+  "apps": ["cadcraft", "markupcraft"],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["commands", "toolbar"],
+  "description": "A test fixture for the add-on loader (bin/test-addons.mjs).",
+  "lang": "./lang/"
+}

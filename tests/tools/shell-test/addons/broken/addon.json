@@ -1,0 +1,1 @@
+{ "id": "broken", "name": "No license", "version": "1.0.0", "apps": ["cadcraft", "markupcraft"], "api": "1.0", "entry": "main.js" }

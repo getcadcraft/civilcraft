@@ -36,6 +36,9 @@ export const COMMANDS = [
   C('surface.cad-open', 'surface', 'bi-file-earmark-ruled', T('Surface', 'cad-open')),
   C('surface.feature', 'surface', 'bi-bezier', T('Surface', 'feature'), { defKeys: ['L'] }),
   C('surface.sections', 'surface', 'bi-layout-three-columns', T('Surface', 'sections'), { defKeys: ['X'] }),
+  C('surface.mass', 'surface', 'bi-buildings', T('Surface', 'mass'), { label: 'ms.tb' }),   // 0.7 LC.1 (session massing): the Mass tool
+  C('surface.landscape', 'surface', 'bi-tree', T('Surface', 'landscape'), { label: 'ls.tb.workspace' }),   // 0.7 LD (session landscape)
+  C('surface.powerlines', 'surface', 'bi-lightning-charge', T('Surface', 'powerlines'), { label: 'pl.tb.workspace' }),   // 0.7 PL (D8.1): the Power lines workspace
   C('surface.grades', 'surface', 'bi-percent', '[data-show="gradeOverlay"]', { defKeys: ['E'] }),
   C('design.alignment', 'design', 'bi-signpost-split', T('Design', 'alignment'), { defKeys: ['A'] }),
   C('design.pad', 'design', 'bi-square', T('Design', 'pad'), { defKeys: ['G'] }),
@@ -85,7 +88,7 @@ export const STYLES = {
     quick: ['file.new', 'file.open', 'file.save', 'export.pdf', 'edit.undo', 'edit.redo'],
     tabs: [
       tab('home', [
-        ['draw', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.breakline', 'surface.boundary']],
+        ['draw', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.breakline', 'surface.boundary', 'surface.mass', 'surface.landscape', 'surface.powerlines']],
         ['modify', ['view.select', 'edit.copy', 'edit.paste', 'edit.duplicate', 'edit.delete']],
         ['view', ['view.fit', 'view.view3d', 'design.profile', 'design.pvi-add', 'surface.sections', 'surface.grades']],
         ['clipboard', ['edit.cut', 'edit.paste-in-place', 'edit.select-all', 'edit.select-none']],
@@ -99,7 +102,7 @@ export const STYLES = {
       'design.alignment': ['ALIGNMENT', 'AL'], 'design.pad': ['PAD', 'GRADING'], 'design.pipe': ['PIPE', 'PIPENETWORK'], 'surface.feature': ['FEATURELINE', 'FL'],
       'surface.breakline': ['BREAKLINE', 'BL'], 'surface.boundary': ['BOUNDARY', 'BO'], 'view.select': ['SELECT'], 'view.fit': ['ZOOM', 'Z', 'ZE', 'FIT'],
       'view.view3d': ['3D', '3DORBIT', 'ORBIT'], 'design.profile': ['PROFILE', 'PROFILEVIEW', 'PV'], 'design.pvi-add': ['PVI'], 'surface.sections': ['SECTIONS', 'SAMPLELINES', 'SECTIONVIEW'],
-      'surface.grades': ['GRADES', 'SLOPES'], 'edit.undo': ['U', 'UNDO'], 'edit.redo': ['REDO'], 'edit.copy': ['COPYCLIP'], 'edit.cut': ['CUTCLIP'], 'edit.paste': ['PASTECLIP'],
+      'surface.grades': ['GRADES', 'SLOPES'], 'surface.mass': ['MASS'], 'surface.landscape': ['LANDSCAPE'], 'surface.powerlines': ['POWERLINES'], 'edit.undo': ['U', 'UNDO'], 'edit.redo': ['REDO'], 'edit.copy': ['COPYCLIP'], 'edit.cut': ['CUTCLIP'], 'edit.paste': ['PASTECLIP'],
       'edit.paste-in-place': ['PASTEORIG'], 'edit.duplicate': ['DUPLICATE', 'DUP'], 'edit.delete': ['ERASE', 'E', 'DELETE'], 'edit.select-all': ['SELECTALL', 'AI_SELALL'],
       'edit.select-none': ['DESELECT'], 'file.new': ['NEW'], 'file.open': ['OPEN'], 'file.save': ['SAVE', 'QSAVE'], 'export.pdf': ['PLOT', 'PRINT', 'PDF'],
       'export.landxml': ['LANDXML', 'LANDXMLOUT'], 'export.dxf': ['DXFOUT', 'DXF'], 'export.dwg': ['DWGOUT', 'DWG', 'SAVEAS'], 'surface.cad-open': ['XATTACH', 'LINEWORK'],
@@ -113,7 +116,7 @@ export const STYLES = {
     menus: [m('file', FILE_MENU)],
     quick: ['file.open', 'file.save', 'edit.undo', 'edit.redo'],
     tabs: [
-      tab('home', [['ground', ['file.open', 'surface.cad-open', 'gis.import']], ['create', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature']], ['views', ['design.profile', 'design.pvi-add', 'surface.sections']]]),
+      tab('home', [['ground', ['file.open', 'surface.cad-open', 'gis.import']], ['create', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.mass', 'surface.landscape', 'surface.powerlines']], ['views', ['design.profile', 'design.pvi-add', 'surface.sections']]]),
       tab('surfaces', [['editsurface', ['surface.breakline', 'surface.boundary']], ['analyze', ['surface.grades']]]),
       tab('modify', [['clipboard', ['edit.cut', 'edit.copy', 'edit.paste', 'edit.paste-in-place', 'edit.duplicate', 'edit.delete']], ['selection', ['view.select', 'edit.select-all', 'edit.select-none']]]),
       tab('geolocation', [['coordinates', ['gis.crs']], ['map', ['gis.basemap']], ['data', ['gis.export']]]),

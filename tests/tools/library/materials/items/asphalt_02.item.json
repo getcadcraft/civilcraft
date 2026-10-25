@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Asphalt 02",
+ "kind": "material",
+ "category": "materials/ground",
+ "description": "Asphalt 02: a CC0 texture set from Poly Haven, one tile 3 × 3 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Asphalt 02\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":3,\"height\":3,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "asphalt_02_ao_1k.jpg",
+    "sha256": "c7397b4187c53203592c68d1d52ce92cc42981c2154b15b9a685f2b5205a260d",
+    "media": "image/jpeg",
+    "bytes": 533336
+   },
+   "color": {
+    "file": "asphalt_02_diff_1k.jpg",
+    "sha256": "1aa5ce99f58a625c71d48cfc3e68b65ca85ccb00f39e045c0a928608a0ea25ed",
+    "media": "image/jpeg",
+    "bytes": 731707
+   },
+   "height": {
+    "file": "asphalt_02_disp_1k.jpg",
+    "sha256": "9e651a0fdb6f9749e9cd7a85b0f470b76c4b1a96837bd7ff30fb5f6bea92d3f1",
+    "media": "image/jpeg",
+    "bytes": 354943
+   },
+   "normal": {
+    "file": "asphalt_02_nor_gl_1k.jpg",
+    "sha256": "42a1c381b53204e83a982db2864479a30bc127bbdeebb1006f8ee51bff099df3",
+    "media": "image/jpeg",
+    "bytes": 1240122,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "asphalt_02_rough_1k.jpg",
+    "sha256": "70ba3edc65525eb4dc366cf010ca7ae0bd34e0251ff0225c2dad627a873d0712",
+    "media": "image/jpeg",
+    "bytes": 544032
+   }
+  },
+  "size": [
+   3,
+   3
+  ]
+ }
+}

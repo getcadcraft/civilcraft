@@ -81,4 +81,8 @@ On a Mac keyboard, the key labeled **delete** is {{key:Backspace}} to the browse
 ## Next
 
 - [Design a vertical profile](topic:profile).
-- Spirals are not available yet; see [Not built yet](topic:not-built-yet).
+## Spirals
+
+A curve can have a clothoid spiral at either end: tangent, spiral, curve, spiral, tangent. In the PI table, type a length in **Spiral in** and **Spiral out** for a PI that has a radius. The PI stays where it is; the curve moves in to make room, so the tangent distance grows by the spiral's offset. The two lengths can differ, and a PI with only one length gets a spiral at that end only.
+
+The curve list then reads TS, SC, CS and ST (tangent to spiral, spiral to curve, curve to spiral, spiral to tangent) with the spiral angle θs, the tangent distances and the external distance. Stations run along the spirals like everywhere else. Spirals that together turn more than the curve does are refused with the PI named; a spiral longer than the tangent allows is an overlap, as for any curve. Superelevation uses the spiral as its runoff (see [Corridor](topic:corridor)).

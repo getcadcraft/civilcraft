@@ -60,7 +60,7 @@ export const RELEASES = Object.freeze({
   truss: Object.freeze([false, false, false, true, true, true]),
 });
 export const LOAD_DIRS = ['X', 'Y', 'Z', 'x', 'y', 'z'];
-export const CASE_KINDS = ['dead', 'live', 'wind', 'snow', 'seismic', 'other'];
+export const CASE_KINDS = ['dead', 'live', 'roof', 'wind', 'snow', 'seismic', 'other'];
 export const LIMITS = Object.freeze({ nodes: 50000, members: 50000, cases: 100, combos: 200, loads: 100000, text: 80 });
 
 const num = (v) => (typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : NaN);
@@ -101,7 +101,10 @@ export function cleanFrame(obj) {
   const sections = uniq(arr(j.sections, 5000).map((s) => {
     const A = fin(s?.A, 1e-9), Iy = fin(s?.Iy, 1e-9), Iz = fin(s?.Iz, 1e-9), J = fin(s?.J, 1e-9);
     if (!id(s?.id) || [A, Iy, Iz, J].includes(null)) { warn('bad-section'); return null; }
-    return { id: id(s.id), name: text(s.name) || id(s.id), A, Iy, Iz, J };
+    const out = { id: id(s.id), name: text(s.name) || id(s.id), A, Iy, Iz, J };
+    const sh = cleanShape(s.shape);
+    if (sh) out.shape = sh;
+    return out;
   }).filter(Boolean), 'section');
   const secIds = new Set(sections.map((s) => s.id));
 
@@ -150,10 +153,23 @@ export function cleanFrame(obj) {
   const combos = uniq(arr(j.combos, LIMITS.combos).map((c) => {
     if (!id(c?.id)) { warn('bad-combo'); return null; }
     const factors = arr(c.factors, LIMITS.cases).map((x) => ({ case: id(x?.case), f: fin(x?.f, -1e3, 1e3) })).filter((x) => caseIds.has(x.case) && x.f !== null);
-    return { id: id(c.id), name: text(c.name) || id(c.id), factors };
+    const out = { id: id(c.id), name: text(c.name) || id(c.id), factors };
+    if (c.limit === 'strength' || c.limit === 'service') { out.limit = c.limit; out.clause = text(c.clause, 120); }   // made by frame-combos.js
+    return out;
   }).filter(Boolean), 'combo');
 
   return { model: { format: FORMAT, version: VERSION, name: text(j.name) || '', nodes, materials, sections, members, supports, cases, combos }, warnings };
+}
+
+/** The drawn shape a design check reads (0.7 SU.878): an I-shape's d, bf, tw, tf, r in mm, or null. */
+function cleanShape(sh) {
+  if (!sh || typeof sh !== 'object' || sh.kind !== 'I') return null;
+  const v = (x, lo, hi) => (typeof x === 'number' && Number.isFinite(x) && x >= lo && x <= hi ? x : null);
+  const d = v(sh.d, 1, 5000), bf = v(sh.bf, 1, 2000), tw = v(sh.tw, 0.1, 500), tf = v(sh.tf, 0.1, 500), r = v(sh.r ?? 0, 0, 200);
+  if ([d, bf, tw, tf, r].includes(null) || 2 * tf + 1 >= d || tw >= bf) return null;
+  const out = { kind: 'I', d, bf, tw, tf, r };
+  if (sh.welded) out.welded = true;
+  return out;
 }
 
 function cleanLoad(l, nodeIds, memIds) {

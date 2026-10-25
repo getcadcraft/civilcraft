@@ -26,10 +26,10 @@ const HELP = `cadcraft-mcp ${PACKAGE_VERSION} — CadCraft's tools for an AI ass
 
   --root     a folder the assistant may open files in and write to (repeat for more). Without one, no file is reachable.
   --allow    permission groups (default read):
-               read    open, describe, list, query and check drawings, IFC models, takeoffs and PDF markups
-               edit    run commands and scripts on open drawings (each call one undo step)
-               save    write drawings (DWG/DXF) back, or as new drawing files
-               export  write PDF plots, converted drawings, CSV/XLSX
+               read    open, describe, list, query and check drawings, IFC models, takeoffs and PDF markups; count in a DWG/DXF
+               edit    run commands and scripts on open drawings, count or measure into a takeoff (each call one undo step)
+               save    write drawings (DWG/DXF) back, or as new drawing files; takeoffs, sites, parts, IFC models
+               export  write PDF plots, converted drawings, CSV/XLSX, OpenUSD, PartCraft exports and manuals
   --log      append every call as a JSON line (inside a --root folder or the current folder)
   --verbose  also print every call on stderr
 
@@ -85,9 +85,9 @@ const d = createDispatcher({
   server: { name: 'cadcraft', title: 'CadCraft', version: PACKAGE_VERSION },
   allowed: () => allowed,
   howToAllow: (g) => 'The person can restart the server with --allow ' + [...new Set([...allowed, g])].join(',') + '.',
-  instructions: () => 'CadCraft tools for DWG/DXF drawings (CadCraft), IFC models (BimCraft), takeoffs (TakeoffCraft) and PDF markups (MarkupCraft). '
+  instructions: () => 'CadCraft tools for DWG/DXF drawings (CadCraft), IFC models (BimCraft), CivilCraft sites, PartCraft parts and manuals, takeoffs (TakeoffCraft, on PDFs or straight from a DWG/DXF) and PDF markups (MarkupCraft). '
     + 'Files: only inside ' + (env.roots.any ? env.roots.list.join(', ') : 'no folders (no --root was given)') + '. Allowed: ' + [...allowed].join(', ') + '. '
-    + 'Open a file first (drawing_open, ifc_open, takeoff_open) and pass the handle it returns. command_run types at CadCraft\'s command line, one prompt answer per list item; every edit is one undo step labelled "Assistant: …".',
+    + 'Open a file first (drawing_open, ifc_open, site_open, part_open, takeoff_open — a .takeoff.json or a .dwg/.dxf for the cad_* tools; markups_list and illustrate_export take a path) and pass the handle it returns. command_run types at CadCraft\'s command line, one prompt answer per list item; every edit is one undo step labelled "Assistant: …".',
   log: (entry) => {
     if (logFile) { try { fs.appendFileSync(logFile, JSON.stringify(entry) + '\n'); } catch (e) { err('cadcraft-mcp: could not write the log: ' + e.message); } }
     if (opts.verbose) err('[' + entry.time + '] ' + entry.tool + ' ' + entry.outcome + ' ' + entry.ms + ' ms' + (entry.message ? ' — ' + entry.message : ''));

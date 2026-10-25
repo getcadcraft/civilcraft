@@ -39,6 +39,7 @@ const SHOW_LABELS = [   // [what, language key]: looked up when the bar is built
   ['breaklines', 'scene.layer.brkl'], ['alignments', 'v3d.show.alignments'], ['corridors', 's3.corridors'], ['pads', 'v3d.show.pads'],
   ['pipes', 'v3d.show.pipes'], ['points', 'scene.layer.node'], ['gis', 'v3d.show.gis'],   // gis: 0.4 V4
   ['labels', 'v3d.show.labels'],   // 0.5 WL.22
+  ['masses', 'ms.show'],   // 0.7 LC.1
 ];
 const VIEW_KEYS = { iso: 'v3d.view.iso', top: 'v3d.view.top', bottom: 'v3d.view.bottom', front: 'v3d.view.front', back: 'v3d.view.back', left: 'v3d.view.left', right: 'v3d.view.right' };
 
@@ -296,7 +297,7 @@ export class SiteView3D {
 }
 
 /** The 3D stage inside `host` (the plan area): bar + canvas + tip. */
-export function mountSite3D(host, { project, onPick = () => false, say = () => {}, exag: exag0 = null, onExag = () => {}, corner = 'cube', drape: getDrape = null, selection = () => null }) {
+export function mountSite3D(host, { project, onPick = () => false, say = () => {}, exag: exag0 = null, onExag = () => {}, corner = 'cube', drape: getDrape = null, selection = () => null, onPushPull = null }) {
   const state = readState();
   if (EXAGGERATIONS.includes(exag0)) state.exag = exag0;
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ exag: state.exag, color: state.color, persp: state.persp, show: state.show })); } catch { /* storage blocked: this visit only */ } };
@@ -312,7 +313,11 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     el('div', { className: 'cv-menu-list cv3-checks' }, ...checks));
   const glb = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-glb': '', title: t('v3d.glb.title') }, 'GLB');   // i18n-ignore: file format name
   const obj = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-obj': '', title: t('v3d.obj.title') }, 'OBJ');   // i18n-ignore: file format name
-  const bar = el('div', { className: 'cv3-bar', 'data-3d-bar': '' }, viewSel, persp, extents, exag, color, showMenu, el('span', { className: 'cv3-sep' }, t('v3d.export')), glb, obj);
+  // 0.7 XF.8 (session usd): Export › USD — usd-civilcraft.js on cc-usd (./usd/, lib/usd synced), the format picked from a menu
+  const usdMenu = el('details', { className: 'cv-menu cv3-menu', 'data-3d-usd-menu': '' },
+    el('summary', { className: 'cv-toggle', title: t('usd.export.title') }, t('usd.export.button')),
+    el('div', { className: 'cv-menu-list' }, ...['usda', 'usdc', 'usdz'].map((f) => el('button', { type: 'button', className: 'cv-toggle', 'data-3d-usd': f }, t('usd.dialog.format.' + f)))));
+  const bar = el('div', { className: 'cv3-bar', 'data-3d-bar': '' }, viewSel, persp, extents, exag, color, showMenu, el('span', { className: 'cv3-sep' }, t('v3d.export')), glb, obj, usdMenu);
   const canvas = el('canvas', { className: 'cv-canvas cv3-canvas', 'data-3d-canvas': '', tabindex: '0', 'aria-label': t('v3d.canvas') });   // 0.4 V5: more can be clicked now
   const stage = el('div', { className: 'cv3-stage' }, canvas);
   const tip = el('div', { className: 'cv3-tip', 'data-3d-tip': '', hidden: true });
@@ -431,6 +436,12 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     get drive() { return dv; },   // 0.4 V10
     exportGLB() { rebuild(); return download(exportGLB(data, { name: project().state.name }), fileName('glb'), 'model/gltf-binary'); },
     exportOBJ() { rebuild(); return download(exportOBJ(data, { name: project().state.name }), fileName('obj'), 'text/plain'); },
+    async exportUSD(format = 'usdz') {
+      rebuild();
+      const { siteUsd } = await import('./usd-civilcraft.js');
+      const r = siteUsd(data, { format, name: project().state.name || 'site', crs: project().state.crs });
+      return download(r.data, fileName(format), format === 'usda' ? 'model/vnd.usda' : format === 'usdz' ? 'model/vnd.usdz+zip' : 'application/octet-stream');
+    },
     pick(x, y) { return pickSite(data, view.cam, x, y); },
   };
   const fileName = (ext) => (project().state.name || 'site').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').trim().slice(0, 80) + '-3d.' + ext;
@@ -462,6 +473,7 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   document.addEventListener('click', (e) => { if (showMenu.open && !showMenu.contains(e.target)) showMenu.open = false; });
   glb.addEventListener('click', () => api.exportGLB());
   obj.addEventListener('click', () => api.exportOBJ());
+  usdMenu.addEventListener('click', (e) => { const f = e.target.closest('[data-3d-usd]')?.getAttribute('data-3d-usd'); if (!f) return; usdMenu.open = false; api.exportUSD(f).catch((err) => say(t('usd.export.failed', { why: String(err.message || err) }))); });
 
   // ---- theme ----
   const retheme = () => { theme = themeColors(); builtFor = null; if (!host.hidden) rebuild(); };
@@ -489,6 +501,15 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     // Shift swaps orbit and pan; 'zoom' drags zoom; 'none' leaves the button alone (a click still picks)
     const act = e.pointerType === 'touch' ? null : action3d(e.button);
     const mode = act === null ? (e.button === 2 ? 'pan' : 'orbit') : act;
+    // 0.7 LC.1 M2: push/pull — a drag that starts on the roof of the selected mass moves the roof, a floor at a time
+    if (e.button === 0 && !e.shiftKey && onPushPull && data?.roofs?.length) {
+      const sl = selection(), roof = sl?.kind === 'mass' ? data.roofs.find((r) => r.id === sl.id) : null;
+      const h = roof ? api.pick(p.x, p.y) : null;
+      if (h && h.kind === 'mass' && h.id === roof.id && Math.abs(h.at.z - roof.z) < 0.02 * roof.floorHeight) {
+        drag = { x: p.x, y: p.y, x0: p.x, y0: p.y, button: 0, push: { roof, hx: h.at.x - data.origin.x, hy: h.at.y - data.origin.y, last: roof.floors } };
+        return;
+      }
+    }
     drag = { x: p.x, y: p.y, x0: p.x, y0: p.y, button: e.button, pan: act === null ? e.button === 2 || e.shiftKey : mode === 'pan' ? !e.shiftKey : mode === 'orbit' ? e.shiftKey : false, zoom: mode === 'zoom', none: mode === 'none', moved: false };
     if (e.button === 1) e.preventDefault();
   });
@@ -513,6 +534,16 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     if (!drag.moved && Math.hypot(p.x - drag.x0, p.y - drag.y0) < (e.pointerType === 'touch' ? 10 : 4)) return;   // a finger's tap wobbles
     drag.moved = true;
     tip.hidden = true;
+    if (drag.push) {   // the closest point of the pointer's ray to the vertical line through the grab point is the roof's new height
+      const { o, d } = view.cam.ray(p.x, p.y), Q = [drag.push.hx, drag.push.hy, 0], w0 = [o[0] - Q[0], o[1] - Q[1], o[2]];
+      const a = d[0] * d[0] + d[1] * d[1] + d[2] * d[2], b = d[2], d0 = d[0] * w0[0] + d[1] * w0[1] + d[2] * w0[2], den = a - b * b;
+      if (Math.abs(den) > 1e-6 * a) {
+        const tz = (a * w0[2] - b * d0) / den, z = tz / data.exag + data.origin.z, r = drag.push.roof;
+        const floors = Math.max(1, Math.round((z - r.z0) / r.floorHeight));
+        if (floors !== drag.push.last) { drag.push.last = floors; onPushPull(r.id, floors, false); builtFor = null; rebuild(); }
+      }
+      return;
+    }
     if (drag.none) return;
     if (drag.zoom) view.cam.zoomAt(Math.exp(dy * 0.01), drag.x0, drag.y0); else if (drag.pan) view.cam.pan(dx, dy); else view.cam.orbit(dx, dy);
     view.invalidate();
@@ -520,6 +551,7 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   const end = (e) => {
     if (e.pointerType === 'touch') { touches.delete(e.pointerId); if (pinch) { if (!touches.size) pinch = null; return; } }
     const d = drag; drag = null;
+    if (d?.push) { if (d.moved) onPushPull(d.push.roof.id, d.push.last, true); return; }
     if (!d || d.moved || d.button !== 0 || e.type !== 'pointerup') return;
     const p = pos(e);
     const hit = api.pick(p.x, p.y);
@@ -555,6 +587,8 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   }, { passive: false });
   canvas.addEventListener('keydown', (e) => {
     if (dv.keydown(e)) { e.preventDefault(); e.stopPropagation(); return; }   // 0.4 V10
+    const sl0 = onPushPull && data?.roofs?.length ? selection() : null, rf = sl0?.kind === 'mass' ? data.roofs.find((r) => r.id === sl0.id) : null;
+    if (rf && (e.key === 'PageUp' || e.key === 'PageDown') && !e.ctrlKey && !e.altKey) { e.preventDefault(); onPushPull(rf.id, Math.max(1, rf.floors + (e.key === 'PageUp' ? 1 : -1)), true); return; }   // 0.7 LC.1: one floor
     const step = 40;
     const m = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
     if (m && !e.ctrlKey && !e.altKey) { e.preventDefault(); if (e.shiftKey) view.cam.pan(-m[0], -m[1]); else view.cam.orbit(m[0], m[1]); view.invalidate(); return; }

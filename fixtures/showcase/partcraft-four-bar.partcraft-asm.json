@@ -1,0 +1,1081 @@
+{
+ "format": "partcraft-assembly",
+ "version": 2,
+ "name": "Four-bar linkage",
+ "seq": 13,
+ "parts": {
+  "p1": {
+   "name": "Ground",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Ground",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "base",
+       "name": "front"
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 108,
+         "y": -8
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 108,
+         "y": -8
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 108,
+         "y": 8
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 108,
+         "y": 8
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 5,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "face",
+       "feature": "f2",
+       "face": "end"
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 100,
+         "y": 0
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f3",
+      "kind": "simple",
+      "d": 4,
+      "depth": 5,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   }
+  },
+  "p3": {
+   "name": "Crank",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Crank",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "base",
+       "name": "front"
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 38,
+         "y": -8
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 38,
+         "y": -8
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 38,
+         "y": 8
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 38,
+         "y": 8
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 5,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "face",
+       "feature": "f2",
+       "face": "end"
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 30,
+         "y": 0
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f3",
+      "kind": "simple",
+      "d": 4,
+      "depth": 5,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   }
+  },
+  "p5": {
+   "name": "Coupler",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Coupler",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "base",
+       "name": "front"
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 118,
+         "y": -8
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 118,
+         "y": -8
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 118,
+         "y": 8
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 118,
+         "y": 8
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 5,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "face",
+       "feature": "f2",
+       "face": "end"
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 110,
+         "y": 0
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f3",
+      "kind": "simple",
+      "d": 4,
+      "depth": 5,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   }
+  },
+  "p7": {
+   "name": "Rocker",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Rocker",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "base",
+       "name": "front"
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 88,
+         "y": -8
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 88,
+         "y": -8
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 88,
+         "y": 8
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 88,
+         "y": 8
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -8,
+         "y": 8
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -8,
+         "y": -8
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 5,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "face",
+       "feature": "f2",
+       "face": "end"
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 80,
+         "y": 0
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f3",
+      "kind": "simple",
+      "d": 4,
+      "depth": 5,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   }
+  }
+ },
+ "instances": [
+  {
+   "id": "i2",
+   "part": "p1",
+   "name": "Ground<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i4",
+   "part": "p3",
+   "name": "Crank<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i6",
+   "part": "p5",
+   "name": "Coupler<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i8",
+   "part": "p7",
+   "name": "Rocker<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  }
+ ],
+ "joints": [
+  {
+   "id": "j9",
+   "name": "Revolute1",
+   "type": "revolute",
+   "a": {
+    "inst": "i2",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "end"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 0
+    }
+   },
+   "b": {
+    "inst": "i4",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "start"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 0
+    }
+   },
+   "angle": 60,
+   "offset": 0
+  },
+  {
+   "id": "j10",
+   "name": "Revolute2",
+   "type": "revolute",
+   "a": {
+    "inst": "i4",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "end"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 1
+    }
+   },
+   "b": {
+    "inst": "i6",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "start"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 0
+    }
+   },
+   "angle": -88.186467141,
+   "offset": 0
+  },
+  {
+   "id": "j11",
+   "name": "Revolute3",
+   "type": "revolute",
+   "a": {
+    "inst": "i8",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "end"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 1
+    }
+   },
+   "b": {
+    "inst": "i6",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "start"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 1
+    }
+   },
+   "angle": -105.15099088,
+   "offset": 0
+  },
+  {
+   "id": "j12",
+   "name": "Revolute4",
+   "type": "revolute",
+   "a": {
+    "inst": "i2",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "end"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 1
+    }
+   },
+   "b": {
+    "inst": "i8",
+    "plane": {
+     "kind": "face",
+     "feature": "f2",
+     "face": "start"
+    },
+    "axis": {
+     "feature": "f4",
+     "index": 0
+    }
+   },
+   "angle": 76.964523739,
+   "offset": 0
+  }
+ ],
+ "views": []
+}

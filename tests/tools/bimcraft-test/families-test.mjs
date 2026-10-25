@@ -79,7 +79,7 @@ export async function familiesMode({ APP, ROOT, WebIFC, IfcModel, quiet, args })
     }
     ok(cases === 324 && diff === 0, 'all 18 kinds × both faces × 3 sizes × 3 wall thicknesses: the same boxes, in the same order, the same colours (exact floats)', diff + ' differ, first ' + first);
     const all = FS.STARTER_KEYS.map((k) => FM.readFamily(FS.starterRecipe(k)));
-    ok(all.length === 21 && all.every((r) => r.ok), '21 starter families (18 doors and windows, 3 furniture) pass the untrusted reader', JSON.stringify(all.find((r) => !r.ok)?.errors));
+    ok(all.length === 26 && all.every((r) => r.ok), '26 starter families (18 doors and windows, 3 furniture, 5 plumbing fixtures) pass the untrusted reader', JSON.stringify(all.find((r) => !r.ok)?.errors));
   }
 
   // ============================================================================================ the recipe reader and evaluator

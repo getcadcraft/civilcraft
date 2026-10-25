@@ -9,18 +9,32 @@
  * Typed lengths (0.6 DF.3): readLength(text, unit) → { ok, value } | { ok: false, error } — a plain number (project units),
  * or a length with its own marks (12'6", 12' 6 1/2", 6", 3 ft 6 in, 4 7/16, 450 mm, 1.2 m, 90 cm), or arithmetic over them
  * (4+7/16, 12'6" + 3/4", (24'-0")/3, 2*450mm) through lencalc.js. Feet and inches are international feet in a metre
- * project and project feet in a feet project (US survey feet: the 2 ppm is not a typing matter). Never for stations:
+ * project and project feet in a feet project (US survey feet: the 2 ppm is not a typing matter); since 0.7 UNITS also every
+ * other length mark of the shared table (3 ch, 2 rd, 0.5 mi, 10 US ft, 1 km: exact, the survey foot kept apart). Never for stations:
  * "10+00" is a station (parseStation).
  */
 
 import { t } from "./i18n.js";
 import { calc, hasArithmetic } from './lencalc.js';   // 0.6 DF.3: + - * / and brackets (a copy: tools/lencalc/sync.mjs; never edit it)
+import { parseTo, fromBase, unit as tableUnit } from './unit-table.js';   // 0.7 UNITS: the shared table (lib/units; tools/units/sync.mjs)
+import { starOf } from './unit-prefs.js';
 
 export const UNITS = {
   ft: { key: 'ft', get name() { return t('units.ft'); }, short: 'ft', area: 'sq ft', vol: 'cu yd', volPer: 27, staLen: 100, staDec: 2, dec: 2, landxml: 'USSurveyFoot' },   // i18n-ignore: unit symbols and the LandXML unit name
   m: { key: 'm', get name() { return t('units.m'); }, short: 'm', area: 'sq m', vol: 'cu m', volPer: 1, staLen: 1000, staDec: 3, dec: 3, landxml: 'meter' },   // i18n-ignore: unit symbols and the LandXML unit name
 };
 export const unitOf = (u) => UNITS[u] || UNITS.ft;
+/** A project unit → the shared table's id: CivilCraft's feet have always been US survey feet (LandXML USSurveyFoot). */
+export const TABLE_ID = Object.freeze({ ft: 'usft', m: 'm' });
+const M_PER_UNIT = { ft: 1200 / 3937, m: 1 };
+/**
+ * The unit of a new project (0.7 UNITS): the length unit starred in Settings › General › Units — a metric one gives
+ * metres, any other feet — else feet. An opened project keeps its own.
+ */
+export function newProjectUnits() {
+  const s = starOf('length');
+  return s ? (tableUnit(s).sys === 'metric' ? 'm' : 'ft') : 'ft';
+}
 
 /** Metres per unit for linear units found in files (LandXML linearUnit names). */
 export const METRES_PER = { USSurveyFoot: 1200 / 3937, foot: 0.3048, ft: 0.3048, meter: 1, m: 1, metre: 1, millimeter: 0.001, centimeter: 0.01, kilometer: 1000 };
@@ -66,11 +80,16 @@ function oneLength(x, unit) {
   // feet and inches: 12'6", 12' 6 1/2", 12'-6", 6", 3 ft 6 in, 3ft, 6 in
   s = s.replace(/\b(feet|foot|ft)\b\.?/g, "'").replace(/\b(inches|inch|in)\b\.?/g, '"').replace(/''/g, '"');
   const fi = s.match(/^(?:([\d./ -]+?) ?')?(?: ?-? ?([\d./ -]+?) ?")?$/);
-  if (!fi || (!fi[1] && !fi[2])) return null;
+  if (!fi || (!fi[1] && !fi[2])) return tableLength(x, unit);
   const ft = fi[1] ? frac(fi[1]) : 0, inch = fi[2] ? frac(fi[2]) : 0;
   if (ft === null || inch === null) return null;
   const feet = ft + inch / 12;
   return unit === 'm' ? feet * 12 * M_PER_IN : feet;
+}
+/** Any other length mark of the shared table (0.7 UNITS: 3 ch, 2 rd, 0.5 mi, 10 US ft, 1 km) → project units, or null. */
+function tableLength(x, unit) {
+  const r = parseTo(x, 'length', unit === 'm' ? 'm' : 'usft');   // as typed: case matters there (nm is not NM)
+  return r.ok ? r.value : null;
 }
 /** A typed length or sum of lengths (see the header) → { ok, value } | { ok: false, error }. */
 export function readLength(text, unit = 'ft') {
@@ -101,9 +120,25 @@ export function grouped(n, d = 0) {
 }
 export const pct = (g, d = 2) => (Number.isFinite(g) ? (g * 100 >= 0 ? '+' : '') + fixed(g * 100, d) + '%' : '');
 
-/** A volume in the unit's report unit (cu yd for feet, cu m for metres). */
-export function volumeText(v, unit = 'ft', d = 1) { const u = unitOf(unit); return grouped(v / u.volPer, d) + ' ' + u.vol; }
-export function areaText(a, unit = 'ft', d = 0) { return grouped(a, d) + ' ' + unitOf(unit).area; }
+/**
+ * A volume in the unit's report unit (cu yd for feet, cu m for metres), or in the volume unit starred in Settings ›
+ * General › Units (0.7 UNITS: acre-feet, litres …); the same for areas (acres, hectares …).
+ */
+export function volumeText(v, unit = 'ft', d = 1) {
+  const s = starred('volume', unit, { ft: 'yd3', m: 'm3' });
+  if (s) return grouped(fromBase(v * (M_PER_UNIT[unit] || M_PER_UNIT.ft) ** 3, s.id), s.dec) + ' ' + s.mark;
+  const u = unitOf(unit); return grouped(v / u.volPer, d) + ' ' + u.vol;
+}
+export function areaText(a, unit = 'ft', d = 0) {
+  const s = starred('area', unit, { ft: 'ft2', m: 'm2' });
+  if (s) return grouped(fromBase(a * (M_PER_UNIT[unit] || M_PER_UNIT.ft) ** 2, s.id), s.dec) + ' ' + s.mark;
+  return grouped(a, d) + ' ' + unitOf(unit).area;
+}
+/** The starred unit of a kind when it is not the project's own report unit, else null. */
+function starred(kind, unit, own) {
+  const id = starOf(kind);
+  return id && id !== own[unit === 'm' ? 'm' : 'ft'] ? tableUnit(id) : null;
+}
 
 /** Bearing text for a direction angle (radians, math convention: 0 = east, CCW) → N 45°12'30" E. */
 export function bearing(a) {

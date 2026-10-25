@@ -67,6 +67,51 @@
 .cc-in-tool.cc-in-big { flex-direction: column; justify-content: flex-start; gap: .15rem; min-width: 3.5rem; padding: .3rem .35rem; font-size: .75rem; text-align: center; line-height: 1.15; }
 .cc-in-tool.cc-in-big i { font-size: 1.2rem; }
 
+/* 0.7 RIBBON-COMPACT: mixed groups — large buttons beside small ones stacked three high, split buttons, inline controls, the group name's arrow.
+   A group that says no size anywhere is drawn exactly as before (.cc-in-mixed is only added to a mixed one). */
+.cc-in-panel.cc-in-mixed .cc-in-pbtns { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); grid-auto-columns: max-content; align-content: start; gap: 0 .1rem; }
+.cc-in-mixed :is(.cc-in-tool.cc-in-big, .cc-in-split-lg, .cc-in-ctl-lg) { grid-row: span 3; }
+.cc-in-mixed .cc-in-ctl-sm { align-self: center; }
+.cc-in-tool.cc-in-sm { flex-direction: row; justify-content: flex-start; gap: .3rem; min-width: 0; height: 1.5rem; padding: 0 .4rem; font-size: .75rem; line-height: 1; white-space: nowrap; }
+.cc-in-tool.cc-in-sm i { font-size: .95rem; }
+/* split button: the face (the last tool used) and a small arrow; large = the arrow under the face, small = beside it */
+.cc-in-split { display: flex; align-items: stretch; min-width: 0; }
+.cc-in-split-lg { flex-direction: column; }
+.cc-in-split-lg > .cc-in-tool { flex: 1 1 auto; }
+.cc-in-splitmenu { display: flex; }
+.cc-in-split-lg .cc-in-splitmenu { justify-content: center; }
+.cc-in-splitarrow, .cc-in-moresum { list-style: none; display: inline-grid; place-items: center; cursor: pointer; color: var(--ink-2); user-select: none; }
+.cc-in-splitarrow::-webkit-details-marker, .cc-in-moresum::-webkit-details-marker { display: none; }
+.cc-in-splitarrow { padding: 0 .25rem; font-size: .5rem; min-width: 1rem; }
+.cc-in-split-lg .cc-in-splitarrow { width: 100%; min-height: .9rem; }
+.cc-in-split-sm .cc-in-splitarrow { height: 1.5rem; }
+.cc-in-menu > .cc-in-splitarrow:hover, .cc-in-menu[open] > .cc-in-splitarrow, .cc-in-menu > .cc-in-moresum:hover, .cc-in-menu[open] > .cc-in-moresum { background: var(--ink); color: var(--sheet); }
+.cc-in-splitarrow:focus-visible, .cc-in-moresum:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -3px; }
+.cc-in-splitmenu > .cc-in-list { left: 0; min-width: 12rem; }
+/* group name along the bottom, with its arrow for the group's extra tools */
+.cc-in-plabel { display: flex; align-items: center; justify-content: center; gap: .15rem; }
+.cc-in-pname { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.cc-in-pmore { display: inline-flex; }
+.cc-in-moresum { width: 1.1rem; height: 1rem; font-size: .5625rem; border-radius: var(--radius); }
+.cc-in-pmore > .cc-in-list { top: auto; bottom: calc(100% + var(--pen-2)); left: auto; right: -.3rem; }
+.cc-in-ctl { display: flex; align-items: center; min-width: 0; padding: 0 .15rem; }
+.cc-in-ctl-lg { align-items: flex-start; padding-top: .3rem; }
+/* Compact density: small buttons and splits a little tighter (the Ribbon's own rows follow the density; touch keeps its targets) */
+@media (pointer: fine) {
+  html[data-cc-density="compact"] .cc-in-tool.cc-in-sm { height: 1.375rem; padding: 0 .3rem; }
+  html[data-cc-density="compact"] .cc-in-split-sm .cc-in-splitarrow { height: 1.375rem; }
+  html[data-cc-density="compact"] .cc-in-tool.cc-in-big { padding: .2rem .3rem; }
+}
+@media (pointer: coarse) {
+  .cc-in-tool.cc-in-sm, .cc-in-split-sm .cc-in-splitarrow { height: 2.75rem; }
+  .cc-in-splitarrow, .cc-in-moresum { min-width: 2.75rem; min-height: 2.75rem; }
+  .cc-in-panel.cc-in-mixed .cc-in-pbtns { grid-template-rows: none; grid-auto-flow: row; }
+}
+/* Phones keep the one sideways row: mixed groups are a row of plain buttons there, inline controls and the group arrows stay out of it. */
+html.cc-phone .cc-in-panel.cc-in-mixed .cc-in-pbtns { display: flex; }
+html.cc-phone .cc-in-tool.cc-in-sm { height: auto; min-width: 2.75rem; min-height: 2.75rem; flex-direction: column; justify-content: flex-start; font-size: .75rem; }
+html.cc-phone .cc-in-ctl, html.cc-phone .cc-in-pmore { display: none; }
+
 /* the command line of styles that have one */
 .cc-in-cmd { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .9rem; padding: .25rem .45rem; border-top: var(--pen-1) solid var(--line);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: var(--fs-sm); }

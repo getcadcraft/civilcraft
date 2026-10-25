@@ -16,6 +16,18 @@
  *     stations become sections); a lane falling away steeper than the shoulder slope takes the shoulder with it (a shoulder
  *     is never flatter than its lane on the low side). info.super = the plan (curves, problems).
  *
+ * 0.7 D7.35 - the assembly editor: asm.parts = { L: [part…], R: [part…] } replaces the simple lane + shoulder with a list of
+ * parts from the centreline outward, different on each side. A part is { type, … } with
+ *   lane / shoulder / strip / walk   { w, slope }      a width at a cross slope (fall-away, so a walk that drains to the road is negative)
+ *   gutter                           { w, slope }      the pan, falling toward the curb face
+ *   curb                             { h, w, drop }    a face h high (a hair out of plumb: 0.01 ft / 0.003 m), a top w wide, the back dropping `drop`
+ *   daylight                         { cut, fill }     last; the side slope out to the ground (the corridor's own cut / fill when it is not there)
+ * PRESETS (rural, urban) give the usual starting points. Superelevation rolls every lane of the run from the centreline out;
+ * the curb, gutter, strip and walk hang from the edge of the lanes as built. Targets still move "the edge of pavement" (the end
+ * of the lane run) and "the shoulder's outer edge" (the last part before the daylight). Each section also carries
+ * sec.det = { L, R } - every point of the side with its `code` - and info.lines has a line for every code (GUTTER: FL_L …).
+ * Without parts the corridor is exactly what it was.
+ *
  * Targets (0.6 WL.25): corridorPatch(…, { targets }) — each target belongs to ONE side and moves one point of that side's
  * section to a line, where the section (square to the alignment, outward from the centreline on that side only) first
  * crosses it:
@@ -40,6 +52,65 @@ export function defaultAssembly(units = 'ft') {
   return units === 'm'
     ? { lane: 3.6, laneSlope: 0.02, shoulder: 1.2, shoulderSlope: 0.04, cut: 2, fill: 3, step: 5 }
     : { lane: 12, laneSlope: 0.02, shoulder: 4, shoulderSlope: 0.04, cut: 2, fill: 3, step: 10 };
+}
+
+/** 0.7 D7.35: the parts of a side, from the centre out. */
+export const PART_TYPES = ['lane', 'shoulder', 'gutter', 'curb', 'strip', 'walk', 'daylight'];
+export const MAX_PARTS = 12;
+export const PART_CODES = { lane: 'LANE', shoulder: 'SH', gutter: 'FL', strip: 'STRIP', walk: 'WALK' };
+const num = (v, d, lo, hi) => (typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi ? v : d);
+/** The default part of a type, in the project's units. */
+export function defaultPart(type, units = 'ft') {
+  const m = units === 'm';
+  switch (type) {
+    case 'lane': return { type, w: m ? 3.6 : 12, slope: 0.02 };
+    case 'shoulder': return { type, w: m ? 1.2 : 4, slope: 0.04 };
+    case 'gutter': return { type, w: m ? 0.6 : 2, slope: 0.08 };
+    case 'curb': return { type, h: m ? 0.15 : 0.5, w: m ? 0.15 : 0.5, drop: 0 };
+    case 'strip': return { type, w: m ? 1.5 : 5, slope: -0.02 };
+    case 'walk': return { type, w: m ? 1.8 : 5, slope: -0.02 };
+    case 'daylight': return { type, cut: 2, fill: 3 };
+    default: return null;
+  }
+}
+/** Starting assemblies: 'rural' = lanes and shoulders, 'urban' = lanes, gutter, curb, planting strip, walk. */
+export function presetParts(name, units = 'ft') {
+  const P = (type, o = {}) => ({ ...defaultPart(type, units), ...o });
+  if (name === 'urban') return [P('lane'), P('lane'), P('gutter'), P('curb'), P('strip'), P('walk'), P('daylight')];
+  return [P('lane'), P('shoulder'), P('daylight')];
+}
+/** An untrusted list of parts (the project file): known types, finite numbers within sane limits, one daylight and it last. */
+export function cleanParts(list, units = 'ft') {
+  if (!Array.isArray(list)) return null;
+  const out = [];
+  for (const q of list.slice(0, 64)) {
+    if (!q || typeof q !== 'object' || !PART_TYPES.includes(q.type)) continue;
+    const d = defaultPart(q.type, units), type = q.type;
+    if (type === 'daylight') { if (!out.some((x) => x.type === 'daylight')) out.push({ type, cut: num(q.cut, d.cut, 0.05, 1000) || d.cut, fill: num(q.fill, d.fill, 0.05, 1000) || d.fill }); continue; }
+    if (type === 'curb') out.push({ type, h: num(q.h, d.h, 0, 5), w: num(q.w, d.w, 0, 10), drop: num(q.drop, 0, 0, 5) });
+    else out.push({ type, w: num(q.w, d.w, 0, 100), slope: num(q.slope, d.slope, -0.5, 0.5) });
+    if (out.length >= MAX_PARTS) break;
+  }
+  const di = out.findIndex((x) => x.type === 'daylight');
+  if (di >= 0 && di < out.length - 1) out.push(...out.splice(di, 1));
+  return out;
+}
+/** The cleaned { L, R } of an untrusted object, or null when neither side has a part. */
+export function cleanSides(o, units = 'ft') {
+  if (!o || typeof o !== 'object') return null;
+  const L = cleanParts(o.L, units), R = cleanParts(o.R, units);
+  return L?.length || R?.length ? { L: L || [], R: R || [] } : null;
+}
+/** The normal-crown slope a corridor starts from: the first lane's, else the simple assembly's. */
+export function ncOf(asm) {
+  const q = asm?.parts && ['L', 'R'].map((k) => asm.parts[k]?.find((x) => x.type === 'lane')).find(Boolean);
+  return q ? q.slope : (asm?.laneSlope ?? defaultAssembly().laneSlope);
+}
+/** The width of the lanes in a row from the centreline (superelevation's one rotated pavement); the widest side. */
+export function laneRunWidth(asm) {
+  if (!asm?.parts) return asm?.lane ?? defaultAssembly().lane;
+  const run = (L) => { let w = 0; for (const q of L || []) { if (q.type !== 'lane') break; w += q.w; } return w; };
+  return Math.max(run(asm.parts.L), run(asm.parts.R)) || (asm.lane ?? defaultAssembly().lane);
 }
 
 export const TARGET_SIDES = ['L', 'R'];
@@ -80,7 +151,58 @@ export function sectionHit(p, ux, uy, line) {
   return best;
 }
 
-export function corridorPatch(surface, alignment, profile, asm, { targets = [] } = {}) {
+/**
+ * 0.7 D7.35: one side of one section from its parts. Returns { det, eop, sh, dl }: det = every point from the centreline out
+ * (each with its `code`), eop = the end of the lanes in a row from the centre, sh = the last point before the daylight, dl = the
+ * daylight point. c.tg(what, part) is the side's target hit (corridor.js `hitOf`); c.dsl = the superelevation's change to a lane's slope.
+ */
+function walkSide(parts, c) {
+  const { p, ux, uy, z0, cl, dsl, A, surface, step, far, eps, tg } = c;
+  const day = parts.find((q) => q.type === 'daylight');
+  const body = parts.filter((q) => q.type !== 'daylight');
+  let run = 0;
+  while (run < body.length && body[run].type === 'lane') run++;
+  const hW = tg('width', 'eop'), hE = tg('elev', 'eop'), hSW = tg('width', 'sh'), hSE = tg('elev', 'sh');
+  let lw = -1;   // the last part with a width (the shoulder's target moves it)
+  body.forEach((q, i) => { if (q.type !== 'curb' && q.w > 1e-9) lw = i; });
+  const det = [cl], seen = {};
+  const code = (base) => { seen[base] = (seen[base] || 0) + 1; return seen[base] > 1 ? base + seen[base] : base; };
+  let t = 0, z = z0, eop = cl, prev = null;
+  const push = (cd) => { const q = { x: p.x + ux * t, y: p.y + uy * t, z, code: cd }; det.push(q); return q; };
+  body.forEach((q, i) => {
+    if (q.type === 'curb') {
+      t += eps; z += q.h; push(code('TOC'));
+      t += q.w; push(code('BOC'));
+      if (q.drop > 0) { t += eps; z -= q.drop; push(code('BC')); }
+      return;
+    }
+    let w = q.w;
+    if (hW && i === run - 1) w = Math.max(0, hW.t - t);
+    if (hSW && i === lw) w = Math.max(0, hSW.t - t);
+    if (!(w > 1e-9)) return;
+    let slope = q.slope;
+    if (q.type === 'lane') slope = q.slope + dsl;
+    else if (q.type === 'shoulder' && i === run && prev !== null) slope = prev > q.slope ? prev : q.slope;   // 0.4 V18: the low side's shoulder no flatter than its lane
+    if (q.type === 'lane' && hE && i === run - 1) {
+      // the edge of pavement takes the line's elevation: every lane in the run falls at the one slope that gets there
+      const total = t + w;
+      slope = total > 1e-9 ? (z0 - hE.z) / total : slope;
+      z = z0 - t * slope;   // (the lanes before this one are re-laid at the same slope)
+      for (const d of det) if (d.code && /^LANE/.test(d.code)) d.z = z0 - Math.hypot(d.x - p.x, d.y - p.y) * slope;
+    }
+    t += w; z -= w * slope;
+    const pt = push(q.type === 'lane' ? (i === run - 1 ? 'EOP' : code('LANE')) : code(PART_CODES[q.type]));
+    if (q.type === 'lane') { prev = slope; if (i === run - 1) eop = pt; }
+    if (hSE && i === lw) { z = hSE.z; pt.z = z; }
+  });
+  const sh = det[det.length - 1];
+  const r = castSlope(surface, sh, ux, uy, sh.z, day?.cut || A.cut, day?.fill || A.fill, { step: Math.max(0.1, step / 20), far });
+  const dl = { x: r.x, y: r.y, z: r.z, kind: r.kind, code: 'DL' };
+  det.push(dl);
+  return { det, eop, sh, dl };
+}
+
+export function corridorPatch(surface, alignment, profile, asm, { targets = [], units = 'ft' } = {}) {
   const problems = [];
   const empty = (msg) => ({ problems: [msg], region: null, points: [], breaklines: [], info: { sections: [], lines: {} } });
   if (!alignment?.ok) return empty(t('corr.err.al'));
@@ -95,7 +217,9 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [] }
   for (let s = Math.ceil(from / step) * step; s < to; s += step) st.add(Number(s.toFixed(6)));
   for (const k of alignment.keyStations()) if (k.sta > from && k.sta < to) st.add(k.sta);
   for (const c of profile.curves) for (const s of [c.bvc, c.evc]) if (s > from && s < to) st.add(s);
-  const sp = A.super?.on ? superPlan(alignment, { super: A.super, nc: A.laneSlope, lane: A.lane }) : null;   // 0.4 V18
+  const custom = !!(A.parts && (A.parts.L?.length || A.parts.R?.length));   // 0.7 D7.35
+  const nc = custom ? ncOf(A) : A.laneSlope;
+  const sp = A.super?.on ? superPlan(alignment, { super: A.super, nc, lane: custom ? laneRunWidth(A) : A.lane }) : null;   // 0.4 V18
   if (sp) { for (const s of superStations(sp)) if (s > from && s < to) st.add(Number(s.toFixed(6))); problems.push(...sp.problems); }
   const stations = [...st].sort((a, b) => a - b).filter((s, i, a) => !i || s - a[i - 1] > 1e-6);
 
@@ -113,11 +237,20 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [] }
     if (z0 === null) continue;
     const rx = Math.sin(p.dir), ry = -Math.cos(p.dir);   // to the right
     const sec = { sta };
-    const sl = sp ? slopesAt(sp, sta, A.laneSlope) : { L: A.laneSlope, R: A.laneSlope };
+    const sl = sp ? slopesAt(sp, sta, nc) : { L: nc, R: nc };
     if (sp) sec.slopes = sl;
     for (const [side, sx] of [['L', -1], ['R', 1]]) {
       const ux = rx * sx, uy = ry * sx;
       const cl = { x: p.x, y: p.y, z: z0 };
+      if (custom) {
+        cl.code = 'CL';
+        // 0.7 D7.35: the parts of this side
+        const r = walkSide(A.parts[side]?.length ? A.parts[side] : presetParts('rural', units), { side, p, ux, uy, z0, cl, dsl: sl[side] - nc, A, surface, step, far, eps: units === 'm' ? 0.003 : 0.01, tg: (what, part) => hitOf(tgOf(side, what, part), p, ux, uy) });
+        if (r.dl.kind === 'off') off++;
+        sec[side] = [cl, r.eop, r.sh, r.dl];
+        (sec.det ||= {})[side] = r.det;
+        continue;
+      }
       // 0.6 WL.25: this side's targets move this side's points only
       const hW = hitOf(tgOf(side, 'width', 'eop'), p, ux, uy), hE = hitOf(tgOf(side, 'elev', 'eop'), p, ux, uy);
       const laneW = hW ? hW.t : A.lane;
@@ -139,6 +272,13 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [] }
   const tgInfo = tgs.map(({ line, ...g }) => g);
   const line = (side, k) => sections.map((s) => s[side][k]);
   const lines = { CL: line('L', 0), EOP_L: line('L', 1), SH_L: line('L', 2), DL_L: line('L', 3), EOP_R: line('R', 1), SH_R: line('R', 2), DL_R: line('R', 3) };
+  if (custom) {   // 0.7 D7.35: a line for every other code (FL_L, TOC_R, WALK_L …)
+    for (const side of ['L', 'R']) {
+      const codes = (sections[0].det?.[side] || []).map((q) => q.code).filter((cd) => cd && cd !== 'DL' && cd !== 'EOP');
+      for (const cd of new Set(codes)) { const key = cd + '_' + side; if (!lines[key]) lines[key] = sections.map((s) => s.det[side].find((q) => q.code === cd)).filter(Boolean); }
+    }
+  }
+  const detOf = (s, side) => (s.det ? s.det[side] : s[side]);
   const region = [...lines.DL_L, ...lines.DL_R.slice().reverse()].map((q) => ({ x: q.x, y: q.y, z: q.z }));
   // neighbouring sections must not cross (they do on the inside of a curve tighter than the corridor)
   let crossing = false;
@@ -148,10 +288,10 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [] }
   }
   if (crossing || (!problems.length && selfCrosses(region))) problems.push(t('corr.cross'));
   const points = [];
-  for (const s of sections) for (const side of ['L', 'R']) for (const q of s[side].slice(side === 'L' ? 0 : 1)) points.push({ x: q.x, y: q.y, z: q.z });
+  for (const s of sections) for (const side of ['L', 'R']) for (const q of detOf(s, side).slice(side === 'L' ? 0 : 1)) points.push({ x: q.x, y: q.y, z: q.z });
   const breaklines = Object.entries(lines).map(([name, pts]) => ({ name, pts: pts.map((q) => ({ x: q.x, y: q.y, z: q.z })) }));
   // every section across (so the triangles follow the sections, and the ends close the corridor)
-  for (const s of sections) breaklines.push({ name: 'section', pts: [...s.L.slice().reverse(), ...s.R.slice(1)].map((q) => ({ x: q.x, y: q.y, z: q.z })) });
+  for (const s of sections) breaklines.push({ name: 'section', pts: [...detOf(s, 'L').slice().reverse(), ...detOf(s, 'R').slice(1)].map((q) => ({ x: q.x, y: q.y, z: q.z })) });
   return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo } };
 }
 

@@ -27,6 +27,23 @@
   });
   syncToggle();
 
+  /* ---- Admin reply: disable Send once submitted so a double click cannot send twice ---- */
+  function unlockSend() {
+    document.querySelectorAll('form.mr-sheet button[type="submit"]').forEach(function (b) { b.disabled = false; });
+  }
+  document.querySelectorAll('form.mr-sheet').forEach(function (f) {
+    f.addEventListener('submit', function (ev) {
+      if (f.dataset.sending) { ev.preventDefault(); return; }
+      f.dataset.sending = '1';
+      f.querySelectorAll('button[type="submit"]').forEach(function (b) { b.disabled = true; });
+    });
+  });
+  window.addEventListener('pageshow', function (ev) {
+    if (!ev.persisted) return;
+    document.querySelectorAll('form.mr-sheet').forEach(function (f) { delete f.dataset.sending; });
+    unlockSend();
+  });
+
   /* ---- <details> menus: close on outside click and on Escape ---- */
   var menus = document.querySelectorAll('details.nav-dd, details.nav-mobile, details.app-bar-ver');
   document.addEventListener('click', function (ev) {

@@ -1,0 +1,1 @@
+{ "id": "thrower", "name": "Throws on start", "version": "0.1.0", "apps": ["cadcraft", "markupcraft"], "api": "1", "license": "MIT", "entry": "main.js" }

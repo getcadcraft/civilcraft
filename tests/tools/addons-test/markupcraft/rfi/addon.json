@@ -1,0 +1,11 @@
+{
+  "id": "zz-test.rfi",
+  "name": "Test RFIs",
+  "version": "1.0.0",
+  "apps": ["markupcraft"],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["toolbar", "panel", "objects"],
+  "lang": "./lang/"
+}

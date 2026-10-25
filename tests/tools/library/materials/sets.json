@@ -1,0 +1,22 @@
+{
+  "source": "Poly Haven (https://polyhaven.com), every asset CC0 (https://polyhaven.com/license)",
+  "resolution": "1k",
+  "sets": [
+    { "id": "red_brick", "category": "materials/brick" },
+    { "id": "castle_brick_02_red", "category": "materials/brick" },
+    { "id": "laminate_floor_02", "category": "materials/wood" },
+    { "id": "weathered_brown_planks", "category": "materials/wood" },
+    { "id": "oak_veneer_01", "category": "materials/wood" },
+    { "id": "concrete_floor_02", "category": "materials/concrete" },
+    { "id": "plastered_wall", "category": "materials/plaster" },
+    { "id": "interior_tiles", "category": "materials/tile" },
+    { "id": "marble_01", "category": "materials/stone" },
+    { "id": "rusty_metal_02", "category": "materials/metal" },
+    { "id": "metal_plate", "category": "materials/metal" },
+    { "id": "denmin_fabric_02", "category": "materials/fabric" },
+    { "id": "asphalt_02", "category": "materials/ground" },
+    { "id": "forrest_ground_01", "category": "materials/ground" },
+    { "id": "gravel_floor", "category": "materials/ground" },
+    { "id": "roof_slates_03", "category": "materials/roofing" }
+  ]
+}

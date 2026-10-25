@@ -10,6 +10,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { register } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -37,7 +38,9 @@ export function libDir(name) {
 
 /** A vendor library folder (assets/vendor/<lib>/current), packed or in the repository; null when absent. */
 export function vendorDir(lib) {
-  for (const t of [path.resolve(HERE, '..', 'vendor', lib), path.join(REPO, 'public_html/assets/vendor', lib, 'current')]) if (isDir(t)) return t;
+  const packed = path.resolve(HERE, '..', 'vendor', lib);   // packed: vendor/<lib>/<version>/, one version
+  const ver = isDir(packed) ? fs.readdirSync(packed).filter((v) => /^\d/.test(v) && isDir(path.join(packed, v))) : [];
+  for (const t of [ver.length === 1 ? path.join(packed, ver[0]) : null, path.join(REPO, 'public_html/assets/vendor', lib, 'current')]) if (t && isDir(t)) return t;
   return null;
 }
 
@@ -45,6 +48,29 @@ export function vendorDir(lib) {
 export function nodeModule(name, from) {
   for (const t of [path.resolve(HERE, '..', '..', 'node_modules', name), path.resolve(HERE, '..', 'node_modules', name), path.join(REPO, 'tools', from, 'node_modules', name)]) if (isDir(t)) return t;
   return null;
+}
+
+/**
+ * The libraries an app's modules import by name ("delaunator", "proj4"), as its page's import map gives them (0.7 AS.3):
+ * the build's manifest.json `imports` (packed: imports.json beside the modules) → the vendor folder's file. Only for the
+ * apps that need it (CivilCraft); one resolve hook per app, registered before its first module loads.
+ */
+const MAPPED = new Set(['civilcraft']);
+const hooked = new Set();
+const LOADER = 'data:text/javascript,' + encodeURIComponent('let map = {};\nexport function initialize(d) { map = d || {}; }\n'
+  + 'export async function resolve(s, c, next) { return Object.prototype.hasOwnProperty.call(map, s) ? { url: map[s], shortCircuit: true } : next(s, c); }\n');
+function mapImports(slug, dir) {
+  if (!MAPPED.has(slug) || hooked.has(slug)) return;
+  hooked.add(slug);
+  let imports = null;
+  for (const f of ['imports.json', 'manifest.json']) { try { const j = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')); imports = j.imports || j; break; } catch { /* next */ } }
+  const map = {};
+  for (const [spec, url] of Object.entries(imports || {})) {
+    const m = /^\/assets\/vendor\/([^/]+)\/current\/(.+)$/.exec(String(url));
+    const dirOf = m && vendorDir(m[1]);
+    if (dirOf && fs.existsSync(path.join(dirOf, m[2]))) map[spec] = pathToFileURL(path.join(dirOf, m[2])).href;
+  }
+  if (Object.keys(map).length) register(LOADER, { data: map });
 }
 
 const ready = new Map();
@@ -55,6 +81,7 @@ const ready = new Map();
 export async function load(slug, file) {
   const dir = appDir(slug);
   if (!ready.has(slug)) {
+    mapImports(slug, dir);
     ready.set(slug, (async () => {
       const i18n = path.join(dir, 'i18n.js');
       const en = path.join(dir, 'lang', 'en.json');

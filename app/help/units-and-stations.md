@@ -28,6 +28,8 @@ What depends on the units:
 | Plot scales | 1" = 5' to 1" = 1000' | 1:50 to 1:10000 |
 | LandXML linear unit | USSurveyFoot | meter |
 
+A new project starts in feet, or in metres when the length unit starred in {{ui:Settings}} › {{ui:General}} › {{ui:Units}} is a metric one. The **Units** list shows the units turned on there, and always the project's own. With an area or volume unit starred there (acres, hectares, acre-feet …), areas and volumes are reported in it instead of the column above. See [Units, typed values and the unit lists](common:unit-lists).
+
 When you open LandXML, the project takes the file's units. A file in international feet opens as a feet project; the numbers are not changed.
 
 ## Typing lengths and sums
@@ -40,9 +42,10 @@ Any box that takes a length or an elevation reads more than a plain number: pres
 | `12'6"`, `12' 6 1/2"`, `6"`, `3 ft 6 in` | 12.5 ft, 12.54 ft, 0.5 ft, 3.5 ft | the same lengths in metres |
 | `4 7/16`, `4-7/16` | 4.4375 ft | 4.4375 m |
 | `450 mm`, `1.2 m`, `90 cm` | in feet | 0.45 m, 1.2 m, 0.9 m |
+| `10 US ft`, `3 ch`, `2 rd`, `0.5 mi`, `1 km` | 10 ft, and the others in US survey feet | the same lengths in metres |
 | `4+7/16`, `12'6" + 3/4"`, `(24'-0")/3`, `2*450mm` | the sum, in feet | the sum, in metres |
 
-Use `+ - * /` and brackets, and `abs`, `round`, `ceil` and `floor`. A dash written into a length is part of it (`24'-6"`, `6-1/2`); with spaces round it, it subtracts (`24' - 6"` = 23.5 ft). A plain number multiplies or divides a length, and is a length in the project's units when it is added to one. If CivilCraft can't read what you typed, the box is marked and the status bar says where.
+Any length mark from the shared unit table works, with its exact size: a project's feet are US survey feet, so `10 US ft` is 10 and `3 ch` (the international-foot chain) is 197.9996. Use `+ - * /` and brackets, and `abs`, `round`, `ceil` and `floor`. A dash written into a length is part of it (`24'-6"`, `6-1/2`); with spaces round it, it subtracts (`24' - 6"` = 23.5 ft). A plain number multiplies or divides a length, and is a length in the project's units when it is added to one. If CivilCraft can't read what you typed, the box is marked and the status bar says where.
 
 Stations are not sums: `10+00` in a station box is station 10+00. Grades in percent, point numbers and descriptions are read as they are.
 

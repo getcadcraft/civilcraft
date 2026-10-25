@@ -14,10 +14,11 @@
  * (that object, where an object is asked for) or {escape: true}. A command still waiting after the last input is ended
  * with Esc, and the result says what it was waiting for. All of one call is ONE undo step, labelled `undoPrefix + what`.
  */
-import { load } from './apps.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { load, vendorDir } from './apps.mjs';
 
 const APP = 'cadcraft';
-const DWG_TAGS = { AC1012: 'R13', AC1014: 'R14', AC1015: '2000', AC1018: '2004', AC1021: '2007', AC1024: '2010', AC1027: '2013', AC1032: '2018', AC1009: 'R12', AC1006: 'R10' };
 
 let M = null;
 /** The app's modules, loaded once. */
@@ -28,6 +29,9 @@ export async function cadModules() {
     load(APP, 'dwg-import.js'), load(APP, 'dwg/read.js'), load(APP, 'dwg-save.js'), load(APP, 'plot.js'), load(APP, 'sheets.js'), load(APP, 'units.js'),
     load(APP, 'agents.js'),
   ]);
+  // plotted PDFs embed this font when a text needs more than Windows-1252 (plot.js; Node has no fetch for files)
+  const fontDir = vendorDir('liberation-sans');
+  if (fontDir && plot.setPdfFont) plot.setPdfFont(async () => new Uint8Array(fs.readFileSync(path.join(fontDir, 'LiberationSans-Regular.ttf'))));
   M = { Doc: docm.Doc, Engine: cmd.Engine, cmd, G: geom, readDxf: dxf.readDxf, writeDxf: dxf.writeDxf, writeDxf2000: dxf2000.writeDxf2000,
     importDwg: imp.importDwg, readDwg: read.readDwg, saveDwg: save.saveDwg, DWG_VERSIONS: save.DWG_VERSIONS, dwgVersionKey: save.dwgVersionKey, P: plot, S: sheets, U: units, A: agents };
   return M;
@@ -44,26 +48,10 @@ export const extOf = (name) => (String(name).match(/\.([a-z0-9]+)$/i)?.[1] || ''
 const tick = () => new Promise((r) => setImmediate(r));
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 1e9) / 1e9 : v);
 
-/** A drawing file → doc.load() input + a format label. */
+/** A drawing file → doc.load() input + a format label (agents.js readDrawingBytes: the same reading the live window uses). */
 export async function readDrawing(bytes, name) {
   const m = await cadModules();
-  const ext = extOf(name);
-  if (ext === 'dxf') {
-    let text = new TextDecoder('utf-8').decode(bytes);
-    if (text.includes('�')) text = new TextDecoder('windows-1252').decode(bytes);
-    if (/^AutoCAD Binary DXF/.test(text)) throw new Error('Binary DXF is not read; save it as ASCII DXF.');
-    const drawing = m.readDxf(text);
-    const v = drawing.meta?.version;
-    return { drawing, format: 'DXF' + (DWG_TAGS[v] ? ' ' + DWG_TAGS[v] : '') + (v ? ' (' + v + ')' : '') };
-  }
-  if (ext === 'dwg') {
-    const tag = new TextDecoder().decode(bytes.subarray(0, 6));
-    let model = null;
-    try { model = m.readDwg(bytes); } catch (err) { model = null; }
-    if (!model || !model.blocks?.length) throw new Error('This drawing could not be read. It may be damaged, or saved in a version the reader does not handle yet (' + (tag || 'unknown') + ').');
-    return { drawing: m.importDwg(model, { versionTag: tag }), format: 'DWG' + (DWG_TAGS[tag] ? ' ' + DWG_TAGS[tag] : '') + ' (' + tag + ')' };
-  }
-  throw new Error('CadCraft opens DWG and DXF drawings; "' + name + '" is neither.');
+  return m.A.readDrawingBytes(bytes, name);
 }
 
 export const parseScale = (doc, sc) => M.A.parseScale(doc, sc);
@@ -74,6 +62,7 @@ export class CadSession {
     this.undoPrefix = undoPrefix;
     this.out = [];
     this.cmds = [];
+    this.files = [];   // {name, bytes} answering the commands' file questions, in order (run's openFiles)
     const m = M, G = m.G, self = this;
     const need = (what) => () => { host.print(what + ' needs the app on screen.'); throw new m.cmd.Cancel(); };
     const host = this.host = {
@@ -94,7 +83,11 @@ export class CadSession {
         return best;
       },
       pickWindow: (w, crossing) => doc.all().filter((e) => doc.editable(e) && G.inWindow(e, w, crossing, doc.blocks)).map((e) => e.id),
-      choose: need('This choice'), chooseBlock: need('Choosing a block'), pickDrawing: need('Picking a drawing file'), findDialog: need('The Find dialog'),
+      // no choose / chooseBlock: commands then ask on the command line, so the input answers them (0.7 MCP-ANSWERS)
+      // a file a command asks for: the next of command_run's openFiles (0.7 MCP-HEADLESS), else it needs the app on screen
+      pickDrawing: async () => { const f = self.nextFile(); if (!f) return need('Picking a drawing file')(); const { drawing } = await readDrawing(f.bytes, f.name); return { drawing, fileName: f.name }; },
+      pickText: async () => { const f = self.nextFile(); return f ? { name: f.name, text: new TextDecoder().decode(f.bytes) } : need('Picking a file')(); },
+      findDialog: need('The Find dialog'),
       openLibrary: need('The library'), quickSelect: need('Quick select'), plot: need('The plot dialog (use drawing_plot)'),
     };
     this.eng = new m.Engine(doc, host);
@@ -135,33 +128,22 @@ export class CadSession {
    * Run command-line input (agents.js runInput: the same code the live window runs). `select` = ids selected first.
    * → {printed, added, changed, removed, waiting, undo, error, commands}.
    */
-  async run(input, { select = null, label = null, timeout = 60000 } = {}) {
+  nextFile() { const f = this.files.shift() || null; if (f) this.filesUsed.push(f.path || f.name); return f; }
+
+  async run(input, { select = null, label = null, timeout = 60000, keepOpen = false, resume = false, files = [] } = {}) {
     this.out = [];
+    this.files = files.slice(); this.filesUsed = [];
     const capture = (fn) => { const p = this.host.print; this.host.print = (s) => { fn(s); p(s); }; return () => { this.host.print = p; }; };
-    return M.A.runInput(this.eng, this.doc, this.host, input, { select, label, prefix: this.undoPrefix, timeout, capture });
+    const r = await M.A.runInput(this.eng, this.doc, this.host, input, { select, label, prefix: this.undoPrefix, timeout, capture, keepOpen, resume: resume && !!this.held });
+    this.held = r.waiting && r.waiting.open ? r.waiting.command : null;   // 0.7 MCP-ANSWERS: a command left open for the next call
+    return r;
   }
 
-  /** LISP text (a .lsp file's contents) loaded and run as one step. */
+  /** LISP text (a .lsp file's contents) loaded and run as one step (agents.js runLisp, as the live window). */
   async runLisp(text, { label = 'SCRIPT', name = 'script.lsp' } = {}) {
-    const ctx = M.cmd.lookup('_LISPLOAD') && (await load(APP, 'lisp/install.js')).installLisp.ctx;
-    if (!ctx) throw new Error('This CadCraft build has no LISP.');
     this.out = []; this.cmds = [];
-    const before = this.snapshot();
-    const mark = this.doc.mark();
-    const job = { kind: 'load', files: [{ name, text: String(text), kind: 'lsp' }] };
-    const p = ctx.runHidden(this.eng, '_LISPLOAD', label, job);
-    await this.settle();
-    let waiting = null;
-    if (this.eng.busy) { waiting = { command: this.eng.running, kind: this.eng.expects, prompt: this.host.lastPrompt }; this.eng.escape(); await this.settle(); }
-    await Promise.race([p, new Promise((r) => setTimeout(r, 100))]);
-    this.doc.squash(mark, this.undoPrefix + label);
-    const after = this.snapshot();
-    const added = [...after.keys()].filter((id) => !before.has(id));
-    const changed = [...after.keys()].filter((id) => before.has(id) && before.get(id) !== after.get(id));
-    const removed = [...before.keys()].filter((id) => !after.has(id));
-    const failed = this.out.find((l) => /could not be loaded|error/i.test(l) && /\.lsp/.test(l));
-    return { printed: this.out.slice(0, 2000), commands: [...this.cmds], added, changed, removed, waiting,
-      undo: this.doc.undoStack.length > mark ? this.doc.undoStack[this.doc.undoStack.length - 1].label : null, error: failed || null };
+    const capture = (fn) => { const p = this.host.print; this.host.print = (s) => { fn(s); p(s); }; return () => { this.host.print = p; }; };
+    return M.A.runLisp(this.eng, this.doc, this.host, text, { label, name, prefix: this.undoPrefix, capture });
   }
 
   /** Undo up to `steps` steps (only the assistant's unless any). */
@@ -193,6 +175,16 @@ export class CadSession {
     throw new Error('Formats: dwg, dxf (R12), dxf2000.');
   }
 
-  /** A PDF of a sheet (layout) or of the model. */
-  plot(o = {}) { return M.A.plotPdf(this.doc, o); }
+  /** A PDF (or with svg: true an SVG) of a sheet (layout) or of the model. */
+  plot(o = {}) { return o.svg ? M.A.plotSvg(this.doc, o) : M.A.plotPdf(this.doc, o); }
+
+  /** The 3D model as OpenUSD bytes (agents.js drawingUsd, as the live window). */
+  usd(o = {}) { return M.A.drawingUsd(this.doc, o); }
+
+  /** A block with its attribute values, one undo step (agents.js insertBlock, as the live window). */
+  async insert(o) {
+    this.out = [];
+    const capture = (fn) => { const p = this.host.print; this.host.print = (s) => { fn(s); p(s); }; return () => { this.host.print = p; }; };
+    return M.A.insertBlock(this.eng, this.doc, this.host, o, { prefix: this.undoPrefix, capture });
+  }
 }

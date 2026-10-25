@@ -49,6 +49,11 @@
   --action:     var(--layer-blue);
   --on-action:  #FFFFFF;
   --poche:      #17202B;
+  /* Hero 3D model materials (home-hero-model.inc) */
+  --m-plaster: #ECE7DE; --m-brick: #B3664C; --m-mortar: #E6D9CB; --m-wood: #CDA67D; --m-wood-line: #A9825A;
+  --m-tile: #DDE4E7; --m-tile-line: #B6C2C8; --m-carpet: #8EA2B4; --m-fleck: #7A8FA2; --m-vinyl: #D9DFD3;
+  --m-concrete: #C9C9C3; --m-glass: #7FB6D9; --m-fabric: #4C7F86; --m-fabric-2: #C8714F; --m-linen: #FBFAF7;
+  --m-stone: #D9D5CD; --m-metal: #A3ADB5; --m-dark: #3B4552; --m-porcelain: #F7F9FA; --m-door: #B98E62;
   --grid-minor: color-mix(in srgb, var(--grid) 45%, transparent);
   --grid-major: color-mix(in srgb, var(--grid) 95%, transparent);
 
@@ -96,6 +101,11 @@ html { font-size: clamp(100%, 0.75rem + 0.2083vw, 125%); }
     --layer-violet:  #A78BFA;
     --on-action: #1D232B;
     --poche:     #C3CDD8;
+    /* Hero 3D model materials */
+    --m-plaster: #A3A7AC; --m-brick: #8F503B; --m-mortar: #6A5B52; --m-wood: #8E6C4C; --m-wood-line: #6F5238;
+    --m-tile: #7E8B93; --m-tile-line: #66737B; --m-carpet: #5A6D7F; --m-fleck: #4D5F70; --m-vinyl: #7C8478;
+    --m-concrete: #808280; --m-glass: #5E9BC4; --m-fabric: #3F6E75; --m-fabric-2: #A65E42; --m-linen: #CCD1D6;
+    --m-stone: #9E9B95; --m-metal: #78838D; --m-dark: #2A313A; --m-porcelain: #C9D0D6; --m-door: #7F6145;
   }
 }
 /* Model space — chosen explicitly */
@@ -118,6 +128,11 @@ html { font-size: clamp(100%, 0.75rem + 0.2083vw, 125%); }
   --layer-violet:  #A78BFA;
   --on-action: #1D232B;
   --poche:     #C3CDD8;
+  /* Hero 3D model materials */
+  --m-plaster: #A3A7AC; --m-brick: #8F503B; --m-mortar: #6A5B52; --m-wood: #8E6C4C; --m-wood-line: #6F5238;
+  --m-tile: #7E8B93; --m-tile-line: #66737B; --m-carpet: #5A6D7F; --m-fleck: #4D5F70; --m-vinyl: #7C8478;
+  --m-concrete: #808280; --m-glass: #5E9BC4; --m-fabric: #3F6E75; --m-fabric-2: #A65E42; --m-linen: #CCD1D6;
+  --m-stone: #9E9B95; --m-metal: #78838D; --m-dark: #2A313A; --m-porcelain: #C9D0D6; --m-door: #7F6145;
 }
 
 /* Layer hooks: put .layer-<name> on an element and use var(--layer) inside it. */

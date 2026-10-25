@@ -12,7 +12,8 @@
  * full screen needs a click or key press every time.
  *
  * The bars are the app bar plus any toolbar that is a direct child of <main> (CadCraft,
- * MarkupCraft, TakeoffCraft); every app redraws through its ResizeObserver when they go.
+ * MarkupCraft, TakeoffCraft); every app redraws through its ResizeObserver when they go. A workspace layout that puts the
+ * toolbar in the drawing area (.ws-toolbar-strip, app-workspace.js) keeps it a bar: it hides with the others.
  *
  * 0.6 DF.8 (dev builds and releases from 0.6: the Settings dialog carries data-shell-ui): while the bars are hidden a small
  * "Show bars" tab stays at the top middle of the window (.shell-showbars), so a person who never found the top edge still
@@ -135,6 +136,9 @@
     if (main) for (var i = 0; i < main.children.length; i++) {
       if (main.children[i].getAttribute('role') === 'toolbar' && !main.children[i].hidden) out.push(main.children[i]);
     }
+    // a workspace layout moved the toolbar into the drawing area (app-workspace.js: .ws-toolbar-strip in a stage region): still a bar
+    var strip = main && main.querySelector('.ws-region > .ws-toolbar-strip');
+    if (strip && !strip.hidden && out.indexOf(strip) === -1) out.push(strip);
     return out;
   }
 
@@ -271,4 +275,216 @@
     if (e.target.closest && e.target.closest('.shell-bar')) reveal(true); else hideSoon();
   });
   window.addEventListener('resize', function () { if (mode === 'autohide') place(); });
+})();
+
+/* Dialogs (0.7 D7.05, session studio-07; map docs/apps/app-dialogs.md): every in-page <dialog> can be moved by its title bar,
+ * and a dialog that asks for it (data-popout) opens in a window of its own in Studio, as the panels do.
+ *
+ *   move      press and drag the dialog's title bar (the heading's row: a heading with only buttons beside it); a double-click
+ *             on the bar centres it again; Alt+Shift+arrows move it from the keyboard (16 px, Shift+Alt+Ctrl 64 px). The
+ *             place is remembered per dialog in localStorage "cc-dialog-places:<slug>" and brought back on screen when the
+ *             window is smaller. Not on phones (up to 760 px wide: the dialogs are sheets there).
+ *   own window  a dialog marked data-popout gets a button in its title bar when the page runs in the desktop shell
+ *             (window.cadcraftDesktop: Studio and the desktop apps). The <dialog> moves into one same-origin pop-up with
+ *             adoptNode, so its listeners and the app's references survive; it is shown there without the page behind it
+ *             going inert. Closing the dialog (its own close button, or the app calling close()) closes the window and puts
+ *             the element back; closing the window closes the dialog. showModal() on a dialog in its window just brings the
+ *             window forward.
+ * window.ccShellDialogs is the small API the tests use. */
+(function () {
+  'use strict';
+  var meta = document.querySelector('[data-app-settings]');
+  var SLUG = meta && meta.getAttribute('data-app');
+  if (!SLUG || window.ccShellDialogs) return;
+  var T = window.ccShellT || function (k) { return k; };
+  var APP = (meta && meta.getAttribute('data-app-name')) || 'App';
+  var KEY = 'cc-dialog-places:' + SLUG;
+  var small = window.matchMedia ? window.matchMedia('(max-width: 760px)') : { matches: false };   // i18n-ignore (a media query)
+  var ready = typeof WeakSet === 'function';
+  if (!ready) return;
+  var set = new WeakSet();
+  var popped = [];   // [{d, w, home: {parent, next}, showModal, show}]
+  var root = document.documentElement;
+  var NO_DRAG = 'button, a, input, select, textarea, summary, label, [contenteditable], [role="button"], [role="tab"]';
+
+  function load() { try { var m = JSON.parse(localStorage.getItem(KEY) || '{}'); return m && typeof m === 'object' ? m : {}; } catch (e) { return {}; } }
+  function save(m) { try { localStorage.setItem(KEY, JSON.stringify(m)); } catch (e) { /* private window: the place is just not kept */ } }
+  function heading(d) {
+    var id = d.getAttribute('aria-labelledby'), h = id && d.querySelector('#' + (window.CSS && CSS.escape ? CSS.escape(id) : id));
+    return h || d.querySelector('h1, h2, h3, [role="heading"]');
+  }
+  /** The title bar: the heading's row when it holds little besides the heading (a close button, a chip), else the heading. */
+  function barOf(d) {
+    var h = heading(d);
+    if (!h) return null;
+    var p = h.parentElement;
+    if (p && p !== d && p.querySelector('input, select, textarea') === null && (p.textContent || '').trim().length <= (h.textContent || '').trim().length + 40) return p;
+    return h;
+  }
+  function nameOf(d) {
+    var h = heading(d);
+    return d.getAttribute('data-dialog') || d.id || (h && h.id) || d.getAttribute('aria-labelledby') || ((h && h.textContent) || 'dialog').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40);
+  }
+  function clamp(d, x, y) {
+    var w = d.ownerDocument.defaultView, r = d.getBoundingClientRect();
+    var vw = w.innerWidth, vh = w.innerHeight, keep = 64;
+    return { x: Math.round(Math.min(Math.max(x, keep - r.width), vw - keep)), y: Math.round(Math.min(Math.max(y, 0), vh - 40)) };
+  }
+  function put(d, x, y) {
+    var c = clamp(d, x, y), s = d.style;
+    s.position = 'fixed'; s.margin = '0'; s.inset = 'auto'; s.left = c.x + 'px'; s.top = c.y + 'px'; s.transform = 'none';
+    return c;
+  }
+  function centre(d) {
+    var s = d.style;
+    ['position', 'margin', 'inset', 'left', 'top', 'transform'].forEach(function (k) { s.removeProperty(k); });
+  }
+  function remember(d, c) { var m = load(); m[nameOf(d)] = c ? { x: c.x, y: c.y } : undefined; save(JSON.parse(JSON.stringify(m))); }
+  function restore(d) {
+    if (small.matches || d.classList.contains('shell-dw-dialog')) return;
+    var p = load()[nameOf(d)];
+    if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) put(d, p.x, p.y); else centre(d);
+  }
+  function say(t) { if (window.ccShellScreen && ccShellScreen.say) ccShellScreen.say(t); }
+
+  function setup(d) {
+    if (set.has(d)) return;
+    set.add(d);
+    var bar = barOf(d);
+    if (!bar) return;
+    bar.classList.add('shell-dlg-bar');
+    bar.setAttribute('title', bar.getAttribute('title') || T('shell.dialogs.bar.title'));
+    var drag = null;
+    bar.addEventListener('pointerdown', function (e) {
+      if (small.matches || d.classList.contains('shell-dw-dialog') || (e.button !== undefined && e.button !== 0) || (e.target.closest && e.target.closest(NO_DRAG) && e.target !== bar)) return;
+      var r = d.getBoundingClientRect();
+      drag = { dx: e.clientX - r.left, dy: e.clientY - r.top, id: e.pointerId };
+      put(d, r.left, r.top);
+      try { bar.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events: fine without */ }
+      e.preventDefault();
+    });
+    bar.addEventListener('pointermove', function (e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      put(d, e.clientX - drag.dx, e.clientY - drag.dy);
+    });
+    function end(e) {
+      if (!drag || (e && e.pointerId !== drag.id)) return;
+      drag = null;
+      try { bar.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      var r = d.getBoundingClientRect();
+      remember(d, { x: Math.round(r.left), y: Math.round(r.top) });
+    }
+    bar.addEventListener('pointerup', end);
+    bar.addEventListener('pointercancel', end);
+    bar.addEventListener('dblclick', function (e) {
+      if (small.matches || d.classList.contains('shell-dw-dialog') || (e.target.closest && e.target.closest(NO_DRAG) && e.target !== bar)) return;
+      centre(d); remember(d, null);
+    });
+    d.addEventListener('keydown', function (e) {
+      if (!e.altKey || !e.shiftKey || small.matches || d.classList.contains('shell-dw-dialog')) return;
+      var step = e.ctrlKey ? 64 : 16, dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0, dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+      if (!dx && !dy) return;
+      e.preventDefault(); e.stopPropagation();
+      var r = d.getBoundingClientRect(), c = put(d, r.left + dx, r.top + dy);
+      remember(d, c);
+      say(T('shell.dialogs.moved'));
+    });
+    if (d.hasAttribute('data-popout') && window.cadcraftDesktop && typeof window.open === 'function') {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'shell-dlg-pop';
+      b.setAttribute('aria-label', T('shell.dialogs.popout'));
+      b.title = T('shell.dialogs.popout.title');
+      b.innerHTML = '<i class="bi bi-window-stack" aria-hidden="true"></i>';
+      b.addEventListener('click', function () { popOut(d); });
+      var close = bar.querySelector('.cc-x, [data-close], [aria-label][class*="close"]');
+      if (close && close.parentNode === bar) bar.insertBefore(b, close); else bar.appendChild(b);
+    }
+    d.addEventListener('close', function () { var p = popEntry(d); if (p) dock(p, false); });
+    restore(d);
+  }
+
+  /* ---------------- Own window (Studio) ---------------- */
+  function popEntry(d) { for (var i = 0; i < popped.length; i++) if (popped[i].d === d) return popped[i]; return null; }
+  function syncLook(w) {
+    ['data-space', 'data-cc-density', 'class', 'style', 'lang'].forEach(function (a) {
+      var v = root.getAttribute(a);
+      if (a === 'class') { w.document.documentElement.className = v || ''; return; }
+      if (v === null) w.document.documentElement.removeAttribute(a); else w.document.documentElement.setAttribute(a, v);
+    });
+  }
+  function setupWindow(w, title) {
+    var doc = w.document;
+    if (!doc.head) doc.documentElement.appendChild(doc.createElement('head'));
+    if (!doc.body) doc.documentElement.appendChild(doc.createElement('body'));
+    var vp = doc.createElement('meta'); vp.name = 'viewport'; vp.content = 'width=device-width, initial-scale=1'; doc.head.appendChild(vp);
+    doc.title = title;
+    document.querySelectorAll('head link[rel~="stylesheet"][href], head style').forEach(function (node) {
+      var c;
+      if (node.tagName === 'LINK') { c = doc.createElement('link'); c.rel = 'stylesheet'; c.href = node.href; } else { c = doc.createElement('style'); c.textContent = node.textContent; }
+      doc.head.appendChild(c);
+    });
+    var icon = document.querySelector('link[rel~="icon"]');
+    if (icon) { var ic = doc.createElement('link'); ic.rel = 'icon'; ic.href = icon.href; doc.head.appendChild(ic); }
+    doc.body.className = 'app-shell shell-dw ' + [].filter.call(document.body.classList, function (c) { return /^layer-/.test(c); }).join(' ');
+    syncLook(w);
+  }
+  function popOut(d) {
+    if (popEntry(d)) { try { popEntry(d).w.focus(); } catch (e) { /* gone */ } return true; }
+    var r = d.getBoundingClientRect();
+    var feat = 'popup=yes,width=' + Math.round(Math.max(520, r.width + 32)) + ',height=' + Math.round(Math.max(360, Math.min(r.height + 56, (screen.availHeight || 900) * 0.9)));
+    var w = window.open('', 'cc-dialog-' + SLUG + '-' + nameOf(d), feat);
+    if (!w) { say(T('shell.dialogs.blocked')); return false; }
+    var h = heading(d), title = T('shell.dialogs.window.title', { name: ((h && h.textContent) || '').trim() || APP, app: APP });
+    try { setupWindow(w, title); } catch (err) { try { w.close(); } catch (e2) { /* nothing to close */ } say(T('shell.dialogs.blocked')); return false; }
+    var entry = { d: d, w: w, home: { parent: d.parentNode, next: d.nextSibling }, own: { showModal: Object.prototype.hasOwnProperty.call(d, 'showModal'), show: Object.prototype.hasOwnProperty.call(d, 'show') }, mo: null, gone: false };
+    popped.push(entry);
+    ['left', 'top', 'position', 'margin', 'inset', 'transform'].forEach(function (k) { d.style.removeProperty(k); });
+    d.classList.add('shell-dw-dialog');
+    w.document.body.appendChild(w.document.adoptNode(d));
+    // The page asking for the dialog again (PLOT, Layer manager …) brings the window forward instead.
+    d.showModal = d.show = function () { try { w.focus(); } catch (e) { /* closed */ } };
+    if (!d.open) d.setAttribute('open', '');
+    w.document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !e.defaultPrevented) { e.preventDefault(); d.close(); } });
+    w.addEventListener('pagehide', function () { if (!entry.gone) dock(entry, true); });
+    entry.mo = new MutationObserver(function () { if (!w.closed) syncLook(w); });
+    entry.mo.observe(root, { attributes: true, attributeFilter: ['data-space', 'data-cc-density', 'class', 'style', 'lang'] });
+    try { w.focus(); } catch (e) { /* fine */ }
+    return true;
+  }
+  /** Back into the page. `closeWindowToo`: the window is already going; else it is closed here. A dialog still open is closed
+   *  (the window going away is the person closing the dialog). */
+  function dock(entry, fromWindow) {
+    if (entry.gone) return;
+    entry.gone = true;
+    popped.splice(popped.indexOf(entry), 1);
+    var d = entry.d, w = entry.w;
+    try { if (entry.mo) entry.mo.disconnect(); } catch (e) { /* ok */ }
+    if (!entry.own.showModal) delete d.showModal;
+    if (!entry.own.show) delete d.show;
+    d.classList.remove('shell-dw-dialog');
+    var wasOpen = d.open;
+    var parent = entry.home.parent && entry.home.parent.isConnected ? entry.home.parent : document.body;
+    var next = entry.home.next && entry.home.next.parentNode === parent ? entry.home.next : null;
+    parent.insertBefore(document.adoptNode(d), next);
+    if (wasOpen) { d.removeAttribute('open'); try { d.dispatchEvent(new Event('close')); } catch (e) { /* ok */ } }
+    if (!fromWindow) { try { w.close(); } catch (e) { /* already gone */ } }
+  }
+  window.addEventListener('pagehide', function () { popped.slice().forEach(function (p) { try { p.w.close(); } catch (e) { /* ok */ } }); });
+
+  /* ---------------- Watching for dialogs ---------------- */
+  function visit(d) { if (d.tagName === 'DIALOG') { setup(d); if (d.open) restore(d); } }
+  new MutationObserver(function (list) {
+    list.forEach(function (m) {
+      if (m.type === 'attributes') { if (m.target.tagName === 'DIALOG' && m.target.open) visit(m.target); return; }
+      m.addedNodes.forEach(function (n) { if (n.nodeType === 1) { visit(n); if (n.querySelectorAll) n.querySelectorAll('dialog').forEach(visit); } });
+    });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['open'], childList: true, subtree: true });
+  document.querySelectorAll('dialog').forEach(setup);
+  window.addEventListener('resize', function () {
+    if (small.matches) return;
+    document.querySelectorAll('dialog[open]').forEach(function (d) { if (d.style.position === 'fixed') { var r = d.getBoundingClientRect(); put(d, r.left, r.top); } });
+  });
+
+  window.ccShellDialogs = { popOut: popOut, popped: function () { return popped.map(function (p) { return p.d; }); }, places: load, nameOf: nameOf, barOf: barOf };
 })();

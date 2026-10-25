@@ -18,27 +18,27 @@ If you like the ribbon of Civil 3D, pick the {{ui:Civil ribbon}} menu style in {
 |---|---|---|
 | Bring in survey points | Import points with a point file format | {{ui:Open}}, then check the column order in **Import points** ([Import survey points](topic:import-points)) |
 | Sort points | Point groups, description keys | Automatic groups by the first word of the description; no description keys |
-| Edit a point | Point editor, grips | Not available yet: fix the file and import again |
+| Edit a point | Point editor, grips | Click it and type in Properties, or drag it ([Edit a survey point](topic:edit-points)) |
 | Build existing ground | Create a surface, add point groups as data | Automatic: the surface rebuilds whenever its inputs change |
 | Add breaklines | Add breaklines from polylines or feature lines | Set a point group to {{ui:Breakline}}, or click points with the {{ui:Breakline}} tool ({{key:B}}) |
 | Trim the surface | Outer boundary, hide boundary, maximum triangle length | {{ui:Boundary}} ({{key:O}}, outer only) and **Longest outside edge** |
 | Show contours | Surface style | **Display** in the left panel: interval, major every, labels, bands, slope arrows |
-| Lay out a centerline | Alignment creation tools, curve and spiral settings | {{ui:Alignment}} ({{key:A}}): click PIs, {{key:Enter}}; radii in the PI table; no spirals |
+| Lay out a centerline | Alignment creation tools, curve and spiral settings | {{ui:Alignment}} ({{key:A}}): click PIs, {{key:Enter}}; radii and spiral lengths in the PI table |
 | Create a profile view | Profile view wizard, bands | {{ui:Profile}} ({{key:R}}): one profile view under the plan, always fitted |
 | Design the grade | Profile layout tools | {{ui:Start from the ground}}, {{ui:Add PVIs}} ({{key:I}}), drag PVIs, type **Curve L** |
-| Build a road | Assembly, subassemblies, corridor, targets, regions | Tick **Sweep an assembly along the design profile** under the alignment; one symmetric lane, shoulder and side slope |
+| Build a road | Assembly, subassemblies, corridor, targets, regions | Tick **Sweep an assembly along the design profile** under the alignment; a lane, shoulder and side slope each side, or each side built from parts (gutter, curb, sidewalk …) |
 | Grade a pad | Feature lines, grading groups, grading criteria | {{ui:Pad}} ({{key:G}}): a flat pad with cut and fill slopes to daylight |
 | Compute earthwork | Volume surfaces, volumes dashboard | **Earthwork** in the right panel, grid method, updates live |
 | Lay out storm or sanitary | Pipe network with a parts list, rules | {{ui:Pipes}} ({{key:P}}): click structures downstream; three rules you set; automatic inverts |
 | Exchange with others | LandXML import and export | {{ui:Open}} a LandXML file; {{ui:LandXML}} to export ([Exchange LandXML](topic:landxml)) |
 | Send linework to CAD | Export to DWG | {{ui:DWG}} (2000 to 2018 format) or {{ui:DXF}} (R12) |
-| Plot | Layouts, viewports, sheet sets | {{ui:PDF}}: one landscape sheet of the plan at a chosen scale |
+| Plot | Layouts, viewports, sheet sets | {{ui:PDF}}: one landscape sheet of the plan at a chosen scale; plan and profile sheets and section sheets as PDF |
 | Share work between files | Data shortcuts, references | Not available: one project per file |
 | Undo | Undo | {{key:Mod+Z}} and {{key:Mod+Y}}, 200 steps; display settings are not undo steps |
 
 ## Differences that trip people up
 
-**There is no command line.** Tools are toolbar buttons and single letters: {{key:A}} alignment, {{key:G}} pad, {{key:P}} pipes, {{key:B}} breakline, {{key:O}} boundary, {{key:R}} profile, {{key:I}} add PVIs, {{key:V}} select, {{key:F}} fit. Typing a command name does nothing. See [Keys and mouse](topic:keyboard).
+**There is no command line** unless you pick the {{ui:Drafting classic}} menu style. Tools are toolbar buttons and single letters: {{key:A}} alignment, {{key:G}} pad, {{key:P}} pipes, {{key:B}} breakline, {{key:O}} boundary, {{key:R}} profile, {{key:I}} add PVIs, {{key:V}} select, {{key:F}} fit. In the other menu styles, typing a command name does nothing. See [Keys and mouse](topic:keyboard).
 
 **Enter finishes; double-click is risky.** Click the last point once, then press {{key:Enter}}. In this build a double-click finishes too, but drops the point you double-clicked. Right-click does not finish or repeat; it only pans when you drag with it.
 
@@ -58,7 +58,7 @@ If you like the ribbon of Civil 3D, pick the {{ui:Civil ribbon}} menu style in {
 
 **Delete on a Mac.** The Mac key labeled delete is Backspace to the browser. Use Fn and delete, or the {{ui:Delete}} button, to delete a selection.
 
-**Files are downloads.** {{ui:Save}} downloads a `.civilcraft.json` file each time; there is no "save over the open file" and no autosave. Opening a point file replaces the points without asking. See [Files you can open, save and export](topic:files).
+**Files are downloads.** {{ui:Save}} downloads a `.civilcraft.json` file each time; there is no "save over the open file". A recovery copy of unsaved work is kept in this browser ([Recover unsaved work](common:recover)). Opening a point file replaces the points without asking. See [Files you can open, save and export](topic:files).
 
 **Rules are yours.** Pipe network rules and the corridor assembly start with placeholder values that are not a standard. Set your own before trusting any check.
 
@@ -66,4 +66,4 @@ If you like the ribbon of Civil 3D, pick the {{ui:Civil ribbon}} menu style in {
 
 ## What is missing
 
-Spirals, curbs and sidewalks, sloped pads, inlet capacity and detention, parts catalogs, pipes in profile, parcel layouts and lot sizing, least-squares adjustment and survey databases, opening DWG, and more. The full list, with what to do instead today, is in [Not built yet](topic:not-built-yet).
+Spirals other than clothoid, assemblies that change along the road, sloped pads, inlet capacity and detention, parts catalogs, pipes in profile, parcel layouts and lot sizing, least-squares adjustment and survey databases, opening DWG, and more. The full list, with what to do instead today, is in [Not built yet](topic:not-built-yet).

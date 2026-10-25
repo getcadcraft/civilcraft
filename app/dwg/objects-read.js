@@ -76,6 +76,7 @@ export function decodeObject(buf, offset, ctx) {
   if (typeNum >= 500) {
     cls = ctx.classes.get(typeNum);
     name = cls ? cls.dxfName : 'CLASS_' + typeNum;
+    if (name === 'PDFREFERENCE') name = 'PDFUNDERLAY';   // the DXF name for the entity is PDFUNDERLAY (the ODA File Converter writes the class as PDFREFERENCE)
     rec.isEntity = cls ? cls.isEntity : false;
     rec.className = cls ? cls.cppName : '';
   } else rec.isEntity = ENTITY_FIXED.has(typeNum);
@@ -1120,7 +1121,11 @@ DECODERS.OLE2FRAME = (r, h, rec, ctx) => {
   rec.flags = r.BS();
   if (ctx.ver >= 15) rec.mode = r.BS();
   rec.dataLength = r.BL();
-  r.pos += rec.dataLength * 8;
+  if (rec.dataLength > 0 && rec.dataLength <= 64e6) {   // the OLE2 data (0.7 D7.23): kept, so the app can show the object's preview picture
+    const bytes = new Uint8Array(rec.dataLength);
+    for (let i = 0; i < bytes.length; i++) bytes[i] = r.RC();
+    rec.data = bytes;
+  } else r.pos += rec.dataLength * 8;
   if (ctx.ver >= 15) r.RC();
 };
 DECODERS.OLEFRAME = DECODERS.OLE2FRAME;
@@ -1176,6 +1181,25 @@ DECODERS.GEODATA = (r, h, rec) => {
   const nf = fits(r, r.BL(), 6);
   rec.meshFaces = [];
   for (let i = 0; i < nf; i++) rec.meshFaces.push([r.BL(), r.BL(), r.BL()]);
+};
+// ---- PDF underlays (0.7 D7.24): PDFDEFINITION (the file and page) and PDFUNDERLAY (class AcDbPdfReference, the placed page).
+// Spec gap: the ODA spec does not describe these classes. Layout found by black box: DXF 2000 files with varied values per field
+// (tools/dwg-test/underlay.mjs) converted to DWG 2000–2018 by the ODA File Converter, then the object bits read with this reader:
+//   PDFDEFINITION: TV file name, TV page (the page number or sheet name, as text); owned by the dictionary ACAD_PDFDEFINITIONS (in the
+//     named object dictionary), reactors: that dictionary and every underlay that uses it.
+//   PDFUNDERLAY (entity): BD3 normal, BD3 insertion, BD rotation (radians), BD3 scale, RC flags (DXF 280: 1 clip on, 2 underlay on,
+//     4 monochrome, 8 adjust for background, 16 clip inside), RC contrast (20–100), RC fade (0–80), BL n, n × RD2 clip boundary
+//     (n = 2: two corners of a rectangle; n = 0: none); handle stream: the definition as a hard pointer. The same bits in every
+//     version (R2007+ add only the string-stream bit). The ODA File Converter also attaches an 8-byte proxy graphics block; it is not
+//     needed and not written.
+DECODERS.PDFDEFINITION = (r, h, rec) => { rec.file = r.TV(); rec.page = r.TV(); };
+DECODERS.PDFUNDERLAY = (r, h, rec) => {
+  rec.normal = r.BD3(); rec.insertion = r.BD3(); rec.rotation = r.BD(); rec.scale = r.BD3();
+  rec.flags = r.RC(); rec.contrast = r.RC(); rec.fade = r.RC();
+  const n = fits(r, r.BL(), 128);
+  rec.clip = [];
+  for (let i = 0; i < n; i++) rec.clip.push(r.RD2());
+  rec._h.def = h.H(rec.handle);
 };
 DECODERS.SPATIAL_FILTER = (r, h, rec) => {
   const n = r.BS(); rec.points = []; for (let i = 0; i < n; i++) rec.points.push(r.RD2());

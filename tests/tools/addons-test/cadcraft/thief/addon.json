@@ -1,0 +1,1 @@
+{ "id": "test.thief", "name": "Test thief", "version": "1.0.0", "apps": ["cadcraft"], "api": "1", "license": "Apache-2.0", "entry": "./main.js", "permissions": ["commands"] }

@@ -334,10 +334,10 @@ export function cleanSwept(o, units = 'ft') {
 export function alignmentPath(al) {
   if (!al?.elements?.length) return [];
   const out = [];
-  for (const e of al.elements) {
+  for (const e of al.pieces()) {   // 0.7 D7.35: a spiral comes as short straight pieces
     out.push(e.type === 'arc' ? { x: e.p0.x, y: e.p0.y, b: (e.ccw ? 1 : -1) * Math.tan(e.delta / 4) } : { x: e.p0.x, y: e.p0.y });
   }
-  const e = al.elements[al.elements.length - 1];
+  const e = al.pieces()[al.pieces().length - 1];
   out.push({ x: e.p1.x, y: e.p1.y });
   return out;
 }

@@ -47,12 +47,13 @@ Not written: pads and corridors as objects (their result is the "Proposed" surfa
 | `Alignment` / `CoordGeom` | `Line` and `Curve` elements; PIs rebuilt from each curve's `PI`, or from its `Center` and tangents; `staStart` |
 | `Profile` / `ProfAlign` | `PVI` and `ParaCurve` (with `length`); the first design profile with at least two PVIs |
 | `PlanFeatures` / `PlanFeature` | each one as a feature line: `Line`, `Curve` (its `Start`, `Center`, `End` and `rot`) and `IrregularLine` (`PntList3D` or `PntList2D`) joined end to end (a gap is joined with a straight segment and noted); closed when it ends where it began; use and closed from CivilCraft's own `Feature`, else **Only drawn**. Points without an elevation get 0 (noted). |
+| `Spiral` | clothoid spirals beside a `Curve` (in and out; read as a PI with a radius and spiral lengths, written back with `theta`, `totalX`, `totalY`, `tanLong`, `tanShort`, `constant`) |
 | `PipeNetwork` | the first network that has pipes: `Struct` (`Center`, `elevRim`, `elevSump`, `CircStruct` diameter, `Invert` per pipe) and `Pipe` (`refStart`, `refEnd`, `CircPipe` diameter) |
 
 ## Skipped, and named in the notes
 
 - Surfaces after the first, grid surfaces and other non-TIN surfaces
-- Alignments that contain `Spiral`, `IrregularLine` or `Chain` elements, or that have no geometry
+- Alignments that contain `IrregularLine` or `Chain` elements, spirals other than clothoid, a spiral between two curves, or that have no geometry
 - Design profiles after the first; `CircCurve` and `UnsymParaCurve` vertical curves (their PVIs are kept without a curve)
 - Points that only refer to other points (`pntRef`), and points without readable coordinates
 - Repeated point names (the first is kept)

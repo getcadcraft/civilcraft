@@ -1,0 +1,435 @@
+{
+ "format": "takeoffcraft-project",
+ "version": 1,
+ "app": "TakeoffCraft",
+ "savedAt": "2026-10-23T12:00:00.000Z",
+ "name": "Kitchen renovation",
+ "seq": 28,
+ "files": [
+  {
+   "hash": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7",
+   "name": "kitchen-plan-sheet.pdf",
+   "size": 22422,
+   "pages": 1
+  }
+ ],
+ "sheets": {
+  "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0": {
+   "scale": {
+    "method": "preset",
+    "preset": "a1/4",
+    "ftPerUnit": 0.05555555555555555,
+    "label": "1/4\" = 1'-0\"",
+    "cal": null
+   }
+  }
+ },
+ "items": [
+  {
+   "id": "i1",
+   "name": "Gypsum board",
+   "type": "area",
+   "color": "#D62728",
+   "unit": "SF",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 5500,
+   "lab": 9000,
+   "components": [],
+   "csi": "09 21 16"
+  },
+  {
+   "id": "i2",
+   "name": "Paint walls",
+   "type": "area",
+   "color": "#1F77B4",
+   "unit": "SF",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 2000,
+   "lab": 5500,
+   "components": [],
+   "csi": "09 91 23"
+  },
+  {
+   "id": "i3",
+   "name": "Rubber base",
+   "type": "linear",
+   "color": "#2CA02C",
+   "unit": "LF",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 11000,
+   "lab": 14000,
+   "components": [],
+   "csi": "09 65 13"
+  },
+  {
+   "id": "i4",
+   "name": "Install base cabinets",
+   "type": "count",
+   "color": "#FF7F0E",
+   "unit": "EA",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 0,
+   "lab": 550000,
+   "components": [],
+   "csi": "06 41 00"
+  },
+  {
+   "id": "i5",
+   "name": "Wall shelving",
+   "type": "linear",
+   "color": "#9467BD",
+   "unit": "LF",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 80000,
+   "lab": 0,
+   "components": [],
+   "csi": "06 40 00"
+  },
+  {
+   "id": "i6",
+   "name": "Patch slab",
+   "type": "fixed",
+   "color": "#8C564B",
+   "unit": "LS",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 4500000,
+   "lab": 0,
+   "components": [],
+   "csi": "03 30 00",
+   "qty": 1
+  },
+  {
+   "id": "i7",
+   "name": "Mobilization",
+   "type": "fixed",
+   "color": "#E377C2",
+   "unit": "LS",
+   "heightFt": 0,
+   "waste": 0,
+   "mat": 8500000,
+   "lab": 0,
+   "components": [],
+   "qty": 1
+  }
+ ],
+ "marks": [
+  {
+   "id": "m8",
+   "item": "i1",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "area",
+   "pts": [
+    [
+     155.51999999999998,
+     345.6
+    ],
+    [
+     524.52,
+     345.6
+    ],
+    [
+     524.52,
+     525.6
+    ],
+    [
+     155.51999999999998,
+     525.6
+    ]
+   ]
+  },
+  {
+   "id": "m9",
+   "item": "i1",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "area",
+   "pts": [
+    [
+     155.51999999999998,
+     561.6
+    ],
+    [
+     524.52,
+     561.6
+    ],
+    [
+     524.52,
+     741.6
+    ],
+    [
+     155.51999999999998,
+     741.6
+    ]
+   ]
+  },
+  {
+   "id": "m10",
+   "item": "i2",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "area",
+   "pts": [
+    [
+     551.52,
+     345.6
+    ],
+    [
+     920.52,
+     345.6
+    ],
+    [
+     920.52,
+     525.6
+    ],
+    [
+     551.52,
+     525.6
+    ]
+   ]
+  },
+  {
+   "id": "m11",
+   "item": "i2",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "area",
+   "pts": [
+    [
+     551.52,
+     561.6
+    ],
+    [
+     920.52,
+     561.6
+    ],
+    [
+     920.52,
+     741.6
+    ],
+    [
+     551.52,
+     741.6
+    ]
+   ]
+  },
+  {
+   "id": "m12",
+   "item": "i3",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "linear",
+   "pts": [
+    [
+     155.51999999999998,
+     795.6
+    ],
+    [
+     1019.52,
+     795.6
+    ]
+   ]
+  },
+  {
+   "id": "m13",
+   "item": "i3",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "linear",
+   "pts": [
+    [
+     155.51999999999998,
+     831.6
+    ],
+    [
+     1019.52,
+     831.6
+    ]
+   ]
+  },
+  {
+   "id": "m14",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     191.51999999999998,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m15",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     245.51999999999998,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m16",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     299.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m17",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     353.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m18",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     407.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m19",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     461.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m20",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     515.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m21",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     569.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m22",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     623.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m23",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     677.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m24",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     731.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m25",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     785.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m26",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     839.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m27",
+   "item": "i4",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "count",
+   "pts": [
+    [
+     893.52,
+     885.6
+    ]
+   ]
+  },
+  {
+   "id": "m28",
+   "item": "i5",
+   "sheet": "09c500b4e0a35635b04523fbab7fe8f2373b91f9e99b74c37ae70ba046ef6bd7:0",
+   "kind": "linear",
+   "pts": [
+    [
+     155.51999999999998,
+     939.6
+    ],
+    [
+     731.52,
+     939.6
+    ]
+   ]
+  }
+ ]
+}

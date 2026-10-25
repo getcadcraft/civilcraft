@@ -18,6 +18,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const BASE = 'https://getcadcraft.com';
@@ -284,6 +285,8 @@ try {
   const appTab = await page.$('[role="tab"]:has-text("CadCraft")');
   if (appTab) await appTab.click();
   ok(await page.isChecked('input[name="ccCorner"][value="auto"]'), 'Settings › CadCraft › Corner indicator: Automatic by default');
+  // Since 0.7 (data-shell-07) the dialog shows one section at a time: pick the one with the corner indicator, as a person would.
+  await showSetting(page, 'input[name="ccCorner"]');
   await page.check('input[name="ccCorner"][value="cube"]');
   await page.click('.shell-dlg-foot button[type="submit"]');
   ok((await page.evaluate(() => JSON.parse(localStorage.getItem('cadcraft.settings')).corner)) === 'cube', 'saved as corner: cube in cadcraft.settings');

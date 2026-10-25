@@ -51,7 +51,8 @@ node tools/dwg-test/compare.mjs            # everything → dwg-comparison-repor
   --targets AC1015,AC1032                  # writer target versions (default all six)
   --writer-from orig                       # writer inputs: only orig/ files (default: every selected corpus file)
   --no-reader | --no-writer | --fresh (ignore cache) | --keep (keep DXFs) | --jobs 8
-node tools/dwg-test/test.mjs [--verbose] [--only bits,crc,lz,r2007,rs,header,read]
+node tools/dwg-test/test.mjs [--verbose] [--only bits,crc,lz,r2007,rs,header,read,underlay]
+node tools/dwg-test/underlay.mjs [--keep] # PDF underlays (0.7 D7.24): own round trip, + the ODA File Converter both ways when set up
 node tools/dwg-test/corpus.mjs             # (re)build the corpus + truth; cached by sha256
 ```
 

@@ -248,7 +248,7 @@ try {
   await typeCmd('L'); await typeCmd('0,0'); await typeCmd('100,0'); await typeCmd('100,50'); await typeCmd('0,50'); await typeCmd('C');
   await typeCmd('ZOOM'); await typeCmd('E');
   const items = await page.$$eval('[data-group-menu="Modify"] [role="menuitem"]', (bs) => bs.map((b) => b.firstChild.textContent.trim()));
-  ok(JSON.stringify(items) === JSON.stringify(['Array', 'Join', 'Match properties', 'Break', 'Lengthen']), 'Modify › More lists Array, Join, Match properties, Break, Lengthen', JSON.stringify(items));
+  ok(JSON.stringify(items) === JSON.stringify(['Array', 'Join', 'Match properties', 'Break', 'Lengthen', 'Align', 'Align and distribute']), 'Modify › More lists Array, Join, Match properties, Break, Lengthen, Align, Align and distribute', JSON.stringify(items));
   await page.click('[data-group-menu="Modify"] summary'); await page.click('[data-group-menu="Modify"] [data-cmd="JOIN"]'); await page.waitForTimeout(80);
   await typeCmd('ALL'); await typeCmd('');
   let jj = await all();
@@ -878,6 +878,36 @@ try {
       await page.evaluate(() => window.cadcraft.host.setSelection(new Set()));
       await typeCmd('NEW');
     } else console.log('  (no vendor sample: skipped)');
+  }
+
+  // 0.6.1 FIX-061-DYN-ATTRS: the attributes follow the visibility state (our own fixture, fixtures/dwg/dyn-attrs-visibility.dwg)
+  console.log('\n== dynamic blocks: the attributes follow the visibility state (FIX-061-DYN-ATTRS)');
+  {
+    await page.setInputFiles('[data-file]', path.join(REPO, 'fixtures/dwg/dyn-attrs-visibility.dwg'));
+    await page.waitForFunction(() => window.cadcraft.doc.meta.source === 'dyn-attrs-visibility.dwg', null, { timeout: 60000 });
+    await page.waitForTimeout(300);
+    const id = await page.evaluate(() => { const c = window.cadcraft; const r = [...c.doc.model.values()].filter((e) => e.type === 'insert').sort((a, b) => a.x - b.x)[0]; c.host.setSelection(new Set([r.id])); return r.id; });
+    // what the reference draws (the same walk the screen and the plot use) and what Properties lists
+    const shows = () => page.evaluate(async (i) => {
+      const { walk } = await import('/assets/apps/cadcraft/dev/walk.js');
+      const c = window.cadcraft, out = [];
+      walk(c.doc, [c.doc.model.get(i)], { stroke() {}, fill() {}, text: (k, x) => { if (x.tag) out.push(x.tag + '=' + x.s); } });
+      return out.join(' ');
+    }, id);
+    const propRows = () => page.$$eval('label[htmlfor^="cc-p-att"], label[for^="cc-p-att"]', (ls) => ls.map((l) => l.textContent.trim())).catch(() => []);
+    await page.waitForSelector('#cc-p-dyn-vis', { timeout: 5000 }).catch(() => {});
+    ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka RATING=16A', 'Single: CIRCUIT, ROOM and RATING show', await shows());
+    await page.selectOption('#cc-p-dyn-vis', 'Outdoor'); await page.waitForTimeout(300);
+    ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka IP=IP44', 'Properties › Custom → Outdoor: RATING goes, IP shows its value (it came out empty before)', await shows());
+    const rows = await propRows();
+    ok(rows.length === 5 && rows.filter((x) => /hidden/.test(x)).length === 2, 'Properties lists all five attributes, the two this state hides marked hidden', JSON.stringify(rows));
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-28b-dynamic-attributes.png') });
+    await page.selectOption('#cc-p-dyn-vis', 'Double'); await page.waitForTimeout(300);
+    ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka RATING=16A GANG=2', 'Double: RATING and GANG with their values', await shows());
+    await page.click('[data-cmd-input]'); await page.keyboard.press('Control+z'); await page.waitForTimeout(200);
+    ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka IP=IP44', 'one Ctrl+Z: back in Outdoor');
+    await page.evaluate(() => { window.cadcraft.host.setSelection(new Set()); window.cadcraft.doc.markSaved(); });
+    await typeCmd('NEW');
   }
 
   console.log('\n== sheet tabs show numbers only (0.5 WL.9)');

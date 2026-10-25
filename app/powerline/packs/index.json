@@ -1,0 +1,24 @@
+{
+  "format": "cadcraft-linepack-addons",
+  "version": 1,
+  "addons": [
+    {
+      "id": "example-cold-climate",
+      "file": "example-cold-climate.cclinepack.json",
+      "name": "Example pack: cold climate",
+      "region": "Example (no country)",
+      "description": "Shows the pack format: the built-in cold-climate example rule set (ice, ice on one side, wind) and copies of seven starter items. Not any country's rules.",
+      "author": "CadCraft",
+      "license": "CC0-1.0"
+    },
+    {
+      "id": "example-mild-climate",
+      "file": "example-mild-climate.cclinepack.json",
+      "name": "Example pack: mild climate",
+      "region": "Example (no country)",
+      "description": "Shows the pack format: the built-in mild-climate example rule set (no ice) and copies of seven starter items. Not any country's rules.",
+      "author": "CadCraft",
+      "license": "CC0-1.0"
+    }
+  ]
+}

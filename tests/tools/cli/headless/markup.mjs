@@ -19,7 +19,11 @@ async function env() {
   const pdfjsDir = nodeModule('pdfjs-dist', 'markupcraft-test');
   if (!pdfjsDir) throw new Error('Reading PDFs needs the pdfjs-dist package (npm install pdfjs-dist@6.3.289 beside the CadCraft tools).');
   const libDir = vendorDir('pdf-lib');
-  const pdfLibPath = libDir ? path.join(libDir, 'pdf-lib.esm.js') : nodeModule('pdf-lib', 'markupcraft-test') && path.join(nodeModule('pdf-lib', 'markupcraft-test'), 'dist', 'pdf-lib.esm.js');
+  // pdf.js 6 calls Promise.withResolvers (Node 22+); Node 20 gets the same few lines here (0.7 AS.1)
+  if (typeof Promise.withResolvers !== 'function') {
+    Promise.withResolvers = function () { let resolve, reject; const promise = new this((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; };
+  }
+  const pdfLibPath = libDir ?path.join(libDir, 'pdf-lib.esm.js') : nodeModule('pdf-lib', 'markupcraft-test') && path.join(nodeModule('pdf-lib', 'markupcraft-test'), 'dist', 'pdf-lib.esm.js');
   const pdfjs = await import(pathToFileURL(path.join(pdfjsDir, 'legacy/build/pdf.mjs')).href);
   const pdfLib = pdfLibPath ? await import(pathToFileURL(pdfLibPath).href) : null;
   ENV = { pdfjs, pdfLib, docOptions: { standardFontDataUrl: path.join(pdfjsDir, 'standard_fonts') + path.sep, verbosity: 0 } };

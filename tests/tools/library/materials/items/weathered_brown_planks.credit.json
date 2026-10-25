@@ -1,0 +1,14 @@
+{
+ "title": "Weathered Brown Planks",
+ "author": "Dimitrios Savva, Rico Cilliers",
+ "authors": {
+  "Dimitrios Savva": "Photography",
+  "Rico Cilliers": "Processing"
+ },
+ "license": "CC0-1.0",
+ "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+ "library": "Poly Haven",
+ "source_url": "https://polyhaven.com/a/weathered_brown_planks",
+ "attribution": "“Weathered Brown Planks” by Dimitrios Savva, Rico Cilliers, Poly Haven (https://polyhaven.com/a/weathered_brown_planks), CC0 1.0",
+ "changes": "The 1k JPEG pictures as published; wired into a CadCraft node material (shading/texset.js); the preview rendered by CadCraft."
+}

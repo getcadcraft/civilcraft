@@ -1,0 +1,48 @@
+# A mounting plate with two bolt holes — a PartCraft script written by hand.
+# Change a parameter and rebuild:  node tools/partcraft-cli/partcraft.mjs build bracket.pcscript --set width=150 --out plate.step
+pcscript 1
+part "Bracket"
+  resolution 64
+
+param width = 120
+  note Plate width
+param depth = 60
+param thick = 8
+param bolt = 8.5            # clearance for M8
+param margin = bolt * 1.5   # hole centre to the plate edge
+
+sketch Plate
+  on top
+  point a 0, 0
+  point b 120, 0
+  point c 120, 60
+  point d 0, 60
+  line bottom a b
+  line right b c
+  line top c d
+  line left d a
+  coincident a O
+  horizontal bottom
+  horizontal top
+  vertical left
+  vertical right
+  distance bottom = width
+  distance left = depth
+
+extrude Base
+  sketch Plate
+  depth = thick
+
+sketch HoleCentres
+  on face Base end
+  point h1 12, 12
+  point h2 108, 12
+  hdistance O h1 = margin
+  vdistance O h1 = margin
+  hdistance O h2 = width - margin
+  vdistance O h2 = margin
+
+hole Bolts
+  sketch HoleCentres
+  d = bolt
+  through

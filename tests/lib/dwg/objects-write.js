@@ -29,7 +29,7 @@ export const TYPE = {
   DIMENSION_ORDINATE: 20, DIMENSION_LINEAR: 21, DIMENSION_ALIGNED: 22, DIMENSION_ANG3PT: 23, DIMENSION_ANG2LN: 24,
   DIMENSION_RADIUS: 25, DIMENSION_DIAMETER: 26, POINT: 27, '3DFACE': 28, POLYLINE_PFACE: 29, POLYLINE_MESH: 30, SOLID: 31,
   TRACE: 32, SHAPE: 33, VIEWPORT: 34, ELLIPSE: 35, SPLINE: 36, REGION: 37, '3DSOLID': 38, BODY: 39, RAY: 40, XLINE: 41,
-  DICTIONARY: 42, MTEXT: 44, LEADER: 45, TOLERANCE: 46, MLINE: 47, BLOCK_CONTROL: 48, BLOCK_HEADER: 49, LAYER_CONTROL: 50,
+  DICTIONARY: 42, OLE2FRAME: 74, MTEXT: 44, LEADER: 45, TOLERANCE: 46, MLINE: 47, BLOCK_CONTROL: 48, BLOCK_HEADER: 49, LAYER_CONTROL: 50,
   LAYER: 51, STYLE_CONTROL: 52, STYLE: 53, LTYPE_CONTROL: 56, LTYPE: 57, VIEW_CONTROL: 60, VIEW: 61, UCS_CONTROL: 62, UCS: 63,
   VPORT_CONTROL: 64, VPORT: 65, APPID_CONTROL: 66, APPID: 67, DIMSTYLE_CONTROL: 68, DIMSTYLE: 69, VPENT_CONTROL: 70,
   VPENT: 71, GROUP: 72, MLINESTYLE: 73, LWPOLYLINE: 77, HATCH: 78, XRECORD: 79, PLACEHOLDER: 80, LAYOUT: 82,
@@ -49,6 +49,9 @@ export const CLASSED = {
   IMAGEDEF_REACTOR: { dxf: 'IMAGEDEF_REACTOR', cpp: 'AcDbRasterImageDefReactor', app: 'ISM', entity: false, proxy: 1 },
   RASTERVARIABLES: { dxf: 'RASTERVARIABLES', cpp: 'AcDbRasterVariables', app: 'ISM', entity: false, proxy: 0 },
   WIPEOUT: { dxf: 'WIPEOUT', cpp: 'AcDbWipeout', app: 'WipeOut', entity: true, proxy: 127 },
+  // PDF underlays (0.7 D7.24): class names and flags as the ODA File Converter writes them (the entity's class is PDFREFERENCE)
+  PDFDEFINITION: { dxf: 'PDFDEFINITION', cpp: 'AcDbPdfDefinition', app: 'ObjectDBX Classes', entity: false, proxy: 1153 },
+  PDFUNDERLAY: { dxf: 'PDFREFERENCE', cpp: 'AcDbPdfReference', app: 'ObjectDBX Classes', entity: true, proxy: 1153 },
   WIPEOUTVARIABLES: { dxf: 'WIPEOUTVARIABLES', cpp: 'AcDbWipeoutVariables', app: 'WipeOut', entity: false, proxy: 0 },
 };
 export const SOFT_OWN = 2, HARD_OWN = 3, SOFT_PTR = 4, HARD_PTR = 5;
@@ -550,6 +553,15 @@ ENC.ELLIPSE = (w, r) => {
 };
 ENC.RAY = (w, r) => { entityCommon(w, r); w.P3(r.start); w.P3(r.direction); };
 ENC.XLINE = ENC.RAY;
+// 20.4.88 OLE2FRAME (0.7 D7.23): flags, mode, the OLE2 data as the file had it, one unknown byte (0). The record's own fields are
+// oleFlags / oleMode / data (a Uint8Array): `mode` is the entity's space (write.js sets it) and `flags` its common flags.
+ENC.OLE2FRAME = (w, r) => {
+  entityCommon(w, r);
+  const d = r.data || new Uint8Array(0);
+  w.BS(r.oleFlags | 0); w.BS(r.oleMode | 0); w.BL(d.length);
+  for (let i = 0; i < d.length; i++) w.RC(d[i]);
+  w.RC(0);
+};
 function corners(w, r) {
   entityCommon(w, r);
   w.BT(num(r.thickness)); w.BD(num(r.elevation ?? r.points?.[0]?.z));
@@ -907,6 +919,18 @@ ENC.IMAGEDEF_REACTOR = (w, r) => { objectCommon(w, r); w.BL(r.classVersion ?? 2)
 ENC.RASTERVARIABLES = (w, r) => { objectCommon(w, r); w.BL(0); w.BS(r.frame ?? 1); w.BS(r.quality ?? 1); w.BS(r.units | 0); };
 /** WIPEOUTVARIABLES: not in the spec; AutoCAD's own (example_2018.dwg, dwgread -v5) hold one BS, the display frame. */
 ENC.WIPEOUTVARIABLES = (w, r) => { objectCommon(w, r); w.BS(r.frame ?? 1); };
+
+// --- PDFUNDERLAY / PDFDEFINITION (0.7 D7.24): layout found by black box, see objects-read.js DECODERS.PDFUNDERLAY
+ENC.PDFUNDERLAY = (w, r) => {
+  entityCommon(w, r);
+  w.BD3(num(r.normal?.x), num(r.normal?.y), num(r.normal?.z, 1)); w.P3(r.insertion); w.BD(num(r.rotation)); w.BD3(num(r.scale?.x, 1), num(r.scale?.y, 1), num(r.scale?.z, 1));
+  w.RC((r.flags ?? 2) & 255); w.RC(Math.min(100, Math.max(20, r.contrast ?? 100))); w.RC(Math.min(80, Math.max(0, r.fade | 0)));
+  const clip = (r.clip || []).filter((p) => Number.isFinite(p?.x) && Number.isFinite(p?.y));
+  w.BL(clip.length);
+  for (const p of clip) w.RD2(p.x, p.y);
+  w.H(HARD_PTR, r.def || 0);
+};
+ENC.PDFDEFINITION = (w, r) => { objectCommon(w, r); w.TV(r.file || ''); w.TV(String(r.page ?? '1')); };
 
 // --- LEADER (20.4.47), TOLERANCE (20.4.49), MLINE (20.4.50), SHAPE (20.4.37)
 ENC.LEADER = (w, r) => {

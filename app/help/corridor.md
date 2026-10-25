@@ -6,7 +6,7 @@ order: 60
 keywords: superelevation, super, banking, runoff, runout, rate table, cross slope, rotation, corridor, assembly, subassembly, typical section, road, lane, shoulder, cross slope, side slope, daylight, cut, fill, sections, target, targets, width target, elevation target, offset target, widening, edge of pavement, follow another corridor
 ---
 
-A corridor sweeps one simple typical section (an assembly) along an alignment and its design profile, grades it into the existing ground and adds the result to the proposed surface. In this build each alignment can carry one corridor, and the assembly is the same on both sides.
+A corridor sweeps one simple typical section (an assembly) along an alignment and its design profile, grades it into the existing ground and adds the result to the proposed surface. In this build each alignment can carry one corridor. The simple assembly below is the same on both sides; to give each side its own parts, see [Build each side from parts](topic:corridor#build-each-side-from-parts).
 
 ## The assembly
 
@@ -91,6 +91,12 @@ The line can be a feature line (whatever its **Use**) or a line of another corri
 
 **Result** says at how many sections the line was reached. Sections that do not reach it (past its ends, or where it is behind the centerline) keep the assembly's values. A line that is deleted leaves the corridor as it was before the target, and the table says so. One side can have one width and one elevation target for each point.
 
+## Build each side from parts
+
+Turn on **Build each side from parts** under the corridor's settings. Each side then has its own list, from the centerline outward: lanes, a shoulder, a gutter, a curb, a planting strip, a sidewalk and, last, the side slope to the ground (with its own cut and fill ratios). Start from {{ui:Rural road}} or {{ui:Urban street}}, add and remove parts, move them with the arrows, and {{ui:Copy}} one side to the other. Every change is one undo step.
+
+A cross slope is the fall away from the road, so a sidewalk that drains toward the road is negative. A curb is a face of the height you give, a top of the width you give and an optional drop at the back. Superelevation turns every lane in the first row; the gutter, curb, strip and sidewalk hang from the edge of the lanes as built. Targets still move the end of the lanes and the last part. Cross sections mark the gutter flowline, top and back of curb, and the rest. On a curve with spirals the runoff is the spiral: level crown at the TS, full superelevation at the SC.
+
 ## What is not built yet
 
-Curb and gutter, sidewalks, different assemblies on each side or along the road, regions, and targets for the daylight slope are not available yet. See [Not built yet](topic:not-built-yet).
+Assemblies that change along the road, regions, and targets for the daylight slope are not available yet. See [Not built yet](topic:not-built-yet).

@@ -46,7 +46,7 @@ const page = await ctx.newPage();
 watch(page);
 const statusOf = (p) => p.textContent('[data-status]');
 const waitStatus = (p, re, timeout = 60000) => p.waitForFunction((src) => new RegExp(src).test(document.querySelector('[data-status]')?.textContent || ''), re.source, { timeout });
-const tool = (act) => `[data-toolbar] > [data-act="${act}"]`;
+const tool = (act) => `[data-toolbar] .bc-tool-row > [data-act="${act}"]`;
 const item = (act) => `[data-edit-menu] [role="menuitem"][data-act="${act}"]`;
 const disabled = async (p, sel) => (await p.getAttribute(sel, 'aria-disabled')) === 'true';
 const scheduleNos = async (p) => {
@@ -69,12 +69,14 @@ try {
 
   console.log('== Toolbar: the Edit tools, disabled with reasons');
   await openIfc(page, IFC);
-  const acts = await page.$$eval('[data-toolbar] > [data-act]', (bs) => bs.map((b) => b.dataset.act + ':' + b.textContent.trim()));
+  const acts = await page.$$eval('[data-toolbar] .bc-tool-row > [data-act]', (bs) => bs.map((b) => b.dataset.act + ':' + b.textContent.trim()));
   ok(acts.join() === 'undo:Undo,redo:Redo,copy:Copy,paste:Paste' && await page.isVisible('[data-edit-menu] > summary'), 'toolbar Edit tools: Undo, Redo, Copy, Paste and More (' + acts.join(', ') + ')');
   const rows = await page.$$eval('[data-toolbar] .bc-tool', (bs) => new Set(bs.filter((b) => b.offsetParent).map((b) => Math.round(b.getBoundingClientRect().top))).size);
-  ok(rows === 2, 'at 1440 px the toolbar keeps the two rows it had (' + rows + ')');
+  // Owner 2026-10-24: three rows accepted at 1440 px (0.7 added Units, Live view and USD; docs/0.7-sessions/closing_PART_2.md § A. BIM-TESTS-PRE).
+  ok(rows >= 1 && rows <= 3, 'at 1440 px the toolbar takes at most three rows (' + rows + ')');
   const rowOf = await page.$$eval('[data-toolbar] .bc-tool', (bs) => Object.fromEntries(bs.map((b) => [b.dataset.act || b.dataset.view || b.dataset.toggle || b.dataset.libTool || (b.hasAttribute('data-handoff-ifc') ? 'handoff' : b.closest('[data-vis-menu]') ? 'show' : b.closest('[data-edit-menu]') ? 'more' : 'other'), Math.round(b.getBoundingClientRect().top)])));
-  ok(rowOf.iso === rowOf.more && rowOf.undo === rowOf.iso && rowOf.library > rowOf.iso, 'row 1: view tools and the Edit group with More; row 2: the library tools');
+  ok(rowOf.undo === rowOf.redo && rowOf.redo === rowOf.copy && rowOf.copy === rowOf.paste && rowOf.paste === rowOf.more && rowOf.library > rowOf.iso,
+    'the Edit group (Undo, Redo, Copy, Paste, More) on one row; the library tools on a row below the view tools (' + ['iso', 'undo', 'redo', 'copy', 'paste', 'more', 'library'].map((k) => k + ' ' + rowOf[k]).join(', ') + ')');
   ok(await disabled(page, tool('undo')) && (await page.getAttribute(tool('undo'), 'title')) === 'Nothing to undo.', 'Undo is aria-disabled, title "Nothing to undo."');
   ok(await disabled(page, tool('copy')) && /Pick an element/.test(await page.getAttribute(tool('copy'), 'title')), 'Copy is disabled until an element is picked (title says so)');
   ok(await disabled(page, tool('paste')) && /Nothing copied yet/.test(await page.getAttribute(tool('paste'), 'title')), 'Paste is disabled with nothing copied');
@@ -236,10 +238,22 @@ try {
   const field = (sel) => page.$eval(sel, (i) => i.checked);
   ok(!(await field('input[name="bcSpaces"]')) && await field('input[name="bcEdges"][value="on"]') && await field('input[name="bcView"][value="iso"]') && !(await field('input[name="bcSnap"]')), 'defaults shown: spaces off, edges on, Fit, wall snap off');
   await shot(page, '06-settings');
-  await page.check('input[name="bcSpaces"]');
-  await page.check('input[name="bcEdges"][value="off"]');
-  await page.check('input[name="bcView"][value="top"]');
-  await page.check('input[name="bcSnap"]');
+  // Since 0.7 (data-shell-07) the dialog shows one section at a time from the list on its left (app-settings.js "Sections"):
+  // pick the section that holds the field, as a person would, then tick it.
+  const checkIn = async (sel) => {
+    await page.evaluate((sel) => {
+      const f = document.querySelector(sel);
+      document.querySelectorAll('.shell-sec-nav button[data-test-sec]').forEach((b) => b.removeAttribute('data-test-sec'));
+      const b = [...document.querySelectorAll('.shell-sec-nav button')].find((x) => x.ccSet && x.ccSet.contains(f));
+      if (b) b.setAttribute('data-test-sec', '');
+    }, sel);
+    if (await page.$('.shell-sec-nav button[data-test-sec]')) await page.click('.shell-sec-nav button[data-test-sec]');
+    await page.check(sel);
+  };
+  await checkIn('input[name="bcSpaces"]');
+  await checkIn('input[name="bcEdges"][value="off"]');
+  await checkIn('input[name="bcView"][value="top"]');
+  await checkIn('input[name="bcSnap"]');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('bimcraft.settings')));
   ok(saved && saved.spaces === true && saved.edges === 'off' && saved.view === 'top' && saved.snap === true, 'stored in localStorage "bimcraft.settings": ' + JSON.stringify(saved));
   await page.keyboard.press('Escape');

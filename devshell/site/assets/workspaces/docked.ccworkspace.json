@@ -1,0 +1,22 @@
+{
+  "format": "cadcraft-workspace",
+  "version": 1,
+  "id": "docked",
+  "name": "Ribbon and project browser",
+  "nameKey": "shell.ws.docked",
+  "hintKey": "shell.ws.docked.hint",
+  "description": "Ribbon tabs over the drawing, Properties and a browser stacked in the left panel, a tab for each open view, a status bar.",
+  "author": "CadCraft (from drsurfbum's workspace, BimCraft 0.7)",
+  "license": "Apache-2.0",
+  "look": { "density": "regular", "outline": "faint", "tabs": "filled" },
+  "blocks": [
+    { "block": "titlebar", "place": "top", "order": 0, "quick": ["open", "save", "undo", "redo"], "inventory": true },
+    { "block": "ribbon", "place": "top", "order": 1, "file": ["open", "save"], "collapse": true, "tearOff": true },
+    { "block": "options", "place": "top", "order": 2, "commands": ["clear"] },
+    { "block": "toolbar", "place": "none" },
+    { "block": "palettes", "place": "left-panel", "upper": "properties", "lower": ["browser", "panel"] },
+    { "block": "viewtabs", "place": "view-top", "order": 0, "mode": "open" },
+    { "block": "viewbar", "place": "view-bottom", "order": 0, "slots": ["scale", "detail", "range", "fit"] },
+    { "block": "statusbar", "place": "bottom", "order": 0 }
+  ]
+}

@@ -535,6 +535,9 @@ export async function resMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, arg
     ok(FR.headerFor(36 * IN).size === '2x6' && FR.headerFor(48 * IN).size === '2x8' && FR.headerFor(72 * IN).size === '2x10' && FR.headerFor(96 * IN).size === '2x12' && FR.headerFor(120 * IN).over && FR.headerFor(120 * IN).plies === 3, 'headers by width: 3\' 2-2x6, 4\' 2-2x8, 6\' 2-2x10, 8\' 2-2x12, wider = 3-2x12 flagged for a designer');
     ok(near(FR.boardFeet('2x4', 8 * 304.8), 16 / 3, 1e-9) && near(FR.boardFeet('2x10', 12 * 304.8), 20, 1e-9), 'board feet: a 2x4 8\' = 5.33, a 2x10 12\' = 20');
     ok(FR.sizeFor(FR.JOIST_TABLE[406.4], 12 * 304.8).size === '2x8' && FR.sizeFor(FR.JOIST_TABLE[406.4], 13 * 304.8).size === '2x10' && FR.sizeFor(FR.JOIST_TABLE[406.4], 25 * 304.8).over, 'joists by span at 16": 12\' 2x8, 13\' 2x10, 25\' beyond the table');
+    ok(FR.tjiFor(16 * 304.8, 406.4).size === 'TJI 210 9½' && FR.tjiFor(30 * 304.8, 609.6) === null, 'TJI 40/10 L/480 table: smallest passing series/depth, refuse beyond subset');
+    const tf = FR.frameFloor([[0, 0], [6000, 0], [6000, 4000], [0, 4000]], { spacing: 406.4, floorMode: 'tji', floorDir: 'y' });
+    ok(!tf.error && tf.dir[0] === 0 && tf.dir[1] === 1 && tf.pieces.some((p2) => p2.tji && p2.size.startsWith('TJI ')), 'TJI floor assembly uses the chosen direction and sized joists');
     const t6 = 7.25 * IN;
     const mk = (guid, a, b, typeKey = 'ext-2x6') => ({ guid, a, b, len: Math.hypot(b[0] - a[0], b[1] - a[1]), t: typeKey === 'int-2x4' ? 4.5 * IN : t6, height: 2438.4, typeKey, extSide: 'right', z: 0, baseOffset: 0 });
     const W4 = [mk('A', [0, 0], [6000, 0]), mk('B', [6000, 0], [6000, 4000]), mk('C', [6000, 4000], [0, 4000]), mk('D', [0, 4000], [0, 0])];
@@ -620,6 +623,10 @@ export async function resMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, arg
     F = FR.readFraming(wr2());
     txt = txtOf(ed2);
     ok(F.length === 2 && /IFCBEAM\([^;]*\.JOIST\.\)/.test(txt) && /IFCMEMBER\([^;]*\.RAFTER\.\)/.test(txt) && /IFCMEMBER\([^;]*\.COLLAR\.\)/.test(txt), 'a floor (IfcBeam joists, rims) and a roof (rafters, hips, a ridge, ceiling joists, collar ties) framed');
+    const floorFr = F.find((f) => f.kind === 'floor');
+    ed2.modelChange(FR.changeFraming(floorFr.guid, { floorMode: 'tji', floorDir: 'y' }));
+    F = FR.readFraming(wr2());
+    ok(F.find((f) => f.kind === 'floor').floorMode === 'tji' && F.find((f) => f.kind === 'floor').floorDir === 'y' && FR.lumberList(wr2()).rows.some((r) => r.size.startsWith('TJI ')), 'TJI floor mode and direction persist in IFC with a cut list');
     const roofFr = F.find((f) => f.kind === 'roof');
     ed2.modelChange(FR.changeFraming(roofFr.guid, { roofMode: 'truss' }));
     txt = txtOf(ed2);
@@ -928,6 +935,23 @@ export async function resMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, arg
       const id = a2.OpenModel(saved.electrical);
       ok(a2.GetLineIDsWithType(id, Wi.IFCOUTLET).size() === 1 && a2.GetLineIDsWithType(id, Wi.IFCLIGHTFIXTURE).size() === 2 && a2.GetLineIDsWithType(id, Wi.IFCSWITCHINGDEVICE).size() === 1, 'web-ifc (oracle): the outlet, two lights, the switch');
     } catch (e) { console.log('  --   web-ifc not installed: oracle check skipped'); }
+    // every kind (the add-on's 0.7 symbols too, 0.7 closing fixes): placed once, read back with its kind, written as its own IFC class
+    {
+      const all = await building({ loops: [B] });
+      const Wa = OPS.snapshotModel(all.ed).walls.filter((x) => x.storey === all.levels[0].id).map((x) => ({ guid: x.guid, a: x.a, b: x.b, t: x.t }));
+      EL.KINDS.forEach((kind, i) => {
+        const p = [300 + (i % 16) * 340, i < 16 ? 300 : 3700];
+        const spot = EL.DEVICES[kind].mount === 'wall' ? EL.wallSpot(Wa, p) : { at: [p[0], 2000] };
+        all.ed.modelChange(EL.placeDevice({ level: all.levels[0].guid, kind, units: 'mm', ...spot }));
+      });
+      const back = EL.readDevices(new ModelWriter(all.ed.W, all.ed.api, all.ed.mid));
+      const txt = txtOf(all.ed);
+      const missing = EL.KINDS.filter((k) => !back.some((d) => d.kind === k));
+      const wrongClass = EL.KINDS.filter((k) => !new RegExp(EL.DEVICES[k].ifc4[0] + '\\([^;]*\\.' + EL.DEVICES[k].ifc4[1] + '\\.\\)').test(txt));
+      ok(back.length === EL.KINDS.length && !missing.length && !wrongClass.length && !danglingRefs(txt).length, 'all ' + EL.KINDS.length + ' kinds placed and read back, each as its own IFC4 class and type' + (missing.length ? '; not read back: ' + missing.join(', ') : '') + (wrongClass.length ? '; wrong class: ' + wrongClass.join(', ') : ''));
+      ok(EL.circuitSchedule(back).rows.reduce((n, r) => n + Number(r[1]), 0) === back.length - 2 && EL.isBoard('board.sub'), 'the sub-board is a panel too: no circuit row of its own');
+      saved.devices = all.ed.save();
+    }
   }
 
   // ================================================================================================ RC.8 TakeoffCraft

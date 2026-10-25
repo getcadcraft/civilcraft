@@ -86,7 +86,7 @@ copyTree(SRC, path.join(ed, appRel), (p) => path.basename(p) === 'node_modules'
 // 2. The shared shell.
 for (const f of ['assets/css/tokens.css', 'assets/css/site.css', 'assets/css/app-shell.css', 'assets/css/help.css',
   'assets/js/site.js', 'assets/js/app-shell.js', 'assets/js/app-settings.js', 'assets/js/app-panels.js', 'assets/js/app-phone.js',
-  'assets/js/app-offline.js', 'assets/js/app-input.js', 'assets/js/app-input-ui.js', 'assets/css/app-input.css', 'assets/js/help-panel.js', 'assets/js/help-core.js', 'assets/js/i18n.js',
+  'assets/js/app-offline.js', 'assets/js/app-input.js', 'assets/js/app-input-ui.js', 'assets/css/app-input.css', 'assets/js/app-workspace.js', 'assets/js/app-workspace-format.js', 'assets/js/app-workspace-popout.js', 'assets/js/app-workspace-input.js', 'assets/js/app-workspace-extras.js', 'assets/js/app-workspace-arrange.js', 'assets/css/app-workspace.css', 'assets/workspaces/docked.ccworkspace.json', 'assets/workspaces/toolbox.ccworkspace.json', 'assets/js/app-hardware.js', 'assets/js/compute/probe.js', 'assets/js/compute/probe-light.js', 'assets/js/compute/report.js', 'assets/js/help-panel.js', 'assets/js/help-core.js', 'assets/js/i18n.js',
   'favicon.svg', 'favicon.ico', 'favicon-32.png']) {
   fs.mkdirSync(path.dirname(path.join(ed, f)), { recursive: true });
   fs.copyFileSync(path.join(SITE, f), path.join(ed, f));
@@ -209,6 +209,7 @@ try {
   fs.copyFileSync(path.join(SITE, 'core/components/app-settings.inc'), path.join(stage, 'devshell/site/core/components/app-settings.inc'));
   fs.copyFileSync(path.join(SITE, 'core/classes/Lang.php'), path.join(stage, 'devshell/site/core/classes/Lang.php'));
   copyTree(path.join(SITE, 'assets/lang/shell'), path.join(stage, 'devshell/site/assets/lang/shell'));
+  if (fs.existsSync(path.join(SITE, 'assets/workspaces'))) copyTree(path.join(SITE, 'assets/workspaces'), path.join(stage, 'devshell/site/assets/workspaces'));   // the built-in layouts render.php embeds (0.7 WS.6)
   copyTree(path.join(ed, appRel), path.join(stage, 'app'));
   for (const f of ['ui.inc', 'settings.inc']) if (fs.existsSync(path.join(SRC, f))) fs.copyFileSync(path.join(SRC, f), path.join(stage, 'app', f));
   fs.writeFileSync(path.join(stage, 'offline.json'), JSON.stringify(offline));
@@ -224,7 +225,8 @@ try {
   const f = path.join(ed, 'index.html');
   const html = renameMjs(strtr(fs.readFileSync(f, 'latin1')));
   fs.writeFileSync(f, html, 'latin1');
-  const abs = html.match(/(?:src|href|action)=["']\/(?!\/)[^"']*|["']\/assets\/[^"']*/g);
+  // an import map's KEYS stay absolute on purpose (the apps' adapters import '/assets/js/app-workspace-input.js'); only keys are skipped
+  const abs = html.replace(/"\/assets\/[^"]*"\s*:/g, '"":').match(/(?:src|href|action)=["']\/(?!\/)[^"']*|["']\/assets\/[^"']*/g);
   if (abs) die('index.html still has absolute URLs: ' + [...new Set(abs)].slice(0, 5).join(', '));
 }
 

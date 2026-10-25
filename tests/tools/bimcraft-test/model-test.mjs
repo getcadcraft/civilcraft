@@ -26,6 +26,8 @@ export async function modelMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, a
   console.log('== Units');
   ok(U.fmtLen(3810, 'ftin') === "12'-6\"" && U.fmtLen(12.7, 'ftin') === '1/2"' && U.fmtLen(304.8 * 10 + 6.35, 'ftin') === "10'-0 1/4\"" && U.fmtLen(-12.7, 'ftin') === '-1/2"', 'feet-inches to 1/16", fractions reduced, negatives');
   ok(U.fmtLen(3810.4, 'mm') === '3810' && U.fmtLen(4.25, 'mm') === '4.3' && U.fmtLen(3000, 'mm', { unit: true }) === '3000 mm', 'millimetres');
+  ok(U.fmtLen(3810, 'm', { unit: true }) === '3.81 m' && U.fmtLen(3048, 'ftdec', { unit: true }) === '10 ft' && U.fmtLen(254, 'in', { unit: true }) === '10 in' && U.fmtLen(120, 'cm') === '12', 'display units');
+  ok(near(U.parseLen('3.81', 'm'), 3810) && near(U.parseLen('10', 'ftdec'), 3048) && near(U.parseLen('10', 'in'), 254) && near(U.parseLen('12', 'cm'), 120), 'bare lengths use chosen display unit');
   ok(near(U.parseLen("12'6\"", 'ftin'), 3810) && near(U.parseLen("12' 6", 'ftin'), 3810) && near(U.parseLen("12'-6 1/2\"", 'ftin'), 3822.7) && near(U.parseLen('6', 'ftin'), 152.4) && near(U.parseLen('6 1/2', 'ftin'), 165.1) && near(U.parseLen('1/2', 'ftin'), 12.7), "feet and inches: 12'6\", 12' 6, fractions, bare inches");
   ok(near(U.parseLen('3000', 'mm'), 3000) && near(U.parseLen('3.81 m', 'ftin'), 3810) && near(U.parseLen('12 ft', 'mm'), 3657.6) && Number.isNaN(U.parseLen('abc', 'mm')), 'millimetres, any unit typed, refusals');
   const ty = (s, u = 'mm') => JSON.stringify(U.parseTyped(s, u));
@@ -462,6 +464,9 @@ export async function modelMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, a
     s = OPS.snapshotModel(ed4);
     txt = new TextDecoder().decode(ed4.save());
     ok(s.derived.roofs[0].parts.length === 6 && /\.GABLE_ROOF\./.test(txt) && (txt.match(/\.ROOF\.\)/g) || []).length === 2, 'gable ends on two sides: two faces and two gable walls');
+    ed4.modelChange(OPS.changeDerived([roof.guid], { pitch: Math.atan(8 / 12) * 180 / Math.PI, fascia: 0, soffit: false }));
+    s = OPS.snapshotModel(ed4);
+    ok(s.derived.roofs[0].pitch > pd && s.derived.roofs[0].fascia === 0 && !s.derived.roofs[0].soffit, 'roof pitch and fascia/soffit changes rebuild the roof');
     let k = ''; try { ed4.modelChange(OPS.changeDerived([roof.guid], { pitch: 85 })); } catch (e) { k = e.key; }
     ok(k === 'model.err.pitch', 'a pitch of 85° is refused');
     // the walls move again: the roof is made again over them
@@ -486,7 +491,7 @@ export async function modelMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, a
       const W = require('web-ifc');
       const a = new W.IfcAPI(); await quiet(() => a.Init())();
       const id = a.OpenModel(ed4.save());
-      ok(a.GetLineIDsWithType(id, W.IFCROOF).size() === 1 && a.GetLineIDsWithType(id, W.IFCSPACE).size() === 2 && a.GetLineIDsWithType(id, W.IFCCOVERING).size() === 2, 'web-ifc (oracle): the roof, two spaces, the ceiling and the roof\'s soffit');
+      ok(a.GetLineIDsWithType(id, W.IFCROOF).size() === 1 && a.GetLineIDsWithType(id, W.IFCSPACE).size() === 2 && a.GetLineIDsWithType(id, W.IFCCOVERING).size() === 1, 'web-ifc (oracle): the roof, two spaces and the ceiling (the roof\'s soffit was turned off above, PR #4)');
     } catch (e) { console.log('  --   web-ifc not installed: oracle check skipped'); }
     saved.rooms = ed4.save(); saved.lroof = ed5.save();
     if (args.includes('--keep')) { const out = path.join(ROOT, 'tmp/bimcraft-rooms.ifc'); fs.mkdirSync(path.dirname(out), { recursive: true }); fs.writeFileSync(out, ed4.save()); fs.writeFileSync(path.join(ROOT, 'tmp/bimcraft-lroof.ifc'), ed5.save()); console.log('  (kept ' + out + ')'); }

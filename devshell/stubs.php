@@ -103,6 +103,41 @@ if (!class_exists('AppBuilds')) {
             $v = (string)($build['version'] ?? '');
             return !empty($build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $v) === 1 && version_compare($v, '0.5', '>='));
         }
+        /** Hardware specs from the six apps without lib/compute (0.7 HW.2), as the site's AppBuilds::hardware. */
+        public const HARDWARE_SCRIPT = '/assets/js/app-hardware.js';
+        public static function hardware(array $build): bool { return ($build['manifest']['hardware'] ?? false) === true; }
+        /** Workspace layouts (0.7 WS.6), as the site's AppBuilds::workspaces / workspaceAdapter / hasWorkspaces / workspaceConfig. */
+        public const WORKSPACE_BUILTINS = ['docked', 'toolbox'];
+        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];
+        public static function workspaces(array $build): array
+        {
+            $w = $build['manifest']['workspaces'] ?? [];
+            if (is_array($w) && isset($w['layouts'])) $w = $w['layouts'];
+            return is_array($w) ? array_values(array_intersect(self::WORKSPACE_BUILTINS, $w)) : [];
+        }
+        public static function workspaceAdapter(array $build): ?string
+        {
+            $f = $build['manifest']['workspaces']['adapter'] ?? null;
+            return is_string($f) && preg_match('/^workspace-[a-z0-9-]+\.js$/', $f) && is_file(($build['dir'] ?? '') . '/' . $f) ? $f : null;
+        }
+        public static function hasWorkspaces(array $build): bool { return (bool)self::workspaces($build) || self::workspaceAdapter($build) !== null; }
+        /** The built-in layouts' text from the shell's copy (site/assets/workspaces); add-ons of the build from its workspace/index.json. */
+        public static function workspaceConfig(array $build, array $app): array
+        {
+            $builtins = [];
+            foreach (self::workspaces($build) as $id) { $f = CC_PUBLIC . '/assets/workspaces/' . $id . '.ccworkspace.json'; if (is_file($f) && filesize($f) <= 65536) $builtins[$id] = (string)file_get_contents($f); }
+            $addons = [];
+            $ix = json_decode((string)@file_get_contents(($build['dir'] ?? '') . '/workspace/index.json'), true);
+            if (is_array($ix) && ($ix['format'] ?? '') === 'cadcraft-workspace-addons' && ($ix['version'] ?? null) === 1 && is_array($ix['addons'] ?? null)) {
+                foreach (array_slice($ix['addons'], 0, 50) as $p) {
+                    $file = (string)($p['file'] ?? '');
+                    $path = $build['dir'] . '/workspace/' . $file;
+                    if (!preg_match('/^[a-z0-9][a-z0-9.-]{0,80}\.ccworkspace\.json$/', $file) || !is_file($path) || filesize($path) > 65536) continue;
+                    $addons[] = ['id' => (string)($p['id'] ?? ''), 'file' => $file, 'name' => (string)($p['name'] ?? ''), 'text' => (string)file_get_contents($path)];
+                }
+            }
+            return ['app' => $app['slug'], 'appName' => $app['name'], 'layouts' => array_keys($builtins), 'builtins' => (object)$builtins, 'addons' => $addons];
+        }
         /** Another app's build is never here (an "Edit in <app>" handoff stays hidden). */
         public static function resolve(string $slug, string $area, ?string $version = null): ?array
         {

@@ -1,0 +1,243 @@
+{
+ "format": "cadcraft-line-pack",
+ "version": 1,
+ "name": "Example pack: cold climate",
+ "region": "Example (no country)",
+ "description": "Shows the pack format: the built-in cold-climate example rule set (ice, ice on one side, wind) and copies of seven starter items. Not any country's rules.",
+ "author": "CadCraft",
+ "license": "CC0-1.0",
+ "checkAgainst": "A design aid: check every value against the standard that applies before anything is built.",
+ "rules": {
+  "name": "Example: cold climate",
+  "example": true,
+  "cases": [
+   {
+    "id": "ed",
+    "name": "Everyday",
+    "kind": "everyday",
+    "temp": 15,
+    "wind_Pa": 0,
+    "ice_mm": 0,
+    "iceDensity": 900
+   },
+   {
+    "id": "cold",
+    "name": "Cold",
+    "kind": "cold",
+    "temp": -20,
+    "wind_Pa": 0,
+    "ice_mm": 0,
+    "iceDensity": 900
+   },
+   {
+    "id": "wind",
+    "name": "Wind",
+    "kind": "wind",
+    "temp": 15,
+    "wind_Pa": 480,
+    "ice_mm": 0,
+    "iceDensity": 900
+   },
+   {
+    "id": "ice",
+    "name": "Ice and wind",
+    "kind": "ice",
+    "temp": -5,
+    "wind_Pa": 180,
+    "ice_mm": 10,
+    "iceDensity": 900
+   },
+   {
+    "id": "asym",
+    "name": "Ice on one side",
+    "kind": "asym",
+    "temp": -5,
+    "wind_Pa": 0,
+    "ice_mm": 10,
+    "iceDensity": 900
+   },
+   {
+    "id": "hot",
+    "name": "Hot",
+    "kind": "hot",
+    "temp": 60,
+    "wind_Pa": 0,
+    "ice_mm": 0,
+    "iceDensity": 900
+   }
+  ],
+  "limits": [
+   {
+    "caseId": "ed",
+    "kind": "H",
+    "pct": 18
+   },
+   {
+    "caseId": "ice",
+    "kind": "T",
+    "pct": 50
+   },
+   {
+    "caseId": "cold",
+    "kind": "T",
+    "pct": 50
+   }
+  ],
+  "clearances": [
+   {
+    "id": "ground",
+    "name": "Ground",
+    "min_m": 6
+   },
+   {
+    "id": "road",
+    "name": "Road",
+    "min_m": 7
+   },
+   {
+    "id": "building",
+    "name": "Building",
+    "min_m": 3
+   },
+   {
+    "id": "water",
+    "name": "Water",
+    "min_m": 6
+   },
+   {
+    "id": "line",
+    "name": "Another line",
+    "min_m": 1.5
+   },
+   {
+    "id": "vegetation",
+    "name": "Trees and plants",
+    "min_m": 3
+   },
+   {
+    "id": "underground",
+    "name": "Underground crossing",
+    "min_m": 0.3
+   }
+  ],
+  "hotCase": "hot",
+  "iceCase": "ice",
+  "asymCase": "asym",
+  "windCase": "wind",
+  "spacingK": 0.6,
+  "swingMax_deg": 45,
+  "sizeFactor": 1,
+  "angleSusp_deg": 5,
+  "angleDeadEnd_deg": 60,
+  "temps": {
+   "from": -5,
+   "to": 40,
+   "step": 5
+  },
+  "coverMin_m": null,
+  "dropMax_pct": 5,
+  "lsTrees": "vegetation",
+  "lsWalls": "building",
+  "ugCross": "underground"
+ },
+ "library": {
+  "format": "cadcraft-lines",
+  "version": 1,
+  "name": "Example pack: cold climate",
+  "description": "",
+  "items": [
+   {
+    "key": "ex-aluminium-alloy-19-3-15-mm",
+    "kind": "conductor",
+    "name": "Aluminium alloy 19 × 3.15 mm",
+    "category": "Overhead/Bare/Aluminium alloy",
+    "note": "Example: check against your supplier's data.",
+    "material": "aluminium-alloy",
+    "area_mm2": 148.1,
+    "diameter_mm": 15.75,
+    "mass_kg_m": 0.4063,
+    "rts_N": 39979,
+    "e_GPa": 59,
+    "alpha_e6": 23,
+    "r20_ohm_km": 0.2259
+   },
+   {
+    "key": "ex-bundled-3x70-54",
+    "kind": "conductor",
+    "name": "Bundled LV 3 × 70 + 54.6 mm²",
+    "category": "Overhead/Bundled/LV",
+    "note": "Example: check against your supplier's data. The messenger carries the span.",
+    "material": "bundled",
+    "area_mm2": 54.6,
+    "diameter_mm": 40,
+    "mass_kg_m": 1.209,
+    "rts_N": 14729,
+    "e_GPa": 59,
+    "alpha_e6": 23,
+    "r20_ohm_km": 0.4118,
+    "voltage_kV": 1,
+    "cores": 4
+   },
+   {
+    "key": "ex-pole-concrete-12-6500",
+    "kind": "support",
+    "name": "Concrete pole 12 m, 650 daN",
+    "category": "Supports/Concrete",
+    "note": "Example: check against your supplier's data.",
+    "material": "concrete",
+    "height_m": 12,
+    "nominal_N": 6500,
+    "loadDrop_m": 0.25,
+    "embed_m": 1.7,
+    "roles": "suspension,angle,deadend"
+   },
+   {
+    "key": "ex-crossarm-1-5-m-3-phases",
+    "kind": "equipment",
+    "name": "Crossarm 1.5 m, 3 phases",
+    "category": "Equipment/Crossarms",
+    "note": "Example: check against your supplier's data.",
+    "type": "crossarm",
+    "rated_N": 8000,
+    "drop_m": 0.3,
+    "spacing_m": 0.7,
+    "mass_kg": 25
+   },
+   {
+    "key": "ex-aluminium-4-150-mm-lv",
+    "kind": "cable",
+    "name": "Aluminium 4 × 150 mm² LV",
+    "category": "Underground/LV",
+    "note": "Example: check against your supplier's data. The current rating depends on how the cable is laid: enter your supplier's value.",
+    "material": "aluminium",
+    "cores": 4,
+    "area_mm2": 150,
+    "voltage_kV": 1,
+    "diameter_mm": 50,
+    "r20_ohm_km": 0.1922
+   },
+   {
+    "key": "ex-trench-footway-direct-burial",
+    "kind": "trench",
+    "name": "Footway, direct burial",
+    "category": "Trenches",
+    "note": "Example: check against your supplier's data. Use the depths your network operator asks for.",
+    "depth_m": 0.7,
+    "width_m": 0.4,
+    "cover_m": 0.6,
+    "bedding_m": 0.1,
+    "ducts": 0,
+    "ductDiam_mm": 0,
+    "clearance_m": 0.2
+   },
+   {
+    "key": "ex-street-cabinet",
+    "kind": "equipment",
+    "name": "Street cabinet",
+    "category": "Equipment/Cabinets",
+    "note": "Example: check against your supplier's data.",
+    "type": "cabinet"
+   }
+  ]
+ }
+}

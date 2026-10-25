@@ -20,6 +20,10 @@
  * there is more than one to pick. Every word here is a shell string (assets/lang/shell, shell.settings.*).
  * Add-ons (0.4 item A.2): [data-addons-set] stays hidden until the app's add-on loader (assets/js/addons.js, the build's
  * copy) fills it with one row per add-on found.
+ * Units (0.7 UNITS): [data-units-set], only for builds that carry lib/units (dev/unit-settings.js, tools/units/sync.mjs);
+ * app-settings.js imports that copy and it fills [data-units-list]: one list per kind, a switch and a star per unit.
+ * Sections (0.7, data-shell-07): the tabs are <App> | Global; app-settings.js lists the picked tab's fieldsets on the left
+ * and shows the one picked on the right.
  * Reads $app (Catalog app) and $__build (AppBuilds::resolve()); app-shell.inc has called Lang::use().
  */
 $__own_settings = !empty($__build['dir']) && is_file($__build['dir'] . '/settings.inc') ? $__build['dir'] . '/settings.inc' : null;
@@ -42,12 +46,16 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
 // size): dev builds and releases from 0.6 on. Worked out here, not in AppBuilds, so the browser edition / Studio page
 // (devshell/render.php and its AppBuilds stub) agrees; the 0.5 releases in /use load the same shell files and see none of it.
 $__ver = (string)($__build['version'] ?? '');
+$__shell_07 = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', (string)($__build['version'] ?? '')) === 1 && version_compare((string)$__build['version'], '0.7', '>='));   // 0.7 PANEL-COMPACT (session shell-07): layout density, panel title bars
 $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $__ver) === 1 && version_compare($__ver, '0.6', '>='));
 ?>
 <?php if ($__shell_ui): /* 0.6 DF.28: the interface size before the app's own scripts measure anything (app-settings.js keeps it after) */ ?>
 <script>(function () { try { var v = JSON.parse(localStorage.getItem(<?= json_embed('cc-app-settings:' . $app['slug']) ?>) || '{}').ui; if (typeof v === 'number' && v >= 0.8 && v <= 1.4 && v !== 1) { document.documentElement.style.setProperty('--shell-ui', String(v)); document.documentElement.classList.add('shell-ui-sized'); } } catch (e) {} })();</script>
 <?php endif; ?>
-<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?><?= $__shell_ui ? ' data-shell-ui' : '' ?> aria-labelledby="shell-settings-h">
+<?php if ($__shell_07): /* 0.7 PANEL-COMPACT: the layout density before first paint (html[data-cc-density]; Comfortable sets nothing) */ ?>
+<script>(function () { try { var v = JSON.parse(localStorage.getItem(<?= json_embed('cc-app-settings:' . $app['slug']) ?>) || '{}').density; if (v === 'compact') document.documentElement.setAttribute('data-cc-density', 'compact'); } catch (e) {} })();</script>
+<?php endif; ?>
+<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?><?= $__shell_ui ? ' data-shell-ui' : '' ?><?= $__shell_07 ? ' data-shell-07' : '' ?> aria-labelledby="shell-settings-h">
   <form method="dialog" class="shell-dlg">
     <div class="shell-dlg-head">
       <h2 id="shell-settings-h"><?= Lang::e('shell.settings.title', $__an) ?></h2>
@@ -56,7 +64,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
     <?php if ($__own_settings): ?>
       <div class="shell-tabs" role="tablist" aria-label="<?= Lang::e('shell.bar.settings') ?>" data-settings-tabs hidden>
         <button type="button" role="tab" id="shell-tab-app" aria-controls="shell-pane-app" aria-selected="true" data-settings-tab="app"><?= e($app['name']) ?></button>
-        <button type="button" role="tab" id="shell-tab-general" aria-controls="shell-pane-general" aria-selected="false" tabindex="-1" data-settings-tab="general"><?= Lang::e('shell.settings.general') ?></button>
+        <button type="button" role="tab" id="shell-tab-general" aria-controls="shell-pane-general" aria-selected="false" tabindex="-1" data-settings-tab="general"><?= Lang::e($__shell_07 ? 'shell.settings.global' : 'shell.settings.general') ?></button>
       </div>
     <?php endif; ?>
     <div class="shell-dlg-body">
@@ -76,6 +84,54 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
 <?php if ($__shell_ui): /* 0.6 DF.8: the way back when a bar, a menu or a panel went missing */ ?>
       <fieldset class="shell-set" data-layout-set>
         <legend><?= Lang::e('shell.layout') ?></legend>
+        <?php /* 0.7 workspace layouts (owner 2026-10-24): one choice for every app (localStorage cc-workspace, app-settings.js); an app that
+           has no such layout yet keeps its standard one. Names say how the workspace works, never which program it resembles. */
+        $__ws = AppBuilds::workspaces($__build); ?>
+        <p class="shell-hint-text" id="shell-ws-h"><?= Lang::e('shell.ws.label') ?></p>
+        <div class="shell-seg shell-seg-col" role="radiogroup" aria-labelledby="shell-ws-h" data-ws-set>
+          <label class="shell-ws-opt"><input type="radio" name="workspace" value="standard"> <i class="bi bi-layout-text-window" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.standard') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.standard.hint') ?></span></span></label>
+          <?php foreach (['docked' => 'bi-layout-sidebar-inset', 'toolbox' => 'bi-tools'] as $__wk => $__wi): $__won = in_array($__wk, $__ws, true); ?>
+          <label class="shell-ws-opt<?= $__won ? '' : ' is-off' ?>"><input type="radio" name="workspace" value="<?= $__wk ?>"<?= $__won ? '' : ' disabled' ?>> <i class="bi <?= $__wi ?>" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.' . $__wk) ?><?php if (!$__won): ?> <span class="shell-hint-text">(<?= Lang::e($__wk === 'toolbox' ? 'shell.ws.notbuilt' : 'shell.ws.notyet', $__an) ?>)</span><?php endif; ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.' . $__wk . '.hint') ?></span></span></label>
+          <?php endforeach; ?>
+        </div>
+        <?php /* 0.7 WS.17: layouts from add-ons and imported files (app-settings.js fills these from the engine, assets/js/app-workspace.js;
+           a page without the engine leaves them hidden) */ ?>
+        <div class="shell-ws-extra" data-ws-extra hidden>
+          <p class="shell-hint-text"><?= Lang::e('shell.ws.extra') ?></p>
+          <div class="shell-seg shell-seg-col" role="radiogroup" aria-label="<?= Lang::e('shell.ws.extra') ?>" data-ws-extra-list></div>
+        </div>
+        <div class="shell-btns" data-ws-io hidden>
+          <button type="button" class="btn-line btn-sm-cc" data-ws-import><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i> <?= Lang::e('shell.ws.import') ?></button>
+          <button type="button" class="btn-line btn-sm-cc" data-ws-export><i class="bi bi-box-arrow-up" aria-hidden="true"></i> <?= Lang::e('shell.ws.export') ?></button>
+          <input type="file" accept=".json,application/json" data-ws-file hidden>
+        </div>
+        <p class="shell-hint-text" data-ws-io-hint hidden><?= Lang::e('shell.ws.io.hint') ?> <?= Lang::e('shell.ws.drop') ?></p>
+        <p class="shell-hint-text" data-ws-io-msg role="status" aria-live="polite"></p>
+        <?php /* 0.7 WS.25 (Discord 2026-10-24): build a layout of your own from the blocks; the engine's dialog (app-workspace-arrange.js) */ ?>
+        <div class="shell-btns" data-ws-arrange-row hidden>
+          <button type="button" class="btn-line btn-sm-cc" data-ws-arrange><i class="bi bi-grid-1x2" aria-hidden="true"></i> <?= Lang::e('shell.ws.arrange') ?></button>
+        </div>
+        <p class="shell-hint-text"><?= Lang::e('shell.ws.hint') ?></p>
+        <?php /* 0.7 WS.24 (Discord 2026-10-24): work environments — the whole setup (layout, menu style and keys, toolbar, panels, My tools)
+           for every app, saved under a name, switched, exported and imported (app-settings.js § Work environments) */ ?>
+        <div class="shell-env" data-env-set>
+          <p class="shell-hint-text" id="shell-env-h"><strong><?= Lang::e('shell.env.label') ?></strong> <?= Lang::e('shell.env.hint') ?></p>
+          <div class="shell-env-row">
+            <select class="select-cc" data-env-list aria-labelledby="shell-env-h"><option value="" class="select-placeholder"><?= Lang::e('shell.env.none') ?></option></select>
+            <button type="button" class="btn-line btn-sm-cc" data-env-use disabled><i class="bi bi-check2-circle" aria-hidden="true"></i> <?= Lang::e('shell.env.use') ?></button>
+            <button type="button" class="btn-line btn-sm-cc" data-env-remove disabled><i class="bi bi-x-lg" aria-hidden="true"></i> <?= Lang::e('shell.env.remove') ?></button>
+          </div>
+          <div class="shell-env-row">
+            <input type="text" class="shell-env-name" maxlength="40" data-env-name aria-label="<?= Lang::e('shell.env.name') ?>" placeholder="<?= Lang::e('shell.env.name') ?>">
+            <button type="button" class="btn-line btn-sm-cc" data-env-save><i class="bi bi-save" aria-hidden="true"></i> <?= Lang::e('shell.env.save') ?></button>
+          </div>
+          <div class="shell-btns">
+            <button type="button" class="btn-line btn-sm-cc" data-env-import><i class="bi bi-box-arrow-in-down" aria-hidden="true"></i> <?= Lang::e('shell.env.import') ?></button>
+            <button type="button" class="btn-line btn-sm-cc" data-env-export disabled><i class="bi bi-box-arrow-up" aria-hidden="true"></i> <?= Lang::e('shell.env.export') ?></button>
+            <input type="file" accept=".json,application/json" data-env-file hidden>
+          </div>
+          <p class="shell-hint-text" data-env-msg role="status" aria-live="polite"></p>
+        </div>
         <p class="shell-hint-text"><?= Lang::e('shell.layout.lost') ?></p>
         <div class="shell-btns">
           <button type="button" class="btn-line btn-sm-cc" data-layout-reset><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> <?= Lang::e('shell.layout.reset') ?></button>
@@ -111,7 +167,33 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </div>
       </fieldset>
 <?php endif; ?>
+<?php if (!empty($__build['dir']) && is_file($__build['dir'] . '/unit-settings.js')): /* 0.7 UNITS: the build's copy of lib/units fills it (app-settings.js) */ ?>
 
+      <fieldset class="shell-set shell-set-wide" data-units-set data-units-src="<?= e(($__build['url'] ?? '') . 'unit-settings.js') ?>">
+        <legend><?= Lang::e('shell.units.legend') ?></legend>
+        <p class="shell-units-global"><i class="bi bi-globe2" aria-hidden="true"></i> <?= Lang::e('shell.units.global') ?></p>
+        <p class="shell-hint-text"><?= Lang::e('shell.units.hint') ?></p>
+        <div data-units-list><p class="shell-hint-text"><?= Lang::e('shell.units.loading') ?></p></div>
+        <p class="shell-hint-text"><?= Lang::e('shell.units.files') ?></p>
+      </fieldset>
+<?php endif; ?>
+
+<?php if ($__shell_07): /* 0.7: one switch for every app's first-time tour (localStorage cc-tours, site-wide like the theme); each app's own tab keeps its own */ ?>
+      <?php /* Hardware specs (owner 2026-10-24): one switch for every app (localStorage cc-hw-share; app-settings.js). On the web the
+         specs are shared unless this is ticked; in the desktop app they are not, unless it is unticked. The apps' compute/report.js asks. */ ?>
+      <fieldset class="shell-set" data-hw-set>
+        <legend><?= Lang::e('shell.hw.legend') ?></legend>
+        <label class="shell-check"><input type="checkbox" name="hwNoShare" data-hw-noshare> <?= Lang::e('shell.hw.noshare') ?></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.hw.why') ?></p>
+        <p class="shell-hint-text" data-hw-default></p>
+      </fieldset>
+      <fieldset class="shell-set" data-tours-set>
+        <legend><?= Lang::e('shell.tours.legend') ?></legend>
+        <label class="shell-check"><input type="checkbox" name="toursAll" data-tours-all> <?= Lang::e('shell.tours.all') ?></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.tours.hint') ?></p>
+      </fieldset>
+
+<?php endif; ?>
       <fieldset class="shell-set">
         <legend><?= Lang::e('shell.settings.screen') ?></legend>
         <div class="shell-row">
@@ -194,6 +276,16 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </div>
         <p class="shell-hint-text"><?= Lang::e('shell.settings.ui.hint', $__an) ?></p>
         <?php endif; ?>
+        <?php if ($__shell_07): /* 0.7 PANEL-COMPACT item 1 */ ?>
+        <div class="shell-row">
+          <label for="shell-density"><?= Lang::e('shell.settings.density') ?></label>
+          <select id="shell-density" class="select-cc" name="density" data-density>
+            <option value="comfortable"><?= Lang::e('shell.settings.density.comfortable') ?></option>
+            <option value="compact"><?= Lang::e('shell.settings.density.compact') ?></option>
+          </select>
+        </div>
+        <p class="shell-hint-text"><?= Lang::e('shell.settings.density.hint', $__an) ?></p>
+        <?php endif; ?>
         <div class="shell-row">
           <label for="shell-zoom"><?= Lang::e('shell.settings.zoom') ?></label>
           <select id="shell-zoom" class="select-cc" name="zoom">
@@ -211,6 +303,9 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
           <span class="shell-range"><input type="range" id="shell-right" name="right" min="10" max="40" step="0.5"><output for="shell-right" class="tabular" data-out="right"></output></span>
         </div>
         <p class="shell-hint-text"><?= Lang::e('shell.settings.width.hint') ?></p>
+        <?php if ($__shell_07): /* 0.7 sections: kept beside the widths it is about */ ?>
+        <p class="shell-hint-text" data-wide-only hidden><?= Lang::e('shell.settings.wide_only') ?></p>
+        <?php endif; ?>
         <?php if ($__panels): ?>
           <div class="shell-row" data-panels-row>
             <span><?= Lang::e('shell.settings.panels') ?></span>
@@ -232,7 +327,9 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         <p class="shell-hint-text"><?= Lang::e('shell.addons.hint', $__an) ?></p>
         <p class="shell-hint-text shell-addon-dev" data-addons-dev hidden><?= Lang::e('shell.addons.dev') ?></p>
       </fieldset>
+      <?php if (!$__shell_07): ?>
       <p class="shell-hint-text" data-wide-only hidden><?= Lang::e('shell.settings.wide_only') ?></p>
+      <?php endif; ?>
       </section>
     </div>
     <div class="shell-dlg-foot">

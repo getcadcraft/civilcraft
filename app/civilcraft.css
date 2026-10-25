@@ -375,3 +375,19 @@ html.cc-compact .cv-toolhint { left: .5rem; right: 5.75rem; transform: none; max
 .cv-st-canvas { display: block; width: 100%; height: auto; margin: 0.5rem 0; background: var(--sheet); border: var(--pen-1) solid var(--line); }
 .cv-st-types li { margin: 0.25rem 0; }
 .cv-st-part { display: contents; }
+
+/* ---- 0.7 WS.12: the workspace layouts (the shell's engine, assets/css/app-workspace.css; CivilCraft's adapter workspace-civilcraft.js).
+   The drawing area is a column (plan, then the profile and section panels): it keeps clear of the blocks the layout puts over it. ---- */
+.cv-stage.ws-stage { padding: calc(var(--ws-st, 0px) + var(--ws-vt, 0px)) var(--ws-sr, 0px) calc(var(--ws-sb, 0px) + var(--ws-vb, 0px)) var(--ws-sl, 0px); }
+.ws-statusbar .cv-status { border-top: 0; background: none; padding: 0; }
+.cv-ws-slot { display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; }
+.cv-ws-mirror { width: auto; min-width: 6rem; }
+.cv-ws-browser { font-size: .8125rem; }
+.cv-ws-pb-group { margin: 0 0 .35rem; }
+.cv-ws-pb-group > summary { cursor: pointer; font-weight: 600; padding: .2rem 0; }
+.cv-ws-pb-group ul { list-style: none; margin: 0; padding: 0 0 0 .75rem; }
+.cv-ws-pb-group .cv-note { margin: 0 0 0 .75rem; }
+.cv-ws-pb-go { display: block; width: 100%; text-align: left; border: var(--pen-1) solid transparent; background: none; color: inherit; padding: .15rem .35rem; border-radius: var(--radius, 2px); font: inherit; }
+.cv-ws-pb-go:hover { border-color: var(--line); }
+.cv-ws-pb-go[aria-current="true"] { border-color: var(--layer, var(--action)); font-weight: 600; }
+.cv-ws-pb-go[aria-disabled="true"] { color: var(--ink-2); }

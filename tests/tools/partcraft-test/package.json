@@ -1,0 +1,9 @@
+{
+  "name": "partcraft-test",
+  "private": true,
+  "description": "Test-only helpers for bin/test-partcraft.mjs. occt-import-js (LGPL-2.1) reads our STEP files back as a second reader; it is never shipped in the app.",
+  "dependencies": {
+    "gcode-toolpath": "3.0.0",
+    "occt-import-js": "0.0.23"
+  }
+}

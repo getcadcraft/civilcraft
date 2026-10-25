@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Castle Brick 02 Red",
+ "kind": "material",
+ "category": "materials/brick",
+ "description": "Castle Brick 02 Red: a CC0 texture set from Poly Haven, one tile 1.5 × 1.5 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Castle Brick 02 Red\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":1.5,\"height\":1.5,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "castle_brick_02_red_ao_1k.jpg",
+    "sha256": "b263872f56ad8a6181828afbb78c721d0f191cd712d9e5f97adf0e481c2b8dc9",
+    "media": "image/jpeg",
+    "bytes": 538680
+   },
+   "color": {
+    "file": "castle_brick_02_red_diff_1k.jpg",
+    "sha256": "526019deb0533920273a0a2272f7735ca17bb578427515c6b972e2bbecf5726c",
+    "media": "image/jpeg",
+    "bytes": 704361
+   },
+   "height": {
+    "file": "castle_brick_02_red_disp_1k.jpg",
+    "sha256": "6aee41c607b1e3ea8d79a3ebf88198964625453227559e4de498f1744f007455",
+    "media": "image/jpeg",
+    "bytes": 208579
+   },
+   "normal": {
+    "file": "castle_brick_02_red_nor_gl_1k.jpg",
+    "sha256": "ab172b4bb8d9a2492774336f223e7725eecf1aae1efca2923c67db3e978106a6",
+    "media": "image/jpeg",
+    "bytes": 1133781,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "castle_brick_02_red_rough_1k.jpg",
+    "sha256": "8c829bed4cc530dd93dca19eff5fb595ee40d83c486fcf1d28519cc787f5cfd5",
+    "media": "image/jpeg",
+    "bytes": 234589
+   }
+  },
+  "size": [
+   1.5,
+   1.5
+  ]
+ }
+}

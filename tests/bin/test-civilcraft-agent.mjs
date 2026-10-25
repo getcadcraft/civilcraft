@@ -53,8 +53,12 @@ const mid = { x: (box.minX + box.maxX) / 2, y: (box.minY + box.maxY) / 2 };
 p.state.alignments.push({ id: 'a1', name: 'Main Street', start: 1000, pis: [{ x: box.minX + 10, y: mid.y }, { x: box.maxX - 10, y: mid.y }], pvis: [] });
 
 let picked = new Set();
+const downloads = [];
+let changed = 0;
 const app = {
   project: () => p,
+  download: (bytes, name, mime) => downloads.push({ bytes, name, mime }),
+  changed: () => { changed++; },
   select: (nums, mode) => { if (mode === 'replace') picked = new Set(nums); else for (const n of nums) mode === 'add' ? picked.add(n) : picked.delete(n); return picked.size; },
 };
 let allowed = ['read'];
@@ -63,9 +67,9 @@ for (const def of AG.civilTools(app)) d.tool(def);
 const call = async (name, a) => { const r = await d.call(name, a); return { r, v: r.structuredContent, text: r.content?.[0]?.text || '' }; };
 
 section('the tools and their permissions');
-ok(d.list().map((t) => t.name).join() === 'site_describe,points_list,surface_elevation,alignment_station', 'read: site_describe, points_list, surface_elevation, alignment_station');
+ok(d.list().map((t) => t.name).join() === 'site_describe,points_list,surface_elevation,alignment_station,parcels_list,surface_volume,profile_sample', 'read: site_describe, points_list, surface_elevation, alignment_station (+ 0.7: parcels_list, surface_volume, profile_sample)');
 allowed = ['read', 'edit'];
-ok(d.list().length === 5 && d.list().at(-1).name === 'points_select', 'edit adds points_select');
+ok(d.list().length === 9 && d.list().some((t) => t.name === 'points_select') && d.list().some((t) => t.name === 'points_add'), 'edit adds points_select (+ 0.7: points_add)');
 allowed = ['read'];
 let x = await call('points_select', { group: 'TREE' });
 ok(x.r.isError && /edit permission/.test(x.text) && picked.size === 0, 'points_select is refused without edit, nothing selected');
@@ -124,6 +128,40 @@ ok(x.r.isError && /Say which points/.test(x.text), 'nothing to select by: refuse
 const before = JSON.stringify(p.points);
 await call('points_select', { within: half, mode: 'remove' });
 ok(JSON.stringify(p.points) === before, 'no point is ever changed');
+
+section('0.7 AS.3: parcels, volumes, profiles, adding points, LandXML');
+allowed = ['read'];
+const sq = [{ x: mid.x - 20, y: mid.y - 20 }, { x: mid.x + 20, y: mid.y - 20 }, { x: mid.x + 20, y: mid.y + 20 }, { x: mid.x - 20, y: mid.y + 20 }];
+p.change('a parcel', (st) => { st.parcels.push({ id: 'p1', name: 'Lot 1', pts: sq }); });
+x = await call('parcels_list', { legal: true });
+ok(x.v.total === 1 && Math.abs(x.v.parcels[0].area - 1600) < 1e-6 && Math.abs(x.v.parcels[0].perimeter - 160) < 1e-6 && /1,600 square feet \(0.037 acres\)/.test(x.v.parcels[0].areaText) && /Lot 1/.test(x.v.parcels[0].legal) && /thence N 90°00'00" E, a distance of 40.00 feet/.test(x.v.parcels[0].legal), 'parcels_list: a 40 × 40 lot = 1600 sq ft, perimeter 160, its legal description', x.v);
+const z0 = p.eg().surface.elevationAt(mid.x, mid.y);
+x = await call('surface_volume', { datum: z0 + 1000, region: sq });
+ok(!x.r.isError && x.v.cut === 0 && Math.abs(x.v.fill * 27 - 1600 * (z0 + 1000 - z0)) / (1600 * 1000) < 0.02 && x.v.unit === 'cu yd', 'surface_volume to a datum far above: fill ≈ area × depth in cu yd (' + x.v.fill + '), no cut', x.v);
+x = await call('surface_volume', {});
+ok(x.r.isError && /no graded surface/.test(x.text), 'no pads yet: "no graded surface", and how to use a datum instead');
+p.change('a pad', (st) => { st.pads.push({ id: 'd1', name: 'Pad A', pts: sq, z: Math.round(z0) + 2, cut: 2, fill: 2 }); });
+x = await call('surface_volume', {});
+ok(!x.r.isError && x.v.fill > 0 && x.v.items.length === 1 && x.v.items[0].name === 'Pad A' && Math.abs(x.v.net - (x.v.fill - x.v.cut)) < 1e-6, 'with a pad 2 ft up: fill, per item (Pad A), net = fill − cut', x.v);
+x = await call('profile_sample', { step: 25 });
+ok(!x.r.isError && x.v.rows.length > 5 && x.v.rows[0].station === 1000 && x.v.rows[0].stationText === '10+00.00' && x.v.rows.every((r) => r.ground !== undefined) && x.v.rows.some((r) => r.graded !== undefined), 'profile_sample every 25 ft: stations as numbers and 10+00.00, ground, graded where the pad is', x.v.rows.slice(0, 3));
+x = await call('points_add', { points: [{ x: mid.x, y: mid.y, z: 100, d: 'CP' }] });
+ok(x.r.isError && /edit permission/.test(x.text), 'points_add needs edit');
+allowed = ['read', 'edit', 'export'];
+const n0 = p.points.length;
+x = await call('points_add', { points: [{ x: mid.x, y: mid.y, z: 100, d: 'CP 1' }, { n: 'CP2', x: mid.x + 1, y: mid.y, d: 'CP 2' }] });
+ok(!x.r.isError && p.points.length === n0 + 2 && x.v.added[1] === 'CP2' && /^\d+$/.test(x.v.added[0]) && changed === 1 && p.points.at(-1).z === null, 'points_add: the next free number and a given one, no elevation kept as none, the page told', x.v);
+x = await call('points_add', { points: [{ n: 'CP2', x: 0, y: 0 }] });
+ok(x.r.isError && /already used/.test(x.text) && p.points.length === n0 + 2, 'a number already used: refused, nothing added');
+p.undo();
+ok(p.points.length === n0, 'one undo takes both points back');
+x = await call('landxml_export', {});
+const xml = new TextDecoder().decode(downloads.at(-1)?.bytes || new Uint8Array());
+ok(!x.r.isError && downloads.length === 1 && /<LandXML/.test(xml) && /<CgPoints/.test(xml) && /Main Street/.test(xml) && /<Surface /.test(xml) && x.v.downloaded === 'Sample site.xml', 'landxml_export: the LandXML downloads as the button would (points, surfaces, the alignment)', x.v);
+x = await call('landxml_export', { path: 'x.xml' });
+ok(x.r.isError && /only in CadCraft Studio/.test(x.text), 'a path outside Studio: refused');
+ok(AG.landXmlOf(p, { date: new Date(0) }) === AG.landXmlOf(p, { date: new Date(0) }), 'landXmlOf is the same text for the same project and date');
+ok(!d.list().some((t) => t.name === 'project_save' || t.name === 'dwg_export'), 'without the page\'s Save and DWG export (headless), project_save and dwg_export are not offered');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

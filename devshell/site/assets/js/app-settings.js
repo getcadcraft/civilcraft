@@ -18,6 +18,8 @@
  *   order         toolbar order: "Arrange the toolbar…" lets tools be dragged within their group and
  *                 groups by their name (arrow keys move the focused one). Saved as keys (data-* of each
  *                 item, aria-label of each group); new items keep their place, gone ones are ignored.
+ *   units         0.7 UNITS: Settings › General › Units, filled by the build's copy of lib/units (unit-settings.js, loaded on
+ *                 the first open); site-wide like the theme (localStorage cc-units), never part of this app's Reset.
  *
  * An app may add its own fieldsets (build folder settings.inc; app-settings.inc includes it) — they get a tab of
  * their own, named after the app, beside "General" (last tab used remembered: s.tab). Its JS owns those fields and
@@ -41,6 +43,10 @@
  *                     reset of the order while locked; also a Settings checkbox), Reset the toolbar, Collapse the ribbon / Pin
  *                     the ribbon open (a ribbon style: app-input-ui.js ccInput.ribbon / setRibbon), Toolbar settings…. Text
  *                     fields keep the browser's own menu.
+ * 0.7 PANEL-COMPACT (session shell-07), only where app-settings.inc printed data-shell-07 (dev builds and releases from 0.7 on):
+ *   Layout density    item 1: s.density 'comfortable' (default, today's look) | 'compact' → html[data-cc-density="compact"] (set before
+ *                     first paint by app-settings.inc; app-shell.css § Compact density). Settings › General › Sizes and panels. Reading
+ *                     choice like the interface size: Reset the layout leaves it, Settings' own Reset puts it back.
  * The toolbar is <main>'s direct-child role=toolbar (BimCraft: the [data-toolbar] one in its stage);
  * groups are its role=group children, tools the children of each group's *-tool-row.
  * The panels are found by shape, not by name: <main>'s direct-child <aside>s whose class ends in
@@ -56,8 +62,9 @@
   var root = document.documentElement;
   var form = dlg.querySelector('form');
   var KEY = 'cc-app-settings:' + dlg.getAttribute('data-app');
-  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', order: null, tab: 'app', layoutAt: 0, tbLock: false, ui: 1 };
+  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', order: null, tab: 'app', secs: null, layoutAt: 0, tbLock: false, ui: 1, density: 'comfortable' };
   var UI = dlg.hasAttribute('data-shell-ui');   // 0.6 layout tools (see the header)
+  var DENSITY = dlg.hasAttribute('data-shell-07');   // 0.7 PANEL-COMPACT (dev builds and releases from 0.7 on)
   var RESET_KEY = 'cc-layout-reset';
   var MIN_W = 10, MAX_W = 40, MIN_STAGE = 20;   // rem
   function T(k, v) { return window.ccShellT ? window.ccShellT(k, v) : k; }
@@ -78,9 +85,11 @@
       if (v.tbTouch === 'row' || v.tbTouch === 'wrap') out.tbTouch = v.tbTouch;
       if (v.order && typeof v.order === 'object') out.order = v.order;
       if (v.tab === 'app' || v.tab === 'general') out.tab = v.tab;
+      if (v.secs && typeof v.secs === 'object') ['app', 'general'].forEach(function (k) { var n = v.secs[k]; if (typeof n === 'number' && n >= 0 && n < 200 && n % 1 === 0) { out.secs = out.secs || {}; out.secs[k] = n; } });
       if (typeof v.layoutAt === 'number' && v.layoutAt > 0) out.layoutAt = v.layoutAt;
       if (v.tbLock === true) out.tbLock = true;
       if (typeof v.ui === 'number' && v.ui >= 0.8 && v.ui <= 1.4) out.ui = Math.round(v.ui * 100) / 100;
+      if (v.density === 'compact') out.density = 'compact';
     } catch (e) {}
     return out;
   }
@@ -148,6 +157,15 @@
     root.classList.toggle('shell-ui-sized', s.ui !== 1);
     relayoutSoon();
     requestAnimationFrame(function () { try { window.dispatchEvent(new Event('resize')); } catch (e) {} });   // apps that size on window resize
+  }
+
+  /** 0.7 PANEL-COMPACT item 1: html[data-cc-density="compact"] (Comfortable sets no attribute = today's look). app-shell.css
+   *  holds the rules; they apply to a fine pointer only, so a touch screen keeps its 2.75 rem targets. */
+  function applyDensity() {
+    if (!DENSITY) return;
+    if (s.density === 'compact') root.setAttribute('data-cc-density', 'compact'); else root.removeAttribute('data-cc-density');
+    relayoutSoon();
+    requestAnimationFrame(function () { try { window.dispatchEvent(new Event('resize')); } catch (e) {} });
   }
 
   /** Clamp a width so the drawing keeps at least MIN_STAGE rem between the panels. */
@@ -593,10 +611,218 @@
   /* ---------------- The dialog ---------------- */
   var btn = document.querySelector('[data-settings-open]');
 
+  /* First-time tours (0.7): site-wide like the theme (localStorage cc-tours = 'off'; on = no entry). Every app that has a
+   * tour reads the same key before it starts one by itself; never part of this app's Reset. */
+  var TOURS_KEY = 'cc-tours';
+  function toursOn() { try { return localStorage.getItem(TOURS_KEY) !== 'off'; } catch (e) { return true; } }
+  function setToursOn(on) { try { if (on) localStorage.removeItem(TOURS_KEY); else localStorage.setItem(TOURS_KEY, 'off'); } catch (e) {} }
+  /* Workspace layout (0.7, owner 2026-10-24): one choice for every app, like the theme (localStorage cc-workspace: standard | docked |
+   * toolbox; no entry = standard). An app that has the chosen layout (manifest "workspaces") listens for 'cc-workspace' on window
+   * and reads window.ccShellWorkspace.get(); one without it keeps its standard layout. Another window's change arrives too. */
+  /* 0.7 WS.17: a value is a built-in layout's id, addon:<id> (an add-on of kind workspace in this build) or file:<id> (a file the
+   * person imported, kept in cc-workspace-files); the layout engine (assets/js/app-workspace.js) registers itself here with
+   * register(api) so Settings can list its layouts, import, export and remove them. Without the engine the list stays hidden. */
+  var WS_KEY = 'cc-workspace', WS_RE = /^(standard|(addon:|file:)?[a-z][a-z0-9-]{1,39})$/, wsApi = null;
+  function wsChoice() { try { var v = localStorage.getItem(WS_KEY); return v && WS_RE.test(v) ? v : 'standard'; } catch (e) { return 'standard'; } }
+  function wsTell() { window.dispatchEvent(new CustomEvent('cc-workspace', { detail: { layout: wsChoice() } })); }
+  function wsMark() { var v = wsChoice(); form.querySelectorAll('input[name="workspace"]').forEach(function (r) { r.checked = r.value === v; }); }
+  function setWs(v) {
+    if (!v || !WS_RE.test(v)) v = 'standard';
+    try { if (v === 'standard') localStorage.removeItem(WS_KEY); else localStorage.setItem(WS_KEY, v); } catch (e) {}
+    wsMark();
+    wsTell();
+  }
+  function wsSay(text) { var m = form.querySelector('[data-ws-io-msg]'); if (m) m.textContent = text || ''; }
+  /** The layouts from add-ons and imported files, after the three built-ins (radios like theirs; an imported one can be removed). */
+  function wsRender() {
+    var box = form.querySelector('[data-ws-extra]'), list = form.querySelector('[data-ws-extra-list]');
+    if (!box || !list || !wsApi) return;
+    var rows = wsApi.layouts().filter(function (l) { return l.source !== 'builtin' && l.ok; });
+    list.textContent = '';
+    rows.forEach(function (l) {
+      var lab = document.createElement('label'); lab.className = 'shell-ws-opt';
+      var r = document.createElement('input'); r.type = 'radio'; r.name = 'workspace'; r.value = l.key;
+      var ic = document.createElement('i'); ic.className = 'bi ' + (l.source === 'file' ? 'bi-file-earmark-code' : 'bi-puzzle'); ic.setAttribute('aria-hidden', 'true');
+      var txt = document.createElement('span'), nm = document.createElement('span'); nm.className = 'shell-ws-name'; nm.textContent = l.name + ' ';
+      var src = document.createElement('span'); src.className = 'shell-hint-text'; src.textContent = '(' + T(l.source === 'file' ? 'shell.ws.from.file' : 'shell.ws.from.addon') + ')'; nm.appendChild(src);
+      txt.appendChild(nm);
+      if (l.hint) { var h = document.createElement('span'); h.className = 'shell-hint-text shell-ws-hint'; h.textContent = ' ' + l.hint; txt.appendChild(h); }
+      lab.appendChild(r); lab.appendChild(document.createTextNode(' ')); lab.appendChild(ic); lab.appendChild(document.createTextNode(' ')); lab.appendChild(txt);
+      if (l.source === 'file') {
+        var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'btn-link-cc shell-ws-remove'; rm.setAttribute('data-ws-remove', l.key);
+        rm.setAttribute('aria-label', T('shell.ws.remove', { name: l.name })); rm.title = T('shell.ws.remove', { name: l.name });
+        var x = document.createElement('i'); x.className = 'bi bi-x-lg'; x.setAttribute('aria-hidden', 'true'); rm.appendChild(x); lab.appendChild(rm);
+      }
+      list.appendChild(lab);
+    });
+    box.hidden = !rows.length;
+    ['[data-ws-io]', '[data-ws-io-hint]'].forEach(function (sel) { var n = form.querySelector(sel); if (n) n.hidden = false; });
+    var arr = form.querySelector('[data-ws-arrange-row]'); if (arr) arr.hidden = !wsApi.arrange;   // WS.25: the engine's own dialog
+    wsMark();
+  }
+  function wsImport(text) {
+    if (!wsApi) return;
+    var r = wsApi.importText(text);
+    wsSay(r.message);
+    if (r.ok) wsRender();
+  }
+  window.ccShellWorkspace = { get: wsChoice, set: setWs,
+    register: function (api) { wsApi = api; wsRender(); },
+    importText: function (text) { if (!wsApi) return { ok: false }; var r = wsApi.importText(text); wsSay(r.message); if (r.ok) wsRender(); return r; } };
+  if (window.ccWorkspaceEngine) { wsApi = window.ccWorkspaceEngine; }   // the app's layout engine started before this script
+  (function () {
+    var file = form.querySelector('[data-ws-file]');
+    form.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-ws-import], [data-ws-export], [data-ws-remove], [data-ws-arrange]') : null;
+      if (!t || !wsApi) return;
+      if (t.hasAttribute('data-ws-arrange')) { if (wsApi.arrange) wsApi.arrange(); return; }
+      if (t.hasAttribute('data-ws-import')) { if (file) file.click(); return; }
+      if (t.hasAttribute('data-ws-remove')) { e.preventDefault(); wsApi.remove(t.getAttribute('data-ws-remove')); wsRender(); return; }
+      var x = wsApi.exportText();
+      if (!x) { wsSay(T('shell.ws.bad', { why: T('shell.ws.why.unknown') })); return; }
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([x.text], { type: 'application/json' })); a.download = x.name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+    });
+    if (file) file.addEventListener('change', function () { var f = file.files && file.files[0]; if (!f) return; f.text().then(wsImport); file.value = ''; });
+    // a .ccworkspace.json dropped on the dialog is imported
+    dlg.addEventListener('dragover', function (e) { if (wsApi && e.dataTransfer && [].indexOf.call(e.dataTransfer.types || [], 'Files') >= 0) e.preventDefault(); });
+    dlg.addEventListener('drop', function (e) {
+      var f = wsApi && e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f || !/\.json$/i.test(f.name)) return;
+      e.preventDefault(); f.text().then(wsImport);
+    });
+  })();
+  /* Work environments (0.7 WS.24, Discord 2026-10-24: "save different workspace profiles"): the whole setup of every app in this browser —
+   * the layout (cc-workspace, imported layouts), the menu style family and each app's menus and keys (<slug>.input), each app's toolbar style,
+   * panels, widths and screen mode (cc-app-settings:<slug>), My tools and the ribbon's fold (cc-ws-mytools:, cc-ws-ribbon:) — saved under a
+   * name in cc-environments (at most ENV_MAX), switched (the keys are written, the families' other keys removed, the page reloads so every
+   * engine starts from them; an app with unsaved work asks first, as on any reload), exported and imported as .ccenv.json (read as untrusted:
+   * only these keys, bounded sizes). The theme and the language stay as they are. */
+  var ENV_KEY = 'cc-environments', ENV_NOW = 'cc-environment', ENV_MAX = 12, ENV_FORMAT = 'cadcraft-environment', ENV_BYTES = 1048576;
+  var ENV_RE = /^(cc-workspace|cc-workspace-files|cc-input-family|cc-app-settings:[a-z]{2,24}|cc-ws-mytools:[a-z]{2,24}|cc-ws-ribbon:[a-z]{2,24}|[a-z]{2,24}\.input)$/;
+  var envForm = form.querySelector('[data-env-set]');
+  function envAll() { try { var v = JSON.parse(localStorage.getItem(ENV_KEY) || '[]'); return Array.isArray(v) ? v.filter(envOk) : []; } catch (e) { return []; } }
+  function envOk(x) { return !!x && typeof x.name === 'string' && x.name.length > 0 && x.keys && typeof x.keys === 'object'; }
+  function envSave(list) { try { localStorage.setItem(ENV_KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
+  function envClean(name) { return String(name || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40); }
+  /** The keys of this browser's setup, now. */
+  function envCapture() {
+    var keys = {};
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && ENV_RE.test(k)) keys[k] = localStorage.getItem(k); } } catch (e) {}
+    return keys;
+  }
+  /** A file's or the store's entry, bounded: only the setup's keys, string values, ≤ ENV_BYTES in all. null = not an environment. */
+  function envRead(obj) {
+    if (!obj || typeof obj !== 'object' || obj.format !== ENV_FORMAT || obj.version !== 1 || !obj.keys || typeof obj.keys !== 'object') return null;
+    var name = envClean(obj.name); if (!name) return null;
+    var keys = {}, bytes = 0;
+    Object.keys(obj.keys).forEach(function (k) {
+      var v = obj.keys[k];
+      if (!ENV_RE.test(k) || typeof v !== 'string') return;
+      bytes += k.length + v.length; if (bytes <= ENV_BYTES) keys[k] = v;
+    });
+    return bytes <= ENV_BYTES ? { name: name, saved: typeof obj.saved === 'string' ? obj.saved.slice(0, 40) : '', keys: keys } : null;
+  }
+  function envSay(text) { var m = envForm && envForm.querySelector('[data-env-msg]'); if (m) m.textContent = text || ''; }
+  function envRender() {
+    if (!envForm) return;
+    var sel = envForm.querySelector('[data-env-list]'), keep = sel.value, now = '';
+    try { now = localStorage.getItem(ENV_NOW) || ''; } catch (e) {}
+    while (sel.options.length > 1) sel.remove(1);
+    envAll().forEach(function (x) { var o = document.createElement('option'); o.value = x.name; o.textContent = x.name + (x.name === now ? ' ' + T('shell.env.current') : ''); sel.appendChild(o); });
+    sel.value = [].some.call(sel.options, function (o) { return o.value === keep; }) ? keep : (now && [].some.call(sel.options, function (o) { return o.value === now; }) ? now : '');
+    envPicked();
+  }
+  function envPicked() {
+    var on = !!envForm.querySelector('[data-env-list]').value;
+    ['[data-env-use]', '[data-env-remove]', '[data-env-export]'].forEach(function (q) { envForm.querySelector(q).disabled = !on; });
+  }
+  function envAdd(entry, said) {
+    var list = envAll().filter(function (x) { return x.name !== entry.name; });
+    var replaced = list.length < envAll().length;
+    if (!replaced && list.length >= ENV_MAX) { envSay(T('shell.env.full', { n: ENV_MAX })); return false; }
+    list.push(entry);
+    if (!envSave(list)) { envSay(T('shell.env.nostore')); return false; }
+    envSay(T(said, { name: entry.name })); envRender();
+    envForm.querySelector('[data-env-list]').value = entry.name; envPicked();
+    return true;
+  }
+  function envUse(name) {
+    var x = envAll().filter(function (e) { return e.name === name; })[0]; if (!x) return;
+    try {
+      var drop = [];
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && ENV_RE.test(k) && !(k in x.keys)) drop.push(k); }
+      drop.forEach(function (k) { localStorage.removeItem(k); });
+      Object.keys(x.keys).forEach(function (k) { localStorage.setItem(k, x.keys[k]); });
+      localStorage.setItem(ENV_NOW, x.name);
+    } catch (e) { envSay(T('shell.env.nostore')); return; }
+    envSay(T('shell.env.using', { name: x.name }));
+    window.ccShellEnvironments._reload();
+  }
+  if (envForm) {
+    var envFile = envForm.querySelector('[data-env-file]');
+    envForm.querySelector('[data-env-list]').addEventListener('change', envPicked);
+    envForm.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('button') : null; if (!b || b.disabled) return;
+      var name = envForm.querySelector('[data-env-list]').value;
+      if (b.hasAttribute('data-env-save')) {
+        var input = envForm.querySelector('[data-env-name]'), n = envClean(input.value || name);
+        if (!n) { envSay(T('shell.env.noname')); input.focus(); return; }
+        var replacing = envAll().some(function (x) { return x.name === n; });
+        if (envAdd({ name: n, saved: new Date().toISOString(), keys: envCapture() }, replacing ? 'shell.env.replaced' : 'shell.env.saved')) {
+          try { localStorage.setItem(ENV_NOW, n); } catch (err) {}
+          input.value = ''; envRender();
+        }
+      } else if (b.hasAttribute('data-env-use')) envUse(name);
+      else if (b.hasAttribute('data-env-remove')) {
+        envSave(envAll().filter(function (x) { return x.name !== name; }));
+        try { if (localStorage.getItem(ENV_NOW) === name) localStorage.removeItem(ENV_NOW); } catch (err) {}
+        envSay(T('shell.env.removed', { name: name })); envRender();
+      } else if (b.hasAttribute('data-env-export')) {
+        var x = envAll().filter(function (z) { return z.name === name; })[0]; if (!x) return;
+        var text = JSON.stringify({ format: ENV_FORMAT, version: 1, name: x.name, saved: x.saved, keys: x.keys }, null, 2) + '\n';
+        var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+        a.download = (x.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'environment') + '.ccenv.json';
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+      } else if (b.hasAttribute('data-env-import')) envFile.click();
+    });
+    envFile.addEventListener('change', function () {
+      var f = envFile.files && envFile.files[0]; envFile.value = ''; if (!f) return;
+      if (f.size > ENV_BYTES * 2) { envSay(T('shell.env.bad')); return; }
+      f.text().then(function (text) {
+        var entry = null; try { entry = envRead(JSON.parse(text)); } catch (e) { entry = null; }
+        if (!entry) { envSay(T('shell.env.bad')); return; }
+        envAdd(entry, 'shell.env.imported');
+      });
+    });
+    envRender();
+  }
+  window.ccShellEnvironments = { list: function () { return envAll().map(function (x) { return x.name; }); }, capture: envCapture, read: envRead,
+    use: envUse, _reload: function () { location.reload(); } };   // tests replace _reload
+
+  /* Hardware specs (owner 2026-10-24): shared for building more efficient engines, anonymous and aggregated. One switch for every
+   * app: localStorage cc-hw-share = 'on' | 'off'; no entry = the default — on in the browser (opt out), off in the desktop app
+   * (opt in; window.cadcraftDesktop is the desktop bridge). The apps' compute/report.js asks window.ccShellHardware.allowed(). */
+  var HW_KEY = 'cc-hw-share';
+  var hwDesktop = function () { return !!window.cadcraftDesktop; };
+  function hwAllowed() { try { var v = localStorage.getItem(HW_KEY); if (v === 'on') return true; if (v === 'off') return false; } catch (e) {} return !hwDesktop(); }
+  function setHw(on) { try { localStorage.setItem(HW_KEY, on ? 'on' : 'off'); } catch (e) {} syncHw(); }
+  function syncHw() {
+    var box = form.querySelector('[data-hw-noshare]'); if (box) box.checked = !hwAllowed();
+    var d = form.querySelector('[data-hw-default]'); if (d) d.textContent = T(hwDesktop() ? 'shell.hw.default.desktop' : 'shell.hw.default.web');
+  }
+  window.ccShellHardware = { allowed: hwAllowed, set: setHw, desktop: hwDesktop };
+  window.addEventListener('storage', function (e) { if (e.key === WS_KEY) { wsMark(); wsTell(); } if (e.key === 'cc-workspace-files') wsRender(); });
   function syncForm() {
+    wsRender();
+    if (wsApi && wsApi.notice && wsApi.notice()) wsSay(wsApi.notice());   // a layout that could not be used: why
+    if (form.elements.toursAll) form.elements.toursAll.checked = toursOn();
+    syncHw();
+    wsMark();
     var th = themeChoice();
     form.querySelectorAll('input[name="theme"]').forEach(function (r) { r.checked = r.value === th; });
     if (form.elements.ui) form.elements.ui.value = String(s.ui);
+    if (form.elements.density) form.elements.density.value = s.density;
     var z = form.elements.zoom;
     z.value = String(s.zoom);
     if (z.value !== String(s.zoom)) z.value = '1';
@@ -653,9 +879,113 @@
     showTab(s.tab);
   }
 
+  /* ---------------- Sections (0.7, data-shell-07): the tabs pick the list on the left, one section on the right ----------------
+   * The tabs stay (<App> | Global); the list on the left holds the picked tab's sections — every fieldset straight inside its
+   * pane — and the right shows the one picked. The list follows the fieldsets (add-ons add and remove theirs, the pen and
+   * add-on sets show themselves later). The section picked last on each tab is remembered per app (s.secs {app, general}). */
+  var nav = null, navBusy = false;
+  if (dlg.hasAttribute('data-shell-07')) {
+    var secBody = dlg.querySelector('.shell-dlg-body'), panes = [].slice.call(dlg.querySelectorAll('[data-settings-pane]'));
+    // A section is a fieldset.shell-set straight inside the pane, or a wrapper holding one that a script mounts later
+    // (host.js puts Assistants into the app's <div data-assistants-settings>).
+    var isSet = function (n) { return !!n && n.tagName === 'FIELDSET' && n.classList.contains('shell-set'); };
+    var secsOf = function (pane) { return [].slice.call(pane.children).filter(function (c) { return isSet(c) || (c.tagName === 'DIV' && isSet(c.firstElementChild)); }); };
+    var secShown = function (fs) { return !fs.hidden && !(fs.tagName === 'DIV' && fs.firstElementChild.hidden); };
+    var paneName = function (p) { return p.getAttribute('data-settings-pane'); };
+    var paneFor = function (name) { return panes.filter(function (p) { return paneName(p) === name; })[0] || panes[0]; };
+    var tabSelect = showTab;
+    nav = document.createElement('nav');
+    nav.className = 'shell-sec-nav';
+    nav.setAttribute('aria-label', T('shell.settings.sections'));
+    secBody.insertBefore(nav, secBody.firstChild);
+    dlg.classList.add('shell-settings-secs');
+    var showSec = function (fs, focus) {
+      if (!fs) return;
+      var pane = fs.parentElement;
+      if (nav.ccPane !== pane) { s.tab = paneName(pane); tabSelect(s.tab); buildNav(pane, fs); return; }
+      s.secs = Object.assign({}, s.secs, (function (o) { o[paneName(pane)] = secsOf(pane).indexOf(fs); return o; })({}));
+      secsOf(pane).forEach(function (f) { f.classList.toggle('shell-sec-off', f !== fs); });
+      [].forEach.call(nav.querySelectorAll('button'), function (b) {
+        var on = b.ccSet === fs;
+        if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+        if (on && focus) b.focus();
+        if (on) try { b.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+      });
+      pane.scrollTop = 0;
+    };
+    var buildNav = function (pane, pick) {
+      navBusy = true;
+      pane = pane || paneFor(s.tab);
+      nav.ccPane = pane;
+      // Add-ons' own sections (addons.js settingsSection: .shell-addon-set) come last, under an "Add-ons" eyebrow.
+      var isAddon = function (fs) { return fs.classList.contains('shell-addon-set'); };
+      var ul = document.createElement('ul'), ulAdd = document.createElement('ul'), list = secsOf(pane).filter(secShown);
+      list = list.filter(function (fs) { return !isAddon(fs); }).concat(list.filter(isAddon));
+      list.forEach(function (fs) {
+        var lg = fs.querySelector('legend'), b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = (lg ? lg.textContent : '').replace(/\s+/g, ' ').trim();
+        b.ccSet = fs;
+        b.addEventListener('click', function () { showSec(fs); save(); });
+        var li = document.createElement('li');
+        li.appendChild(b);
+        (isAddon(fs) ? ulAdd : ul).appendChild(li);
+      });
+      if (ulAdd.children.length) {
+        var eb = document.createElement('p');
+        eb.className = 'shell-sec-eyebrow';
+        eb.setAttribute('aria-hidden', 'true');
+        eb.innerHTML = '<i class="bi bi-puzzle" aria-hidden="true"></i> ';
+        eb.appendChild(document.createTextNode(T('shell.addons')));
+        ulAdd.setAttribute('aria-label', T('shell.addons'));
+        nav.replaceChildren(ul, eb, ulAdd);
+      } else nav.replaceChildren(ul);
+      var n = s.secs && s.secs[paneName(pane)], all = secsOf(pane);
+      if (!pick || list.indexOf(pick) === -1) pick = list.indexOf(all[n]) !== -1 ? all[n] : list[0];
+      showSec(pick);
+      navBusy = false;
+    };
+    nav.addEventListener('keydown', function (e) {
+      var bs = [].slice.call(nav.querySelectorAll('button')), i = bs.indexOf(document.activeElement);
+      if (i < 0) return;
+      var k = e.key, j = k === 'ArrowDown' ? i + 1 : k === 'ArrowUp' ? i - 1 : k === 'Home' ? 0 : k === 'End' ? bs.length - 1 : null;
+      if (j === null) return;
+      e.preventDefault();
+      bs[(j + bs.length) % bs.length].click();
+      bs[(j + bs.length) % bs.length].focus();
+    });
+    // Only a section coming, going, showing or hiding rebuilds the list (not the panes the tabs hide, not a section's own contents).
+    var mo = new MutationObserver(function (recs) {
+      if (navBusy) return;
+      var pane = nav.ccPane, top = function (n) { return n === pane || (n.parentElement === pane) || (n.parentElement && n.parentElement.parentElement === pane && n.tagName === 'FIELDSET'); };
+      if (recs.some(function (r) { return r.type === 'childList' ? r.target === pane || r.target.parentElement === pane : top(r.target) && r.target !== pane; })) {
+        var cur = nav.querySelector('button[aria-current="true"]');
+        buildNav(nav.ccPane, cur && cur.ccSet);
+      }
+    });
+    panes.forEach(function (p) { mo.observe(p, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); });
+    showTab = function (name, focus) { s.tab = paneName(paneFor(name)); tabSelect(s.tab, focus); buildNav(paneFor(s.tab)); };
+    /** Show the section a control sits in, on its tab (the palette and the toolbar menu jump to a setting). */
+    dlg.ccShowSetting = function (el) { var fs = el; while (fs && fs.parentElement && !fs.parentElement.hasAttribute('data-settings-pane')) fs = fs.parentElement; if (fs && fs.parentElement && secsOf(fs.parentElement).indexOf(fs) !== -1) showSec(fs); };
+    showTab(s.tab);
+  }
+
+  /* ---------------- Units (0.7 UNITS; site-wide like the theme) ----------------
+   * [data-units-set] carries the URL of the build's copy of lib/units/unit-settings.js (app-settings.inc prints it only for
+   * builds that have one); it is loaded on the first open and fills the lists itself (localStorage cc-units). */
+  var unitsBox = dlg.querySelector('[data-units-set][data-units-src]'), unitsLoaded = false;
+  function loadUnits() {
+    if (!unitsBox || unitsLoaded) return;
+    unitsLoaded = true;
+    // resolved against the page: in an edition or Studio the src is relative to the page, and import() in this classic script would
+    // resolve it against this file's folder (assets/js/) instead (closing part 2)
+    import(new URL(unitsBox.getAttribute('data-units-src'), document.baseURI).href).then(function (m) { m.mountUnitSettings(unitsBox, T); }).catch(function () { unitsBox.hidden = true; });
+  }
+
   function open() {
     layout();
     syncForm();
+    loadUnits();
     showTab(s.tab);
     if (!dlg.open) dlg.showModal();
     if (btn) btn.setAttribute('aria-expanded', 'true');
@@ -664,8 +994,12 @@
   form.addEventListener('change', function (e) {
     var t = e.target;
     if (t.name === 'theme') setTheme(t.value);
+    else if (t.name === 'workspace') setWs(t.value);
+    else if (t.name === 'hwNoShare') setHw(!t.checked);
     else if (t.name === 'zoom') { s.zoom = parseFloat(t.value) || 1; applyZoom(); requestAnimationFrame(placeHandles); save(); }
     else if (t.name === 'ui') { var u = parseFloat(t.value); s.ui = u >= 0.8 && u <= 1.4 ? u : 1; applyUi(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.ui.now', { pct: Math.round(s.ui * 100) })); }
+    else if (t.name === 'density') { s.density = t.value === 'compact' ? 'compact' : 'comfortable'; applyDensity(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.density.now', { density: (s.density === 'compact' ? T('shell.settings.density.compact') : T('shell.settings.density.comfortable')) })); }
+    else if (t.name === 'toursAll') setToursOn(t.checked);
     else if (t.name === 'tips') { s.tips = t.checked; if (!s.tips) hideTip(); save(); }
     else if (t.name === 'screen') { s.screen = t.value; save(); }
     else if (t.name === 'tb') { s.tb = t.value; applyTb(); save(); }
@@ -706,6 +1040,7 @@
     try { localStorage.removeItem(KEY); } catch (e) {}
     applyZoom();
     applyUi();
+    applyDensity();
     applyTb();
     layout();
     syncForm();
@@ -782,6 +1117,7 @@
     out.push({ k: 'settings', icon: 'bi-gear', label: T('shell.tbmenu.settings'), run: function () {
       s.tab = 'general'; open();
       var set = form.querySelector('[data-tb-set]');
+      if (set && dlg.ccShowSetting) dlg.ccShowSetting(set);
       if (set) { set.scrollIntoView({ block: 'nearest' }); var f = set.querySelector('input, button'); if (f) f.focus(); }
     } });
     return out;
@@ -887,6 +1223,7 @@
   applyTb();
   applyZoom();
   applyUi();
+  applyDensity();
   layout();
   screenOnOpen();
   // Apps may finish building their panels after this script; place the handles again once they have.

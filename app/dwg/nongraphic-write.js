@@ -46,9 +46,9 @@ const ver = (v) => VERSION_NUM[v];
 const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
 const fin = (...v) => v.every(Number.isFinite);
 /** Names in the named-object dictionary that the writer makes itself. */
-const WRITER_NOD = new Set(['ACAD_GROUP', 'ACAD_LAYOUT', 'ACAD_MLINESTYLE', 'ACAD_PLOTSTYLENAME', 'ACAD_IMAGE_DICT', 'ACAD_IMAGE_VARS', 'ACAD_WIPEOUT_VARS']);
+const WRITER_NOD = new Set(['ACAD_GROUP', 'ACAD_LAYOUT', 'ACAD_MLINESTYLE', 'ACAD_PLOTSTYLENAME', 'ACAD_IMAGE_DICT', 'ACAD_IMAGE_VARS', 'ACAD_WIPEOUT_VARS', 'ACAD_PDFDEFINITIONS']);
 /** Object types the writer makes itself (never copied, only referenced). */
-const WRITER_TYPES = new Set(['LAYOUT', 'MLINESTYLE', 'IMAGEDEF', 'IMAGEDEF_REACTOR', 'VPENT_HEADER']);
+const WRITER_TYPES = new Set(['LAYOUT', 'MLINESTYLE', 'IMAGEDEF', 'IMAGEDEF_REACTOR', 'PDFDEFINITION', 'VPENT_HEADER']);
 /** Types whose lists can lose entries: always encoded from their fields. */
 const ALWAYS_FIELDS = new Set(['DICTIONARY', 'ACDBDICTIONARYWDFLT', 'DICTIONARYWDFLT', 'GROUP', 'SORTENTSTABLE', 'XRECORD', 'IDBUFFER', 'LAYER_INDEX', 'FIELDLIST']);
 
@@ -320,6 +320,7 @@ export function extendWriter(env) {
           }
           continue;
         }
+        if (name === 'ACAD_SCALELIST' && Array.isArray(model.scales)) continue;   // the drawing's scale list is the model's (0.7 D7.19), made below
         if (WRITER_NOD.has(name) && !(/_VARS$/.test(name) && !writerNod.has(name))) continue;   // the variables: when the writer made none
         want(hex, H.nod);
         nodAdd.push([name, hexKey(hex)]);
@@ -443,7 +444,8 @@ export function extendWriter(env) {
       if (sun && vr && written(sun.handle)) vr.sun = written(sun.handle);
     }
     // multileaders whose style is not written get a Standard one
-    ensureMleaderStyle({ recs, H, next, mleaderEed, defaults: { textStyle: env.styleRef('Standard'), ltByBlock: H.ltByBlock } });
+    ensureMleaderStyle({ recs, H, next, mleaderEed, defaults: { textStyle: env.styleRef('Standard'), ltByBlock: H.ltByBlock,
+      styleRef: (n) => env.styleRef(n), blockRef: (n) => env.blockByName.get(String(n).toUpperCase())?.hdr || 0 } });
 
     // written entities, table entries, block records and layouts: extension dictionaries and reactors
     let linked = 0;
@@ -455,11 +457,26 @@ export function extendWriter(env) {
       const rs = refs(s.reactors).filter((x) => !(r.reactors || []).includes(x));
       if (rs.length) r.reactors = [...(r.reactors || []), ...rs];
     }
+    // the drawing's scale list (0.7 D7.19): model.scales [{ name, paperUnits, drawingUnits, unitScale? }] replaces the source's
+    // ACAD_SCALELIST (a drawing that never had one gets one only when it has scales); keys A0, A1, … as AutoCAD names them
+    if (Array.isArray(model.scales) && model.scales.length) {
+      const dictH = next();
+      const items = [];
+      model.scales.forEach((sc, i) => {
+        if (!sc || !(sc.paperUnits > 0) || !(sc.drawingUnits > 0) || !sc.name) return;
+        const h = next();
+        items.push(['A' + i, h]);
+        recs.push({ t: 'COPY:SCALE', h, owner: dictH, reactors: [dictH], src: { name: String(sc.name), paperUnits: sc.paperUnits, drawingUnits: sc.drawingUnits, unitScale: !!sc.unitScale },
+          M: { ref: written, version }, newFormat: true, encode: FIELD_ENCODERS.SCALE });
+      });
+      recs.push({ t: 'DICTIONARY', h: dictH, owner: H.nod, reactors: [H.nod], items, hardOwner: false, cloning: 1 });
+      nodAdd.push(['ACAD_SCALELIST', null, dictH]);
+    }
     // the writer's own dictionaries
     const nod = recs.find((r) => r.h === H.nod && r.t === 'DICTIONARY');
     if (nod) {
       const have = new Set(nod.items.map((x) => x[0]));
-      for (const [name, k] of nodAdd) if (written(k) && !have.has(name)) nod.items.push([name, written(k)]);
+      for (const [name, k, direct] of nodAdd) { const h = direct || written(k); if (h && !have.has(name)) nod.items.push([name, h]); }
       nod.items.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
     }
     const pd = recs.find((r) => r.h === H.plotStyleDict && r.t === 'DICTIONARYWDFLT');

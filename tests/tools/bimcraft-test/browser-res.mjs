@@ -434,7 +434,11 @@ try {
     await page.click('[data-res-tools] > summary');
     await page.click('[data-mtool="electrical"]');
     const kinds = await page.$$eval('[data-res-elkind] option', (o) => o.map((x) => x.value));
-    ok(kinds.length === 16 && kinds.includes('socket.double') && kinds.includes('board'), 'Build › Electrical: the Electrical add-on\'s 16 devices in groups, a circuit, a mounting height');
+    // Every symbol of the add-on's generated copy (elec-sync.mjs → res-elec-symbols.js): 16 until 0.7, 33 since the add-on gained the
+    // detectors group and more devices (mep-07; synced in the 0.7 closing, docs/results/0.7/2026-10-23-closing-fixes.md row 009).
+    const { SYMBOLS: ELEC } = await import(path.join(REPO, 'public_html/assets/apps/bimcraft/dev/res-elec-symbols.js'));
+    const elecKeys = ELEC.map((x) => x.key);
+    ok(kinds.length === elecKeys.length && elecKeys.every((k) => kinds.includes(k)) && kinds.includes('socket.double') && kinds.includes('board'), 'Build › Electrical: the Electrical add-on\'s ' + elecKeys.length + ' devices in groups (' + kinds.length + ' offered), a circuit, a mounting height');
     await page.selectOption('[data-res-elkind]', 'socket.double');
     await page.fill('[data-res-elcircuit]', '1'); await page.press('[data-res-elcircuit]', 'Tab');
     await planClick(2000, 350);

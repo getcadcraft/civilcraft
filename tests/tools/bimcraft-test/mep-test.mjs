@@ -228,7 +228,8 @@ export async function mepMode({ APP, ROOT, WebIFC, IfcModel, quiet }) {
   ok(p2 && near(p2.length, lenSum, 0.01) && p2.n === 4, '2" pipe: 4 pieces, the centre line less the elbow, the valve and the tee (' + lenSum.toFixed(1) + ')', p2 && p2.length.toFixed(2));
   ok(S.fittings.length === 3 && S.fittings.some((f) => f.what === 'bend' && f.angle === 90) && S.fittings.some((f) => f.what === 'tee' && f.size === '2" × 1"') && S.fittings.some((f) => f.valve && f.what === 'gate'), 'fittings: a 90° elbow, a 2" × 1" tee, a gate valve');
   const pf = M.pipeForFlow('copper', 'L', 10, 8);
-  const want = T.sizesFor('copper', 'L').find((sz) => { const q = T.pipeSize('copper', 'L', sz); const A = Math.PI * (q.id * 0.0254) ** 2 / 4; return 10 * 3.785411784 / 60 / 1000 / A <= 8 * 0.3048; });
+  // the smallest size that does it (the table lists "1", "2" … before "1/2": go by nominal size)
+  const want = T.sizesFor('copper', 'L').slice().sort((a, b) => T.nominal(a) - T.nominal(b)).find((sz) => { const q = T.pipeSize('copper', 'L', sz); const A = Math.PI * (q.id * 0.0254) ** 2 / 4; return 10 * 3.785411784 / 60 / 1000 / A <= 8 * 0.3048; });
   ok(pf && pf.size === want && pf.v <= 8, '10 gpm in copper L at 8 ft/s or less: ' + want, pf && pf.size);
   const df = M.ductForFlow({ q: 1000, rate: 0.08, shape: 'round', u: 'in' });
   const ADDS = await import(path.join(ADD, 'hvac/lib/sizing.js'));

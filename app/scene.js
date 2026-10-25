@@ -40,6 +40,9 @@ export const LAYERS = [
   { name: 'C-ROAD-SWPT', token: 'orange', aci: 30, get label() { return t('scene.layer.swpt'); } },   // 0.6 WL.28 swept paths (swept-ui.js adds them)   // 0.4 V14 feature lines (features-ui.js adds them)
   { name: 'V-PROP', token: 'ink2', aci: 7, get label() { return t('scene.layer.prop'); } },   // 0.4 V21 parcels (parcels-ui.js adds them)
   { name: 'V-PROP-TEXT', token: 'ink2', aci: 7, get label() { return t('scene.layer.proptext'); } },
+  { name: 'A-MASS', token: 'ink2', aci: 7, get label() { return t('scene.layer.mass'); } },   // 0.7 LC.1 building masses (massing-ui.js adds them)
+  { name: 'A-MASS-ENVL', token: 'orange', aci: 30, get label() { return t('scene.layer.massenvl'); } },   // 0.7 LC.1 M3 the setback envelope
+  { name: 'A-MASS-TEXT', token: 'ink2', aci: 7, get label() { return t('scene.layer.masstext'); } },
   { name: 'C-STRM-PIPE', token: 'blue', aci: 5, get label() { return t('scene.layer.pipe'); } },
   { name: 'C-STRM-STRC', token: 'blue', aci: 5, get label() { return t('scene.layer.strc'); } },
   { name: 'C-STRM-TEXT', token: 'blue', aci: 5, get label() { return t('scene.layer.strmtext'); } },
@@ -109,6 +112,7 @@ export function planScene(state, { mmPerUnit = 1, show = {} } = {}) {
     }
     for (const e of al.elements) {
       if (e.type === 'line') items.push({ layer: 'C-ROAD-CNTR', kind: 'poly', pts: [e.p0, e.p1] });
+      else if (e.type === 'spiral') items.push({ layer: 'C-ROAD-CNTR', kind: 'poly', pts: al.polyline(Infinity, Math.PI / 720).filter((q) => q.sta >= e.sta - 1e-9 && q.sta <= e.sta + e.len + 1e-9).map((q) => ({ x: q.x, y: q.y })) });   // 0.7 D7.35
       else {
         const a1 = e.a0 + (e.ccw ? e.delta : -e.delta);
         items.push({ layer: 'C-ROAD-CNTR', kind: 'arc', c: e.c, r: e.r, a0: e.ccw ? e.a0 : a1, a1: e.ccw ? a1 : e.a0 });
@@ -130,17 +134,15 @@ export function planScene(state, { mmPerUnit = 1, show = {} } = {}) {
         items.push({ layer: 'C-ROAD-STAN', kind: 'text', x: t.x + nx * off, y: t.y + ny * off, rot, mm: 1.8, align, middle: true, text: formatStation(t.sta, u, 0) });
       }
     }
-    for (const e of al.elements) {
-      if (e.type !== 'arc') continue;
-      for (const [p, sta, kind] of [[e.p0, e.sta, 'PC'], [e.p1, e.sta + e.len, 'PT']]) {
-        const pt = al.pointAt(sta), nx = Math.sin(pt.dir), ny = -Math.cos(pt.dir);
-        const k = 3 * unitPerMm;
-        items.push({ layer: 'C-ROAD-STAN', kind: 'poly', pts: [{ x: p.x, y: p.y }, { x: p.x + nx * k, y: p.y + ny * k }] });
-        // along the tick, outward to the right, kept upright
-        let rot = pt.dir - Math.PI / 2, align = 'left';
-        if (Math.cos(rot) < -1e-9) { rot += Math.PI; align = 'right'; }
-        items.push({ layer: 'C-ROAD-STAN', kind: 'text', x: p.x + nx * (k + 0.8 * unitPerMm), y: p.y + ny * (k + 0.8 * unitPerMm), rot, mm: 1.6, align, middle: true, text: t(kind === 'PC' ? 'scene.sta.pc' : 'scene.sta.pt', { sta: formatStation(sta, u) }) });
-      }
+    for (const k of al.keyStations()) {
+      if (k.kind === 'Start' || k.kind === 'End') continue;
+      const sta = k.sta, pt0 = al.pointAt(sta), p = { x: pt0.x, y: pt0.y }, nx = Math.sin(pt0.dir), ny = -Math.cos(pt0.dir);
+      const kk = 3 * unitPerMm;
+      items.push({ layer: 'C-ROAD-STAN', kind: 'poly', pts: [{ x: p.x, y: p.y }, { x: p.x + nx * kk, y: p.y + ny * kk }] });
+      // along the tick, outward to the right, kept upright
+      let rot = pt0.dir - Math.PI / 2, align = 'left';
+      if (Math.cos(rot) < -1e-9) { rot += Math.PI; align = 'right'; }
+      items.push({ layer: 'C-ROAD-STAN', kind: 'text', x: p.x + nx * (kk + 0.8 * unitPerMm), y: p.y + ny * (kk + 0.8 * unitPerMm), rot, mm: 1.6, align, middle: true, text: t('scene.sta.' + k.kind.toLowerCase(), { sta: formatStation(sta, u) }) });
     }
     const p0 = al.pointAt(al.start);
     items.push({ layer: 'C-ROAD-CNTR', kind: 'text', x: p0.x - Math.cos(p0.dir) * 3 * unitPerMm, y: p0.y - Math.sin(p0.dir) * 3 * unitPerMm, rot: 0, mm: 2.2, align: 'right', middle: true, text: a.name || t('scene.al.default') });

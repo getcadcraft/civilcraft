@@ -38,6 +38,9 @@ const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbo
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
 const problems = [];
 const page = await ctx.newPage();
+// BimCraft loads more than the browser's default 250 resource-timing entries before Render is clicked: keep them all, or the
+// later entries (render-core.js, render-bim.js) are dropped and the checks below can't see them
+await page.addInitScript(() => { try { performance.setResourceTimingBufferSize(10000); } catch { /* old browser */ } });
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
 page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
 const waitStatus = (re, timeout = 60000) => page.waitForFunction((s) => new RegExp(s).test(document.querySelector('[data-status]')?.textContent || ''), re.source, { timeout });
@@ -70,7 +73,13 @@ try {
   await page.setInputFiles('[data-file]', file);
   await waitStatus(/^Opened /, 90000);
   ok(await page.isVisible('[data-toolbar] [data-render-open]'), 'Render is on the toolbar');
-  ok(!(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => /\/render\//.test(r.name)))), 'the renderer is not loaded before Render');
+  // The renderer itself (dialog, fast and path-traced renderers, GPU, BimCraft's scene adapter) loads on first use. Since 0.7 AS.6
+  // (assistants-gaps) the assistant tools render_still / render_queue are registered at start and their schemas read the render
+  // settings tables (render/looks.js and what it imports), and the daylight tools (0.7 LC.20, bim-ops) use the sun position
+  // (render/sun.js): those, and only those, may be there before Render.
+  const early = await page.evaluate(() => performance.getEntriesByType('resource').map((r) => new URL(r.name).pathname).filter((u) => /\/render\/|render-bim\.js|paint-bim\.js/.test(u)).map((u) => u.replace(/^.*\/dev\//, '')));
+  const TABLES = new Set(['render/looks.js', 'render/pt-mix.js', 'render/pt-post.js', 'render/pt-spec.js', 'render/sun.js']);
+  ok(early.every((u) => TABLES.has(u)), 'the renderer is not loaded before Render (only the settings tables: ' + (early.join(', ') || 'none') + ')');
   await page.evaluate(() => { const v = document.querySelector('[data-canvas]').viewer; v.camera.position.set(v.box.max.x + 14, v.box.max.y * 0.55, v.box.max.z + 18); v.controls.target.copy(v.box.getCenter(new v.box.min.constructor())); v.controls.update(); v.render(); });
   await page.click('[data-toolbar] [data-render-open]');
   await page.waitForSelector('[data-render-dialog][open]');
@@ -283,7 +292,11 @@ try {
     await shot(page, '09-entourage');
     await page.keyboard.press('Escape');
     await page.waitForFunction(() => !document.querySelector('[data-render-dialog]'));
-    // save, so opening the next file has nothing unsaved to ask about
+    // save, so opening the next file has nothing unsaved to ask about. Placing stays on after an item is placed (the next click
+    // places the next number), and since the 2026-10-24 layouts the Save button runs the shared core command, which waits while
+    // placing (wsCurrent busy: busy || placing): end placing with the placing bar's Stop first, as a person would.
+    if (await page.isVisible('[data-placebar] [data-place-stop]')) await page.click('[data-placebar] [data-place-stop]');
+    await page.waitForFunction(() => !document.querySelector('[data-save]').disabled, null, { timeout: 30000 });
     const [svT] = await Promise.all([page.waitForEvent('download'), page.click('[data-save]')]);
     ok(/'CC-RENDER-PARTS'/.test(fs.readFileSync(await svT.path(), 'utf8')), 'the saved IFC keeps the tree\'s parts (CadCraft_SourceAttributes)');
   }

@@ -1,0 +1,21 @@
+{
+  "format": "cadcraft-workspace",
+  "version": 1,
+  "id": "toolbox",
+  "name": "Toolbox and info box",
+  "nameKey": "shell.ws.toolbox",
+  "hintKey": "shell.ws.toolbox.hint",
+  "description": "The app's toolbar across the top, an info box for the running tool or the picked element, a column of tools with your own slots on the left, a navigator with Properties on the right, a tab for every view, quick options at the bottom and an edit palette by the pointer.",
+  "author": "CadCraft",
+  "license": "Apache-2.0",
+  "look": { "density": "regular", "outline": "box", "tabs": "underline" },
+  "blocks": [
+    { "block": "toolbar", "place": "stage-top", "order": 0 },
+    { "block": "infobox", "place": "stage-top", "order": 1, "slots": ["level", "tool", "document"] },
+    { "block": "toolbox", "place": "stage-left", "order": 0, "collapse": true, "tearOff": true, "mine": true },
+    { "block": "palettes", "place": "right-panel", "upper": "browser", "lower": ["properties", "panel"] },
+    { "block": "viewtabs", "place": "view-top", "order": 0, "mode": "all" },
+    { "block": "quickbar", "place": "stage-bottom", "order": 0, "slots": ["scale", "detail", "range", "fit", "layout", "units"] },
+    { "block": "petpalette", "place": "float" }
+  ]
+}

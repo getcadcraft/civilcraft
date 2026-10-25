@@ -26,6 +26,7 @@ import * as CW from './container-write.js';
 import { layoutR2000, layoutR2004, VERSION_INFO } from './container-write.js';
 import { layoutR2007 } from './r2007-write.js';
 import { extendWriter } from './nongraphic-write.js';
+import { unb64 } from './bits-util.js';
 import { tableWriter } from './table-write.js';   // builder T: ACAD_TABLE, TABLESTYLE, FIELD
 import { solidWriter } from './solid-write.js';   // builder S: REGION 3DSOLID BODY (ACIS, R2013+ data storage), LIGHT
 import { surfaceWriter } from './surface-write.js';   // SURFACE family (ACIS + type fields; NURBSURFACE save-down)
@@ -387,6 +388,10 @@ export function writeDwg(model = {}, opts = {}) {
         if (ratio > 1) { maj = { x: -maj.y * ratio, y: maj.x * ratio, z: num(maj.z) * ratio }; ratio = 1 / ratio; s -= Math.PI / 2; en -= Math.PI / 2; }
         return [{ ...c('ELLIPSE'), center: P3(e.center), majorAxis: P3(maj), ratio, startParam: s, endParam: en, extrusion: e.extrusion }];
       }
+      case 'OLE2FRAME': case 'OLEFRAME':   // the OLE2 data is kept as it was read (0.7 D7.23); an object without it has nothing to keep
+        { const d = typeof e.data === 'string' ? unb64(e.data) : e.data;   // read models carry it as base64
+          if (!(d && d.length)) return null;
+          return [{ ...c('OLE2FRAME'), oleFlags: e.flags | 0, oleMode: e.mode | 0, data: d }]; }
       case 'RAY': case 'XLINE': {
         if (!okP(e.start) || !okP(e.direction)) return null;
         const d = P3(e.direction), n = Math.hypot(d.x, d.y, d.z);
@@ -505,6 +510,17 @@ export function writeDwg(model = {}, opts = {}) {
         head.def = def.h || 0; head.defReactor = reactor ? reactor.h : 0;
         return reactor ? [head, reactor] : [head];
       }
+      case 'PDFUNDERLAY': {
+        // a PDF page placed in the drawing (0.7 D7.24): its definition (file + page) is written once, into ACAD_PDFDEFINITIONS
+        if (!okP(e.insertion)) return null;
+        const src = pdfDefs.get(hexKey(e.definition));
+        if (!src) return 'PDFUNDERLAY whose PDF definition is not in the model';
+        const def = pdfDef(src);
+        const head = { ...c('PDFUNDERLAY'), normal: e.normal, insertion: P3(e.insertion), rotation: num(e.rotation), scale: e.scale, flags: e.flags ?? 2,
+          contrast: e.contrast ?? 100, fade: e.fade | 0, clip: e.clip || [], def: def.h };
+        def.reactors.push(head.h);
+        return [head];
+      }
       case 'TOLERANCE':
         if (!okP(e.insert)) return null;
         return [{ ...c('TOLERANCE'), insert: P3(e.insert), xDirection: e.xDirection, extrusion: e.extrusion, text: String(e.text ?? ''), dimstyle: dimRef(e.style) }];
@@ -567,6 +583,25 @@ export function writeDwg(model = {}, opts = {}) {
     const rec = { t: 'IMAGEDEF', h: next(), name: n, classVersion: src.classVersion | 0, size: src.size, fileName: src.fileName || '', loaded: src.loaded !== false,
       resUnits: src.resUnits | 0, pixelSize: src.pixelSize, reactors: [], ownerCode: HARD_OWN_CODE };
     writtenDefs.set(k, rec);
+    mapSrc(src.handle, rec.h);
+    return rec;
+  };
+
+  // PDF underlay definitions (model.objects PDFDEFINITION), written once each into ACAD_PDFDEFINITIONS
+  const pdfDefs = new Map((model.objects || []).filter((o) => o.type === 'PDFDEFINITION').map((o) => [hexKey(o.handle), o]));
+  const writtenPdfDefs = new Map();
+  const pdfNames = new Set();
+  const pdfDef = (src) => {
+    const k = hexKey(src.handle);
+    if (writtenPdfDefs.has(k)) return writtenPdfDefs.get(k);
+    // Spec gap: the key of a definition in its dictionary is not described; "<file name without folders or extension>|<page>" is a
+    // guess (the ODA File Converter keeps any key it is given and reads files by the objects, not the keys)
+    const base = String(src.file || 'pdf').split(/[\\/]/).pop().replace(/\.[^.]*$/, '').replace(BAD_NAME, '_') || 'pdf';
+    let n = base + '|' + String(src.page ?? '1').replace(BAD_NAME, '_'), i = 2;
+    while (pdfNames.has(n.toUpperCase())) n = base + '|' + String(src.page ?? '1') + '_' + i++;
+    pdfNames.add(n.toUpperCase());
+    const rec = { t: 'PDFDEFINITION', h: next(), name: n, file: String(src.file ?? ''), page: String(src.page ?? '1'), reactors: [] };
+    writtenPdfDefs.set(k, rec);
     mapSrc(src.handle, rec.h);
     return rec;
   };
@@ -659,6 +694,13 @@ export function writeDwg(model = {}, opts = {}) {
     extraObjects.push({ t: 'DICTIONARY', h: dictH, owner: H.nod, reactors: [H.nod], items: defs.map((d) => [d.name, d.h]), hardOwner: true });
     extraObjects.push({ t: 'RASTERVARIABLES', h: varsH, owner: H.nod, reactors: [H.nod] });
     for (const d of defs) { d.owner = dictH; d.reactors.push(dictH); extraObjects.push(d); }
+  }
+  if (writtenPdfDefs.size) {
+    const dictH = next();
+    nodItems.push(['ACAD_PDFDEFINITIONS', dictH]);
+    const defs = [...writtenPdfDefs.values()];
+    extraObjects.push({ t: 'DICTIONARY', h: dictH, owner: H.nod, reactors: [H.nod], items: defs.map((d) => [d.name, d.h]), hardOwner: false });
+    for (const d of defs) { d.owner = dictH; d.reactors.unshift(dictH); extraObjects.push(d); }
   }
   if (needWipeoutVars) {
     const h = next();

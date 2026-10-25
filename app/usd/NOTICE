@@ -1,0 +1,17 @@
+cc-usd (lib/usd) — CadCraft's own OpenUSD reader and writer. Apache-2.0, Copyright DDG / the CadCraft authors.
+
+The text format, the schemas (UsdGeom, UsdShade, UsdLux, UsdSkel), composition rules and the USDZ package rules were
+written from the published OpenUSD documentation. The binary ("crate", .usdc) layout — the bootstrap, table of contents,
+structural sections, value representations, inlined values, compressed arrays, the integer coding and the chunked LZ4
+wrapper — is not documented outside the reference library, so usdc-read.js, usdc-write.js, intcode.js and lz4.js
+follow the layout found in the reference library's sources (pxr/usd/sdf/crateFile.{h,cpp}, integerCoding.cpp,
+pxr/base/tf/fastCompression.cpp), read as a reference after a licence check (docs/0.7-sessions/usd.md). The code here
+is our own JavaScript. The reference library carries this notice:
+
+  OpenUSD
+  Copyright 2016 Pixar
+  Licensed under the Tomorrow Open Source Technology License 1.0 (Apache License 2.0 with a modified Section 6,
+  "Trademarks"); https://github.com/PixarAnimationStudios/OpenUSD/blob/release/LICENSE.txt
+
+The LZ4 block format is from its published description (LZ4 Block Format Description, BSD-2-Clause, Yann Collet).
+"USD", "OpenUSD" and "USDZ" name the file formats; no trademark of Pixar or the Alliance for OpenUSD is used otherwise.

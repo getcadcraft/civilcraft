@@ -170,6 +170,61 @@ function potted(slug, name, seed) {
 }
 
 /** A person, stylised (the architectural kind): standing or walking, an adult or a child; clothes in calm colours. */
+// ---- 0.7 RT.5 (session `realtime`): things to scatter over a site — rocks, grass, ground cover, a birch and a palm ----
+function rock(slug, name, W, H, seed, color) {
+  const R = rng(seed), stone = new Part('stone', color);
+  stone.blob([0, 0, H * 0.42], W / 2, W * 0.42, H * 0.6, 1, 0.22, R).ground();
+  for (let k = 0; k < 2; k++) { const a = R() * 2 * Math.PI, d = W * 0.32; stone.blob([d * Math.cos(a), d * Math.sin(a), H * 0.2], W * 0.22, W * 0.2, H * 0.3, 1, 0.25, R).ground(); }
+  const pts = [];
+  for (let i = 0; i < 10; i++) { const a = (2 * Math.PI * i) / 10, k = (W / 2) * (0.8 + R() * 0.25); pts.push([k * Math.cos(a), k * 0.85 * Math.sin(a)]); }
+  return { slug, name, cat: 'site/landscape', description: `A rock about ${W} mm across and ${H} mm high, for gardens and site pictures.`, parts: [stone],
+    plan: { layers: [{ name: 'PLANTING', color: 8 }], entities: [poly(pts, 'PLANTING')] }, size: [W * 1.05, W * 0.9, H] };
+}
+function grassTuft(slug, name, H, seed) {
+  const R = rng(seed), blades = new Part('grass', '#6f8f3c');
+  for (let k = 0; k < 9; k++) {
+    // a blade: a thin triangle leaning out from the middle, two-sided
+    const a = (2 * Math.PI * k) / 9 + R() * 0.5, lean = 0.25 + R() * 0.35, h = H * (0.7 + R() * 0.3), w = H * 0.07;
+    const bx = Math.cos(a), by = Math.sin(a), px = -by, py = bx;
+    const p0 = blades.v(px * w, py * w, 0), p1 = blades.v(-px * w, -py * w, 0), tip = blades.v(bx * h * lean, by * h * lean, h);
+    blades.tri(p0, p1, tip); blades.tri(p1, p0, tip);
+  }
+  return { slug, name, cat: 'site/landscape', description: `A tuft of grass about ${H} mm tall: scattered by the thousand, it makes a meadow.`, parts: [blades],
+    plan: { layers: [{ name: 'PLANTING-DETAIL', color: 3 }], entities: [circ(0, 0, H * 0.3, 'PLANTING-DETAIL')] }, size: [H * 0.6, H * 0.6, H] };
+}
+function groundCover(slug, name, W, seed, leaf, flower) {
+  const R = rng(seed), leaves = new Part('leaves', leaf), flowers = new Part('flowers', flower);
+  leaves.blob([0, 0, W * 0.12], W / 2, W / 2, W * 0.18, 1, 0.15, R).ground();
+  for (let k = 0; k < 7; k++) { const a = R() * 2 * Math.PI, d = R() * W * 0.35; flowers.blob([d * Math.cos(a), d * Math.sin(a), W * 0.27], W * 0.06, W * 0.06, W * 0.04, 0, 0, R); }
+  return { slug, name, cat: 'site/landscape', description: `A low flowering plant ${W} mm across, for beds and borders.`, parts: [leaves, flowers],
+    plan: canopyPlan(W / 2, seed, W * 0.05), size: [W, W, W * 0.32] };
+}
+function birch(slug, name, H, seed) {
+  const R = rng(seed), trunk = new Part('trunk', '#d9d4c7'), crown = new Part('leaves', '#7c9a45');
+  const tr = H * 0.022;
+  trunk.loft([{ z: 0, r: tr * 1.2 }, { z: H * 0.4, r: tr }, { z: H * 0.75, r: tr * 0.6 }], 8);
+  const cz = H * 0.66, cr = H * 0.19;
+  crown.blob([0, 0, cz], cr, cr, cr * 1.6, 2, 0.12, R);
+  for (let k = 0; k < 3; k++) { const a = (2 * Math.PI * k) / 3 + R(); crown.blob([cr * 0.5 * Math.cos(a), cr * 0.5 * Math.sin(a), cz - cr * 0.6 + R() * cr], cr * 0.55, cr * 0.55, cr * 0.7, 1, 0.15, R); }
+  return { slug, name, cat: 'site/landscape', description: `A birch about ${(H / 1000).toFixed(0)} m tall: white trunk, light and narrow crown.`, parts: [trunk, crown], plan: canopyPlan(cr * 1.35, seed, tr * 1.2), size: [cr * 2.7, cr * 2.7, H] };
+}
+function palm(slug, name, H, seed) {
+  const R = rng(seed), trunk = new Part('trunk', '#8a7350'), fronds = new Part('fronds', '#4f7a3a');
+  const tr = H * 0.03, lean = H * 0.06;
+  trunk.loft([{ z: 0, r: tr * 1.4 }, { z: H * 0.3, r: tr, cx: lean * 0.2 }, { z: H * 0.65, r: tr * 0.9, cx: lean * 0.6 }, { z: H * 0.92, r: tr * 0.85, cx: lean }], 10);
+  const top = [lean, 0, H * 0.92], L = H * 0.32;
+  for (let k = 0; k < 9; k++) {
+    // a frond: a long leaf arching out and down, a thin closed slab (each starts just off the crown's middle, so fronds share no point)
+    const a = (2 * Math.PI * k) / 9 + R() * 0.3, bx = Math.cos(a), by = Math.sin(a), px = -by * L * 0.09, py = bx * L * 0.09, th = L * 0.012;
+    const q = [[top[0] + bx * tr, top[1] + by * tr, top[2]], [top[0] + bx * L * 0.55 + px, top[1] + by * L * 0.55 + py, top[2] + L * 0.12],
+      [top[0] + bx * L, top[1] + by * L, top[2] - L * 0.35], [top[0] + bx * L * 0.55 - px, top[1] + by * L * 0.55 - py, top[2] + L * 0.12]];
+    const up = q.map((p) => fronds.v(p[0], p[1], p[2])), dn = q.map((p) => fronds.v(p[0], p[1], p[2] - th));
+    fronds.tri(up[0], up[3], up[2]); fronds.tri(up[0], up[2], up[1]);   // top, facing up
+    fronds.tri(dn[0], dn[1], dn[2]); fronds.tri(dn[0], dn[2], dn[3]);   // underside, facing down
+    for (let i = 0; i < 4; i++) { const j = (i + 1) % 4; fronds.tri(up[i], up[j], dn[j]); fronds.tri(up[i], dn[j], dn[i]); }   // the rim
+  }
+  return { slug, name, cat: 'site/landscape', description: `A palm about ${(H / 1000).toFixed(0)} m tall, for warm-climate sites.`, parts: [trunk, fronds], plan: canopyPlan(L, seed, tr * 1.4), size: [L * 2 + lean, L * 2, H] };
+}
 function person(slug, name, { H = 1750, walk = 0, top = '#3e5c7a', legs = '#3a3d42', skin = '#c9a184', hair = '#3b2b22', seed = 1 } = {}) {
   const k = H / 1750, body = new Part('clothes', top), lower = new Part('trousers', legs), head = new Part('skin', skin), hairP = new Part('hair', hair);
   const R = rng(seed);
@@ -227,6 +282,14 @@ export function entourage() {
     person('child-standing', 'Child, standing', { H: 1200, top: '#3e7a5c', legs: '#3a3d42', seed: 204 }),
     car('car-sedan', 'Car, sedan', {}),
     car('car-suv', 'Car, SUV', { L: 4800, W: 1900, H: 1750, color: '#4b5560', suv: true }),
+    // 0.7 RT.5: for scattering over a site
+    rock('rock-small', 'Rock, small', 500, 300, 301, '#8a8781'),
+    rock('rock-large', 'Rock, large', 1400, 900, 302, '#7d7a72'),
+    grassTuft('grass-tuft', 'Grass tuft', 350, 303),
+    groundCover('flowers-yellow', 'Flowering ground cover, yellow', 600, 304, '#4f7a3a', '#e3c13b'),
+    groundCover('flowers-purple', 'Flowering ground cover, purple', 600, 305, '#3f6b35', '#8a5bb0'),
+    birch('tree-birch-9m', 'Birch, 9 m', 9000, 306),
+    palm('tree-palm-8m', 'Palm, 8 m', 8000, 307),
   ];
 }
 

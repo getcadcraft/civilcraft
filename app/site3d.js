@@ -44,21 +44,23 @@ import { t } from './i18n.js';
 import { formatStation, fixed } from './units.js';   // 0.5 WL.22 labels
 import { flatten as flattenFeature } from './featureline.js';   // 0.6 WL.24: feature lines with arcs
 import { structGeom } from './structs.js';   // 0.6 WL.27: structure types (outside size, rectangles)
+import { measureMass, massMesh, massHeight, centroid as massCentroid } from './massing.js';   // 0.7 LC.1 M2: building masses
 
 export const SHOW_DEFAULTS = {
   eg: true, fg: true, triangles: false, contours: true, breaklines: true, boundary: true,
   alignments: true, corridors: true, pads: true, pipes: true, points: false, gis: true,   // gis: 0.4 V4
   labels: true,   // 0.5 WL.22
+  masses: true,   // 0.7 LC.1
 };
 export const MAX_LABELS = 6000;
-export const LABEL_PRI = { alignment: 0, structure: 1, pad: 2, feature: 3, station: 4, contour: 5, point: 6 };
+export const LABEL_PRI = { alignment: 0, structure: 1, mass: 1, pad: 2, feature: 3, station: 4, contour: 5, point: 6 };
 export const MAX_GIS_SEGMENTS = 300000;
 export const EXAGGERATIONS = [1, 2, 3, 5, 10];
 
 /** Paper defaults for every colour token the scene uses (the view passes the page's own). */
 export const DEFAULT_COLORS = {
   surface: '#c9c1aa', graded: '#b9c4cf', tin: '#7a8796', major: '#17202b', minor: '#8c96a2', breakline: '#a84a00', edge: '#34404e',
-  alignment: '#b3122e', corridor: '#8a6200', pad: '#1e48c8', daylight: '#9a1f86', pipe: '#1e48c8', structure: '#1e48c8', problem: '#b3122e', point: '#17703a',
+  alignment: '#b3122e', corridor: '#8a6200', pad: '#1e48c8', mass: '#b8a98a', massLine: '#5a4f3a', daylight: '#9a1f86', pipe: '#1e48c8', structure: '#1e48c8', problem: '#b3122e', point: '#17703a',
   // 0.4 V4: GIS layer colours by their token (gis-state.js LAYER_TOKENS)
   'gis:blue': '#1e48c8', 'gis:orange': '#a84a00', 'gis:magenta': '#9a1f86', 'gis:cyan': '#00707e', 'gis:ochre': '#8a6200', 'gis:green': '#17703a', 'gis:red': '#b3122e',
 };
@@ -82,6 +84,12 @@ export function siteInput(project) {
     alignments: s.alignments.map((a) => ({ id: a.id, name: a.name, alignment: project.alignment(a), profile: project.designProfile(a) })),
     corridors: items.filter((x) => x.kind === 'corridor' && x.lines).map((x) => ({ id: x.id, name: x.name, lines: x.lines })),
     pads: s.pads.map((p) => ({ id: p.id, name: p.name, pts: p.pts, z: Number(p.z), daylight: items.find((x) => x.id === p.id)?.daylight || [] })),
+    // 0.7 LC.1 M2: each mass on the ground it was set on (existing, or the graded one by choice; no graded surface: existing)
+    masses: (s.masses || []).map((m) => {
+      const sf = (m.ground === 'fg' && fg) || eg, elev = sf ? (x, y) => { const z = sf.elevationAt(x, y, 1e-6); return Number.isFinite(z) ? z : null; } : null;
+      const me = measureMass(m, elev);
+      return { id: m.id, name: m.name, mass: m, z0: me.z0, zBottom: me.zBottom, levels: me.levels };
+    }),
     network: s.network, check: s.network ? project.networkCheck() : null,
     points: project.points,
     // 0.4 V4: the visible GIS layers with their features (gis-layers.js)
@@ -286,6 +294,39 @@ export function buildSite3D(input, opts = {}) {
     if (noRim) notes.push(t('s3.norim', { n: noRim }));
     if (pipeB.count()) scene.meshes.push({ key: 'pipes', name: t('scene.layer.pipe'), ...pipeB.done() });
     if (strB.count()) scene.meshes.push({ key: 'structures', name: t('scene.layer.strc'), ...strB.done() });
+  }
+
+  // 0.7 LC.1 M2: building masses — a prism per mass (walls from the lowest ground under it, roof), a line round every floor, the
+  // name over the roof. Picking and the highlight go through the owners like pipes, so a mass is found in front of the ground.
+  scene.roofs = [];
+  if (show.masses && input.masses?.length) {
+    const mb = meshBuilder(), lb = [], lo = [], so = [];
+    const col = rgb(C.mass);
+    for (const ms of input.masses) {
+      const m = ms.mass, mesh = massMesh(m, ms.z0, ms.zBottom), P = mesh.positions;
+      mb.owner({ kind: 'mass', id: ms.id, name: ms.name });
+      const base = mb.pos.length / 3;
+      for (let i = 0; i < P.length; i += 3) {
+        const q = L(P[i], P[i + 1], P[i + 2]), n = mesh.normals.slice(i, i + 3);
+        const nz = n[2] / exag, nl = Math.hypot(n[0], n[1], nz) || 1;
+        mb.vert(q, [n[0] / nl, n[1] / nl, nz / nl], col);
+      }
+      for (let i = 0; i < mesh.indices.length; i += 3) mb.tri(base + mesh.indices[i], base + mesh.indices[i + 1], base + mesh.indices[i + 2]);
+      const owner = lo.push({ kind: 'mass', id: ms.id, name: ms.name }) - 1;
+      for (let k = 0; k <= m.floors; k++) {
+        const z = ms.z0 + k * m.floorHeight;
+        for (let i = 0; i < m.pts.length; i++) {
+          const a = m.pts[i], b = m.pts[(i + 1) % m.pts.length];
+          lb.push(...L(a.x, a.y, z), ...L(b.x, b.y, z)); so.push(owner);
+        }
+      }
+      const c = massCentroid(m.pts);
+      label('mass', ms.name, c.x, c.y, ms.z0 + massHeight(m), C.massLine);
+      scene.roofs.push({ id: ms.id, z: ms.z0 + massHeight(m), z0: ms.z0, floorHeight: m.floorHeight, floors: m.floors });
+      scene.counts.masses = (scene.counts.masses || 0) + 1;
+    }
+    scene.meshes.push({ key: 'masses', name: t('scene.layer.mass'), ...mb.done() });
+    scene.lines.push({ key: 'mass-floors', name: t('ms.floors.lines'), color: C.massLine, positions: new Float32Array(lb), owners: lo, segOwner: Uint32Array.from(so) });
   }
 
   // 0.4 V4: GIS layers — lines and outlines at their own z when every vertex has one, else draped on the existing ground

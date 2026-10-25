@@ -1,0 +1,54 @@
+{
+ "format": "cadcraft-library-item",
+ "format_version": 1,
+ "name": "Gravel Floor",
+ "kind": "material",
+ "category": "materials/ground",
+ "description": "Gravel Floor: a CC0 texture set from Poly Haven, one tile 2.25 × 2.25 m (color, roughness, normal, height pictures).",
+ "plan": {
+  "layers": [],
+  "entities": []
+ },
+ "body": null,
+ "params": {},
+ "material": {
+  "graph": "{\"format\":\"cc-material\",\"version\":1,\"name\":\"Gravel Floor\",\"nodes\":[{\"id\":1,\"type\":\"output\",\"x\":620,\"y\":20,\"values\":{\"base_color\":\"#cccccc\",\"base_metalness\":0,\"specular_roughness\":0.5,\"normal\":[0,0,1],\"geometry_opacity\":1,\"emission_color\":\"#ffffff\",\"emission_luminance\":0,\"displacement\":0,\"base_weight\":1,\"base_diffuse_roughness\":0,\"specular_weight\":1,\"specular_color\":\"#ffffff\",\"specular_ior\":1.5,\"specular_roughness_anisotropy\":0,\"transmission_weight\":0,\"transmission_color\":\"#ffffff\",\"transmission_depth\":0,\"subsurface_weight\":0,\"subsurface_color\":\"#cccccc\",\"subsurface_radius\":1,\"coat_weight\":0,\"coat_color\":\"#ffffff\",\"coat_roughness\":0,\"coat_ior\":1.6,\"fuzz_weight\":0,\"fuzz_color\":\"#ffffff\",\"fuzz_roughness\":0.5,\"thin_film_weight\":0,\"thin_film_thickness\":0.5,\"thin_film_ior\":1.4},\"params\":{\"mapping\":\"uv\",\"width\":2.25,\"height\":2.25,\"sharpness\":4,\"normal_strength\":1,\"displacement_scale\":0,\"thin_walled\":false}},{\"id\":2,\"type\":\"image\",\"x\":40,\"y\":20,\"values\":{},\"params\":{\"image\":\"map:color\",\"space\":\"color\"}},{\"id\":3,\"type\":\"image\",\"x\":40,\"y\":230,\"values\":{},\"params\":{\"image\":\"map:roughness\",\"space\":\"data\"}},{\"id\":4,\"type\":\"image\",\"x\":40,\"y\":440,\"values\":{},\"params\":{\"image\":\"map:normal\",\"space\":\"data\"}},{\"id\":5,\"type\":\"normalmap\",\"x\":330,\"y\":440,\"values\":{\"color\":[0.5,0.5,1],\"strength\":1},\"params\":{\"convention\":\"opengl\"}},{\"id\":6,\"type\":\"image\",\"x\":40,\"y\":650,\"values\":{},\"params\":{\"image\":\"map:height\",\"space\":\"data\"}},{\"id\":7,\"type\":\"image\",\"x\":40,\"y\":860,\"values\":{},\"params\":{\"image\":\"map:ao\",\"space\":\"data\"}}],\"links\":[{\"from\":[2,\"color\"],\"to\":[1,\"base_color\"]},{\"from\":[3,\"color\"],\"to\":[1,\"specular_roughness\"]},{\"from\":[4,\"color\"],\"to\":[5,\"color\"]},{\"from\":[5,\"normal\"],\"to\":[1,\"normal\"]},{\"from\":[6,\"color\"],\"to\":[1,\"displacement\"]}]}",
+  "maps": {
+   "ao": {
+    "file": "gravel_floor_ao_1k.jpg",
+    "sha256": "25d27ac15522a2bdf7b0aec753d2a8a3905b02618414675450dec9c329a443f0",
+    "media": "image/jpeg",
+    "bytes": 1113605
+   },
+   "color": {
+    "file": "gravel_floor_diff_1k.jpg",
+    "sha256": "4e6ff82988506676cfd8a79ac3e2964af239764c0064d4566040167704c4838d",
+    "media": "image/jpeg",
+    "bytes": 1327302
+   },
+   "height": {
+    "file": "gravel_floor_disp_1k.jpg",
+    "sha256": "276de5d6c190c73890b0768f3640e47212862e040c805cb7227239349257c515",
+    "media": "image/jpeg",
+    "bytes": 656984
+   },
+   "normal": {
+    "file": "gravel_floor_nor_gl_1k.jpg",
+    "sha256": "a3544e4aa7612a0bf0ea4890093b60c9f360234855d389bb9d408d29b90a7131",
+    "media": "image/jpeg",
+    "bytes": 1538430,
+    "convention": "opengl"
+   },
+   "roughness": {
+    "file": "gravel_floor_rough_1k.jpg",
+    "sha256": "acf3c8607bcf943ac9f9871e4f57961ce46ea0635232d78af68eebbbf5f62b4b",
+    "media": "image/jpeg",
+    "bytes": 697340
+   }
+  },
+  "size": [
+   2.25,
+   2.25
+  ]
+ }
+}

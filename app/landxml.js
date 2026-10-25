@@ -7,7 +7,7 @@
  *     surfaces    [{ name, desc, surface, breaklines, boundary }] → Surface: SourceData (Breaklines, Boundaries)
  *                                                                  + Definition surfType="TIN" (Pnts/P, Faces/F)
  *     alignments  [{ name, alignment, eg: {name, pts:[{sta,z}]}, profile: {name, profile} }]
- *                   → Alignment/CoordGeom (Line, Curve crvType="arc") + Profile (ProfSurf, ProfAlign PVI/ParaCurve)
+ *                   → Alignment/CoordGeom (Line, Curve crvType="arc", Spiral clothoid) + Profile (ProfSurf, ProfAlign PVI/ParaCurve)
  *     networks    [{ name, type, structures, pipes }] (pipes.js shape; structures may carry rimShown/sump to write) → PipeNetworks
  *     features    [feature line (featureline.js)] (0.6 WL.24) → PlanFeatures/PlanFeature/CoordGeom: Line and Curve
  *                   (crvType="arc") with 3D Start/End ("N E Z"), the arc's Center 2D, + Feature code="CivilCraft" with
@@ -18,7 +18,7 @@
  *     coordinateSystem  null | { name, epsgCode (number | null), ogcWktCode (text | null), desc } (GIS: offered as the
  *                       project's system when opened)
  *     surfaces    [{ name, desc, pts:[{x,y,z}|null], faces:[[i,j,k]], breaklines:[{name,pts}], boundary:[{x,y}]|null }]
- *     alignments  [{ name, start, pis:[{x,y,r}], profiles:[{name, pvis:[{sta,z,L}]}], surfProfiles:[{name, pts}] }]
+ *     alignments  [{ name, start, pis:[{x,y,r,ls1?,ls2?}], profiles:[{name, pvis:[{sta,z,L}]}], surfProfiles:[{name, pts}] }]
  *     features    [{ name, pts:[{x,y,z,b?}], closed, use|null }] (0.6 WL.24) from PlanFeatures (Line, Curve, IrregularLine
  *                 PntList3D; Start/Center/End, rot); use from our Feature/Property, else null (the app decides)
  *   scaleImport(data, k)   multiplies every length/elevation/station (unit conversion)
@@ -84,6 +84,11 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
       for (const e of al.elements) {
         if (e.type === 'line') {
           L.push(`        <Line staStart="${num(e.sta)}" length="${num(e.len)}"><Start>${ne(e.p0)}</Start><End>${ne(e.p1)}</End></Line>`);
+        } else if (e.type === 'spiral') {
+          // 0.7 D7.35: a clothoid. Radius INF at the straight end; theta in decimal degrees like Curve's delta; PI = where the end tangents meet
+          const inn = e.io === 'in';
+          L.push(`        <Spiral rot="${e.ccw ? 'ccw' : 'cw'}" spiType="clothoid" length="${num(e.len)}" radiusStart="${inn ? 'INF' : num(e.r)}" radiusEnd="${inn ? num(e.r) : 'INF'}" staStart="${num(e.sta)}" theta="${num(e.theta * 180 / Math.PI, 8)}" totalX="${num(e.Xc)}" totalY="${num(e.Yc)}" tanLong="${num(e.tanLong)}" tanShort="${num(e.tanShort)}" constant="${num(Math.sqrt(e.r * e.Ls))}">` +
+            `<Start>${ne(e.p0)}</Start><PI>${ne(e.pi)}</PI><End>${ne(e.p1)}</End></Spiral>`);
         } else {
           L.push(`        <Curve rot="${e.ccw ? 'ccw' : 'cw'}" crvType="arc" radius="${num(e.r)}" length="${num(e.len)}" staStart="${num(e.sta)}" chord="${num(e.chord)}" delta="${num(e.delta * 180 / Math.PI, 8)}" tangent="${num(e.T)}" external="${num(e.E)}" midOrd="${num(e.M)}">` +
             `<Start>${ne(e.p0)}</Start><Center>${ne(e.c)}</Center><End>${ne(e.p1)}</End><PI>${ne(e.pi)}</PI></Curve>`);
@@ -308,25 +313,12 @@ export function readLandXml(text) {
     const cg = kid(a, 'CoordGeom');
     if (!cg) { note(t('lx.al.nogeom', { name })); continue; }
     const els = cg.children.filter((c) => ['Line', 'Curve', 'Spiral', 'IrregularLine', 'Chain'].includes(c.name));
-    if (els.some((e) => e.name !== 'Line' && e.name !== 'Curve')) { note(t('lx.al.spirals', { name })); continue; }
+    if (els.some((e) => e.name !== 'Line' && e.name !== 'Curve' && e.name !== 'Spiral')) { note(t('lx.al.spirals', { name })); continue; }
+    const odd = els.find((e) => e.name === 'Spiral' && String(e.attrs.spiType || 'clothoid').toLowerCase() !== 'clothoid');
+    if (odd) { note(t('lx.al.spitype', { name, type: odd.attrs.spiType })); continue; }
     const pt = (el, tag) => { const v = nums(textOf(kid(el, tag))); return v.length >= 2 ? { x: v[1], y: v[0] } : null; };
-    const pis = [];
-    let ok = true;
-    els.forEach((e, i) => {
-      const s = pt(e, 'Start'), en = pt(e, 'End');
-      if (!s || !en) { ok = false; return; }
-      if (i === 0) pis.push({ x: s.x, y: s.y, r: 0 });
-      if (e.name === 'Curve') {
-        const c = pt(e, 'Center');
-        let pi = pt(e, 'PI');
-        const r = Number(e.attrs.radius) || (c ? Math.hypot(s.x - c.x, s.y - c.y) : 0);
-        if (!pi && c) pi = tangentsMeet(s, en, c);
-        if (!pi) { ok = false; return; }
-        pis.push({ x: pi.x, y: pi.y, r });
-      } else if (els[i + 1]?.name === 'Line') pis.push({ x: en.x, y: en.y, r: 0 });
-      if (i === els.length - 1) pis.push({ x: en.x, y: en.y, r: 0 });
-    });
-    if (!ok || pis.length < 2) { note(t('lx.al.unread', { name })); continue; }
+    const pis = readCoordGeom(els, pt);
+    if (!pis || pis.length < 2) { note(t('lx.al.unread', { name })); continue; }
     const start = Number(a.attrs.staStart) || 0;
     const rec = { name, start, pis, profiles: [], surfProfiles: [] };
     for (const pr of kids(a, 'Profile')) {
@@ -441,6 +433,71 @@ function arcGeom(a, b) {
   const k = (1 - bb * bb) / (4 * bb), r = (c * (1 + bb * bb)) / (4 * Math.abs(bb)), sweep = 4 * Math.atan(bb);
   return { cx: (a.x + b.x) / 2 - k * dy, cy: (a.y + b.y) / 2 + k * dx, r, sweep, L: r * Math.abs(sweep) };
 }
+
+/**
+ * 0.7 D7.35: the PIs of a CoordGeom's elements (Line, Curve, Spiral). A curve with a spiral either side (or one side) becomes one
+ * PI with a radius and ls1 / ls2: tangent - spiral - curve - spiral - tangent, the PI being where the first and last tangents meet.
+ * null for what is not that shape (a spiral between two curves, a spiral that does not start or end in a straight).
+ */
+function readCoordGeom(els, pt) {
+  const inf = (v) => String(v).trim().toUpperCase() === 'INF' || !Number.isFinite(Number(v)) || Number(v) === 0;
+  const isIn = (e) => e.name === 'Spiral' && inf(e.attrs.radiusStart) && !inf(e.attrs.radiusEnd);
+  const isOut = (e) => e.name === 'Spiral' && !inf(e.attrs.radiusStart) && inf(e.attrs.radiusEnd);
+  const tangent = (p, c, rot) => { const vx = p.x - c.x, vy = p.y - c.y; return rot === 'cw' ? { x: vy, y: -vx } : { x: -vy, y: vx }; };
+  const meet = (p1, d1, p2, d2) => {
+    const den = d1.x * d2.y - d1.y * d2.x;
+    if (Math.abs(den) < 1e-12 * Math.hypot(d1.x, d1.y) * Math.hypot(d2.x, d2.y)) return null;
+    const a = ((p2.x - p1.x) * d2.y - (p2.y - p1.y) * d2.x) / den;
+    return { x: p1.x + d1.x * a, y: p1.y + d1.y * a };
+  };
+  const s0 = pt(els[0], 'Start');
+  if (!s0) return null;
+  const pis = [{ x: s0.x, y: s0.y, r: 0 }];
+  let i = 0;
+  while (i < els.length) {
+    const e = els[i];
+    if (e.name === 'Line') {
+      const en = pt(e, 'End');
+      if (!en) return null;
+      if (els[i + 1]?.name === 'Line') pis.push({ x: en.x, y: en.y, r: 0 });
+      i++; continue;
+    }
+    let j = i, sIn = null, cv = null, sOut = null;
+    if (e.name === 'Spiral') { if (!isIn(e)) return null; sIn = e; j++; }
+    if (els[j]?.name === 'Curve') { cv = els[j]; j++; }
+    if (els[j] && isOut(els[j])) { sOut = els[j]; j++; }
+    if (!cv && !(sIn && sOut)) return null;   // a lone spiral, or a spiral that does not end in a curve or another spiral
+    if (!sIn && !sOut) {
+      // a plain curve: its own PI, or where the tangents at its ends meet
+      const s = pt(cv, 'Start'), en = pt(cv, 'End'), c = pt(cv, 'Center');
+      if (!s || !en) return null;
+      let pi = pt(cv, 'PI');
+      const r = Number(cv.attrs.radius) || (c ? Math.hypot(s.x - c.x, s.y - c.y) : 0);
+      if (!pi && c) pi = tangentsMeet(s, en, c);
+      if (!pi || !s || !en) return null;
+      pis.push({ x: pi.x, y: pi.y, r });
+    } else {
+      const c = cv ? pt(cv, 'Center') : null, rot = cv ? cv.attrs.rot : null;
+      let p1, d1, p2, d2;
+      if (sIn) { const s = pt(sIn, 'Start'), pi = pt(sIn, 'PI'); if (!s || !pi) return null; p1 = s; d1 = { x: pi.x - s.x, y: pi.y - s.y }; }
+      else { const s = pt(cv, 'Start'); if (!s || !c) return null; p1 = s; d1 = tangent(s, c, rot); }
+      if (sOut) { const en = pt(sOut, 'End'), pi = pt(sOut, 'PI'); if (!en || !pi) return null; p2 = en; d2 = { x: en.x - pi.x, y: en.y - pi.y }; }
+      else { const en = pt(cv, 'End'); if (!en || !c) return null; p2 = en; d2 = tangent(en, c, rot); }
+      const pi = meet(p1, d1, p2, d2);
+      const r = Number(cv?.attrs.radius) || Number((sIn || sOut).attrs.radiusEnd) || Number(sOut?.attrs.radiusStart);
+      if (!pi || !(r > 0)) return null;
+      const rec = { x: pi.x, y: pi.y, r };
+      if (sIn) rec.ls1 = Number(sIn.attrs.length) || 0;
+      if (sOut) rec.ls2 = Number(sOut.attrs.length) || 0;
+      pis.push(rec);
+    }
+    i = j;
+  }
+  const last = pt(els[els.length - 1], 'End');
+  if (!last) return null;
+  pis.push({ x: last.x, y: last.y, r: 0 });
+  return pis;
+}
 /** A LandXML Curve (Start, Center, End, rot cw|ccw) → the bulge of the segment from start to end (0 = not an arc). */
 function curveBulge(s, c, e, rot) {
   const a0 = Math.atan2(s.y - c.y, s.x - c.x), a1 = Math.atan2(e.y - c.y, e.x - c.x), ccw = rot !== 'cw';
@@ -465,7 +522,7 @@ export function scaleImport(d, k) {
   d.points = d.points.map(p);
   for (const s of d.surfaces) { s.pts = s.pts.map(p); s.breaklines = s.breaklines.map((b) => ({ ...b, pts: b.pts.map(p) })); s.boundary = s.boundary && s.boundary.map(p); }
   for (const a of d.alignments) {
-    a.start *= k; a.pis = a.pis.map((q) => ({ ...p(q), r: q.r * k }));
+    a.start *= k; a.pis = a.pis.map((q) => ({ ...p(q), r: q.r * k, ...(q.ls1 ? { ls1: q.ls1 * k } : {}), ...(q.ls2 ? { ls2: q.ls2 * k } : {}) }));
     for (const pr of a.profiles) pr.pvis = pr.pvis.map((v) => ({ sta: v.sta * k, z: v.z * k, L: v.L * k }));
     for (const ps of a.surfProfiles) ps.pts = ps.pts.map((v) => ({ sta: v.sta * k, z: v.z * k }));
   }

@@ -1,0 +1,120 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import * as W from '../../public_html/assets/apps/bimcraft/dev/ifc/api.js';
+import { init } from '../../public_html/assets/apps/bimcraft/dev/i18n.js';
+import { ids, val } from '../../public_html/assets/apps/bimcraft/dev/ifc-util.js';
+import { newBuilding, stackLevels } from '../../public_html/assets/apps/bimcraft/dev/new-model.js';
+import { IfcEditor } from '../../public_html/assets/apps/bimcraft/dev/ifc-edit.js';
+import { ModelWriter } from '../../public_html/assets/apps/bimcraft/dev/model-write.js';
+import { readLevels } from '../../public_html/assets/apps/bimcraft/dev/model-levels.js';
+import { readWalls, wallType } from '../../public_html/assets/apps/bimcraft/dev/model-walls.js';
+import { saveWallAssembly, drawWalls, op } from '../../public_html/assets/apps/bimcraft/dev/model-ops.js';
+import { readAssemblies } from '../../public_html/assets/apps/bimcraft/dev/wall-assemblies.js';
+import { saveWallDimension, readWallDimensions, resolveDimension, WALL_REFERENCES } from '../../public_html/assets/apps/bimcraft/dev/wall-dimensions.js';
+import { readMaterials, saveMaterial, MATERIAL_PSET, legacyMaterialId } from '../../public_html/assets/apps/bimcraft/dev/project-materials.js';
+init({strings:JSON.parse(fs.readFileSync(new URL('../../public_html/assets/apps/bimcraft/dev/lang/en.json',import.meta.url)))});
+async function model(bytes){const api=new W.IfcAPI();await api.Init({manifold:false});const modelID=api.OpenModel(bytes || new TextEncoder().encode(newBuilding({name:'Materials test',levels:stackLevels(1,3000,i=>'Level '+(i+1)),fileName:'materials.ifc'})));const ed=new IfcEditor(W,{api,modelID});return {ed,w:()=>new ModelWriter(W,api,modelID),change:op=>ed.modelChange(op)};}
+const recipe={key:'wall-cavity',name:'Brick and wood with cavity',exterior:true,layers:[{mat:'brick',t:92.075,function:'finish',core:false},{mat:'air',t:25.4,function:'substrate',core:false},{mat:'Unknown historical board',t:17.125,function:'substrate',core:false},{mat:'studs',t:139.7,function:'structure',core:true},{mat:'gypsum',t:12.7,function:'finish',core:false}]};
+const snapshot=m=>({walls:readWalls(m.w()).map(w=>({guid:w.guid,t:w.t,a:w.a,b:w.b,typeKey:w.typeKey})),types:readAssemblies(m.w()).map(t=>({guid:t.guid,key:t.key,layers:t.layers})),dims:readWallDimensions(m.w()).map(d=>({guid:d.guid,refs:d.refs,resolved:resolveDimension(d,readWalls(m.w()))}))});
+test('legacy recipes migrate losslessly and library edits never resize walls or move dimension references',async()=>{
+  const fixture=fs.readFileSync(new URL('../../fixtures/ifc/wall-precision-legacy.ifc',import.meta.url));
+  const m=await model(fixture), before=snapshot(m);
+  assert.ok(before.types.length && before.dims.length);
+  const material=readMaterials(m.w()).find(x=>x.id==='material-studs');
+  m.change(op(w=>{saveMaterial(w,{...material,name:'Edited wood framing',defaultThickness:200,color:'#123456',fill:'crosshatch',fillColor:'#abcdef'});return [];}));
+  assert.deepEqual(snapshot(m),before);
+  const reopened=await model(m.ed.save());assert.deepEqual(snapshot(reopened),before);
+  const saved=readMaterials(reopened.w()).find(x=>x.id===material.id);assert.equal(saved.defaultThickness,200);assert.equal(saved.name,'Edited wood framing');
+  m.ed.undo();assert.equal(readMaterials(m.w()).find(x=>x.id===material.id).defaultThickness,139.7);assert.deepEqual(snapshot(m),before);
+  m.ed.redo();assert.equal(readMaterials(m.w()).find(x=>x.id===material.id).defaultThickness,200);assert.deepEqual(snapshot(m),before);
+  const isolated=await model();assert.equal(readMaterials(isolated.w()).find(x=>x.id===material.id).defaultThickness,139.7);
+});
+test('cavities retain width, explicit cores and all references; IFC layers contain no solid material for air',async()=>{
+  const m=await model(),level=readLevels(m.w())[0];m.change(saveWallAssembly(recipe));
+  const ty=readAssemblies(m.w())[0],cavity=ty.layers[1];assert.equal(cavity.kind,'cavity');assert.equal(cavity.materialId,null);assert.equal(cavity.t,25.4);
+  const custom=readMaterials(m.w()).find(x=>x.id===legacyMaterialId('Unknown historical board'));assert.equal(custom.name,'Unknown historical board');assert.equal(custom.defaultThickness,17.125);
+  const set=m.w().api.GetLine(m.w().mid,m.w().materialRel(ty.id).def,false);
+  const layer=m.w().api.GetLine(m.w().mid,set.MaterialLayers[1].value,false);assert.equal(layer.Material,null);assert.equal(layer.LayerThickness.value,25.4);
+  m.change(drawWalls({storey:level.guid,typeKey:recipe.key,segs:[{a:[0,0],b:[5000,0]},{a:[0,3000],b:[5000,3000]}],height:2700}));
+  const [a,b]=readWalls(m.w());
+  for(const reference of WALL_REFERENCES)m.change(saveWallDimension({level:level.guid,view:'plan:'+level.guid,axis:'y',offset:1000,refs:[{wall:a.guid,reference,station:0.5},{wall:b.guid,reference,station:0.5}]}));
+  const before=snapshot(m);
+  const brick=readMaterials(m.w()).find(x=>x.id==='material-brick');
+  m.change(op(w=>{saveMaterial(w,{...brick,name:'Local brick',defaultThickness:101.6});return [];}));assert.deepEqual(snapshot(m),before);
+  const mat=m.w().api.GetLine(m.w().mid,m.w().api.GetLine(m.w().mid,set.MaterialLayers[0].value,false).Material.value,false);assert.equal(val(mat.Name),'Local brick');
+  m.change(saveWallAssembly({...ty,layers:ty.layers.map((l,i)=>i===1?{...l,ventilation:'ventilated'}:l)}));
+  const reopened=await model(m.ed.save()),rt=readAssemblies(reopened.w())[0];assert.equal(rt.layers[1].ventilation,'ventilated');
+  const rs=reopened.w().api.GetLine(reopened.w().mid,reopened.w().materialRel(rt.id).def,false);
+  const rl=reopened.w().api.GetLine(reopened.w().mid,rs.MaterialLayers[1].value,false);assert.equal(rl.Material,null);assert.ok([true,'T',1].includes(val(rl.IsVentilated)),JSON.stringify(rl.IsVentilated));
+  assert.deepEqual(snapshot(reopened).dims,before.dims);assert.deepEqual(snapshot(reopened).walls,before.walls);
+});
+test('invalid material references and invalid defaults roll back without partially migrating the library',async()=>{
+  const m=await model(),before=m.ed.save();
+  assert.throws(()=>m.change(saveWallAssembly({...recipe,layers:recipe.layers.map((l,i)=>i===0?{...l,materialId:'material-missing'}:l)})),/missing material/);
+  assert.deepEqual(m.ed.save(),before);
+  const material=readMaterials(m.w())[0];
+  for(const change of [{defaultThickness:-1},{color:'red; background:url(x)'},{fill:'script'},{name:''}]) assert.throws(()=>m.change(op(w=>saveMaterial(w,{...material,...change}))));
+  assert.deepEqual(m.ed.save(),before);
+  m.change(op(w=>{saveMaterial(w,{...material,id:'material-new',name:'My board'});return [];}));
+  assert.throws(()=>m.change(op(w=>saveMaterial(w,{...material,name:'My board'}))),/already exists/);
+});
+test('new built-in brick walls use a cavity; stored library versions are not silently overwritten',async()=>{
+  const m=await model(),level=readLevels(m.w())[0];
+  assert.equal(wallType('brick-2x4').layers[1].kind,'cavity');
+  m.change(drawWalls({storey:level.guid,typeKey:'brick-2x4',segs:[{a:[0,0],b:[5000,0]}],height:2700}));
+  const layers=ids(m.w().api,m.w().mid,'IFCMATERIALLAYER').map(id=>m.w().api.GetLine(m.w().mid,id,false));assert.equal(layers.filter(l=>l.Material==null).length,1);
+  m.change(op(w=>{w.upsertPset(ids(w.api,w.mid,'IFCPROJECT')[0],MATERIAL_PSET,[['Library','IFCTEXT','{"version":99,"materials":[]}']]);return [];}));
+  assert.throws(()=>readMaterials(m.w()),/Unsupported/);const before=m.ed.save();
+  assert.throws(()=>m.change(saveWallAssembly(recipe)),/Unsupported/);assert.deepEqual(m.ed.save(),before);
+});
+test('IFC2X3 stores library materials and ventilated voids through save/reopen',async()=>{
+  const m=await model(fs.readFileSync(new URL('../detailcraft-test/fixtures/ios-steel-ifc2x3.ifc',import.meta.url)));
+  assert.equal(m.w().v4,false);
+  m.change(saveWallAssembly({...recipe,layers:recipe.layers.map((l,i)=>i===1?{...l,kind:'cavity',ventilation:'ventilated'}:l)}));
+  const reopened=await model(m.ed.save()),ty=readAssemblies(reopened.w())[0];
+  const set=reopened.w().api.GetLine(reopened.w().mid,reopened.w().materialRel(ty.id).def,false);
+  const cavity=reopened.w().api.GetLine(reopened.w().mid,set.MaterialLayers[1].value,false);assert.equal(cavity.Material,null);assert.equal(val(cavity.IsVentilated),true);
+  assert.ok(ids(reopened.w().api,reopened.w().mid,'IFCEXTENDEDMATERIALPROPERTIES').length>=4);
+  assert.equal(ty.layers[1].t,25.4);assert.ok(readMaterials(reopened.w()).some(m=>m.name==='Unknown historical board'));
+});
+
+test('zero-thickness membranes retain schedule data without moving any wall reference',async()=>{
+  const m=await model(),level=readLevels(m.w())[0];m.change(saveWallAssembly(recipe));
+  m.change(drawWalls({storey:level.guid,typeKey:recipe.key,segs:[{a:[0,0],b:[5000,0]},{a:[0,3000],b:[5000,3000]}],height:2700}));
+  const [a,b]=readWalls(m.w());
+  for(const reference of WALL_REFERENCES)m.change(saveWallDimension({level:level.guid,view:'plan:'+level.guid,axis:'y',offset:1000,refs:[{wall:a.guid,reference,station:0.5},{wall:b.guid,reference,station:0.5}]}));
+  const before=snapshot(m),layers=[...recipe.layers];
+  layers.splice(2,0,{mat:'House wrap',t:0,function:'membrane',core:false});
+  m.change(saveWallAssembly({...recipe,layers}));
+  assert.deepEqual(snapshot(m).walls,before.walls);assert.deepEqual(snapshot(m).dims,before.dims);
+  const reopened=await model(m.ed.save()),ty=readAssemblies(reopened.w())[0];
+  assert.equal(ty.layers[2].t,0);assert.equal(ty.layers[2].mat,'House wrap');assert.equal(ty.layers[2].function,'membrane');
+  assert.equal(readMaterials(reopened.w()).find(x=>x.id===ty.layers[2].materialId).defaultThickness,0);
+  const set=reopened.w().api.GetLine(reopened.w().mid,reopened.w().materialRel(ty.id).def,false);
+  const membrane=reopened.w().api.GetLine(reopened.w().mid,set.MaterialLayers[2].value,false);
+  assert.equal(val(membrane.LayerThickness),0);assert.ok(membrane.Material.value);
+  assert.deepEqual(snapshot(reopened).dims,before.dims);assert.deepEqual(snapshot(reopened).walls,before.walls);
+  m.ed.undo();assert.equal(readAssemblies(m.w())[0].layers.length,recipe.layers.length);assert.deepEqual(snapshot(m).dims,before.dims);
+  m.ed.redo();assert.equal(readAssemblies(m.w())[0].layers[2].t,0);
+  for(const bad of [layers.map(l=>({...l,t:0})),layers.map(l=>l.t===0?{...l,function:'structure'}:l),layers.map(l=>l.t===0?{...l,kind:'cavity'}:l),layers.map(l=>({...l,core:l.t===0}))]) assert.throws(()=>m.change(saveWallAssembly({...recipe,layers:bad})));
+});
+test('IFC2X3 keeps membrane records without inventing physical layer thickness',async()=>{
+  const m=await model(fs.readFileSync(new URL('../detailcraft-test/fixtures/ios-steel-ifc2x3.ifc',import.meta.url)));
+  const layers=[{mat:'Plastic film',t:0,function:'membrane',core:false},...recipe.layers];
+  m.change(saveWallAssembly({...recipe,layers}));const reopened=await model(m.ed.save()),ty=readAssemblies(reopened.w())[0];
+  assert.equal(ty.layers[0].t,0);assert.equal(ty.layers[0].mat,'Plastic film');
+  const set=reopened.w().api.GetLine(reopened.w().mid,reopened.w().materialRel(ty.id).def,false);
+  assert.equal(set.MaterialLayers.length,recipe.layers.length);
+  assert.ok(set.MaterialLayers.every(h=>val(reopened.w().api.GetLine(reopened.w().mid,h.value,false).LayerThickness)>0));
+});
+test('preview dimensions preserve exact zero boundaries and separate crowded labels',async()=>{
+  const {assemblyDimensionLayout}=await import('../../public_html/assets/apps/bimcraft/dev/assembly-preview.js');
+  const layers=Array.from({length:32},(_,i)=>({t:i===31?100:0,core:i===31}));
+  const layout=assemblyDimensionLayout(layers,n=>n+' mm');
+  assert.equal(layout.total,100);assert.equal(layout.core,100);assert.equal(layout.segments[0].start,0);assert.equal(layout.segments[0].end,0);
+  assert.equal(layout.segments[31].end,1000);assert.equal(layout.coreStart,0);assert.equal(layout.coreEnd,1000);
+  assert.equal(new Set(layout.segments.slice(0,31).map(s=>s.lane)).size,31);
+  assert.equal(assemblyDimensionLayout([{t:NaN}],String),null);assert.equal(assemblyDimensionLayout([{t:0}],String),null);
+});

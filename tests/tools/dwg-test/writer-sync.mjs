@@ -8,10 +8,12 @@
  *   bimcraft/dev/dwg     the reader (read.js, read-async.js + what they import) — it reads DWG, never writes it
  *   modelcraft/dev/dwg   the reader and the writer — it opens DWG and exports it (0.4 part 2 M2)
  *   detailcraft/dev/dwg  the writer only (write.js + what it imports) — it exports DWG, never reads it (D4)
+ *   partcraft/dev/dwg    the writer only — the variant pack writes each variant's drawing sheet as DWG (0.7 W3.19, session configurator)
+ *   takeoffcraft/dev/dwg the reader (read.js, read-async.js + what they import) — it opens DWG sheets to count from, never writes (0.7 TD.1)
  * Files in a target that the closure no longer needs are removed (reported by --check). bin/test-civilcraft.mjs,
  * bin/test-bimcraft.mjs, bin/test-cadcraft.mjs and bin/test-modelcraft.mjs fail when a copy differs from lib/dwg.
  *
- *   node tools/dwg-test/writer-sync.mjs [--check] [civilcraft|bimcraft|cadcraft|modelcraft|detailcraft …]   (no app: all of them)
+ *   node tools/dwg-test/writer-sync.mjs [--check] [civilcraft|bimcraft|cadcraft|modelcraft|detailcraft|takeoffcraft …]   (no app: all of them)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -44,6 +46,8 @@ export const TARGETS = {
   [`${APPS}/cadcraft/dev/dwg`]: CADCRAFT_FILES,
   [`${APPS}/modelcraft/dev/dwg`]: READ_WRITE_FILES,
   [`${APPS}/detailcraft/dev/dwg`]: closure(['write.js']),
+  [`${APPS}/partcraft/dev/dwg`]: closure(['write.js']),   // 0.7 W3.19: the variant pack's DWG (drawing sheets), writer only
+  [`${APPS}/takeoffcraft/dev/dwg`]: READER_FILES,
 };
 
 /** Copy (or with `check` only compare) every target, or the targets of `apps`. → number of files that differ. */

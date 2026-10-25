@@ -1,0 +1,190 @@
+// SPDX-License-Identifier: Apache-2.0
+// The strings session part-08 (0.7) added to PartCraft, merged into lang/en.json (+ @context) and lang/es-MX.json (draft).
+// Run again after changing a line: keys already present are updated, nothing else moves. `--check` exits 1 when a file differs.
+//   node tools/partcraft-test/lang-part08.mjs [--check]
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { STEP_KEYS } from '../step/lang-step.mjs';   // cc-step's own words, the same in every app that reads STEP
+
+const LANG = fileURLToPath(new URL('../../public_html/assets/apps/partcraft/dev/lang/', import.meta.url));
+const pl = (one, other) => ({ one, other });
+
+// key: [English, context, es-MX draft]
+export const KEYS = {
+  ...STEP_KEYS,
+  // ---- D7.49 meshes as solid bodies: reading (meshimport.js error codes)
+  'mesh.err.too_big': ['That file is too big (over {mb} MB) to open here.', 'Opening a mesh file failed; {mb} is the size limit in MB.', 'Ese archivo es demasiado grande (más de {mb} MB) para abrirlo aquí.'],
+  'mesh.err.unknown_kind': ['That is not an STL, OBJ or 3MF file.', 'Opening a mesh file failed: the file type is none of the three.', 'Ese no es un archivo STL, OBJ ni 3MF.'],
+  'mesh.err.stl_size': ['The STL file is cut off: it is shorter than the number of triangles it says it holds.', 'Opening a binary STL whose size does not match its triangle count.', 'El archivo STL está incompleto: es más corto que el número de triángulos que dice contener.'],
+  'mesh.err.stl_bad': ['The STL file could not be read: it is neither a binary STL nor a text one.', 'Opening an STL file that is damaged or not STL.', 'No se pudo leer el archivo STL: no es un STL binario ni de texto.'],
+  'mesh.err.too_many': ['The mesh has more than {max} triangles, more than PartCraft opens as one body.', 'Opening a mesh with too many triangles; {max} is the limit.', 'La malla tiene más de {max} triángulos, más de los que PartCraft abre como un cuerpo.'],
+  'mesh.err.empty': ['The file holds no triangles.', 'Opening a mesh file with nothing in it.', 'El archivo no contiene triángulos.'],
+  'mesh.err.no_faces': ['The OBJ file has points but no faces, so there is no surface to make a body from.', 'Opening an OBJ with vertices only.', 'El archivo OBJ tiene puntos pero no caras, así que no hay superficie para formar un cuerpo.'],
+  'mesh.err.zip_bad': ['The 3MF file is damaged: its zip archive cannot be read.', 'Opening a 3MF whose zip structure is broken.', 'El archivo 3MF está dañado: no se puede leer su archivo zip.'],
+  'mesh.err.zip64': ['The 3MF file uses a zip format for very large archives that PartCraft does not read yet.', 'Opening a 3MF stored as zip64.', 'El archivo 3MF usa un formato zip para archivos muy grandes que PartCraft aún no lee.'],
+  'mesh.err.zip_encrypted': ['The 3MF file is encrypted, so it cannot be read.', 'Opening an encrypted 3MF.', 'El archivo 3MF está cifrado, así que no se puede leer.'],
+  'mesh.err.zip_cut': ['The 3MF file is cut off: part of it is missing.', 'Opening a truncated 3MF.', 'El archivo 3MF está incompleto: falta una parte.'],
+  'mesh.err.zip_method': ['The 3MF file is compressed in a way PartCraft does not read.', 'Opening a 3MF with an unknown zip compression method.', 'El archivo 3MF está comprimido de una forma que PartCraft no lee.'],
+  'mesh.err.3mf_bad': ['The 3MF file is damaged: its model description does not add up.', 'Opening a 3MF whose XML model is inconsistent (bad index, transform or reference).', 'El archivo 3MF está dañado: la descripción de su modelo no es coherente.'],
+  'mesh.err.3mf_no_model': ['The 3MF file has no 3D model in it.', 'Opening a 3MF without its model part.', 'El archivo 3MF no contiene un modelo 3D.'],
+  'mesh.err.3mf_unit': ['The 3MF file names a unit PartCraft does not know.', 'Opening a 3MF with an unknown unit attribute.', 'El archivo 3MF indica una unidad que PartCraft no conoce.'],
+  'mesh.err.3mf_no_items': ['The 3MF file builds nothing: its build list is empty.', 'Opening a 3MF with no build items.', 'El archivo 3MF no construye nada: su lista de construcción está vacía.'],
+  'mesh.err.kept_bad': ['The mesh kept in this part file is damaged.', 'Opening a part file whose imported mesh data is damaged.', 'La malla guardada en este archivo de pieza está dañada.'],
+  'mesh.note.skipped_facets': [pl('{n} facet was left out because it could not be read.', '{n} facets were left out because they could not be read.'), 'Mesh import report line (STL text facets that were broken).', pl('Se omitió {n} faceta porque no se pudo leer.', 'Se omitieron {n} facetas porque no se pudieron leer.')],
+  'mesh.note.skipped_faces': [pl('{n} face was left out because it could not be read.', '{n} faces were left out because they could not be read.'), 'Mesh import report line (OBJ faces with bad indices).', pl('Se omitió {n} cara porque no se pudo leer.', 'Se omitieron {n} caras porque no se pudieron leer.')],
+  'mesh.note.obj_curves': ['The file also holds curves or surfaces, which were left out (only its faces are read).', 'Mesh import report line: an OBJ with free-form curves.', 'El archivo también contiene curvas o superficies, que se omitieron (solo se leen sus caras).'],
+  'mesh.note.3mf_skipped': [pl('{n} support or surface object was left out (it is not part of the solid).', '{n} support or surface objects were left out (they are not part of the solid).'), 'Mesh import report line: 3MF objects of type support / surface / other.', pl('Se omitió {n} objeto de soporte o superficie (no es parte del sólido).', 'Se omitieron {n} objetos de soporte o superficie (no son parte del sólido).')],
+  // repair report
+  'mesh.rep.welded': [pl('{n} doubled corner joined.', '{n} doubled corners joined.'), 'Mesh import report line: coincident vertices merged.', pl('Se unió {n} esquina duplicada.', 'Se unieron {n} esquinas duplicadas.')],
+  'mesh.rep.degenerate': [pl('{n} triangle with no area removed.', '{n} triangles with no area removed.'), 'Mesh import report line.', pl('Se quitó {n} triángulo sin área.', 'Se quitaron {n} triángulos sin área.')],
+  'mesh.rep.duplicates': [pl('{n} doubled triangle removed.', '{n} doubled triangles removed.'), 'Mesh import report line.', pl('Se quitó {n} triángulo duplicado.', 'Se quitaron {n} triángulos duplicados.')],
+  'mesh.rep.gaps': [pl('{n} small gap closed.', '{n} small gaps closed.'), 'Mesh import report line: open edges closed by joining nearby points.', pl('Se cerró {n} hueco pequeño.', 'Se cerraron {n} huecos pequeños.')],
+  'mesh.rep.holes': [pl('{n} hole filled.', '{n} holes filled.'), 'Mesh import report line: openings closed with new triangles.', pl('Se rellenó {n} agujero.', 'Se rellenaron {n} agujeros.')],
+  'mesh.rep.flipped': [pl('{n} triangle turned to face outward.', '{n} triangles turned to face outward.'), 'Mesh import report line: triangle winding corrected.', pl('Se giró {n} triángulo para que mire hacia afuera.', 'Se giraron {n} triángulos para que miren hacia afuera.')],
+  'mesh.rep.shells': [pl('It is {n} separate piece.', 'It is {n} separate pieces, kept together as one body.'), 'Mesh import report line: closed shells in the mesh.', pl('Es {n} pieza separada.', 'Son {n} piezas separadas, que se mantienen juntas como un cuerpo.')],
+  'mesh.rep.holes_left': [pl('{n} opening could not be closed ({edges} open edges): it is too large or too warped to fill safely.', '{n} openings could not be closed ({edges} open edges): they are too large or too warped to fill safely.'), 'Mesh import report line: holes left open; {edges} is how many open edges remain.', pl('No se pudo cerrar {n} abertura ({edges} aristas abiertas): es demasiado grande o irregular para rellenarla con seguridad.', 'No se pudieron cerrar {n} aberturas ({edges} aristas abiertas): son demasiado grandes o irregulares para rellenarlas con seguridad.')],
+  'mesh.rep.open_edges': [pl('{n} edge is still open.', '{n} edges are still open.'), 'Mesh import report line.', pl('{n} arista sigue abierta.', '{n} aristas siguen abiertas.')],
+  'mesh.rep.non_manifold': [pl('{n} edge is shared by more than two triangles, so the surface does not enclose one clear inside.', '{n} edges are shared by more than two triangles, so the surface does not enclose one clear inside.'), 'Mesh import report line: non-manifold edges.', pl('{n} arista la comparten más de dos triángulos, así que la superficie no encierra un interior claro.', '{n} aristas las comparten más de dos triángulos, así que la superficie no encierra un interior claro.')],
+  // the part file and the kernel
+  'model.file.bad.its_mesh': ['{name}: its mesh is bad.', 'Opening a file: {name} is the feature; its kept mesh is damaged.', '{name}: su malla es incorrecta.'],
+  'model.file.bad.its_units': ['{name}: its units are bad.', 'Opening a file: {name} is the feature; its units field is unknown.', '{name}: sus unidades son incorrectas.'],
+  'kernel.mesh.import_bad': ['The mesh kept in this feature is damaged.', 'Feature error of a body made from a mesh.', 'La malla guardada en esta operación está dañada.'],
+  'kernel.mesh.import_open': ['The mesh does not close ({n} open edges, {m} edges shared by more than two triangles), so it cannot be a solid body.', 'Feature error: the imported mesh is not closed.', 'La malla no cierra ({n} aristas abiertas, {m} aristas compartidas por más de dos triángulos), así que no puede ser un cuerpo sólido.'],
+  'kernel.mesh.import_not_solid': ['The mesh does not enclose a solid, so it cannot be a body.', 'Feature error: manifold refused the mesh.', 'La malla no encierra un sólido, así que no puede ser un cuerpo.'],
+  'kernel.mesh.import_exact': ['A body made from a mesh is built by the mesh kernel; turn the exact kernel off to build it.', 'Feature error on the exact (OpenCascade) kernel, which does not build mesh bodies.', 'Un cuerpo hecho de una malla lo construye el núcleo de malla; desactive el núcleo exacto para construirlo.'],
+  // the page
+  'app.mesh.reading': ['Reading {name}…', 'Busy text while a mesh file is read.', 'Leyendo {name}…'],
+  'app.mesh.cannot_open': ['Cannot open {name}', 'Dialog title when a mesh file cannot be read.', 'No se puede abrir {name}'],
+  'app.mesh.title': ['Open {name} as a solid body', 'Dialog title: importing an STL/OBJ/3MF as a body.', 'Abrir {name} como cuerpo sólido'],
+  'app.mesh.facts': [pl('{n} triangle, {pts} points, from {fmt}.', '{n} triangles, {pts} points, from {fmt}.'), 'Import dialog line; {fmt} is STL, OBJ, 3MF or STEP.', pl('{n} triángulo, {pts} puntos, de {fmt}.', '{n} triángulos, {pts} puntos, de {fmt}.')],
+  'app.mesh.closed': ['It closes, so it becomes a solid body you can cut, add to and sketch on.', 'Import dialog verdict: the repaired mesh is closed.', 'Cierra, así que se convierte en un cuerpo sólido que puede cortar, ampliar y sobre el que puede hacer bocetos.'],
+  'app.mesh.not_closed': ['It does not close, so it cannot be a solid body yet. Close the openings in the program that made it, or export it again as a closed (watertight) mesh, then open it here again.', 'Import dialog verdict: the mesh stays open after repair.', 'No cierra, así que aún no puede ser un cuerpo sólido. Cierre las aberturas en el programa que lo creó, o expórtelo de nuevo como una malla cerrada (estanca) y vuelva a abrirlo aquí.'],
+  'app.mesh.nothing_fixed': ['Nothing needed repairing.', 'Import dialog line when the mesh was clean.', 'No hubo nada que reparar.'],
+  'app.mesh.units': ['Units in the file', 'Import dialog / Properties field: the unit the mesh coordinates are in.', 'Unidades en el archivo'],
+  'app.mesh.units_from_file': ['(the file says so)', 'Shown beside the units when a 3MF file states its unit.', '(lo indica el archivo)'],
+  'app.mesh.size': ['Size here: {x} × {y} × {z} mm', 'Import dialog line: the body\'s size with the chosen units and up axis.', 'Tamaño aquí: {x} × {y} × {z} mm'],
+  'app.mesh.unit.um': ['Micrometres', 'A unit choice.', 'Micrómetros'],
+  'app.mesh.unit.mm': ['Millimetres', 'A unit choice.', 'Milímetros'],
+  'app.mesh.unit.cm': ['Centimetres', 'A unit choice.', 'Centímetros'],
+  'app.mesh.unit.m': ['Metres', 'A unit choice.', 'Metros'],
+  'app.mesh.unit.in': ['Inches', 'A unit choice.', 'Pulgadas'],
+  'app.mesh.unit.ft': ['Feet', 'A unit choice.', 'Pies'],
+  'app.mesh.op': ['Use it to', 'Import dialog / Properties field: how the body joins the part.', 'Usarlo para'],
+  'app.mesh.op.add': ['Add to the part', 'Operation choice of a body made from a mesh.', 'Agregar a la pieza'],
+  'app.mesh.op.cut': ['Cut from the part', 'Operation choice of a body made from a mesh.', 'Cortar de la pieza'],
+  'app.mesh.op.intersect': ['Keep only the overlap', 'Operation choice of a body made from a mesh.', 'Conservar solo la intersección'],
+  'app.mesh.open': ['Open as a body', 'Import dialog button (empty part).', 'Abrir como cuerpo'],
+  'app.mesh.done': [pl('{name} is a solid body: {vol} mm³, {n} flat face to sketch on.', '{name} is a solid body: {vol} mm³, {n} flat faces to sketch on.'), 'Status after importing a mesh as a body.', pl('{name} es un cuerpo sólido: {vol} mm³, {n} cara plana para bocetos.', '{name} es un cuerpo sólido: {vol} mm³, {n} caras planas para bocetos.')],
+  'app.undo.import_mesh': ['Open a mesh as a body', 'Undo step name.', 'Abrir una malla como cuerpo'],
+  'app.import.made_from': ['Made from', 'Properties row of an imported body.', 'Hecho de'],
+  'app.import.mesh_value': [pl('{fmt} mesh, {n} triangle', '{fmt} mesh, {n} triangles'), 'Properties value; {fmt} is STL, OBJ, 3MF or STEP.', pl('Malla {fmt}, {n} triángulo', 'Malla {fmt}, {n} triángulos')],
+  'app.import.repaired': ['Repaired', 'Properties row: what the import repaired.', 'Reparado'],
+  'app.import.repaired_none': ['Nothing', 'Properties value when nothing was repaired.', 'Nada'],
+  // ---- D7.40 closed-loop assemblies
+  'asm.loop.under': ['On a loop that can still move: set or drag this value and the rest of the loop follows.', 'Joint panel note / tree tooltip: the joint is on a closed loop with mobility left.', 'En un lazo que aún puede moverse: fije o arrastre este valor y el resto del lazo lo sigue.'],
+  'asm.loop.full': ['On a loop: the other joints of the loop set its value.', 'Joint panel note / tree tooltip: the joint is on a closed loop that cannot move.', 'En un lazo: las demás uniones del lazo fijan su valor.'],
+  'asm.loop.over': ['On a loop that does not close.', 'Tree tooltip: the joint is on a loop that cannot be closed.', 'En un lazo que no cierra.'],
+  'model.assembly.loop_off': ['{name} closes a loop that cannot close: it is off by {off} mm. Check the faces, offsets and limits of the loop\'s joints.', 'Assembly problem: a loop the solver could not close; {off} is in mm.', '{name} cierra un lazo que no puede cerrarse: está desviado {off} mm. Revise las caras, los desplazamientos y los límites de las uniones del lazo.'],
+  'asm.joint.check_open': [pl('At {n} of {of} positions the loop cannot follow, first at {at}.', 'At {n} of {of} positions the loop cannot follow, first at {at}.'), 'Appended to the motion check result when a loop cannot close at some steps; {at} is the swept value.', pl('En {n} de {of} posiciones el lazo no puede seguir, la primera en {at}.', 'En {n} de {of} posiciones el lazo no puede seguir, la primera en {at}.')],
+  // ---- D7.50 structural members (weldments)
+  'model.feature.member': ['Structural member', 'Feature type name (history, menus, messages).', 'Miembro estructural'],
+  'weld.menu': ['Structural member', 'Features › More menu item.', 'Miembro estructural'],
+  'weld.menu.title': ['Steel sections along the lines of sketches: a frame with mitred or butt corners, end caps, gussets and a cut list.', 'Tooltip of the menu item.', 'Perfiles de acero a lo largo de las líneas de bocetos: un bastidor con esquinas a inglete o a tope, tapas, cartelas y una lista de corte.'],
+  'weld.param.rotate': ['Rotate', 'Parameter label: the section\'s turn about its line (degrees).', 'Girar'],
+  'model.file.bad.its_lines': ['{name}: its lines are bad.', 'Opening a file: a member feature\'s list of sketch lines is damaged.', '{name}: sus líneas son incorrectas.'],
+  'model.file.bad.its_section': ['{name}: its section is bad.', 'Opening a file: a member feature names a section the table lacks.', '{name}: su perfil es incorrecto.'],
+  'model.file.bad.its_anchor': ['{name}: its anchor point is bad.', 'Opening a file.', '{name}: su punto de anclaje es incorrecto.'],
+  'model.file.bad.its_corners': ['{name}: its corner setting is bad.', 'Opening a file.', '{name}: su ajuste de esquinas es incorrecto.'],
+  'model.file.bad.its_caps': ['{name}: its end caps are bad.', 'Opening a file.', '{name}: sus tapas son incorrectas.'],
+  'model.file.bad.its_gussets': ['{name}: its gussets are bad.', 'Opening a file.', '{name}: sus cartelas son incorrectas.'],
+  'weld.err.no_lines': ['Choose the sketches whose lines the members follow.', 'Feature error: no lines chosen.', 'Elija los bocetos cuyas líneas siguen los miembros.'],
+  'weld.err.section': ['The section {section} is not in the section table.', 'Feature error.', 'El perfil {section} no está en la tabla de perfiles.'],
+  'weld.err.sketch_not_built': ['A sketch the members follow is not built.', 'Feature error.', 'Un boceto que siguen los miembros no está construido.'],
+  'weld.err.line_gone': ['A line the members follow is gone from {sketch}.', 'Feature error.', 'Una línea que siguen los miembros ya no está en {sketch}.'],
+  'weld.err.zero_line': ['A line in {sketch} has no length.', 'Feature error.', 'Una línea de {sketch} no tiene longitud.'],
+  'weld.err.fold_back': ['Two lines meet folded back on each other: a member cannot turn round on itself.', 'Feature error: two members meet at 180°.', 'Dos líneas se encuentran plegadas una sobre otra: un miembro no puede dar la vuelta sobre sí mismo.'],
+  'weld.err.exact': ['Structural members are built by the mesh kernel; turn the exact kernel off to build them.', 'Feature error on the exact (OpenCascade) kernel.', 'Los miembros estructurales los construye el núcleo de malla; desactive el núcleo exacto para construirlos.'],
+  'weld.ui.no_sketch': ['Draw the frame as lines in a sketch first, or select a sketch with lines.', 'Status when adding a member without a sketch of lines.', 'Primero dibuje el bastidor como líneas en un boceto, o seleccione un boceto con líneas.'],
+  'weld.ui.added': [pl('{name}: {n} member of {section}. Its lines, section, corners and cut list are on the right.', '{name}: {n} members of {section}. Their lines, section, corners and cut list are on the right.'), 'Status after adding a structural member feature.', pl('{name}: {n} miembro de {section}. Sus líneas, perfil, esquinas y lista de corte están a la derecha.', '{name}: {n} miembros de {section}. Sus líneas, perfil, esquinas y lista de corte están a la derecha.')],
+  'weld.ui.lines': ['Along the lines of', 'Panel heading above the sketch boxes.', 'A lo largo de las líneas de'],
+  'weld.ui.sketch_lines': [pl('{name} ({n} line)', '{name} ({n} lines)'), 'A sketch box: its name and how many lines it has.', pl('{name} ({n} línea)', '{name} ({n} líneas)')],
+  'weld.ui.family': ['Family', 'Panel field: the section family.', 'Familia'],
+  'weld.ui.size': ['Size', 'Panel field: the section size.', 'Tamaño'],
+  'weld.ui.rotate': ['Rotate (°)', 'Panel field.', 'Girar (°)'],
+  'weld.ui.anchor': ['On the line', 'Panel field: which point of the section sits on the line.', 'Sobre la línea'],
+  'weld.ui.corners': ['Corners', 'Panel field.', 'Esquinas'],
+  'weld.ui.caps': ['End caps', 'Panel checkbox.', 'Tapas'],
+  'weld.ui.cap_t': ['Cap thickness (mm)', 'Panel field.', 'Espesor de la tapa (mm)'],
+  'weld.ui.gussets': ['Gussets', 'Panel checkbox.', 'Cartelas'],
+  'weld.ui.gusset_size': ['Gusset size (mm)', 'Panel field: length along each member.', 'Tamaño de la cartela (mm)'],
+  'weld.ui.gusset_t': ['Gusset thickness (mm)', 'Panel field.', 'Espesor de la cartela (mm)'],
+  'weld.ui.cut_list': ['Cut list', 'Panel heading above the table.', 'Lista de corte'],
+  'weld.ui.save_csv': ['Save the cut list (CSV)', 'Button.', 'Guardar la lista de corte (CSV)'],
+  'weld.ui.saved_csv': [pl('Cut list saved: {n} line.', 'Cut list saved: {n} lines.'), 'Status after saving the CSV.', pl('Lista de corte guardada: {n} línea.', 'Lista de corte guardada: {n} líneas.')],
+  'weld.ui.undo.lines': ['Change the member lines', 'Undo step.', 'Cambiar las líneas de los miembros'],
+  'weld.ui.undo.section': ['Change the section', 'Undo step.', 'Cambiar el perfil'],
+  'weld.ui.undo.rotate': ['Rotate the section', 'Undo step.', 'Girar el perfil'],
+  'weld.ui.undo.anchor': ['Move the section on its line', 'Undo step.', 'Mover el perfil sobre su línea'],
+  'weld.ui.undo.corners': ['Change the corners', 'Undo step.', 'Cambiar las esquinas'],
+  'weld.ui.undo.caps': ['Change the end caps', 'Undo step.', 'Cambiar las tapas'],
+  'weld.ui.undo.gussets': ['Change the gussets', 'Undo step.', 'Cambiar las cartelas'],
+  'weld.family.w': ['W (wide flange, AISC)', 'Section family.', 'W (ala ancha, AISC)'],
+  'weld.family.s': ['S (American standard beam, AISC)', 'Section family.', 'S (viga estándar americana, AISC)'],
+  'weld.family.c': ['C (channel, AISC)', 'Section family.', 'C (canal, AISC)'],
+  'weld.family.l': ['L (angle, AISC)', 'Section family.', 'L (ángulo, AISC)'],
+  'weld.family.hss': ['HSS (tube, AISC)', 'Section family.', 'HSS (tubo, AISC)'],
+  'weld.family.pipe': ['Pipe (AISC)', 'Section family.', 'Tubería (AISC)'],
+  'weld.family.ipe': ['IPE (EN 10365)', 'Section family.', 'IPE (EN 10365)'],
+  'weld.family.hea': ['HEA (EN 10365)', 'Section family.', 'HEA (EN 10365)'],
+  'weld.family.heb': ['HEB (EN 10365)', 'Section family.', 'HEB (EN 10365)'],
+  'weld.family.upn': ['UPN (EN 10365)', 'Section family.', 'UPN (EN 10365)'],
+  'weld.anchor.c': ['Centre', 'Anchor choice.', 'Centro'],
+  'weld.anchor.tl': ['Top left', 'Anchor choice.', 'Arriba a la izquierda'],
+  'weld.anchor.tc': ['Top middle', 'Anchor choice.', 'Arriba al centro'],
+  'weld.anchor.tr': ['Top right', 'Anchor choice.', 'Arriba a la derecha'],
+  'weld.anchor.ml': ['Middle left', 'Anchor choice.', 'Centro a la izquierda'],
+  'weld.anchor.mr': ['Middle right', 'Anchor choice.', 'Centro a la derecha'],
+  'weld.anchor.bl': ['Bottom left', 'Anchor choice.', 'Abajo a la izquierda'],
+  'weld.anchor.bc': ['Bottom middle', 'Anchor choice.', 'Abajo al centro'],
+  'weld.anchor.br': ['Bottom right', 'Anchor choice.', 'Abajo a la derecha'],
+  'weld.corner.miter': ['Mitred', 'Corner choice.', 'A inglete'],
+  'weld.corner.butt': ['Butt', 'Corner choice.', 'A tope'],
+  'weld.cut.h.item': ['Item', 'Cut list column.', 'Elemento'],
+  'weld.cut.h.qty': ['Qty', 'Cut list column.', 'Cant.'],
+  'weld.cut.h.what': ['Piece', 'Cut list column.', 'Pieza'],
+  'weld.cut.h.section': ['Section', 'Cut list column.', 'Perfil'],
+  'weld.cut.h.size': ['Length / size (mm)', 'Cut list column.', 'Longitud / tamaño (mm)'],
+  'weld.cut.h.ends': ['Ends', 'Cut list column: how each end is cut.', 'Extremos'],
+  'weld.cut.h.members': ['Members', 'Cut list column: which members (numbers).', 'Miembros'],
+  'weld.cut.member': ['Member', 'Cut list piece.', 'Miembro'],
+  'weld.cut.cap': ['End cap', 'Cut list piece.', 'Tapa'],
+  'weld.cut.gusset': ['Gusset', 'Cut list piece.', 'Cartela'],
+  'weld.cut.square': ['square', 'Cut list: an end cut square.', 'recto'],
+  'weld.cut.fit': ['cut to fit', 'Cut list: an end shaped to fit another member.', 'cortado a medida'],
+  'weld.cut.angle': ['{a}°', 'Cut list: an end cut at an angle from square.', '{a}°'],
+  'weld.cut.plate': ['{w} × {h} × {t}', 'Cut list: a plate\'s size.', '{w} × {h} × {t}'],
+  // ---- D7.26 STEP without the exact kernel (lib/step, read as triangles into the mesh import)
+  'app.step.read_facts': [pl('{schema} file: {solids} solid, {faces} faces, read as triangles. Its curved faces are kept as many small flat ones: the exact kernel that keeps them true is not in this build.', '{schema} file: {solids} solids, {faces} faces, read as triangles. Its curved faces are kept as many small flat ones: the exact kernel that keeps them true is not in this build.'), 'STEP import dialog line; n/solids = solid count, {faces} = faces in the file, {schema} = AP203, AP214 or AP242.', pl('Archivo {schema}: {solids} sólido, {faces} caras, leído como triángulos. Sus caras curvas quedan como muchas caras planas pequeñas: el kernel exacto que las mantiene exactas no está en esta versión.', 'Archivo {schema}: {solids} sólidos, {faces} caras, leído como triángulos. Sus caras curvas quedan como muchas caras planas pequeñas: el kernel exacto que las mantiene exactas no está en esta versión.')],
+  'app.step.read_placed': [pl('{n} part placed in the file comes in where it stands.', '{n} parts placed in the file come in where they stand.'), 'STEP import dialog line: assembly instances.', pl('{n} pieza colocada en el archivo entra donde está.', '{n} piezas colocadas en el archivo entran donde están.')],
+  'app.step.reading': ['Reading {name}…', 'Busy text while a STEP file is read without the exact kernel.', 'Leyendo {name}…'],
+  'app.asm.facts_loops': ['Loops', 'Assembly facts row: closed loops of joints.', 'Lazos'],
+  'app.asm.loops_under': [pl('{loops} closed; {n} value can still move', '{loops} closed; {n} values can still move'), 'Assembly facts value; {loops} = how many loops, n = mobility.', pl('{loops} cerrados; {n} valor aún puede moverse', '{loops} cerrados; {n} valores aún pueden moverse')],
+  'app.asm.loops_full': ['{loops} closed, every value set', 'Assembly facts value when the loops cannot move.', '{loops} cerrados, todos los valores fijados'],
+  'app.asm.loops_over': [pl('{loops}: {n} does not close', '{loops}: {n} do not close'), 'Assembly facts value when loops cannot close; n = how many.', pl('{loops}: {n} no cierra', '{loops}: {n} no cierran')],
+};
+
+const check = process.argv.includes('--check');
+let differs = false;
+for (const [file, col] of [['en.json', 0], ['es-MX.json', 2]]) {
+  const path = LANG + file;
+  const src = readFileSync(path, 'utf8');
+  const j = JSON.parse(src);
+  for (const [k, row] of Object.entries(KEYS)) {
+    j[k] = row[col];
+    if (col === 0) j['@context'][k] = row[1];
+  }
+  const out = JSON.stringify(j, null, 2) + '\n';
+  if (out !== src) { differs = true; if (!check) writeFileSync(path, out); }
+  console.log(`${file}: ${out === src ? 'up to date' : check ? 'DIFFERS' : 'written'} (${Object.keys(KEYS).length} keys)`);
+}
+if (check && differs) process.exit(1);

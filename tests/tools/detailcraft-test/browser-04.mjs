@@ -85,7 +85,35 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, a
 // host.js opens files with the File System Access picker when there is one; headless runs drive the plain
 // <input type=file> instead (Playwright's file chooser), as tools/partcraft-test/browser.mjs does
 await ctx.addInitScript(() => { window.showOpenFilePicker = undefined; });
+// 0.7 WS.13: CC_WORKSPACE=docked|toolbox runs the suite with that workspace layout on (Settings › Global › Layout)
+// (without it: classic, whatever a stored --state remembers)
+await ctx.addInitScript((w) => { try { if (w) localStorage.setItem('cc-workspace', w); else localStorage.removeItem('cc-workspace'); } catch (e) { /* no storage: classic */ } }, process.env.CC_WORKSPACE || '');
 let page = await ctx.newPage();
+// CC_WORKSPACE: after a load, wait until the layout is mounted (it starts once the app has drawn), as a person would see it
+const wsSettled = (p) => { if (!process.env.CC_WORKSPACE) return; for (const m of ['goto', 'reload']) { const f = p[m].bind(p); p[m] = async (...a) => { const r = await f(...a); await p.waitForFunction(() => !document.querySelector('[data-detailcraft]') || document.querySelector('main')?.classList.contains('ws-on') || window.matchMedia('(max-width: 760px)').matches, null, { timeout: 30000 }).catch(() => {}); return r; }; }
+  // the classic controls a layout hides (its view bar, its toolbar): the layout's own buttons click them (the registry), so do the same;
+  // a control in a palette tab not shown (the left panel's own sections sit in the Model tab of the ribbon layout): that tab first
+  const prep = async (sel) => {
+    const h = typeof sel === 'string' ? await p.$(sel).catch(() => null) : null; if (!h) return false;
+    return h.evaluate((e) => {
+      const slot = e.closest('.ws-palette-scroll[hidden]');
+      const name = slot && [...slot.attributes].map((a) => /^data-ws-(.+)-scroll$/.exec(a.name)?.[1]).find(Boolean);
+      if (name) document.querySelector('[data-ws-lower="' + name + '"]')?.click();
+      return !!e.closest('.ws-hide');
+    }).catch(() => false);
+  };
+  const click = p.click.bind(p), choose = p.selectOption.bind(p), fill = p.fill.bind(p), check = p.check.bind(p);
+  p.click = async (sel, o) => (await prep(sel) ? p.$eval(sel, (e) => e.click()) : click(sel, o));
+  p.selectOption = async (sel, v, o) => (await prep(sel) ? p.$eval(sel, (e, x) => { e.value = x; e.dispatchEvent(new Event('change', { bubbles: true })); }, v) : choose(sel, v, o));
+  p.fill = async (sel, v, o) => { await prep(sel); return fill(sel, v, o); };
+  p.check = async (sel, o) => { await prep(sel); return check(sel, o); };
+  // a hidden toolbar button focused and pressed with Enter (the classic keyboard path): the button is clicked, the Enter that follows dropped
+  let clicked = false;
+  const focus = p.focus.bind(p), press = p.keyboard.press.bind(p.keyboard);
+  p.focus = async (sel, o) => { if (await prep(sel)) { clicked = true; return p.$eval(sel, (e) => e.click()); } return focus(sel, o); };
+  p.keyboard.press = async (k, o) => { const skip = clicked && k === 'Enter'; clicked = false; return skip ? undefined : press(k, o); };
+};
+wsSettled(page);
 const problems = [];
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
 page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
@@ -96,6 +124,12 @@ const settle = () => page.waitForTimeout(150);
 /** A toolbar action; one in a closed "More" menu opens it first, as a person would. */
 async function act(a) {
   const b = page.locator('.dc-tools [data-act="' + a + '"]').first();
+  // CC_WORKSPACE: a layout that hides the toolbar (the ribbon layout) runs the same command through the menu-style registry, the path
+  // its ribbon takes (bin/test-app-workspaces.mjs checks the ribbon's buttons themselves)
+  if (process.env.CC_WORKSPACE && !(await page.locator('.dc-tools').isVisible())) {
+    await page.evaluate((x) => { const btn = document.querySelector('.dc-tools [data-act="' + x + '"]'); const c = window.ccInput.commands.find((k) => document.querySelector(k.sel) === btn); if (c) window.ccInput.run(c.id); else window.detailcraft.act(x); }, a);
+    return;
+  }
   if (!(await b.isVisible())) await page.locator('.dc-tools details:has([data-act="' + a + '"]) > summary').click();
   await b.click();
 }
@@ -574,6 +608,7 @@ try {
     await dc(() => { const d = window.detailcraft; d.model.change('Rename', (tx) => tx.setName('Autosave check')); });
     await page.waitForTimeout(3500);                     // the copy is written ~2 s after the last edit
     const p2 = await ctx.newPage();
+    wsSettled(p2);
     p2.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
     await page.evaluate(() => { window.onbeforeunload = null; });
     await page.close({ runBeforeUnload: false });

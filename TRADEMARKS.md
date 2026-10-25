@@ -4,7 +4,7 @@ The code in this repository is licensed under the Apache License 2.0. That licen
 section 6 says it "does not grant permission to use the trade names, trademarks, service marks, or product names of
 the Licensor".
 
-**CadCraft**, the CadCraft logo and the app names CadCraft, BimCraft, ModelCraft, MarkupCraft, TakeoffCraft, CivilCraft, DetailCraft, PartCraft and SuperCadCraft are trademarks of The Data Design Group, Inc.
+**CadCraft**, the CadCraft logo and the app names CadCraft, BimCraft, ModelCraft, MarkupCraft, TakeoffCraft, CivilCraft, DetailCraft, PartCraft and SuperCad Studio are trademarks of The Data Design Group, Inc.
 
 ## What you may do
 
@@ -20,6 +20,6 @@ and the help. Do not suggest that your version is made or endorsed by The Data D
 
 ## Other names
 
-CadCraft and the CadCraft logo are trademarks of The Data Design Group, Inc. AutoCAD, Revit and Civil 3D are registered trademarks of Autodesk, Inc. SketchUp and Tekla are trademarks of Trimble Inc. Bluebeam is a trademark of Bluebeam, Inc. PlanSwift is a trademark of ConstructConnect. SolidWorks is a registered trademark of Dassault Systèmes. All other company and product names, logos and brands are the property of their respective owners and are used only to identify their products. CadCraft is independent and not affiliated with, sponsored by or endorsed by any of them.
+CadCraft and the CadCraft logo are trademarks of The Data Design Group, Inc. AutoCAD, Revit, Civil 3D and Fusion are registered trademarks of Autodesk, Inc. SketchUp and Tekla are trademarks of Trimble Inc. Bluebeam is a trademark of Bluebeam, Inc. PlanSwift is a trademark of ConstructConnect. SolidWorks is a registered trademark of Dassault Systèmes. All other company and product names, logos and brands are the property of their respective owners and are used only to identify their products. CadCraft is independent and not affiliated with, sponsored by or endorsed by any of them.
 
 Questions about the names: https://getcadcraft.com/support

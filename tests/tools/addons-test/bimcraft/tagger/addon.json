@@ -1,0 +1,1 @@
+{ "id": "zz-test.tagger", "name": "Test tagger", "version": "1.0.0", "apps": ["bimcraft"], "api": "1.0", "license": "Apache-2.0", "entry": "./main.js", "permissions": ["commands", "panel", "files"], "lang": "./lang/" }

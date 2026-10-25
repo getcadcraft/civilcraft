@@ -15,7 +15,8 @@
  *              also be laid mirrored), mirrored = false (this copy is the mirrored one of a pair: always laid mirrored) }]
  *     sheet  { w (length along x; Infinity or null = a roll, as long as needed), h (width across, y), margin = 0 (kept
  *              clear at every edge), count = Infinity (plates available), obstacles = [loops] (already on sheet 0, sheet
- *              coordinates: pieces laid by hand stay where they are) }
+ *              coordinates: pieces laid by hand stay where they are), obstacleGap = spacing (clearance kept round the
+ *              obstacles; the offcut stock of nest-stock.js uses it for the edges of an irregular remnant) }
  *     opts   { spacing = 0 (between parts), step = 90 (degrees between the turns tried for parts without grain; 0 = as
  *              drawn), grainTol = 0 (degrees a part with grain may be turned off it), res (raster cell; default from the
  *              sheet and the smallest part), tries = 12 (piece orders), seed = 1, timeLimit = 4000 (ms), now = Date.now,
@@ -32,7 +33,9 @@
  *   loopsFromSegs(segs, tol) → loops (PartCraft's flat pattern: line/arc/circle/poly pieces → closed loops with bulges)
  *   readOutlines(dxfText, {skipLayers}) → { parts: [{name, loops}], units: 'mm'|'in'|'', notes } (closed outlines of a DXF: LWPOLYLINE,
  *     POLYLINE, CIRCLE, ELLIPSE (as points), LINE + ARC chains; holes go with the outline round them)
- *   nestDxf(result, sheet, {units, labels = true, gap}) → DXF R12 text (layers SHEET, PARTS, LABELS; one sheet under the next)
+ *   nestDxf(result, sheet, {units, labels = true, gap}) → DXF R12 text (layers SHEET, PARTS, LABELS; one sheet under the next).
+ *     A result from nest-stock.js carries `sheetShapes` (each sheet's own size and outline: a remnant is not a rectangle) and
+ *     `remnants` (the offcuts this job leaves: outlines on layer REMNANTS, their numbers on LABELS).
  *
  * How it nests: every part (each turn and mirror it may take) is drawn once on a raster of `res` cells. The raster is
  * conservative — every cell the part touches is set (edges by exact column slabs, the inside by a scan line through each
@@ -140,7 +143,7 @@ const norm = (a) => { let r = a % TAU; if (r < 0) r += TAU; if (TAU - r < 1e-12)
  * Every cell a region touches, as intervals per column. polys: flattened loops (even-odd region). The grid's cell (i, j)
  * covers [ox + i·res, ox + (i + 1)·res] × [oy + j·res, …]. → { cols, rows, iv: [Int32Array [a0, b0, a1, b1 …]] }
  */
-function rasterize(polys, ox, oy, cols, rows, res) {
+export function rasterize(polys, ox, oy, cols, rows, res) {
   const grid = new Uint8Array(cols * rows);
   const set = (i, j0, j1) => {
     if (i < 0 || i >= cols) return;
@@ -198,7 +201,7 @@ function rasterize(polys, ox, oy, cols, rows, res) {
 }
 
 /** Grow a raster by k cells every way (Chebyshev). → { ox: −k, iv } with intervals that may run below 0. */
-function dilate(r, k) {
+export function dilate(r, k) {
   if (k <= 0) return { ox: 0, iv: r.iv };
   const cols = r.cols + 2 * k;
   const iv = new Array(cols);
@@ -300,6 +303,7 @@ export function nest(parts, sheet = {}, opts = {}) {
   if (!(Number(opts.res) > 0) && Number.isFinite(smallest) && smallest > 0) res = Math.min(res, smallest / 4);
   const sag = Math.min(res / 8, 0.1);
   const grow = Math.ceil((spacing + 2 * sag) / res - 1e-9);   // cells of clearance round a placed part
+  const growObs = sheet.obstacleGap != null ? Math.ceil((Math.max(0, Number(sheet.obstacleGap) || 0) + 2 * sag) / res - 1e-9) : grow;   // …and round an obstacle
   const H = Math.floor((H0 - 2 * margin) / res + 1e-9);
   const Wc = roll ? Infinity : Math.floor((W0 - 2 * margin) / res + 1e-9);
 
@@ -338,7 +342,7 @@ export function nest(parts, sheet = {}, opts = {}) {
       const ox = margin + gx0 * res, oy = margin + gy0 * res;
       const cols = Math.floor((bb.x1 - ox) / res) + 1, rows = Math.floor((bb.y1 - oy) / res) + 1;
       const r = rasterize(polys, ox, oy, cols, rows, res);
-      out.push({ d: dilate(r, grow), gx: gx0, gy: gy0 });
+      out.push({ d: dilate(r, growObs), gx: gx0, gy: gy0 });
     }
     return out;
   };
@@ -488,7 +492,8 @@ export function checkNest(result, sheet = {}, { spacing = 0, eps = 1e-6 } = {}) 
     for (let j = i + 1; j < all.length; j++) {
       const A = items[i], B = all[j];
       if (A.p.sheet !== B.p.sheet) continue;
-      if (A.bb.x1 + spacing < B.bb.x0 - eps || B.bb.x1 + spacing < A.bb.x0 - eps || A.bb.y1 + spacing < B.bb.y0 - eps || B.bb.y1 + spacing < A.bb.y0 - eps) continue;
+      const gap = B.p.obstacle && sheet.obstacleGap != null ? Number(sheet.obstacleGap) || 0 : spacing;
+      if (A.bb.x1 + gap < B.bb.x0 - eps || B.bb.x1 + gap < A.bb.x0 - eps || A.bb.y1 + gap < B.bb.y0 - eps || B.bb.y1 + gap < A.bb.y0 - eps) continue;
       let dmin = Infinity;
       for (const pa of A.polys) for (let a = 0; a < pa.length && dmin > 0; a++) {
         const s = pa[a], e = pa[(a + 1) % pa.length];
@@ -497,7 +502,7 @@ export function checkNest(result, sheet = {}, { spacing = 0, eps = 1e-6 } = {}) 
       // no edge closer than the spacing: still wrong when one lies inside the other's region
       const inside = inRegion(A.polys[0][0], B.polys) || inRegion(B.polys[0][0], A.polys);
       if (dmin <= eps || inside) problems.push({ kind: 'overlap', a: A.p, b: B.p });
-      else if (dmin < spacing - eps) problems.push({ kind: 'close', a: A.p, b: B.p, d: dmin });
+      else if (dmin < gap - eps) problems.push({ kind: 'close', a: A.p, b: B.p, d: dmin });
     }
   }
   return problems;
@@ -657,29 +662,35 @@ export function readOutlines(text, { skipLayers = [] } = {}) {
 
 /** The nest as DXF R12 for a cutter (see the header). Sheets are drawn one under the next, gap apart. */
 export function nestDxf(result, sheet, { units = 'mm', labels = true, gap, textHeight } = {}) {
-  const H = Number(sheet.h);
   const roll = result.roll ?? (!(Number(sheet.w) > 0) || !Number.isFinite(Number(sheet.w)));
-  const W = roll ? Math.max(result.length || 0, 1e-6) : Number(sheet.w);
+  const nSheets = Math.max(1, result.sheets.length);
+  const shapes = result.sheetShapes || null;
+  const rem = result.remnants || [];
+  const dims = Array.from({ length: nSheets }, (_, s) => (shapes?.[s] ? { W: Number(shapes[s].w), H: Number(shapes[s].h), loops: shapes[s].loops || null } : { W: roll ? Math.max(result.length || 0, 1e-6) : Number(sheet.w), H: Number(sheet.h), loops: null }));
+  const H = Math.max(...dims.map((d) => d.H)), W = Math.max(...dims.map((d) => d.W));
   const g = gap ?? H * 0.1;
   const th = textHeight ?? Math.max(H / 150, units === 'in' ? 0.1 : 2.5);
-  const nSheets = Math.max(1, result.sheets.length);
+  const offs = [];
+  { let y = 0; for (let s = 0; s < nSheets; s++) { offs.push(y); y -= dims[s].H + g; } }
   const L = [];
   const put = (c, v) => { L.push(String(c), typeof v === 'number' ? fmt(v) : String(v)); };
   // header
   put(0, 'SECTION'); put(2, 'HEADER');
   put(9, '$ACADVER'); put(1, 'AC1009');
   put(9, '$INSBASE'); put(10, 0); put(20, 0); put(30, 0);
-  put(9, '$EXTMIN'); put(10, 0); put(20, -(nSheets - 1) * (H + g)); put(30, 0);
-  put(9, '$EXTMAX'); put(10, W); put(20, H); put(30, 0);
+  put(9, '$EXTMIN'); put(10, 0); put(20, offs[nSheets - 1]); put(30, 0);
+  put(9, '$EXTMAX'); put(10, W); put(20, dims[0].H); put(30, 0);
   put(9, '$MEASUREMENT'); put(70, units === 'in' ? 0 : 1);
   put(0, 'ENDSEC');
-  // tables: the line type and the three layers
+  // tables: the line type and the layers
+  const layers = [['0', 7], ['SHEET', 8], ['PARTS', 7], ['LABELS', 3]];
+  if (rem.length) layers.push(['REMNANTS', 5]);
   put(0, 'SECTION'); put(2, 'TABLES');
   put(0, 'TABLE'); put(2, 'LTYPE'); put(70, 1);
   put(0, 'LTYPE'); put(2, 'CONTINUOUS'); put(70, 0); put(3, 'Solid line');   // i18n-ignore: the DXF line type's own description put(72, 65); put(73, 0); put(40, 0);
   put(0, 'ENDTAB');
-  put(0, 'TABLE'); put(2, 'LAYER'); put(70, 4);
-  for (const [name, color] of [['0', 7], ['SHEET', 8], ['PARTS', 7], ['LABELS', 3]]) { put(0, 'LAYER'); put(2, name); put(70, 0); put(62, color); put(6, 'CONTINUOUS'); }
+  put(0, 'TABLE'); put(2, 'LAYER'); put(70, layers.length);
+  for (const [name, color] of layers) { put(0, 'LAYER'); put(2, name); put(70, 0); put(62, color); put(6, 'CONTINUOUS'); }
   put(0, 'ENDTAB');
   put(0, 'TABLE'); put(2, 'STYLE'); put(70, 1);
   put(0, 'STYLE'); put(2, 'STANDARD'); put(70, 0); put(40, 0); put(41, 1); put(50, 0); put(71, 0); put(42, th); put(3, 'txt'); put(4, '');
@@ -692,18 +703,22 @@ export function nestDxf(result, sheet, { units = 'mm', labels = true, gap, textH
     for (const p of pts) { put(0, 'VERTEX'); put(8, layer); put(10, p.x); put(20, p.y + dy); put(30, 0); if (p.b) put(42, p.b); }
     put(0, 'SEQEND'); put(8, layer);
   };
+  const text = (x, y, h, str) => { put(0, 'TEXT'); put(8, 'LABELS'); put(10, x); put(20, y); put(30, 0); put(40, h); put(1, dxfText(str)); put(72, 1); put(11, x); put(21, y); put(31, 0); put(73, 2); };
   for (let s = 0; s < nSheets; s++) {
-    const dy = -s * (H + g);
-    const len = roll ? W : W;
-    poly('SHEET', [{ x: 0, y: 0 }, { x: len, y: 0 }, { x: len, y: H }, { x: 0, y: H }], dy);
+    const dy = offs[s], len = dims[s].W, hh = dims[s].H;
+    if (dims[s].loops) for (const l of dims[s].loops) poly('SHEET', l, dy);
+    else poly('SHEET', [{ x: 0, y: 0 }, { x: len, y: 0 }, { x: len, y: hh }, { x: 0, y: hh }], dy);
     for (const p of result.placed.filter((q) => q.sheet === s)) {
       for (const l of p.loops) poly('PARTS', l, dy);
       if (labels) {
         const f = flatten(p.loops[0], th / 10);
         const c = f.reduce((a, q) => ({ x: a.x + q.x / f.length, y: a.y + q.y / f.length }), { x: 0, y: 0 });
-        const txt = dxfText(String(p.name || p.id || 'Part'));
-        put(0, 'TEXT'); put(8, 'LABELS'); put(10, c.x); put(20, c.y + dy); put(30, 0); put(40, th); put(1, txt); put(72, 1); put(11, c.x); put(21, c.y + dy); put(31, 0); put(73, 2);
+        text(c.x, c.y + dy, th, String(p.name || p.id || 'Part'));
       }
+    }
+    for (const r of rem.filter((q) => q.sheet === s)) {
+      for (const l of r.loops) poly('REMNANTS', l, dy);
+      if (labels && r.text) text(r.at.x, r.at.y + dy, Math.min(th * 1.4, r.h || th * 1.4), r.text);
     }
   }
   put(0, 'ENDSEC'); put(0, 'EOF');

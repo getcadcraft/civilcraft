@@ -478,7 +478,7 @@ try {
     await dg.locator('[data-over]').focus();
     await dg.keyboard.press('r'); await click2([0, 0, 0]); await move2([3, 2, 0]); await type2('4,3');
     await dg.keyboard.press('p'); await move2([2, 1.5, 0]); await click2([2, 1.5, 0]); await move2([2, 1.5, 1]); await type2('2.5');
-    const tb = await dg.evaluate(() => { const t = document.querySelector('.mc-tools'); const b = document.querySelector('[data-tool="dim"]'); return { fits: t.scrollWidth <= t.clientWidth + 1, rows: new Set([...t.querySelectorAll('.mc-tool-group')].map((g) => Math.round(g.getBoundingClientRect().top))).size, title: b?.title }; });
+    const tb = await dg.evaluate(() => { const t = document.querySelector('.mc-tools'); const b = document.querySelector('[data-tool="dim"]'); return { fits: t.scrollWidth <= t.clientWidth + 1, rows: new Set([...t.querySelectorAll('.mc-tool-group')].filter((g) => !g.hidden).map((g) => Math.round(g.getBoundingClientRect().top))).size, title: b?.title }; });
     ok(tb.title && tb.fits && tb.rows <= 2, `the toolbar has a Dimension button and still fits without scrolling at 1400 px, in ${tb.rows} rows (0.2 had 2)`);
     await dg.keyboard.press('d');
     ok(await dg.evaluate(() => window.modelcraft.tools.name === 'dim'), 'D picks the Dimension tool');
@@ -1197,6 +1197,9 @@ try {
     await pg.waitForTimeout(100);
     ok(await pg.evaluate(() => [...window.modelcraft.model.root.insts.values()][0].hidden === true) && await pg.getAttribute('[data-tree] li:first-child .mc-eye', 'aria-pressed') === 'false', 'its eye hides the chair (and shows it is hidden)');
     await pg.click('[data-tree] li:first-child .mc-eye');
+    // the panels redraw a frame later: focus the row of the new tree, not the one about to be replaced
+    await pg.waitForFunction(() => document.querySelector('[data-tree] li:first-child .mc-eye')?.getAttribute('aria-pressed') === 'true');
+    await pg.waitForTimeout(100);
     // F2 renames
     await pg.focus('[data-tree] li:nth-child(2) .mc-node');
     await pg.keyboard.press('F2');

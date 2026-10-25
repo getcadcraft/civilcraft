@@ -1,7 +1,9 @@
 {
   "app": "civilcraft",
   "css": [
-    "civilcraft.css"
+    "civilcraft.css",
+    "landscape/landscape.css",
+    "powerline/powerline.css"
   ],
   "module": "civilcraft.js",
   "imports": {
@@ -24,5 +26,13 @@
   "accepts": [
     "live"
   ],
-  "input": "input-civilcraft.js"
+  "input": "input-civilcraft.js",
+  "workspaces": {
+    "layouts": [
+      "docked",
+      "toolbox"
+    ],
+    "adapter": "workspace-civilcraft.js"
+  },
+  "hardware": true
 }

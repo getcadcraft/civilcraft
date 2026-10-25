@@ -1,0 +1,23 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* landscape.css — CivilCraft's Landscape workspace (0.7 Track LD, session `landscape`): the Plants section, the bed mix, the
+   plant schedule. Tokens only (paper / model); sizes in rem. */
+.cv-ls-ws { min-width: 7.5rem; }
+.cv-ls-wsgroup .cv-tool-row { align-items: center; padding: 0 .25rem; }
+.cv-ls-list { list-style: none; margin: .35rem 0 0; padding: 0; max-height: 16rem; overflow-y: auto; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.cv-ls-list li { display: flex; flex-direction: column; padding: .3rem .5rem; border-bottom: var(--pen-1) solid var(--grid); cursor: pointer; font-size: .8125rem; line-height: 1.25; }
+.cv-ls-list li:last-child { border-bottom: 0; }
+.cv-ls-list li:hover, .cv-ls-list li:focus-visible { background: var(--sheet-2); outline: none; }
+.cv-ls-list li.is-cur { background: var(--sheet-2); box-shadow: inset .2rem 0 0 var(--layer-green); }
+.cv-ls-list .cv-ls-bot { font-style: italic; color: var(--ink-2); font-size: .75rem; }
+.cv-ls-list li.cv-note { cursor: default; }
+.cv-ls-detail { margin-top: .5rem; }
+.cv-ls-detail .cv-h3 em { font-weight: 400; color: var(--ink-2); }
+.cv-ls-mix select { max-width: 11rem; }
+.cv-ls-mix td.num, .cv-ls-mix th.num { text-align: right; }
+.cv-ls-schdlg { width: min(56rem, 94vw); }
+.cv-ls-schwrap { max-height: 60vh; overflow: auto; }
+.cv-ls-schwrap td.num { text-align: right; }
+.cv-ls-checks .cv-legend { list-style: none; padding: 0; margin: .4rem 0; }
+.cv-ls-checks .cv-checks { margin-top: .4rem; }
+.cv-ls-checks .cv-checks label { display: inline-flex; align-items: center; gap: .35rem; }
+.cv-groups tr.is-sel td { background: color-mix(in srgb, var(--action) 12%, transparent); }

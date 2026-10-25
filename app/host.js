@@ -277,6 +277,7 @@ function makeRecent(self) {
     async add(f, how = 'open') {
       try {
         if (!f || !f.name) return null;
+        self.lastFile = String(f.name);   // the file this window shows, unless the app says (host.control's document; MCP-WINDOW-IDS)
         const t = self.now();
         const entry = { id: newId(), app: self.app, name: f.name, size: f.size ?? null, lastModified: f.lastModified ?? null,
           path: f.path || null, handle: f.handle || null, openedAt: how === 'open' ? t : null, savedAt: how === 'save' ? t : null };
@@ -436,7 +437,9 @@ class Host {
   /** Ask for files. → HostFile[] ([] when cancelled). */
   async openFile({ types = [], multiple = false, title } = {}) {
     let out = [];
-    if (this.desktop) {
+    const asked = this.control.files.takeOpen(multiple);   // an assistant named the file (0.7 MCP-PATHS)
+    if (asked) out = asked;
+    else if (this.desktop) {
       const paths = await this.desktop.openDialog({ multiple: !!multiple, filters: desktopFilters(types), title });
       out = (paths || []).map((p) => this.pathFile(p));
       await Promise.all(out.map(async (f) => {
@@ -504,6 +507,8 @@ class Host {
    *  else like saveAs (browser: a download, no dialog). */
   async save({ target = null, data, name, types = [], type } = {}) {
     const fileName = name || (target && target.name) || 'Untitled';
+    const asked = await this.control.files.takeSave(data, fileName);   // an assistant named where (0.7 MCP-PATHS)
+    if (asked) return asked;
     if (target && target.path && this.desktop) {
       try {
         await this.desktop.writeFile(target.path, await toBytes(data));
@@ -523,6 +528,8 @@ class Host {
   /** Save under a new name/place. Desktop: the native dialog; browser: a download (or, with browserFileSystem, the
    *  browser's save dialog). quiet = from save(): a browser download needs no dialog. */
   async saveAs({ data, name = 'Untitled', types = [], type, title } = {}) {
+    const asked = await this.control.files.takeSave(data, name);
+    if (asked) return asked;
     if (this.desktop) {
       const p = await this.desktop.saveDialog({ defaultPath: name, filters: desktopFilters(types), title });
       if (!p) return { ok: false, cancelled: true };
@@ -568,6 +575,7 @@ class Host {
 
   /** A copy for the user (exports, "Download"): always a download in the browser; the save dialog on the desktop. */
   download(data, name, type) {
+    if (this.control.files.saving) { this.control.files.takeSave(data, name); return; }
     if (this.desktop) { this.saveAs({ data, name, type }); return; }
     const d = this.doc;
     if (!d || typeof URL === 'undefined' || !URL.createObjectURL) return;
@@ -888,7 +896,7 @@ export function createDispatcher(opts = {}) {
 //
 //   host.control.tool({ name, group, title, description, inputSchema, run: async (args, ctx) => result })   → unregister
 //   host.control.configure({ enabled, groups: ['read', …], title, version, info: () => ({…}), undo: (label, fn) => …,
-//                            busy: () => null | 'what the person is doing' })
+//                            busy: () => null | 'what the person is doing', document: () => 'the file it shows' | null })
 //   host.control.step(label, fn)      one undo step labelled `label` (the app's undo hook), for edit tools
 //   host.control.on('connect' | 'disconnect' | 'call' | 'change', fn) · host.control.on('<method>', fn) (a raw method)
 //   host.control.sessions()           assistants connected now: [{id, client, startedAt, lastAt}]
@@ -908,7 +916,7 @@ const CONNECTED_MS = 10 * 60 * 1000;   // a session counts as connected this lon
 const ACTIVE_MS = 60 * 1000;           // … or after its last call
 
 function makeControl(host) {
-  const st = { enabled: false, groups: ['read'], title: host.app, version: 'dev', info: null, undo: null, busy: null, channel: null, acting: [] };
+  const st = { enabled: false, groups: ['read'], folders: [], title: host.app, version: 'dev', info: null, undo: null, busy: null, channel: null, acting: [], save: null, open: null };
   const log = [];
   const ev = new Map();
   const emit = (type, detail) => { for (const fn of ev.get(type) || []) { try { fn(detail); } catch { /* a listener */ } } };
@@ -931,7 +939,9 @@ function makeControl(host) {
   };
 
   function status(to) {
-    const s = { app: host.app, title: st.title, enabled: st.enabled, groups: st.enabled ? [...st.groups] : [], tools: st.enabled ? d.list().length : 0, focusedAt, connected: connected().length };
+    let docName = null;
+    try { docName = String((st.document ? st.document() : host.lastFile) || '').replace(/[\u0000-\u001f]/g, ' ').slice(0, 200) || null; } catch { docName = null; }
+    const s = { app: host.app, title: st.title, enabled: st.enabled, groups: st.enabled ? [...st.groups] : [], tools: st.enabled ? d.list().length : 0, focusedAt, connected: connected().length, document: docName };
     try { if (host.desktop && host.desktop.control && typeof host.desktop.control.status === 'function') host.desktop.control.status(s); } catch { /* an older shell */ }
     try { if (st.channel) st.channel.post('control.status', s, to); } catch { /* closed */ }
   }
@@ -1010,7 +1020,17 @@ function makeControl(host) {
   }
   if (host.win && typeof host.win.addEventListener === 'function') host.win.addEventListener('focus', () => { focusedAt = host.now(); if (st.enabled) status(); });
 
+  const files = makeAssistantFiles(host, st);
+  // Studio: the folders the person chose can be listed by any app's assistant (0.7 MCP-PATHS)
+  if (files.available) {
+    d.tool({ name: 'files_list', group: 'read', title: 'List files',
+      description: 'Files in the folders the person let assistants use (Settings › Assistants › Folders), newest first, up to 2000. Use these paths with the tools that take a path. Hidden files are skipped.',
+      inputSchema: { type: 'object', properties: { folder: { type: 'string', maxLength: 4096, description: 'One of the folders or a folder inside one; default: all of them.' }, extensions: { type: 'array', items: { type: 'string', maxLength: 12 }, maxItems: 20, description: 'e.g. ["dwg", "dxf"]' }, recursive: { type: 'boolean', default: false } }, additionalProperties: false },
+      run: async (a) => files.list(a.folder, { extensions: a.extensions, recursive: a.recursive }) });
+  }
+
   const api = {
+    files,
     tool(def) { const off = d.tool(def); status(); return () => { off(); status(); }; },
     has: (name) => d.has(name),
     on(name, fn) {
@@ -1020,11 +1040,13 @@ function makeControl(host) {
     configure(o = {}) {
       if ('enabled' in o) { const was = st.enabled; st.enabled = !!o.enabled; if (was && !st.enabled) disconnect(); }
       if (Array.isArray(o.groups)) st.groups = o.groups.filter((x) => TOOL_GROUPS.includes(x));
+      if (Array.isArray(o.folders)) st.folders = cleanFolders(o.folders);
       if (o.title) { st.title = String(o.title); d.server.title = st.title; }
       if (o.version) { st.version = String(o.version); d.server.version = st.version; }
       if ('info' in o) st.info = typeof o.info === 'function' ? o.info : null;
       if ('undo' in o) st.undo = typeof o.undo === 'function' ? o.undo : null;
       if ('busy' in o) st.busy = typeof o.busy === 'function' ? o.busy : null;
+      if ('document' in o) st.document = typeof o.document === 'function' ? o.document : null;   // the file it shows: Studio's window id (MCP-WINDOW-IDS)
       if (o.channel) wireChannel(o.channel);
       if (st.enabled) { wireDesktop(); wireChannel(); }
       if (st.enabled && host.doc && typeof host.doc.hasFocus === 'function' && host.doc.hasFocus()) focusedAt = host.now();
@@ -1034,6 +1056,7 @@ function makeControl(host) {
     },
     get enabled() { return st.enabled; },
     get groups() { return [...st.groups]; },
+    get folders() { return [...st.folders]; },
     get title() { return st.title; },
     get acting() { return st.acting.length ? st.acting[st.acting.length - 1].id : null; },
     get log() { return log.slice(); },
@@ -1049,6 +1072,170 @@ function makeControl(host) {
   return api;
 }
 
+// ---- files by path for assistants (0.7 MCP-PATHS; Studio only)
+//
+// An assistant names files by path instead of answering a file dialog. Only inside the folders the person added in
+// Settings › Assistants (picked with the desktop's folder dialog, so the shell grants them too: files.rs refuses anything
+// else), checked here first by the path's own parts (no "..", no other drive). host.control.files:
+//   .available                     the desktop bridge can read and write paths (Studio); in a browser false
+//   .folders()                     the folders, as the person added them
+//   .resolve(p)                    → the full path inside a folder (relative = inside the first one), else throws
+//   .read(p) → Uint8Array · .write(p, bytes, {overwrite}) → full path · .exists(p) · .list(folder?, {extensions, recursive})
+//   .open(p)                       hands the file to the app's own open handler (as a double-click does) and waits for it
+//   .into(path, fn, {overwrite})   while fn runs, a save the app makes (host.save / saveAs / download) is written to
+//                                  `path` instead of asking or downloading; a second one goes beside it under its own name
+//                                  → {result, written: [paths], errors: [why a write was refused]}
+//   .from(paths, fn)               while fn runs, host.openFile() answers with these files instead of a dialog → {result, used}
+// A file that exists is replaced only with overwrite, or when the assistant opened or wrote it in this window.
+
+const MAX_FOLDERS = 20;
+const winPath = (p) => /^[A-Za-z]:[\\/]/.test(p) || /^\\\\/.test(p);
+export function cleanFolders(list) {
+  const out = [];
+  for (const f of Array.isArray(list) ? list : []) {
+    if (typeof f !== 'string' || !f || f.length > 4096 || /[\u0000-\u001f]/.test(f)) continue;
+    if (!(f.startsWith('/') || winPath(f) || f.startsWith('cc-doc:/'))) continue;
+    if (!out.includes(f)) out.push(f);
+  }
+  return out.slice(0, MAX_FOLDERS);
+}
+
+/** A path → {root, parts, win} (lexical; "." dropped), or null when it has ".." or control characters. */
+export function pathParts(p) {
+  const s = String(p || '');
+  if (!s || s.length > 4096 || /[\u0000-\u001f]/.test(s)) return null;
+  const win = winPath(s);
+  let root = '', rest = s;
+  if (s.startsWith('cc-doc:/')) { root = 'cc-doc:/'; rest = s.slice(8); }
+  else if (win && /^[A-Za-z]:/.test(s)) { root = s.slice(0, 2).toUpperCase() + '\\'; rest = s.slice(3); }
+  else if (win) { root = '\\\\'; rest = s.slice(2); }
+  else if (s.startsWith('/')) { root = '/'; rest = s.slice(1); }
+  const parts = rest.split(/[\\/]+/).filter((x) => x && x !== '.');
+  if (parts.some((x) => x === '..')) return null;
+  return { root, parts, win };
+}
+const joinParts = (pp) => pp.root + pp.parts.join(pp.win ? '\\' : '/');
+/** Is `p` the folder `dir` or inside it? (Windows paths compare without case.) */
+export function pathInside(p, dir) {
+  const a = pathParts(p), b = pathParts(dir);
+  if (!a || !b || !a.root || a.root.toLowerCase() !== b.root.toLowerCase() || a.parts.length < b.parts.length) return false;
+  const eq = (x, y) => (a.win ? x.toLowerCase() === y.toLowerCase() : x === y);
+  return b.parts.every((x, i) => eq(x, a.parts[i]));
+}
+
+function makeAssistantFiles(host, st) {
+  const dk = () => host.desktop;
+  const mine = new Set();
+  const available = () => !!(dk() && typeof dk().readFile === 'function' && typeof dk().writeFile === 'function');
+  const need = () => { if (!available()) throw new Error('File paths work only in CadCraft Studio (the desktop app): in a browser the assistant works on what is open.'); };
+  function resolve(p) {
+    need();
+    if (!st.folders.length) throw new Error('The person has not given assistants any folder: they can add one in ' + st.title + ': Settings › Assistants › Folders.');
+    const raw = String(p ?? '');
+    const pp = pathParts(raw);
+    if (!pp) throw new Error('"' + raw.slice(0, 200) + '" is not a usable path (".." and control characters are refused).');
+    let full;
+    if (pp.root) full = joinParts(pp);
+    else { const base = pathParts(st.folders[0]); full = joinParts({ ...base, parts: base.parts.concat(pp.parts) }); }
+    if (!st.folders.some((f) => pathInside(full, f))) throw new Error('"' + full + '" is outside the folders assistants may use: ' + st.folders.join(', ') + '.');
+    return full;
+  }
+  async function exists(p) {
+    const full = resolve(p), d = dk();
+    if (typeof d.stat === 'function') { try { return !!(await d.stat(full)); } catch { return false; } }
+    try { return ((await d.listDir(dirName(full))) || []).some((e) => e.name === baseName(full) && !e.dir); } catch { return false; }
+  }
+  async function write(p, data, { overwrite = false } = {}) {
+    const full = resolve(p);
+    if (!overwrite && !mine.has(full) && (await exists(full))) throw new Error(baseName(full) + ' already exists in ' + dirName(full) + '. Pass overwrite: true to replace it.');
+    await dk().writeFile(full, await toBytes(data));
+    mine.add(full);
+    return full;
+  }
+  async function read(p) {
+    const full = resolve(p);
+    const bytes = await dk().readFile(full);
+    mine.add(full);
+    return bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  }
+  async function list(folder, { extensions = null, recursive = false } = {}) {
+    need();
+    const exts = extensions ? extensions.map((e) => String(e).replace(/^\./, '').toLowerCase()) : null;
+    const tops = folder ? [resolve(folder)] : st.folders.slice();
+    const out = [];
+    let truncated = false;
+    const walk = async (dir, depth) => {
+      let ents = [];
+      try { ents = (await dk().listDir(dir)) || []; } catch (e) { if (depth === 0) throw e; return; }
+      for (const e of ents) {
+        if (out.length >= 2000) { truncated = true; return; }
+        if (!e || !e.name || e.name.startsWith('.')) continue;
+        const full = dir + (pathParts(dir).win ? '\\' : '/') + e.name;
+        if (e.dir) { if (recursive && depth < 6) await walk(full, depth + 1); continue; }
+        if (exts && !exts.includes((e.name.match(/\.([^.]+)$/)?.[1] || '').toLowerCase())) continue;
+        let size = null, modified = null;
+        if (typeof dk().stat === 'function') { try { const s = await dk().stat(full); if (s) { size = s.size ?? null; modified = s.mtime ? new Date(s.mtime).toISOString() : null; } } catch { /* fine */ } }
+        out.push({ path: full, size, modified });
+      }
+    };
+    for (const t of tops) await walk(t, 0);
+    out.sort((a, b) => String(b.modified || '').localeCompare(String(a.modified || '')) || a.path.localeCompare(b.path));
+    return { folders: st.folders.slice(), files: out, truncated };
+  }
+  async function open(p) {
+    const full = resolve(p);
+    if (!host.openHandlers.length) throw new Error(st.title + ' cannot open files from a path.');
+    const f = host.pathFile(full);
+    mine.add(full);
+    await host.recent.add(f, 'open');
+    await Promise.all(host.openHandlers.map((fn) => Promise.resolve().then(() => fn([f]))));
+    return full;
+  }
+  async function into(path, fn, { overwrite = false } = {}) {
+    const full = resolve(path);
+    const red = st.save = { path: full, overwrite, written: [], errors: [], pending: [], count: 0 };
+    try {
+      const result = await fn();
+      await Promise.all(red.pending);   // a download() started inside fn writes after it returns
+      return { result, written: red.written.slice(), errors: red.errors.slice() };
+    } finally { if (st.save === red) st.save = null; }
+  }
+  async function from(paths, fn) {
+    const list = (Array.isArray(paths) ? paths : [paths]).map(resolve);
+    const red = st.open = { files: list, used: [] };
+    try { return { result: await fn(), used: red.used.slice() }; } finally { if (st.open === red) st.open = null; }
+  }
+  /** host.save / saveAs / download, while into() runs: write there. → the save result, or null (no redirect). */
+  async function takeSave(data, name) {
+    const red = st.save;
+    if (!red) return null;
+    const job = writeSaved(red, data, name, red.count++ === 0);
+    red.pending.push(job);
+    return job;
+  }
+  async function writeSaved(red, data, name, first) {
+    const target = !first ? dirName(red.path) + (pathParts(red.path).win ? '\\' : '/') + baseName(name || 'Untitled') : red.path;
+    try {
+      const full = await write(target, data, { overwrite: red.overwrite });
+      red.written.push(full);
+      const f = host.pathFile(full);
+      await host.recent.add(f, 'save');
+      return { ok: true, how: 'written', target: f, name: baseName(full), path: full };
+    } catch (error) { red.errors.push(String((error && error.message) || error)); return { ok: false, error }; }
+  }
+  /** host.openFile, while from() runs → HostFiles, or null (no redirect). */
+  function takeOpen(multiple) {
+    const red = st.open;
+    if (!red) return null;
+    const take = red.files.splice(0, multiple ? red.files.length : 1);
+    red.used.push(...take);
+    take.forEach((p) => mine.add(p));
+    return take.map((p) => host.pathFile(p));
+  }
+  return { get available() { return available(); }, folders: () => st.folders.slice(), resolve, exists, read, write, list, open, into, from, takeSave, takeOpen,
+    get saving() { return !!st.save; }, get opening() { return !!st.open; } };
+}
+
 // ---- Settings › Assistants and the app bar's "assistant connected" indicator (X.6; AGENTS-SPEC §7)
 //
 // getHost() mounts both by itself: the settings into any [data-assistants-settings] element (an app puts one in its
@@ -1062,12 +1249,12 @@ export function assistantPrefs(host) {
   try {
     const raw = host.win && host.win.localStorage ? host.win.localStorage.getItem(ASSIST_KEY + host.app) : null;
     const v = raw ? JSON.parse(raw) : null;
-    if (v && typeof v === 'object') return { enabled: !!v.enabled, groups: Array.isArray(v.groups) ? v.groups.filter((x) => TOOL_GROUPS.includes(x)) : ['read'] };
+    if (v && typeof v === 'object') return { enabled: !!v.enabled, groups: Array.isArray(v.groups) ? v.groups.filter((x) => TOOL_GROUPS.includes(x)) : ['read'], folders: cleanFolders(v.folders) };
   } catch { /* private mode */ }
-  return { enabled: false, groups: ['read'] };
+  return { enabled: false, groups: ['read'], folders: [] };
 }
 function saveAssistantPrefs(host, p) {
-  try { if (host.win && host.win.localStorage) host.win.localStorage.setItem(ASSIST_KEY + host.app, JSON.stringify({ enabled: !!p.enabled, groups: p.groups })); } catch { /* private mode */ }
+  try { if (host.win && host.win.localStorage) host.win.localStorage.setItem(ASSIST_KEY + host.app, JSON.stringify({ enabled: !!p.enabled, groups: p.groups, folders: cleanFolders(p.folders) })); } catch { /* private mode */ }
 }
 
 function domMaker(d) {
@@ -1080,6 +1267,55 @@ function domMaker(d) {
 }
 const clientName = (s) => (s && s.client && s.client.name) || AT('someone');
 const groupList = (groups) => groups.map((g) => AT('short.' + g)).join(', ');
+
+/**
+ * Settings › Assistants › Folders it may use (0.7 MCP-PATHS): the list, Remove, "Add a folder…" (Studio's folder dialog,
+ * which also grants it in the shell). `save(list)` keeps the new list. → {box, render}.
+ */
+function folderSection(host, el, save) {
+  const c = host.control;
+  const list = el('ul', { class: 'shell-assist-folders', 'data-assist-folders': true });
+  const add = el('button', { type: 'button', class: 'shell-assist-btn', 'data-assist-folder-add': true });
+  const hint = el('p', { class: 'shell-hint-text', 'data-assist-folders-hint': true });
+  const head = el('p', { class: 'shell-assist-folders-head', 'data-assist-folders-head': true });
+  const box = el('div', { class: 'shell-assist-folderbox', role: 'group', 'data-assist-folderbox': true }, head, hint, list, add);
+  add.addEventListener('click', async () => {
+    const f = await host.pickFolder({ write: true, title: AT('folders.add.title', { app: c.title }) }).catch(() => null);
+    if (f && f.path && !c.folders.includes(f.path)) save(c.folders.concat(f.path));
+  });
+  list.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('[data-assist-folder-remove]');
+    if (b) save(c.folders.filter((x) => x !== b.getAttribute('data-assist-folder-remove')));
+  });
+  const render = () => {
+    const desk = c.files.available;
+    head.textContent = AT('folders');
+    box.setAttribute('aria-label', AT('folders'));
+    hint.textContent = desk ? AT('folders.hint') : AT('folders.browser');
+    add.textContent = AT('folders.add');
+    add.hidden = !desk;
+    add.disabled = !c.enabled;
+    list.hidden = !desk;
+    list.replaceChildren(...(c.folders.length ? c.folders.map((f) => el('li', { class: 'shell-assist-folder' },
+      el('span', { class: 'shell-assist-folder-path' }, f), ' ',
+      el('button', { type: 'button', class: 'shell-assist-btn', 'data-assist-folder-remove': f, 'aria-label': AT('folders.remove.label', { folder: f }) }, AT('folders.remove')))) : [el('li', { class: 'shell-assist-empty' }, AT('folders.none'))]));
+  };
+  return { box, render };
+}
+
+/** Only the folders list, for an app that draws its own Assistants switches (CivilCraft): put <div data-assistants-folders>
+ *  in them. Keeps the list in cadcraft.assistants.<app> beside whatever the app keeps. */
+export function mountAssistantFolders(host, root) {
+  const d = root.ownerDocument, el = domMaker(d), c = host.control;
+  const f = folderSection(host, el, (list) => { saveAssistantPrefs(host, { enabled: c.enabled, groups: c.groups, folders: list }); c.configure({ folders: list }); });
+  root.replaceChildren(f.box);
+  const dlg = root.closest && root.closest('dialog');
+  if (dlg) dlg.addEventListener('cc-settings-reset', () => { saveAssistantPrefs(host, { enabled: c.enabled, groups: c.groups, folders: [] }); c.configure({ folders: [] }); });
+  c.on('change', f.render);
+  f.render();
+  if (typeof window !== 'undefined' && !window.ccShellT && d.readyState !== 'complete') window.addEventListener('load', f.render, { once: true });
+  return f.render;
+}
 
 /** Settings › Assistants into `root`. Returns a re-render function. */
 export function mountAssistants(host, root) {
@@ -1095,18 +1331,21 @@ export function mountAssistants(host, root) {
   const clear = el('button', { type: 'button', class: 'shell-assist-btn', 'data-assist-clear': true });
   const sum = el('summary', {});
   const legend = el('legend', {});
+  const folders = folderSection(host, el, (list) => persist(list));   // 0.7 MCP-PATHS
+  const folderBox = folders.box;
   const groupBox = el('div', { class: 'shell-assist-groups', role: 'group' }, TOOL_GROUPS.map((g) => el('label', { class: 'shell-check' }, groups[g], ' ', el('span', { 'data-assist-group-label': g }))));
   const set = el('fieldset', { class: 'shell-set' },
     legend,
     el('label', { class: 'shell-check' }, on, ' ', el('span', { 'data-assist-on-label': true })),
     el('p', { class: 'shell-hint-text', 'data-assist-hint': true }),
     groupBox,
+    folderBox,
     el('div', { class: 'shell-assist-row' }, status, disc),
     el('details', { class: 'shell-assist-activity', 'data-assist-activity': true }, sum, list, el('div', { class: 'shell-btns' }, save, clear)));
   root.replaceChildren(set);
 
-  const persist = () => {
-    const p = { enabled: on.checked, groups: TOOL_GROUPS.filter((g) => groups[g].checked) };
+  const persist = (folders = c.folders) => {
+    const p = { enabled: on.checked, groups: TOOL_GROUPS.filter((g) => groups[g].checked), folders };
     if (p.enabled && !p.groups.length) { p.groups = ['read']; groups.read.checked = true; }
     saveAssistantPrefs(host, p);
     c.configure(p);
@@ -1115,7 +1354,7 @@ export function mountAssistants(host, root) {
     if (on.checked && !TOOL_GROUPS.some((g) => groups[g].checked)) groups.read.checked = true;
     persist();
   });
-  for (const g of TOOL_GROUPS) groups[g].addEventListener('change', persist);
+  for (const g of TOOL_GROUPS) groups[g].addEventListener('change', () => persist());
   disc.addEventListener('click', () => c.disconnect());
   clear.addEventListener('click', () => c.clearLog());
   save.addEventListener('click', () => {
@@ -1123,7 +1362,7 @@ export function mountAssistants(host, root) {
     host.download(lines, host.app + '-assistant-activity.jsonl', 'application/x-ndjson');
   });
   const dlg = root.closest && root.closest('dialog');
-  if (dlg) dlg.addEventListener('cc-settings-reset', () => { on.checked = false; for (const g of TOOL_GROUPS) groups[g].checked = g === 'read'; persist(); });
+  if (dlg) dlg.addEventListener('cc-settings-reset', () => { on.checked = false; for (const g of TOOL_GROUPS) groups[g].checked = g === 'read'; persist([]); });
 
   const locale = (typeof window !== 'undefined' && window.ccShellT && window.ccShellT.locale && window.ccShellT.locale()) || undefined;
   const render = () => {
@@ -1134,6 +1373,7 @@ export function mountAssistants(host, root) {
     for (const g of TOOL_GROUPS) { groups[g].checked = c.groups.includes(g); groups[g].disabled = !c.enabled; }
     set.querySelector('[data-assist-on-label]').textContent = AT('on', { app: title() });
     set.querySelector('[data-assist-hint]').textContent = AT('hint', { app: title() });
+    folders.render();
     const ss = c.sessions();
     status.textContent = !c.enabled ? AT('off') : !ss.length ? AT('none') : ss.length === 1 ? AT('connected', { name: clientName(ss[0]) }) : AT('connected.many', { n: ss.length });
     disc.textContent = AT('disconnect');
@@ -1217,7 +1457,8 @@ export function createControlRelay({ channel, now = () => Date.now(), timeout = 
     channel.on('control.status', (data, env) => {
       if (!data || typeof data !== 'object') return;
       windows.set(env.from, { window: env.from, app: String(data.app || env.app || '').slice(0, 40), title: String(data.title || '').slice(0, 200), enabled: !!data.enabled,
-        groups: Array.isArray(data.groups) ? data.groups.filter((x) => TOOL_GROUPS.includes(x)) : [], tools: data.tools | 0, focusedAt: +data.focusedAt || 0, seenAt: now() });
+        groups: Array.isArray(data.groups) ? data.groups.filter((x) => TOOL_GROUPS.includes(x)) : [], tools: data.tools | 0, focusedAt: +data.focusedAt || 0, seenAt: now(),
+        document: typeof data.document === 'string' && data.document ? data.document.slice(0, 200) : null });
     }),
     channel.on('bye', (data, env) => { windows.delete(env.from); }),
     channel.on('hello', (data, env) => { try { channel.post('control.who', null, env.from); } catch { /* closed */ } }),
@@ -1236,8 +1477,31 @@ export function createControlRelay({ channel, now = () => Date.now(), timeout = 
     channel.post('control.request', { rid: r, sid: session.id, client: session.client || null, message }, win);
   });
   const live = () => [...windows.values()].filter((w) => w.enabled);
-  const pick = (id) => (id ? windows.get(id) || null : live().sort((a, b) => b.focusedAt - a.focusedAt || b.seenAt - a.seenAt)[0] || null);
-  const winProp = { type: 'string', maxLength: 90, description: 'The app window to use (from windows_list); default the one used last.' };
+  const recent = (a, b) => b.focusedAt - a.focusedAt || b.seenAt - a.seenAt;
+  // Window ids an assistant can keep (0.7 MCP-WINDOW-IDS): "<app>:<the file it shows>" ("cadcraft:plan.dwg"), the same after
+  // Studio restarts once that file is open again; "#2" … when one file is open twice. Studio's own label still works, and an
+  // app name alone ("cadcraft") is that app's window used last.
+  const stableIds = () => {
+    const ids = new Map(), used = new Map();
+    const order = [...windows.values()].sort((a, b) => String(a.window).localeCompare(String(b.window), undefined, { numeric: true }));
+    for (const w of order) {
+      const base = (w.app || 'app') + ':' + (w.document ? w.document.toLowerCase().replace(/[\s]+/g, ' ').trim() : 'untitled');
+      const n = (used.get(base) || 0) + 1;
+      used.set(base, n);
+      ids.set(w.window, n === 1 ? base : base + '#' + n);
+    }
+    return ids;
+  };
+  const pick = (id) => {
+    if (!id) return live().sort(recent)[0] || null;
+    if (windows.has(id)) return windows.get(id);
+    const want = String(id).toLowerCase().trim();
+    const ids = stableIds();
+    for (const [label, sid] of ids) if (sid === want) return windows.get(label);
+    const ofApp = [...windows.values()].filter((w) => w.app === want);
+    return (ofApp.filter((w) => w.enabled).sort(recent)[0] || ofApp.sort(recent)[0]) || null;
+  };
+  const winProp = { type: 'string', maxLength: 300, description: 'The app window to use: an id from windows_list ("cadcraft:plan.dwg", the same after Studio restarts once that file is open), or an app name for its window used last; default the window used last.' };
 
   const d = createDispatcher({
     server: { name: 'cadcraft-studio', title: 'CadCraft Studio', version: '0.4', ...server },
@@ -1246,8 +1510,13 @@ export function createControlRelay({ channel, now = () => Date.now(), timeout = 
     now,
     instructions: 'Tools of the CadCraft app windows the person has opened in Studio and allowed in Settings › Assistants. windows_list shows them; each tool acts on the window used last unless you pass window.',
   });
-  d.tool({ name: 'windows_list', group: 'read', title: 'List app windows', description: 'The app windows open in Studio, which of them take assistants, and what each allows.',
-    run: async () => ({ windows: [...windows.values()].map((w) => ({ window: w.window, app: w.app, title: w.title, assistants: w.enabled, allowed: w.groups, tools: w.tools })) }) });
+  d.tool({ name: 'windows_list', group: 'read', title: 'List app windows', description: 'The app windows open in Studio, which of them take assistants, what each allows and the file it shows. Each window\'s id is "<app>:<file>", so it stays the same after Studio restarts once that file is open again; an app name alone also works (its window used last).',
+    run: async () => {
+      try { channel.post('control.who', null); } catch { /* closed */ }
+      await new Promise((r) => setTimeout(r, 150));   // the windows answer with what they show now
+      const ids = stableIds(), last = pick(null);
+      return { windows: [...windows.values()].map((w) => ({ window: ids.get(w.window), app: w.app, document: w.document, title: w.title, assistants: w.enabled, allowed: w.groups, tools: w.tools, usedLast: w === last, studioLabel: w.window })) };
+    } });
 
   async function handle(msg, session = {}) {
     if (!session.id) session.id = 'relay';
@@ -1267,7 +1536,12 @@ export function createControlRelay({ channel, now = () => Date.now(), timeout = 
       const args = p.arguments && typeof p.arguments === 'object' && !Array.isArray(p.arguments) ? { ...p.arguments } : {};
       const wid = typeof args.window === 'string' ? args.window : null;
       delete args.window;
-      const w = pick(wid);
+      let w = pick(wid);
+      if (wid && !w) {   // a window may show another file since it last said: ask them all, then look again
+        try { channel.post('control.who', null); } catch { /* closed */ }
+        await new Promise((r) => setTimeout(r, 150));
+        w = pick(wid);
+      }
       if (!w || !w.enabled) {
         const text = wid ? 'There is no app window ' + wid + ' taking assistants (windows_list shows them).' : 'No app window takes assistants yet: the person opens an app and turns on Settings › Assistants.';
         return msg.id === undefined ? null : { jsonrpc: '2.0', id: msg.id, result: { content: [{ type: 'text', text }], isError: true } };
@@ -1516,6 +1790,7 @@ export function getHost(o = {}) {
       h.control.configure(p);
       const mountA = () => {
         h.doc.querySelectorAll('[data-assistants-settings]').forEach((r) => { if (!r.__ccAssist) { r.__ccAssist = true; mountAssistants(h, r); } });
+        h.doc.querySelectorAll('[data-assistants-folders]').forEach((r) => { if (!r.__ccAssist) { r.__ccAssist = true; mountAssistantFolders(h, r); } });
         const bar = h.doc.querySelector('.app-bar');
         if (bar && !bar.__ccAssist) { bar.__ccAssist = true; mountAssistantIndicator(h, bar); }
       };

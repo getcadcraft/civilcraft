@@ -1,0 +1,1 @@
+{ "id": "test.newer", "name": "Test newer", "version": "1.0.0", "apps": ["cadcraft"], "api": "1.9", "license": "Apache-2.0", "entry": "./main.js" }

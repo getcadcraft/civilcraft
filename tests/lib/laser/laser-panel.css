@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* laser-panel.css — the Laser panel (0.7 SU.772; lib/laser/laser-panel.js), the same in CadCraft and PartCraft (copied by
+   tools/laser/sync.mjs; listed in each app's manifest css). Theme tokens only; sizes in rem. */
+.lp-aid { margin: 0 0 .6rem; padding: .4rem .6rem; border-left: var(--pen-3, 2px) solid var(--layer-ochre); background: var(--sheet); color: var(--ink); font-size: .8125rem; }
+.lp-row { display: flex; flex-wrap: wrap; gap: .5rem .9rem; align-items: flex-end; margin: .4rem 0; }
+.lp-field { display: flex; flex-direction: column; gap: .15rem; font-size: .8125rem; color: var(--ink-2); }
+.lp-check { display: flex; align-items: center; gap: .35rem; font-size: .8125rem; }
+.lp-num { width: 6rem; }
+.lp-wrap { overflow-x: auto; }
+.lp-more td { border-top: 0; padding-top: 0; }
+.lp-canvas { display: block; width: 100%; max-width: 40rem; height: auto; aspect-ratio: 16 / 9; border: var(--pen-1, 1px) solid var(--grid); background: var(--sheet); }
+.lp-warn { color: var(--ink); border-left: var(--pen-3, 2px) solid var(--layer-ochre); padding-left: .5rem; }
+.lp-stop { border-color: var(--layer-red); color: var(--layer-red); }
+.lp-progress { width: 100%; max-width: 40rem; }
+.lp-log { margin: .4rem 0 0; padding: .4rem .6rem; max-height: 8rem; overflow: auto; font-size: .75rem; border: var(--pen-1, 1px) solid var(--grid); background: var(--sheet); color: var(--ink-2); }
+.lp-machine > summary { cursor: pointer; font-weight: 600; }

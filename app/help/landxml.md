@@ -15,7 +15,7 @@ LandXML is the open exchange format most civil programs read and write. CivilCra
 3. A **new project** is made. The status bar says what was read, for example "Opened site.xml: 412 points, 2 surfaces, 3 alignments."
 4. Look at the box under the **Surface** facts. It lists everything that was skipped or changed, for example:
    - "Only the first surface ("EG") was opened; the file has 1 more."
-   - "Alignment "Ramp A" has spirals or other elements CivilCraft cannot draw yet; it was skipped."
+   - "Alignment "Ramp A" has elements CivilCraft cannot draw yet (not lines, arcs or clothoid spirals); it was skipped."
    - "Pipe network rules were not in the file; the placeholders are in use — set yours under Project."
 
 What becomes what:
@@ -26,7 +26,7 @@ What becomes what:
 | Project name | The project **Name** |
 | CgPoints | The project's points; the description (or code) gives the group |
 | The first TIN surface | The existing ground, used as it is ("Surface (from LandXML)") |
-| Every alignment of lines and arcs | An alignment with its PIs and radii rebuilt from the curves |
+| Every alignment of lines, arcs and clothoid spirals | An alignment with its PIs, radii and spiral lengths rebuilt from the curves |
 | The first design profile of each alignment | Its design profile, with parabolic vertical curves |
 | The first pipe network | The pipe network, with its rims, sumps and inverts |
 | Plan features of lines and arcs | Feature lines, arcs kept; from another program they start as **Only drawn** |
@@ -47,7 +47,7 @@ The file holds:
 - **Units**: US survey feet or metres.
 - **CgPoints**: every point with its number as the name, its description and its group as the code.
 - **Surfaces**: the existing ground as a TIN, with its breaklines and outer boundary as source data; and, when pads or corridors grade, a second TIN surface named "Proposed".
-- **Alignments**: lines and arcs with their stations, each with a profile holding the existing ground sampled along it and the design profile (PVIs and parabolic curves) when it has at least two PVIs.
+- **Alignments**: lines, arcs and clothoid spirals with their stations, each with a profile holding the existing ground sampled along it and the design profile (PVIs and parabolic curves) when it has at least two PVIs.
 - **PipeNetworks**: structures with their rims, sumps and invert per pipe, and the pipes with diameter, length and slope.
 - **PlanFeatures**: every feature line as lines and arcs with the elevation at each end, and what it is used for.
 
@@ -60,7 +60,7 @@ The file holds:
 - Network rules (least slope, cover, drop): LandXML has no place for them.
 - Display settings and point groups' surface choices: save a CivilCraft project for those.
 
-When opening, CivilCraft does not read spirals, grid surfaces, points that only refer to other points, parcels, spirals in plan features, roadways or survey data. Each is named in the notes, never guessed.
+When opening, CivilCraft does not read spirals other than clothoid, grid surfaces, points that only refer to other points, parcels, spirals in plan features, roadways or survey data. Each is named in the notes, never guessed.
 
 ## Round trips
 

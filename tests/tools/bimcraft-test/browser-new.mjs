@@ -40,7 +40,7 @@ const page = await ctx.newPage();
 watch(page);
 const statusOf = (p) => p.textContent('[data-status]');
 const waitStatus = (p, re, timeout = 60000) => p.waitForFunction((src) => new RegExp(src).test(document.querySelector('[data-status]')?.textContent || ''), re.source, { timeout });
-const tool = (act) => `[data-toolbar] > [data-act="${act}"]`;
+const tool = (act) => `[data-toolbar] .bc-tool-row > [data-act="${act}"]`;
 const item = (act) => `[data-edit-menu] [role="menuitem"][data-act="${act}"]`;
 const disabled = async (p, sel) => (await p.getAttribute(sel, 'aria-disabled')) === 'true';
 const scheduleNos = async (p) => {

@@ -1,0 +1,909 @@
+' CadCraftExport.swb - run inside SolidWorks on the active part (Tools > Macro > Run, pick this file).
+' It walks the FeatureManager tree and writes <part name>.cadcraft-sw.json next to the part (next to this macro
+' when the part has not been saved): the format "cadcraft-sw-export" version 1 (docs/PARAMETRIC-SPEC.md), which
+' PartCraft's Open and CadCraft's Open read. Nothing in the part is changed.
+'
+' Not yet tested in SolidWorks: it was written from the SolidWorks API Help and has never been run in SolidWorks.
+' Every value is read through documented API members; whatever cannot be read is written as "unsupported" with the
+' reason, never guessed.
+'
+' SolidWorks API members used (interface :: member - arguments). The API gives metres and radians; the file is mm and
+' degrees. bin/test-partcraft-sw.mjs keeps the same table and checks every call in this file against it.
+'   Application :: SldWorks
+'   SldWorks :: ActiveDoc, GetMathUtility 0, RevisionNumber 0, GetCurrentMacroPathName 0
+'   ModelDoc2 :: GetType 0, GetPathName 0, GetTitle 0, FirstFeature 0, GetEquationMgr 0, Extension
+'   ModelDocExtension :: CreateMassProperty 0 ; MassProperty :: Volume
+'   Feature :: Name, GetTypeName2 0, GetNextFeature 0, GetFirstSubFeature 0, GetNextSubFeature 0, IsSuppressed 0,
+'     GetSpecificFeature2 0, GetDefinition 0, GetFaces 0, GetFirstDisplayDimension 0, GetNextDisplayDimension 1
+'   Sketch :: ModelToSketchTransform, GetSketchPoints2 0, GetSketchSegments 0, RelationManager
+'   SketchRelationManager :: GetRelations 1 (swAll 0) ; SketchRelation :: GetRelationType 0, GetEntities 0
+'   SketchPoint :: X, Y, GetID 0 ; SketchSegment :: GetType 0, ConstructionGeometry, GetID 0
+'   SketchLine :: GetStartPoint2 0, GetEndPoint2 0 ; SketchArc :: GetCenterPoint2 0, GetStartPoint2 0, GetEndPoint2 0,
+'     IsCircle 0, GetRadius 0, GetRotationDir 0
+'   MathTransform :: Inverse 0 ; MathUtility :: CreatePoint 1, CreateVector 1 ; MathPoint, MathVector :: MultiplyTransform 1, ArrayData
+'   DisplayDimension :: GetDimension2 1, GetAnnotation 0 ; Annotation :: GetAttachedEntities3 0
+'   Dimension :: Name, FullName, SystemValue, GetType 0
+'   ExtrudeFeatureData2 :: GetEndCondition 1, GetDepth 1, ReverseDirection, BothDirections
+'   RevolveFeatureData2 :: GetRevolutionAngle 1, ReverseDirection, Axis
+'   ShellFeatureData :: FacesRemoved, Thickness, Outward
+'   LinearPatternFeatureData :: D1TotalInstances, D1Spacing, D1ReverseDirection, D1Axis, PatternFeatureArray
+'   CircularPatternFeatureData :: TotalInstances, Spacing, EqualSpacing, ReverseDirection, Axis, PatternFeatureArray
+'   MirrorPatternFeatureData :: Plane, PatternFeatureArray
+'   (feature data) :: AccessSelections 2, ReleaseSelectionAccess 0
+'   Face2 :: GetBox 0, GetClosestPointOn 3, Normal ; Edge :: GetCurveParams2 0 ; RefAxis :: GetRefAxisParams 0
+'   RefPlane :: Transform ; EquationMgr :: GetCount 0, Equation, GlobalVariable
+' swconst values written below as Const lines (the type library is not referenced by a .swb macro).
+
+Option Explicit
+
+Const swDocPART As Long = 1              ' swDocumentTypes_e
+Const swSketchLINE As Long = 0           ' swSketchSegments_e
+Const swSketchARC As Long = 1
+Const swAll As Long = 0                  ' swSketchRelationFilterType_e
+Const swEndCondBlind As Long = 0         ' swEndConditions_e
+Const swEndCondThroughAll As Long = 1
+Const swEndCondMidPlane As Long = 6
+Const swDimAngular As Long = 2           ' swDimensionParamType_e (swDimensionParamTypeDoubleAngular)
+
+Dim swApp As Object
+Dim swModel As Object
+Dim swMath As Object
+Dim gBuf() As String
+Dim gK As Long
+Dim gDone As String
+Dim gNotes As Long
+Dim gFirst As Boolean
+
+' ---- writing JSON
+Sub Emit(ByVal s As String)
+    If gK > UBound(gBuf) Then ReDim Preserve gBuf(0 To 2 * gK)
+    gBuf(gK) = s
+    gK = gK + 1
+End Sub
+
+Function J(ByVal s As String) As String
+    Dim i As Long
+    Dim c As Long
+    Dim out As String
+    out = Chr(34)
+    For i = 1 To Len(s)
+        c = AscW(Mid(s, i, 1))
+        If c < 0 Then c = c + 65536
+        If c = 34 Then
+            out = out & "\" & Chr(34)
+        ElseIf c = 92 Then
+            out = out & "\\"
+        ElseIf c < 32 Or c > 126 Then
+            out = out & "\u" & Right("000" & Hex(c), 4)
+        Else
+            out = out & Chr(c)
+        End If
+    Next i
+    J = out & Chr(34)
+End Function
+
+Function N(ByVal v As Double) As String
+    Dim s As String
+    If Abs(v) < 0.000000000001 Then
+        N = "0"
+        Exit Function
+    End If
+    s = Trim(Str(v))
+    If Left(s, 1) = "." Then s = "0" & s
+    If Left(s, 2) = "-." Then s = "-0" & Mid(s, 2)
+    N = s
+End Function
+
+' metres to mm (solver noise under 1e-9 mm dropped)
+Function MM(ByVal v As Double) As String
+    MM = N(Round(v * 1000, 9))
+End Function
+
+Function Deg(ByVal v As Double) As String
+    Deg = N(Round(v * 180 / 3.14159265358979, 9))
+End Function
+
+Function Vec(ByVal x As Double, ByVal y As Double, ByVal z As Double) As String
+    Vec = "[" & MM(x) & ", " & MM(y) & ", " & MM(z) & "]"
+End Function
+
+Function Dir3(ByVal x As Double, ByVal y As Double, ByVal z As Double) As String
+    Dir3 = "[" & N(Round(x, 12)) & ", " & N(Round(y, 12)) & ", " & N(Round(z, 12)) & "]"
+End Function
+
+Function Sep() As String
+    If gFirst Then
+        Sep = ""
+        gFirst = False
+    Else
+        Sep = ", "
+    End If
+End Function
+
+Sub Unsupported(ByVal nm As String, ByVal swType As String, ByVal why As String)
+    Call Emit(Sep() & "{ ""name"": " & J(nm) & ", ""type"": ""unsupported"", ""swType"": " & J(swType) & ", ""why"": " & J(why) & " }" & vbCrLf)
+    gNotes = gNotes + 1
+End Sub
+
+Function Done(ByVal nm As String) As Boolean
+    Done = (InStr(1, gDone, "|" & nm & "|") > 0)
+End Function
+
+' ---- ids of sketch geometry ("P<a>_<b>" points, "S<a>_<b>" curves); points outside the sketch at its origin are "O"
+Function IsPoint(o As Object) As Boolean
+    Dim x As Double
+    On Error Resume Next
+    x = o.X
+    IsPoint = (Err.Number = 0)
+    Err.Clear
+End Function
+
+Function GeoId(o As Object, ByVal own As String) As String
+    Dim v As Variant
+    Dim k As String
+    GeoId = ""
+    On Error GoTo NoId
+    v = o.GetID
+    If IsPoint(o) Then
+        k = "P" & v(0) & "_" & v(1)
+        If InStr(1, own, "|" & k & "|") > 0 Then
+            GeoId = k
+        ElseIf Abs(o.X) < 0.0000000001 And Abs(o.Y) < 0.0000000001 Then
+            GeoId = "O"
+        End If
+    Else
+        GeoId = "S" & v(0) & "_" & v(1)
+    End If
+NoId:
+End Function
+
+Function RelName(ByVal t As Long) As String
+    ' swConstraintType_e
+    Select Case t
+        Case 4, 25
+            RelName = "horizontal"
+        Case 5, 26
+            RelName = "vertical"
+        Case 6
+            RelName = "tangent"
+        Case 7
+            RelName = "parallel"
+        Case 8
+            RelName = "perpendicular"
+        Case 9
+            RelName = "coincident"
+        Case 10
+            RelName = "concentric"
+        Case 11
+            RelName = "symmetric"
+        Case 12
+            RelName = "midpoint"
+        Case 14
+            RelName = "equal"
+        Case 17
+            RelName = "fix"
+        Case 27
+            RelName = "collinear"
+        Case Else
+            RelName = "other"
+    End Select
+End Function
+
+' ---- a point and a direction of the model, through a sketch's sketch-to-model transform
+Function XfPoint(xf As Object, ByVal u As Double, ByVal v As Double) As Variant
+    Dim mPt As Object
+    Dim a(2) As Double
+    Dim w As Variant
+    a(0) = u
+    a(1) = v
+    a(2) = 0
+    w = a
+    Set mPt = swMath.CreatePoint(w)
+    Set mPt = mPt.MultiplyTransform(xf)
+    XfPoint = mPt.ArrayData
+End Function
+
+Function XfVector(xf As Object, ByVal x As Double, ByVal y As Double, ByVal z As Double) As Variant
+    Dim mVec As Object
+    Dim a(2) As Double
+    Dim w As Variant
+    a(0) = x
+    a(1) = y
+    a(2) = z
+    w = a
+    Set mVec = swMath.CreateVector(w)
+    Set mVec = mVec.MultiplyTransform(xf)
+    XfVector = mVec.ArrayData
+End Function
+
+' a point on a face: the point of the face nearest the middle of its box
+Function FacePoint(face As Object) As String
+    Dim b As Variant
+    Dim p As Variant
+    FacePoint = ""
+    On Error GoTo NoPoint
+    b = face.GetBox
+    p = face.GetClosestPointOn((b(0) + b(3)) / 2, (b(1) + b(4)) / 2, (b(2) + b(5)) / 2)
+    FacePoint = Vec(p(0), p(1), p(2))
+NoPoint:
+End Function
+
+' the full name of the feature's first dimension with this value (metres, radians or a count), or ""
+Function DimFor(feat As Object, ByVal v As Double) As String
+    Dim dDim As Object
+    Dim dm As Object
+    DimFor = ""
+    On Error GoTo NoDim
+    Set dDim = feat.GetFirstDisplayDimension
+    Do While Not dDim Is Nothing
+        Set dm = dDim.GetDimension2(0)
+        If Abs(Abs(dm.SystemValue) - Abs(v)) <= 0.000000001 * (1 + Abs(v)) Then
+            DimFor = dm.FullName
+            Exit Function
+        End If
+        Set dDim = feat.GetNextDisplayDimension(dDim)
+    Loop
+NoDim:
+End Function
+
+Function SketchOf(feat As Object) As String
+    Dim subF As Object
+    SketchOf = ""
+    Set subF = feat.GetFirstSubFeature
+    Do While Not subF Is Nothing
+        If subF.GetTypeName2 = "ProfileFeature" Then
+            SketchOf = subF.Name
+            Exit Function
+        End If
+        Set subF = subF.GetNextSubFeature
+    Loop
+End Function
+
+Function Seeds(v As Variant) As String
+    Dim i As Long
+    Dim s As String
+    Dim ftr As Object
+    s = ""
+    If IsEmpty(v) Then
+        Seeds = "[]"
+        Exit Function
+    End If
+    For i = LBound(v) To UBound(v)
+        Set ftr = v(i)
+        If s <> "" Then s = s & ", "
+        s = s & J(ftr.Name)
+    Next i
+    Seeds = "[" & s & "]"
+End Function
+
+' a direction from an edge, a reference axis or a cylindrical face: "[x, y, z]|[ox, oy, oz]" (unit, mm) or ""
+Function AxisOf(ent As Object) As String
+    Dim v As Variant
+    Dim ftr As Object
+    Dim l As Double
+    AxisOf = ""
+    On Error Resume Next
+    v = ent.GetCurveParams2
+    If Err.Number <> 0 Then
+        Err.Clear
+        Set ftr = ent.GetSpecificFeature2
+        v = ftr.GetRefAxisParams
+    End If
+    If Err.Number <> 0 Or IsEmpty(v) Then Exit Function
+    l = Sqr((v(3) - v(0)) ^ 2 + (v(4) - v(1)) ^ 2 + (v(5) - v(2)) ^ 2)
+    If l < 0.000000001 Then Exit Function
+    AxisOf = Dir3((v(3) - v(0)) / l, (v(4) - v(1)) / l, (v(5) - v(2)) / l) & "|" & Vec(v(0), v(1), v(2))
+End Function
+
+' ---- sketches
+Function PtKey(sPt As Object) As String
+    Dim v As Variant
+    v = sPt.GetID
+    PtKey = "P" & v(0) & "_" & v(1)
+End Function
+
+' JSON true / false (CStr of a Boolean follows the Windows language)
+Function B(ByVal v As Boolean) As String
+    If v Then
+        B = "true"
+    Else
+        B = "false"
+    End If
+End Function
+
+' one item of a JSON list being streamed out: a comma before every item but the first
+Sub Item(ByVal s As String, first As Boolean)
+    If first Then
+        Call Emit(s)
+        first = False
+    Else
+        Call Emit(", " & s)
+    End If
+End Sub
+
+Sub DoSketch(feat As Object)
+    Dim swSketch As Object
+    Dim xf As Object
+    Dim o As Variant
+    Dim vx As Variant
+    Dim vn As Variant
+    Dim vPts As Variant
+    Dim vSegs As Variant
+    Dim vRel As Variant
+    Dim sPt As Object
+    Dim seg As Object
+    Dim rel As Object
+    Dim i As Long
+    Dim k As Long
+    Dim own As String
+    Dim s As String
+    Dim refs As String
+    Dim vEnts As Variant
+    Dim r As String
+    Dim t As Long
+    Dim dDim As Object
+    Dim dm As Object
+    Dim swAnn As Object
+    Dim first As Boolean
+
+    If Done(feat.Name) Then Exit Sub
+    gDone = gDone & feat.Name & "|"
+    Set swSketch = feat.GetSpecificFeature2
+    Set xf = swSketch.ModelToSketchTransform
+    Set xf = xf.Inverse
+    o = XfPoint(xf, 0, 0)
+    vx = XfVector(xf, 1, 0, 0)
+    vn = XfVector(xf, 0, 0, 1)
+    Call Emit(Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""sketch"", ""suppressed"": " & B(feat.IsSuppressed) & "," & vbCrLf)
+    Call Emit("  ""plane"": { ""o"": " & Vec(o(0), o(1), o(2)) & ", ""x"": " & Dir3(vx(0), vx(1), vx(2)) & ", ""n"": " & Dir3(vn(0), vn(1), vn(2)) & " }," & vbCrLf)
+    ' points (sketch mm)
+    own = "|"
+    Call Emit("  ""points"": [")
+    first = True
+    vPts = swSketch.GetSketchPoints2
+    If Not IsEmpty(vPts) Then
+        For i = LBound(vPts) To UBound(vPts)
+            Set sPt = vPts(i)
+            r = PtKey(sPt)
+            own = own & r & "|"
+            Call Item("{ ""id"": " & J(r) & ", ""x"": " & MM(sPt.X) & ", ""y"": " & MM(sPt.Y) & " }", first)
+        Next i
+    End If
+    Call Emit("]," & vbCrLf)
+    ' curves (arcs counter-clockwise from s to e)
+    Call Emit("  ""segments"": [")
+    first = True
+    vSegs = swSketch.GetSketchSegments
+    If Not IsEmpty(vSegs) Then
+        For i = LBound(vSegs) To UBound(vSegs)
+            Set seg = vSegs(i)
+            r = GeoId(seg, own)
+            t = seg.GetType
+            If t = swSketchLINE Then
+                s = "{ ""id"": " & J(r) & ", ""type"": ""line"", ""a"": " & J(GeoId(seg.GetStartPoint2, own)) & ", ""b"": " & J(GeoId(seg.GetEndPoint2, own))
+            ElseIf t = swSketchARC Then
+                If seg.IsCircle Then
+                    s = "{ ""id"": " & J(r) & ", ""type"": ""circle"", ""c"": " & J(GeoId(seg.GetCenterPoint2, own)) & ", ""r"": " & MM(seg.GetRadius)
+                ElseIf seg.GetRotationDir = -1 Then
+                    s = "{ ""id"": " & J(r) & ", ""type"": ""arc"", ""c"": " & J(GeoId(seg.GetCenterPoint2, own)) & ", ""s"": " & J(GeoId(seg.GetEndPoint2, own)) & ", ""e"": " & J(GeoId(seg.GetStartPoint2, own))
+                Else
+                    s = "{ ""id"": " & J(r) & ", ""type"": ""arc"", ""c"": " & J(GeoId(seg.GetCenterPoint2, own)) & ", ""s"": " & J(GeoId(seg.GetStartPoint2, own)) & ", ""e"": " & J(GeoId(seg.GetEndPoint2, own))
+                End If
+            Else
+                s = "{ ""id"": " & J(r) & ", ""type"": " & J("sketch segment type " & t)
+                gNotes = gNotes + 1
+            End If
+            Call Item(s & ", ""construction"": " & B(seg.ConstructionGeometry) & " }", first)
+        Next i
+    End If
+    Call Emit("]," & vbCrLf)
+    ' relations
+    Call Emit("  ""relations"": [")
+    first = True
+    On Error Resume Next
+    vRel = swSketch.RelationManager.GetRelations(swAll)
+    If Err.Number <> 0 Then vRel = Empty
+    Err.Clear
+    On Error GoTo 0
+    If Not IsEmpty(vRel) Then
+        For i = LBound(vRel) To UBound(vRel)
+            Set rel = vRel(i)
+            t = rel.GetRelationType
+            vEnts = rel.GetEntities
+            refs = ""
+            If Not IsEmpty(vEnts) Then
+                For k = LBound(vEnts) To UBound(vEnts)
+                    r = GeoId(vEnts(k), own)
+                    If r <> "" Then
+                        If refs <> "" Then refs = refs & ", "
+                        refs = refs & J(r)
+                    End If
+                Next k
+            End If
+            Call Item("{ ""type"": " & J(RelName(t)) & ", ""swType"": " & J(CStr(t)) & ", ""refs"": [" & refs & "] }", first)
+        Next i
+    End If
+    Call Emit("]," & vbCrLf)
+    ' dimensions
+    Call Emit("  ""dimensions"": [")
+    first = True
+    On Error Resume Next
+    Set dDim = feat.GetFirstDisplayDimension
+    Do While Not dDim Is Nothing
+        Set dm = dDim.GetDimension2(0)
+        Set swAnn = dDim.GetAnnotation
+        vEnts = swAnn.GetAttachedEntities3
+        Call Item("{ ""name"": " & J(dm.Name) & ", ""full"": " & J(dm.FullName) & ", " & DimKind(dm, vEnts, own) & ", ""refs"": [" & DimRefs(vEnts, own) & "] }", first)
+        Set dDim = feat.GetNextDisplayDimension(dDim)
+    Loop
+    Err.Clear
+    On Error GoTo 0
+    Call Emit("] }" & vbCrLf)
+End Sub
+
+' refs of a dimension; an arc or circle measured to a point or line stands for its centre
+Function DimRefs(vEnts As Variant, ByVal own As String) As String
+    Dim k As Long
+    Dim r As String
+    Dim s As String
+    Dim n2 As Long
+    s = ""
+    DimRefs = ""
+    If IsEmpty(vEnts) Then Exit Function
+    n2 = UBound(vEnts) - LBound(vEnts) + 1
+    For k = LBound(vEnts) To UBound(vEnts)
+        r = GeoId(vEnts(k), own)
+        If n2 > 1 And Not IsPoint(vEnts(k)) Then
+            If IsArc(vEnts(k)) Then r = GeoId(vEnts(k).GetCenterPoint2, own)
+        End If
+        If r <> "" Then
+            If s <> "" Then s = s & ", "
+            s = s & J(r)
+        End If
+    Next k
+    DimRefs = s
+End Function
+
+Function IsArc(o As Object) As Boolean
+    Dim t As Long
+    On Error Resume Next
+    t = o.GetType
+    IsArc = (Err.Number = 0 And t = swSketchARC)
+    Err.Clear
+End Function
+
+' "type": what the value measures, found from the geometry; "value" in mm or degrees
+Function DimKind(dm As Object, vEnts As Variant, ByVal own As String) As String
+    Dim v As Double
+    Dim a As Variant
+    Dim b As Variant
+    Dim p As Object
+    Dim q As Object
+    Dim seg As Object
+    Dim dx As Double
+    Dim dy As Double
+    Dim tol As Double
+    Dim n2 As Long
+    v = dm.SystemValue
+    DimKind = """type"": ""other"", ""value"": " & MM(Abs(v))
+    If dm.GetType = swDimAngular Then
+        DimKind = """type"": ""angle"", ""value"": " & Deg(Abs(v))
+        Exit Function
+    End If
+    If IsEmpty(vEnts) Then Exit Function
+    tol = 0.0000001 * (1 + Abs(v))
+    n2 = UBound(vEnts) - LBound(vEnts) + 1
+    If n2 = 1 Then
+        Set seg = vEnts(LBound(vEnts))
+        If IsPoint(seg) Then Exit Function
+        If seg.GetType = swSketchARC Then
+            If Abs(v - seg.GetRadius) < tol Then
+                DimKind = """type"": ""radius"", ""value"": " & MM(v)
+            ElseIf Abs(v - 2 * seg.GetRadius) < tol Then
+                DimKind = """type"": ""diameter"", ""value"": " & MM(v)
+            End If
+            Exit Function
+        End If
+        Set p = seg.GetStartPoint2
+        Set q = seg.GetEndPoint2
+    ElseIf n2 = 2 Then
+        Set p = vEnts(LBound(vEnts))
+        Set q = vEnts(UBound(vEnts))
+        If Not IsPoint(p) Then
+            If IsArc(p) Then Set p = p.GetCenterPoint2
+        End If
+        If Not IsPoint(q) Then
+            If IsArc(q) Then Set q = q.GetCenterPoint2
+        End If
+        If Not (IsPoint(p) And IsPoint(q)) Then
+            DimKind = """type"": ""distance"", ""value"": " & MM(Abs(v))
+            Exit Function
+        End If
+    Else
+        Exit Function
+    End If
+    dx = Abs(q.X - p.X)
+    dy = Abs(q.Y - p.Y)
+    If Abs(Abs(v) - Sqr(dx * dx + dy * dy)) < tol Then
+        DimKind = """type"": ""distance"", ""value"": " & MM(Abs(v))
+    ElseIf Abs(Abs(v) - dx) < tol Then
+        DimKind = """type"": ""hdistance"", ""value"": " & MM(Abs(v))
+    ElseIf Abs(Abs(v) - dy) < tol Then
+        DimKind = """type"": ""vdistance"", ""value"": " & MM(Abs(v))
+    End If
+End Function
+
+' ---- features
+Sub DoExtrude(feat As Object, ByVal isCut As Boolean)
+    Dim fData As Object
+    Dim endc As Long
+    Dim depth As Double
+    Dim e As String
+    Dim s As String
+    Set fData = feat.GetDefinition
+    endc = fData.GetEndCondition(True)
+    depth = fData.GetDepth(True)
+    If fData.BothDirections Then
+        Call Unsupported(feat.Name, IIf(isCut, "Cut", "Extrusion"), "extruded in two directions")
+        Exit Sub
+    End If
+    If endc = swEndCondBlind Then
+        e = "blind"
+    ElseIf endc = swEndCondThroughAll Then
+        e = "through"
+    ElseIf endc = swEndCondMidPlane Then
+        e = "mid"
+    Else
+        e = "end condition " & endc
+    End If
+    s = Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""extrude"", ""suppressed"": " & B(feat.IsSuppressed) & ", ""sketch"": " & J(SketchOf(feat))
+    s = s & ", ""op"": " & IIf(isCut, """cut""", """add""") & ", ""end"": " & J(e) & ", ""depth"": " & MM(depth) & ", ""reverse"": " & B(fData.ReverseDirection)
+    s = s & ", ""dims"": { ""depth"": " & J(DimFor(feat, depth)) & " } }" & vbCrLf
+    Call Emit(s)
+End Sub
+
+Sub DoRevolve(feat As Object, ByVal isCut As Boolean)
+    Dim fData As Object
+    Dim ang As Double
+    Dim ax As String
+    Dim s As String
+    Set fData = feat.GetDefinition
+    ang = fData.GetRevolutionAngle(True)
+    ax = ""
+    On Error Resume Next
+    If fData.AccessSelections(swModel, Nothing) Then
+        ax = GeoId(fData.Axis, "|")
+        Call fData.ReleaseSelectionAccess
+    End If
+    Err.Clear
+    On Error GoTo 0
+    s = Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""revolve"", ""suppressed"": " & B(feat.IsSuppressed) & ", ""sketch"": " & J(SketchOf(feat))
+    If Left(ax, 1) = "S" Then s = s & ", ""axis"": " & J(ax)
+    s = s & ", ""op"": " & IIf(isCut, """cut""", """add""") & ", ""angle"": " & Deg(ang) & ", ""reverse"": " & B(fData.ReverseDirection)
+    s = s & ", ""dims"": { ""angle"": " & J(DimFor(feat, ang)) & " } }" & vbCrLf
+    Call Emit(s)
+End Sub
+
+' fillets and chamfers: a point on each face the feature made (PartCraft snaps it to the edge it came from)
+Sub DoEdges(feat As Object, ByVal kind As String)
+    Dim vFaces As Variant
+    Dim i As Long
+    Dim e As String
+    Dim p As String
+    Dim dDim As Object
+    Dim dm As Object
+    Dim d1 As Double
+    Dim d2 As Double
+    Dim ang As Double
+    Dim s As String
+    e = ""
+    vFaces = feat.GetFaces
+    If Not IsEmpty(vFaces) Then
+        For i = LBound(vFaces) To UBound(vFaces)
+            p = FacePoint(vFaces(i))
+            If p <> "" Then
+                If e <> "" Then e = e & ", "
+                e = e & "{ ""at"": " & p & " }"
+            End If
+        Next i
+    End If
+    d1 = 0
+    d2 = 0
+    ang = 0
+    On Error Resume Next
+    Set dDim = feat.GetFirstDisplayDimension
+    Do While Not dDim Is Nothing
+        Set dm = dDim.GetDimension2(0)
+        If dm.GetType = swDimAngular Then
+            ang = dm.SystemValue
+        ElseIf d1 = 0 Then
+            d1 = dm.SystemValue
+        ElseIf d2 = 0 Then
+            d2 = dm.SystemValue
+        End If
+        Set dDim = feat.GetNextDisplayDimension(dDim)
+    Loop
+    Err.Clear
+    On Error GoTo 0
+    If e = "" Or d1 <= 0 Then
+        Call Unsupported(feat.Name, feat.GetTypeName2, "its edges or size could not be read")
+        Exit Sub
+    End If
+    s = Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": " & J(kind) & ", ""suppressed"": " & B(feat.IsSuppressed)
+    If kind = "fillet" Then
+        s = s & ", ""r"": " & MM(d1) & ", ""dims"": { ""r"": " & J(DimFor(feat, d1)) & " }"
+    Else
+        s = s & ", ""d"": " & MM(d1) & ", ""dims"": { ""d"": " & J(DimFor(feat, d1)) & " }"
+        If d2 > 0 Then s = s & ", ""d2"": " & MM(d2)
+        If ang > 0 Then s = s & ", ""angle"": " & Deg(ang)
+    End If
+    s = s & ", ""edges"": [" & e & "] }" & vbCrLf
+    Call Emit(s)
+End Sub
+
+Sub DoShell(feat As Object)
+    Dim fData As Object
+    Dim vFaces As Variant
+    Dim i As Long
+    Dim e As String
+    Dim p As String
+    Dim t As Double
+    Dim outward As Boolean
+    Set fData = feat.GetDefinition
+    e = ""
+    t = fData.Thickness
+    outward = fData.Outward
+    If fData.AccessSelections(swModel, Nothing) Then
+        vFaces = fData.FacesRemoved
+        If Not IsEmpty(vFaces) Then
+            For i = LBound(vFaces) To UBound(vFaces)
+                p = FacePoint(vFaces(i))
+                If p <> "" Then
+                    If e <> "" Then e = e & ", "
+                    e = e & "{ ""at"": " & p & " }"
+                End If
+            Next i
+        End If
+        Call fData.ReleaseSelectionAccess
+    End If
+    Call Emit(Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""shell"", ""suppressed"": " & B(feat.IsSuppressed) & ", ""t"": " & MM(t) & ", ""outward"": " & B(outward) & ", ""faces"": [" & e & "], ""dims"": { ""t"": " & J(DimFor(feat, t)) & " } }" & vbCrLf)
+End Sub
+
+Sub DoLPattern(feat As Object)
+    Dim fData As Object
+    Dim ax As String
+    Dim d As String
+    Dim cnt As Long
+    Dim sp As Double
+    Dim sd As String
+    Set fData = feat.GetDefinition
+    cnt = fData.D1TotalInstances
+    sp = fData.D1Spacing
+    ax = ""
+    sd = "[]"
+    If fData.AccessSelections(swModel, Nothing) Then
+        ax = AxisOf(fData.D1Axis)
+        sd = Seeds(fData.PatternFeatureArray)
+        Call fData.ReleaseSelectionAccess
+    End If
+    If ax = "" Then
+        Call Unsupported(feat.Name, "LPattern", "its direction could not be read")
+        Exit Sub
+    End If
+    d = Left(ax, InStr(ax, "|") - 1)
+    Call Emit(Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""lpattern"", ""suppressed"": " & B(feat.IsSuppressed) & ", ""seeds"": " & sd & ", ""dir"": " & d & ", ""count"": " & cnt & ", ""spacing"": " & IIf(fData.D1ReverseDirection, "-", "") & MM(sp) & ", ""dims"": { ""count"": " & J(DimFor(feat, cnt)) & ", ""spacing"": " & J(DimFor(feat, sp)) & " } }" & vbCrLf)
+End Sub
+
+Sub DoCPattern(feat As Object)
+    Dim fData As Object
+    Dim ax As String
+    Dim cnt As Long
+    Dim sp As Double
+    Dim total As Double
+    Dim sd As String
+    Set fData = feat.GetDefinition
+    cnt = fData.TotalInstances
+    sp = fData.Spacing
+    If fData.EqualSpacing Then
+        total = sp
+    Else
+        total = sp * (cnt - 1)
+    End If
+    ax = ""
+    sd = "[]"
+    If fData.AccessSelections(swModel, Nothing) Then
+        ax = AxisOf(fData.Axis)
+        sd = Seeds(fData.PatternFeatureArray)
+        Call fData.ReleaseSelectionAccess
+    End If
+    If ax = "" Then
+        Call Unsupported(feat.Name, "CirPattern", "its axis could not be read (use an axis or a straight edge)")
+        Exit Sub
+    End If
+    Call Emit(Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""cpattern"", ""suppressed"": " & B(feat.IsSuppressed) & ", ""seeds"": " & sd & ", ""axis"": { ""d"": " & Left(ax, InStr(ax, "|") - 1) & ", ""o"": " & Mid(ax, InStr(ax, "|") + 1) & " }, ""count"": " & cnt & ", ""angle"": " & Deg(total) & ", ""reverse"": " & B(fData.ReverseDirection) & ", ""dims"": { ""count"": " & J(DimFor(feat, cnt)) & ", ""angle"": " & J(DimFor(feat, sp)) & " } }" & vbCrLf)
+End Sub
+
+Sub DoMirror(feat As Object)
+    Dim fData As Object
+    Dim pl As Object
+    Dim ftr As Object
+    Dim rp As Object
+    Dim m As Variant
+    Dim nv As Variant
+    Dim s As String
+    Dim sd As String
+    Dim k As Integer
+    s = ""
+    sd = "[]"
+    Set fData = feat.GetDefinition
+    If fData.AccessSelections(swModel, Nothing) Then
+        sd = Seeds(fData.PatternFeatureArray)
+        Set pl = fData.Plane
+        On Error Resume Next
+        ' a plane feature: a base plane when it is one of the first three, else its transform
+        k = BaseIndex(pl)
+        If k > 0 Then
+            s = """plane"": { ""base"": " & J(Choose(k, "front", "top", "right")) & " }"
+        Else
+            Set rp = pl.GetSpecificFeature2
+            m = rp.Transform.ArrayData
+            If Err.Number = 0 Then
+                s = """plane"": { ""o"": " & Vec(m(9), m(10), m(11)) & ", ""n"": " & Dir3(m(6), m(7), m(8)) & " }"
+            Else
+                Err.Clear
+                nv = pl.Normal
+                If Err.Number = 0 Then s = """plane"": { ""o"": " & FacePoint(pl) & ", ""n"": " & Dir3(nv(0), nv(1), nv(2)) & " }"
+            End If
+        End If
+        Err.Clear
+        On Error GoTo 0
+        Call fData.ReleaseSelectionAccess
+    End If
+    If s = "" Then
+        Call Unsupported(feat.Name, "MirrorPattern", "its mirror plane could not be read")
+        Exit Sub
+    End If
+    Call Emit(Sep() & "{ ""name"": " & J(feat.Name) & ", ""type"": ""mirror"", ""suppressed"": " & B(feat.IsSuppressed) & ", ""seeds"": " & sd & ", " & s & " }" & vbCrLf)
+End Sub
+
+' 1, 2, 3 when the feature is the first, second or third plane of the tree (Front, Top, Right), else 0
+Function BaseIndex(pl As Object) As Integer
+    Dim ftr As Object
+    Dim k As Integer
+    BaseIndex = 0
+    On Error GoTo NotBase
+    Set ftr = swModel.FirstFeature
+    Do While Not ftr Is Nothing
+        If ftr.GetTypeName2 = "RefPlane" Then
+            k = k + 1
+            If ftr.Name = pl.Name Then
+                If k <= 3 Then BaseIndex = k
+                Exit Function
+            End If
+            If k >= 3 Then Exit Function
+        End If
+        Set ftr = ftr.GetNextFeature
+    Loop
+NotBase:
+End Function
+
+Sub DoFeature(feat As Object)
+    Dim t As String
+    Dim subF As Object
+    t = feat.GetTypeName2
+    ' sketches a feature absorbed come first
+    Set subF = feat.GetFirstSubFeature
+    Do While Not subF Is Nothing
+        If subF.GetTypeName2 = "ProfileFeature" Then Call DoSketch(subF)
+        Set subF = subF.GetNextSubFeature
+    Loop
+    Select Case t
+        Case "ProfileFeature"
+            Call DoSketch(feat)
+        Case "Extrusion"
+            Call DoExtrude(feat, False)
+        Case "Cut"
+            Call DoExtrude(feat, True)
+        Case "Revolution"
+            Call DoRevolve(feat, False)
+        Case "RevCut"
+            Call DoRevolve(feat, True)
+        Case "Fillet"
+            Call DoEdges(feat, "fillet")
+        Case "Chamfer"
+            Call DoEdges(feat, "chamfer")
+        Case "Shell"
+            Call DoShell(feat)
+        Case "LPattern"
+            Call DoLPattern(feat)
+        Case "CirPattern"
+            Call DoCPattern(feat)
+        Case "MirrorPattern"
+            Call DoMirror(feat)
+        Case "OriginProfileFeature", "MaterialFolder", "CommentsFolder", "FavoriteFolder", "HistoryFolder", "SelectionSetFolder", "SensorFolder", "DocsFolder", "DetailCabinet", "SurfaceBodyFolder", "SolidBodyFolder", "EnvFolder", "InkMarkupFolder", "EqnFolder", "MateReferenceGroupFolder", "BlockFolder", "LiveSectionFolder"
+            ' folders and annotations: nothing to carry
+        Case "RefPlane"
+            If BaseIndex(feat) = 0 Then Call Unsupported(feat.Name, t, "a reference plane (sketches on it are written on their own plane)")
+        Case Else
+            Call Unsupported(feat.Name, t, "not carried over by this macro")
+    End Select
+End Sub
+
+Sub main()
+    Dim feat As Object
+    Dim swEqMgr As Object
+    Dim mProp As Object
+    Dim i As Long
+    Dim eq As String
+    Dim lhs As String
+    Dim rhs As String
+    Dim p As Long
+    Dim g As String
+    Dim e As String
+    Dim path As String
+    Dim nm As String
+    Dim fnum As Integer
+    Set swApp = Application.SldWorks
+    Set swModel = swApp.ActiveDoc
+    If swModel Is Nothing Then
+        MsgBox "Open a part in SolidWorks first, then run this macro.", vbExclamation, "CadCraft export"
+        Exit Sub
+    End If
+    If swModel.GetType <> swDocPART Then
+        MsgBox "This macro exports parts. The active document is not a part.", vbExclamation, "CadCraft export"
+        Exit Sub
+    End If
+    Set swMath = swApp.GetMathUtility
+    ReDim gBuf(0 To 1024)
+    gK = 0
+    gDone = "|"
+    gNotes = 0
+    nm = swModel.GetTitle
+    If LCase(Right(nm, 7)) = ".sldprt" Then nm = Left(nm, Len(nm) - 7)
+    ' equations and global variables
+    g = ""
+    e = ""
+    Set swEqMgr = swModel.GetEquationMgr
+    For i = 0 To swEqMgr.GetCount - 1
+        eq = swEqMgr.Equation(i)
+        p = InStr(1, eq, "=")
+        If p > 0 Then
+            lhs = Trim(Left(eq, p - 1))
+            rhs = Trim(Mid(eq, p + 1))
+            If Left(lhs, 1) = Chr(34) Then lhs = Mid(lhs, 2, Len(lhs) - 2)
+            If swEqMgr.GlobalVariable(i) Then
+                If g <> "" Then g = g & ", "
+                g = g & "{ ""name"": " & J(lhs) & ", ""expr"": " & J(rhs) & " }"
+            Else
+                If e <> "" Then e = e & ", "
+                e = e & "{ ""lhs"": " & J(lhs) & ", ""rhs"": " & J(rhs) & ", ""raw"": " & J(eq) & " }"
+            End If
+        End If
+    Next i
+    Call Emit("{ ""format"": ""cadcraft-sw-export"", ""version"": 1, ""units"": ""mm"", ""name"": " & J(nm) & "," & vbCrLf)
+    Call Emit("  ""source"": { ""app"": ""SolidWorks"", ""appVersion"": " & J(swApp.RevisionNumber) & ", ""file"": " & J(swModel.GetPathName) & ", ""exported"": " & J(Format(Now, "yyyy-mm-dd\Thh:nn:ss")) & " }," & vbCrLf)
+    Call Emit("  ""globals"": [" & g & "]," & vbCrLf)
+    Call Emit("  ""equations"": [" & e & "]," & vbCrLf)
+    On Error Resume Next
+    Set mProp = swModel.Extension.CreateMassProperty
+    If Not mProp Is Nothing Then Call Emit("  ""check"": { ""volume"": " & N(mProp.Volume * 1000000000#) & " }," & vbCrLf)
+    Err.Clear
+    On Error GoTo 0
+    Call Emit("  ""features"": [" & vbCrLf)
+    gFirst = True
+    Set feat = swModel.FirstFeature
+    Do While Not feat Is Nothing
+        Call DoFeature(feat)
+        Set feat = feat.GetNextFeature
+    Loop
+    Call Emit("  ] }" & vbCrLf)
+    ReDim Preserve gBuf(0 To gK - 1)
+    path = swModel.GetPathName
+    If path = "" Then path = swApp.GetCurrentMacroPathName
+    path = Left(path, InStrRev(path, "\")) & nm & ".cadcraft-sw.json"
+    fnum = FreeFile
+    Open path For Output As #fnum
+    Print #fnum, Join(gBuf, "");
+    Close #fnum
+    MsgBox "Wrote " & path & IIf(gNotes > 0, vbCrLf & gNotes & " feature(s) or curve(s) are marked as not carried over; PartCraft lists them when it opens the file.", "") & vbCrLf & vbCrLf & "This macro has not been tested in SolidWorks yet.", vbInformation, "CadCraft export"
+End Sub

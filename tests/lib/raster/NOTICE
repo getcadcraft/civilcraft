@@ -1,0 +1,5 @@
+cc-raster — CadCraft's scanned-drawing library (lib/raster), Apache-2.0.
+
+The TIFF 6.0 specification (Adobe Systems, 1992), ITU-T Recommendations T.4 and T.6 (the CCITT code tables), ITU-T T.81 (JPEG), the
+W3C PNG specification and the published algorithms named in README.md are specifications and papers; the code here is ours from
+them. No third-party code is included.

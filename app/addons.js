@@ -581,6 +581,117 @@ export function findPanel(side = 'right') {
   return null;
 }
 
+/*
+ * Add-on panel sections: folded or open, and their order in the panel (owner 2026-10-24: "store that sort preference (global and per
+ * app)"). localStorage "cc-addon-sections:<app>" {order: [section keys], closed: {key: 1}} is this app's; "cc-addon-sections" {order:
+ * [add-on ids]} is the order last arranged in any app, used by an app the person has not arranged yet. Per-viewer conveniences:
+ * blocked storage = open, in load order.
+ */
+const SECTION_STORE = 'cc-addon-sections';
+const readJson = (k) => { try { const v = JSON.parse(window.localStorage.getItem(k) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } };
+const writeJson = (k, v) => { try { window.localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage blocked */ } };
+const strList = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string' && x.length <= 90).slice(0, 200) : []);
+export const sectionPrefs = {
+  appKey: (app) => SECTION_STORE + ':' + String(app || 'app'),
+  collapsed(app, k) { const c = readJson(this.appKey(app)).closed; return !!(c && typeof c === 'object' && c[k]); },
+  setCollapsed(app, k, on) {
+    const p = readJson(this.appKey(app));
+    const c = p.closed && typeof p.closed === 'object' && !Array.isArray(p.closed) ? p.closed : {};
+    if (on) c[k] = 1; else delete c[k];
+    p.closed = c;
+    writeJson(this.appKey(app), p);
+  },
+  /** A rank for a section key: this app's order first, else the global order by add-on id; unknown = after every known one. */
+  rank(app, k) {
+    const own = strList(readJson(this.appKey(app)).order);
+    if (own.length) { const i = own.indexOf(k); return i < 0 ? Infinity : i; }
+    const glob = strList(readJson(SECTION_STORE).order);
+    const i = glob.indexOf(k.split(':')[0]);
+    return i < 0 ? Infinity : i;
+  },
+  /** Saves the panel's order: exactly for this app, and by add-on id as the global order (ids arranged here move to the front, in this order). */
+  save(app, keys) {
+    const p = readJson(this.appKey(app));
+    p.order = keys.slice(0, 200);
+    writeJson(this.appKey(app), p);
+    const ids = [...new Set(keys.map((k) => k.split(':')[0]))];
+    const g = readJson(SECTION_STORE);
+    g.order = [...ids, ...strList(g.order).filter((x) => !ids.includes(x))].slice(0, 200);
+    writeJson(SECTION_STORE, g);
+  },
+};
+const panelSections = (p) => [...p.children].filter((c) => c.classList && c.classList.contains('shell-addon-section'));
+/** Puts a new section among the panel's add-on sections by its saved rank (equal ranks keep load order). */
+function sectionPlace(p, sec, app) {
+  const r = sectionPrefs.rank(app, sec.getAttribute('data-addon-section'));
+  const after = panelSections(p).find((s) => sectionPrefs.rank(app, s.getAttribute('data-addon-section')) > r);
+  if (after) p.insertBefore(sec, after); else p.append(sec);
+  refreshGrips(p);
+}
+/** The grip shows only when there is something to sort; its name says where the section is now. */
+function refreshGrips(p) {
+  const all = panelSections(p);
+  all.forEach((s, i) => {
+    const g = s.querySelector(':scope > .shell-addon-section-h > .shell-addon-section-grip');
+    if (!g) return;
+    g.hidden = all.length < 2;
+    const name = g.getAttribute('data-name') || '';
+    g.title = T('shell.addons.sec.move', { name });
+    g.setAttribute('aria-label', T('shell.addons.sec.place', { name, n: i + 1, total: all.length }));
+  });
+}
+function saveOrder(p, app) { sectionPrefs.save(app, panelSections(p).map((s) => s.getAttribute('data-addon-section'))); refreshGrips(p); }
+/** Drag the grip (the other sections fold to their headings while it moves), or Up / Down / Home / End on it. */
+function wireGrip(p, sec, grip, name, app) {
+  grip.setAttribute('data-name', name);
+  const moveTo = (i) => {
+    const all = panelSections(p).filter((s) => s !== sec);
+    const at = Math.max(0, Math.min(all.length, i));
+    if (at < all.length) p.insertBefore(sec, all[at]); else if (all.length) all[all.length - 1].after(sec);
+    saveOrder(p, app);
+    grip.focus();
+  };
+  grip.addEventListener('keydown', (e) => {
+    const i = panelSections(p).indexOf(sec);
+    const to = { ArrowUp: i - 1, ArrowDown: i + 1, Home: 0, End: Infinity }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    moveTo(to);
+  });
+  grip.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    const from = panelSections(p).indexOf(sec);
+    p.classList.add('shell-addon-sorting');
+    sec.classList.add('is-dragging');
+    let target = null;
+    const mark = (y) => {
+      const others = panelSections(p).filter((s) => s !== sec);
+      // Before the first section whose middle is below the pointer; past them all = the end.
+      const i = others.findIndex((s) => { const r = s.getBoundingClientRect(); return y < r.top + r.height / 2; });
+      target = i < 0 ? others.length : i;
+      others.forEach((s, j) => { s.classList.toggle('is-drop-before', j === target); s.classList.toggle('is-drop-after', target === others.length && j === others.length - 1); });
+    };
+    const end = (drop) => {
+      grip.removeEventListener('pointermove', move);
+      grip.removeEventListener('pointerup', up);
+      grip.removeEventListener('pointercancel', cancel);
+      p.classList.remove('shell-addon-sorting');
+      sec.classList.remove('is-dragging');
+      panelSections(p).forEach((s) => s.classList.remove('is-drop-before', 'is-drop-after'));
+      if (drop && target !== null && target !== from) moveTo(target);
+    };
+    const move = (ev) => mark(ev.clientY);
+    const up = () => end(true);
+    const cancel = () => end(false);
+    grip.addEventListener('pointermove', move);
+    grip.addEventListener('pointerup', up);
+    grip.addEventListener('pointercancel', cancel);
+    mark(e.clientY);
+  });
+}
+
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const iconClass = (icon) => (typeof icon === 'string' && /^bi-[a-z0-9-]{1,40}$/.test(icon) ? icon : 'bi-puzzle');
 
@@ -647,18 +758,50 @@ export function sharedApi(base, addon, registry) {
       const p = findPanel(side === 'left' ? 'left' : 'right');
       if (!p) return null;
       const d = p.ownerDocument;
+      const k = key(id);
+      const name = String(title || addon.manifest.name);
       const sec = d.createElement('section');
       sec.className = 'shell-addon-section';
-      sec.setAttribute('data-addon-section', key(id));
+      sec.setAttribute('data-addon-section', k);
       const h = d.createElement('h2');
       h.className = 'shell-addon-section-h';
-      h.textContent = String(title || addon.manifest.name);
+      // The heading is a disclosure button (folds the body away); the grip beside it moves the section among the panel's add-on sections.
+      const tog = d.createElement('button');
+      tog.type = 'button';
+      tog.className = 'shell-addon-section-tog';
+      const chev = d.createElement('i');
+      chev.className = 'bi bi-chevron-down';
+      chev.setAttribute('aria-hidden', 'true');
+      const label = d.createElement('span');
+      label.textContent = name;
+      tog.append(chev, label);
+      const grip = d.createElement('button');
+      grip.type = 'button';
+      grip.className = 'shell-addon-section-grip';
+      const gi = d.createElement('i');
+      gi.className = 'bi bi-grip-vertical';
+      gi.setAttribute('aria-hidden', 'true');
+      grip.append(gi);
+      h.append(tog, grip);
       const body = d.createElement('div');
       body.className = 'shell-addon-section-body';
+      body.id = 'shell-addon-' + k.replace(/[^a-z0-9-]/g, '-');
+      tog.setAttribute('aria-controls', body.id);
       sec.append(h, body);
-      p.append(sec);
-      if (typeof render === 'function') { try { render(body); } catch (err) { sec.remove(); throw err; } }
-      track(() => sec.remove());
+      const app = base.app && base.app.slug;
+      const setOpen = (open, save) => {
+        sec.classList.toggle('is-collapsed', !open);
+        body.hidden = !open;
+        tog.setAttribute('aria-expanded', String(open));
+        tog.title = T(open ? 'shell.addons.sec.collapse' : 'shell.addons.sec.expand', { name });
+        if (save) sectionPrefs.setCollapsed(app, k, !open);
+      };
+      setOpen(!sectionPrefs.collapsed(app, k), false);
+      tog.addEventListener('click', () => setOpen(body.hidden, true));
+      sectionPlace(p, sec, app);
+      wireGrip(p, sec, grip, name, app);
+      if (typeof render === 'function') { try { render(body); } catch (err) { sec.remove(); refreshGrips(p); throw err; } }
+      track(() => { sec.remove(); refreshGrips(p); });
       return body;
     },
     settingsSection({ id, title, render, reset } = {}) {

@@ -12,6 +12,7 @@
 
 import { t } from './i18n.js';
 import { SUPER_DEFAULTS, slopesAt } from './superelev.js';
+import { ncOf } from './corridor.js';
 import { formatStation, fixed } from './units.js';
 
 export function superProps(ctx, a, item) {
@@ -48,7 +49,7 @@ export function superProps(ctx, a, item) {
         el('td', { className: 'num' }, fixed(c.Lr, 1)), el('td', { className: 'num' }, fixed(c.Lt, 1)), el('td', {}, st(c.stations.fs0) + ' – ' + st(c.stations.fs1))))))));
     const cv = el('canvas', { className: 'cv-se-diagram', 'data-se-diagram': '', width: 600, height: 200, role: 'img', 'aria-label': t('se.diagram.label') });
     out.push(el('h3', { className: 'cv-h3' }, t('se.diagram')), cv);
-    const al = P.alignment(a), nc = a.corridor.laneSlope;
+    const al = P.alignment(a), nc = ncOf(a.corridor);
     requestAnimationFrame(() => drawDiagram(cv, plan, { start: al.start, end: al.end, nc, units: U }));
   } else out.push(el('p', { className: 'cv-note' }, t('se.none')));
   return out;

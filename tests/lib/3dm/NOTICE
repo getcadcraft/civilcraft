@@ -1,0 +1,16 @@
+cc-3dm (lib/3dm) - CadCraft's own reader for .3dm files. Apache-2.0, Copyright DDG / the CadCraft authors.
+
+The chunk layout, typecodes and the records inside them (object attributes, layers, materials, block definitions, meshes,
+curves, surfaces, polysurfaces, extrusions) follow the openNURBS toolkit's file-format sources (opennurbs_archive.cpp,
+opennurbs_3dm.h and the Read() functions of the classes named in objects.js), read as a reference after a licence check
+(docs/0.7-sessions/usd.md, docs/0.7-sessions/3dm.md). The code here is our own JavaScript. The toolkit carries this notice:
+
+  Copyright (c) 1993-2018 Robert McNeel & Associates. All Rights Reserved.
+  Rhinoceros is a registered trademark of Robert McNeel & Associates.
+  THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY. ALL IMPLIED WARRANTIES OF FITNESS FOR ANY PARTICULAR
+  PURPOSE AND OF MERCHANTABILITY ARE HEREBY DISCLAIMED.
+
+The B-spline evaluation (geom.js) and the Delaunay insertion (cdt.js) are written from the textbooks (Piegl & Tiller, "The
+NURBS Book"; de Berg et al., "Computational Geometry"). zlib.js is a byte-identical copy of lib/exr/zlib.js (written from
+RFC 1950 / RFC 1951). earcut.js is a copy of ModelCraft's earcut.js, written after mapbox/earcut: ISC License, Copyright (c)
+2016, Mapbox (its notice is in the file).

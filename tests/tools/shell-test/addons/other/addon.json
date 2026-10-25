@@ -1,0 +1,1 @@
+{ "id": "other", "name": "For BimCraft", "version": "1.0.0", "apps": ["bimcraft"], "api": "1.0", "license": "MIT", "entry": "main.js" }

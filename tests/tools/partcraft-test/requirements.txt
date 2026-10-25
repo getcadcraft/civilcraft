@@ -1,0 +1,9 @@
+# Second readers for PartCraft's Node tests (each check skips with a note when missing).
+# python3 -m venv tools/partcraft-test/venv && tools/partcraft-test/venv/bin/pip install -r tools/partcraft-test/requirements.txt
+trimesh==5.1.1
+numpy==2.2.6
+lxml==6.1.3
+networkx==3.4.2
+ezdxf==1.4.4
+# HDF5 second reader for CraftScript's save/load (test-craftscript-b.mjs)
+h5py>=3.11

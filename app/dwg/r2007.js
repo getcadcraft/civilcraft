@@ -317,21 +317,25 @@ function readDataSection21(b, pages, list, size, maxSize, encoding, name, notes)
     const loc = pages.get(pg.id);
     if (!loc) { bad++; continue; }
     const at = 0x480 + loc.offset;
-    const aligned = (pg.csize + 7) & ~7;
-    const blocks = Math.ceil(aligned / 251);
-    let data;
-    if (encoding === 4) data = deinterleave(b, at, blocks, 251, false);
-    else {
-      data = new Uint8Array(blocks * 251);
-      for (let k = 0; k < blocks; k++) data.set(b.subarray(at + k * 255, at + k * 255 + 251), k * 251);
-    }
-    plausibleSize(pg.usize, b.length);
-    const page = pg.csize < pg.usize ? decompressR21(data, 0, pg.csize, pg.usize) : data.subarray(0, pg.usize);
     const start = pg.offset ?? pos;
+    let page;
+    try {   // 0.6.1: one damaged page is left as zeros (noted), the rest of the section is kept
+      if (at >= b.length) throw new RangeError();   // past the end of the file
+      const aligned = (pg.csize + 7) & ~7;
+      const blocks = Math.ceil(aligned / 251);
+      let data;
+      if (encoding === 4) data = deinterleave(b, at, blocks, 251, false);
+      else {
+        data = new Uint8Array(blocks * 251);
+        for (let k = 0; k < blocks; k++) data.set(b.subarray(at + k * 255, at + k * 255 + 251), k * 251);
+      }
+      plausibleSize(pg.usize, b.length);
+      page = pg.csize < pg.usize ? decompressR21(data, 0, pg.csize, pg.usize) : data.subarray(0, pg.usize);
+    } catch { bad++; pos = start + (pg.usize || 0); continue; }
     if (start + page.length > size) out.set(page.subarray(0, Math.max(0, size - start)), start);
     else out.set(page, start);
     pos = start + page.length;
   }
-  if (bad) notes.push(msg('ccdwg.read.pages_missing', { n: bad, name }));
+  if (bad) notes.push(msg('ccdwg.read.pages_bad', { n: bad, name }));
   return out;
 }

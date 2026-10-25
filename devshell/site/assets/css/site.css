@@ -127,6 +127,14 @@ a:hover { text-decoration-thickness: 2px; }
 .brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--ink); text-decoration: none; flex-shrink: 0; }
 .brand svg { display: block; width: 1.75rem; height: 1.75rem; }
 .brand-word { font-stretch: 125%; font-weight: 700; font-size: 1.3rem; letter-spacing: -0.02em; line-height: 1; }
+.nav-ver {
+  display: inline-flex; align-items: baseline; gap: .05rem; margin-left: -.35rem; padding: .15rem .45rem;
+  border: var(--pen-1) solid var(--ink); border-radius: var(--radius); color: var(--ink); text-decoration: none;
+  font-size: .8125rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; flex-shrink: 0;
+}
+.nav-ver .nav-ver-v { font-weight: 500; color: var(--ink-2); }
+.nav-ver:hover, .nav-ver:focus-visible { background: var(--ink); color: var(--sheet); }
+.nav-ver:hover .nav-ver-v, .nav-ver:focus-visible .nav-ver-v { color: inherit; }
 /* ™ from tm(): half size, top level with the capitals whatever the line height; never pushes the line box. */
 sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 0; vertical-align: baseline; position: relative; top: -.72em; margin-left: .08em; line-height: 0; }
 .nav-links { display: none; align-items: center; gap: .25rem; margin: 0 0 0 1rem; padding: 0; list-style: none; }
@@ -274,6 +282,9 @@ sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 
 .status-chip.is-in_development::before, .status-chip.is-now::before { background: var(--ink); }
 .status-chip.is-done::before { background: var(--ink); border-radius: 1px; }
 .status-chip.is-planned, .status-chip.is-next, .status-chip.is-later { border-style: dashed; }
+.status-chip.is-live::before { background: var(--action); border-color: var(--action); }
+a.status-chip { text-decoration: none; }
+a.status-chip:hover, a.status-chip:focus-visible { background: var(--ink); color: var(--sheet); }
 
 /* ---------- Ruled boxes ---------- */
 .rule-box { background: var(--sheet-2); border: var(--pen-1) solid var(--ink); border-radius: var(--radius); padding: clamp(1rem, .8rem + 1vw, 1.5rem); }
@@ -290,19 +301,28 @@ sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 
 }
 .app-row > a:hover, .app-row > a:focus-visible { background: color-mix(in srgb, var(--sheet-2) 85%, transparent); }
 .app-row > a:hover .app-name { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .2em; }
+/* A row whose name link covers it (app-card.inc row): the chip link sits above that cover. */
+.app-row > .app-row-in.has-link { position: relative; }
+.app-row > .app-row-in.has-link:hover { background: color-mix(in srgb, var(--sheet-2) 85%, transparent); }
+.app-row .has-link a.app-name { color: inherit; text-decoration: none; }
+.app-row .has-link a.app-name::after { content: ""; position: absolute; inset: 0; }
+.app-row .has-link:hover a.app-name, .app-row .has-link a.app-name:focus-visible { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .2em; }
+.app-row .has-link .app-status a { position: relative; z-index: 1; }
 .app-row .app-id { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; grid-column: 1 / -1; }
 .app-row .app-name { font-stretch: 125%; font-weight: 700; font-size: var(--fs-lg); letter-spacing: -0.015em; line-height: 1.1; }
 .app-row .app-role { color: var(--ink-2); font-weight: 600; }
 .app-row .app-familiar { color: var(--ink-2); grid-column: 1 / -1; margin: 0; }
 .app-row .app-status { grid-column: 1 / -1; }
 .app-status { display: inline-flex; flex-direction: column; align-items: flex-start; gap: .35rem; }
-.app-ver { font-size: var(--fs-sm); color: var(--ink-2); white-space: nowrap; padding-left: .7rem; }
 @media (min-width: 900px) {
-  .app-row > a, .app-row > .app-row-in { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.25fr) 9.5rem; gap: 1.5rem; padding-block: 1.25rem; }
+  .app-row > a, .app-row > .app-row-in { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.25fr) 11.5rem; gap: 1.5rem; padding-block: 1.25rem; }
   .app-row .app-id { grid-column: auto; }
   .app-row .app-familiar { grid-column: auto; }
   .app-row .app-status { grid-column: auto; justify-self: end; align-items: flex-end; }
-  .app-row .app-ver { padding-left: 0; padding-right: .7rem; }
+  /* Fixed-height app rows (owner, 2026-10-19): two lines of description fit, so one- and two-line rows match.
+     min-height, not height, so a longer line on a narrow screen grows its row instead of being cut. The greyed
+     upcoming row keeps its own height. */
+  .app-row:not(.is-upcoming) > .app-row-in { min-height: 6.75rem; }
 }
 
 .app-card {
@@ -312,7 +332,6 @@ sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 
 }
 .app-card .app-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
 .app-card .app-card-head .app-status { align-items: flex-end; }
-.app-card .app-card-head .app-ver { padding: 0 .7rem 0 0; }
 .app-card .app-name { margin: 0; font-size: var(--fs-lg); font-stretch: 125%; }
 .app-card .app-name a { color: var(--ink); text-decoration: none; }
 .app-card .app-name a::after { content: ""; position: absolute; inset: 0; }
@@ -323,11 +342,27 @@ sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 
 .app-card .app-short { margin: 0; }
 .app-card .app-meta { margin-top: auto; display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; color: var(--ink-2); font-size: var(--fs-sm); }
 .app-card .app-thumb { border: var(--pen-1) solid var(--grid); border-radius: var(--radius); background: var(--sheet); }
-/* Upcoming (Catalog::upcoming()): grayed out, dashed, not a link */
-.app-row.is-upcoming, .app-card.is-upcoming { --layer: var(--line); opacity: .55; filter: grayscale(1); cursor: not-allowed; }
-.app-row.is-upcoming > .app-row-in, .app-card.is-upcoming { border-left-style: dashed; }
-.app-card.is-upcoming { border-style: dashed; background: var(--sheet); }
-.app-card.is-upcoming .app-name { color: var(--ink); }
+/* Limited access (Catalog::upcoming()): a full-width card, the CadCraft mark in a circle */
+.app-wide-li { grid-column: 1 / -1; list-style: none; }
+.app-wide { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.25rem; padding: 1.5rem 1.5rem 1.5rem 2.25rem; border: var(--pen-2) solid var(--ink); border-left: 0; background: var(--sheet); }
+/* the left edge: the eight layer colours as blocks in a line, in lineup order */
+.app-wide::before { content: ""; position: absolute; inset: calc(var(--pen-2) * -1) auto calc(var(--pen-2) * -1) 0; width: .75rem; border: var(--pen-2) solid var(--ink); border-right: 0;
+  background: linear-gradient(to bottom, var(--layer-red) 0 12.5%, var(--layer-blue) 0 25%, var(--layer-orange) 0 37.5%, var(--layer-magenta) 0 50%, var(--layer-ochre) 0 62.5%, var(--layer-green) 0 75%, var(--layer-violet) 0 87.5%, var(--layer-cyan) 0 100%); }
+/* the ring: the eight layer colours as segments, starting at the top, in lineup order */
+.app-wide-mark { position: relative; display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border-radius: 50%; color: var(--ink);
+  background: conic-gradient(var(--layer-red) 0 12.5%, var(--layer-blue) 0 25%, var(--layer-orange) 0 37.5%, var(--layer-magenta) 0 50%, var(--layer-ochre) 0 62.5%, var(--layer-green) 0 75%, var(--layer-violet) 0 87.5%, var(--layer-cyan) 0 100%); }
+.app-wide-mark::before { content: ""; position: absolute; inset: 3.25px; border-radius: 50%; background: var(--sheet); }
+.app-wide-mark > svg { position: relative; }
+.app-wide-head { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.app-wide .app-name { margin: 0; font-size: var(--fs-lg); font-stretch: 125%; }
+.app-wide .app-role { color: var(--ink-2); font-weight: 600; margin: .25rem 0 0; }
+.app-wide .app-short { margin: .75rem 0 0; max-width: 70ch; }
+.app-wide-points { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: .75rem 1.5rem; grid-template-columns: minmax(0, 1fr); }
+.app-wide-points li { margin: 0; }
+.app-wide-points b { display: block; }
+.app-wide-cta { margin: 1.25rem 0 0; }
+@media (min-width: 700px) { .app-wide-points { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .app-wide { grid-template-columns: minmax(0, 1fr); } }
 .app-card .app-thumb svg { display: block; width: 100%; height: auto; color: var(--layer); }
 
 /* ---------- Ruled grid (principles etc.) ---------- */
@@ -399,6 +434,33 @@ sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 
 @keyframes poche { to { fill-opacity: 1; } }
 @keyframes fadein { to { opacity: 1; } }
 @keyframes fadegrid { to { opacity: .6; } }
+
+/* Split hero: the 3D model half (home-hero-model.inc). Materials are --m-* tokens. */
+.plan .m3 { stroke: var(--ink); stroke-width: .6; stroke-opacity: .5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.plan .m-plaster { fill: var(--m-plaster); } .plan .m-brick { fill: var(--m-brick); } .plan .m-wood { fill: var(--m-wood); }
+.plan .m-tile { fill: var(--m-tile); } .plan .m-carpet { fill: var(--m-carpet); } .plan .m-vinyl { fill: var(--m-vinyl); }
+.plan .m-concrete { fill: var(--m-concrete); } .plan .m-fabric { fill: var(--m-fabric); } .plan .m-fabric-2 { fill: var(--m-fabric-2); }
+.plan .m-linen { fill: var(--m-linen); } .plan .m-stone { fill: var(--m-stone); } .plan .m-metal { fill: var(--m-metal); }
+.plan .m-dark { fill: var(--m-dark); } .plan .m-porcelain { fill: var(--m-porcelain); } .plan .m-door { fill: var(--m-door); }
+.plan .m-cut { fill: var(--poche); stroke-opacity: 1; }
+.plan .m-glass { fill: var(--m-glass); fill-opacity: .55; }
+.plan .hm-joint { fill: none; stroke: var(--m-wood-line); stroke-width: .6; }
+#hm-tile .hm-joint { stroke: var(--m-tile-line); }
+.plan .hm-mortar { fill: none; stroke: var(--m-mortar); stroke-width: 1.2; }
+.plan .hm-fleck { fill: var(--m-fleck); }
+.plan .sh-s { fill: #000; fill-opacity: .1; }
+.plan .sh-w { fill: #000; fill-opacity: .24; }
+.plan .hm-shadow { fill: #000; opacity: .14; }
+.plan .hm-cut line { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 10 4 2 4; vector-effect: non-scaling-stroke; }
+.plan .hm-cut text { fill: var(--ink); font-family: var(--font); font-size: 13px; font-weight: 700; }
+.plan .hm-cut text.end { text-anchor: end; }
+.plan .p-label.halo text, .plan.hm-on .p-dim text { paint-order: stroke; stroke: var(--sheet); stroke-width: 4px; stroke-linejoin: round; }
+@media (prefers-reduced-motion: no-preference) {
+  .js .plan .rise { opacity: 0; animation: rise .7s cubic-bezier(.3,.1,.3,1) forwards; animation-delay: var(--d, 0s); }
+  .js .plan .hm-shadow.rise { animation-name: rise-shadow; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes rise-shadow { from { opacity: 0; } to { opacity: .14; } }
 
 /* Crosshair (fine pointers only, JS adds .xhair-on) */
 .plan .xhair { display: none; pointer-events: none; }
@@ -478,7 +540,7 @@ sup.tm { font-size: .5em; font-weight: 500; font-stretch: 100%; letter-spacing: 
 .form-cc .opt { font-weight: 500; color: var(--ink-2); }
 .form-cc .hint { display: block; color: var(--ink-2); font-size: var(--fs-sm); margin-top: .3rem; }
 .form-cc input[type="text"], .form-cc input[type="email"], .form-cc input[type="password"], .form-cc input[type="search"],
-.form-cc input[type="url"], .select-cc, .form-cc select, .form-cc textarea, .form-control, .form-select {
+.form-cc input[type="url"], .form-cc input[type="tel"], .form-cc input[type="number"], .select-cc, .form-cc select, .form-cc textarea, .form-control, .form-select {
   display: block; width: 100%; font: inherit; font-weight: 500; color: var(--ink);
   background: var(--sheet-2); border: var(--pen-2) solid var(--line); border-radius: var(--radius);
   padding: .7rem .8rem; min-height: 3rem; line-height: 1.4;
@@ -612,3 +674,18 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 @media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {
   html:not(:has(> body.app-shell)) { font-size: 90%; }
 }
+
+.tm { font-size: .5em; font-weight: 400; font-stretch: 100%; margin-left: .1em; vertical-align: super; line-height: 0; }
+.app-wide .app-license { margin: .25rem 0 0; font-weight: 700; }
+
+/* ---------- A text to paste (paste-box.inc) ---------- */
+.paste-text { margin-top: 1.5rem; }
+.paste-text label { display: block; margin-bottom: .5rem; }
+.paste-text-box { width: 100%; font-family: var(--font-mono, ui-monospace, monospace); font-size: var(--fs-sm); background: var(--sheet-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius); padding: .75rem; resize: vertical; }
+.paste-text .btn-line { margin-top: .75rem; }
+
+/* ---------- Attach files on a public form (attach-field.inc) ---------- */
+.attach-field { margin-top: 1rem; }
+.attach-field input[type="file"] { display: block; width: 100%; margin-top: .35rem; padding: .6rem; font: inherit; color: var(--ink); background: var(--sheet-2); border: 1px dashed var(--line); border-radius: var(--radius); }
+.attach-field input[type="file"].is-invalid { border-color: var(--bad, #b3261e); }
+.attach-field .hint { display: block; margin-top: .35rem; }

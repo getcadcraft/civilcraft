@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -70,6 +71,8 @@ const build = fs.readdirSync(cacheDir).filter((d) => /^chromium-\d+$/.test(d)).s
 const exe = ['chrome-linux64/chrome', 'chrome-linux/chrome'].map((s) => path.join(cacheDir, build, s)).find((p) => fs.existsSync(p));
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true });
+// 0.7 WS.10: CC_WORKSPACE=docked|toolbox runs the suite with that workspace layout on (Settings › Global › Layout)
+if (process.env.CC_WORKSPACE) await ctx.addInitScript((w) => { try { localStorage.setItem('cc-workspace', w); } catch (e) { /* no storage: classic */ } }, process.env.CC_WORKSPACE);
 // 0.5 SI.9: signed in, MarkupCraft takes the name from the account (no dialog). This run checks the name dialog, the
 // signed-out path, so the page's #cc-account is taken out; tools/shell-test/browser-author.mjs checks the signed-in one.
 await ctx.route(/\/lab\/markupcraft(\?[^/]*)?$/, async (route) => {
@@ -77,6 +80,16 @@ await ctx.route(/\/lab\/markupcraft(\?[^/]*)?$/, async (route) => {
   await route.fulfill({ response: res, body: (await res.text()).replace(/<script type="application\/json" id="cc-account">[^<]*<\/script>\s*/, '') });
 });
 const page = await ctx.newPage();
+// 0.7 WS.10: with a layout on, the classic toolbar (and the right panel's Properties / Markups tabs, which the layout's palettes
+// replace) are put away, and the docked layout's title bar stands in for the app bar; a click this suite aims at one of them runs
+// that same button, as the layout's ribbon, toolbox and title bar do
+if (process.env.CC_WORKSPACE) {
+  const P = Object.getPrototypeOf(page), click = P.click;
+  P.click = async function (sel, opts) {
+    const away = await this.$eval(sel, (e) => !!e.closest('.ws-hide, [data-tab][hidden]') || (!!e.closest('.app-bar') && !e.offsetParent)).catch(() => false);
+    return away ? this.$eval(sel, (e) => e.click()) : click.call(this, sel, opts);
+  };
+}
 const problems = [];
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
 page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
@@ -543,13 +556,20 @@ try {
   await page.click('[data-settings-tab="app"]');
   ok(await page.inputValue('[name="mcAuthor"]') === 'Test Reviewer', 'the name field shows the name in use');
   ok(await page.locator('[name="mcPaste"][value="pointer"]').isChecked() && await page.locator('[name="mcWeight"][value="normal"]').isChecked(), 'defaults: paste at the pointer, normal lines');
+  // Since 0.7 (data-shell-07) the dialog shows one section at a time: pick the section that holds each field first, as a person would.
+  await showSetting(page, '[name="mcAuthor"]');
   await page.fill('[name="mcAuthor"]', 'Renamed Reviewer');
   await page.locator('[name="mcAuthor"]').press('Tab');
   ok(await page.locator('[data-author]').innerText() === 'Renamed Reviewer' && await page.evaluate(() => JSON.parse(localStorage.getItem('markupcraft.author'))) === 'Renamed Reviewer', 'changing the name updates the status bar and is kept');
+  await showSetting(page, '[name="mcColor"]');
   await page.locator('[name="mcColor"]').fill('#00aa55');
+  await showSetting(page, '[name="mcWeight"]');
   await page.click('label:has([name="mcWeight"][value="heavy"])');
+  await showSetting(page, '[name="mcPaste"]');
   await page.click('label:has([name="mcPaste"][value="offset"])');
+  await showSetting(page, '[name="mcUnit"]');
   await page.selectOption('[name="mcUnit"]', 'm');
+  await showSetting(page, '[name="mcPos"]');
   await page.selectOption('[name="mcPos"]', 'mm');
   await page.screenshot({ path: path.join(OUT, '12-settings-markupcraft.png') });
   const kept = await page.evaluate(() => JSON.parse(localStorage.getItem('markupcraft.settings')));

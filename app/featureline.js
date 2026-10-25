@@ -401,7 +401,7 @@ export function alignmentCrossings(al, f) {
   for (const sg of segments(f)) {
     if (!(sg.len > 1e-12)) continue;
     const a = f.pts[sg.i], b = f.pts[sg.j];
-    for (const e of al.elements) for (const c of sg.arc ? crossArcElement(e, sg.arc) : crossElement(e, a, b)) out.push({ sta: c.sta, z: a.z + c.t * sg.dz, i: sg.i, grade: sg.grade });
+    for (const e of al.pieces()) for (const c of sg.arc ? crossArcElement(e, sg.arc) : crossElement(e, a, b)) out.push({ sta: c.sta, z: a.z + c.t * sg.dz, i: sg.i, grade: sg.grade });
   }
   out.sort((p, q) => p.sta - q.sta);
   // a crossing exactly at a shared vertex / element joint is found twice

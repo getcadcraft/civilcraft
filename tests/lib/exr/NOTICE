@@ -1,0 +1,29 @@
+cc-exr — CadCraft's OpenEXR / Radiance HDR / .cube library (lib/exr), Apache-2.0.
+
+The OpenEXR file layout comes from the OpenEXR documentation. The exact bit layout of the PIZ (wavelet + Huffman),
+PXR24 and B44 codecs and of the RLE/ZIP byte predictor follows OpenEXR's own C sources (src/lib/OpenEXRCore/
+internal_piz.c, internal_huf.c, internal_pxr24.c, internal_b44.c, internal_rle.c, internal_zip.c), read as a
+reference; the JavaScript here is ours. Their licence:
+
+  Copyright (c) Contributors to the OpenEXR Project. All rights reserved.
+  Portions copyright (c) DreamWorks Animation LLC and Industrial Light & Magic.
+
+  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+  following conditions are met:
+  1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+     disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+     following disclaimer in the documentation and/or other materials provided with the distribution.
+  3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+     products derived from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+zlib (RFC 1950/1951), Radiance RGBE (Ward, Graphics Gems II) and the Cube LUT Specification 1.0 (Adobe, 2013) are
+published documents; that code is ours from them.

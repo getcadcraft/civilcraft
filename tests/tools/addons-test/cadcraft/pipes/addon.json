@@ -1,0 +1,12 @@
+{
+  "id": "test.pipes",
+  "name": "Test pipes",
+  "version": "1.2.0",
+  "apps": ["cadcraft"],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["commands", "toolbar", "objects", "files"],
+  "description": "A test add-on for bin/test-cadcraft-addons.mjs: pipe objects, a world-frame run, an importer and an exporter.",
+  "lang": "./lang/"
+}

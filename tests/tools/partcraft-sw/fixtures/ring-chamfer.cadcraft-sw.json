@@ -1,0 +1,20 @@
+{ "format": "cadcraft-sw-export", "version": 1, "units": "mm", "name": "Ring",
+  "source": { "app": "SolidWorks", "appVersion": "hand-written fixture", "file": "C:\\Parts\\Ring.SLDPRT", "exported": "2026-10-11T12:00:00Z" },
+  "globals": [ { "name": "ring_h", "expr": "5" } ],
+  "equations": [ { "lhs": "D2@Sketch1", "rhs": "\"ring_h\"", "raw": "\"D2@Sketch1\" = \"ring_h\"" } ],
+  "check": { "volume": 4650.60432486409 },
+  "features": [
+    { "name": "Sketch1", "type": "sketch", "plane": { "base": "right" },
+      "points": [ { "id": "P0", "x": 0, "y": 0 }, { "id": "P1", "x": 0, "y": 10 },
+                  { "id": "A", "x": 10, "y": 0 }, { "id": "B", "x": 20, "y": 0 }, { "id": "C", "x": 20, "y": 5 }, { "id": "D", "x": 10, "y": 5 } ],
+      "segments": [ { "id": "S0", "type": "line", "a": "P0", "b": "P1", "construction": true },
+                    { "id": "S1", "type": "line", "a": "A", "b": "B" }, { "id": "S2", "type": "line", "a": "B", "b": "C" },
+                    { "id": "S3", "type": "line", "a": "C", "b": "D" }, { "id": "S4", "type": "line", "a": "D", "b": "A" } ],
+      "relations": [ { "type": "vertical", "refs": ["S0"] }, { "type": "horizontal", "refs": ["S1"] }, { "type": "vertical", "refs": ["S2"] },
+                     { "type": "horizontal", "refs": ["S3"] }, { "type": "vertical", "refs": ["S4"] }, { "type": "coincident", "refs": ["P0", "O"] } ],
+      "dimensions": [ { "name": "D1", "full": "D1@Sketch1", "type": "distance", "value": 10, "refs": ["S1"] },
+                      { "name": "D2", "full": "D2@Sketch1", "type": "distance", "value": 5, "refs": ["S2"] } ] },
+    { "name": "Revolve1", "type": "revolve", "sketch": "Sketch1", "angle": 360, "op": "add" },
+    { "name": "Chamfer1", "type": "chamfer", "d": 1, "edges": [ { "at": [14.142135623730951, 5, 14.142135623730951] } ], "dims": { "d": "D1@Chamfer1" } },
+    { "name": "Sweep1", "type": "unsupported", "swType": "Sweep" }
+  ] }

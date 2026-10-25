@@ -409,6 +409,156 @@ try {
     await dlh.saveAs(path.join(OUT, 'house-hq.png'));
     await p5.close();
   }
+  // High quality on WebGPU (0.7 RN.1): the WGSL wavefront tracer. A second browser with SwiftShader WebGPU; the app's own adapter
+  // scene through pathTraceStill at 128 × 96 (KICKOFF rule 14), then the dialog: the engine line, Stop, Resume.
+  if (!process.argv.includes('--no-webgpu')) {
+    const gb = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--enable-unsafe-webgpu', '--use-webgpu-adapter=swiftshader', '--enable-unsafe-swiftshader'] });
+    try {
+      const gctx = await gb.newContext({ viewport: { width: 760, height: 520 }, locale: 'en-US', storageState: STATE, acceptDownloads: true });
+      const p7 = await gctx.newPage();
+      const gerrs = [];
+      p7.on('console', (m) => { if (m.type() === 'error') gerrs.push(m.text()); });
+      p7.on('pageerror', (e) => gerrs.push(e.message));
+      await p7.goto(BASE + '/lab/modelcraft?space=paper', { waitUntil: 'networkidle' });
+      await house(p7);
+      await p7.evaluate(() => { const mc = window.modelcraft, m = mc.model; for (const [, i] of m.root.insts) if (m.defs.get(i.def).name === 'Walls') i.color = 'mat:brick-red'; m.version++; mc.view.invalidate(); });
+      // the showcase file (KICKOFF rule 11): this house, made once, opened for screenshots and the video instead of rebuilt
+      const SHOW = path.join(REPO, 'fixtures/showcase/modelcraft-house.modelcraft');
+      if (!fs.existsSync(SHOW)) {
+        const text = await p7.evaluate(() => { const mc = window.modelcraft, j = mc.model.toJSON(); j.view = { cam: mc.cam.toJSON(), style: mc.view.style, render: { mode: 'hq', minutes: 5, size: 'view', quality: 'good', sky: 'clear', exposure: 0, edges: false, ground: true, sun: null, looks: { '#4f7fae': 'glass' } } }; return JSON.stringify(j); });
+        fs.writeFileSync(SHOW, text);
+        console.log('  info made ' + path.relative(REPO, SHOW) + ' (' + text.length + ' bytes)');
+      }
+      const direct = await p7.evaluate(async () => {
+        const map = JSON.parse(document.querySelector('script[type="importmap"]').textContent).imports;
+        const url = (re) => Object.entries(map).find(([k]) => re.test(k))?.[1];
+        const [{ mcScene }, PT, L] = await Promise.all([import(url(/\/modelcraft\/dev\/render-mc\.js/)), import(url(/\/render\/render-pt\.js/)), import(url(/\/render\/looks\.js/))]);
+        const mc = window.modelcraft;
+        const settings = L.cleanSettings({ mode: 'hq', quality: 'draft', looks: { '#4f7fae': 'glass' } });
+        const scene = mcScene(mc.model, mc.cam, mc.view.style, settings);
+        const t0 = performance.now();
+        const r = await PT.pathTraceStill(scene, settings, { w: 128, h: 96 });
+        scene.dispose?.();
+        const bmp = await createImageBitmap(r.blob), c = new OffscreenCanvas(bmp.width, bmp.height), g = c.getContext('2d');
+        g.drawImage(bmp, 0, 0);
+        const d = g.getImageData(0, 0, bmp.width, bmp.height).data;
+        const band = (y0, y1) => { const s = [0, 0, 0]; let n = 0; for (let y = Math.floor(y0 * bmp.height); y < Math.floor(y1 * bmp.height); y++) for (let x = 0; x < bmp.width; x++) { const i = (y * bmp.width + x) * 4; s[0] += d[i]; s[1] += d[i + 1]; s[2] += d[i + 2]; n++; } return s.map((v) => v / n); };
+        let sum = 0, sum2 = 0;
+        for (let i = 0; i < d.length; i += 4) { const l = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]; sum += l; sum2 += l * l; }
+        const n = d.length / 4, mean = sum / n;
+        return { engine: r.engine, fallback: r.fallback, passes: r.passes, w: bmp.width, h: bmp.height, top: band(0, 0.1), mean, sd: Math.sqrt(Math.max(0, sum2 / n - mean * mean)), ms: Math.round(performance.now() - t0),
+          gptLoaded: performance.getEntriesByType('resource').some((x) => /three-gpu-pathtracer/.test(x.name)) };
+      });
+      console.log('  info WebGPU direct: ' + JSON.stringify(direct));
+      ok(direct.engine === 'webgpu' && !direct.fallback, 'High quality runs on the WGSL tracer where WebGPU exists', direct.engine + (direct.fallback ? ' (' + direct.fallback + ')' : ''));
+      ok(direct.passes === 16 && direct.w === 128 && direct.h === 96, 'the house at 128 × 96, 16 samples', direct.passes + ' samples, ' + direct.w + '×' + direct.h);
+      ok(direct.top[2] > direct.top[0] && direct.sd > 12, 'a picture with sky above, not flat', direct.top.map(Math.round).join(',') + ' sd ' + direct.sd.toFixed(1));
+      ok(!direct.gptLoaded, 'the WebGL tracer (three-gpu-pathtracer) is not loaded when WebGPU runs');
+      // the dialog: Stop keeps the picture, Resume continues, the status says which engine ran
+      await openDialog(p7);
+      await p7.selectOption('[data-render-mode]', 'hq');
+      await p7.selectOption('[data-render-minutes]', '0');
+      await p7.selectOption('[data-render-size]', 'view');
+      await p7.selectOption('[data-render-quality]', 'draft');
+      await p7.click('[data-render-go]');
+      await p7.waitForFunction(() => /High quality: sample [1-9]/.test(document.querySelector('[data-render-status]')?.textContent || ''), null, { timeout: 600000 });
+      await p7.click('[data-render-go]');   // Stop
+      await p7.waitForFunction(() => /^(Stopped|Done)/.test(document.querySelector('[data-render-status]')?.textContent || ''), null, { timeout: 600000 });
+      const st1 = await p7.textContent('[data-render-status]');
+      ok(/^Stopped after [1-9]\d* samples.*graphics card \(WebGPU\)/.test(st1), 'Stop keeps the picture and names the engine', st1);
+      ok(await p7.isVisible('[data-render-resume]'), 'Resume is offered after Stop');
+      const n1 = Number(/after (\d+) samples/.exec(st1)?.[1] || 0);
+      await p7.click('[data-render-resume]');
+      // the status changes when Resume finishes (the old "Stopped after …" line must not count)
+      await p7.waitForFunction((prev) => { const x = document.querySelector('[data-render-status]')?.textContent || ''; return x !== prev && /^(Stopped|Done)/.test(x); }, st1, { timeout: 900000 });
+      const st2 = await p7.textContent('[data-render-status]');
+      ok(/^Done: \d+ × \d+ pixels, 16 samples/.test(st2), 'Resume finishes the same render to its 16 samples', n1 + ' → ' + st2);
+      ok(!(await p7.isVisible('[data-render-resume]')), 'no Resume once the picture is finished');
+      await p7.screenshot({ path: path.join(OUT, '12-webgpu-resumed.png') });
+      // RN.3: the physical sky's haze, then a sky picture (a small .hdr made here: an orange band at the horizon, blue above)
+      await p7.selectOption('[data-render-sky]', 'physical');
+      ok(await p7.isVisible('[data-render-turbidity-row]') && !(await p7.isVisible('[data-render-hdri-rows]')) && await p7.isVisible('[data-render-sky-note]'), 'Physical sky shows its haze slider and the graphics-card note');
+      await p7.selectOption('[data-render-sky]', 'hdri');
+      ok(await p7.isVisible('[data-render-hdri-rows]') && !(await p7.isVisible('[data-render-turbidity-row]')), 'Sky picture shows its picture, turn and brightness controls');
+      const { writeHdr } = await import(path.join(REPO, 'lib/exr/hdr.js'));
+      const HW = 64, HH = 32, px = new Float32Array(HW * HH * 3);
+      for (let y = 0; y < HH; y++) for (let x = 0; x < HW; x++) { const o = (y * HW + x) * 3, t = y / HH; px.set(t < 0.45 ? [0.3, 0.5, 1.2] : t < 0.55 ? [2.5, 1.2, 0.4] : [0.3, 0.25, 0.2], o); }
+      const hdrPath = path.join(OUT, 'test-sky.hdr');
+      fs.writeFileSync(hdrPath, writeHdr({ width: HW, height: HH, channels: 3, data: px }));
+      await p7.setInputFiles('[data-render-hdri-file]', hdrPath);
+      await p7.waitForFunction(() => /Sky picture test-sky\.hdr read \(64 × 32\)/.test(document.querySelector('[data-render-status]')?.textContent || ''), null, { timeout: 30000 });
+      ok(/test-sky\.hdr/.test(await p7.textContent('[data-render-hdri-name]')), 'the chosen picture is named in the dialog');
+      await p7.click('[data-render-go]');
+      await p7.waitForFunction(() => /^(Stopped|Done|The render)/.test(document.querySelector('[data-render-status]')?.textContent || ''), null, { timeout: 900000 });
+      const st3 = await p7.textContent('[data-render-status]');
+      ok(/^Done: .*graphics card \(WebGPU\)/.test(st3) && !/No sky picture/.test(st3), 'a render under the sky picture finishes on the WGSL tracer', st3);
+      await p7.screenshot({ path: path.join(OUT, '13-webgpu-hdri.png') });
+      // RN.4: the camera — exposure from f-stop / shutter / ISO, depth of field, a 360° panorama (2:1)
+      await p7.selectOption('[data-render-sky]', 'clear');
+      ok(!(await p7.isVisible('[data-render-camera-row]')) && !(await p7.isVisible('[data-render-dof-row]')), 'Camera: the f-stop row and the focus row are hidden until asked for');
+      await p7.selectOption('[data-render-exposure-mode]', 'camera');
+      await p7.selectOption('[data-render-fstop]', '16');
+      await p7.selectOption('[data-render-shutter]', String(1 / 125));
+      ok(await p7.isVisible('[data-render-camera-row]') && /^EV 15/.test(await p7.textContent('[data-render-ev]')), 'Camera settings show f-stop, shutter, ISO and the EV', await p7.textContent('[data-render-ev]'));
+      await p7.check('[data-render-dof]');
+      ok(await p7.isVisible('[data-render-dof-row]'), 'Depth of field shows the focus distance and the aperture shape');
+      await p7.uncheck('[data-render-dof]');
+      await p7.selectOption('[data-render-projection]', 'equirect');
+      await p7.click('[data-render-go]');
+      await p7.waitForFunction(() => /^(Stopped|Done|The render)/.test(document.querySelector('[data-render-status]')?.textContent || '') && document.querySelector('[data-render-image]'), null, { timeout: 900000 });
+      const pano = await p7.$eval('[data-render-image]', (im) => ({ w: im.naturalWidth, h: im.naturalHeight }));
+      ok(pano.w === 2 * pano.h && /graphics card \(WebGPU\)/.test(await p7.textContent('[data-render-status]')), 'a 360° panorama renders 2:1 on the WGSL tracer', pano.w + ' × ' + pano.h);
+      await p7.screenshot({ path: path.join(OUT, '14-webgpu-panorama.png') });
+      await p7.selectOption('[data-render-projection]', 'normal');
+      await p7.selectOption('[data-render-exposure-mode]', 'slider');
+      // RN.6: light mixing + render elements — after the render, a group's brightness changes the picture with no new render
+      await p7.check('[data-render-light-mix]');
+      await p7.check('[data-render-elements]');
+      await p7.click('[data-render-go]');
+      await p7.waitForFunction(() => /^(Stopped|Done|The render)/.test(document.querySelector('[data-render-status]')?.textContent || '') && !document.querySelector('[data-render-mix-panel]')?.hidden, null, { timeout: 900000 });
+      const st4 = await p7.textContent('[data-render-status]');
+      const groupsShown = await p7.$$eval('[data-render-mix-on]', (xs) => xs.map((x) => x.dataset.renderMixOn));
+      ok(groupsShown.includes('sky') && groupsShown.includes('sun'), 'Mix the picture lists the light groups (sky, sun)', groupsShown.join(', '));
+      const sig = () => p7.$eval('[data-render-pic] canvas, [data-render-pic] img', (c) => { if (c.tagName === 'IMG') { const k = document.createElement('canvas'); k.width = c.naturalWidth; k.height = c.naturalHeight; k.getContext('2d').drawImage(c, 0, 0); c = k; } const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += d[i + 1]; return s / (d.length / 4); });
+      const before = await sig();
+      await p7.$eval('[data-render-mix-stops="sky"]', (x) => { x.value = '-3'; x.dispatchEvent(new Event('input', { bubbles: true })); });
+      await p7.waitForTimeout(300);
+      const after = await sig();
+      ok(after < before - 2 && (await p7.textContent('[data-render-status]')) === st4, 'the sky −3 stops darkens the picture at once, no new render', before.toFixed(1) + ' → ' + after.toFixed(1));
+      await p7.selectOption('[data-render-show]', 'albedo');
+      const alb = await sig();
+      ok(Math.abs(alb - after) > 2, 'Show › Albedo shows the surface colours', alb.toFixed(1));
+      await p7.screenshot({ path: path.join(OUT, '15-webgpu-mix.png') });
+      await p7.selectOption('[data-render-show]', 'beauty');
+      // RN.8: the look and the post change the finished picture at once, no new render
+      const b8 = await sig();
+      await p7.selectOption('[data-render-view]', 'agx');
+      await p7.$eval('[data-render-post="vignette"]', (x) => { x.value = '0.8'; x.dispatchEvent(new Event('input', { bubbles: true })); });
+      await p7.waitForTimeout(300);
+      const a8 = await sig();
+      ok(Math.abs(a8 - b8) > 1 && (await p7.textContent('[data-render-status]')) === st4, 'Picture › AgX + vignette redraws the finished picture, no new render', b8.toFixed(1) + ' → ' + a8.toFixed(1));
+      await p7.screenshot({ path: path.join(OUT, '16-webgpu-post.png') });
+      // RN.9: EXR with every layer, a 16-bit PNG, the render file — and reopening it
+      const saveAs = async (fmt) => { await p7.selectOption('[data-render-format]', fmt); const [dl] = await Promise.all([p7.waitForEvent('download'), p7.click('[data-render-save]')]); const f = path.join(OUT, 'out-' + fmt + '-' + dl.suggestedFilename()); await dl.saveAs(f); return { f, b: fs.readFileSync(f), name: dl.suggestedFilename() }; };
+      const ex = await saveAs('exr');
+      ok(ex.b.readUInt32LE(0) === 20000630 && /\.exr$/.test(ex.name) && ex.b.includes(Buffer.from('albedo.R')) && ex.b.includes(Buffer.from('light_sky.R')), 'Save as EXR: an OpenEXR file with the elements and light groups', ex.name + ', ' + ex.b.length + ' bytes');
+      const p16 = await saveAs('png16');
+      ok(p16.b.subarray(1, 4).toString() === 'PNG' && p16.b[24] === 16, 'Save as PNG, 16 bits', p16.name);
+      const cc = await saveAs('ccrender');
+      ok(cc.b[0] === 0x50 && cc.b[1] === 0x4b && /\.ccrender$/.test(cc.name), 'Save as render file (.ccrender)', cc.b.length + ' bytes');
+      await p7.selectOption('[data-render-format]', 'png');
+      await p7.setInputFiles('[data-render-open-file]', cc.f);
+      await p7.waitForFunction(() => /^Opened /.test(document.querySelector('[data-render-status]')?.textContent || ''), null, { timeout: 30000 });
+      ok(/AgX|agx/.test(await p7.$eval('[data-render-view]', (x) => x.value)) && !(await p7.$eval('[data-render-mix-panel]', (x) => x.hidden)), 'Open a render file: the picture comes back with its grade and its light groups', await p7.textContent('[data-render-status]'));
+      for (const x of [ex, p16, cc]) fs.unlinkSync(x.f);   // big files: checked, not kept (disk)
+      await p7.selectOption('[data-render-view]', 'aces');
+      await p7.$eval('[data-render-post="vignette"]', (x) => { x.value = '0'; x.dispatchEvent(new Event('input', { bubbles: true })); });
+      await p7.click('[data-render-mix-reset]');
+      await p7.uncheck('[data-render-light-mix]');
+      await p7.uncheck('[data-render-elements]');
+      ok(!gerrs.length, 'WebGPU pages: no console errors', gerrs.join(' | '));
+    } finally { await gb.close(); }
+  }
   ok(!errs.length, 'no console errors', errs.join(' | '));
   void view;
 } finally {

@@ -37,6 +37,7 @@ The Mac key labeled **delete** is {{key:Backspace}} to the browser. To delete a 
 | Key | Tool |
 |---|---|
 | {{key:V}} | {{ui:Select}} |
+| {{key:M}} | {{ui:Measure}}: distances, areas and slopes on the plan ([Measure](topic:measure)) |
 | {{key:A}} | {{ui:Alignment}} |
 | {{key:G}} | {{ui:Pad}} |
 | {{key:P}} | {{ui:Pipes}} |

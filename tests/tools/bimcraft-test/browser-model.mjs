@@ -36,7 +36,7 @@ const adminPhp = path.join(REPO, 'tools/cadcraft-test/admin.php');
 const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', adminPhp, 'session', 'bimmodel'], { encoding: 'utf8' }));
 
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
-const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+const ctx = await browser.newContext({ viewport: { width: 1920, height: 1200 }, acceptDownloads: true });
 const problems = [];
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -68,7 +68,10 @@ try {
   await page.click('[data-new-ok]');
   await waitStatus(/^New building Draw test/);
   await page.waitForSelector('[data-plan-wrap]:not([hidden])');
-  ok(await page.getAttribute('[data-model-toggle]', 'aria-pressed') === 'true' && await page.isVisible('[data-plan-canvas]') && await page.isVisible('[data-canvas]'), 'Draw is on: the plan and the 3D view side by side');
+  // 0.7 SU.751: a laptop-sized stage starts with the plan alone; Split is one click
+  ok(await page.getAttribute('[data-model-toggle]', 'aria-pressed') === 'true' && await page.isVisible('[data-plan-canvas]'), 'Draw is on: the plan shows');
+  await page.click('[data-model-layout="split"]');
+  ok(await page.isVisible('[data-plan-canvas]') && await page.isVisible('[data-canvas]'), 'Split: the plan and the 3D view side by side');
   ok(await page.isVisible('[data-levels-sec]') && JSON.stringify(await levels()) === JSON.stringify([{ name: 'Level 1', e: 0, h: 3000 }, { name: 'Level 2', e: 3000, h: 3000 }]), 'Levels panel: Level 1 at 0, Level 2 at 3000, both 3000 tall');
   ok((await page.$$eval('[data-model-level] option', (o) => o.map((x) => x.textContent))).join() === 'Level 2,Level 1' && await page.inputValue('[data-model-level]') !== '', 'the plan\'s level list, top level first; Level 1 shown');
   await shot(page, 'bm2-01-new');
@@ -251,7 +254,7 @@ try {
     await settled();
     // a door: width, distance from the start, hinges
     const d0 = (await ops()).find((o) => o.wall === south.guid);
-    await planClick(d0.off + d0.w / 2, -200);
+    await planClick(d0.off + d0.w / 2, -150);
     await page.waitForSelector('[data-mp-ow]');
     ok(await page.isVisible('[data-mp-ostart]') && await page.isVisible('[data-mp-hand]'), 'a click on a door: width, height, distances from both ends, hinges, swing side');
     await setField('[data-mp-ow]', '900');
