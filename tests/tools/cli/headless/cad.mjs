@@ -156,6 +156,8 @@ export class CadSession {
   plain(e, o) { return M.A.plainObject(this.doc, e, o); }
   objects(filters = {}) { return M.A.listObjects(this.doc, filters); }
   object(id) { return M.A.objectInFull(this.doc, id); }
+  /** EG.64: objects by key or id as flat states for MarkupCraft's tasks_check. */
+  elementStates(o) { return M.A.elementStates(this.doc, o); }
   /** Layer and drafting rules (AGENTS-SPEC §5.3). */
   check(rules = {}) { return M.A.checkDrawing(this.doc, rules); }
 
@@ -182,6 +184,11 @@ export class CadSession {
   usd(o = {}) { return M.A.drawingUsd(this.doc, o); }
 
   /** A block with its attribute values, one undo step (agents.js insertBlock, as the live window). */
+  /** diagram_from_text's headless twin (0.8 SU.883): the same engine as the live tool (diagram.js drawDiagramInto), one undo step. */
+  async diagram(text, o = {}) {
+    const dg = await load(APP, 'diagram.js');
+    return dg.drawDiagramInto(this.doc, text, { format: o.format || 'auto', x: o.x || 0, y: o.y || 0, th: o.textHeight, layer: o.layer || 'Diagram', label: this.undoPrefix + 'Diagram from text' });
+  }
   async insert(o) {
     this.out = [];
     const capture = (fn) => { const p = this.host.print; this.host.print = (s) => { fn(s); p(s); }; return () => { this.host.print = p; }; };

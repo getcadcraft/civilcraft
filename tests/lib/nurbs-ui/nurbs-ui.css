@@ -1,0 +1,33 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* nurbs-ui.css — cc-nurbs-ui's Surfaces panel (lib/nurbs-ui/panel.js). Site tokens only (every app and Super load tokens.css), rem sizes. */
+.nui { display: grid; gap: .5rem; font-size: .875rem; min-width: 0; }
+.nui-row { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.nui-inline { display: inline-flex; gap: .25rem; align-items: center; color: var(--ink-2); font-weight: 500; }
+.nui-inline .select-cc { width: auto; }
+.nui-h { font-size: .8125rem; font-weight: 700; margin: .35rem 0 .15rem; color: var(--ink); }
+.nui-cmds { display: flex; flex-wrap: wrap; gap: .25rem; }
+.nui-cmds .is-on { border-color: var(--action); color: var(--action); outline: var(--pen-1) solid var(--action); }
+.nui-card { border: var(--pen-1) solid var(--line); border-left: 4px solid var(--action); border-radius: var(--radius); padding: .5rem; display: grid; gap: .4rem; }
+.nui-card .nui-h { margin: 0; }
+.nui-need { margin: 0; color: var(--ink-2); }
+.nui-need[data-nurbs-need="ready"] { color: var(--ink); font-weight: 600; }
+.nui-picks { margin: 0; padding-left: 1.25rem; }
+.nui-fields { display: grid; grid-template-columns: fit-content(55%) minmax(0, 1fr); gap: .3rem .5rem; align-items: center; }
+.nui-fields label, .nui-points label { color: var(--ink-2); font-weight: 500; }
+.nui-points { display: grid; gap: .25rem; }
+.nui-input { width: 100%; min-width: 0; font: inherit; font-size: .875rem; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line);
+  border-radius: var(--radius); padding: .2rem .4rem; font-variant-numeric: tabular-nums; }
+.nui-input:focus { outline: var(--pen-2) solid var(--action); outline-offset: 0; border-color: var(--action); }
+.nui-error { margin: 0; color: var(--layer-red); font-weight: 600; }
+.nui-note { color: var(--ink-2); margin: 0; }
+.nui-list { list-style: none; margin: 0; padding: 0; }
+.nui-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem .5rem; padding: .25rem 0; border-bottom: var(--pen-1) solid var(--line); }
+.nui-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.nui-meta { grid-column: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.nui-acts { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-wrap: wrap; gap: .25rem; align-items: center; justify-content: flex-end; }
+.nui-icon { font: inherit; color: var(--action); background: none; border: 0; padding: .1rem .2rem; cursor: pointer; }
+.nui-icon:hover { color: var(--ink); }
+.nui-edges { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .8125rem; }
+.nui-edges th, .nui-edges td { text-align: left; padding: .15rem .25rem; border-bottom: var(--pen-1) solid var(--line); }
+.nui-edges th { color: var(--ink-2); font-weight: 600; }
+.nui-edges tr[data-ok="0"] td:nth-child(3) { color: var(--layer-red); font-weight: 700; }

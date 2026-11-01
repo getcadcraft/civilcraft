@@ -1,0 +1,51 @@
+% Graded lattice beam: a gyroid whose wall thickens where a topology optimisation says material is needed.
+%
+% What it makes: the half of the classic MBB beam (the left edge is the symmetry plane, the load is at the top-left corner, the support
+% under the bottom-right corner) as a gyroid sheet lattice. Its wall is the thinnest wall you allow where the optimised design is empty
+% and the thickest where it is solid, so the stiff paths are heavy lattice and the rest is light lattice.
+% Method: top88 (the 88-line SIMP code of Andreassen et al., in craftlib) finds the density of each element of a thin plate of the same
+% outline at the material fraction you ask; field_density turns that image into a wall thickness that varies over the box; tpms makes the
+% lattice. The picture is the same through the thickness (the 2-D result is extruded). Mirror the part about its left face for the full beam.
+% Limits: a plane-stress 2-D design for a 3-D lattice; the wall range is a choice, not a computed stiffness. Run Simulation on the result
+% before relying on it. A wall thicker than about a quarter of the cell closes the channels: keep Wmax under 0.3 cells.
+% @generator Graded lattice beam (half MBB)
+% @input L: mm = 60 [30 .. 200] "Length (half beam)"
+% @input H: mm = 30 [10 .. 100] "Height"
+% @input T: mm = 16 [5 .. 60] "Thickness"
+% @input vol: = 0.4 [0.15 .. 0.7] "Material fraction of the design"
+% @input cell: mm = 8 [4 .. 20] "Cell size"
+% @input wmin: mm = 1.2 [0.4 .. 4] "Thinnest wall"
+% @input wmax: mm = 2.4 [0.8 .. 6] "Thickest wall"
+% @input process: = metal {fdm, sla, sls, metal} "Process"
+% @input h: mm = 0.5 [0.25 .. 1.5] "Voxel size"
+
+if wmax <= wmin
+  error('the thickest wall must be more than the thinnest');
+end
+if wmax > 0.3 * cell
+  error('the thickest wall is more than 0.3 cells: it would close the channels; use a bigger cell or a thinner wall');
+end
+nelx = 60;
+nely = max(10, round(nelx * H / L));
+[xPhys, c, iters] = top88(nelx, nely, vol, 3, 1.5, 1);
+
+prof = process_profile(process);
+p = field_density(xPhys, [0 0 0 L H T], wmin, wmax);
+f = tpms('gyroid', cell, p, struct('bounds', [0 0 0 L H T]));
+fb = field_bake(f, h);
+[body, info] = to_body(fb, h);
+chk = mfg_check(fb, process, struct(), h);
+problems = chk.problems;
+
+sheet = struct();
+sheet.design_compliance = q(c, '-', 'top88: unit load, unit modulus, plane stress (Andreassen et al. 2011)');
+sheet.design_iterations = q(iters, '-', 'top88');
+sheet.design_volume_fraction = q(mean(xPhys(:)), '-', 'mean density of the optimised image');
+sheet.wall_thinnest = q(wmin, 'mm', 'given');
+sheet.wall_thickest = q(wmax, 'mm', 'given');
+sheet.lattice_volume = q(info.volume, 'mm3', 'of the mesh');
+sheet.lattice_fraction = q(info.volume / (L * H * T), '-', 'volume / box');
+sheet.process = struct('value', prof.label, 'ref', prof.ref);
+sheet.watertight = info.watertight;
+sheet.checks_passed = chk.ok;
+sheet.note = 'a 2-D design drives a 3-D lattice; check it with Simulation';

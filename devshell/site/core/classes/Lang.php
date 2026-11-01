@@ -44,6 +44,12 @@ final class Lang
     /** Shared shell strings; null = <public_html>/assets/lang/shell. */
     public static ?string $shellDir = null;
 
+    /** Language packs (LangPacks::install sets it on the site; null in the dev shell and the app repos = files only): an object
+     *  with applies(array $build): bool, locales(string $slug): array, overlay(string $slug, array $english, string $locale): array.
+     *  A pack locale is offered beside the build's own files; its entries are laid over them (newest translation wins) but only
+     *  where the build's English hashes the same as the English the entry was made from. docs/LANG-PACKS.md. */
+    public static ?object $packs = null;
+
     private static ?array $cur = null;     // {app, dir, locale, chain, strings}
     private static bool $booted = false;
     private static array $fileCache = [];
@@ -57,6 +63,8 @@ final class Lang
         $slug = (string)($build['slug'] ?? basename(dirname($dir)));
         if (self::$cur && self::$cur['dir'] === $dir && ($locale === null || self::$cur['locale'] === $locale)) return;
         $available = self::locales($dir);
+        $packs = self::$packs !== null && self::$packs->applies($build) ? self::$packs : null;
+        if ($packs) { $available = array_values(array_unique(array_merge($available, $packs->locales($slug)))); sort($available); }
         if (!empty($build['is_dev']) || basename($dir) === 'dev') $available[] = self::PSEUDO;
         $loc = $locale !== null && self::validLocale($locale) ? $locale : self::negotiate($available);
         if ($loc === self::PSEUDO) {
@@ -65,8 +73,28 @@ final class Lang
             return;
         }
         $chain = self::chain($loc, $available);
-        self::$cur = ['app' => $slug, 'dir' => $dir, 'locale' => $loc, 'chain' => $chain,
-            'strings' => self::merged($dir, $chain)];
+        if ($packs && $chain !== [self::DEFAULT]) {
+            // Each locale = its files, then its pack entries on top (newer); the chain then runs most general first, so an
+            // es-MX file still beats an es pack entry.
+            $en = self::merged($dir, [self::DEFAULT]);
+            $strings = $en;
+            foreach (array_reverse($chain) as $c) {
+                if ($c === self::DEFAULT) continue;
+                $strings = array_replace($strings, self::merged($dir, [$c]), $packs->overlay($slug, $en, $c));
+            }
+        } else {
+            $strings = self::merged($dir, $chain);
+        }
+        self::$cur = ['app' => $slug, 'dir' => $dir, 'locale' => $loc, 'chain' => $chain, 'strings' => $strings, 'available' => $available];
+    }
+
+    /** The locales this page could be shown in: the build's files, plus language packs when they apply (no pseudo-locale).
+     *  The language picker lists these. Before use(): the build's files only. */
+    public static function available(string $buildDir = ''): array
+    {
+        $list = self::$cur !== null && ($buildDir === '' || self::$cur['dir'] === $buildDir) && isset(self::$cur['available'])
+            ? self::$cur['available'] : self::locales($buildDir);
+        return array_values(array_filter($list, static fn($l) => $l !== self::PSEUDO));
     }
 
     /** Forget the current build (tests). */

@@ -33,9 +33,9 @@ $__tools = [
     ],
     'Export' => [   // i18n-ignore: the group's key (also its aria-label and data-group-menu); the visible name is ui.tb.group.*
         ['landxml', 'filetype-xml', Lang::t('ui.tb.landxml'), Lang::t('ui.tb.landxml.title')],
-        ['dxf', 'vector-pen', Lang::t('ui.tb.dxf'), Lang::t('ui.tb.dxf.title')],
-        ['dwg', 'file-earmark-ruled', Lang::t('ui.tb.dwg'), Lang::t('ui.tb.dwg.title')],
+        ['dwg', 'file-earmark-ruled', Lang::t('ui.tb.dwgdxf'), Lang::t('ui.tb.dwgdxf.title')],   // 0.7.1 71.24 (owner): one DWG / DXF button, the dialog asks the format (DXF keeps its command: the dialog's [data-cmd="dxf"])
         ['pdf', 'printer', Lang::t('ui.tb.pdf'), Lang::t('ui.tb.pdf.title')],
+        ['ifc', 'boxes', Lang::t('ui.tb.ifc'), Lang::t('ui.tb.ifc.title')],   // 0.7.1 71.24: the project as IFC 4.3 / 4 / 2x3, .ifc in (ifc-civil-ui.js)
     ],
     'Surface' => [   // i18n-ignore: the group's key (also its aria-label and data-group-menu); the visible name is ui.tb.group.*
         ['breakline', 'bezier2', Lang::t('ui.tb.breakline'), Lang::t('ui.tb.breakline.title')],
@@ -69,16 +69,37 @@ $__tools = [
 $__more = [
     'Surface' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['cad-open', Lang::t('toolbar.cad'), Lang::t('toolbar.cad.title'), '', 'menuitem'],
+        ['scan-start', Lang::t('scanin.cmd'), Lang::t('scanin.cmd.title'), '', 'menuitem'],   // Super 0.1: Start from a scan (scan-start-ui.js)
         ['feature', Lang::t('toolbar.feature'), Lang::t('toolbar.feature.title'), 'L', 'menuitemcheckbox'],
         ['sections', Lang::t('toolbar.sections'), Lang::t('toolbar.sections.title'), 'X', 'menuitemcheckbox'],
         ['mass', Lang::t('ms.tb'), Lang::t('ms.tb.title'), '', 'menuitemcheckbox'],   // 0.7 LC.1: the Mass tool (massing-ui.js)
+        ['river', Lang::t('sx.su957.tb'), Lang::t('sx.su957.tb.title'), '', 'menuitemcheckbox'],   // 0.8 SU.957: the River tool (river-ui.js; lab)
+        ['free-section', Lang::t('sx.su914.tb.section'), Lang::t('sx.su914.tb.section.title'), '', 'menuitemcheckbox'],   // 0.8 SU.914: a section line drawn anywhere (platform-ui.js)
+        ['ramp', Lang::t('sx.su914.tb.ramp'), Lang::t('sx.su914.tb.ramp.title'), '', 'menuitemcheckbox'],   // 0.8 SU.914: a ramp or sloped pad
+        ['ground-contours', Lang::t('sx.su911.tb'), Lang::t('sx.su911.tb.title'), '', 'menuitem'],   // 0.8 SU.911: terrain from contour lines (ground-ui.js)
+        ['water', Lang::t('wm.tb'), Lang::t('wm.tb.title'), '', 'menuitem'],   // 0.8 LC.16: water mains (water-ui.js)
+        ['eg-rain', Lang::t('eg.tb.rain'), Lang::t('eg.tb.rain.title'), '', 'menuitem'],   // 0.8 round 2 (EG.69 Make it rain; eg-ui.js)
+        ['eg-earthwork', Lang::t('eg.tb.earthwork'), Lang::t('eg.tb.earthwork.title'), '', 'menuitem'],   // 0.8 round 2 (EG.70 earthwork balancer; eg-ui.js)
+        ['eg-route', Lang::t('eg.tb.route'), Lang::t('eg.tb.route.title'), '', 'menuitem'],   // 0.8 round 2 (EG.71 best route; eg-ui.js)
+        ['section-lines', Lang::t('sx.su914.line.tb'), Lang::t('sx.su914.line.tb.title'), '', 'menuitem'],   // 0.8 SU.914 rest (round 3): the saved free-section lines (platform-ui.js)
+        ['mass-options', Lang::t('mo.tb'), Lang::t('mo.tb.title'), '', 'menuitem'],   // 0.8 EG.58 (round 3): BimCraft's massing options on a parcel (massing-options-ui.js)
+        ['solar', Lang::t('solar.tb'), Lang::t('solar.tb.title'), '', 'menuitem'],   // 0.8 EG.15 (round 3): ground solar arrays on terrain (solar-ui.js)
+        ['eg-pond', Lang::t('eg.tb.pond'), Lang::t('eg.tb.pond.title'), '', 'menuitem'],   // 0.8 round 2 (EG.12 detention ponds; eg-ui.js)
+        ['eg-site', Lang::t('eg.tb.site'), Lang::t('eg.tb.site.title'), '', 'menuitem'],   // 0.8 round 2 (EG.63 address to site; eg-ui.js)
+        ['eg-progress', Lang::t('eg.tb.progress'), Lang::t('eg.tb.progress.title'), '', 'menuitem'],   // 0.8 round 2 (EG.39 progress from surveys; eg-ui.js)
+        ['geo-soil', Lang::t('geo.tb.soil'), Lang::t('geo.tb.soil.title'), '', 'menuitem'],   // 0.8 round 2 (civil-geo_PART_2: geo-ui.js)
+        ['geo-road', Lang::t('geo.tb.road'), Lang::t('geo.tb.road.title'), '', 'menuitem'],   // 0.8 round 2 (civil-geo_PART_2: geo-ui.js)
+        ['geo-survey', Lang::t('geo.tb.survey'), Lang::t('geo.tb.survey.title'), '', 'menuitem'],   // 0.8 round 2 (civil-geo_PART_2: geo-ui.js)
+        ['geo-mine', Lang::t('geo.tb.mine'), Lang::t('geo.tb.mine.title'), '', 'menuitem'],   // 0.8 round 2 (civil-geo_PART_2: geo-ui.js)
+        ['geo-link', Lang::t('geo.tb.link'), Lang::t('geo.tb.link.title'), '', 'menuitem'],   // 0.8 round 2 (civil-geo_PART_2: geo-ui.js)
+        ['geo-rail', Lang::t('geo.tb.rail'), Lang::t('geo.tb.rail.title'), '', 'menuitem'],   // 0.8 round 2 (civil-geo_PART_2: geo-ui.js)
         ['measure', Lang::t('ui.tb.measure'), Lang::t('ui.tb.measure.title'), 'M', 'menuitemcheckbox'],   // 0.7 PL.10: in a More menu, so the toolbar keeps one row at 1440 px
         ['landscape', Lang::t('ls.tb.workspace'), Lang::t('ls.tb.workspace.title'), '', 'menuitemcheckbox'],   // 0.7 LD: the Landscape workspace (landscape/landscape-ui.js)
         ['powerlines', Lang::t('pl.tb.workspace'), Lang::t('pl.tb.workspace.title'), '', 'menuitemcheckbox'],   // 0.7 PL: the Power lines workspace (powerline/powerline-ui.js)
     ],
 ];
 ?>
-<main id="main" class="cv" data-civilcraft<?php if ($__bimUrl): ?> data-bim-url="<?= e($__bimUrl) ?>" data-bim-app="<?= e($__bim['name']) ?>"<?php endif; ?>>
+<main id="main" class="cv" data-civilcraft data-pdf-worker="<?= e($__manifest['pdfWorker'] ?? '') ?>"<?php if ($__bimUrl): ?> data-bim-url="<?= e($__bimUrl) ?>" data-bim-app="<?= e($__bim['name']) ?>"<?php endif; ?>>
   <h1 class="visually-hidden"><?= Lang::e('ui.h1', ['app' => $app['name']]) ?></h1>
 
   <div class="cv-tools" role="toolbar" aria-label="<?= Lang::e('ui.tools') ?>">
@@ -120,7 +141,7 @@ $__more = [
         </div>
       </div>
     <?php endforeach; ?>
-    <input type="file" class="visually-hidden" accept=".csv,.txt,.pnt,.xyz,.xml,.landxml,.json,.dwg,.dxf,.geojson,.kml,.kmz,.shp,.shx,.dbf,.prj,.cpg,.zip,.gpkg,.tif,.tiff,.asc,.las,.laz,.png,.jpg,.jpeg,.pgw,.pngw,.jgw,.jpgw,.wld" multiple tabindex="-1" aria-hidden="true" data-file>
+    <input type="file" class="visually-hidden" accept=".csv,.txt,.ifc,.ccbundle,.pnt,.xyz,.xml,.landxml,.json,.dwg,.dxf,.geojson,.kml,.kmz,.shp,.shx,.dbf,.prj,.cpg,.zip,.gpkg,.tif,.tiff,.asc,.las,.laz,.png,.jpg,.jpeg,.pgw,.pngw,.jgw,.jpgw,.wld,.pdf" multiple tabindex="-1" aria-hidden="true" data-file>
   </div>
 
   <aside class="cv-panel cv-left" aria-label="<?= Lang::e('ui.left') ?>">
@@ -147,6 +168,12 @@ $__more = [
         <tbody></tbody>
       </table>
       <button type="button" class="btn-line btn-sm-cc cv-codes-open" data-codes-open><?= Lang::e('codes.open') ?></button>
+    </section>
+    <?php /* Super 0.1: Scans — each scan is a workflow item until the drafter keeps or removes it (scan-start-ui.js + lib/scanstart/scans-ui.js; hidden until there is one) */ ?>
+    <section class="cv-sec cv-scans" data-scans hidden>
+      <h2 class="cv-h"><?= Lang::e('scanin.list.head') ?> <span class="cv-note" data-scans-need></span></h2>
+      <ul class="cv-scan-list" data-scans-list></ul>
+      <p class="cv-note"><?= Lang::e('scanin.list.note') ?></p>
     </section>
     <?php /* GIS: imported GIS layers (gis-vector-ui.js fills the list; hidden until there is one) */ ?>
     <section class="cv-sec cv-gis-layers" data-gis-layers hidden>
@@ -193,6 +220,7 @@ $__more = [
         <label><input type="checkbox" data-show="labels"> <?= Lang::e('ui.show.labels') ?></label>
         <label><input type="checkbox" data-show="triangles"> <?= Lang::e('ui.show.triangles') ?></label>
         <label><input type="checkbox" data-show="bands"> <?= Lang::e('ui.show.bands') ?></label>
+        <label title="<?= Lang::e('sx.su914.show.title') ?>"><input type="checkbox" data-show="cutfill"> <?= Lang::e('sx.su914.show') ?></label>
         <label><input type="checkbox" data-show="slopes"> <?= Lang::e('ui.show.slopes') ?></label>
         <label><input type="checkbox" data-show="points"> <?= Lang::e('ui.show.points') ?></label>
         <label><input type="checkbox" data-show="pointLabels"> <?= Lang::e('ui.show.pointlabels') ?></label>
@@ -217,7 +245,10 @@ $__more = [
         <button type="button" class="cv-tool" data-draft-act="cancel"><i class="bi bi-x-lg" aria-hidden="true"></i><span><?= Lang::e('touch.cancel') ?></span></button>
       </div>
       <div class="cv-hint" data-hint>
-        <p class="cv-hint-h"><?= Lang::e('ui.hint.h') ?></p>
+        <div class="cv-hint-head">
+          <p class="cv-hint-h"><?= Lang::e('ui.hint.h') ?></p>
+          <button type="button" class="cv-hint-close" data-hint-close aria-label="<?= Lang::e('ui.hint.close') ?>" title="<?= Lang::e('ui.hint.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+        </div>
         <ol>
           <li><?= $__lx('ui.hint.1', ['open' => '<strong>' . Lang::e('ui.tb.open') . '</strong>']) ?></li>
           <li><?= $__lx('ui.hint.2', ['points' => '<em>' . Lang::e('ui.points') . '</em>', 'breaklines' => '<strong>' . Lang::e('ui.hint.breaklines') . '</strong>']) ?></li>
@@ -225,6 +256,7 @@ $__more = [
           <li><?= $__lx('ui.hint.4', ['pad' => '<strong>' . Lang::e('ui.tb.pad') . '</strong>', 'enter' => '<kbd>Enter</kbd>']) ?><?php /* i18n-ignore: a key name */ ?></li>
         </ol>
         <p class="cv-hint-foot"><?= Lang::e('ui.hint.foot') ?> <button type="button" class="cv-linkbtn" data-sample><?= Lang::e('ui.hint.sample') ?></button></p>
+        <p class="cv-hint-foot"><?= Lang::e('ui.hint.paper') ?> <button type="button" class="cv-linkbtn" data-cmd="scan-start"><?= Lang::e('ui.hint.scan') ?></button></p>
         <?php /* recent files (host.js 1.4): the shell fills it with files it can reopen; empty = hidden */ ?>
         <div data-recent-files data-max="5"></div>
       </div>
@@ -326,7 +358,7 @@ $__more = [
   <dialog class="cv-dialog" data-dwg aria-labelledby="cv-dwg-h">
     <form method="dialog" class="cv-dlg">
       <div class="cv-dlg-head">
-        <h2 class="cv-h" id="cv-dwg-h"><?= Lang::e('ui.dwg.h') ?></h2>
+        <h2 class="cv-h" id="cv-dwg-h"><?= Lang::e('ui.dwg.h2') ?></h2>
         <button type="button" class="cv-x" data-close aria-label="<?= Lang::e('ui.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
       <div class="cv-dlg-body">
@@ -339,14 +371,71 @@ $__more = [
             <option value="AC1024">2010</option>
             <option value="AC1027">2013</option>
             <option value="AC1032"><?= Lang::e('ui.dwg.2018') ?></option>
+            <option value="DXF"><?= Lang::e('ui.dwg.dxf') ?></option>
           </select>
         </div>
-        <p class="cv-note"><?= Lang::e('ui.dwg.note') ?></p>
+        <p class="cv-note"><?= Lang::e('ui.dwg.note2') ?></p>
         <label class="cv-check" data-dwg-map-row hidden><input type="checkbox" data-dwg-map checked> <?= Lang::e('map.out.dwg') ?></label>
       </div>
       <div class="cv-dlg-foot">
         <button type="button" class="btn-line btn-sm-cc" data-close><?= Lang::e('ui.cancel') ?></button>
-        <button type="button" class="btn-plot btn-sm-cc" data-dwg-go><?= Lang::e('ui.dwg.go') ?></button>
+        <button type="button" class="btn-plot btn-sm-cc" data-dwg-go><?= Lang::e('ui.dwg.go2') ?></button>
+        <?php /* the DXF export's own command (registry export.dxf, keys people bound): clicked by the shell, never shown */ ?><button type="button" hidden data-cmd="dxf" aria-label="<?= Lang::e('ui.tb.dxf.title') ?>"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <?php /* 0.7.1 71.24: Export › IFC (ifc-civil-ui.js fills the summary, the losses and the notes) */ ?>
+  <dialog class="cv-dialog" data-ifc aria-labelledby="cv-ifc-h">
+    <form method="dialog" class="cv-dlg">
+      <div class="cv-dlg-head">
+        <h2 class="cv-h" id="cv-ifc-h"><?= Lang::e('ifc.h') ?></h2>
+        <button type="button" class="cv-x" data-close aria-label="<?= Lang::e('ui.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="cv-dlg-body">
+        <div class="cv-props">
+          <label for="cv-ifc-schema"><?= Lang::e('ifc.schema') ?></label>
+          <select id="cv-ifc-schema" class="cv-select" data-ifc-schema>
+            <option value="IFC4X3_ADD2"><?= Lang::e('ifc.s.43') ?></option>
+            <option value="IFC4"><?= Lang::e('ifc.s.4') ?></option>
+            <option value="IFC2X3"><?= Lang::e('ifc.s.2x3') ?></option>
+          </select>
+        </div>
+        <p class="cv-note" data-ifc-summary></p>
+        <p class="cv-note"><strong><?= Lang::e('ifc.loses') ?></strong></p>
+        <ul class="cv-note" data-ifc-losses></ul>
+        <div data-ifc-notes></div>
+      </div>
+      <div class="cv-dlg-foot">
+        <button type="button" class="btn-line btn-sm-cc" data-ifc-ids title="<?= Lang::e('ids.menu.title') ?>"><?= Lang::e('ids.menu') ?></button><?php /* 0.7.1 71.25: ids-ui.js */ ?>
+        <button type="button" class="btn-line btn-sm-cc" data-ifc-open><?= Lang::e('ifc.open') ?></button>
+        <button type="button" class="btn-line btn-sm-cc" data-close><?= Lang::e('ui.cancel') ?></button>
+        <button type="button" class="btn-plot btn-sm-cc" data-ifc-go><?= Lang::e('ifc.go') ?></button>
+      </div>
+    </form>
+  </dialog>
+
+  <?php /* 0.7.1 71.24: opening an .ifc file (ifc-civil-ui.js) */ ?>
+  <dialog class="cv-dialog" data-ifc-in aria-labelledby="cv-ifc-in-h">
+    <form method="dialog" class="cv-dlg">
+      <div class="cv-dlg-head">
+        <h2 class="cv-h" id="cv-ifc-in-h"><?= Lang::e('ifc.in.h') ?></h2>
+        <button type="button" class="cv-x" data-close aria-label="<?= Lang::e('ui.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <div class="cv-dlg-body">
+        <div class="cv-props">
+          <span class="k"><?= Lang::e('ui.imp.file') ?></span><span class="v" data-ifc-in-file></span>
+          <label for="cv-ifc-in-eg"><?= Lang::e('ifc.in.eg') ?></label>
+          <select id="cv-ifc-in-eg" class="cv-select" data-ifc-in-eg></select>
+        </div>
+        <p class="cv-note" data-ifc-in-found></p>
+        <label class="cv-check"><input type="checkbox" data-ifc-in-refs checked> <?= Lang::e('ifc.in.refs') ?></label>
+        <p class="cv-note"><?= Lang::e('ifc.in.refs.note') ?></p>
+        <ul class="cv-note" data-ifc-in-notes></ul>
+      </div>
+      <div class="cv-dlg-foot">
+        <button type="button" class="btn-line btn-sm-cc" data-close><?= Lang::e('ui.cancel') ?></button>
+        <button type="button" class="btn-plot btn-sm-cc" data-ifc-in-ok><?= Lang::e('ifc.in.ok') ?></button>
       </div>
     </form>
   </dialog>

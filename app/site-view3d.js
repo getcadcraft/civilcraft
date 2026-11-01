@@ -6,7 +6,7 @@
  * civilcraft.js imports this module the first time someone opens 3D, so the 2D app never loads three.js otherwise.
  *
  *   const v = mountSite3D(host, { project: () => Project, onPick(hit) → bool, say(msg), exag (Settings › CivilCraft), onExag(x),
- *                                 corner: 'cube'|'axes'|'none' })
+ *                                 corner: 'cube'|'axes'|'none', species: () => Map (0.7.1 71.19: the Landscape plant list) })
  *   v.show() · v.hide() · v.refresh() (the project changed) · v.exportGLB() · v.exportOBJ() · v.setExag(x) · v.setCorner(c)
  *   v.lookAlong(view) (a view cube view {dir, up} — the plan's cube opens 3D this way) · v.state · v.scene · v.cam · v.cube
  *   v.drive (0.4 V10, drive-ui.js: the Drive panel and Sun menu on the bar) · view.setSun(cfg)
@@ -25,6 +25,7 @@ import { Camera, VIEWS, VIEW_LABELS } from './camera.js';
 import { invert } from './vec.js';
 import { buildSite3D, siteInput, pickSite, SHOW_DEFAULTS, EXAGGERATIONS, declutterLabels } from './site3d.js';
 import { exportGLB, exportOBJ } from './site3d-export.js';
+import { expandInstances } from './site3d-landscape.js';   // 0.7.1 71.19: plants are instances on screen, meshes in the files
 import { mountViewCube, mountAxisIcon } from './viewcube.js';
 import { cameraCubeOptions } from './viewcube-camera.js';
 import { el } from './ui-util.js';
@@ -40,6 +41,12 @@ const SHOW_LABELS = [   // [what, language key]: looked up when the bar is built
   ['pipes', 'v3d.show.pipes'], ['points', 'scene.layer.node'], ['gis', 'v3d.show.gis'],   // gis: 0.4 V4
   ['labels', 'v3d.show.labels'],   // 0.5 WL.22
   ['masses', 'ms.show'],   // 0.7 LC.1
+  ['roads', 'v3d.show.roads'], ['plants', 'v3d.show.plants'], ['hardscape', 'v3d.show.hardscape'],   // 0.7.1 71.19
+  ['walls', 'v3d.show.walls'],   // 0.7.1 71.22
+  ['track', 'v3d.show.track'],   // 0.7.1 71.26
+  ['solar', 'solar.show3d'],   // 0.8 EG.15
+  ['pit', 'geo.pit.show3d'],   // 0.8 EG.27
+  ['spots', 'v3d.show.spots'],   // 0.8 SU.914 rest
 ];
 const VIEW_KEYS = { iso: 'v3d.view.iso', top: 'v3d.view.top', bottom: 'v3d.view.bottom', front: 'v3d.view.front', back: 'v3d.view.back', left: 'v3d.view.left', right: 'v3d.view.right' };
 
@@ -48,7 +55,7 @@ export function readState() {
   try {
     const v = JSON.parse(localStorage.getItem(STORE) || '{}');
     if (EXAGGERATIONS.includes(v.exag)) st.exag = v.exag;
-    if (v.color === 'bands' || v.color === 'single' || v.color === 'map') st.color = v.color;   // 0.4 V3: 'map'
+    if (v.color === 'bands' || v.color === 'single' || v.color === 'map' || v.color === 'cutfill') st.color = v.color;   // 0.8 SU.914: 'cutfill'   // 0.4 V3: 'map'
     if (typeof v.persp === 'boolean') st.persp = v.persp;
     if (v.show && typeof v.show === 'object') for (const k of Object.keys(SHOW_DEFAULTS)) if (typeof v.show[k] === 'boolean') st.show[k] = v.show[k];
   } catch { /* private window or junk: defaults */ }
@@ -219,11 +226,32 @@ export class SiteView3D {
       g.computeBoundingSphere();
       // the existing ground under a graded surface: see-through, so cut and fill both show
       const ghost = both && m.key === 'eg';
-      const mat = new THREE.MeshLambertMaterial({ vertexColors: !(m.uvs && drape), map: m.uvs && drape ? drape : null, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: ghost ? 2 : 1, polygonOffsetUnits: ghost ? 2 : 1, transparent: ghost, opacity: ghost ? 0.45 : 1, depthWrite: !ghost });
+      const off = m.onGround ? -1 : ghost ? 2 : 1;   // 0.7.1 71.19: a road or paving lies on the graded ground it shaped: drawn in front of it
+      const mat = new THREE.MeshLambertMaterial({ vertexColors: !(m.uvs && drape), map: m.uvs && drape ? drape : null, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: off, polygonOffsetUnits: off, transparent: ghost, opacity: ghost ? 0.45 : 1, depthWrite: !ghost });
       const mesh = new THREE.Mesh(g, mat);
       mesh.name = m.key;
       if (ghost) mesh.renderOrder = 2;
       this.root.add(mesh);
+    }
+    // 0.7.1 71.19: plants — one InstancedMesh per shape (the shape once, a matrix and a colour per plant)
+    const mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), pv = new THREE.Vector3(), sv = new THREE.Vector3(), cv = new THREE.Color();
+    for (const s of data.instances || []) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(s.proto.positions, 3));
+      g.setAttribute('normal', new THREE.BufferAttribute(s.proto.normals, 3));
+      g.setIndex(new THREE.BufferAttribute(s.proto.indices, 1));
+      const o = new THREE.InstancedMesh(g, new THREE.MeshLambertMaterial({ color: 0xffffff }), s.count);
+      for (let i = 0; i < s.count; i++) {
+        if (s.rot) q.set(s.rot[4 * i], s.rot[4 * i + 1], s.rot[4 * i + 2], s.rot[4 * i + 3]); else q.identity();   // 0.7.1 71.26: sleepers are turned
+        mtx.compose(pv.set(s.at[3 * i], s.at[3 * i + 1], s.at[3 * i + 2]), q, sv.set(s.size[3 * i], s.size[3 * i + 1], s.size[3 * i + 2]));
+        o.setMatrixAt(i, mtx);
+        o.setColorAt(i, cv.setRGB(s.colors[3 * i], s.colors[3 * i + 1], s.colors[3 * i + 2]));   // as the vertex colours of every other mesh
+      }
+      o.instanceMatrix.needsUpdate = true;
+      if (o.instanceColor) o.instanceColor.needsUpdate = true;
+      o.computeBoundingSphere();
+      o.name = s.key;
+      this.root.add(o);
     }
     for (const l of data.lines) {
       const g = new THREE.BufferGeometry();
@@ -297,7 +325,7 @@ export class SiteView3D {
 }
 
 /** The 3D stage inside `host` (the plan area): bar + canvas + tip. */
-export function mountSite3D(host, { project, onPick = () => false, say = () => {}, exag: exag0 = null, onExag = () => {}, corner = 'cube', drape: getDrape = null, selection = () => null, onPushPull = null }) {
+export function mountSite3D(host, { project, onPick = () => false, say = () => {}, exag: exag0 = null, onExag = () => {}, corner = 'cube', drape: getDrape = null, selection = () => null, onPushPull = null, species = null, cutfill = null, spots = null }) {   // 0.8 SU.914: cutfill(box, size) → canvas | null
   const state = readState();
   if (EXAGGERATIONS.includes(exag0)) state.exag = exag0;
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ exag: state.exag, color: state.color, persp: state.persp, show: state.show })); } catch { /* storage blocked: this visit only */ } };
@@ -306,7 +334,7 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   const persp = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-persp': '', 'aria-pressed': String(state.persp), title: t('v3d.persp.title') }, t('v3d.persp'));
   const extents = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-extents': '', title: t('v3d.extents.title') }, t('v3d.extents'));
   const exag = el('select', { className: 'cv-select cv3-sel', 'data-3d-exag': '', 'aria-label': t('v3d.exag'), title: t('v3d.exag.title') }, ...EXAGGERATIONS.map((x) => opt(x, t('v3d.exag.opt', { x }), state.exag)));
-  const color = el('select', { className: 'cv-select cv3-sel', 'data-3d-color': '', 'aria-label': t('v3d.color'), title: t('v3d.color.title') }, opt('bands', t('v3d.color.bands'), state.color), opt('single', t('v3d.color.single'), state.color), opt('map', t('v3d.color.map'), state.color));
+  const color = el('select', { className: 'cv-select cv3-sel', 'data-3d-color': '', 'aria-label': t('v3d.color'), title: t('v3d.color.title') }, opt('bands', t('v3d.color.bands'), state.color), opt('single', t('v3d.color.single'), state.color), opt('map', t('v3d.color.map'), state.color), opt('cutfill', t('sx.su914.color3d'), state.color));
   const checks = SHOW_LABELS.map(([k, label]) => el('label', {}, el('input', { type: 'checkbox', 'data-3d-show': k, checked: !!state.show[k] }), ' ', t(label)));
   const showMenu = el('details', { className: 'cv-menu cv3-menu', 'data-3d-show-menu': '' },
     el('summary', { className: 'cv-toggle', title: t('v3d.show.title') }, t('v3d.show')),
@@ -333,7 +361,7 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   const setCorner = (c) => { cube.setVisible(c === 'cube'); axes.setVisible(c === 'axes'); };
   setCorner(corner);
   view.onRender = () => { cube.update(); axes.update(); };
-  let data = null, theme = themeColors(), fitted = false, builtFor = null;
+  let data = null, theme = themeColors(), fitted = false, fittedAt = '', builtFor = null;
   const dv = mountDrive({ bar, stage, view, project, getData: () => data, rebuild: () => rebuild(), say });   // 0.4 V10 drive + sun
 
   // 0.4 V3: map layers draped on the surfaces. getDrape() → Promise of gis-map-ui.js's reg.drape (loads the GIS tools);
@@ -341,6 +369,16 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   let drapeApi = null, drapeTex = null, drapeBox = null, drapeOff = null, drapeNote = '', drapeAsked = false;
   function drapeFor(input) {
     drapeNote = '';
+    if (state.color === 'cutfill' && cutfill) {   // 0.8 SU.914: the cut and fill map as the picture on the surfaces
+      const surfs = [input.eg, input.fg].filter(Boolean);
+      if (!surfs.length) return null;
+      const box = surfs.map((sf) => sf.bounds).reduce((a, b) => ({ minX: Math.min(a.minX, b.minX), minY: Math.min(a.minY, b.minY), maxX: Math.max(a.maxX, b.maxX), maxY: Math.max(a.maxY, b.maxY) }));
+      const cv = cutfill(box, 2048);
+      if (!cv) { drapeNote = t('sx.su914.3d.none'); return null; }
+      drapeTex?.dispose(); drapeTex = new THREE.CanvasTexture(cv); drapeTex.colorSpace = THREE.SRGBColorSpace; drapeTex.anisotropy = 4; drapeTex.needsUpdate = true;
+      drapeBox = box;
+      return box;
+    }
     if (state.color !== 'map') return null;
     if (!drapeApi) {
       if (!drapeAsked && getDrape) { drapeAsked = true; Promise.resolve(getDrape()).then((d) => { drapeApi = d || null; builtFor = null; rebuild(); }).catch(() => { drapeNote = t('v3d.map.noload'); }); }
@@ -361,19 +399,23 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   }
   function rebuild() {
     const p = project();
-    const key = p.version + '|' + JSON.stringify(state) + '|' + theme.bg + '|' + p.pointsVersion + '|' + (p.state.gis?.maps ? JSON.stringify(p.state.gis.maps.map((m) => [m.id, m.visible, m.opacity])) : '');
+    const sp = species?.() || null;   // 0.7.1 71.19: the plant list (it loads after the app: the plants come in when it does)
+    const key = p.version + '|' + JSON.stringify(state) + '|' + theme.bg + '|' + p.pointsVersion + '|' + (p.state.gis?.maps ? JSON.stringify(p.state.gis.maps.map((m) => [m.id, m.visible, m.opacity])) : '') + '|' + (sp?.size || 0);
     if (key === builtFor && data) return;
     builtFor = key;
-    const input = siteInput(p);
+    const input = siteInput(p, { species: sp });
+    try { input.spots = spots ? spots() : []; } catch { input.spots = []; }   // 0.8 SU.914 rest: spot levels on the 3D surface
     const box = drapeFor(input);
-    data = buildSite3D(input, { exag: state.exag, color: box ? 'map' : state.color === 'map' ? 'bands' : state.color, drape: box, show: state.show, dark: theme.dark, colors: theme.colors });
+    data = buildSite3D(input, { exag: state.exag, color: box ? 'map' : state.color === 'map' || state.color === 'cutfill' ? 'bands' : state.color, drape: box, show: state.show, dark: theme.dark, colors: theme.colors });
     if (drapeNote) data.notes.push(drapeNote);
     view.setData(data, theme.bg, box ? drapeTex : null);
     hlFor = null;
     highlight();
-    if (!fitted && data.bbox) { view.standard(state.view); fitted = true; }
+    // the local origin moves when the first ground or alignment arrives (0.7.1 71.19: a plant first, then a road): look again
+    const og = data.origin.x + ',' + data.origin.y + ',' + data.origin.z;
+    if (data.bbox && (!fitted || og !== fittedAt)) { view.standard(state.view); fitted = true; fittedAt = og; }
     dv.refresh();   // 0.4 V10: the driver's eye and the sun follow a new exaggeration
-    const empty = !data.meshes.length && !data.lines.length && !data.points;
+    const empty = !data.meshes.length && !data.lines.length && !data.points && !data.instances?.length;
     note.hidden = !empty && !data.notes.length;
     note.replaceChildren(...(empty ? [t('v3d.empty')] : data.notes).map((t) => el('div', {}, t)));
   }
@@ -434,16 +476,18 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     refresh() { if (!host.hidden) { rebuild(); picked3d = null; highlight(); } },
     get drape() { return { api: drapeApi, texture: drapeTex, box: drapeBox, note: drapeNote }; },   // 0.4 V3, for tests
     get drive() { return dv; },   // 0.4 V10
-    exportGLB() { rebuild(); return download(exportGLB(data, { name: project().state.name }), fileName('glb'), 'model/gltf-binary'); },
-    exportOBJ() { rebuild(); return download(exportOBJ(data, { name: project().state.name }), fileName('obj'), 'text/plain'); },
+    exportGLB() { rebuild(); return download(exportGLB(fileScene(), { name: project().state.name }), fileName('glb'), 'model/gltf-binary'); },
+    exportOBJ() { rebuild(); return download(exportOBJ(fileScene(), { name: project().state.name }), fileName('obj'), 'text/plain'); },
     async exportUSD(format = 'usdz') {
       rebuild();
       const { siteUsd } = await import('./usd-civilcraft.js');
-      const r = siteUsd(data, { format, name: project().state.name || 'site', crs: project().state.crs });
+      const r = siteUsd(fileScene(), { format, name: project().state.name || 'site', crs: project().state.crs });
       return download(r.data, fileName(format), format === 'usda' ? 'model/vnd.usda' : format === 'usdz' ? 'model/vnd.usdz+zip' : 'application/octet-stream');
     },
     pick(x, y) { return pickSite(data, view.cam, x, y); },
   };
+  /** 0.7.1 71.19: what the files get — the scene with the plants written out as meshes (the exporters know meshes only). */
+  const fileScene = () => (data.instances?.length ? { ...data, meshes: [...data.meshes, ...expandInstances(data)] } : data);
   const fileName = (ext) => (project().state.name || 'site').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').trim().slice(0, 80) + '-3d.' + ext;
   function download(bytes, name, type) {
     const a = el('a', { href: URL.createObjectURL(new Blob([bytes], { type })), download: name });
@@ -585,6 +629,14 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     view.cam.zoomAt(k, p.x, p.y);
     view.invalidate();
   }, { passive: false });
+  // 0.8 Track ID: hand the view to the input-device layer (assets/js/app-devices-ui.js) — moves as the wheel and drags above do (the
+  // camera's pan / orbit in drag pixels, zoomAt with factor < 1 = closer, so 1 / f), fit = the bar's Extents; hidden with its host
+  const devMove = () => { cubeOpts.stop(); tip.hidden = true; };
+  (window.ccViews ||= []).push({ el: canvas, kind: '3d',
+    pan(dx, dy) { devMove(); view.cam.pan(dx, dy); view.invalidate(); },
+    zoom(f, x, y) { devMove(); view.cam.zoomAt(1 / f, x, y); view.invalidate(); },
+    orbit(dx, dy) { devMove(); view.cam.orbit(dx, dy); view.invalidate(); },
+    fit() { if (dv.driving) dv.end(); view.fit(); } });
   canvas.addEventListener('keydown', (e) => {
     if (dv.keydown(e)) { e.preventDefault(); e.stopPropagation(); return; }   // 0.4 V10
     const sl0 = onPushPull && data?.roofs?.length ? selection() : null, rf = sl0?.kind === 'mass' ? data.roofs.find((r) => r.id === sl0.id) : null;

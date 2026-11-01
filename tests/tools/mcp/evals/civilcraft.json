@@ -1,0 +1,568 @@
+[
+ {
+  "id": "describe-site",
+  "title": "Describe the site",
+  "prompt": "Open the site and tell me how many survey points, which alignments and parcels it has.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "site_describe",
+    "args": {
+     "doc": "$s.doc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   },
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "alignments.length",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "elevation-at-point",
+  "title": "Ground elevation at a point",
+  "prompt": "What is the ground elevation at 6150200, 2080100?",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "surface_elevation",
+    "args": {
+     "doc": "$s.doc",
+     "points": [
+      {
+       "x": 6150200,
+       "y": 2080100
+      }
+     ]
+    },
+    "as": "e"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   }
+  ]
+ },
+ {
+  "id": "points-by-group",
+  "title": "List survey points of one group",
+  "prompt": "List the control points (group CP).",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "points_list",
+    "args": {
+     "doc": "$s.doc",
+     "group": "CP"
+    },
+    "as": "p"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "name",
+    "eq": "Eval site"
+   }
+  ]
+ },
+ {
+  "id": "import-csv",
+  "title": "Open a survey CSV and save it as a site",
+  "prompt": "Open site-topo.csv and save it as a CivilCraft site.",
+  "fixtures": {
+   "topo.csv": "tools/civilcraft-test/site-topo.csv"
+  },
+  "allow": [
+   "read",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "topo.csv"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "site_save",
+    "args": {
+     "doc": "$s.doc",
+     "path": "topo.civilcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "topo.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   },
+   {
+    "file": "topo.civilcraft.json",
+    "kind": "json",
+    "path": "format",
+    "exists": true
+   }
+  ]
+ },
+ {
+  "id": "new-site-add-points",
+  "title": "Start a site and add three points",
+  "prompt": "Make a new metric site and add three survey points.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "site_new",
+    "args": {
+     "name": "Plot",
+     "units": "m"
+    },
+    "as": "n"
+   },
+   {
+    "tool": "points_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      {
+       "n": "1",
+       "x": 0,
+       "y": 0,
+       "z": 10
+      },
+      {
+       "n": "2",
+       "x": 10,
+       "y": 0,
+       "z": 11
+      },
+      {
+       "n": "3",
+       "x": 0,
+       "y": 10,
+       "z": 12
+      }
+     ]
+    }
+   },
+   {
+    "tool": "site_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "plot.civilcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "plot.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 3
+   },
+   {
+    "file": "plot.civilcraft.json",
+    "kind": "json",
+    "path": "units",
+    "eq": "m"
+   },
+   {
+    "file": "plot.civilcraft.json",
+    "kind": "json",
+    "path": "name",
+    "eq": "Plot"
+   }
+  ]
+ },
+ {
+  "id": "add-point-to-site",
+  "title": "Add a point to an existing site",
+  "prompt": "Add a benchmark point to the site and save a copy.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "points_add",
+    "args": {
+     "doc": "$s.doc",
+     "points": [
+      {
+       "n": "BM1",
+       "x": 6150100,
+       "y": 2080100,
+       "z": 250,
+       "d": "BM"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "site_save",
+    "args": {
+     "doc": "$s.doc",
+     "path": "site2.civilcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "site2.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 277
+   },
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   }
+  ]
+ },
+ {
+  "id": "cut-fill",
+  "title": "Cut and fill of the pad",
+  "prompt": "How much cut and fill does the pad need?",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "surface_volume",
+    "args": {
+     "doc": "$s.doc"
+    },
+    "as": "v"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "pads.length",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "station-and-profile",
+  "title": "Stations and profile along the street",
+  "prompt": "Give the ground elevation every 100 ft along Main street.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "alignment_station",
+    "args": {
+     "doc": "$s.doc",
+     "stations": [
+      0,
+      100
+     ]
+    },
+    "as": "a"
+   },
+   {
+    "tool": "profile_sample",
+    "args": {
+     "doc": "$s.doc",
+     "step": 100
+    },
+    "as": "pr"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "alignments[name=Main street].name",
+    "eq": "Main street"
+   }
+  ]
+ },
+ {
+  "id": "parcel-legal",
+  "title": "Legal description of a parcel",
+  "prompt": "Write the legal description of Lot 1.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "parcels_list",
+    "args": {
+     "doc": "$s.doc",
+     "legal": true
+    },
+    "as": "p"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "parcels.length",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "export-landxml",
+  "title": "Export LandXML",
+  "prompt": "Export the surface as LandXML.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "landxml_export",
+    "args": {
+     "doc": "$s.doc",
+     "path": "site.xml"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "site.xml",
+    "kind": "text",
+    "path": "text",
+    "includes": "<LandXML"
+   },
+   {
+    "file": "site.xml",
+    "kind": "text",
+    "path": "text",
+    "includes": "<Surface"
+   }
+  ]
+ },
+ {
+  "id": "refuses-edit",
+  "title": "Edit is refused until the person allows it",
+  "prompt": "Add a point to the site (Edit is not allowed).",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "points_add",
+    "args": {
+     "doc": "$s.doc",
+     "points": [
+      {
+       "n": "X",
+       "x": 1,
+       "y": 1,
+       "z": 1
+      }
+     ]
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   }
+  ]
+ },
+ {
+  "id": "no-overwrite",
+  "title": "A file that was not opened here is not overwritten by accident",
+  "prompt": "Save the site over other.civilcraft.json without saying overwrite.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json",
+   "other.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "site_save",
+    "args": {
+     "doc": "$s.doc",
+     "path": "other.civilcraft.json"
+    },
+    "fail": "overwrite"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   },
+   {
+    "file": "other.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   }
+  ]
+ },
+ {
+  "id": "outside-folder-refused",
+  "title": "A file outside the granted folder is refused",
+  "prompt": "Open /etc/passwd as a site.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "/etc/passwd"
+    },
+    "fail": "outside"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   }
+  ]
+ }
+]

@@ -18,12 +18,21 @@
  * 400, unknown or ended → 404); a notification or response → 202; GET → 405; DELETE with the session id ends it (204) ·
  * POST /control: the JSON control channel, same token, optional `X-CadCraft-Session` · bodies ≤ 4 MB (413), JSON only
  * (415) · anything else 404.
+ *
+ * 0.8 (docs/AI-CONNECT-SPEC.md § 0, § 1.4): dual-era. A request whose params._meta carries io.modelcontextprotocol/protocolVersion
+ * is MCP 2026-07-28: stateless, no session (the client is named by its clientInfo and the token), and it must carry the headers
+ * `MCP-Protocol-Version`, `Mcp-Method` and (tools/call) `Mcp-Name`, equal to the body, else 400 with code -32020
+ * (HeaderMismatch). Protocol errors (-32602, -32020…-32022) answer HTTP 400. `initialize` keeps the legacy behaviour above.
+ * dropSession(name) on a stateless client blocks it (401, with the sentence) until `allow(name)`; newToken() ends all.
  */
 import http from 'node:http';
 import crypto from 'node:crypto';
 
 export const DEFAULT_PORT = 47615;
 const MAX_BODY = 4 * 1024 * 1024;
+
+const META_V = 'io.modelcontextprotocol/protocolVersion', META_I = 'io.modelcontextprotocol/clientInfo';
+const b64 = (v) => { const m = /^=\?base64\?(.*)\?=$/.exec(String(v)); return m ? Buffer.from(m[1], 'base64').toString('utf8') : String(v); };
 
 export const randomToken = () => crypto.randomBytes(32).toString('base64url');
 
@@ -38,6 +47,8 @@ export function createLiveServer({ forward, port = DEFAULT_PORT, host = '127.0.0
   if (host !== '127.0.0.1') throw new Error('Studio\'s server listens on 127.0.0.1 only.');
   let tok = token, srv = null, actualPort = port;
   const sessions = new Map();   // id → {id, client, createdAt, lastAt}
+  const blocked = new Set();    // stateless clients the person disconnected (by clientInfo name)
+  const seenClients = new Map();   // stateless clients: name → {name, version, lastAt, calls}
   const note = (e) => { try { log && log(e); } catch { /* the log */ } };
 
   const send = (res, code, body, headers = {}) => {
@@ -80,7 +91,24 @@ export function createLiveServer({ forward, port = DEFAULT_PORT, host = '127.0.0
     if (!msg || typeof msg !== 'object') return send(res, 400, rpcErr(null, -32600, 'Invalid request'));
 
     let session;
-    if (mcp) {
+    const meta = msg.params && typeof msg.params === 'object' && msg.params._meta && typeof msg.params._meta === 'object' ? msg.params._meta : null;
+    const modernReq = mcp && msg.method !== 'initialize' && meta && meta[META_V] !== undefined;
+    if (modernReq) {
+      // MCP 2026-07-28: no session; headers are checked against the body (Streamable HTTP § Request Metadata)
+      const bad = (m) => send(res, 400, rpcErr(msg.id, -32020, 'Header mismatch: ' + m));
+      if (String(req.headers['mcp-protocol-version'] || '') !== String(meta[META_V])) return bad('MCP-Protocol-Version must equal the protocol version in _meta.');
+      if (msg.method !== undefined && b64(req.headers['mcp-method'] || '') !== String(msg.method)) return bad('Mcp-Method must equal the method.');
+      if (['tools/call', 'resources/read', 'prompts/get'].includes(msg.method)) {
+        const want = msg.method === 'resources/read' ? msg.params.uri : msg.params.name;
+        if (b64(req.headers['mcp-name'] || '') !== String(want)) return bad('Mcp-Name must equal the name in the request.');
+      }
+      const ci = meta[META_I] && typeof meta[META_I] === 'object' ? meta[META_I] : {};
+      const name = String(ci.name || 'unknown').slice(0, 100) || 'unknown';
+      if (blocked.has(name)) return send(res, 401, rpcErr(msg.id, -32000, name + ' was disconnected in CadCraft Studio. Connect it again in Studio › Connect your AI.'), { 'WWW-Authenticate': 'Bearer realm="CadCraft Studio"' });
+      const seen = seenClients.get(name) || { name, version: String(ci.version || '').slice(0, 40), calls: 0, lastAt: 0 };
+      seen.lastAt = Date.now(); seen.calls++; seenClients.set(name, seen);
+      session = { id: 'client:' + name, client: { name, version: seen.version }, createdAt: seen.lastAt, lastAt: seen.lastAt, stateless: true };
+    } else if (mcp) {
       if (msg.method === 'initialize') {
         if (sessions.size >= maxSessions) { const oldest = [...sessions.values()].sort((a, b) => a.lastAt - b.lastAt)[0]; sessions.delete(oldest.id); }
         session = { id: crypto.randomBytes(16).toString('hex'), client: null, createdAt: Date.now(), lastAt: Date.now() };
@@ -100,9 +128,10 @@ export function createLiveServer({ forward, port = DEFAULT_PORT, host = '127.0.0
     try { answer = await forward(msg, session); } catch (e) { answer = rpcErr(msg.id, -32603, 'Internal error'); }
     if (mcp && msg.method === 'initialize' && answer && answer.error) sessions.delete(session.id);
     if (answer && answer.error && answer.error.code === -32002) sessions.delete(session.id);   // the person disconnected it in the window
-    const hdr = mcp ? { 'Mcp-Session-Id': session.id } : {};
+    const hdr = mcp && !modernReq ? { 'Mcp-Session-Id': session.id } : {};
     if (msg.id === undefined || msg.method === undefined) return send(res, 202, null, hdr);
-    return send(res, 200, answer || rpcErr(msg.id, -32603, 'No answer'), hdr);
+    const modernErr = modernReq && answer && answer.error && [-32602, -32020, -32021, -32022].includes(answer.error.code);
+    return send(res, modernErr ? 400 : 200, answer || rpcErr(msg.id, -32603, 'No answer'), hdr);
   }
 
   return {
@@ -110,8 +139,12 @@ export function createLiveServer({ forward, port = DEFAULT_PORT, host = '127.0.0
     get port() { return actualPort; },
     get url() { return 'http://127.0.0.1:' + actualPort + '/mcp'; },
     sessions: () => [...sessions.values()].map((s) => ({ ...s })),
-    newToken() { tok = randomToken(); sessions.clear(); return tok; },
-    dropSession(id) { return sessions.delete(id); },
+    newToken() { tok = randomToken(); sessions.clear(); seenClients.clear(); return tok; },
+    dropSession(id) { if (id && String(id).startsWith('client:')) { blocked.add(String(id).slice(7)); return true; } return sessions.delete(id); },
+    /** The person connects a disconnected stateless client again. */
+    allow(name) { return blocked.delete(name); },
+    /** Stateless clients seen since start (Studio › Connect your AI lists them): name, version, calls, last call. */
+    clients: () => [...seenClients.values()].map((c) => ({ ...c, blocked: blocked.has(c.name) })),
     start() {
       return new Promise((resolve, reject) => {
         srv = http.createServer((req, res) => { onRequest(req, res).catch(() => { try { send(res, 500, rpcErr(null, -32603, 'Internal error')); } catch { /* gone */ } }); });

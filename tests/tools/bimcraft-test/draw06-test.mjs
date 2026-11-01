@@ -812,6 +812,21 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     const pdf = RS.setPdf([sh], { paper: 'tabloid', title: 'Test' });
     ok(new TextDecoder().decode(pdf.slice(0, 8)).startsWith('%PDF-1.4') && /A-501/.test(new TextDecoder('latin1').decode(pdf)), 'the sheet as a PDF page with its number in the title block');
     ok(RS.scalesFor('mm').some((x) => x.ratio === 100 && x.label === '1:100') && RS.scalesFor('ftin')[3].label === '1/4" = 1\'-0"', 'scalesFor: the standard scales the sheet editor offers');
+    console.log('== EG.56 Arrange for me (res-sheets.js arrangeSheet)');
+    const sq = (w, h) => ({ walls: [{ poly: [[0, 0], [w, 0], [w, h], [0, h]] }] });
+    const in3 = { plans: [{ ref: 'p1', title: 'Level 1', scene: sq(12000, 8000) }, { ref: 'p2', title: 'Level 2', scene: sq(12000, 8000) }, { ref: 'p3', title: 'Roof', scene: sq(6000, 5000) }], elevations: [], sections: [], schedules: input.schedules };
+    const spec3 = { number: 'A-101', title: 'Plans', views: [{ kind: 'plan', ref: 'p1', x: 1, y: 1 }, { kind: 'plan', ref: 'p2', x: 1, y: 1 }, { kind: 'plan', ref: 'p3', x: 1, y: 1 }, { kind: 'schedule', ref: 'doors', x: 1, y: 1 }] };
+    const ar = RS.arrangeSheet(spec3, in3, { paper: 'tabloid', units: 'mm' });
+    ok(ar.fits && ar.views.length === 4 && ar.views.filter((v) => v.kind !== 'schedule').every((v) => v.ratio === ar.ratio), 'one common scale for the drawn views (' + ar.label + '), the schedule keeps 0');
+    const done = RS.composeSheet({ ...spec3, views: ar.views }, in3, { paper: 'tabloid', units: 'mm' });
+    const bx = done.views.map((v) => v.box);
+    ok(bx.length === 4 && bx.every((b) => b[0] >= 10 && b[2] <= 431.8 - 10 && b[1] >= 28 && b[3] <= 279.4 - 10), 'every view is inside the sheet frame and above the title block');
+    const hit = (p, q) => p[0] < q[2] && q[0] < p[2] && p[1] < q[3] && q[1] < p[3];
+    ok(bx.every((p, i) => bx.every((q, k) => i === k || !hit(p, q))), 'no two views overlap');
+    ok(ar.ratio >= 50 && RS.scalesFor('mm').some((x) => x.ratio === ar.ratio), 'a standard scale, not larger than 1:50');
+    const tiny = RS.arrangeSheet({ ...spec3, views: [{ kind: 'plan', ref: 'p1', x: 0, y: 0 }, { kind: 'plan', ref: 'p2', x: 0, y: 0 }].concat(Array.from({ length: 6 }, () => ({ kind: 'plan', ref: 'p1', x: 0, y: 0 }))) }, { ...in3, plans: [{ ref: 'p1', title: 'Big', scene: sq(200000, 150000) }, { ref: 'p2', title: 'Big 2', scene: sq(200000, 150000) }] }, { paper: 'letter', units: 'mm' });
+    ok(tiny.fits === false && tiny.views.length === 8, 'views too big for the paper: it says it does not fit, and drops nothing');
+    ok(RS.arrangeSheet({ views: [] }, in3, { units: 'mm' }).views.length === 0, 'an empty sheet arranges to an empty sheet');
   }
 
   // ============================================================================================ DF.25 assistant tools
@@ -825,11 +840,11 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     const d = createDispatcher({ server: { name: 'bimcraft', title: 'BimCraft', version: 'test' }, allowed: () => allowed });
     for (const def of AG.modelTools({ ed: () => ed, apply: async (label, op) => ed.modelChange(op, { label: 'Assistant: ' + label }) })) d.tool(def);
     const call = async (name, a = {}) => { const r = await d.call(name, a); return { r, v: r.structuredContent, text: r.content?.[0]?.text || '' }; };
-    ok(d.list().map((x) => x.name).join() === 'model_describe,walls_list', 'read only: model_describe, walls_list listed (finding elements stays bim-agent.js\'s elements_find)');
+    { const have = d.list().map((x) => x.name); ok(['model_describe', 'walls_list'].every((n) => have.includes(n)) && !have.includes('walls_add') && d.list().every((x) => x.annotations?.readOnlyHint !== false), 'read only: model_describe and walls_list are listed, no edit tool is (finding elements stays bim-agent.js\'s elements_find; 0.8: the read tools of bim_PART_2 and mep_PART_2 are there too)'); }
     let x = await call('walls_add', { points: [[0, 0], [6000, 0]] });
     ok(x.r.isError && /edit permission/.test(x.text) && ed.changes.length === 0, 'walls_add refused without edit; nothing changes');
     allowed = ['read', 'edit'];
-    ok(d.list().length === 12, 'with edit: 12 tools (0.7 AS.5: + element_set, elements_delete, elements_move, wall_change, opening_change)');
+    ok(['walls_add', 'opening_add', 'floor_add', 'levels_add', 'grid_add', 'element_set', 'elements_delete', 'elements_move', 'wall_change', 'opening_change', 'phase_set', 'furniture_add', 'massing_add'].every((n) => d.list().some((x) => x.name === n)), 'with edit: the Draw, AS.5 and 0.8 edit tools are listed (' + d.list().length + ' tools in all)');
     x = await call('model_describe');
     ok(x.v.units === 'mm' && x.v.levels.length === 2 && x.v.levels[0].name === 'Level 1' && x.v.walls.count === 0 && x.v.types.walls.includes('ext-2x6') && x.v.types.doors.includes('door-single'), 'model_describe: two levels, no walls, the types the edit tools take');
     x = await call('walls_add', { points: [[0, 0], [6000, 0], [6000, 4000], [0, 4000]], closed: true, type: 'ext-2x6' });

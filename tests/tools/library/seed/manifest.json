@@ -40,5 +40,75 @@
     "file": "wall-shelf.item.json",
     "sha256": "d50a63d5d1b26a95485bdc8f1383c1f176b4ee582326b5726eb39a2b2da035b3",
     "changelog": "Drew the full plan symbol (shelf above shown hidden, with its wall brackets)."
+  },
+  {
+    "key": "lx-profile",
+    "name": "Generic profile (ellipsoidal) spotlight",
+    "file": "lx-profile.item.json",
+    "sha256": "3aacb099a2a5fb95ec4af0b79efdd71fbf5feb6fa506020337ba028a6a03885b",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-fresnel",
+    "name": "Generic Fresnel spotlight",
+    "file": "lx-fresnel.item.json",
+    "sha256": "87c55ca7ff74e8235fe88295bcf49b9d8a303e60d269648b2e7eaf4703c28a6b",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-pc",
+    "name": "Generic PC spotlight",
+    "file": "lx-pc.item.json",
+    "sha256": "9c3bfe87f64f988a51c71b0fbeb059a00146049d71e311ed84bb103878533dbc",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-par",
+    "name": "Generic PAR can",
+    "file": "lx-par.item.json",
+    "sha256": "b74c14cc1ef53d98a78d6c8347d5f60e10652ccd3acc1fad4d171f8638debff8",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-cyc",
+    "name": "Generic cyc light",
+    "file": "lx-cyc.item.json",
+    "sha256": "1e49fa764293c97738965aeb08387479d80128d5a05c990bf761b1d58ae83cd0",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-blinder",
+    "name": "Generic two-lamp blinder",
+    "file": "lx-blinder.item.json",
+    "sha256": "4fcc41782908077ecb6860641086dca0abcf70c22d5747baa988bc61bb2a4461",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-scoop",
+    "name": "Generic scoop",
+    "file": "lx-scoop.item.json",
+    "sha256": "83abbcb74ac3e71dde1ba6a37819aca167a11559c77d6b92a41a84eb4de1397d",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-follow",
+    "name": "Generic followspot",
+    "file": "lx-follow.item.json",
+    "sha256": "a890edb222d6f8435a0f9d573d6d142fc410eddc773b0c9e640a1d7bbc9d6be7",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-led",
+    "name": "Generic LED wash light",
+    "file": "lx-led.item.json",
+    "sha256": "cbfbff0432e49270d1a83c698106d258a5155dde4fb495b282716ae1271dc16c",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
+  },
+  {
+    "key": "lx-mover",
+    "name": "Generic moving head",
+    "file": "lx-mover.item.json",
+    "sha256": "3b7e1e693c77d4540036c017b6f2bfd860b1ae750eb662ad2afed905ae4635d3",
+    "changelog": "Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses)."
   }
 ]

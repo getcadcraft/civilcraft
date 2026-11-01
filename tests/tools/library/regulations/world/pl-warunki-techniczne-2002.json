@@ -1,0 +1,82 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "pl-warunki-techniczne-2002",
+  "name": "Poland: Rozporządzenie w sprawie warunków technicznych, jakim powinny odpowiadać budynki i ich usytuowanie (Dz.U. 2022…",
+  "jurisdiction": {
+    "country": "PL",
+    "level": "country",
+    "region": "",
+    "name": "Poland"
+  },
+  "base": null,
+  "edition": "Rozporządzenie w sprawie warunków techn…",
+  "in_force": "2002-12-16",
+  "review": {
+    "state": "draft",
+    "note": "Values for single-family houses (multi-family buildings: riser 175, width 1200, balustrade 1100). STATUS: ISAP lists this regulation as repealed from 2026-09-21; under the transition rules (Dz.U. 2026 poz. 1161) investors may design and build to it for 18 months (to about March 2028). No replacement found as of 2026-10-27. The going is a formula (2h + s = 600-650 mm) and the balustrade has only a…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Minister Infrastruktury (now Minister Rozwoju i Technologii), Rozporządzenie w sprawie warunków technicznych, jakim pow…",
+    "url": "https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220001225",
+    "date": "2022-04-15",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "§ 68 ust. 1",
+      "label": "Riser height",
+      "note": "Single-family and farm houses, two-level apartments; 175 mm in multi-family buildings.",
+      "value": 190
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "§ 68 ust. 1, ust. 4",
+      "label": "Stair width",
+      "note": "Usable width between handrails, single-family; 1200 multi-family.",
+      "value": 800
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "§ 72 ust. 1",
+      "label": "Ceiling height",
+      "note": "Rooms in residential buildings; 2200 for attic rooms in single-family houses (average height under sloped ceilings).",
+      "value": 2500
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "§ 57 ust. 2",
+      "label": "Glazing, share of floor area",
+      "note": "Window clear frame opening at least 1:8 of the floor area.",
+      "value": 12.5
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "§ 155 ust. 1",
+      "label": "Openable area, share of floor area",
+      "note": "At least 50 % of the required window area opens (without mechanical ventilation).",
+      "value": 6.25
+    }
+  ]
+}

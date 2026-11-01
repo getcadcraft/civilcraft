@@ -60,7 +60,7 @@ try {
   ok(/type its quantity in the item panel/.test(await status()), 'the status line says to type its quantity');
   ok(!!(await page.$('#tc-i-qty')) && !(await page.$('#tc-i-height')) && !(await page.$('[data-field="cond:linear"]')), 'its editor has Quantity, no Height and no Also measure');
   await page.fill('#tc-i-qty', '1'); await page.press('#tc-i-qty', 'Enter');
-  await page.fill('#tc-i-mat', '2500'); await page.press('#tc-i-mat', 'Enter');
+  await page.fill('[data-pg-row="mat"]', '2500'); await page.press('[data-pg-row="mat"]', 'Enter');
   await page.waitForFunction(() => window.takeoffcraft.estimate().total === 250000);
   ok(/2,500\.00/.test(await page.textContent('[data-job-total]').catch(() => '')) || (await T(() => window.takeoffcraft.estimate().total)) === 250000, 'quantity 1 × $2,500.00: the job total is $2,500.00');
   await page.fill('#tc-i-qty', 'abc'); await page.press('#tc-i-qty', 'Enter');

@@ -1,0 +1,121 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-il-chicago",
+  "name": "Chicago: Chicago Building Code (Municipal Code Title 14B)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-IL",
+    "name": "Chicago"
+  },
+  "base": null,
+  "edition": "Chicago Building Code (Title 14B, own c…",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "The city's own code, not based on the IRC — the city's own code; values for dwellings in Groups R-3/R-5; handrail height not confirmed, so it is not checked (Chicago City Council; Chicago Department of Buildings; Municipal Code of Chicago Title 14B). Design criteria from up.codes (2019-04-10). Entered from the cited source on 2026-10-27 (research confidence: medium); not yet reviewed by a profess…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Chicago City Council; Chicago Department of Buildings, Municipal Code of Chicago Title 14B",
+    "url": "https://codelibrary.amlegal.com/codes/chicago/latest/chicago_il/0-0-0-2662022",
+    "date": "2019-04-10",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "25 psf (14B-16-1608.2)",
+      "value": 25,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "107 mph, Risk Category II (14B-16-1609)",
+      "value": 107,
+      "unit": "mph"
+    },
+    "frost_depth": {
+      "text": "42 in below final grade (14B-18-1809.5)",
+      "value": 1066.8,
+      "unit": "mm"
+    },
+    "climate_zone": {
+      "text": "5A (IECC county list)"
+    }
+  },
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "14B-10 1011.5.2 Exc. 3",
+      "label": "Riser height",
+      "note": "R-3/R-5.",
+      "value": 203.2
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "14B-10 1011.5.2 Exc. 3",
+      "label": "Tread depth",
+      "note": "R-3/R-5; nosing required under 10 in.",
+      "value": 228.6
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "14B-10 1011.2 Exc. 1",
+      "label": "Stair width",
+      "note": "Occupant load under 50.",
+      "value": 914.4
+    },
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "14B-10 1011.3 Exc. 2",
+      "label": "Stair headroom",
+      "note": "R-3/R-5.",
+      "value": 2032
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "14B-12 1207.2 Exc. 2",
+      "label": "Ceiling height",
+      "note": "Habitable spaces in Group R dwelling units.",
+      "value": 2133.6
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "14B-12 1204.2.1",
+      "label": "Glazing, share of floor area",
+      "note": "",
+      "value": 8
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "14B-12 1202.5.1",
+      "label": "Openable area, share of floor area",
+      "note": "",
+      "value": 4
+    }
+  ]
+}

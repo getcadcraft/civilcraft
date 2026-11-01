@@ -1,0 +1,15 @@
+% exit_mach — the Mach number a nozzle reaches expanding from a stagnation pressure to an exit pressure
+%
+% Usage:      M = exit_mach(p0, pe, gamma)
+% Computes:   M = sqrt( 2/(gamma-1) ( (p0/pe)^((gamma-1)/gamma) - 1 ) )
+% Method:     the isentropic pressure relation solved for M.
+% Units:      p0 and pe in the same pressure unit; M has no unit.
+% Limits:     ideal, no shocks; pe < p0.
+% References: Anderson, Modern Compressible Flow, 3rd ed., eq. 3.30 solved for M.
+% Check:      p0/pe = 7.824, gamma 1.4: M = 2.000 (tools/field-test/eng.mjs).
+function M = exit_mach(p0, pe, gamma)
+if ~(p0 > pe) || ~(pe > 0) || ~(gamma > 1)
+  error('exit_mach: the stagnation pressure must be above the exit pressure, both positive, and gamma above 1');
+end
+M = sqrt(2 / (gamma - 1) * ((p0 / pe) ^ ((gamma - 1) / gamma) - 1));
+end

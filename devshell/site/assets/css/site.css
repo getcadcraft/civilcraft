@@ -689,3 +689,23 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .attach-field input[type="file"] { display: block; width: 100%; margin-top: .35rem; padding: .6rem; font: inherit; color: var(--ink); background: var(--sheet-2); border: 1px dashed var(--line); border-radius: var(--radius); }
 .attach-field input[type="file"].is-invalid { border-color: var(--bad, #b3261e); }
 .attach-field .hint { display: block; margin-top: .35rem; }
+
+/* ---------- Reach: the "not live" / "switched off" icon (core/components/reach-mark.inc via Reach::mark) ----------
+   One rule block drives every page. Fixed 1em, never wraps, never changes line height; only viewers who see the item because
+   of their role (admin, tester, lab access) ever get the markup. */
+.reach-mark { font-size: min(1em, 1.1rem); display: inline-block; width: 1em; height: 1em; line-height: 1; margin-inline: .35em 0; vertical-align: -.125em; flex: none; white-space: nowrap; overflow: visible; color: var(--line, #7A8796); cursor: help; }
+.reach-mark > .bi { display: block; width: 1em; height: 1em; line-height: 1; font-size: 1em; }
+.reach-mark > .bi::before { display: block; vertical-align: 0; }
+.reach-mark.is-off { color: var(--layer-red, #b3261e); }
+.reach-legend { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; align-items: baseline; margin: .5rem 0; font-size: .85rem; color: var(--muted, inherit); }
+.reach-legend .reach-mark { margin-inline: 0 .35em; }
+.reach-legend-item { display: inline-flex; align-items: baseline; gap: .35em; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.reach-legend-item > span:last-child { min-width: 0; }
+
+/* Footer, Apps column: the eight apps sit closer together, then a rule, then SuperCad Studio with the eight-colour ring (owner 2026-11-01). */
+.tb-apps li { margin: 0; }
+.tb-apps a { padding: .1rem 0; min-height: 1.6rem; }
+.tb-apps .tb-super { margin-top: .45rem; padding-top: .45rem; border-top: var(--pen-1) solid var(--ink); }
+.layer-ring { display: inline-block; flex-shrink: 0; width: .9rem; height: .9rem; border-radius: 50%;
+  background: conic-gradient(var(--layer-red) 0 12.5%, var(--layer-blue) 0 25%, var(--layer-orange) 0 37.5%, var(--layer-magenta) 0 50%, var(--layer-ochre) 0 62.5%, var(--layer-green) 0 75%, var(--layer-violet) 0 87.5%, var(--layer-cyan) 0 100%); }
+.layer-ring.sm { width: 1.05rem; height: 1.05rem; margin-left: -.15rem; }

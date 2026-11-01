@@ -1,0 +1,15 @@
+% choked_flow — the mass flow through a nozzle throat at sonic speed, and the throat area for a mass flow
+%
+% Usage:      mdot = choked_flow(p0, T0, A, R, gamma)        the flow through a throat of area A (throat_area is the inverse)
+% Computes:   mdot = A p0 sqrt( gamma / (R T0) ) (2/(gamma+1))^((gamma+1)/(2(gamma-1)))
+% Method:     the throat is at M = 1 when the pressure ratio is high enough (choked); the flow then depends only on the stagnation state.
+% Units:      SI: p0 Pa (stagnation), T0 K (stagnation), A m2, R J/(kg K) (the gas constant of the gas), mdot kg/s.
+% Limits:     as isentropic; ideal gas; the discharge coefficient (about 0.95 to 1 in practice) is not included.
+% References: Anderson, Modern Compressible Flow, 3rd ed., eq. 4.79 (mass flow in a choked nozzle).
+% Check:      p0 1 MPa, T0 300 K, A 1 cm2, air (R 287.05, gamma 1.4): mdot = 0.2333 kg/s (tools/field-test/eng.mjs).
+function mdot = choked_flow(p0, T0, A, R, gamma)
+if ~(p0 > 0) || ~(T0 > 0) || ~(A > 0) || ~(R > 0) || ~(gamma > 1)
+  error('choked_flow: pressure, temperature, area and the gas constant must be greater than zero and gamma greater than 1');
+end
+mdot = A * p0 * sqrt(gamma / (R * T0)) * (2 / (gamma + 1)) ^ ((gamma + 1) / (2 * (gamma - 1)));
+end

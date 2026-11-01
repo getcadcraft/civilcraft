@@ -1,0 +1,76 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "za-sans10400",
+  "name": "South Africa: SANS 10400 (National Building Regulations)",
+  "jurisdiction": {
+    "country": "ZA",
+    "level": "country",
+    "name": "South Africa"
+  },
+  "base": null,
+  "edition": "SANS 10400, edition not yet confirmed",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "A sample, not a reference. These numbers were entered from memory and a study aid and have NOT been checked against the standard (SABS sells it). Several parts have newer editions (Part O edition 4 was published in 2025). Check every number against the current standard before relying on it. A rule the pack leaves out is simply not checked."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "South African Bureau of Standards, SANS 10400 (Parts A to XA)",
+    "url": "https://www.sabs.co.za/",
+    "checked": "2026-10-27"
+  },
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "value": 200,
+      "unit": "mm",
+      "clause": "Part M",
+      "label": "Riser height",
+      "note": "Private dwelling. Not confirmed."
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "value": 250,
+      "unit": "mm",
+      "clause": "Part M",
+      "label": "Going (tread depth)",
+      "note": "Not confirmed."
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "value": 2400,
+      "unit": "mm",
+      "clause": "Part C",
+      "label": "Room height",
+      "note": "Habitable room. Not confirmed."
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "value": 10,
+      "unit": "pct",
+      "clause": "Part O",
+      "label": "Window area, share of floor area",
+      "note": "The common deemed-to-satisfy ratio. Not confirmed for the current edition."
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "value": 5,
+      "unit": "pct",
+      "clause": "Part O",
+      "label": "Openable area, share of floor area",
+      "note": "The common deemed-to-satisfy ratio. Not confirmed: edition 4 changed how ventilation is worked out."
+    }
+  ]
+}

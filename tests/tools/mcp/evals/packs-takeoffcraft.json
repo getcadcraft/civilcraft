@@ -1,0 +1,300 @@
+[
+ {
+  "id": "takeoffcraft-estimating.quantities-by-item",
+  "title": "Quantities by item",
+  "pack": "takeoffcraft-estimating",
+  "prompt": "What quantities are in job.takeoff.json, by item?",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_quantities",
+    "args": {
+     "doc": "$t.doc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 3
+   },
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "marks.length",
+    "eq": 6
+   }
+  ]
+ },
+ {
+  "id": "takeoffcraft-estimating.quantities-by-sheet",
+  "title": "Quantities by sheet",
+  "pack": "takeoffcraft-estimating",
+  "prompt": "Give me the quantities in job.takeoff.json by sheet.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_quantities",
+    "args": {
+     "doc": "$t.doc",
+     "by": "sheet"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "name",
+    "eq": "Fixture job"
+   }
+  ]
+ },
+ {
+  "id": "takeoffcraft-estimating.price-the-job",
+  "title": "Price the job",
+  "pack": "takeoffcraft-estimating",
+  "prompt": "Price job.takeoff.json with materials and labor.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_estimate",
+    "args": {
+     "doc": "$t.doc"
+    },
+    "as": "e"
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Partition wall].mat",
+    "eq": 125000
+   }
+  ]
+ },
+ {
+  "id": "takeoffcraft-estimating.count-into-item",
+  "title": "Count a block into an item",
+  "pack": "takeoffcraft-estimating",
+  "prompt": "Count TABLE-30X48 into a new item Prep tables and save the job as counted.takeoff.json.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json",
+   "k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json",
+     "drawings": [
+      "k.dwg"
+     ]
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Prep tables",
+       "type": "count",
+       "unit": "EA"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "cad_count_add",
+    "args": {
+     "doc": "$t.doc",
+     "block": "TABLE-30X48",
+     "sheet": "Model",
+     "item": "Prep tables"
+    }
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "counted.takeoff.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "counted.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Prep tables].type",
+    "eq": "count"
+   },
+   {
+    "file": "counted.takeoff.json",
+    "kind": "json",
+    "path": "marks.length",
+    "gte": 7
+   }
+  ]
+ },
+ {
+  "id": "takeoffcraft-estimating.measure-layer-into-item",
+  "title": "Measure a layer into an item",
+  "pack": "takeoffcraft-estimating",
+  "prompt": "Measure the A-WALL layer into a new item Walls and save the job as measured.takeoff.json.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json",
+   "k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json",
+     "drawings": [
+      "k.dwg"
+     ]
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Walls",
+       "type": "linear",
+       "unit": "LF"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "cad_measure",
+    "args": {
+     "doc": "$t.doc",
+     "sheet": "Model",
+     "item": "Walls",
+     "layers": [
+      "A-WALL"
+     ]
+    }
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "measured.takeoff.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "measured.takeoff.json",
+    "kind": "json",
+    "path": "marks.length",
+    "gte": 7
+   },
+   {
+    "file": "measured.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Walls].type",
+    "eq": "linear"
+   }
+  ]
+ },
+ {
+  "id": "takeoffcraft-estimating.export-spreadsheet",
+  "title": "Export the estimate",
+  "pack": "takeoffcraft-estimating",
+  "prompt": "Export the estimate of job.takeoff.json as a spreadsheet at job.xlsx.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_export",
+    "args": {
+     "doc": "$t.doc",
+     "out": "job.xlsx"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job.xlsx",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^PK"
+   },
+   {
+    "file": "job.xlsx",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 2000
+   }
+  ]
+ }
+]

@@ -1,0 +1,905 @@
+{
+ "format": "detailcraft",
+ "version": 2,
+ "name": "Sample frame",
+ "grids": {
+  "x": [
+   {
+    "label": "1",
+    "at": 0
+   },
+   {
+    "label": "2",
+    "at": 6000
+   },
+   {
+    "label": "3",
+    "at": 12000
+   }
+  ],
+  "y": [
+   {
+    "label": "A",
+    "at": 0
+   },
+   {
+    "label": "B",
+    "at": 7000
+   }
+  ]
+ },
+ "levels": [
+  {
+   "name": "Level 1",
+   "z": 0
+  },
+  {
+   "name": "Level 2",
+   "z": 4000
+  }
+ ],
+ "members": [
+  {
+   "id": "m1",
+   "type": "column",
+   "profile": "W12x50",
+   "material": "A992",
+   "start": [
+    0,
+    0,
+    0
+   ],
+   "end": [
+    0,
+    0,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m2",
+   "type": "column",
+   "profile": "W12x50",
+   "material": "A992",
+   "start": [
+    6000,
+    0,
+    0
+   ],
+   "end": [
+    6000,
+    0,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m3",
+   "type": "column",
+   "profile": "W12x50",
+   "material": "A992",
+   "start": [
+    12000,
+    0,
+    0
+   ],
+   "end": [
+    12000,
+    0,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m4",
+   "type": "column",
+   "profile": "W12x50",
+   "material": "A992",
+   "start": [
+    0,
+    7000,
+    0
+   ],
+   "end": [
+    0,
+    7000,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m5",
+   "type": "column",
+   "profile": "W12x50",
+   "material": "A992",
+   "start": [
+    6000,
+    7000,
+    0
+   ],
+   "end": [
+    6000,
+    7000,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m6",
+   "type": "column",
+   "profile": "W12x50",
+   "material": "A992",
+   "start": [
+    12000,
+    7000,
+    0
+   ],
+   "end": [
+    12000,
+    7000,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m7",
+   "type": "beam",
+   "profile": "W16x26",
+   "material": "A992",
+   "start": [
+    0,
+    0,
+    4000
+   ],
+   "end": [
+    6000,
+    0,
+    4000
+   ],
+   "rotation": 0,
+   "position": "top",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m8",
+   "type": "beam",
+   "profile": "W16x26",
+   "material": "A992",
+   "start": [
+    6000,
+    0,
+    4000
+   ],
+   "end": [
+    12000,
+    0,
+    4000
+   ],
+   "rotation": 0,
+   "position": "top",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m9",
+   "type": "beam",
+   "profile": "W16x26",
+   "material": "A992",
+   "start": [
+    0,
+    7000,
+    4000
+   ],
+   "end": [
+    6000,
+    7000,
+    4000
+   ],
+   "rotation": 0,
+   "position": "top",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m10",
+   "type": "beam",
+   "profile": "W16x26",
+   "material": "A992",
+   "start": [
+    6000,
+    7000,
+    4000
+   ],
+   "end": [
+    12000,
+    7000,
+    4000
+   ],
+   "rotation": 0,
+   "position": "top",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  },
+  {
+   "id": "m11",
+   "type": "brace",
+   "profile": "HSS4x4x1/4",
+   "material": "A500 Gr C",
+   "start": [
+    0,
+    0,
+    0
+   ],
+   "end": [
+    6000,
+    0,
+    4000
+   ],
+   "rotation": 0,
+   "position": "middle",
+   "name": "",
+   "cuts": [],
+   "holes": [],
+   "phase": 1
+  }
+ ],
+ "connections": [
+  {
+   "id": "j12",
+   "type": "endplate",
+   "beam": "m7",
+   "end": "start",
+   "column": "m1",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j13",
+   "type": "endplate",
+   "beam": "m7",
+   "end": "end",
+   "column": "m2",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j14",
+   "type": "endplate",
+   "beam": "m8",
+   "end": "start",
+   "column": "m2",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j15",
+   "type": "endplate",
+   "beam": "m8",
+   "end": "end",
+   "column": "m3",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j16",
+   "type": "endplate",
+   "beam": "m9",
+   "end": "start",
+   "column": "m4",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j17",
+   "type": "endplate",
+   "beam": "m9",
+   "end": "end",
+   "column": "m5",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j18",
+   "type": "endplate",
+   "beam": "m10",
+   "end": "start",
+   "column": "m5",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j19",
+   "type": "endplate",
+   "beam": "m10",
+   "end": "end",
+   "column": "m6",
+   "params": {
+    "tp": 20,
+    "width": 180,
+    "extTop": 0,
+    "extBottom": 0,
+    "boltD": 20,
+    "hole": 22,
+    "grade": "A325",
+    "rows": 4,
+    "pitch": 75,
+    "gauge": 100,
+    "allowance": 30,
+    "weld": 8,
+    "plateGrade": "A36"
+   }
+  },
+  {
+   "id": "j20",
+   "type": "baseplate",
+   "column": "m1",
+   "params": {
+    "tp": 25,
+    "length": 450,
+    "width": 400,
+    "rodD": 20,
+    "hole": 33,
+    "grade": "F1554 Gr 36",
+    "sx": 350,
+    "sy": 300,
+    "projection": 100,
+    "embed": 450,
+    "weld": 8,
+    "plateGrade": "A36",
+    "grout": 0,
+    "stiffeners": 0,
+    "stiffT": 12,
+    "stiffH": 150,
+    "lugD": 0,
+    "lugT": 25,
+    "lugW": 150,
+    "washers": 0,
+    "washerSize": 0,
+    "washerT": 0
+   }
+  },
+  {
+   "id": "j21",
+   "type": "baseplate",
+   "column": "m2",
+   "params": {
+    "tp": 25,
+    "length": 450,
+    "width": 400,
+    "rodD": 20,
+    "hole": 33,
+    "grade": "F1554 Gr 36",
+    "sx": 350,
+    "sy": 300,
+    "projection": 100,
+    "embed": 450,
+    "weld": 8,
+    "plateGrade": "A36",
+    "grout": 0,
+    "stiffeners": 0,
+    "stiffT": 12,
+    "stiffH": 150,
+    "lugD": 0,
+    "lugT": 25,
+    "lugW": 150,
+    "washers": 0,
+    "washerSize": 0,
+    "washerT": 0
+   }
+  },
+  {
+   "id": "j22",
+   "type": "baseplate",
+   "column": "m3",
+   "params": {
+    "tp": 25,
+    "length": 450,
+    "width": 400,
+    "rodD": 20,
+    "hole": 33,
+    "grade": "F1554 Gr 36",
+    "sx": 350,
+    "sy": 300,
+    "projection": 100,
+    "embed": 450,
+    "weld": 8,
+    "plateGrade": "A36",
+    "grout": 0,
+    "stiffeners": 0,
+    "stiffT": 12,
+    "stiffH": 150,
+    "lugD": 0,
+    "lugT": 25,
+    "lugW": 150,
+    "washers": 0,
+    "washerSize": 0,
+    "washerT": 0
+   }
+  },
+  {
+   "id": "j23",
+   "type": "baseplate",
+   "column": "m4",
+   "params": {
+    "tp": 25,
+    "length": 450,
+    "width": 400,
+    "rodD": 20,
+    "hole": 33,
+    "grade": "F1554 Gr 36",
+    "sx": 350,
+    "sy": 300,
+    "projection": 100,
+    "embed": 450,
+    "weld": 8,
+    "plateGrade": "A36",
+    "grout": 0,
+    "stiffeners": 0,
+    "stiffT": 12,
+    "stiffH": 150,
+    "lugD": 0,
+    "lugT": 25,
+    "lugW": 150,
+    "washers": 0,
+    "washerSize": 0,
+    "washerT": 0
+   }
+  },
+  {
+   "id": "j24",
+   "type": "baseplate",
+   "column": "m5",
+   "params": {
+    "tp": 25,
+    "length": 450,
+    "width": 400,
+    "rodD": 20,
+    "hole": 33,
+    "grade": "F1554 Gr 36",
+    "sx": 350,
+    "sy": 300,
+    "projection": 100,
+    "embed": 450,
+    "weld": 8,
+    "plateGrade": "A36",
+    "grout": 0,
+    "stiffeners": 0,
+    "stiffT": 12,
+    "stiffH": 150,
+    "lugD": 0,
+    "lugT": 25,
+    "lugW": 150,
+    "washers": 0,
+    "washerSize": 0,
+    "washerT": 0
+   }
+  },
+  {
+   "id": "j25",
+   "type": "baseplate",
+   "column": "m6",
+   "params": {
+    "tp": 25,
+    "length": 450,
+    "width": 400,
+    "rodD": 20,
+    "hole": 33,
+    "grade": "F1554 Gr 36",
+    "sx": 350,
+    "sy": 300,
+    "projection": 100,
+    "embed": 450,
+    "weld": 8,
+    "plateGrade": "A36",
+    "grout": 0,
+    "stiffeners": 0,
+    "stiffT": 12,
+    "stiffH": 150,
+    "lugD": 0,
+    "lugT": 25,
+    "lugW": 150,
+    "washers": 0,
+    "washerSize": 0,
+    "washerT": 0
+   }
+  }
+ ],
+ "footings": [
+  {
+   "id": "f26",
+   "x": 0,
+   "y": 0,
+   "top": 0,
+   "L": 2000,
+   "B": 2000,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": false,
+    "bar": "#6",
+    "nx": 2,
+    "ny": 2,
+    "sx": 250,
+    "sy": 250,
+    "projection": 600,
+    "hook": true
+   },
+   "phase": 1
+  },
+  {
+   "id": "f27",
+   "x": 6000,
+   "y": 0,
+   "top": 0,
+   "L": 2000,
+   "B": 2000,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": false,
+    "bar": "#6",
+    "nx": 2,
+    "ny": 2,
+    "sx": 250,
+    "sy": 250,
+    "projection": 600,
+    "hook": true
+   },
+   "phase": 1
+  },
+  {
+   "id": "f28",
+   "x": 12000,
+   "y": 0,
+   "top": 0,
+   "L": 2000,
+   "B": 2000,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": false,
+    "bar": "#6",
+    "nx": 2,
+    "ny": 2,
+    "sx": 250,
+    "sy": 250,
+    "projection": 600,
+    "hook": true
+   },
+   "phase": 1
+  },
+  {
+   "id": "f29",
+   "x": 0,
+   "y": 7000,
+   "top": 0,
+   "L": 2000,
+   "B": 2000,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": false,
+    "bar": "#6",
+    "nx": 2,
+    "ny": 2,
+    "sx": 250,
+    "sy": 250,
+    "projection": 600,
+    "hook": true
+   },
+   "phase": 1
+  },
+  {
+   "id": "f30",
+   "x": 6000,
+   "y": 7000,
+   "top": 0,
+   "L": 2000,
+   "B": 2000,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": false,
+    "bar": "#6",
+    "nx": 2,
+    "ny": 2,
+    "sx": 250,
+    "sy": 250,
+    "projection": 600,
+    "hook": true
+   },
+   "phase": 1
+  },
+  {
+   "id": "f31",
+   "x": 12000,
+   "y": 7000,
+   "top": 0,
+   "L": 2000,
+   "B": 2000,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": false,
+    "bar": "#6",
+    "nx": 2,
+    "ny": 2,
+    "sx": 250,
+    "sy": 250,
+    "projection": 600,
+    "hook": true
+   },
+   "phase": 1
+  },
+  {
+   "id": "f32",
+   "x": 16000,
+   "y": 3500,
+   "top": 0,
+   "L": 2400,
+   "B": 1800,
+   "H": 600,
+   "rotation": 0,
+   "concrete": "4000 psi",
+   "mat": {
+    "barX": "#5",
+    "sX": 250,
+    "barY": "#5",
+    "sY": 250,
+    "cover": 75,
+    "hooks": true
+   },
+   "starters": {
+    "on": true,
+    "bar": "#6",
+    "nx": 3,
+    "ny": 2,
+    "sx": 200,
+    "sy": 250,
+    "projection": 750,
+    "hook": true
+   },
+   "phase": 1
+  }
+ ],
+ "stairs": [],
+ "bolts": [],
+ "profiles": [],
+ "seq": 33,
+ "phases": [
+  {
+   "n": 1,
+   "name": ""
+  }
+ ],
+ "numbering": {
+  "perPhase": true
+ },
+ "issues": [],
+ "erection": {
+  "cranes": [
+   {
+    "id": "c1",
+    "name": "Example crane (made-up chart)",
+    "at": [
+     3000,
+     -6000
+    ],
+    "chart": [
+     {
+      "radius": 6,
+      "kg": 8000
+     },
+     {
+      "radius": 10,
+      "kg": 5000
+     },
+     {
+      "radius": 14,
+      "kg": 3000
+     },
+     {
+      "radius": 20,
+      "kg": 1500
+     }
+    ],
+    "hookHeight": 20000,
+    "deductKg": 0,
+    "speed": 20,
+    "hookMin": 4,
+    "setMin": 8,
+    "releaseMin": 2
+   }
+  ],
+  "laydown": null,
+  "laydownGap": 6000,
+  "riggingPct": 5,
+  "headroom": 1500,
+  "limit": 0.85,
+  "clearance": 500
+ }
+}

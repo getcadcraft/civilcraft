@@ -1,0 +1,20 @@
+% lmtd — the log mean temperature difference of a heat exchanger
+%
+% Usage:      dT = lmtd(dT1, dT2)
+%             dT1 and dT2 are the temperature differences between the two streams at the two ends.
+% Computes:   dT = (dT1 - dT2) / ln(dT1 / dT2); when the two are equal, dT = dT1.
+% Method:     the definition. For crossflow and shell-and-tube exchangers multiply by the correction factor F of that arrangement
+%             (not held here: it needs the chart or formula of the arrangement), or use effectiveness and NTU, which need none.
+% Units:      K (differences). Both must be greater than zero.
+% References: Incropera et al., 7th ed., eq. 11.15.
+% Check:      dT1 60, dT2 20: dT = 36.41 K (tools/field-test/eng.mjs).
+function dT = lmtd(dT1, dT2)
+if ~(dT1 > 0) || ~(dT2 > 0)
+  error('lmtd: both end differences must be greater than zero (a temperature cross cannot be put into LMTD)');
+end
+if abs(dT1 - dT2) < 1e-9 * max(dT1, dT2)
+  dT = dT1;
+else
+  dT = (dT1 - dT2) / log(dT1 / dT2);
+end
+end

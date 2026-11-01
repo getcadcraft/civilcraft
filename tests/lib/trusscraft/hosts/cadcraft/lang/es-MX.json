@@ -1,0 +1,17 @@
+{
+  "h.cadcraft.place": "Dibujar la planta de distribución de cerchas",
+  "h.cadcraft.undo.plan": "Planta de cerchas",
+  "h.cadcraft.undo.elevation": "Elevación de cercha",
+  "h.cadcraft.undo.forces": "Diagrama de fuerzas de cercha",
+  "h.cadcraft.undo.table": "Cuadro de cerchas",
+  "h.cadcraft.undo.clear": "Quitar dibujos de cerchas",
+  "h.cadcraft.nodoc": "No hay un dibujo abierto.",
+  "h.cadcraft.pick": "Tomar el contorno de la polilínea cerrada seleccionada",
+  "h.cadcraft.nopoly": "Seleccione primero una polilínea cerrada (la planta del techo).",
+  "h.cadcraft.elevation": "Dibujar la elevación de la cercha",
+  "h.cadcraft.forces": "Dibujar el diagrama de fuerzas de los miembros",
+  "h.cadcraft.table": "Dibujar la lista de cortes y el cuadro de uniones",
+  "h.cadcraft.drawn": "Dibujado: {n} objetos en las capas TRUSS-* (un paso de deshacer). Guarde como DXF o DWG como cualquier dibujo.",
+  "h.cadcraft.limit.entities": "CadCraft: los dibujos son líneas, polilíneas, textos, sombreados y cotas sencillos en las capas TRUSS-*. No siguen al diseño si los edita; dibuje de nuevo (quite antes los dibujos). No se dibuja nada en 3D.",
+  "h.cadcraft.limit.roofs": "CadCraft no tiene un modelo de techo que leer: escriba el contorno del techo o tómelo de una polilínea cerrada seleccionada. Las limatesas y limahoyas salen del esqueleto recto de ese contorno con una sola pendiente; las pendientes por borde y los hastiales requieren la herramienta de techo de BimCraft."
+}

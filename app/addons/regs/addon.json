@@ -1,0 +1,19 @@
+{
+  "id": "regs",
+  "name": "Building regulations",
+  "version": "0.1.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "settings",
+    "storage"
+  ],
+  "description": "Check a project against the planning and road rules of a place, from a regulation pack: setbacks, height, floor area ratio and coverage for the building masses on a lot, and the crest curve sight distance a road needs at its design speed, with the clause for each rule. A guide only: the registered professional decides.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

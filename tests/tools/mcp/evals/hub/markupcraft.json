@@ -1,0 +1,618 @@
+[
+ {
+  "id": "sheet-is-open",
+  "title": "The set that is open",
+  "prompt": "Which sheets are open, and has anything been marked?",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "sheets_list",
+    "expect": [
+     {
+      "path": "sheets.length",
+      "eq": 1
+     },
+     {
+      "path": "sheets.0.file",
+      "eq": "kitchen-plan-sheet.pdf"
+     }
+    ]
+   },
+   {
+    "tool": "app_info",
+    "expect": [
+     {
+      "path": "markups",
+      "eq": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "add-a-markup",
+  "title": "Mark a wall",
+  "prompt": "Put a revision cloud round the wall at the top left and say what to check.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   }
+  ],
+  "check": [
+   {
+    "tool": "markups_list",
+    "path": "total",
+    "eq": 1
+   },
+   {
+    "tool": "markups_list",
+    "path": "markups.0.comment",
+    "eq": "Check this wall"
+   },
+   {
+    "tool": "markups_list",
+    "path": "markups.0.status",
+    "eq": "Open"
+   }
+  ]
+ },
+ {
+  "id": "status-and-reply",
+  "title": "Accept it and reply",
+  "prompt": "Accept the markup with a note, then add a reply.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   },
+   {
+    "tool": "markup_status",
+    "args": {
+     "id": "$m.id",
+     "status": "Accepted",
+     "comment": "Matches the detail."
+    }
+   },
+   {
+    "tool": "markup_reply",
+    "args": {
+     "id": "$m.id",
+     "text": "Field verified."
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "markups_list",
+    "path": "markups.0.status",
+    "eq": "Accepted"
+   },
+   {
+    "tool": "markups_list",
+    "path": "markups.0.replies.length",
+    "gte": 2
+   }
+  ]
+ },
+ {
+  "id": "filter-open",
+  "title": "Only what is still open",
+  "prompt": "Mark two things, accept one, then list what is still open.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "a"
+   },
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check the door"
+    },
+    "as": "b"
+   },
+   {
+    "tool": "markup_status",
+    "args": {
+     "id": "$a.id",
+     "status": "Accepted"
+    }
+   },
+   {
+    "tool": "markups_list",
+    "args": {
+     "status": "Open"
+    },
+    "expect": [
+     {
+      "path": "total",
+      "eq": 1
+     },
+     {
+      "path": "markups.0.comment",
+      "eq": "Check the door"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "markup-to-task",
+  "title": "Turn a markup into a task",
+  "prompt": "Make the markup a task for Ana, due on 1 December.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   },
+   {
+    "tool": "task_set",
+    "args": {
+     "id": "$m.id",
+     "title": "Verify the wall",
+     "assigneeKind": "person",
+     "assignee": "Ana",
+     "due": "2026-12-01"
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "tasks_list",
+    "path": "total",
+    "eq": 1
+   },
+   {
+    "tool": "tasks_list",
+    "path": "tasks",
+    "includes": "Verify the wall"
+   }
+  ]
+ },
+ {
+  "id": "clear-a-task",
+  "title": "Take the task off again",
+  "prompt": "Make a task, then clear it.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   },
+   {
+    "tool": "task_set",
+    "args": {
+     "id": "$m.id",
+     "title": "Verify the wall",
+     "assigneeKind": "person",
+     "assignee": "Ana"
+    }
+   },
+   {
+    "tool": "task_clear",
+    "args": {
+     "id": "$m.id"
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "tasks_list",
+    "path": "total",
+    "eq": 0
+   },
+   {
+    "tool": "markups_list",
+    "path": "total",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "decision-pin",
+  "title": "Record a decision",
+  "prompt": "Pin the decision to use the 2x6 wall on the sheet.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "decision_add",
+    "args": {
+     "at": [
+      0.5,
+      0.5
+     ],
+     "text": "Use the 2x6 wall"
+    },
+    "expect": [
+     {
+      "path": "id",
+      "exists": true
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "pins_list",
+    "path": "total",
+    "eq": 1
+   },
+   {
+    "tool": "pins_list",
+    "path": "pins.0.kind",
+    "eq": "decision"
+   },
+   {
+    "tool": "pins_list",
+    "path": "pins.0.decision.state",
+    "eq": "Decided"
+   }
+  ]
+ },
+ {
+  "id": "tasks-check-empty",
+  "title": "Nothing to check yet",
+  "prompt": "Check whether any task's element changed.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "tasks_check",
+    "args": {},
+    "expect": [
+     {
+      "path": "checked",
+      "eq": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "says-what-to-try",
+  "title": "Errors say what is wrong",
+  "prompt": "Change a markup that is not there, then compare revisions with one set open.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_status",
+    "args": {
+     "id": "nope",
+     "status": "Accepted"
+    },
+    "fail": "markups_list shows them"
+   },
+   {
+    "tool": "revisions_changes",
+    "args": {},
+    "fail": "two plan sets"
+   }
+  ],
+  "check": [
+   {
+    "tool": "markups_list",
+    "path": "total",
+    "eq": 0
+   }
+  ]
+ },
+ {
+  "id": "read-only-refuses",
+  "title": "Read-only means read-only",
+  "prompt": "With only Read allowed, try to mark the sheet.",
+  "allow": [
+   "read"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ]
+    },
+    "fail": "permission"
+   },
+   {
+    "tool": "markups_list",
+    "expect": [
+     {
+      "path": "total",
+      "eq": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "preview-first",
+  "title": "Preview first",
+  "prompt": "Show what a markup would do without adding it.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall",
+     "preview": true
+    },
+    "expect": [
+     {
+      "path": "preview",
+      "eq": true
+     },
+     {
+      "path": "applied",
+      "eq": false
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "markups_list",
+    "path": "total",
+    "eq": 0
+   }
+  ]
+ },
+ {
+  "id": "export-csv",
+  "title": "Export the markups as CSV",
+  "prompt": "Export the markups to a CSV file.",
+  "allow": [
+   "read",
+   "edit",
+   "export"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   },
+   {
+    "tool": "markups_export",
+    "args": {
+     "format": "csv"
+    },
+    "download": {
+     "name": "\\.csv$",
+     "includes": [
+      "Check this wall"
+     ]
+    }
+   }
+  ]
+ }
+]

@@ -310,8 +310,8 @@ try {
     const L1 = await p4.evaluate(() => [...window.modelcraft.model.lights.values()][0] || null);
     ok(L1 && L1.kind === 'point' && Math.abs(L1.p[2] - 2.45) < 0.02, 'Lamp, then a click on the ceiling: a lamp 0.25 m below it', L1 && L1.p.map((x) => x.toFixed(2)).join(','));
     ok(await p4.isVisible('[data-light-edit]') && /Added Lamp 1/.test(await p4.textContent('[data-msg]')), 'the new lamp is selected in Lights');
-    await p4.fill('[data-light-lumens]', '1600');
-    await p4.dispatchEvent('[data-light-lumens]', 'change');
+    await p4.fill('[data-pg-row="lumens"]', '1600');
+    await p4.dispatchEvent('[data-pg-row="lumens"]', 'change');
     ok(await p4.evaluate(() => [...window.modelcraft.model.lights.values()][0].lumens) === 1600, 'brightness changed (one undo step)');
     await openDialog(p4);
     await p4.selectOption('[data-render-size]', 'view');

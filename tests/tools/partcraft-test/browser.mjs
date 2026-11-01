@@ -205,7 +205,7 @@ try {
   await tool('extrude');
   let s = await stats();
   ok(s && nearRel(s.volume, 80 * 50 * 10), `extruded 10 by default: ${s?.volume}`);
-  const depth = page.locator('.pc-right label:has-text("Depth") + input');
+  const depth = page.locator('.pc-right [data-param-key$=".depth"]');
   await depth.fill('20'); await depth.press('Enter');
   s = await stats();
   ok(nearRel(s.volume, 80000), `depth 20 from the panel → 80 × 50 × 20 = 80000 (${s.volume})`);
@@ -330,7 +330,7 @@ d = ezdxf.readfile(sys.argv[3]); print('dxf', len([e for e in d.modelspace() if 
   }
   // reopen through the file input
   await page.click('.pc-tree [data-id="f2"]');
-  const dep = page.locator('.pc-right label:has-text("Depth") + input');
+  const dep = page.locator('.pc-right [data-param-key$=".depth"]');
   await dep.fill('21'); await dep.press('Enter');
   await page.click('[data-cmd="new"]');
   await page.waitForSelector('dialog[open]');
@@ -373,7 +373,7 @@ d = ezdxf.readfile(sys.argv[3]); print('dxf', len([e for e in d.modelspace() if 
     s = await stats();
     const fil = await pc(() => window.partcraft.part.features.at(-1));
     ok(fil.type === 'fillet' && fil.edges.length === 2, 'Fillet makes a fillet of the two picked edges');
-    const rIn = page.locator('.pc-right label:has-text("Radius") + input');
+    const rIn = page.locator('.pc-right [data-param-key$=".r"]');
     await rIn.fill('5'); await rIn.press('Enter');
     s = await stats();
     const corner = (25 - 25 * PI / 4) * 20;
@@ -594,7 +594,7 @@ g = GProp_GProps(); BRepGProp.VolumeProperties_s(s, g); print(g.Mass(), BRepChec
   await tool('asm-edit');
   await page.waitForFunction(() => window.partcraft.mode === 'model');
   await page.click('.pc-tree [data-id="f4"]');
-  const dia = page.locator('.pc-right label:has-text("Diameter") + input');
+  const dia = page.locator('.pc-right [data-param-key$=".d"]');
   await dia.fill('16'); await dia.press('Enter');
   await built();
   await tool('asm-back');

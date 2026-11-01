@@ -1,0 +1,49 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ca-san-diego",
+  "name": "San Diego: 2025 California Residential Code with San Diego Municipal Code amendments",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-CA",
+    "name": "San Diego"
+  },
+  "base": "us-ca",
+  "edition": "2025 California Residential Code with S…",
+  "in_force": "2026-04-22",
+  "review": {
+    "state": "draft",
+    "note": "The California state pack for this city — the state code with San Diego's own design-criteria table (City of San Diego; SDMC §149.0302 (Table 149.0302)). Design criteria from docs.sandiego.gov (2026-03-23). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "City of San Diego, SDMC §149.0302 (Table 149.0302)",
+    "url": "https://docs.sandiego.gov/municode/MuniCodeChapter14/Ch14Art09Division03.pdf",
+    "date": "2026-03-23",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "wind_speed": {
+      "text": "95 mph",
+      "value": 95,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "B (as printed)"
+    },
+    "seismic_category": {
+      "text": "D2"
+    },
+    "termite": {
+      "text": "Very heavy"
+    },
+    "flood_hazards": {
+      "text": "SDMC §143.0145"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

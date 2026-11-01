@@ -1,0 +1,138 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ny-nyc",
+  "name": "New York City: 2022 New York City Building Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-NY",
+    "name": "New York City"
+  },
+  "base": null,
+  "edition": "2022 NYC Building Code (own code)",
+  "in_force": "2022-11-07",
+  "review": {
+    "state": "draft",
+    "note": "The city's own code, not based on the IRC — the city's own code (the state residential code does not apply in New York City); values for one- and two-family dwellings (Group R-3) (New York City Council; NYC Department of Buildings; NYC Admin. Code Title 28 ch. 7 (Local Law 126 of 2021)). Design criteria from www.nyc.gov (2022). Entered from the cited source on 2026-10-27 (research confidence: hig…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "New York City Council; NYC Department of Buildings, NYC Admin. Code Title 28 ch. 7 (Local Law 126 of 2021)",
+    "url": "https://www.nyc.gov/assets/buildings/codes-pdf/cons_codes_2022/2022BC_Chapter10_EgressWBwm.pdf",
+    "date": "2021-11-07",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "25 psf (BC 1608.2)",
+      "value": 25,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "117 mph, Risk Category II, ultimate (BC Table 1609.3)",
+      "value": 117,
+      "unit": "mph"
+    },
+    "seismic_category": {
+      "text": "Not required for one- and two-family dwellings of three stories or less (BC 1613.1 Exc. 1)"
+    },
+    "frost_depth": {
+      "text": "4 ft below the lowest adjacent grade (BC 1809.3.1)",
+      "value": 1219.2,
+      "unit": "mm"
+    },
+    "flood_hazards": {
+      "text": "BC Appendix G and the FEMA FIRM"
+    },
+    "climate_zone": {
+      "text": "4A (IECC county list)"
+    }
+  },
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "BC 1011.5.2 Exc. 4.2",
+      "label": "Riser height",
+      "note": "Group R-3. Also 2 risers + 1 tread = 24 to 25 1/2 in.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "BC 1011.5.2 Exc. 4.2",
+      "label": "Tread depth",
+      "note": "Group R-3, plus nosing.",
+      "value": 228.6
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "BC 1011.2 Exc. 1.1",
+      "label": "Stair width",
+      "note": "Occupant load 50 or less.",
+      "value": 914.4
+    },
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "BC 1011.3 Exc. 1",
+      "label": "Stair headroom",
+      "note": "R-2/R-3.",
+      "value": 2032
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "BC 1014.2",
+      "label": "Handrail height",
+      "note": "",
+      "min": 863.6,
+      "max": 965.2
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "BC 1208.2",
+      "label": "Ceiling height",
+      "note": "Habitable rooms; basement habitable rooms in 1-2 family dwellings 7 ft.",
+      "value": 2438.4
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "BC 1205.2.1",
+      "label": "Glazing, share of floor area",
+      "note": "Each opening at least 12 sq ft glazed.",
+      "value": 10
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "BC 1203.5.1.2.1",
+      "label": "Openable area, share of floor area",
+      "note": "May drop to 2 1/2 % with mechanical supply.",
+      "value": 5
+    }
+  ]
+}

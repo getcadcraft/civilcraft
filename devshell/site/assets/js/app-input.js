@@ -10,11 +10,17 @@
  *   COMMANDS     [{ id, group, label (text key), icon, sel, defKeys: ['Ctrl+Z', …], fixed?, keyOnly?, optional? }]
  *                `fixed` = keys nobody may take (Delete, Esc); `keyOnly` = no menu place needed; `optional` = only in some
  *                areas; `sel` = the app's own button the command clicks (one code path for every style)
- *   GROUPS       group ids, in the order the Customize list shows them (names: text keys input.grp.<id>)
+ *                0.7.1 (MC-KEYS-META): `keep` = while a style gives the command no key, its own keys (defKeys) stay its own
+ *                (never "moved"), so a style saved before the command existed keeps them; `essential` = keep + Customize warns
+ *                when it has no key (Esc: cancel) and offers the default back; `whileBusy` = its key still runs while the
+ *                app's tool is busy (axis lock, cancel). A non-fixed `keep` command may own Esc or an arrow key: only those
+ *                of the pass-through keys reach a style (`rebindable()`), every other app's Esc and arrows pass as before.
+ *   GROUPS      group ids, in the order the Customize list shows them (names: text keys input.grp.<id>)
  *   STYLES       { id: built-in profile }, STYLE_ORDER [ids]; the first is the app's own (nothing changes in it)
  *   FAMILY       { styleId: 'own' | 'menus' | 'ribbon' | 'classic' } (IP.4: "use this style in every app")
  *   optional: STORE (localStorage key, default '<slug>.input'), CARRY (WL.18, below), MACROS (true: keys may type text
- *   at the app's command line), hooks(ctx) (page side; see app-input-ui.js)
+ *   at the app's command line), MOUSE_MENU (0.7.1: true = the app's 3D view has a context menu, so 'menu' is a choice for
+ *   the middle and right buttons; elsewhere it is dropped from files), hooks(ctx) (page side; see app-input-ui.js)
  *
  * A profile is data only:
  *   { format: 'cadcraft-input', version: 1, id, name, base?,
@@ -44,6 +50,8 @@ export const EXT = '.ccinput.json';
 export const LAYOUTS = ['toolbar', 'menubar', 'ribbon'];
 export const BUTTONS = ['left', 'middle', 'right'];
 export const ACTIONS_3D = ['orbit', 'pan', 'zoom', 'none'];
+/** 0.7.1: a click of the button opens the context menu for what is under the pointer (registries with MOUSE_MENU; never the left). */
+export const MENU_ACTION = 'menu';
 export const MOUSE_DEFAULT = Object.freeze({ wheel: 1, zoomSpeed: 1, pan2d: ['middle', 'right'], orbit3d: { left: 'orbit', middle: 'zoom', right: 'pan' } });
 export const LIMITS = Object.freeze({ name: 40, label: 40, menus: 16, items: 80, split: 6, more: 40, control: 32, tabs: 12, panels: 12, keysPerCommand: 3, words: 4, word: 16, macros: 300, macro: 200, custom: 20, bytes: 200000 });
 /** IP.4: the style families every app can answer ("use this style in every app"). 'own' = each app's own toolbar. */
@@ -142,15 +150,20 @@ export function resolve(p, builtins) {
   return out;
 }
 
-/** The mouse settings, every field present and in range. */
-export function cleanMouse(m) {
+/** The mouse settings, every field present and in range. opts.menu false (a file for an app without MOUSE_MENU): 'menu' is
+ *  dropped; it is never kept for the left button. */
+export function cleanMouse(m, opts) {
   const o = m && typeof m === 'object' ? m : {};
   const pan2d = Array.isArray(o.pan2d) ? [...new Set(o.pan2d.filter((b) => BUTTONS.includes(b)))] : MOUSE_DEFAULT.pan2d.slice();
+  const menuOk = !(opts && opts.menu === false);
   // orbit3d null = every 3D view keeps its own buttons (the app's own style)
   let orbit3d = null;
   if (o.orbit3d && typeof o.orbit3d === 'object') {
     orbit3d = {};
-    for (const b of BUTTONS) orbit3d[b] = ACTIONS_3D.includes(o.orbit3d[b]) ? o.orbit3d[b] : MOUSE_DEFAULT.orbit3d[b];
+    for (const b of BUTTONS) {
+      const v = o.orbit3d[b];
+      orbit3d[b] = ACTIONS_3D.includes(v) || (v === MENU_ACTION && menuOk && b !== 'left') ? v : MOUSE_DEFAULT.orbit3d[b];
+    }
   }
   const zs = Number(o.zoomSpeed);
   return { wheel: o.wheel === -1 ? -1 : 1, zoomSpeed: Number.isFinite(zs) ? Math.min(4, Math.max(0.25, zs)) : 1, pan2d, orbit3d };
@@ -301,7 +314,8 @@ const regOpts = (opts) => (opts && typeof opts === 'object' ? opts : {});
 /**
  * A profile from a file, an add-on or another tab, checked as untrusted: unknown commands and fields are dropped (and
  * listed), keys normalised, words upper case letters/digits, names cut to length; built-in labels never come from a file.
- * opts.macros: keep text keys (else they are dropped and listed). → { ok, profile, problems: [text] }
+ * opts.macros: keep text keys (else they are dropped and listed); opts.menu: keep the 'menu' mouse action (MOUSE_MENU).
+ * → { ok, profile, problems: [text] }
  */
 export function validateProfile(obj, registry, builtins, opts) {
   const o = regOpts(opts);
@@ -392,7 +406,7 @@ export function validateProfile(obj, registry, builtins, opts) {
       }
     }
   }
-  if (obj.mouse !== undefined) out.mouse = cleanMouse(obj.mouse);
+  if (obj.mouse !== undefined) out.mouse = cleanMouse(obj.mouse, { menu: !!o.menu });
   for (const c of conflicts(out, registry)) problems.push('conflict:' + c.seq);
   return { ok: true, profile: out, problems: [...new Set(problems)] };
 }
@@ -439,6 +453,7 @@ export class KeyMatcher {
     for (const c of registry) for (const k of c.defKeys || []) { const q = normSeq(k); if (q && !this.def.has(q)) this.def.set(q, c.id); }
     this.mine = new Map();   // command → its keys in this profile
     for (const [seq, id] of this.map) { if (!this.mine.has(id)) this.mine.set(id, []); this.mine.get(id).push(seq); }
+    this.keep = new Set(registry.filter((c) => (c.keep || c.essential) && !c.fixed).map((c) => c.id));   // 0.7.1: defaults kept while unbound
     this.buf = [];
   }
   reset() { this.buf = []; }
@@ -462,9 +477,30 @@ export class KeyMatcher {
     this.buf = [];
     if (r) return r;
     const d = this.def.get(combo);
-    if (d && !this.map.has(combo)) return { blocked: d };
+    if (d && !this.map.has(combo) && !(this.keep.has(d) && !this.mine.has(d))) return { blocked: d };   // a `keep` command with no key keeps its own
     return null;
   }
+}
+
+/** 0.7.1: the keys every app lets through untouched (fields, menus and the apps' own handling need them) … */
+export const PASS_KEYS = Object.freeze(['Escape', 'Enter', 'Tab', 'Delete', 'Backspace', 'Space', 'Shift+Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+/** … and which of them this registry lets a style take: the default keys of its non-fixed `keep` / `essential` commands
+ *  (ModelCraft's Esc and arrows). Empty for a registry without such commands: nothing changes there. */
+export function rebindable(registry) {
+  const out = new Set();
+  for (const c of registry || []) if ((c.keep || c.essential) && !c.fixed) for (const k of c.defKeys || []) { const q = normSeq(k); if (q && PASS_KEYS.includes(q)) out.add(q); }
+  return out;
+}
+/** 0.7.1: the `essential` commands a profile gives no key (Customize warns: nothing would cancel). */
+export function missingEssential(p, registry) {
+  return (registry || []).filter((c) => c.essential && !c.fixed && !((p && p.keys && p.keys[c.id]) || []).some((k) => normSeq(k))).map((c) => c.id);
+}
+/** 0.7.1: a command's keys in a style's built-in base (what "Default" puts back): the base style's, else the registry's. */
+export function defaultKeysOf(p, builtins, cmd) {
+  const b = p && (p.builtin ? p.id : p.base);
+  const base = b && own(builtins, b) ? builtins[b] : null;
+  const ks = base && base.keys && own(base.keys, cmd.id) ? base.keys[cmd.id] : (cmd.defKeys || []);
+  return ks.map(normSeq).filter(Boolean);
 }
 
 /** A typed command-line word → command id, or null. Exact words first, then a unique start ("WIN" → WINDOW). */
@@ -490,7 +526,7 @@ export function readState(text, reg) {
   let v = null;
   try { v = typeof text === 'string' ? JSON.parse(text) : text; } catch (e) { v = null; }
   if (!v || typeof v !== 'object' || Array.isArray(v)) return st;
-  const opts = { macros: !!reg.MACROS };
+  const opts = { macros: !!reg.MACROS, menu: !!reg.MOUSE_MENU };
   if (Array.isArray(v.custom)) {
     for (const c of v.custom.slice(0, LIMITS.custom)) {
       const r = validateProfile(c, reg.COMMANDS, reg.STYLES, opts);

@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ct",
+  "name": "Connecticut: 2022 Connecticut State Building Code (residential portion)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-CT",
+    "name": "Connecticut"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2022-10-01",
+  "in_force": "2022-10-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (State Building Inspector and Codes and Standards Committee (DAS, Office of the State Building Inspector); approved by t…; Conn. Gen. Stat. § 29-252). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egre…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "State Building Inspector and Codes and Standards Committee (DAS, Office of the State Building Inspector); approved by t…",
+    "url": "https://portal.ct.gov/das/office-of-state-building-inspector/building-and-fire-code-adoption-process",
+    "date": "",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

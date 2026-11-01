@@ -103,9 +103,21 @@ if (!class_exists('AppBuilds')) {
             $v = (string)($build['version'] ?? '');
             return !empty($build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $v) === 1 && version_compare($v, '0.5', '>='));
         }
+        /** The shared property grid (0.7 PANEL-COMPACT item 4), as the site's AppBuilds::propgrid: a build opts in with manifest "propgrid": true. */
+        public const PROPGRID_SCRIPT = '/assets/js/app-propgrid.js';
+        public const PROPGRID_CSS = '/assets/css/app-propgrid.css';
+        public static function propgrid(array $build): bool { return ($build['manifest']['propgrid'] ?? false) === true; }
         /** Hardware specs from the six apps without lib/compute (0.7 HW.2), as the site's AppBuilds::hardware. */
         public const HARDWARE_SCRIPT = '/assets/js/app-hardware.js';
         public static function hardware(array $build): bool { return ($build['manifest']['hardware'] ?? false) === true; }
+        /** Input devices (0.8 Track ID), as the site's AppBuilds::devices: a build opts in with manifest "devices": true. */
+        public const DEVICES_SCRIPT = '/assets/js/app-devices-ui.js';
+        public static function devices(array $build): bool { return ($build['manifest']['devices'] ?? false) === true; }
+        /** Round 2 shell_PART_2: calc, reasons, totals, lessons, as the site's AppBuilds::extras / extraScript. */
+        public const EXTRA_KEYS = ['calc', 'reasons', 'totals', 'lessons', 'ai-suggest', 'ai-activity', 'ai-ask', 'access', 'fields'];
+        public const EXTRA_CSS = '/assets/css/app-tools.css';
+        public static function extras(array $build): array { return array_values(array_filter(self::EXTRA_KEYS, fn($k) => ($build['manifest'][$k] ?? false) === true)); }
+        public static function extraScript(string $key): string { return '/assets/js/app-' . $key . '.js'; }
         /** Workspace layouts (0.7 WS.6), as the site's AppBuilds::workspaces / workspaceAdapter / hasWorkspaces / workspaceConfig. */
         public const WORKSPACE_BUILTINS = ['docked', 'toolbox'];
         public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];

@@ -3,7 +3,7 @@ title: Open a DWG or DXF as linework
 summary: Open a drawing's linework on the plan, layer by layer, use its contours, 3D polylines and closed outlines for the surface, and turn its point blocks into survey points.
 section: tasks
 order: 22
-keywords: dwg, dxf, cad, drawing, linework, contours, breaklines, boundary, polyline, 3d polyline, layers, base map, topo, survey drawing, blocks, block references, survey points from blocks, attributes, point blocks, insertion point
+keywords: survey check, text levels, dwg, dxf, cad, drawing, linework, contours, breaklines, boundary, polyline, 3d polyline, layers, base map, topo, survey drawing, blocks, block references, survey points from blocks, attributes, point blocks, insertion point
 ---
 
 A topographic survey often arrives as a drawing: contours as polylines at their elevation, breaklines as 3D polylines, the site outline as a closed polyline. CivilCraft opens the drawing's **model space** as layers on the plan, and can turn those lines straight into the surface.
@@ -39,6 +39,10 @@ Survey drawings often carry their points as blocks: a small symbol at each shot,
 3. Untick the linework layers if you only want the points, then click {{ui:Add}}.
 
 Each reference becomes one survey point at its insertion point. Only references placed in model space count; blocks nested inside other blocks do not. Numbers already in the project, or used twice in the drawing, get new numbers after the highest, and an elevation attribute that is not a number leaves that point without an elevation; the status line counts both. The drawing is never changed, and each point remembers its block: its Properties show **From block** with the block, layer and handle. Adding the points is one step, so {{key:Mod+Z}} takes them all away.
+
+## Levels written as text, and the check
+
+Spot levels written as text (or in a block attribute that is not a survey point block) are not linework. The **Survey levels and check** section can take them as survey points, and lists what looks wrong with the drawing: units, coordinate system, distance from zero, flat contours, odd levels, doubled points. See [Check a survey drawing on import](topic:survey-check).
 
 ## How the drawing is read
 

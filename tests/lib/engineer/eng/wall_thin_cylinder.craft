@@ -1,0 +1,20 @@
+% wall_thin_cylinder — the wall a thin-walled pipe or cylinder needs against internal pressure
+%
+% Usage:      t = wall_thin_cylinder(p, ri, s_allow)
+% Computes:   hoop stress sigma = p r / t, so t = p ri / s_allow (inside radius: a little on the safe side of the mean radius).
+%             With the outside diameter Do the same stress is Barlow's formula, t = p Do / (2 s_allow) (barlow).
+% Method:     thin-wall (membrane) theory.
+% Units:      SI: p Pa (gauge), ri m, s_allow Pa, t m.
+% Limits:     thin wall means t / ri below about 0.1; above it use wall_thick_cylinder. No corrosion allowance, no joint efficiency,
+%             no code margin: this is not an ASME or EN calculation.
+% References: Shigley, 11th ed., eq. 3-48 (hoop stress, thin wall); Roark's Formulas for Stress and Strain, 8th ed., Table 13.5.
+% Check:      p 2 MPa, ri 50 mm, s_allow 100 MPa: t = 1.000 mm (tools/field-test/eng.mjs).
+function t = wall_thin_cylinder(p, ri, s_allow)
+if ~(p > 0) || ~(ri > 0) || ~(s_allow > 0)
+  error('wall_thin_cylinder: the pressure, the radius and the allowable stress must be greater than zero');
+end
+t = p * ri / s_allow;
+if t / ri > 0.1
+  warning('wall_thin_cylinder: the wall is more than a tenth of the radius: thin-wall theory is too optimistic here (use wall_thick_cylinder)');
+end
+end

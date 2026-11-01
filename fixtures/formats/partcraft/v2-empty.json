@@ -1,0 +1,10 @@
+{
+ "format": "partcraft",
+ "version": 2,
+ "name": "Part1",
+ "units": "mm",
+ "resolution": 64,
+ "seq": 1,
+ "rollback": null,
+ "features": []
+}

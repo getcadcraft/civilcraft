@@ -13,7 +13,9 @@
  * on a metre project), structures rim to sump, problem colours, survey points); picking through a Camera;
  * GLB checked by the Khronos glTF validator (tools/modelcraft-test's node_modules: `(cd tools/modelcraft-test
  * && npm install)`, skipped with a note when missing) and read back (meters, Y up, true scale, origin
- * recorded); OBJ read back; a 100k-triangle surface built quickly. --keep writes the exports to tmp/civilcraft-3d-test/.
+ * recorded); OBJ read back; a 100k-triangle surface built quickly; 0.7.1 71.19: the corridor's road body (plain and urban
+ * assemblies, on the graded surface, the note without ground), plants (instanced forms by type and size), ramps with landings,
+ * steps, paving, picking them, exports carrying them, 20k plants quickly. --keep writes the exports to tmp/civilcraft-3d-test/.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -225,7 +227,7 @@ const scL = S3.buildSite3D(input, { exag: 2, show: { fg: false, triangles: true 
   ok(cor && cor.positions.length / 6 === nCor, `corridor feature lines EOP, shoulder, daylight both sides (${nCor} segments)`);
   ok(L('pads')?.positions.length / 6 === 4 && Math.abs(L('pads').positions[2] / 2 + scL.origin.z - 252) < 1e-4, 'the pad outline at its elevation (252)');
   ok(L('daylight')?.positions.length > 0, 'the pad\'s daylight line');
-  const scNo = S3.buildSite3D(input, { show: { contours: false, breaklines: false, alignments: false, corridors: false, pads: false, boundary: false, pipes: false } });
+  const scNo = S3.buildSite3D(input, { show: { contours: false, breaklines: false, alignments: false, corridors: false, pads: false, boundary: false, pipes: false, roads: false } });
   ok(scNo.lines.length === 0 && scNo.meshes.every((m) => m.key === 'eg' || m.key === 'fg'), 'every line kind and the pipes toggle off');
   const scAllOff = S3.buildSite3D(input, { show: { eg: false, fg: false, contours: false } });
   ok(!scAllOff.meshes.some((m) => m.key === 'eg' || m.key === 'fg'), 'both surfaces toggle off');
@@ -493,6 +495,140 @@ section('labels that face the camera (0.5 WL.22)');
   ok(S3.declutterLabels([{ text: 'x', at: [0, 0, 0], pri: 0 }], () => [5000, 300, 1], { w: 1000, h: 700 })[0] === 0, 'off screen: not drawn');
   const near = S3.declutterLabels([{ text: 'far', at: [0, 0, 0], pri: 5 }, { text: 'near', at: [0, 0, 1], pri: 5 }], (at) => [500, 300, at[2] ? 5 : 50], { w: 1000, h: 700 });
   ok(near[0] === 0 && near[1] === 1, 'same priority on one spot: the nearer label wins');
+}
+
+section('roads, plants, ramps and hardscape (0.7.1 71.19)');
+{
+  const LS3 = await mod('site3d-landscape.js');
+  const PL = await mod('landscape/planting.js'), PLN = await mod('landscape/plants.js'), HS = await mod('landscape/hardscape.js'), COR = await mod('corridor.js');
+  const seed = PLN.readPlants(JSON.parse(fs.readFileSync(path.join(APP, 'landscape/plants-seed.json'), 'utf8'))).library.species;
+  const index = PL.speciesIndex(seed, []);
+  const rgbOf = (h) => { const v = parseInt(h.slice(1), 16); return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255]; };
+  const hasColor = (m, hex) => { const c = rgbOf(hex); for (let i = 0; i < m.colors.length; i += 3) if (Math.abs(m.colors[i] - c[0]) < 1e-6 && Math.abs(m.colors[i + 1] - c[1]) < 1e-6 && Math.abs(m.colors[i + 2] - c[2]) < 1e-6) return true; return false; };
+  // the road: the fixture's plain corridor (lane + shoulder) on the graded surface it shaped
+  const sc = S3.buildSite3D(input, { exag: 2 });
+  const road = sc.meshes.find((m) => m.key === 'road');
+  ok(road && road.onGround && road.owners.length === 1 && road.owners[0].kind === 'alignment' && road.owners[0].id === 'a1', 'the corridor\'s road body is a mesh of its own, owned by its alignment (a click selects the road)');
+  ok(hasColor(road, LS3.LANDSCAPE_COLORS.asphalt) && hasColor(road, LS3.LANDSCAPE_COLORS.shoulder), 'lanes in asphalt, shoulders in their own grey');
+  let worst = 0, n0 = 0;
+  for (let i = 0; i < road.positions.length; i += 3) {
+    const x = road.positions[i] + sc.origin.x, y = road.positions[i + 1] + sc.origin.y, z = road.positions[i + 2] / 2 + sc.origin.z, g = fg.elevationAt(x, y, 1e-6);
+    if (g !== null) { worst = Math.max(worst, Math.abs(g - z)); n0++; }
+  }
+  ok(n0 > 100 && worst < 0.02, `the road lies on the graded surface it shaped (${n0} vertices, worst ${worst.toFixed(4)} ft)`);
+  let area = 0;
+  for (let k = 0; k < road.indices.length; k += 3) { const P = road.positions, I = road.indices; const a = 3 * I[k], b = 3 * I[k + 1], c = 3 * I[k + 2]; area += Math.abs((P[b] - P[a]) * (P[c + 1] - P[a + 1]) - (P[b + 1] - P[a + 1]) * (P[c] - P[a])) / 2; }
+  const g0 = project.graded().items.find((x) => x.kind === 'corridor'), corLen = g0.to - g0.from;
+  near(area / corLen, 2 * (12 + 4), 1.5, 'plan area ÷ length ≈ both sides\' lane + shoulder (32 ft wide)');
+  ok(!S3.buildSite3D(input, { show: { roads: false } }).meshes.some((m) => m.key === 'road'), 'Show › Road surfaces off: not drawn');
+  // a D7.35 assembly: lanes, gutter, curb, strip, walk
+  const p2 = new PJ.Project();
+  p2.setPoints(fx.points, 'site-topo.csv');
+  p2.change('Alignment', (s) => s.alignments.push({ ...al, corridor: null }));
+  p2.change('Profile', (s) => { s.alignments[0].pvis = project.state.alignments[0].pvis; s.alignments[0].corridor = { ...COR.defaultAssembly('ft'), on: true, step: 10, parts: { L: COR.presetParts('urban', 'ft'), R: COR.presetParts('urban', 'ft') } }; });
+  const sc2 = S3.buildSite3D(S3.siteInput(p2), { exag: 1 }), road2 = sc2.meshes.find((m) => m.key === 'road');
+  ok(road2 && ['asphalt', 'concrete', 'strip', 'walk'].every((k) => hasColor(road2, LS3.LANDSCAPE_COLORS[k])), 'an urban assembly: lanes, gutters and curbs (concrete), strips and walks each in their colour');
+  let stand = 0;
+  for (let i = 0; i < road2.normals.length; i += 3) if (Math.abs(road2.normals[i + 2]) < 0.05) stand++;
+  ok(stand > 0, `the curb's face stands up (${stand / 3} vertical faces' corners)`);
+  // no existing ground (owner 2026-10-26): the road is drawn on flat stand-in ground, plainly provisional
+  const p3 = new PJ.Project();
+  p3.change('Alignment', (s) => s.alignments.push({ ...al, pvis: [{ sta: 1000, z: 250, L: 0 }, { sta: 1300, z: 256, L: 0 }], corridor: { ...COR.defaultAssembly('ft'), on: true } }));
+  const si = p3.standInCorridors();
+  ok(si.length === 1 && si[0].sections.length > 10 && !si[0].problems.length && si[0].standIn.basis === 'profile' && si[0].standIn.z === 253, `no survey: the corridor is built on flat ground at the profile's average (${si[0]?.standIn.z}), ${si[0]?.sections.length} sections`);
+  const w = si[0].warnings[0];
+  ok(si[0].warnings.length === 1 && w.code === 'corridor.standin' && w.hard === false && w.ref === 'a1' && w.z === 253 && /flat ground at elevation 253\.00 ft/.test(w.text) && /survey points or a surface/.test(w.text), 'its warning is data: { code, text, hard: false, ref, z, basis } (DetailCraft\'s problem shape + code)');
+  ok(!p3.graded().surface && !p3.graded().items.length, 'nothing else uses the stand-in: no graded surface, no volumes');
+  const sc3 = S3.buildSite3D(S3.siteInput(p3), { exag: 1 }), road3 = sc3.meshes.find((m) => m.key === 'road');
+  ok(road3 && road3.positions.length > 100, 'the 3D view draws the road');
+  ok(sc3.notes.some((x) => x.startsWith('Access road corridor: ') && x.includes(w.text)), 'and shows the warning: ' + sc3.notes[0]);
+  let crest = -Infinity; for (let i = 2; i < road3.positions.length; i += 3) crest = Math.max(crest, road3.positions[i] + sc3.origin.z);
+  near(crest, 256, 0.5, 'the road follows its design profile (up to 256 ft)');
+  const p4 = new PJ.Project();
+  p4.change('Alignment', (s) => s.alignments.push({ ...al, pvis: [], corridor: { ...COR.defaultAssembly('ft'), on: true } }));
+  const s4 = p4.standInCorridors();
+  ok(s4.length === 1 && s4[0].standIn.basis === 'zero' && s4[0].standIn.z === 0 && s4[0].sections.length > 10 && /no survey, surface or design profile/.test(s4[0].warnings[0].text), 'no profile either: laid level at elevation 0, and the warning says so');
+  ok(S3.buildSite3D(S3.siteInput(p4), {}).meshes.some((m) => m.key === 'road'), 'and still drawn in 3D');
+  ok(project.standInCorridors().length === 0, 'with existing ground: no stand-in (the real corridor)');
+  // plants, beds, hedges, hardscape
+  const E = FIX.E0, N = FIX.N0;
+  const rz0 = Math.round(fg.elevationAt(E + 300, N + 270, 1e-6) * 100) / 100;
+  project.change('Landscape', (s) => {
+    s.landscape = PL.emptyLandscape();
+    s.landscape.plants.push({ id: 'l1', key: 'acer-campestre', x: E + 150, y: N + 200, z: null }, { id: 'l2', key: 'pinus-sylvestris', x: E + 170, y: N + 200, z: null }, { id: 'l3', key: 'nosuchplant', x: E + 190, y: N + 200, z: null });
+    s.landscape.beds.push({ id: 'l4', name: 'Bed', pts: [{ x: E + 20, y: N + 20 }, { x: E + 40, y: N + 20 }, { x: E + 40, y: N + 35 }, { x: E + 20, y: N + 35 }], mix: [{ key: seed.find((q) => q.type === 'shrub').key, pct: 100 }], pattern: 'triangular', angle: 0, seed: 7 });
+    s.landscape.hardscape = HS.cleanHardscape([
+      { id: 'l5', kind: 'ramp', name: 'Ramp', pts: [{ x: E + 300, y: N + 270 }, { x: E + 340, y: N + 270 }], zStart: rz0, zEnd: rz0 + 3 },
+      { id: 'l6', kind: 'steps', name: 'Steps', pts: [{ x: E + 300, y: N + 285 }, { x: E + 310, y: N + 285 }], zBottom: 250, zTop: 252 },
+      { id: 'l7', kind: 'paving', name: 'Terrace', pts: [{ x: E + 330, y: N + 100 }, { x: E + 360, y: N + 100 }, { x: E + 360, y: N + 120 }, { x: E + 330, y: N + 120 }] },
+    ], 'ft');
+  });
+  const lsIn = S3.siteInput(project, { species: index });
+  const nBed = PL.bedFill(project.state.landscape.beds[0], index, 'ft').pts.length;
+  ok(nBed > 3 && lsIn.landscape.plants.length === 2 + nBed && lsIn.landscape.unknown === 1, `plants from the plant list: 2 single plants + ${nBed} in the bed; one unknown species left out`);
+  const scP2 = S3.buildSite3D(lsIn, { exag: 2 });
+  ok(scP2.notes.some((x) => /not in the plant list/.test(x)), 'the unknown plant is named in a note');
+  const shapes = Object.fromEntries(scP2.instances.map((s) => [s.key, s.count]));
+  ok(shapes['plants-cyl-trunk'] === 2 && shapes['plants-sphere'] === 1 && shapes['plants-cone'] === 1 && shapes['plants-dome'] === nBed, 'a broadleaf tree = trunk + round crown, a conifer = trunk + cone, the bed\'s shrubs domes: ' + JSON.stringify(shapes));
+  ok(scP2.instances.length <= 6, `instanced: ${scP2.instances.length} sets (draw calls) for ${scP2.counts.plants} plants`);
+  const maple = index.get('acer-campestre'), k = 1200 / 3937;
+  const crown = scP2.instances.find((s) => s.key === 'plants-sphere'), trunk = scP2.instances.find((s) => s.key === 'plants-cyl-trunk');
+  const top = crown.at[2] + crown.size[2], baseZ = trunk.at[2] / 2 + scP2.origin.z, gz = fg.elevationAt(E + 150, N + 200, 1e-6);
+  near(baseZ, gz, 1e-3, 'the tree stands on the graded surface');
+  near(top - trunk.at[2], maple.size.mature.h / k, maple.size.mature.h / k * 0.11, 'its height = the mature height from the plant list (± the 10 % variety), NOT stretched by the 2× exaggeration');
+  const sc5 = S3.buildSite3D(lsIn, { exag: 5 }), c5 = sc5.instances.find((s) => s.key === 'plants-sphere'), t5 = sc5.instances.find((s) => s.key === 'plants-cyl-trunk');
+  near(c5.at[2] + c5.size[2] - t5.at[2], top - trunk.at[2], 1e-3, 'at 5× the tree is just as tall (true proportions), standing on the 5× ground');
+  near(t5.at[2] / 5 + sc5.origin.z, gz, 1e-3, 'its foot on the exaggerated ground');
+  near(crown.size[0], maple.size.mature.s / k, maple.size.mature.s / k * 0.11, 'its crown as wide as the mature spread');
+  project.change('Planting size', (s) => { s.landscape.show = 'plant'; });
+  const small = S3.buildSite3D(S3.siteInput(project, { species: index }), { exag: 2 }).instances.find((s) => s.key === 'plants-sphere');
+  ok(small.size[0] < crown.size[0] / 2, 'Show planting size: the plants shrink to their size at planting');
+  project.change('Mature size', (s) => { s.landscape.show = 'mature'; });
+  ok(!S3.buildSite3D(lsIn, { show: { plants: false } }).instances.length, 'Show › Plants off: none');
+  ok(scP2.bbox.max[2] >= top - 1e-6, 'the view\'s extents take in the tree tops');
+  ok(S3.siteInput(project).landscape.plants.length === 0 && S3.siteInput(project).landscape.unknown >= 3, 'without the plant list (still loading) the seed species wait; the 3D view rebuilds when it arrives');
+  // hardscape
+  const hard = scP2.meshes.find((m) => m.key === 'hardscape');
+  ok(hard && hard.onGround && hard.owners.map((o) => o.id).join() === 'l5,l6,l7' && hard.owners.every((o) => o.kind === 'ls-hard'), 'hardscape mesh: the ramp, the steps and the paving, each owned (a click selects it)');
+  const rampTris = []; for (let t = 0; t < hard.triOwner.length; t++) if (hard.triOwner[t] === 0) rampTris.push(t);
+  const rz = (x) => { let best = -Infinity; for (const t of rampTris) for (let j = 0; j < 3; j++) { const v = hard.indices[3 * t + j]; if (Math.abs(hard.positions[3 * v] + scP2.origin.x - x) < 1e-3) best = Math.max(best, hard.positions[3 * v + 2] / 2 + scP2.origin.z); } return best; };
+  near(rz(E + 300), rz0, 1e-3, 'the ramp starts at its bottom level');
+  near(rz(E + 340), rz0 + 3, 1e-3, 'and reaches its top level');
+  const lay = HS.rampLayout(project.state.landscape.hardscape[0], fg, 'ft');
+  const prof = LS3.rampProfile(40, lay, project.state.landscape.hardscape[0].landing);
+  ok(lay.landings >= 1 && prof.breaks.length === 2 * lay.landings, `${lay.runs} sloped runs with ${lay.landings} level landing(s) between them`);
+  near(rz(E + 300 + prof.breaks[0]), rz(E + 300 + prof.breaks[1]), 1e-3, 'the landing is level');
+  near(prof.zAt(prof.breaks[0] / 2), rz0 + 3 / lay.runs / 2, 1e-9, 'the first run slopes up to it (half way: half its rise)');
+  ok(!S3.buildSite3D(lsIn, { show: { hardscape: false } }).meshes.some((m) => m.key === 'hardscape'), 'Show › Hardscape off: not drawn');
+  // picking from above
+  const cam = new Camera(); cam.setSize(1000, 700); cam.persp = false; cam.standard('top', scP2.bbox);
+  const L2 = (x, y, z) => [x - scP2.origin.x, y - scP2.origin.y, (z - scP2.origin.z) * 2];
+  const sp1 = cam.project(L2(E + 150, N + 200, gz + 5));
+  const h1 = S3.pickSite(scP2, cam, sp1[0], sp1[1]);
+  ok(h1?.kind === 'ls-plant' && h1.id === 'l1' && h1.name === 'Field maple', `a click on a tree picks that plant (${h1?.kind} ${h1?.id} ${h1?.name})`);
+  const sp2 = cam.project(L2(E + 335, N + 270, rz0 + 2.5));
+  const h2 = S3.pickSite(scP2, cam, sp2[0], sp2[1]);
+  ok(h2?.kind === 'ls-hard' && h2.id === 'l5', `a click on the ramp picks it (${h2?.kind} ${h2?.id})`);
+  const A = project.alignment(project.state.alignments[0]), mid = A.pointAt(A.start + A.length * 0.3);
+  const sp3 = cam.project(L2(mid.x + 6 * Math.sin(mid.dir || 0), mid.y, 250));
+  const h3 = S3.pickSite({ ...scP2, lines: [] }, cam, sp3[0], sp3[1]);
+  ok(h3?.kind === 'alignment' && h3.id === 'a1', `a click on the road picks its alignment (${h3?.kind} ${h3?.id})`);
+  // exports: the plants as meshes
+  const ex = LS3.expandInstances(scP2);
+  ok(ex.length === scP2.instances.length && ex.every((m, i) => m.indices.length === scP2.instances[i].proto.indices.length * scP2.instances[i].count && m.triOwner.length === m.indices.length / 3), 'for the files every plant becomes triangles (one mesh per shape, owners kept)');
+  const glb = EX.exportGLB({ ...scP2, meshes: [...scP2.meshes, ...ex] });
+  { const pm = ex.find((m) => m.key === 'plants-sphere'), cs = scP2.instances.find((s) => s.key === 'plants-sphere'); let zt = -Infinity; for (let i = 2; i < pm.positions.length; i += 3) zt = Math.max(zt, pm.positions[i]);
+    near((zt - cs.at[2]) / scP2.exag, cs.size[2], 1e-3, 'in the files (true scale, z ÷ exag) the crown keeps its true height'); }
+  if (validator) { const rep = await validator.validateBytes(glb, { maxIssues: 10 }); ok(rep.issues.numErrors === 0, `GLB with road, hardscape and plants validates (${rep.issues.numErrors} errors)`); }
+  const obj = EX.exportOBJ({ ...scP2, meshes: [...scP2.meshes, ...ex] });
+  ok(/^o Plants/m.test(obj) || obj.includes('Plants'), 'OBJ carries the plants');
+  // many plants: instancing keeps the scene small and quick
+  const many = []; for (let i = 0; i < 20000; i++) many.push({ x: E + (i % 200) * 2, y: N + Math.floor(i / 200) * 3, z: 250, h: 8, s: 6, type: 'tree', form: 'broadleaf', foliage: 'deciduous', owner: { kind: 'ls-plant', id: 'l' + i, name: 'x' }, seed: 'l' + i });
+  const t0 = performance.now();
+  const big = S3.buildSite3D({ ...lsIn, landscape: { plants: many, hard: [], unknown: 0 } }, { exag: 2 });
+  const ms = performance.now() - t0;
+  ok(big.counts.plants === 20000 && big.instances.length === 2 && ms < 3000, `20,000 trees: 2 instanced sets, scene in ${ms.toFixed(0)} ms`);
+  project.change('No landscape', (s) => { delete s.landscape; });
 }
 
 console.log(`\n${pass} passed, ${fail} failed${KEEP ? ' — files in ' + OUT : ''}`);

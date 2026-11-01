@@ -248,6 +248,41 @@ export function createLive(getProject) {
     apply(ops) { put(ops); },
     invert(ops) { return CORE.invert(doc(), ops); },
     touched: (ops) => CORE.touched(ops),
+    /** EG.41 (studio_PART_2; mount line from civil_PART_3): where a step landed. CivilCraft is one plan, so the sheet is always '' (the site);
+     *  the area is the extent of every survey point and outline an op adds, changes or removes (an item that is gone is looked up as it is
+     *  now). A step with nothing on the plan (units, display) has no area: under an area scope it is refused, never let through. */
+    where(ops) {
+      const box = [Infinity, Infinity, -Infinity, -Infinity];
+      let unbounded = false, any = false, n = 0;
+      const grow = (x, y) => { if (x < box[0]) box[0] = x; if (y < box[1]) box[1] = y; if (x > box[2]) box[2] = x; if (y > box[3]) box[3] = y; any = true; };
+      const scan = (v, depth = 0) => {
+        if (!v || typeof v !== 'object' || depth > 6 || n > 20000) return;
+        n++;
+        if (Number.isFinite(v.x) && Number.isFinite(v.y)) grow(v.x, v.y);
+        for (const k of Object.keys(v)) if (v[k] && typeof v[k] === 'object') scan(v[k], depth + 1);
+      };
+      const d = doc();
+      for (const op of ops || []) {
+        if (!op || !Array.isArray(op.path)) continue;
+        if (op.o === 'g') continue;
+        const i = op.path.findIndex((x) => typeof x === 'string' && x[0] === '#');
+        const spatial = op.path[0] === 'points' || ['alignments', 'pads', 'features', 'parcels', 'masses', 'ponds', 'rivers', 'water', 'geo', 'landscape', 'powerlines', 'network'].includes(op.path[1]) || op.path[1] === 'surface';
+        if (!spatial) continue;
+        if (op.v !== undefined) scan(op.v);
+        if (i >= 0 && (op.o === 'del' || op.o === 'put' || op.o === 'atom' || op.v === undefined)) {
+          let cur = d; for (let k = 0; k < i; k++) cur = cur ? cur[op.path[k]] : undefined;
+          const id = op.path[i].slice(1), item = Array.isArray(cur) ? cur.find((x) => String(x && (x.id ?? x.n)) === id) : undefined;
+          if (item) scan(item); else if (op.o === 'del') unbounded = true;
+        } else if (i < 0 && op.id !== undefined && op.v === undefined) {   // {o:'del', path: the list, id}
+          let cur = d; for (const k of op.path) cur = cur ? cur[k] : undefined;
+          const item = Array.isArray(cur) ? cur.find((x) => String(x && (x.id ?? x.n)) === String(op.id)) : undefined;
+          if (item) scan(item); else unbounded = true;
+        } else if (i < 0 && op.v === undefined) unbounded = true;
+      }
+      if (!any) return unbounded ? { sheet: '', box: null } : null;
+      return { sheet: '', box: unbounded ? null : [box[0], box[1], box[2], box[3]], cur: [(box[0] + box[2]) / 2, (box[1] + box[3]) / 2] };
+    },
+    sheetLabel() { return t('live.where.site'); },
     validate() { return null; },
     snapshot() { return pack({ v: SCHEMA, state: P().snapshot(), points: P().points }); },
     load(bytes) {

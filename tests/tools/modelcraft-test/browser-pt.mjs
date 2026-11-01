@@ -16,21 +16,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import { SCENES } from './pt-scenes.mjs';
+import { launch, remote, machine, BASE } from '../gpu-remote/browser.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const BASE = 'https://getcadcraft.com';
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = path.resolve(arg('--out', path.join(REPO, 'tmp/shots/pt')));
-const SIZE = Math.min(128, Number(arg('--size', 32)));
-const SPP = Math.min(16, Number(arg('--spp', 8)));
+// SwiftShader is slow: tiny sizes here; on the real GPU up to 1024 px and 1024 samples
+const SIZE = Math.min(remote ? 1024 : 128, Number(arg('--size', 32)));
+const SPP = Math.min(remote ? 1024 : 16, Number(arg('--spp', 8)));
 const ONLY = arg('--only', '') ? arg('--only', '').split(',') : Object.keys(SCENES);
 fs.mkdirSync(OUT, { recursive: true });
 
-const { chromium } = createRequire(path.join(REPO, 'tools/modelcraft-test/package.json'))('playwright-core');
-const cacheDir = path.join(process.env.HOME || '/root', '.cache/ms-playwright');
-const build = fs.readdirSync(cacheDir).filter((d) => /^chromium-\d+$/.test(d)).sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1]))[0];
-const exe = ['chrome-linux64/chrome', 'chrome-linux/chrome'].map((s) => path.join(cacheDir, build, s)).find((p) => fs.existsSync(p));
-const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--enable-unsafe-webgpu', '--use-webgpu-adapter=swiftshader', '--enable-unsafe-swiftshader'] });
+// the launch: SwiftShader here, the real GPU on the workstation (tools/gpu-remote/run.sh; 0.8 KICKOFF rule 25)
+const browser = await launch({ webgpu: true });
 
 let pass = 0, fail = 0;
 const ok = (c, what, detail = '') => { if (c) { pass++; console.log('  ok    ' + what + (detail ? ' (' + detail + ')' : '')); } else { fail++; console.log('  FAIL  ' + what + (detail ? ' — ' + detail : '')); } };
@@ -44,13 +42,15 @@ async function freshPage() {
   page = await browser.newPage();
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
-  await page.goto(BASE + '/robots.txt');
+  // the workstation reaches the site over the internet: a slower first byte now and then
+  for (let t = 0; ; t++) { try { await page.goto(BASE + '/robots.txt', { timeout: remote ? 90000 : 30000 }); break; } catch (e) { if (!remote || t) throw e; } }
 }
 await freshPage();
 
 const scenesSrc = fs.readFileSync(path.join(REPO, 'tools/modelcraft-test/pt-scenes.mjs'), 'utf8');
 const hasGpu = await page.evaluate(async () => !!(navigator.gpu && (await navigator.gpu.requestAdapter())));
-ok(hasGpu, 'WebGPU adapter in headless Chromium (SwiftShader)');
+ok(hasGpu, 'WebGPU adapter in headless Chromium (' + (remote ? 'real GPU' : 'SwiftShader') + ')');
+console.log('        (machine: ' + await machine(page) + ')');
 
 // the WGSL BSDF against pt-bsdf.js, case by case (RN.2): every lobe of the OpenPBR model, random directions and numbers
 {
@@ -186,7 +186,7 @@ for (const name of ONLY) {
     ok(Math.abs(mg[1] - 1) < 0.03 && Math.abs(mr[1] - 1) < 0.03, 'furnace: the picture converges to 1', 'gpu ' + mg[1].toFixed(4) + ', ref ' + mr[1].toFixed(4));
   }
   if (r.counts.bounded || r.counts.triLights) console.log('        (lights: ' + r.counts.bounded + ' in the tree, ' + r.counts.triLights + ' emissive triangles, ' + r.counts.portals + ' portals)');
-  console.log('        (' + r.counts.tris + ' triangles; reference ' + Math.round(r.tRef) + ' ms, WGSL on SwiftShader ' + Math.round(r.tGpu) + ' ms — VPS, capped; not a timing)');
+  console.log('        (' + r.counts.tris + ' triangles; reference ' + Math.round(r.tRef) + ' ms, WGSL ' + Math.round(r.tGpu) + ' ms' + (remote ? ', workstation GPU' : ' on SwiftShader — VPS, capped; not a timing') + ')');
   // shot: reference | WGSL, ×4
   const shot = await page.evaluate(({ a, b, n }) => {
     const c = document.createElement('canvas'); c.width = n * 8 + 4; c.height = n * 4;
@@ -244,7 +244,7 @@ if (ONLY.includes('room')) {
     let nIn = 0, nOut = 0; for (let i = 1; i < w * h; i++) { nIn += Math.abs(rgb[i * 3] - rgb[i * 3 - 3]); nOut += Math.abs(cpu[i * 3] - cpu[i * 3 - 3]); }
     return { md, mx, tCpu: Math.round(tCpu), tGpu: Math.round(tGpu), smoother: nOut / nIn };
   }).catch((e) => ({ error: String(e) }));
-  ok(!r.error && r.md < 1e-3, 'denoiser: the network on the GPU = on the CPU (80 × 48, relative)', r.error || r.md.toExponential(2) + ' (CPU ' + r.tCpu + ' ms, SwiftShader ' + r.tGpu + ' ms — not a timing)');
+  ok(!r.error && r.md < 1e-3, 'denoiser: the network on the GPU = on the CPU (80 × 48, relative)', r.error || r.md.toExponential(2) + ' (CPU ' + r.tCpu + ' ms, ' + (remote ? 'GPU ' + r.tGpu + ' ms' : 'SwiftShader ' + r.tGpu + ' ms — not a timing') + ')');
   ok(!r.error && r.smoother < 0.5, 'denoiser: the output is smoother than the noisy input', r.smoother && r.smoother.toFixed(3));
 }
 
@@ -336,14 +336,14 @@ if (!process.argv.includes('--no-bench')) {
         let worst = 0; for (let i = 0; i < ab.length; i++) worst = Math.max(worst, Math.abs(a[i] + b[i] - ab[i]) / Math.max(1, Math.abs(ab[i])));
         range = { worst, n: ab[3] };
       }
-      out.push({ key, failed: c.failed, blocks: c.blocks, ok: c.ok, z: c.image.z, furnace: f && { ok: f.ok, mean: f.mean }, range });
+      out.push({ key, failed: c.failed, blocks: c.blocks, ok: c.ok, z: c.image.z, furnace: f && { ok: f.ok, mean: f.mean, failed: f.failed, blocks: f.blocks, worstZ: f.worstZ }, range });
     }
     return { out };
   }, { benchJson, size: SIZE }).catch((e) => ({ error: String(e) }));
   if (res.error) ok(false, 'bench parity runs', res.error);
   else for (const r of res.out) {
     ok(r.ok, r.key + ': WGSL vs the JS reference (independent samples), ' + r.failed + '/' + r.blocks + ' blocks over 4.5σ', 'image z ' + r.z.toFixed(2));
-    if (r.furnace) ok(r.furnace.ok, r.key + ': the WGSL picture is 1 everywhere', r.furnace.mean.map((x) => x.toFixed(4)).join(' '));
+    if (r.furnace) ok(r.furnace.ok, r.key + ': the WGSL picture is 1 everywhere', r.furnace.mean.map((x) => x.toFixed(4)).join(' ') + '; ' + r.furnace.failed + '/' + r.furnace.blocks + ' blocks over 4.5σ, worst z ' + r.furnace.worstZ.toFixed(1));
     if (r.range) ok(r.range.worst < 1e-5 && r.range.n === 4, 'renderRange(0, 2) + renderRange(2, 2) = renderRange(0, 4) (hybrid splits add up)', 'worst ' + r.range.worst.toExponential(1));
   }
 }

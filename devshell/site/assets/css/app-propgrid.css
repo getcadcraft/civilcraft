@@ -1,0 +1,56 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* The shared property grid (assets/js/app-propgrid.js, 0.7 PANEL-COMPACT item 4). Every size is rem; colours are the page tokens.
+ * Comfortable is the default; html[data-cc-density="compact"] makes rows denser; touch keeps 2.75 rem targets. */
+.pg { --pg-row: 2rem; --pg-pad: .5rem; display: flex; flex-direction: column; min-height: 0; font-size: .8125rem; color: var(--ink); background: var(--sheet); }
+.pg-bar { display: flex; align-items: center; gap: .125rem; padding: .25rem var(--pg-pad); background: var(--sheet-2); border-bottom: var(--pen-1) solid var(--line); }
+.pg-tool { flex: 0 0 auto; display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; padding: 0; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.pg-tool:hover, .pg-tool[aria-pressed="true"] { border-color: var(--ink); }
+.pg-tool[aria-pressed="true"] { background: var(--sheet); }
+.pg-tool:focus-visible, .pg-cat-b:focus-visible, .pg-divider:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: -2px; }
+.pg-tool[hidden], .pg-bar-sep[hidden] { display: none; }
+.pg-bar-sep { align-self: stretch; width: 0; margin: .25rem .25rem; border-left: var(--pen-1) solid var(--line); }
+.pg-filter { flex: 1 1 4rem; min-width: 0; height: 1.75rem; margin-left: .25rem; padding: 0 .4rem; font: inherit; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.pg-body { position: relative; flex: 1 1 auto; min-height: 0; overflow: auto; }
+.pg-list { min-width: 0; }
+.pg-empty { margin: 0; padding: .75rem var(--pg-pad); color: var(--ink-2); }
+.pg-cat { border-bottom: var(--pen-1) solid var(--line); }
+.pg-cat-h { margin: 0; font-size: inherit; font-weight: 600; }
+.pg-cat-b { display: flex; align-items: center; gap: .35rem; width: 100%; min-height: 1.75rem; padding: 0 var(--pg-pad); font: inherit; font-weight: 600; text-align: left; color: var(--ink); background: var(--sheet-2); border: 0; cursor: pointer; }
+.pg-cat-b .bi { color: var(--layer, var(--ink-2)); font-size: .75rem; }
+.pg-cat-n { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pg-cat-c { flex: 0 0 auto; color: var(--ink-2); font-weight: 400; font-size: .75rem; }
+.pg-rows[hidden] { display: none; }
+.pg-row { display: grid; grid-template-columns: var(--pg-label, 9rem) minmax(0, 1fr); align-items: center; min-height: var(--pg-row); border-bottom: var(--pen-1) solid var(--line); }
+.pg-label { min-width: 0; margin: 0; padding: 0 .35rem 0 var(--pg-pad); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); font-weight: 400; }
+.pg-value { min-width: 0; display: flex; align-items: center; gap: .35rem; padding: .125rem var(--pg-pad) .125rem .35rem; border-left: var(--pen-1) solid var(--line); align-self: stretch; }
+.pg-input { flex: 1 1 auto; min-width: 0; height: calc(var(--pg-row) - .375rem); padding: 0 .35rem; font: inherit; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.pg-input:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: -1px; }
+.pg-input:disabled { color: var(--ink-2); background: transparent; }
+.pg-check { flex: 0 0 auto; width: 1rem; height: 1rem; margin: 0; accent-color: var(--action); }
+.pg-range { flex: 1 1 3rem; min-width: 2rem; margin: 0; accent-color: var(--action); }
+.pg-num { flex: 0 0 4.25rem; width: 4.25rem; text-align: right; }
+.pg-range ~ .pg-num { flex-basis: 3.75rem; }
+.pg-value > .pg-num:only-child { flex: 1 1 auto; width: auto; }
+.pg-unit { flex: 0 0 auto; color: var(--ink-2); font-size: .75rem; }
+.pg-color { flex: 0 0 2rem; width: 2rem; padding: 0 .125rem; }
+.pg-colortext { flex: 1 1 4rem; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.pg-ro { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
+.pg-ro:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: 1px; }
+/* The divider: a slim handle over the line between the two columns, wide enough to grab. */
+.pg-divider { position: absolute; top: 0; bottom: 0; left: calc(var(--pg-label, 9rem) - .25rem); width: .5rem; cursor: col-resize; touch-action: none; z-index: 2; }
+.pg-divider::after { content: ""; position: absolute; top: 0; bottom: 0; left: calc(50% - 1px); border-left: var(--pen-1) solid transparent; }
+.pg-divider:hover::after, .pg-divider:focus-visible::after { border-left-color: var(--action); }
+.pg[data-pg-sort="name"] .pg-row:first-child { border-top: 0; }
+/* Compact density (Settings › General › Layout density) */
+html[data-cc-density="compact"] .pg { --pg-row: 1.5rem; --pg-pad: .35rem; font-size: .78125rem; }
+html[data-cc-density="compact"] .pg-cat-b { min-height: 1.5rem; }
+html[data-cc-density="compact"] .pg-tool { width: 1.5rem; height: 1.5rem; }
+html[data-cc-density="compact"] .pg-filter { height: 1.5rem; }
+/* Touch keeps 2.75 rem targets, in either density */
+@media (pointer: coarse) {
+  .pg, html[data-cc-density="compact"] .pg { --pg-row: 2.75rem; --pg-pad: .5rem; font-size: .875rem; }
+  .pg-tool, html[data-cc-density="compact"] .pg-tool { width: 2.75rem; height: 2.75rem; }
+  .pg-filter, html[data-cc-density="compact"] .pg-filter, .pg-cat-b, html[data-cc-density="compact"] .pg-cat-b { min-height: 2.75rem; height: 2.75rem; }
+  .pg-divider { width: 1.5rem; left: calc(var(--pg-label, 9rem) - .75rem); }
+  .pg-check { width: 1.5rem; height: 1.5rem; }
+}

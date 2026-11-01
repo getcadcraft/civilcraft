@@ -4,12 +4,14 @@
  * (lane, shoulder, gutter, curb, planting strip, walk, daylight), different left and right; starting points (rural road, urban
  * street), copy or mirror one side to the other. Every change is one undo step (project.change on alignment.corridor.parts).
  * The geometry is corridor.js (walkSide); this file only edits the list.
+ * 0.7.1 71.24: a part with a width carries its pavement courses (layers: name, material, thickness, kind; corridor.js
+ * cleanLayers), edited in a row under it; the courses' areas and volumes (courseQuantities) are listed after the sides.
  *
  *   assemblyProps(ctx, a) → nodes     ctx = { el, project: () => Project, units: () => 'ft'|'m', numInput, say }
  */
 
 import { t } from './i18n.js';
-import { PART_TYPES, MAX_PARTS, defaultPart, presetParts, cleanParts } from './corridor.js';
+import { PART_TYPES, MAX_PARTS, defaultPart, presetParts, cleanParts, COURSE_KINDS, MAX_LAYERS, defaultLayer, courseQuantities } from './corridor.js';
 import { fixed } from './units.js';
 
 const SIDES = ['L', 'R'];
@@ -58,6 +60,7 @@ export function assemblyProps(ctx, a) {
           btn('bi-arrow-up', t('as.up', { part: label(q) }), !movable || i === 0, () => setSide(side, t('as.undo.move'), (L) => { [L[i - 1], L[i]] = [L[i], L[i - 1]]; })),
           btn('bi-arrow-down', t('as.down', { part: label(q) }), !movable || i >= list.length - 1 || list[i + 1].type === 'daylight', () => setSide(side, t('as.undo.move'), (L) => { [L[i + 1], L[i]] = [L[i], L[i + 1]]; })),
           btn('bi-x', t('as.remove', { part: label(q), n: i + 1 }), false, () => setSide(side, t('as.undo.remove'), (L) => { L.splice(i, 1); })))));
+      if (q.type !== 'daylight' && q.type !== 'curb') tbody.append(coursesRow(side, q, i, nm));
     });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-as-table': side },
       el('thead', {}, el('tr', {}, ...[t('as.col.part'), t('as.col.width'), t('as.col.slope')].map((h) => el('th', { scope: 'col' }, h)), el('th', {}, el('span', { className: 'visually-hidden' }, t('as.col.actions'))))), tbody)));
@@ -72,5 +75,36 @@ export function assemblyProps(ctx, a) {
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-as-copy': side, onclick: () => edit(t('as.undo.copy'), (c) => { c.parts[other] = JSON.parse(JSON.stringify(c.parts[side] || [])); }) }, t(side === 'L' ? 'as.copy.lr' : 'as.copy.rl'))));
   }
   out.push(el('p', { className: 'cv-note' }, t('as.note')));
+  out.push(...courseTable());
   return out;
+
+  // 0.7.1 71.24: the courses under one part (top down), one undo step per change
+  function coursesRow(side, q, i, nm) {
+    const layers = q.layers || [], setL = (label, fn) => setSide(side, label, (L) => { const ly = (L[i].layers ||= []); fn(ly); if (!ly.length) delete L[i].layers; });
+    const rows = layers.map((ly, k) => {
+      const what = (key) => t('as.course.of', { n: k + 1, part: nm(key) });
+      const text = (key, v, max, prop) => { const inp = el('input', { type: 'text', className: 'cv-input', value: v, maxLength: max, 'aria-label': what(key), placeholder: t(key), style: 'width:7rem' }); inp.addEventListener('change', () => setL(t('as.undo.course'), (ly2) => { ly2[k][prop] = inp.value; })); return inp; };
+      const kind = el('select', { className: 'cv-select', 'aria-label': what('as.course.kind'), 'data-as-course-kind': '' }, ...COURSE_KINDS.map((c) => el('option', { value: c, selected: c === ly.course }, t('as.course.k.' + c))));
+      kind.addEventListener('change', () => setL(t('as.undo.course'), (ly2) => { ly2[k].course = kind.value; }));
+      return el('div', { className: 'cv-row', 'data-as-course': k },
+        text('as.course.name', ly.name, 60, 'name'), text('as.course.material', ly.material, 60, 'material'),
+        ctx.numInput(fixed(ly.t, 3), (v) => { const x = num(v, 1e-6, U === 'm' ? 5 : 16); if (x === null) return false; setL(t('as.undo.course'), (ly2) => { ly2[k].t = x; }); return true; }, { label: what('as.course.t'), width: '4.5rem' }),
+        el('span', { className: 'cv-unit' }, U === 'm' ? 'm' : 'ft'), kind,
+        el('button', { type: 'button', className: 'cv-x', 'aria-label': t('as.course.remove', { n: k + 1, part: label(q) }), onclick: () => setL(t('as.undo.course'), (ly2) => { ly2.splice(k, 1); }) }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })));
+    });
+    const add = el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-as-course-add': side + i, disabled: layers.length >= MAX_LAYERS, onclick: () => setL(t('as.undo.course'), (ly2) => { ly2.push(defaultLayer(U)); }) }, t('as.course.add'));
+    return el('tr', { 'data-as-courses': q.type }, el('td', { colSpan: 4 }, el('div', { className: 'cv-courses' }, ...(layers.length ? [el('span', { className: 'cv-unit' }, t('as.courses'))] : []), ...rows, add)));
+  }
+  // the courses' areas and volumes from the corridor as graded (or on its stand-in ground)
+  function courseTable() {
+    const it = (P.graded().items || []).find((x) => x.kind === 'corridor' && x.id === a.id) || (P.standInCorridors?.() || []).find((x) => x.id === a.id);
+    const q = courseQuantities(it);
+    if (!q.length) return [];
+    const area = U === 'm' ? 'sq m' : 'sq ft', vol = U === 'm' ? 'cu m' : 'cu ft';   // i18n-ignore: unit abbreviations as the app writes them
+    return [el('h3', { className: 'cv-h3' }, t('as.q.head')), el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-as-quantities': '' },
+      el('thead', {}, el('tr', {}, ...[t('as.q.course'), t('as.q.t', { u: U === 'm' ? 'm' : 'ft' }), t('as.q.area', { u: area }), t('as.q.vol', { u: vol })].map((h) => el('th', { scope: 'col' }, h)))),
+      el('tbody', {}, ...q.map((r) => el('tr', {}, el('td', {}, t('as.q.name', { name: r.name || t('as.course.k.' + r.course), part: t('as.type.' + r.part), side: t(r.side === 'L' ? 'as.left' : 'as.right') })),
+        el('td', { className: 'num' }, fixed(r.t, 3)), el('td', { className: 'num' }, fixed(r.area, 1)), el('td', { className: 'num' }, fixed(r.volume, 1))))))),
+      el('p', { className: 'cv-note' }, t('as.q.note'))];
+  }
 }

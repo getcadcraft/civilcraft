@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-la",
+  "name": "Louisiana: Louisiana State Uniform Construction Code (IRC 2021 with Louisiana amendments)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-LA",
+    "name": "Louisiana"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-01-01",
+  "in_force": "2023-01-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Louisiana Uniform Construction Code Commission; LAC 17:I.107). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (resear…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Louisiana Uniform Construction Code Commission, LAC 17:I.107",
+    "url": "https://luccc.louisiana.gov/wp-content/uploads/LUCCC_blue-book_08012026.pdf",
+    "date": "2026-08-01",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

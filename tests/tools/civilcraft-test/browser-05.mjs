@@ -140,8 +140,8 @@ try {
     const s = await E(page, () => { const c = window.civilcraft, p = c.project.points[1]; c.fitAll?.(); const q = c.toScreen(p.x, p.y); return { n: p.n, x: q.x, y: q.y }; });
     await page.keyboard.press('v');
     await page.mouse.click(s.x, s.y);
-    await page.waitForSelector('[data-point-edit] [data-pt-block]');
-    ok(/^SURVEY_PT on V-NODE \(handle [0-9A-F]+\)$/.test(await page.textContent('[data-pt-block]')), 'a point\'s Properties: "From block ' + await page.textContent('[data-pt-block]') + '"');
+    await page.waitForSelector('[data-point-edit] [data-pg-id="block"]');
+    ok(/^SURVEY_PT on V-NODE \(handle [0-9A-F]+\)$/.test(await page.textContent('[data-point-edit] [data-pg-id="block"] .pg-ro')), 'a point\'s Properties: "From block ' + await page.textContent('[data-point-edit] [data-pg-id="block"] .pg-ro') + '"');
     await shot(page, 'wl19-02-point');
     await page.keyboard.press('Escape');
     await page.locator('[data-over]').focus();
@@ -233,7 +233,7 @@ try {
     const ink = () => E(page, () => { const c = document.querySelector('[data-over]'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 0) n++; return n; });
     await wait(300);
     const before = await ink();
-    const dxf = async () => { const [d] = await Promise.all([page.waitForEvent('download'), page.click('[data-cmd="dxf"]')]); return fs.readFileSync(await d.path(), 'utf8'); };
+    const dxf = async () => { const [d] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => document.querySelector('[data-cmd="dxf"]').click())   /* 0.7.1 71.24: DXF is the DWG/DXF button's choice; its command stays (the shell clicks it) */]); return fs.readFileSync(await d.path(), 'utf8'); };
     const dxfOff = await dxf();
     await page.locator('[data-over]').focus();
     await page.keyboard.press('e');
@@ -343,7 +343,7 @@ try {
     const r0 = await E(page, () => window.civilcraft.project.state.alignments[0].pis[1].r);
     const maxFit = await E(page, () => import(document.querySelector('script[type=importmap]') ? new URL('solve-why.js', [...document.scripts].find((s) => /civilcraft\.js/.test(s.src))?.src || location.href).href : '').then((W) => W.maxRadius(window.civilcraft.project.state.alignments[0].pis, 1)).catch(() => null));
     const minWant = Math.round(Math.min(r0 * 1.5, (maxFit || r0 * 1.5) * 0.9));
-    await page.fill('#cv-al-minr', String(minWant)); await page.press('#cv-al-minr', 'Enter');
+    await page.fill('[data-pg-row="minR"]', String(minWant)); await page.press('[data-pg-row="minR"]', 'Enter');
     await page.locator('[data-over]').focus();
     await page.waitForSelector('[data-why-block] [data-why="min"]');
     ok(/is under the design minimum of/.test(await page.textContent('[data-why-block]')), 'a design minimum of ' + minWant + ' over R ' + r0 + ': said');

@@ -1,0 +1,151 @@
+{
+  "note": "The engineering library (0.8 Track CE, CE.4; docs/0.8-PART3.md). Textbook formulas as readable CraftScript, SI units, every result with its source. Each file's header gives Usage, Method, Units, Limits, References and Check (tools/field-test/eng.mjs). The unit table and the property data are builtins (cs-lib-eng.js).",
+  "groups": [
+    {
+      "id": "flow",
+      "label": "Flow in pipes and channels",
+      "items": [
+        {
+          "name": "reynolds",
+          "summary": "the Reynolds number of a flow in a duct"
+        },
+        {
+          "name": "hydraulic_diameter",
+          "summary": "the diameter of a round pipe that behaves like a duct of any shape"
+        },
+        {
+          "name": "friction_factor",
+          "summary": "the Darcy friction factor of flow in a duct, laminar to fully turbulent"
+        },
+        {
+          "name": "darcy_weisbach",
+          "summary": "the pressure drop of flow along a duct"
+        },
+        {
+          "name": "minor_loss",
+          "summary": "the pressure lost at a bend, valve, tee, sudden change or entrance"
+        },
+        {
+          "name": "pipe_flow",
+          "summary": "mass flow through a round pipe: velocity, Reynolds number, friction factor, pressure drop"
+        },
+        {
+          "name": "rect_channel",
+          "summary": "flow in a straight rectangular channel: velocity, Reynolds number, friction factor, pressure drop"
+        }
+      ]
+    },
+    {
+      "id": "heat",
+      "label": "Heat transfer",
+      "items": [
+        {
+          "name": "nusselt_dittus_boelter",
+          "summary": "the Nusselt number of turbulent flow in a smooth tube (simple, for first sizing)"
+        },
+        {
+          "name": "nusselt_gnielinski",
+          "summary": "the Nusselt number of turbulent and late-transition flow in a tube"
+        },
+        {
+          "name": "nusselt_tube",
+          "summary": "the Nusselt number of flow in a round tube, laminar or turbulent, with the correlation named"
+        },
+        {
+          "name": "htc",
+          "summary": "the heat transfer coefficient from the Nusselt number"
+        },
+        {
+          "name": "fin_efficiency",
+          "summary": "the efficiency of a straight rectangular fin, and the heat it gives"
+        },
+        {
+          "name": "lmtd",
+          "summary": "the log mean temperature difference of a heat exchanger"
+        },
+        {
+          "name": "effectiveness",
+          "summary": "the effectiveness of a heat exchanger from its NTU and capacity ratio"
+        },
+        {
+          "name": "ntu_for",
+          "summary": "the NTU a heat exchanger needs for a given effectiveness"
+        },
+        {
+          "name": "hx_size",
+          "summary": "the size (UA) a heat exchanger needs to move a given heat, by the epsilon-NTU method"
+        }
+      ]
+    },
+    {
+      "id": "pressure",
+      "label": "Pressure parts",
+      "items": [
+        {
+          "name": "allowable_stress",
+          "summary": "the stress a part may carry, from the material's strength and a safety factor"
+        },
+        {
+          "name": "wall_thin_cylinder",
+          "summary": "the wall a thin-walled pipe or cylinder needs against internal pressure"
+        },
+        {
+          "name": "barlow",
+          "summary": "the wall of a pipe from its outside diameter (Barlow's formula)"
+        },
+        {
+          "name": "wall_thick_cylinder",
+          "summary": "the wall a thick-walled cylinder needs against internal pressure (Lame)"
+        },
+        {
+          "name": "wall_sphere",
+          "summary": "the wall a thin spherical shell needs against internal pressure"
+        }
+      ]
+    },
+    {
+      "id": "gas",
+      "label": "Gas dynamics",
+      "items": [
+        {
+          "name": "isentropic",
+          "summary": "the isentropic flow ratios of a perfect gas at a Mach number"
+        },
+        {
+          "name": "mach_from_area",
+          "summary": "the Mach number at a given area ratio in a nozzle"
+        },
+        {
+          "name": "choked_flow",
+          "summary": "the mass flow through a nozzle throat at sonic speed, and the throat area for a mass flow"
+        },
+        {
+          "name": "throat_area",
+          "summary": "the throat area that passes a given mass flow at sonic speed"
+        },
+        {
+          "name": "exit_mach",
+          "summary": "the Mach number a nozzle reaches expanding from a stagnation pressure to an exit pressure"
+        }
+      ]
+    },
+    {
+      "id": "check",
+      "label": "Check loop: stress, temperature and flow on a generated part",
+      "items": [
+        {
+          "name": "check_stress",
+          "summary": "the stress in a generated part under loads, by PartCraft's voxel stress solver"
+        },
+        {
+          "name": "check_thermal",
+          "summary": "the temperatures in a generated part with fixed temperatures and heat input, by PartCraft's thermal solver"
+        },
+        {
+          "name": "check_flow",
+          "summary": "how much a channel network resists a flow, by PartCraft's lattice Boltzmann solver, on one periodic cell"
+        }
+      ]
+    }
+  ]
+}

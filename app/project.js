@@ -25,6 +25,8 @@
  *           parcels: [{ id, name, pts:[{x,y,b?}] }] (0.4 V21, parcels.js)
  *           features: [{ id, name, pts:[{x,y,z}], closed, use: 'eg'|'design'|'off', daylight, cut, fill }] (0.4 V14, featureline.js:
  *           'eg' lines are breaklines of the existing ground, closed 'design' lines grading items after the corridors) }
+ *   0.7.1 71.26: an alignment may carry rail: rail.js cleanRail (a track: cant per PI `pis[i].cant` mm, transition `pis[i].tr`);
+ *   p.railPlan(a) (cantPlan), p.railWarnings(); its corridor is then built as a track (corridor.js asm.rail via railAsm).
  *   alignments also carry corridor: null | { on, lane, laneSlope, shoulder, shoulderSlope, cut, fill, step, super?, targets? (0.6
  *   WL.25: corridor.js cleanTargets; corridorOrder() grades a corridor after the ones it targets) } (corridor.js;
  *   super: superelev.js, 0.4 V18)
@@ -39,7 +41,8 @@
 import { pointGroups } from './points.js';
 import { cleanBlk } from './block-points.js';
 import { buildSurface, surfaceFromFaces } from './tin.js';
-import { buildAlignment } from './alignment.js';
+import { buildGround } from './ground-surface.js';   // 0.8 SU.911: contour terrain (flat triangles fixed when surface.flatFix > 0)
+import { buildAlignment, TRANSITIONS } from './alignment.js';
 import { buildProfile, sampleSurface } from './profile.js';
 import { gradedSurface, gridVolume } from './grading.js';
 import { analyzeNetwork } from './pipes.js';
@@ -47,6 +50,7 @@ import { corridorPatch, defaultAssembly, cleanTargets, cleanSides } from './corr
 import { readGisState, gisFeaturesJSON } from './gis-state.js';   // GIS: layer data in the project file (docs/GIS-SPEC.md §2)
 import { cleanSampling, buildSections } from './sections.js';   // 0.4 V13: sample lines and sections
 import { cleanSuper } from './superelev.js';   // 0.4 V18
+import { cleanRail, cantPlan, kmh as railKmh } from './rail.js';   // 0.7.1 71.26: railway alignments and tracks
 import { cleanCatchment, cleanHydro } from './hydro.js';   // 0.4 V19/V20
 import { cleanSewer, cleanSewLoad } from './sewer.js';   // 0.6 LC.16 S1
 import { cleanType, MAX_TYPES } from './structs.js';   // 0.6 WL.27: structure types
@@ -55,17 +59,39 @@ import { cleanFeature, featureBreaklines, featureItem, flatten as flattenFeature
 import { cleanParcel } from './parcels.js';   // 0.4 V21
 import { cleanZone } from './zoning.js';   // 0.7 LC.1 M3: the zoning limits a person typed
 import { cleanMass, MAX_MASSES } from './massing.js';   // 0.7 LC.1: building masses (session massing)
-import { cleanLandscape } from './landscape/planting.js';   // 0.7 LD: the Landscape workspace (session landscape)
+import { cleanRiver } from './river.js';   // 0.8 SU.957: rivers (session sx-river)
+import { cleanLandscape, freezeSpacing } from './landscape/planting.js';   // 0.7 LD: the Landscape workspace (session landscape)
+import { cleanSides as cleanPadSides } from './sides.js';   // 0.7.1 71.22: slopes per side, retaining walls
 import { gradeItems as lsGradeItems, gradeDeps as lsGradeDeps } from './landscape/grade.js';   // 0.7 LD.3: platforms, berms, swales, grading areas
 import { readPlants } from './landscape/plants.js';
+import { cleanWater } from './water.js';
+import { cleanGeo } from './geo-state.js';   // 0.8 round 2 (civil-geo_PART_2): borings, slopes, junctions, nets, pits, links, turnouts
+import { cleanSectionLines } from './platform.js';   // 0.8 SU.914 rest: saved free-section lines
+import { cleanSolar } from './solar-state.js';   // 0.8 EG.15 (round 3): ground PV arrays on terrain
+import { cleanPond } from './detention.js';   // 0.8 EG.12: detention ponds saved in the file (eg-ui.js)
+import { cleanSite } from './site-context.js';   // 0.8 EG.63: the address, sources and results kept in the file
+import { cleanProgress } from './progress.js';   // 0.8 EG.39: the survey rows kept in the file   // 0.8 LC.16 W1/W2: water mains (water-ui.js)
 import { cleanPowerlines } from './powerline/model.js';   // 0.7 PL: the Power lines workspace (docs/0.7-PART8.md)
 import { cleanDescKeys, cleanLineCodes, grouper, figures } from './desckeys.js';   // 0.4 V16: description keys, line codes
 import { t } from './i18n.js';
+import { cleanAcceptedCivil } from './problems-civilcraft.js';   // 0.7.1 → 0.8: problems accepted as intended (docs/0.8-PROBLEMS-SPEC.md)
+import { cleanIdsRecord, idsTextStore } from './ids/record.js';   // 0.7.1 71.25: the IDS the IFC export is checked against (cc-ids, lib/ids synced)
 
 // profFeatures / profWithin (0.5 WL.20): feature lines in the profile view — their crossings, and (within > 0) the lines running
 // alongside within that distance of the centerline; gradeOverlay (0.5 WL.21): grades and elevations along feature lines, screen only
 export const DISPLAY_DEFAULTS = { surface: 'eg', triangles: false, contours: true, interval: 1, major: 5, labels: true, bands: false, bandCount: 8, slopes: false, points: true, pointLabels: false, breaklines: true, outline: true, pipes: true, profFeatures: true, profWithin: 0, gradeOverlay: false };
 const MAX_UNDO = 200;
+
+/** 0.7.1 71.24: an alignment's design speed and design class (untrusted: the project file) → { speed, unit 'km/h' | 'mph', cls } | null.
+ *  Stored and written to IFC (Pset_RoadDesignCriteriaCommon); CivilCraft has no speed → radius table, so nothing is checked from it. */
+export const SPEED_UNITS = ['km/h', 'mph'];
+export function cleanDesign(o) {
+  if (!o || typeof o !== 'object') return null;
+  const speed = typeof o.speed === 'number' && Number.isFinite(o.speed) && o.speed > 0 && o.speed < 1000 ? o.speed : null;
+  const cls = String(o.cls ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 60);
+  if (speed === null && !cls) return null;
+  return { ...(speed !== null ? { speed } : {}), unit: SPEED_UNITS.includes(o.unit) ? o.unit : 'km/h', ...(cls ? { cls } : {}) };
+}
 
 export function emptyState() {
   return {
@@ -85,7 +111,9 @@ export class Project {
     this.pointsVersion = 0;
     this.gisFeatures = new Map(); this.gisVersion = 0;   // GIS: layer id → [{ g, p }], outside the snapshots
     this.crsGrids = new Map();   // 0.4 V11: grid shift files name → Uint8Array (crs.js loadGrid), outside the snapshots; state.crs.grid names the one in use
+    this.idsTexts = idsTextStore();   // 0.7.1 71.25: IDS texts by hash, outside the snapshots (state.ids is { name, hash }; lead 2026-10-26)
     this.gisImages = new Map();   // GIS: map layer pictures 'img<n>' → data: URL (gis-map-ui.js), outside the snapshots (≤ 25 MB each)
+    this.shell = {};   // 0.8 round 3: the shell's calc sheets and design reasons (shell-mount.js), outside the snapshots; saved as `shell`
     this.undoStack = []; this.redoStack = [];
     this.version = 0; this.saved = 0;
     this.cache = new Map();
@@ -107,9 +135,13 @@ export class Project {
     this.undoStack.push({ label, json: before });
     if (this.undoStack.length > MAX_UNDO) this.undoStack.shift();
     this.redoStack = [];
+    if (this.idsTexts.size > 1) this.pruneIds();
     this.touch('change');
     return true;
   }
+  /** 0.7.1 71.25: IDS texts no state and no undo / redo snapshot refers to any more are let go; idsText() = the one in use. */
+  pruneIds() { const refs = [JSON.stringify(this.state.ids || null), ...this.undoStack.map((x) => x.json || ''), ...this.redoStack.map((x) => x.json || '')]; this.idsTexts.prune((h) => refs.some((r) => r.includes(h))); }
+  idsText() { return this.state.ids ? this.idsTexts.get(this.state.ids.hash) : null; }
   /** Points are held outside the JSON snapshots (they can be 100k+); a point step keeps the array it replaced. */
   editPoints(label, fn) {
     const before = this.snapshot(), was = this.points;
@@ -230,6 +262,7 @@ export class Project {
       const s = this.state.surface;
       if (s.tin) return surfaceFromFaces(s.tin);
       if (!this.points.length && !s.breaklines.length && !(this.state.features || []).some((f) => f.use === 'eg')) return { surface: null, report: { notes: [], errors: [] } };
+      if (s.flatFix > 0) { const g = buildGround({ points: this.egPoints(), breaklines: this.egBreaklines(), boundary: s.boundary, maxEdge: Number(s.maxEdge) || 0, fixFlat: true, interval: s.flatFix }); return { surface: g.surface, report: g.report }; }   // 0.8 SU.911
       return buildSurface({ points: this.egPoints(), breaklines: this.egBreaklines(), boundary: s.boundary, maxEdge: Number(s.maxEdge) || 0 });
     });
   }
@@ -281,7 +314,7 @@ export class Project {
     // edge reads that edge as it is now (it moves when the other corridor changes)
     const { order, loops } = this.corridorOrder(), done = new Map();
     for (const a of order) {
-      const al = this.alignment(a), prof = this.designProfile(a), asm = { ...defaultAssembly(this.state.units), ...a.corridor };
+      const al = this.alignment(a), prof = this.designProfile(a), asm = { ...defaultAssembly(this.state.units), ...a.corridor, ...this.railAsm(a) };   // railAsm: 0.7.1 71.26
       const resolve = () => (a.corridor.targets || []).map((g, i) => {
         if (g.from.kind === 'feature') {
           const f = (this.state.features || []).find((x) => x.id === g.from.id);
@@ -299,7 +332,7 @@ export class Project {
       } });
     }
     for (const f of this.state.features || []) { const it = featureItem(f); if (it) items.push(it); }   // 0.4 V14: closed design feature lines
-    for (const p of this.state.pads) if (p.pts.length >= 3) items.push({ ...p, kind: 'pad', z: Number(p.z), cut: Number(p.cut), fill: Number(p.fill) });
+    for (const p of this.state.pads) if (p.pts.length >= 3) items.push({ ...p, kind: 'pad', z: Number(p.z), cut: Number(p.cut), fill: Number(p.fill), about: { kind: 'pad', id: p.id } });
     items.push(...lsGradeItems(this.state.landscape, this.state.units));   // 0.7 LD.3: the Landscape workspace's grading, last
     return items;
   }
@@ -326,6 +359,61 @@ export class Project {
       return { ...r, items: r.items.map((d, i) => ({ id: items[i].id, kind: items[i].kind, name: items[i].name, problems: r.report.items[i].problems, region: r.regions[i], ...d })) };
     });
   }
+  /**
+   * 0.7.1 71.19 (owner 2026-10-26): with no existing ground a corridor cannot be graded in, so it is built on a FLAT STAND-IN
+   * ground instead and drawn as provisional (3D view, the corridor's Properties). Nothing else uses it: no volumes, sections
+   * or graded surface come from made-up ground. The stand-in's elevation: the mean of the design profile's PVIs; without a
+   * design profile the road itself is laid level at elevation 0 on ground at 0. Each result carries `warnings` in DetailCraft's
+   * problem shape { text, hard (false = a warning), ref (the alignment id) } + `code` 'corridor.standin', `z`, `basis`
+   * ('profile' | 'zero') — the first case of a shared warnings list later.
+   *   p.standInCorridors() → [{ id, kind: 'corridor', name, problems, sections, lines, from, to, warnings, standIn: { z, basis } }]
+   */
+  standInCorridors() {
+    if (this.eg().surface) return [];
+    return this.memo('standin', this.gradeDeps() + '|' + JSON.stringify(this.state.alignments.map((a) => [a.id, a.pis, a.start, a.pvis])), () => {
+      const out = [], m = this.state.units === 'm';
+      const byId = new Map(this.gradeItems().filter((x) => x.kind === 'corridor').map((x) => [x.id, x]));
+      for (const { id } of [...byId.values()]) {
+        const a = this.state.alignments.find((x) => x.id === id), al = this.alignment(a);
+        if (!al?.ok) continue;
+        let prof = this.designProfile(a), basis = 'profile', z;
+        if (prof.ok && (a.pvis || []).length >= 2) z = Math.round((a.pvis.reduce((v, q) => v + q.z, 0) / a.pvis.length) * 100) / 100;
+        else { basis = 'zero'; z = 0; prof = buildProfile([{ sta: al.start, z: 0 }, { sta: al.end, z: 0 }]); }
+        // flat ground under the alignment, wide enough for its daylight (the profile's rise and fall at the flattest slope)
+        const pl = al.polyline(Math.max(al.length / 200, 1));
+        const zs = basis === 'profile' ? a.pvis.map((q) => q.z) : [0], dz = Math.max(...zs) - Math.min(...zs);
+        const pad = (m ? 60 : 200) + 6 * dz;
+        const x0 = Math.min(...pl.map((q) => q.x)) - pad, x1 = Math.max(...pl.map((q) => q.x)) + pad, y0 = Math.min(...pl.map((q) => q.y)) - pad, y1 = Math.max(...pl.map((q) => q.y)) + pad;
+        const pts = []; for (const x of [x0, (x0 + x1) / 2, x1]) for (const y of [y0, (y0 + y1) / 2, y1]) pts.push({ x, y, z });
+        const flat = buildSurface({ points: pts }).surface;
+        if (!flat) continue;
+        const asm = { ...defaultAssembly(this.state.units), ...a.corridor, ...this.railAsm(a) };   // railAsm: 0.7.1 71.26
+        const r = basis === 'profile' ? byId.get(id).patch(flat) : corridorPatch(flat, al, prof, asm, { units: this.state.units });
+        const text = t(basis === 'profile' ? 'corr.standin' : 'corr.standin.zero', { z: z.toFixed(2), unit: m ? 'm' : 'ft' });
+        out.push({ id, kind: 'corridor', name: byId.get(id).name, problems: r.problems, ...r.info, standIn: { z, basis }, warnings: [{ code: 'corridor.standin', text, hard: false, ref: id, z, basis }] });
+      }
+      return out;
+    });
+  }
+  /** 0.7.1 71.26: an alignment's rail settings as the corridor takes them ({ rail } or {}): the speeds in km/h from its design speed
+   *  (71.24 `design`) and the slowest trains' speed (rail.minSpeed, in the same unit). */
+  railAsm(a) {
+    if (!a?.rail?.on) return {};
+    const unit = a.design?.unit || (this.state.units === 'm' ? 'km/h' : 'mph');
+    return { rail: { ...a.rail, speed: railKmh(a.design?.speed, unit), minSpeed: railKmh(a.rail.minSpeed, unit), id: a.id, name: a.name } };
+  }
+  /** 0.7.1 71.26: the alignment's cant plan and its warnings (rail.js cantPlan), with or without a corridor; null when not a track. */
+  railPlan(a) {
+    if (!a?.rail?.on) return null;
+    const al = this.alignment(a);
+    if (!al.ok) return null;
+    return this.memo('rail:' + a.id, JSON.stringify([a.pis, a.start, a.rail, a.design, a.name, this.state.units]), () => {
+      const r = this.railAsm(a).rail;
+      return cantPlan(al, r, { speed: r.speed, minSpeed: r.minSpeed, units: this.state.units, id: a.id, name: a.name });
+    });
+  }
+  /** 0.7.1 71.26: every track's warnings, for the Problems panel: [{ id, name, warnings }]. */
+  railWarnings() { return this.state.alignments.filter((a) => a.rail?.on).map((a) => ({ id: a.id, name: a.name, warnings: this.railPlan(a)?.warnings || [] })); }
   /** 0.4 V13: the alignment's sample lines and sections (sections.js) — ground = EG, design = the graded surface when
    *  anything is graded, else EG (no cut or fill); corridor feature lines marked. null without sample lines. */
   sections(a) {
@@ -335,7 +423,7 @@ export class Project {
     return this.memo('sec:' + a.id, this.surfaceDeps() + '|' + this.gradeDeps() + '|' + JSON.stringify([a.pis, a.start, a.sampling]), () => {
       const eg = this.eg().surface, g = this.graded();
       const cor = g.items?.find((x) => x.kind === 'corridor' && x.id === a.id);
-      return buildSections({ alignment: al, ground: eg, design: g.surface || eg, regions: (g.regions || []).filter(Boolean), corridor: cor?.lines || null, sampling: a.sampling });
+      return buildSections({ alignment: al, ground: eg, design: g.surface || eg, regions: (g.regions || []).filter(Boolean), corridor: cor?.lines || null, courses: cor?.courses || null, track: cor?.rail || null, sampling: a.sampling });   // courses: 0.7.1 71.24; track: 71.26
     });
   }
   /** Cut and fill (grid method) inside every daylight line, in total and per item. */
@@ -369,15 +457,34 @@ export class Project {
       features: this.state.features || [],   // 0.4 V14
       parcels: this.state.parcels || [],   // 0.4 V21
       ...((this.state.masses || []).length ? { masses: this.state.masses } : {}),   // 0.7 LC.1: building masses
+      ...((this.state.rivers || []).length ? { rivers: this.state.rivers } : {}),   // 0.8 SU.957: rivers (models only; results are computed again)
       ...((this.state.zoning || []).length ? { zoning: this.state.zoning } : {}),   // 0.7 LC.1 M3: the limits typed per parcel
       swept: this.state.swept || [],   // 0.6 WL.28
-      ...(this.state.landscape ? { landscape: this.state.landscape } : {}),   // 0.7 LD: plants, beds, hedges, the project's own plant list
+      ...(this.state.landscape ? { landscape: freezeSpacing(this.state.landscape) } : {}),   // 0.7.1: spacing as filled, the plant list's edition   // 0.7 LD: plants, beds, hedges, the project's own plant list
       ...(this.state.powerlines ? { powerlines: this.state.powerlines } : {}),   // 0.7 PL: lines, routes, equipment, the project's library copy
+      ...(Object.keys(this.shell || {}).length ? { shell: this.shell } : {}),   // 0.8 round 3: calc sheets + design reasons (older builds ignore it)
+      ...((this.state.ponds || []).length ? { ponds: this.state.ponds } : {}),   // 0.8 EG.12: detention ponds
+      ...(this.state.site ? { site: this.state.site } : {}),   // 0.8 EG.63: address to site (an optional key with its own v: no new file version)
+      ...((this.state.progress || []).length ? { progress: this.state.progress } : {}),   // 0.8 EG.39: progress from surveys
+      ...((this.state.sectionLines || []).length ? { sectionLines: this.state.sectionLines } : {}),   // 0.8 SU.914 rest: saved free-section lines
+      ...(this.state.solar ? { solar: this.state.solar } : {}),   // 0.8 EG.15: ground PV arrays (inputs; the tables are worked out again)
+      ...(this.state.geo ? { geo: this.state.geo } : {}),   // 0.8 EG.9/10/11/27/28 CV.1
+      ...(this.state.water ? { water: this.state.water } : {}),   // 0.8 LC.16: junctions, reservoirs, tanks, pipes, pumps, valves
+      ...((this.state.problems?.accepted || []).length ? { problems: { accepted: this.state.problems.accepted } } : {}),   // 0.7.1 → 0.8: the Problems panel's accepted list
+      ...(this.state.ids && this.idsText() ? { ids: { ...this.state.ids, text: this.idsText() } } : {}),   // 0.7.1 71.25: the client's IDS { name, hash, text } (ids-ui.js; the text from idsTexts); older builds ignore it
       crs: this.state.crs,
       gis: this.state.gis, gisFeatures: gisFeaturesJSON(this.gisFeatures),   // GIS: { id: [[geometry, props], …] }
       crsGrids: crsGridsJSON(this),   // 0.4 V11: { name: base64 } for the grid state.crs.grid names
       gisImages: gisImagesJSON(this),   // GIS: { 'img<n>': data URL } for the map layers that use them (builder C)
+      ...this.usesRecord(),   // 0.8 AL.6 "This file uses …": { usesAddons: { id: version } } (older builds ignore it)
     };
+  }
+
+  /** 0.8 AL.6: the add-ons this file's data came from. Project.stamp (set by the app) works the record out before a save; without it the record read at open stays. */
+  usesRecord() {
+    let rec = this.usesAddons || null;
+    try { if (typeof Project.stamp === 'function') rec = Project.stamp(this) || rec; } catch { /* the record is a courtesy: never stop a save */ }
+    return rec && Object.keys(rec).length ? { usesAddons: rec } : {};
   }
 
   static fromJSON(obj) {
@@ -410,22 +517,25 @@ export class Project {
     const bnd = list(sf.boundary, xy, 1e6);
     s.surface.boundary = bnd.length >= 3 ? bnd : null;
     s.surface.maxEdge = fin(sf.maxEdge) && sf.maxEdge >= 0 ? sf.maxEdge : 0;
+    if (fin(sf.flatFix) && sf.flatFix > 0) s.surface.flatFix = sf.flatFix;   // 0.8 SU.911: only written when on, so older files stay byte-identical
     s.surface.descKeys = cleanDescKeys(sf.descKeys);   // 0.4 V16
     s.surface.lineCodes = cleanLineCodes(sf.lineCodes);
     if (sf.tin && Array.isArray(sf.tin.pts) && Array.isArray(sf.tin.faces)) {
       const tp = sf.tin.pts.slice(0, 5e6).map(xyz);
       const tf = sf.tin.faces.slice(0, 1e7).filter((f) => Array.isArray(f) && f.length === 3 && f.every((i) => Number.isInteger(i) && i >= 0 && i < tp.length));
       s.surface.tin = { pts: tp, faces: tf };
-      if (sf.tin.from === 'grid') s.surface.tin.from = 'grid';   // GIS: a grid TIN made from an elevation grid (gis-terrain-ui.js)
+      if (sf.tin.from === 'grid' || sf.tin.from === 'ifc') s.surface.tin.from = sf.tin.from;   // 'ifc': 0.7.1 71.24 (ifc-civil-read.js)   // GIS: a grid TIN made from an elevation grid (gis-terrain-ui.js)
     }
     if (obj.display && typeof obj.display === 'object') for (const k of Object.keys(DISPLAY_DEFAULTS)) { const v = obj.display[k]; if (typeof v === typeof DISPLAY_DEFAULTS[k] && (typeof v !== 'number' || (fin(v) && v > 0)) && (k !== 'surface' || v === 'eg' || v === 'fg')) s.display[k] = v; }
+    if (obj.display?.cutfill === true) s.display.cutfill = true;   // 0.8 SU.914: the cut and fill map; not a default key, so files that never turned it on stay byte-identical
     const id = (v, pre) => (/^[a-z]+\d+$/.test(String(v)) ? String(v) : p.nextId(pre));
     s.alignments = list(obj.alignments, (a) => {
       const lsOf = (v) => (fin(v) && v > 0 && v < 1e7 ? v : 0);   // 0.7 D7.35: a spiral's length (ls = both ends)
       const pis = list(a?.pis, (q) => {
         if (!xy(q)) return null;
         const r = fin(q.r) && q.r > 0 ? q.r : 0, ls1 = r ? lsOf(q.ls1) || lsOf(q.ls) : 0, ls2 = r ? lsOf(q.ls2) || lsOf(q.ls) : 0;
-        return { ...xy(q), r, ...(ls1 ? { ls1 } : {}), ...(ls2 ? { ls2 } : {}) };
+        const tr = r && q.tr !== 'clothoid' && TRANSITIONS.includes(q.tr) ? q.tr : null, cant = r && fin(q.cant) && q.cant >= -300 && q.cant <= 300 && q.cant !== 0 ? q.cant : 0;   // 0.7.1 71.26: rail transition kind, applied cant (mm)
+        return { ...xy(q), r, ...(ls1 ? { ls1 } : {}), ...(ls2 ? { ls2 } : {}), ...(tr ? { tr } : {}), ...(cant ? { cant } : {}) };
       }, 1e4);
       if (pis.length < 2) return null;
       const pvis = list(a.pvis, (v) => (v && fin(v.sta) && fin(v.z) ? { sta: v.sta, z: v.z, L: fin(v.L) && v.L > 0 ? v.L : 0 } : null), 1e4);
@@ -441,20 +551,36 @@ export class Project {
         if (tg.length) corridor.targets = tg;
       }
       const minR = fin(a.minR) && a.minR > 0 && a.minR < 1e7 ? a.minR : 0;   // 0.5 WL.23: design minimum radius (0 = none)
-      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(minR ? { minR } : {}) };
+      const design = cleanDesign(a.design);   // 0.7.1 71.24: design speed and class (older files: none)
+      const rail = cleanRail(a.rail, s.units);   // 0.7.1 71.26: a track (older files: none)
+      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(minR ? { minR } : {}), ...(design ? { design } : {}), ...(rail ? { rail } : {}) };
     }, 1000);
     s.pads = list(obj.pads, (d) => {
       const q = list(d?.pts, xy, 1e4);
       if (q.length < 3 || !fin(d.z)) return null;
-      return { id: id(d.id, 'p'), name: str(d.name, 120) || t('scene.pad.default'), pts: q, z: d.z, cut: fin(d.cut) && d.cut > 0 ? d.cut : 2, fill: fin(d.fill) && d.fill > 0 ? d.fill : 2 };
+      const sides = cleanPadSides(d.sides, s.units, q.length);   // 0.7.1 71.22: slopes per side, retaining walls
+      return { id: id(d.id, 'p'), name: str(d.name, 120) || t('scene.pad.default'), pts: q, z: d.z, cut: fin(d.cut) && d.cut > 0 ? d.cut : 2, fill: fin(d.fill) && d.fill > 0 ? d.fill : 2, ...(sides ? { sides } : {}) };
     }, 1000);
     s.features = list(obj.features, (f) => { const c = cleanFeature(f, s.units); if (c) c.id = id(f?.id, 'f'); return c; }, 1000);   // 0.4 V14
     s.parcels = list(obj.parcels, (f) => { const c = cleanParcel(f); if (c) c.id = id(f?.id, 'r'); return c; }, 2000);   // 0.4 V21
     s.masses = list(obj.masses, (f) => { const c = cleanMass(f, s.units); if (c) c.id = id(f?.id, 'm'); return c; }, MAX_MASSES);   // 0.7 LC.1 (untrusted)
+    s.rivers = list(obj.rivers, (r) => cleanRiver(r), 50).filter((r, i, a) => a.findIndex((y) => y.id === r.id) === i);   // 0.8 SU.957 (untrusted; ids rv<n>, own counter in river-ui.js)
     s.zoning = list(obj.zoning, (z) => cleanZone(z, s.units), 2000).filter((z, i, a) => a.findIndex((y) => y.parcel === z.parcel) === i);   // 0.7 LC.1 M3 (untrusted; one per parcel)
     s.swept = list(obj.swept, (w) => { const c = cleanSwept(w, s.units); if (c) c.id = id(w?.id, 'w'); return c; }, 200);   // 0.6 WL.28
     if (obj.landscape && typeof obj.landscape === 'object') s.landscape = cleanLandscape(obj.landscape, s.units, (rows) => readPlants({ format: 'cadcraft-plants', version: 1, species: rows }).library.species);   // 0.7 LD (untrusted)
-    if (obj.powerlines && typeof obj.powerlines === 'object') s.powerlines = cleanPowerlines(obj.powerlines);   // 0.7 PL (untrusted)
+    if (obj.powerlines && typeof obj.powerlines === 'object') s.powerlines = cleanPowerlines(obj.powerlines);
+    s.ponds = list(obj.ponds, (q) => { const c = cleanPond(q, s.units); if (c) c.id = id(q?.id, 'q'); return c; }, 200);   // 0.8 EG.12 (untrusted)
+    if (obj.shell && typeof obj.shell === 'object') for (const k of ['calcs', 'reasons']) if (obj.shell[k] && typeof obj.shell[k] === 'object' && JSON.stringify(obj.shell[k]).length < 2e6) p.shell[k] = obj.shell[k];   // 0.8 round 3 (untrusted; the shell cleans it again on load)
+    if (obj.shell && typeof obj.shell.regs === 'string' && obj.shell.regs.length < 2e5) p.shell.regs = obj.shell.regs;   // 0.8 REG.1 step 4: the drawing's own regulation ticks (JSON text, add-on regs)
+    if (obj.usesAddons && typeof obj.usesAddons === 'object' && !Array.isArray(obj.usesAddons)) {   // 0.8 AL.6 (untrusted: ids and versions are cleaned)
+      p.usesAddons = Object.fromEntries(Object.entries(obj.usesAddons).slice(0, 200).filter(([k]) => /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(k)).map(([k, v]) => [k, String(v ?? '').replace(/[^\x20-\x7e]/g, '').slice(0, 40)]));
+    }
+    if (obj.site !== undefined) { const r = cleanSite(obj.site); if (r.ok) s.site = r.site; else notes.push(t(r.why === 'newer' ? 'project.bad.sitenewer' : 'project.bad.site')); }   // 0.8 EG.63 (untrusted; a newer site block is refused, never half-read)
+    s.progress = cleanProgress(obj.progress);   // 0.8 EG.39 (untrusted)
+    { const sl = cleanSectionLines(obj.sectionLines, id); if (sl.length) s.sectionLines = sl; }   // 0.8 SU.914 rest (untrusted)
+    { const sv = cleanSolar(obj.solar, id); if (sv) s.solar = sv; }   // 0.8 EG.15 (untrusted)
+    { const g = cleanGeo(obj.geo, s.units, id); if (g) s.geo = g; }   // 0.8 EG.9/10/11/27/28 CV.1 (untrusted)
+    if (obj.water && typeof obj.water === 'object') { const w = cleanWater(obj.water, s.units); if (w.nodes.length) s.water = w; }   // 0.8 LC.16 (untrusted)   // 0.7 PL (untrusted)
     const nw = obj.network;
     if (nw && typeof nw === 'object' && Array.isArray(nw.structures) && Array.isArray(nw.pipes)) {
       const r = nw.rules || {};
@@ -475,6 +601,10 @@ export class Project {
       if (nw.sewer && typeof nw.sewer === 'object') s.network.sewer = cleanSewer(nw.sewer, s.units);   // 0.6 LC.16 S1: sanitary design flows
     }
     s.crs = readCrs(obj.crs, str, fin, notes);
+    const pa = cleanAcceptedCivil(obj.problems?.accepted);   // 0.7.1 → 0.8: problems accepted as intended (older builds ignore the key)
+    if (pa.length) s.problems = { accepted: pa };
+    const idsRec = cleanIdsRecord(obj.ids);   // 0.7.1 71.25: the IDS the IFC export is checked against (untrusted, bounded)
+    if (idsRec) s.ids = { name: idsRec.name, hash: p.idsTexts.put(idsRec.text) };   // the snapshots keep { name, hash }; the text once
     { const g = readGisState(obj.gis, obj.gisFeatures, notes); s.gis = g.gis; p.gisFeatures = g.features; p.gisVersion++; }   // GIS (untrusted)
     p.crsGrids = readCrsGrids(obj.crsGrids, s.crs, notes);   // 0.4 V11
     if (p.crsGrids.size) {   // register with proj4 (crs.js, loaded only when a project has a grid); then tell the views
@@ -482,7 +612,7 @@ export class Project {
     }
     p.gisImages = readGisImages(obj.gisImages, s.gis.maps, notes);   // GIS: map layer pictures (builder C; gis-map-ui.js reads the layers)
     p.points = pts; p.pointsFile = str(obj.pointsFile, 200); p.pointsVersion++;
-    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.masses || []), ...(s.swept || []), ...(s.landscape ? [...s.landscape.plants, ...s.landscape.beds, ...s.landscape.hedges, ...s.landscape.grading, ...s.landscape.hardscape, ...(s.landscape.irrigation ? ['heads', 'pipes', 'valves', 'drips'].flatMap((w) => s.landscape.irrigation[w]) : []), ...(s.landscape.freeform || [])] : []), ...(s.powerlines ? [...s.powerlines.lines, ...s.powerlines.lines.flatMap((l) => l.supports), ...s.powerlines.routes, ...s.powerlines.equipment, ...s.powerlines.obstacles] : [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
+    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.masses || []), ...(s.swept || []), ...(s.ponds || []), ...Object.values(s.geo || {}).flat(), ...(s.landscape ? [...s.landscape.plants, ...s.landscape.beds, ...s.landscape.hedges, ...s.landscape.grading, ...s.landscape.hardscape, ...(s.landscape.areas || []), ...(s.landscape.levels || []), ...(s.landscape.sections || []), ...(s.landscape.irrigation ? ['heads', 'pipes', 'valves', 'drips'].flatMap((w) => s.landscape.irrigation[w]) : []), ...(s.landscape.freeform || [])] : []), ...(s.water ? [...s.water.nodes, ...s.water.pipes] : []), ...(s.powerlines ? [...s.powerlines.lines, ...s.powerlines.lines.flatMap((l) => l.supports), ...s.powerlines.routes, ...s.powerlines.equipment, ...s.powerlines.obstacles] : [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
     return { project: p, notes };
   }
 }
@@ -494,6 +624,7 @@ function readCrs(c, str, fin, notes) {
   if (typeof c !== 'object' || typeof c.proj4 !== 'string' || !c.proj4.trim() || c.proj4.length > 20000 || !['m', 'ft', 'ftUS'].includes(c.unit)) return bad();
   const out = { code: Number.isInteger(c.code) && c.code > 0 && c.code < 1e6 ? c.code : null, name: str(c.name, 200) || t('project.def.crs'), proj4: c.proj4.replace(/[\u0000-\u001f\u007f]/g, ' '), unit: c.unit, local: null };
   if (typeof c.grid === 'string' && /^[A-Za-z0-9._-]{1,80}$/.test(c.grid)) out.grid = c.grid;   // 0.4 V11
+  if (c.axes === 'ws') out.axes = 'ws';   // 0.8 ZA.1: a west/south system (crs.js axisNames)
   const l = c.local;
   if (l != null) {
     const pt = (q) => Array.isArray(q) && q.length === 2 && q.every(fin);

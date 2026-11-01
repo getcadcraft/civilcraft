@@ -1,0 +1,12 @@
+% minor_loss — the pressure lost at a bend, valve, tee, sudden change or entrance
+%
+% Usage:      dp = minor_loss(K, rho, v)
+% Computes:   dp = K rho v^2 / 2, with K the loss coefficient of the fitting (from a table for that fitting).
+% Method:     the definition of the loss coefficient.
+% Units:      SI: rho kg/m3, v m/s, dp Pa. K has no unit.
+% References: Incropera et al., Fundamentals of Heat and Mass Transfer, 7th ed., eq. 8.52 (the loss form); K values: the
+%             fitting's own table (this function holds none: a hidden constant would have no source).
+% Check:      K 0.9 (a 90 degree bend), rho 1000, v 3 m/s: dp = 4050 Pa (tools/field-test/eng.mjs).
+function dp = minor_loss(K, rho, v)
+dp = K * rho * v ^ 2 / 2;
+end

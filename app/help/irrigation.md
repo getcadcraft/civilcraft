@@ -48,3 +48,5 @@ Settings in the Irrigation section: **Hazen–Williams C** (150 for new plastic 
 ## Heads
 
 The heads listed are **generic** kinds written by CadCraft from design precipitation rates (fixed sprays, rotary nozzles, gear rotors, bubblers, micro-sprays, emitters), not any maker's products. **Add heads from a file…** reads your own heads (a JSON list with each head's throw, flow or precipitation rate, and pressure range); they are saved with the project. A maker's published data goes in only with that maker's recorded permission.
+
+Below the generic heads the list has **typical heads** (their names end in "typical values"): nozzle sizes of fixed sprays, rotary nozzles and gear rotors, micro-sprays, bubblers and emitters, with a radius, a flow and a pressure range. They are worked out by CadCraft from published maths (the orifice equation for flow, the jet-throw scaling for radius) and nominal flow classes, from open sources only; no maker's table is copied. Choose one and the picker shows its basis and licence. A project that uses one keeps the head and its source in the project file. They are for planning: check the real head's own data before building.

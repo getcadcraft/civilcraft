@@ -1,0 +1,32 @@
+% Gyroid block: a block filled with a minimal-surface sheet (a gyroid, Schwarz P or diamond), the simplest lattice generator.
+% Method: the surface g(x) = 0 of a triply periodic function, offset both ways by half the wall (field.js; textbook formulas).
+% Units: millimetres. Result: `body` (the surface mesh) and `sheet` (the numbers that came out).
+% @generator Gyroid block
+% @input size: mm = 30 [10 .. 120] "Block side"
+% @input cell: mm = 10 [3 .. 40] "Cell size"
+% @input wall: mm = 1.5 [0.4 .. 6] "Wall thickness"
+% @input kind: = gyroid {gyroid, schwarzp, diamond} "Surface"
+% @input process: = sls {fdm, sla, sls, metal} "Process"
+% @input h: mm = 0.5 [0.2 .. 2] "Voxel size"
+
+half = size / 2;
+f = tpms(kind, cell, wall, struct('bounds', [-half -half -half half half half]));
+fb = field_bake(f, h);
+[body, info] = to_body(fb, h);
+
+% the process's own limits, and the part checked against them (thin walls, narrow gaps, loose pieces, trapped powder, overhangs)
+p = process_profile(process);
+chk = mfg_check(fb, process, struct(), h);
+problems = chk.problems;
+
+sheet = struct();
+sheet.volume = struct('value', info.volume, 'unit', 'mm3', 'note', 'of the mesh');
+sheet.area = struct('value', info.area, 'unit', 'mm2');
+sheet.solid_fraction = struct('value', info.volume / size^3, 'unit', '-');
+sheet.cells_per_side = struct('value', size / cell, 'unit', '-');
+sheet.wall_per_voxel = struct('value', wall / h, 'unit', '-', 'note', 'at least 3 for a sound surface');
+sheet.watertight = info.watertight;
+sheet.process = struct('value', p.label, 'ref', p.ref);
+sheet.min_wall = p.min_wall;
+sheet.min_gap = p.min_gap;
+sheet.checks_passed = chk.ok;

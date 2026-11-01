@@ -1,0 +1,144 @@
+% Converging-diverging nozzle with cooling channels, from textbook gas dynamics: a cold-gas example of the method.
+%
+% What it makes: a nozzle of revolution about the x axis, chamber on the left, throat, conical exit on the right, with round cooling
+% channels running inside the wall along the contour. The gas is any perfect gas: you give its ratio of specific heats and gas constant
+% (air: 1.4 and 287). There is NO propellant, combustion or heat-flux data here: it sizes a gas expansion, nothing hotter.
+% Method (each step is a library function with its source in the data sheet):
+%   throat area from the mass flow and the stagnation state (throat_area, choked flow); the exit Mach number from the pressure ratio
+%   (exit_mach); the exit area from the area-Mach relation (isentropic A/A*); the contour: a cylindrical chamber, a conical converging
+%   section with a circular arc of 1.5 throat radii into the throat, a circular arc of 0.382 throat radii out of it, then a cone of the
+%   half-angle you give (the classic conical nozzle, Sutton and Biblarz, Rocket Propulsion Elements, ch. 3).
+%   The liner wall is a thin cylinder at the chamber pressure (wall_thin_cylinder); the channels carry water at the speed you give.
+% Not modelled: heat transfer, wall temperature, thermal stress, the coolant's pressure and manifolds. It is a geometry and gas-dynamics
+% generator, not a thermal design; do not read a margin into it.
+% @generator Nozzle with cooling channels (cold gas, textbook)
+% @input p0: bar = 20 [2 .. 100] "Chamber pressure"
+% @input T0: K = 300 [250 .. 600] "Gas temperature in the chamber"
+% @input gam: = 1.4 [1.1 .. 1.67] "Ratio of specific heats"
+% @input Rg: J/(kg K) = 287 [100 .. 2100] "Gas constant"
+% @input mdot: kg/s = 0.5 [0.02 .. 5] "Gas flow"
+% @input pe: bar = 1 [0.1 .. 10] "Exit pressure"
+% @input CR: = 4 [2 .. 10] "Chamber area / throat area"
+% @input Lchar: = 1.5 [0.5 .. 4] "Chamber length / chamber radius"
+% @input th_c: deg = 30 [15 .. 45] "Converging half-angle"
+% @input th_d: deg = 15 [8 .. 25] "Diverging half-angle"
+% @input nch: = 16 [6 .. 48] "Cooling channels"
+% @input vc: m/s = 3 [0.5 .. 10] "Coolant speed"
+% @input mcool: kg/s = 0.4 [0.02 .. 5] "Coolant flow"
+% @input alloy: = ss304 {steel, ss304, al6061, ti64} "Wall material"
+% @input SF: = 3 [1.5 .. 8] "Safety factor on yield"
+% @input process: = metal {sls, metal} "Process"
+% @input h: mm = 0.4 [0.2 .. 1] "Voxel size"
+
+nch = round(nch);
+pc = to_si(p0, 'bar', 'Pa');
+pexit = to_si(pe, 'bar', 'Pa');
+prof = process_profile(process);
+mat = material(alloy);
+sig = allowable_stress(mat.yield.value, SF);
+tmin = max(prof.min_wall.value, 3 * h);                                  % mm
+water = fluid('water', temp_k(20, 'C'));
+
+% the gas: throat, exit
+At = throat_area(mdot, pc, T0, Rg, gam);                                 % m2
+rt = 1000 * sqrt(At / pi);                                               % mm
+Me = exit_mach(pc, pexit, gam);
+iso = isentropic(Me, gam);
+AR = iso.A_Astar.value;
+re = rt * sqrt(AR);
+rc = rt * sqrt(CR);
+Te = T0 / iso.T0_T.value;
+ve = Me * sqrt(gam * Rg * Te);
+
+% the contour, as points (x, r) in mm from the chamber end
+Lc = Lchar * rc;
+tc = th_c * pi / 180;
+td = th_d * pi / 180;
+R1 = 1.5 * rt;
+R2 = 0.382 * rt;
+rs = rt + R1 * (1 - cos(tc));
+xs = Lc + (rc - rs) / tan(tc);
+xt = xs + R1 * sin(tc);
+P = [0 rc; Lc rc; xs rs];
+for k = 1:10
+  phi = tc * (1 - k / 10);
+  P = [P; xt - R1 * sin(phi), rt + R1 * (1 - cos(phi))];
+end
+for k = 1:10
+  psi = td * k / 10;
+  P = [P; xt + R2 * sin(psi), rt + R2 * (1 - cos(psi))];
+end
+xa = P(end, 1);
+ra = P(end, 2);
+xe = xa + (re - ra) / tan(td);
+P = [P; xe re];
+np = size(P, 1);
+
+% wall: the liner at the chamber pressure, the channel, the jacket over it
+t_in = max(tmin, 1000 * wall_thin_cylinder(pc, rc / 1000, sig));
+Ach = mcool / (nch * water.rho.value * vc);
+rch = 1000 * sqrt(Ach / pi);
+t_out = max(tmin, 1000 * wall_thin_cylinder(pc, (rc + t_in + 2 * rch) / 1000, sig));
+
+% the gas passage as a solid of revolution (the exact profile: a chain of round cones would bulge past it where the wall narrows fast)
+G = [-2 rc; P; xe + 2 re];
+gas = field_revolve(G);
+wall_all = t_in + 2 * rch + t_out;
+outer = field_offset(gas, wall_all);
+
+% the channel centre line: where the distance from the gas surface is the liner wall plus the channel radius, found along each radius by bisection
+off = t_in + rch;
+xc = linspace(-2, xe + 2, 100)';
+lo = interp1(G(:, 1), G(:, 2), xc);
+hi = lo + 2 * off;
+for it = 1:40
+  mid = (lo + hi) / 2;
+  v = sample(gas, [xc, mid, zeros(100, 1)]);
+  below = v < off;
+  lo(below) = mid(below);
+  hi(~below) = mid(~below);
+end
+rcl = (lo + hi) / 2;
+
+parts = {};
+for j = 0:nch - 1
+  ang = 2 * pi * j / nch;
+  parts{end + 1} = along([xc, rcl * cos(ang), rcl * sin(ang)], rch);
+end
+rmax = re + wall_all;
+slab = field_box([xe / 2 0 0], [xe / 2 rmax rmax]);
+f = field_subtract(field_intersect(outer, slab), gas, field_union(parts));
+fb = field_bake(f, h);
+[body, info] = to_body(fb, h);
+chk = mfg_check(fb, process, struct(), h);
+problems = chk.problems;
+
+% the coolant side: one channel along the contour
+Lch = 0;
+for i = 2:100
+  if xc(i) > 0 && xc(i - 1) < xe
+    Lch = Lch + sqrt((xc(i) - xc(i - 1)) ^ 2 + (rcl(i) - rcl(i - 1)) ^ 2);
+  end
+end
+cf = pipe_flow(mcool / nch, 2 * rch / 1000, Lch / 1000, water.rho.value, water.mu.value, 0);
+
+sheet = struct();
+sheet.throat_area = q(At, 'm2', 'throat_area: choked flow, Anderson 3e eq. 4.79');
+sheet.throat_diameter = q(2 * rt, 'mm', 'from the throat area');
+sheet.exit_mach = q(Me, '-', 'exit_mach: isentropic pressure relation, Anderson 3e eq. 3.30');
+sheet.area_ratio = iso.A_Astar;
+sheet.exit_diameter = q(2 * re, 'mm', 'throat radius times sqrt(A/A*)');
+sheet.exhaust_speed = q(ve, 'm/s', 'Me sqrt(gamma R Te), Te = T0 / (T0/T)');
+sheet.ideal_thrust = q(mdot * ve, 'N', 'mdot ve, the exit pressure taken as the ambient pressure');
+sheet.length = q(xe, 'mm', 'chamber end to exit');
+sheet.liner_wall = q(t_in, 'mm', 'thin cylinder at the chamber pressure, yield / SF');
+sheet.jacket_wall = q(t_out, 'mm', 'the same, over the channels');
+sheet.channel_radius = q(rch, 'mm', 'mcool / (n rho v), round');
+sheet.channel_length = q(Lch, 'mm', 'along the contour');
+sheet.channel_Re = cf.Re;
+sheet.channel_dp = cf.dp;
+sheet.metal_mass = q(info.volume * 1e-9 * mat.density.value, 'kg', mat.density.ref);
+sheet.process = struct('value', prof.label, 'ref', prof.ref);
+sheet.watertight = info.watertight;
+sheet.checks_passed = chk.ok;
+sheet.note = 'a gas-expansion geometry: no combustion, heat transfer or propellant data';

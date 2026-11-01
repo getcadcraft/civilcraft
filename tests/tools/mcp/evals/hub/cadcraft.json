@@ -1,0 +1,154 @@
+[
+ {
+  "id": "methanol-plant",
+  "title": "Describe a small methanol separation, get a linked plant at 50 t/d (P&ID add-on, CadCraft)",
+  "headliner": false,
+  "prompt": "Build me a plant that pumps a 50/50 methanol-water mix to 6 bar, heats it to 87 C and flashes it at 2 bar, giving 50 tonnes of methanol a day in the liquid.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "run": "await window.ccAddons.loader.setEnabled('pid', true);",
+   "wait": "!!window.ccProcessHost"
+  },
+  "steps": [
+   {
+    "tool": "plant_add",
+    "args": {
+     "spec": {
+      "name": "Methanol",
+      "components": [
+       "methanol",
+       "water"
+      ],
+      "feed": {
+       "massFlows": {
+        "methanol": 1,
+        "water": 1
+       },
+       "T": 293.15,
+       "P": 200000
+      },
+      "steps": [
+       {
+        "type": "pump",
+        "p": {
+         "Pout": 600000
+        }
+       },
+       {
+        "type": "heater",
+        "p": {
+         "Tout": 360
+        }
+       },
+       {
+        "type": "flash",
+        "p": {
+         "P": 200000,
+         "T": 350
+        }
+       }
+      ],
+      "scale": {
+       "stream": "S5",
+       "comp": "methanol",
+       "tPerDay": 50
+      }
+     }
+    },
+    "as": "plant"
+   }
+  ],
+  "check": [
+   {
+    "tool": "process_describe",
+    "path": "units.2.type",
+    "eq": "flash"
+   },
+   {
+    "tool": "process_describe",
+    "path": "units.0.type",
+    "eq": "pump"
+   }
+  ]
+ },
+ {
+  "id": "recycle-plant",
+  "title": "A plant with a recycle: a mixer takes the splitter's second outlet back",
+  "prompt": "Mix the feed with a recycle, flash it cold, send the liquid to a splitter and return 20 percent to the mixer.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "run": "await window.ccAddons.loader.setEnabled('pid', true);",
+   "wait": "!!window.ccProcessHost"
+  },
+  "steps": [
+   {
+    "tool": "plant_add",
+    "args": {
+     "spec": {
+      "name": "Recycle",
+      "components": [
+       "methane",
+       "propane"
+      ],
+      "model": "pr",
+      "feed": {
+       "flows": {
+        "methane": 1,
+        "propane": 1
+       },
+       "T": 300,
+       "P": 1000000
+      },
+      "steps": [
+       {
+        "type": "mixer",
+        "id": "M-101",
+        "with": [
+         "@R"
+        ]
+       },
+       {
+        "type": "flash",
+        "id": "V-101",
+        "p": {
+         "T": 230,
+         "P": 1000000
+        },
+        "use": 1
+       },
+       {
+        "type": "splitter",
+        "id": "X-101",
+        "p": {
+         "fractions": [
+          0.8,
+          0.2
+         ]
+        },
+        "recycleAs": "R"
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "process_describe",
+    "path": "units.0.type",
+    "eq": "mixer"
+   },
+   {
+    "tool": "process_describe",
+    "path": "units.2.type",
+    "eq": "splitter"
+   }
+  ]
+ }
+]

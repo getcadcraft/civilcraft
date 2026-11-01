@@ -1,0 +1,510 @@
+{
+ "format": "partcraft",
+ "version": 3,
+ "name": "Hex head screw ISO 4017",
+ "units": "mm",
+ "resolution": 64,
+ "seq": 5,
+ "rollback": null,
+ "features": [
+  {
+   "id": "f1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "plane": {
+    "kind": "base",
+    "name": "top"
+   },
+   "sketch": {
+    "seq": 41,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "c2",
+      "type": "circle",
+      "c": "p1",
+      "r": 4.618802153517007,
+      "construction": true
+     },
+     {
+      "id": "p3",
+      "type": "point",
+      "x": 4.618802153517007,
+      "y": 0
+     },
+     {
+      "id": "p4",
+      "type": "point",
+      "x": 2.309401076758504,
+      "y": 4
+     },
+     {
+      "id": "l5",
+      "type": "line",
+      "p1": "p3",
+      "p2": "p4"
+     },
+     {
+      "id": "p6",
+      "type": "point",
+      "x": 2.309401076758504,
+      "y": 4
+     },
+     {
+      "id": "p7",
+      "type": "point",
+      "x": -2.3094010767585025,
+      "y": 4.000000000000001
+     },
+     {
+      "id": "l8",
+      "type": "line",
+      "p1": "p6",
+      "p2": "p7"
+     },
+     {
+      "id": "p9",
+      "type": "point",
+      "x": -2.3094010767585025,
+      "y": 4.000000000000001
+     },
+     {
+      "id": "p10",
+      "type": "point",
+      "x": -4.618802153517007,
+      "y": 5.656401273199504e-16
+     },
+     {
+      "id": "l11",
+      "type": "line",
+      "p1": "p9",
+      "p2": "p10"
+     },
+     {
+      "id": "p12",
+      "type": "point",
+      "x": -4.618802153517007,
+      "y": 5.656401273199504e-16
+     },
+     {
+      "id": "p13",
+      "type": "point",
+      "x": -2.3094010767585056,
+      "y": -4
+     },
+     {
+      "id": "l14",
+      "type": "line",
+      "p1": "p12",
+      "p2": "p13"
+     },
+     {
+      "id": "p15",
+      "type": "point",
+      "x": -2.3094010767585056,
+      "y": -4
+     },
+     {
+      "id": "p16",
+      "type": "point",
+      "x": 2.309401076758504,
+      "y": -4
+     },
+     {
+      "id": "l17",
+      "type": "line",
+      "p1": "p15",
+      "p2": "p16"
+     },
+     {
+      "id": "p18",
+      "type": "point",
+      "x": 2.309401076758504,
+      "y": -4
+     },
+     {
+      "id": "p19",
+      "type": "point",
+      "x": 4.618802153517007,
+      "y": 0
+     },
+     {
+      "id": "l20",
+      "type": "line",
+      "p1": "p18",
+      "p2": "p19"
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k21",
+      "type": "coincident",
+      "refs": [
+       "p4",
+       "p6"
+      ]
+     },
+     {
+      "id": "k22",
+      "type": "coincident",
+      "refs": [
+       "p3",
+       "c2"
+      ]
+     },
+     {
+      "id": "k23",
+      "type": "coincident",
+      "refs": [
+       "p7",
+       "p9"
+      ]
+     },
+     {
+      "id": "k24",
+      "type": "coincident",
+      "refs": [
+       "p6",
+       "c2"
+      ]
+     },
+     {
+      "id": "k25",
+      "type": "equal",
+      "refs": [
+       "l5",
+       "l8"
+      ]
+     },
+     {
+      "id": "k26",
+      "type": "coincident",
+      "refs": [
+       "p10",
+       "p12"
+      ]
+     },
+     {
+      "id": "k27",
+      "type": "coincident",
+      "refs": [
+       "p9",
+       "c2"
+      ]
+     },
+     {
+      "id": "k28",
+      "type": "equal",
+      "refs": [
+       "l5",
+       "l11"
+      ]
+     },
+     {
+      "id": "k29",
+      "type": "coincident",
+      "refs": [
+       "p13",
+       "p15"
+      ]
+     },
+     {
+      "id": "k30",
+      "type": "coincident",
+      "refs": [
+       "p12",
+       "c2"
+      ]
+     },
+     {
+      "id": "k31",
+      "type": "equal",
+      "refs": [
+       "l5",
+       "l14"
+      ]
+     },
+     {
+      "id": "k32",
+      "type": "coincident",
+      "refs": [
+       "p16",
+       "p18"
+      ]
+     },
+     {
+      "id": "k33",
+      "type": "coincident",
+      "refs": [
+       "p15",
+       "c2"
+      ]
+     },
+     {
+      "id": "k34",
+      "type": "equal",
+      "refs": [
+       "l5",
+       "l17"
+      ]
+     },
+     {
+      "id": "k35",
+      "type": "coincident",
+      "refs": [
+       "p19",
+       "p3"
+      ]
+     },
+     {
+      "id": "k36",
+      "type": "coincident",
+      "refs": [
+       "p18",
+       "c2"
+      ]
+     },
+     {
+      "id": "k37",
+      "type": "equal",
+      "refs": [
+       "l5",
+       "l20"
+      ]
+     },
+     {
+      "id": "k38",
+      "type": "coincident",
+      "refs": [
+       "p1",
+       "O"
+      ]
+     },
+     {
+      "id": "k39",
+      "type": "horizontal",
+      "refs": [
+       "l8"
+      ]
+     },
+     {
+      "id": "k40",
+      "type": "distance",
+      "refs": [
+       "l8",
+       "l17"
+      ],
+      "sign": 1,
+      "value": 8
+     }
+    ]
+   }
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Extrude1",
+   "sketch": "f1",
+   "op": "add",
+   "end": "blind",
+   "depth": 3.5,
+   "reverse": false
+  },
+  {
+   "id": "f3",
+   "type": "sketch",
+   "name": "Sketch2",
+   "plane": {
+    "kind": "base",
+    "name": "top"
+   },
+   "sketch": {
+    "seq": 5,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "c3",
+      "type": "circle",
+      "c": "p1",
+      "r": 2.5
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k2",
+      "type": "coincident",
+      "refs": [
+       "p1",
+       "O"
+      ]
+     },
+     {
+      "id": "k4",
+      "type": "diameter",
+      "refs": [
+       "c3"
+      ],
+      "value": 5
+     }
+    ]
+   }
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Extrude2",
+   "sketch": "f3",
+   "op": "add",
+   "end": "blind",
+   "depth": 20,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "Steel",
+  "density": 7.85
+ },
+ "params": {
+  "vars": [
+   {
+    "name": "d",
+    "expr": "5"
+   },
+   {
+    "name": "s",
+    "expr": "8"
+   },
+   {
+    "name": "k",
+    "expr": "3.5"
+   },
+   {
+    "name": "l",
+    "expr": "20"
+   }
+  ],
+  "links": [
+   {
+    "target": "f1.k40",
+    "expr": "s"
+   },
+   {
+    "target": "f2.depth",
+    "expr": "k"
+   },
+   {
+    "target": "f3.k4",
+    "expr": "d"
+   },
+   {
+    "target": "f4.depth",
+    "expr": "l"
+   }
+  ]
+ },
+ "configs": {
+  "rows": [
+   {
+    "name": "M5 × 20",
+    "values": {
+     "d": 5,
+     "s": 8,
+     "k": 3.5,
+     "l": 20
+    }
+   },
+   {
+    "name": "M6 × 25",
+    "values": {
+     "d": 6,
+     "s": 10,
+     "k": 4,
+     "l": 25
+    }
+   },
+   {
+    "name": "M8 × 32",
+    "values": {
+     "d": 8,
+     "s": 13,
+     "k": 5.3,
+     "l": 32
+    }
+   },
+   {
+    "name": "M10 × 40",
+    "values": {
+     "d": 10,
+     "s": 16,
+     "k": 6.4,
+     "l": 40
+    }
+   },
+   {
+    "name": "M12 × 50",
+    "values": {
+     "d": 12,
+     "s": 18,
+     "k": 7.5,
+     "l": 50
+    }
+   },
+   {
+    "name": "M16 × 63",
+    "values": {
+     "d": 16,
+     "s": 24,
+     "k": 10,
+     "l": 63
+    }
+   },
+   {
+    "name": "M20 × 80",
+    "values": {
+     "d": 20,
+     "s": 30,
+     "k": 12.5,
+     "l": 80
+    }
+   },
+   {
+    "name": "M24 × 100",
+    "values": {
+     "d": 24,
+     "s": 36,
+     "k": 15,
+     "l": 100
+    }
+   },
+   {
+    "name": "M30 × 120",
+    "values": {
+     "d": 30,
+     "s": 46,
+     "k": 18.7,
+     "l": 120
+    }
+   },
+   {
+    "name": "M36 × 140",
+    "values": {
+     "d": 36,
+     "s": 55,
+     "k": 22.5,
+     "l": 140
+    }
+   }
+  ],
+  "active": "M5 × 20"
+ }
+}

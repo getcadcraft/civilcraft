@@ -1,0 +1,45 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* The Documents panel (0.8 SU.1058; lib/vault/vault-panel.js, the same in every app). Tokens only; sizes in rem, pens for lines.
+   Self-contained: it does not rely on any app's button or input classes. Canonical in lib/vault; written to dev/vault/ by tools/vault/sync.mjs. */
+.cc-vaultpanel { position: absolute; top: .5rem; right: .5rem; z-index: 6; width: min(40rem, calc(100% - 1rem)); max-height: calc(100% - 1rem); overflow: auto;
+  background: var(--sheet); color: var(--ink); border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem .65rem .6rem; }
+.cc-vaultpanel[hidden] { display: none; }
+.cc-vault-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.cc-vault-h { margin: 0; font-size: 1rem; font-weight: 700; }
+.cc-vault-x { background: none; border: 0; color: inherit; cursor: pointer; padding: .25rem; line-height: 1; }
+.cc-vault-x:focus-visible, .cc-vbtn:focus-visible, .cc-vlink:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: 1px; }
+.cc-vault-body .cc-note { font-size: .8125rem; margin: .25rem 0; }
+.cc-vault-error { color: var(--layer-red); }
+.cc-vault-list, .cc-vault-events, .cc-vault-untracked ul { list-style: none; margin: .4rem 0 0; padding: 0; }
+.cc-vault-row { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; padding: .35rem 0; border-top: var(--pen-1) solid var(--grid); }
+.cc-vault-row.is-sel { background: var(--sheet-2); }
+.cc-vault-name { background: none; border: 0; padding: 0; color: inherit; font: inherit; font-size: .875rem; text-align: left; cursor: pointer; flex: 1 1 14rem; min-width: 0; }
+.cc-vault-path { overflow-wrap: anywhere; }
+.cc-vault-rev { font-weight: 700; font-variant-numeric: tabular-nums; }
+.cc-vault-chip { font-size: .75rem; padding: 0 .4rem; border: var(--pen-1) solid currentColor; border-radius: 1rem; white-space: nowrap; }
+.cc-vault-chip.is-wip { color: var(--layer-blue); }
+.cc-vault-chip.is-review { color: var(--layer-ochre); }
+.cc-vault-chip.is-released { color: var(--layer-green); }
+.cc-vault-chip.is-obsolete { color: var(--ink-2); }
+.cc-vault-lock.is-mine { color: var(--layer-blue); }
+.cc-vault-mod { color: var(--layer-orange); }
+.cc-vault-acts { display: flex; flex-wrap: wrap; gap: .25rem; flex-basis: 100%; }
+.cc-vault-detail { flex-basis: 100%; margin-top: .25rem; padding: .35rem .5rem; border-left: var(--pen-2) solid var(--line); }
+.cc-vault-tabs { display: flex; flex-wrap: wrap; gap: .75rem; font-size: .8125rem; }
+.cc-vault-events li { font-size: .8125rem; padding: .15rem 0; }
+.cc-vault-prompt { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .5rem 0; padding: .4rem; border: var(--pen-1) solid var(--line); font-size: .8125rem; }
+.cc-vault-prompt .cc-vinput { min-width: 12rem; }
+.cc-vault-untracked { margin-top: .5rem; font-size: .8125rem; }
+.cc-vault-untracked li { padding: .15rem 0; }
+html.cc-phone .cc-vaultpanel { top: auto; bottom: .5rem; max-height: 70%; }
+.cc-vbtn { padding: .2rem .55rem; font: inherit; font-size: .8125rem; line-height: 1.3; color: var(--ink); background: transparent; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.cc-vbtn:hover:not(:disabled) { background: var(--sheet-2); border-color: var(--ink); }
+.cc-vbtn.is-primary { background: var(--action); color: var(--on-action); border-color: var(--action); }
+.cc-vbtn:disabled { opacity: .55; cursor: default; }
+.cc-vlink { background: none; border: 0; padding: 0; margin-left: .25rem; font: inherit; font-size: .8125rem; color: var(--action); text-decoration: underline; cursor: pointer; }
+.cc-vinput, .cc-vselect, .cc-vault-settings textarea { font: inherit; font-size: .8125rem; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .2rem .4rem; }
+.cc-vault-settings label { display: block; margin: .35rem 0 0; font-size: .8125rem; }
+.cc-vault-settings label.cc-vault-check { display: flex; gap: .4rem; align-items: center; }
+.cc-vault-settings textarea, .cc-vault-settings input[type=text], .cc-vault-settings input[type=number] { display: block; width: 100%; box-sizing: border-box; margin-top: .15rem; }
+.cc-vaultpanel .cc-note { color: var(--ink-2); }
+.cc-vault-compare .cc-hist-items { list-style: none; margin: .3rem 0; padding: 0; }

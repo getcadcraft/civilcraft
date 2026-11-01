@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-wv",
+  "name": "West Virginia: West Virginia State Building Code (87CSR4)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-WV",
+    "name": "West Virginia"
+  },
+  "base": "us-irc-2018",
+  "edition": "IRC 2018 as adopted, 2022-08-01",
+  "in_force": "2022-08-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2018 — where a county or municipality adopts the State Building Code (there is no mandatory statewide enforcement) (West Virginia State Fire Commission / State Fire Marshal; W. Va. Code R. §87-4-4). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, esc…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "West Virginia State Fire Commission / State Fire Marshal, W. Va. Code R. §87-4-4",
+    "url": "https://apps.sos.wv.gov/adlaw/csr/rule.aspx?rule=87-04",
+    "date": "2022-05-05",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "87CSR4 §4.1.i.1 (R311.7.5.1)",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "87CSR4 §4.1.i.2 (R311.7.5.2)",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

@@ -32,6 +32,7 @@ import { byCode, crsFromEntry, catalogLoaded, frame, transformer, METRES_PER } f
 
 export const LIMITS = {
   fileBytes: 200 * 1024 * 1024,   // as Open: larger files are refused
+  lasBytes: 8 * 1024 * 1024 * 1024,   // a LAS / LAZ is read in 2 MB pieces, never whole: 8 GB ≈ 400 million points (0.8 SU.935, civil_PART_3; was the 200 MB above)
   points: 500000,                 // survey points from one import
   tinNodes: 500000,               // grid TIN nodes (≈ 1 M triangles)
   readCells: 400e6,               // cells a window read may cover (rows are read in bands; memory stays small)

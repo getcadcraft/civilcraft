@@ -1,0 +1,23 @@
+% allowable_stress — the stress a part may carry, from the material's strength and a safety factor
+%
+% Usage:      s = allowable_stress(yield, SF)
+%             s = allowable_stress(yield, SFy, uts, SFu)        the lower of yield / SFy and uts / SFu
+% Computes:   s = yield / SF.
+% Method:     the working-stress definition of the factor of safety.
+% Units:      Pa (or any one stress unit used for every argument).
+% Limits:     this is a textbook margin, not a design-code allowable (which also depends on temperature, joint efficiency,
+%             corrosion and the code's own tables). Say so on anything that is made from the result.
+% References: Shigley's Mechanical Engineering Design, 11th ed., eq. 1-3 (factor of safety n = S / sigma).
+% Check:      yield 250 MPa, SF 1.5: 166.7 MPa; with uts 400 MPa, SFu 3: 133.3 MPa (tools/field-test/eng.mjs).
+function s = allowable_stress(yield, SFy, uts, SFu)
+if ~(yield > 0) || ~(SFy >= 1)
+  error('allowable_stress: the strength must be greater than zero and the safety factor at least 1');
+end
+s = yield / SFy;
+if nargin >= 4
+  if ~(SFu >= 1)
+    error('allowable_stress: the safety factor must be at least 1');
+  end
+  s = min(s, uts / SFu);
+end
+end

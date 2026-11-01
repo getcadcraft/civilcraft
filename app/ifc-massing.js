@@ -57,9 +57,13 @@ export function defaultOrigin(masses) {
   return masses.length ? { x: Math.round((x0 + x1) / 20) * 10, y: Math.round((y0 + y1) / 20) * 10, z: Number.isFinite(z) ? z : 0 } : { x: 0, y: 0, z: 0 };
 }
 
+/** The file's length unit for a project (0.7.1 71.24: shared with ifc-civil.js): the coordinate system's unit when there is one
+ *  ('m' | 'ft' international foot), else the project's (a feet project = the US survey foot). → 'm' | 'ft' | 'ftUS' */
+export function fileUnit(units, crs) { return crs?.unit === 'm' || (!crs && units === 'm') ? 'm' : crs?.unit === 'ft' ? 'ft' : 'ftUS'; }
+
 export function writeMassingIfc({ name = 'Site', units = 'ft', crs = null, lat = null, lon = null, origin = null, masses = [] } = {}, { seed = name, now = new Date() } = {}) {
   const o = origin || defaultOrigin(masses);
-  const unit = crs?.unit === 'm' || (!crs && units === 'm') ? 'm' : crs?.unit === 'ft' ? 'ft' : 'ftUS';
+  const unit = fileUnit(units, crs);
   const um = unit === 'm' ? 1 : unit === 'ft' ? 0.3048 : FT_US_M, area = (a) => a * um * um;   // sq project units → m²
   const w = new Step(), id = (s) => S(guid(seed + '|' + s)), counts = { masses: 0, storeys: 0, psets: 0 };
   const WCS = w.add('IFCAXIS2PLACEMENT3D(' + w.pt([0, 0, 0]) + ',$,$)');

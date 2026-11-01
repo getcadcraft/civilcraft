@@ -1,0 +1,14 @@
+% htc — the heat transfer coefficient from the Nusselt number
+%
+% Usage:      h = htc(Nu, k, D)
+% Computes:   h = Nu k / D, with k the fluid's conductivity and D the hydraulic diameter.
+% Method:     the definition of the Nusselt number.
+% Units:      SI: k W/(m K), D m, h W/(m2 K).
+% References: Incropera et al., 7th ed., eq. 8.60 and its definition of Nu_D.
+% Check:      Nu 100, k 0.6, D 0.02: h = 3000 W/(m2 K) (tools/field-test/eng.mjs).
+function h = htc(Nu, k, D)
+if ~(D > 0)
+  error('htc: the diameter must be greater than zero');
+end
+h = Nu * k / D;
+end

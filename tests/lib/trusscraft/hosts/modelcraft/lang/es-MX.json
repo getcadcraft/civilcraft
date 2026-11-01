@@ -1,0 +1,10 @@
+{
+  "h.modelcraft.place": "Colocar como objetos de malla en el modelo",
+  "h.modelcraft.undo": "Colocar cerchas",
+  "h.modelcraft.nomodel": "El modelo de ModelCraft no está listo.",
+  "h.modelcraft.none": "No hay miembros que colocar: primero distribuya un techo.",
+  "h.modelcraft.pick": "Tomar el contorno de la cara seleccionada",
+  "h.modelcraft.noface": "Seleccione primero una cara plana (la planta del techo, como un piso o la cara superior de una losa).",
+  "h.modelcraft.limit.meshes": "ModelCraft: cada cercha es un objeto de malla (sus piezas de madera como cajas cerradas), pintado con el color de la especie; no se edita como caras y no está ligado a ningún techo dibujado. Volver a distribuir y colocar reemplaza el grupo.",
+  "h.modelcraft.limit.roofs": "ModelCraft no tiene un modelo de techo que leer: escriba el contorno del techo o tómelo de una cara seleccionada. Las limatesas y limahoyas salen del esqueleto recto de ese contorno con una sola pendiente; las pendientes por borde y los hastiales requieren la herramienta de techo de BimCraft."
+}

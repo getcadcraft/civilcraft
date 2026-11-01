@@ -1,0 +1,66 @@
+% check_stress — the stress in a generated part under loads, by PartCraft's voxel stress solver
+%
+% Usage:      r = check_stress(f, h, alloy, bc)
+%             f a field (the part), h the voxel size in mm, alloy a material id (steel, ss304, al6061, ti64, abs, pla, nylon),
+%             bc.fixed = { box, … }     boxes [x0 y0 z0 x1 y1 z1] in mm; every node inside one is held in x, y and z
+%             bc.loads = { struct('box', box, 'force', [Fx Fy Fz]), … }   N, shared equally by the nodes in the box
+% Returns:    r.max_von_mises (a quantity: Pa), r.max_displacement (mm), r.safety_factor (yield / max von Mises), r.ok (safety factor
+%             at least 1), r.settings (the solver, voxel size, unknowns, material and its source: the lines for the data sheet), r.raw
+%             (static_voxel's own result: stresses and displacements per element and node).
+% Method:     field_voxel makes the cubes, nodes_in picks the nodes of each box, static_voxel solves K u = f (direct up to 60 000
+%             unknowns, the multigrid solver above) with the same h8i element PartCraft's Simulation uses. It calls those solvers and
+%             changes nothing in them.
+% Units:      the field and the boxes in mm, forces in N; the answer in Pa and mm.
+% Limits:     cubes only, so a curved face is a staircase and stress at a sharp inner corner or under a point load grows as h
+%             shrinks: read the stress a few voxels away from them. Elastic, small strains, one load case, no contact.
+% References: see static_voxel (Wilson-Taylor h8i element; Timoshenko, Strength of Materials, for the cantilever check).
+% Check:      a 100 x 10 x 10 mm steel cantilever, 100 N at the tip, h 2.5: tip deflection 0.2 mm (P L^3 / 3 E I), within 3 %
+%             (tools/field-test/check.mjs).
+function r = check_stress(f, h, alloy, bc)
+if ~solver_available('stress')
+  error(solver_none('stress'));
+end
+mat = material(alloy);
+v = field_voxel(f, h);
+E = mat.E.value / 1e6;                         % MPa
+b = struct();
+b.fixed = nodes_in(v, bc.fixed);
+loads = {};
+if isfield(bc, 'loads')
+  for k = 1:numel(bc.loads)
+    L = bc.loads{k};
+    n = nodes_in(v, {L.box});
+    if isempty(n)
+      error('check_stress: a load box holds no node of the part');
+    end
+    loads{end + 1} = struct('nodes', n, 'force', L.force);
+  end
+end
+b.loads = loads;
+if isempty(b.fixed)
+  error('check_stress: a fixed box holds no node of the part');
+end
+s = static_voxel(v, E, mat.nu.value, b, struct('show', false));
+vm = s.maxVm * 1e6;
+r = struct();
+r.max_von_mises = q(vm, 'Pa', 'static_voxel: von Mises at the cube centres, the h8i element (Wilson-Taylor)');
+r.max_displacement = q(s.maxDisp, 'mm', 'static_voxel');
+r.safety_factor = q(mat.yield.value / max(vm, 1e-9), '-', 'yield / max von Mises');
+r.ok = mat.yield.value >= vm;
+r.settings = struct('solver', s.solver, 'voxel_mm', h, 'unknowns', s.dofs, 'element', 'h8i, 8-node cube with incompatible modes', 'material', alloy, 'source', mat.E.ref);
+r.raw = s;
+end
+
+function nodes = nodes_in(v, boxes)
+X = meshNodes(v);
+E = meshElems(v);
+used = false(size(X, 1), 1);
+used(E(:)) = true;
+h = meshInfo(v).h;
+mask = false(size(X, 1), 1);
+for k = 1:numel(boxes)
+  bx = boxes{k};
+  mask = mask | (X(:, 1) >= bx(1) - 1e-6 * h & X(:, 1) <= bx(4) + 1e-6 * h & X(:, 2) >= bx(2) - 1e-6 * h & X(:, 2) <= bx(5) + 1e-6 * h & X(:, 3) >= bx(3) - 1e-6 * h & X(:, 3) <= bx(6) + 1e-6 * h);
+end
+nodes = find(used & mask);
+end

@@ -406,6 +406,17 @@ export function install(host) {
     host.view.invalidate(true);
     dialogApi?.renderRows();
   }
+  /** Super 0.1, Start from a scan (scan-start-ui.js): a picture placed by its own geotransform in project coordinates, kept with the
+   *  project as one undo step. `extra` = flat fields kept on the layer record (the scan's provenance: scanFile, scanPage, …). → map id */
+  reg.addPicture = async ({ name, blob, width, height, gt, crs = null, extra = {}, label }) => {
+    const data = await fileToDataUrl(blob);
+    const id = newImageId();
+    project().gisImages ||= new Map();
+    project().gisImages.set(id, data);
+    const rec = { ...record({ kind: 'image', name, image: id, width, height, gt, crs }), ...extra };
+    addMap(rec, label || t('mapl.undo.picture', { name }));
+    return rec.id;
+  };
   async function addImageFiles(files) {
     const img = files.find((f) => IMG.test(f.name)), tif = files.find((f) => /\.tiff?$/i.test(f.name));
     const prj = files.find((f) => /\.prj$/i.test(f.name));

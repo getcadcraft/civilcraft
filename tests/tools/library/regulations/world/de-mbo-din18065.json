@@ -1,0 +1,93 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "de-mbo-din18065",
+  "name": "Germany: Musterbauordnung (MBO) and DIN 18065:2020-08 Gebäudetreppen (model)",
+  "jurisdiction": {
+    "country": "DE",
+    "level": "country",
+    "region": "",
+    "name": "Germany"
+  },
+  "base": null,
+  "edition": "Musterbauordnung (MBO) and DIN 18065:20…",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "The national model: each Land's building code (LBO) broadly follows it. Stair values are DIN 18065 (from secondary sources; the standard is paywalled) for buildings with up to two dwellings and inside dwellings, and are not building law for houses in building classes 1 and 2; the ceiling rule does not apply to residential building classes 1 and 2 either. Not checked by this pack: stair headroom,…"
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "Bauministerkonferenz (ARGEBAU); DIN; DIBt (MVV TB), Musterbauordnung (MBO) and DIN 18065:2020-08 Gebäudetreppen (model)",
+    "url": "https://www.bauministerkonferenz.de/verzeichnis.aspx?id=991&o=759O986O991",
+    "date": "2024-09-27",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "DIN 18065 Table 1",
+      "label": "Riser height",
+      "note": "Up to two dwellings / inside dwellings; 190 mm in other buildings. Stride rule 2s + a = 590-650 mm.",
+      "value": 200
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "DIN 18065 Table 1",
+      "label": "Tread depth (going)",
+      "note": "Required stairs, up to two dwellings / inside dwellings; 260 mm in other buildings.",
+      "value": 230
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "DIN 18065 Table 1",
+      "label": "Stair width",
+      "note": "Usable width, up to two dwellings / inside dwellings; 1000 mm in other buildings.",
+      "value": 800
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "DIN 18065 6.10.1",
+      "label": "Handrail height",
+      "note": "From secondary sources.",
+      "min": 800,
+      "max": 1150
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "MBO § 47(1)",
+      "label": "Ceiling height",
+      "note": "Attic rooms 2.20 m over half the floor area. Does not apply to residential buildings of building classes 1 and 2.",
+      "value": 2400
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "MBO § 47(2)",
+      "label": "Glazing, share of floor area",
+      "note": "Window openings (structural size) at least 1/8 of the net floor area.",
+      "value": 12.5
+    }
+  ]
+}

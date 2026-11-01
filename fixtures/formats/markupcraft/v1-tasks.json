@@ -1,0 +1,133 @@
+{
+ "format": "markupcraft-markups",
+ "version": 1,
+ "pdf": "",
+ "autoClose": false,
+ "tasks": [
+  {
+   "id": "mc-n2",
+   "sheet": "S1",
+   "kind": "note",
+   "text": "Check door",
+   "task": {
+    "title": "Door width",
+    "assignee": {
+     "kind": "assistant",
+     "name": "Claude"
+    },
+    "due": "",
+    "state": "Done",
+    "created": "2026-10-30T22:39:13Z",
+    "by": "Ann",
+    "link": {
+     "kind": "element",
+     "app": "bimcraft",
+     "file": "house.ifc",
+     "element": "2O2Fr$t4X7Zf8NOew3FLOH",
+     "label": "Door D4",
+     "state": {
+      "width": 900,
+      "hand": "left"
+     },
+     "tol": 1,
+     "at": "2026-10-28T09:00:00Z"
+    },
+    "closed": {
+     "at": "2026-10-30T22:39:13Z",
+     "how": "change",
+     "who": "MarkupCraft",
+     "summary": "The element changed: width 900 → 800."
+    }
+   },
+   "rule": "close-on-change",
+   "history": [
+    {
+     "id": "mc-mvvk10na-1g6m12j1ql22",
+     "author": "MarkupCraft",
+     "date": "2026-10-30T22:39:13Z",
+     "kind": "status",
+     "status": "Completed",
+     "text": "reply.status.by"
+    },
+    {
+     "id": "mc-mvvk10na-gmvupz15cp3",
+     "author": "MarkupCraft",
+     "date": "2026-10-30T22:39:13Z",
+     "kind": "comment",
+     "status": "",
+     "text": "Closed because the linked element changed. The element changed: width 900 → 800."
+    }
+   ]
+  },
+  {
+   "id": "mc-r1",
+   "sheet": "S1",
+   "kind": "rect",
+   "text": "Wall moved",
+   "task": {
+    "title": "Move the wall 300 mm",
+    "assignee": {
+     "kind": "person",
+     "name": "Cy"
+    },
+    "due": "2026-11-05",
+    "state": "Done",
+    "created": "2026-10-30T22:39:13Z",
+    "by": "Ann",
+    "link": {
+     "kind": "region",
+     "file": "plan-A.pdf",
+     "sheet": "A101",
+     "label": "north wall",
+     "rect": [
+      10,
+      10,
+      80,
+      60
+     ],
+     "segs": [
+      [
+       10,
+       10,
+       80,
+       10
+      ],
+      [
+       80,
+       10,
+       80,
+       60
+      ]
+     ],
+     "at": "2026-10-28T09:00:00Z"
+    },
+    "closed": {
+     "at": "2026-10-30T22:39:13Z",
+     "how": "change",
+     "who": "MarkupCraft",
+     "summary": "The drawing in the marked area changed: 4 points of line put in."
+    }
+   },
+   "rule": "close-on-change",
+   "history": [
+    {
+     "id": "mc-mvvk10na-14a9pv06t4l0",
+     "author": "MarkupCraft",
+     "date": "2026-10-30T22:39:13Z",
+     "kind": "status",
+     "status": "Completed",
+     "text": "reply.status.by"
+    },
+    {
+     "id": "mc-mvvk10na-1kh4vqw94jt1",
+     "author": "MarkupCraft",
+     "date": "2026-10-30T22:39:13Z",
+     "kind": "comment",
+     "status": "",
+     "text": "Closed because the linked drawing area changed. The drawing in the marked area changed: 4 points of line put in."
+    }
+   ]
+  }
+ ],
+ "saved": "2026-10-30T12:00:00Z"
+}

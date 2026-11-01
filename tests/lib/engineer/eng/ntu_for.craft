@@ -1,0 +1,58 @@
+% ntu_for — the NTU a heat exchanger needs for a given effectiveness
+%
+% Usage:      NTU = ntu_for(eps, Cr, arrangement)       arrangement as in effectiveness
+% Computes:   counter:  ln( (1 - eps Cr) / (1 - eps) ) / (1 - Cr), and eps / (1 - eps) when Cr = 1
+%             parallel: -ln( 1 - eps (1 + Cr) ) / (1 + Cr)         (needs eps < 1 / (1 + Cr))
+%             shell:    -ln( (E - 1) / (E + 1) ) / c, E = (2/eps - (1 + Cr)) / c, c = sqrt(1 + Cr^2)
+%             single:   -ln(1 - eps)
+%             crossflow: no closed form: found by bisection on effectiveness (60 halvings, the same bits every run).
+% Method:     the inversions of the epsilon-NTU relations of effectiveness.
+% Units:      none.
+% Limits:     0 < eps < 1, and below the limit the arrangement can reach (parallel flow cannot pass 1 / (1 + Cr)): the function
+%             stops with an error saying so.
+% References: Incropera et al., 7th ed., Table 11.4.
+% Check:      eps 0.5647 at Cr 0.5 counterflow: NTU = 1.000; every arrangement round-trips through effectiveness (tools/field-test/eng.mjs).
+function NTU = ntu_for(eps, Cr, arrangement)
+if ~(eps > 0 && eps < 1)
+  error('ntu_for: the effectiveness is between 0 and 1');
+end
+switch arrangement
+  case 'counter'
+    if abs(1 - Cr) < 1e-9
+      NTU = eps / (1 - eps);
+    else
+      NTU = log((1 - eps * Cr) / (1 - eps)) / (1 - Cr);
+    end
+  case 'parallel'
+    if eps >= 1 / (1 + Cr)
+      error('ntu_for: parallel flow cannot reach an effectiveness of 1 / (1 + Cr)');
+    end
+    NTU = -log(1 - eps * (1 + Cr)) / (1 + Cr);
+  case 'shell'
+    c = sqrt(1 + Cr ^ 2);
+    E = (2 / eps - (1 + Cr)) / c;
+    if E <= 1
+      error('ntu_for: this effectiveness is more than a shell-and-tube exchanger can give');
+    end
+    NTU = -log((E - 1) / (E + 1)) / c;
+  case 'single'
+    NTU = -log(1 - eps);
+  case 'crossflow'
+    lo = 0;
+    hi = 1000;
+    if effectiveness(hi, Cr, 'crossflow') < eps
+      error('ntu_for: this effectiveness is more than the arrangement can give');
+    end
+    for k = 1:60
+      mid = (lo + hi) / 2;
+      if effectiveness(mid, Cr, 'crossflow') < eps
+        lo = mid;
+      else
+        hi = mid;
+      end
+    end
+    NTU = (lo + hi) / 2;
+  otherwise
+    error('ntu_for: the arrangement is counter, parallel, shell, crossflow or single');
+end
+end

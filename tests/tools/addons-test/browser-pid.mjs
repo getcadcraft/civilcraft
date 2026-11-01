@@ -60,7 +60,7 @@ try {
   me = await page.evaluate(() => window.ccAddons.list().find((a) => a.id === 'pid'));
   ok(me?.state === 'active', 'switched on: active', JSON.stringify(me && [me.state, me.detail]));
   const ui = await page.evaluate(() => ({ panel: document.querySelectorAll('[data-addon-section="pid:pid"] [data-pid-cmd]').length }));
-  ok(ui.panel === 6, 'the P&ID section of the right panel has its six actions', JSON.stringify(ui));
+  ok(ui.panel === 19, 'the P&ID section of the right panel has its nineteen actions (13 + the six of chem-draw_PART_4)', JSON.stringify(ui));
 
   // the showcase drawing, through the file input
   await page.setInputFiles('[data-file]', path.join(ROOT, 'fixtures/showcase/cadcraft-pid-plant.dwg'));

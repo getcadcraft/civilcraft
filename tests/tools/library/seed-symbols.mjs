@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* SPDX-License-Identifier: Apache-2.0 */
 /**
- * seed-symbols.mjs — the six generic seed items (docs/LIBRARY-SPEC.md §4.9) drawn as real plan symbols, the way a
+ * seed-symbols.mjs — the six generic seed items (and, since 0.8 SU.766, ten stage-lighting symbols) (docs/LIBRARY-SPEC.md §4.9) drawn as real plan symbols, the way a
  * foodservice consultant draws them, written as format-1 item.json files ready to publish.
  *
  *   node tools/library/seed-symbols.mjs [--out tools/library/seed] [--check]
@@ -201,10 +201,41 @@ const SYMBOLS = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// The ten stage-lighting symbols (0.8 SU.766, session cad-addons-08): the same drawings the Lighting plots add-on uses, written as library items
+// (category symbols/electrical, kind symbol). They are millimetres already; the fixture aims along -Y here (its front), back edge at y = 0.
+const LX = await import(pathToFileURL(path.join(REPO, 'public_html/assets/apps/cadcraft/dev/addons/lighting/lib/draw.js')).href);
+const lxSymbol = (key) => (w, d) => {
+  // turn -90°: (x, y) → (y, -x); then lift so the top edge is y = 0
+  const turn = LX.SYMBOLS[key]().map((e) => {
+    if (e.type === 'line') return { type: 'line', x1: e.y1, y1: -e.x1, x2: e.y2, y2: -e.x2 };
+    if (e.type === 'circle') return { type: 'circle', x: e.cy, y: -e.cx, r: e.r };
+    if (e.type === 'arc') return { type: 'arc', x: e.cy, y: -e.cx, r: e.r, a0: (e.a0 * 180) / Math.PI - 90, a1: (e.a1 * 180) / Math.PI - 90 };
+    return { type: 'poly', closed: e.closed, pts: e.pts.map((p) => [p.y, -p.x]) };
+  });
+  let top = -Infinity;
+  for (const e of turn) {
+    if (e.type === 'line') top = Math.max(top, e.y1, e.y2);
+    else if (e.type === 'poly') for (const p of e.pts) top = Math.max(top, p[1]);
+    else top = Math.max(top, e.y + e.r);
+  }
+  const ents = turn.map((e) => {
+    const base = { layer: 'EQUIP', color: null };
+    if (e.type === 'line') return { type: 'line', ...base, x1: r4(e.x1), y1: r4(e.y1 - top), x2: r4(e.x2), y2: r4(e.y2 - top) };
+    if (e.type === 'poly') return { type: 'poly', ...base, closed: e.closed, pts: e.pts.map(([x, y]) => [r4(x), r4(y - top)]) };
+    return { type: e.type, ...base, x: r4(e.x), y: r4(e.y - top), r: r4(e.r), ...(e.type === 'arc' ? { a0: e.a0, a1: e.a1 } : {}) };
+  });
+  void w; void d;
+  return { entities: ents, clearances: [], changelog: 'Drew the plan symbol for stage lighting plots (the same drawing the Lighting plots add-on uses).' };
+};
+for (const key of ['profile', 'fresnel', 'pc', 'par', 'cyc', 'blinder', 'scoop', 'follow', 'led', 'mover']) SYMBOLS['lx-' + key] = lxSymbol(key);
+
 /** Which symbol a CSV row is (by its name; the CSV is ours). */
 const KEY_OF = [
   [/work table/i, 'work-table'], [/three-compartment sink/i, 'three-compartment-sink'], [/hand sink/i, 'hand-sink'],
   [/reach-in/i, 'reach-in'], [/range/i, 'range'], [/wall shelf/i, 'wall-shelf'],
+  [/profile/i, 'lx-profile'], [/fresnel/i, 'lx-fresnel'], [/PC spotlight/i, 'lx-pc'], [/PAR can/i, 'lx-par'], [/cyc light/i, 'lx-cyc'], [/blinder/i, 'lx-blinder'],
+  [/scoop/i, 'lx-scoop'], [/followspot/i, 'lx-follow'], [/LED wash/i, 'lx-led'], [/moving head/i, 'lx-mover'],
 ];
 
 const csv = fs.readFileSync(path.join(HERE, 'seed.csv'), 'utf8');

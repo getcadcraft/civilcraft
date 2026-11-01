@@ -169,7 +169,7 @@ function loopUV(S, pts, seam2 = -1) {
     const s = S.singular(pts[i]);
     let q = S.project(pts[i], hint);
     uv.push(q); p3.push(pts[i]); sing.push(!!s);
-    if (!s) hint = q;
+    hint = s ? null : q;   // past a pole the next point may be on any side of it: a fresh guess, not the last point's
   }
   // unwrap: each coordinate nearest the previous non-pole point
   for (let i = 1; i < n; i++) {
@@ -186,6 +186,16 @@ function loopUV(S, pts, seam2 = -1) {
     for (let i = 0; i < n; i++) { const a = uv[i][k], b = uv[(i + 1) % n][k]; tot += wrapNear(b, a, P) - a; }
     const turn = Math.round(tot / P);
     if (turn) for (let i = seam2; i < n; i++) uv[i][k] -= turn * P;
+  }
+  // a closed surface written as one face whose loop runs pole → pole along the seam and back along the same seam (a revolved
+  // profile from axis to axis: two edges with the same points, not one seam edge used twice): the pass after the pole is one
+  // period on, so the loop encloses the whole surface instead of nothing
+  if (seam2 < 0 && S.periodU && sing.some(Boolean)) {
+    const runs = [];
+    for (let i = 0; i < n; i++) { if (sing[i]) continue; if (!runs.length || sing[i - 1] || i === 0) runs.push([]); runs[runs.length - 1].push(i); }
+    const flat = (r) => { const us = r.map((i) => uv[i][0]); return Math.max(...us) - Math.min(...us) < 1e-6 * S.periodU; };
+    const mean = (r) => r.reduce((a, i) => a + uv[i][0], 0) / r.length;
+    if (runs.length === 2 && runs.every((r) => r.length >= 2 && flat(r)) && Math.abs(mean(runs[0]) - mean(runs[1])) < 1e-6 * S.periodU) for (const i of runs[1]) uv[i][0] += S.periodU;
   }
   // poles: u from the neighbours (the pole becomes a short line along it)
   const outUV = [], out3 = [];
@@ -608,3 +618,4 @@ function densify(S, uvs, M, p3s, isB, tris, rings, { tol, su, sv, SW, swap, maxP
   }
   return T;
 }
+

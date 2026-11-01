@@ -62,9 +62,14 @@ def run(j):
         return {'pts': pts(t, j['pts']), 'desc': t.description}
     if op == 'own':
         c = crs(j['code'])
-        return {'pts': pts(tr(c.geodetic_crs, c), j['pts'])}
+        r = pts(tr(c.geodetic_crs, c), j['pts'])
+        # west/south systems (SA Lo zones, 0.8 ZA.1): the catalog keeps east/north, so PROJ's westing/southing are negated
+        if [a.direction for a in c.axis_info][:2] == ['west', 'south']: r = [None if p is None else [-p[0], -p[1]] for p in r]
+        return {'pts': r}
     if op == 'proj4':
-        return {'pts': pts(tr(WGS, CRS.from_proj4(j['def'])), j['pts'])}
+        # same normalisation as make-crs-db.py: the app treats NAD83 as WGS 84 where PROJ would pick regional shifts (Hawaii, Alaska)
+        d = j['def'].replace('+datum=NAD83', '+ellps=GRS80 +towgs84=0,0,0')
+        return {'pts': pts(tr(WGS, CRS.from_proj4(d)), j['pts'])}
     if op == 'between':
         t = tr(crs(j['a']), crs(j['b']))
         return {'pts': pts(t, j['pts']), 'desc': t.description}

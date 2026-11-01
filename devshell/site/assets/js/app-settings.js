@@ -15,6 +15,8 @@
  *                 outside a control; "autohide" hides the bars in the window right away.
  *   tb, tbGroups  toolbar buttons: icons and labels / icons only / labels only; group names on or off
  *   tbTouch       on a touch screen (html.cc-touch, app-phone.js): the toolbar is one row that swipes ('row') or wraps ('wrap')
+ *   tbRows        0.8 CP.1(d): toolbar rows 'wrap' (default) | '2' | '1' → body[data-shell-tb-rows] (app-shell.css § Toolbar rows); CadCraft has its own
+ *                 in its tab (.cc[data-toolbar-rows]) and the shell's row hides there
  *   order         toolbar order: "Arrange the toolbar…" lets tools be dragged within their group and
  *                 groups by their name (arrow keys move the focused one). Saved as keys (data-* of each
  *                 item, aria-label of each group); new items keep their place, gone ones are ignored.
@@ -62,7 +64,7 @@
   var root = document.documentElement;
   var form = dlg.querySelector('form');
   var KEY = 'cc-app-settings:' + dlg.getAttribute('data-app');
-  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', order: null, tab: 'app', secs: null, layoutAt: 0, tbLock: false, ui: 1, density: 'comfortable' };
+  var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', tbRows: 'wrap', order: null, tab: 'app', secs: null, layoutAt: 0, tbLock: false, ui: 1, density: 'comfortable' };
   var UI = dlg.hasAttribute('data-shell-ui');   // 0.6 layout tools (see the header)
   var DENSITY = dlg.hasAttribute('data-shell-07');   // 0.7 PANEL-COMPACT (dev builds and releases from 0.7 on)
   var RESET_KEY = 'cc-layout-reset';
@@ -83,6 +85,7 @@
       if (['both', 'icons', 'labels'].indexOf(v.tb) !== -1) out.tb = v.tb;
       if (typeof v.tbGroups === 'boolean') out.tbGroups = v.tbGroups;
       if (v.tbTouch === 'row' || v.tbTouch === 'wrap') out.tbTouch = v.tbTouch;
+      if (v.tbRows === 'wrap' || v.tbRows === '2' || v.tbRows === '1') out.tbRows = v.tbRows;
       if (v.order && typeof v.order === 'object') out.order = v.order;
       if (v.tab === 'app' || v.tab === 'general') out.tab = v.tab;
       if (v.secs && typeof v.secs === 'object') ['app', 'general'].forEach(function (k) { var n = v.secs[k]; if (typeof n === 'number' && n >= 0 && n < 200 && n % 1 === 0) { out.secs = out.secs || {}; out.secs[k] = n; } });
@@ -391,11 +394,32 @@
     save();
     relayoutSoon();
   }
+  /** 0.8 CP.1(d): body[data-shell-tb-rows] = "1" | "2". A bar that already fits in two lines (or one) when wrapped stays as it is for "2":
+   *  a two-row grid would only make it taller (CadCraft's data-rows-wrap rule). Measured with the attribute off. */
+  function applyRows() {
+    if (!DENSITY) return;
+    var want = s.tbRows;
+    if (want === '2' && tb && shown(tb)) {
+      body.removeAttribute('data-shell-tb-rows');
+      var tops = {}, n = 0;
+      for (var i = 0; i < tb.children.length; i++) {
+        var k = tb.children[i];
+        if (!k.getClientRects().length) continue;
+        var t = Math.round(k.getBoundingClientRect().top / 4);
+        if (!tops[t]) { tops[t] = 1; n++; }
+      }
+      if (n <= 2) want = 'wrap';
+    }
+    if (want === 'wrap') body.removeAttribute('data-shell-tb-rows');
+    else if (body.getAttribute('data-shell-tb-rows') !== want) body.setAttribute('data-shell-tb-rows', want);
+  }
+  window.addEventListener('resize', function () { if (s.tbRows === '2') requestAnimationFrame(applyRows); });
   function applyTb() {
     if (!tb) return;
     body.setAttribute('data-shell-tb', s.tb);
     body.classList.toggle('shell-tb-nogroups', !s.tbGroups);
     body.setAttribute('data-shell-tb-touch', s.tbTouch);
+    applyRows();
     body.classList.toggle('shell-tb-locked', UI && !!s.tbLock);
     relayoutSoon();
   }
@@ -841,6 +865,7 @@
     form.querySelectorAll('input[name="tb"]').forEach(function (r) { r.checked = r.value === s.tb; });
     form.elements.tbGroups.checked = s.tbGroups;
     form.querySelectorAll('input[name="tbTouch"]').forEach(function (r) { r.checked = r.value === s.tbTouch; });
+    form.querySelectorAll('input[name="tbRows"]').forEach(function (r) { r.checked = r.value === s.tbRows; });
     var touchRow = form.querySelector('[data-tb-touch-row]');
     if (touchRow) { var coarse = false; try { coarse = matchMedia('(pointer: coarse)').matches; } catch (e) {} touchRow.hidden = !coarse; }   // i18n-ignore (CSS)
     form.querySelector('[data-tb-arrange]').disabled = !!tb && (!shown(tb) || (UI && s.tbLock));
@@ -1005,6 +1030,7 @@
     else if (t.name === 'tb') { s.tb = t.value; applyTb(); save(); }
     else if (t.name === 'tbGroups') { s.tbGroups = t.checked; applyTb(); save(); }
     else if (t.name === 'tbTouch') { s.tbTouch = t.value; applyTb(); save(); }
+    else if (t.name === 'tbRows') { s.tbRows = t.value; applyTb(); save(); }
     else if (t.name === 'tbLock') { setLock(t.checked); syncForm(); }
     else if (t.name === 'left' || t.name === 'right') { setWidth(t.name, parseFloat(t.value), true); }
     else if (t.name === 'lang') setLang(t.value);
@@ -1056,7 +1082,7 @@
     resetOrder(true);
     s.tbLock = false;
     if (window.ccInput && ccInput.setRibbon) ccInput.setRibbon(false);
-    s.tb = DEFAULTS.tb; s.tbGroups = DEFAULTS.tbGroups; s.tbTouch = DEFAULTS.tbTouch;
+    s.tb = DEFAULTS.tb; s.tbGroups = DEFAULTS.tbGroups; s.tbTouch = DEFAULTS.tbTouch; s.tbRows = DEFAULTS.tbRows;
     s.left = null; s.right = null; s.screen = 'normal';
     s.layoutAt = at || Date.now();
     save();

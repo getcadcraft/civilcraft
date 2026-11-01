@@ -44,6 +44,8 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
 .app-bar-ver a:hover { background: var(--sheet); text-decoration: underline; }
 .app-bar-ver a[aria-current="page"] { font-weight: 700; border-left-color: var(--layer); }
 .app-bar-ver .n { margin-left: auto; color: var(--ink-2); font-weight: 500; }
+/* the lab's build stamp (owner 2026-10-27): the dev build's short hash beside "dev"; the time of the newest change in the menu and the tooltip */
+.app-bar-ver .app-bar-stamp { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 500; color: var(--ink-2); }
 .app-bar-older { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
 .app-bar-links { display: flex; gap: 1.1rem; margin-left: auto; font-size: var(--fs-sm); }
 .app-bar-links a { color: var(--ink-2); }
@@ -324,6 +326,12 @@ body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user
 .shell-check { display: flex; gap: .5rem; align-items: baseline; cursor: pointer; }
 .shell-check input { accent-color: var(--layer); }
 .shell-hint-text { margin: 0; color: var(--ink-2); }
+/* Settings › Version (owner 2026-10-28): which build this is, always reachable (layouts can hide the bar's version chip) */
+.shell-version { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; margin: 0; }
+.shell-version dt { font-weight: 600; color: var(--ink-2); }
+.shell-version dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; user-select: text; }
+.shell-version code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.shell-version-list { display: flex; flex-wrap: wrap; gap: .25rem .9rem; margin: 0; padding: 0; list-style: none; }
 @media (max-width: 480px) {
   .shell-seg, .shell-row { grid-template-columns: minmax(0, 1fr); }
 }
@@ -1087,3 +1095,30 @@ html[data-cc-ws-boot] #main,html[data-cc-ws-boot] body>.app-bar{visibility:hidde
 /* ?embed=1 (lab): the app inside a frame of SuperCad Studio, which has its own bar */
 body.app-embedded > .app-bar { display: none; }
 body.app-embedded .staff-panel, body.app-embedded [data-staff-panel] { display: none; }
+
+/* ---------------------------------------------------------------------------------------------------------------------
+   Toolbar rows (0.8 CP.1(d), session shell-08): Settings › General › Toolbar rows. body[data-shell-tb-rows] is "2" or "1" (Wrap = no
+   attribute = the bar as the app draws it). 1 = one line that scrolls sideways; 2 = the groups fill two lines, column by column, and
+   scroll sideways when they do not fit. Fine pointers on wide windows only: touch has its own one-row/wrap choice and phones their own bar.
+   CadCraft draws its own (.cc[data-toolbar-rows], its tab in Settings) and hides this row. */
+body:has(.cc[data-toolbar-rows]) [data-tb-rows-row] { display: none; }
+html.cc-phone [data-tb-rows-row], html.cc-touch [data-tb-rows-row] { display: none; }
+html:not(.cc-phone):not(.cc-touch) body[data-shell-tb-rows="1"]:not(:has(.cc[data-toolbar-rows])) .shell-tb {
+  display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; min-width: 0; max-width: 100%;
+}
+html:not(.cc-phone):not(.cc-touch) body[data-shell-tb-rows="1"]:not(:has(.cc[data-toolbar-rows])) .shell-tb > * { flex-shrink: 0; }
+html:not(.cc-phone):not(.cc-touch) body[data-shell-tb-rows="2"]:not(:has(.cc[data-toolbar-rows])) .shell-tb {
+  display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, auto); grid-auto-columns: max-content;
+  align-items: start; overflow-x: auto; scrollbar-width: thin; min-width: 0; max-width: 100%;
+}
+
+/* ---- 0.8 Track ID: Settings › Global › Input devices (assets/js/app-devices-ui.js; one card per device) ---- */
+.shell-dev { border: var(--pen-1) solid var(--line); border-radius: var(--radius); margin: .4rem 0; }
+.shell-dev > summary { cursor: pointer; padding: .4rem .6rem; display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; }
+.shell-dev-name { font-weight: 600; }
+.shell-dev-state { margin-left: auto; }
+.shell-dev-body { padding: .2rem .6rem .6rem; display: grid; gap: .35rem; }
+.shell-dev-axis { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.shell-dev-axis > label:first-child { min-width: 9rem; }
+.shell-dev-binds { list-style: none; padding: 0; margin: 0; display: grid; gap: .25rem; }
+.shell-dev-binds li { display: flex; gap: .4rem; align-items: center; }

@@ -32,6 +32,11 @@ import { t } from "./i18n.js";
 import { parseXml, kids, kid, textOf, esc } from './xml.js';
 import { METRES_PER } from './units.js';
 import { groupKey } from './points.js';
+import { cubicParamFor } from './alignment.js';   // 0.7.1 71.26: rail transitions in and out
+
+/** 0.7.1 71.26: LandXML spiType ↔ alignment.js transition kinds (other spiral types are named and skipped on reading). */
+export const SPI_TYPES = { clothoid: 'clothoid', cubic: 'cubicParabola', bloss: 'bloss', helmert: 'biquadratic', sinehalf: 'cosine', sine: 'sinusoid' };
+const SPI_READ = Object.fromEntries(Object.entries(SPI_TYPES).map(([k, v]) => [v.toLowerCase(), k]));
 
 const NS = 'http://www.landxml.org/schema/LandXML-1.2';
 const num = (v, d = 6) => {
@@ -87,7 +92,7 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
         } else if (e.type === 'spiral') {
           // 0.7 D7.35: a clothoid. Radius INF at the straight end; theta in decimal degrees like Curve's delta; PI = where the end tangents meet
           const inn = e.io === 'in';
-          L.push(`        <Spiral rot="${e.ccw ? 'ccw' : 'cw'}" spiType="clothoid" length="${num(e.len)}" radiusStart="${inn ? 'INF' : num(e.r)}" radiusEnd="${inn ? num(e.r) : 'INF'}" staStart="${num(e.sta)}" theta="${num(e.theta * 180 / Math.PI, 8)}" totalX="${num(e.Xc)}" totalY="${num(e.Yc)}" tanLong="${num(e.tanLong)}" tanShort="${num(e.tanShort)}" constant="${num(Math.sqrt(e.r * e.Ls))}">` +
+          L.push(`        <Spiral rot="${e.ccw ? 'ccw' : 'cw'}" spiType="${SPI_TYPES[e.tr] || 'clothoid'}" length="${num(e.len)}" radiusStart="${inn ? 'INF' : num(e.r)}" radiusEnd="${inn ? num(e.r) : 'INF'}" staStart="${num(e.sta)}" theta="${num(e.theta * 180 / Math.PI, 8)}" totalX="${num(e.Xc)}" totalY="${num(e.Yc)}" tanLong="${num(e.tanLong)}" tanShort="${num(e.tanShort)}"${!e.tr || e.tr === 'clothoid' ? ` constant="${num(Math.sqrt(e.r * e.Ls))}"` : ''}>` +
             `<Start>${ne(e.p0)}</Start><PI>${ne(e.pi)}</PI><End>${ne(e.p1)}</End></Spiral>`);
         } else {
           L.push(`        <Curve rot="${e.ccw ? 'ccw' : 'cw'}" crvType="arc" radius="${num(e.r)}" length="${num(e.len)}" staStart="${num(e.sta)}" chord="${num(e.chord)}" delta="${num(e.delta * 180 / Math.PI, 8)}" tangent="${num(e.T)}" external="${num(e.E)}" midOrd="${num(e.M)}">` +
@@ -165,7 +170,7 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
     if (structs.length < 2 || !pipes.length) continue;
     const sName = new Map(structs.map((x) => [x.id, x.name]));
     L.push(`  <PipeNetworks name="${esc(name)}">`);
-    L.push(`    <PipeNetwork name="${esc(n.name)}" pipeNetType="${n.type === 'sanitary' ? 'sanitary' : 'storm'}">`);
+    L.push(`    <PipeNetwork name="${esc(n.name)}" pipeNetType="${n.type === 'sanitary' ? 'sanitary' : n.type === 'water' ? 'water' : 'storm'}">`);
     L.push('      <Structs>');
     for (const x of structs) {
       const inv = [];
@@ -181,7 +186,7 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
       const shapeEl = !k ? `<CircStruct diameter="${num(x.dia)}"/>`
         : k.shape === 'rect' ? `<RectStruct length="${num(k.l)}" width="${num(k.w)}" thickness="${num(k.wall || 0)}" desc="${esc(k.name)}"/>`
         : `<CircStruct diameter="${num(k.dia)}" thickness="${num(k.wall || 0)}" desc="${esc(k.name)}"/>`;
-      L.push(`        <Struct name="${esc(x.name)}"${rim}${sump}><Center>${ne(x)}</Center>${shapeEl}${inv.join('')}</Struct>`);
+      L.push(`        <Struct name="${esc(x.name)}"${x.desc ? ` desc="${esc(x.desc)}"` : ''}${rim}${sump}><Center>${ne(x)}</Center>${shapeEl}${inv.join('')}</Struct>`);
     }
     L.push('      </Structs>');
     L.push('      <Pipes>');
@@ -314,7 +319,7 @@ export function readLandXml(text) {
     if (!cg) { note(t('lx.al.nogeom', { name })); continue; }
     const els = cg.children.filter((c) => ['Line', 'Curve', 'Spiral', 'IrregularLine', 'Chain'].includes(c.name));
     if (els.some((e) => e.name !== 'Line' && e.name !== 'Curve' && e.name !== 'Spiral')) { note(t('lx.al.spirals', { name })); continue; }
-    const odd = els.find((e) => e.name === 'Spiral' && String(e.attrs.spiType || 'clothoid').toLowerCase() !== 'clothoid');
+    const odd = els.find((e) => e.name === 'Spiral' && !SPI_READ[String(e.attrs.spiType || 'clothoid').toLowerCase()]);   // 0.7.1 71.26: rail kinds read too
     if (odd) { note(t('lx.al.spitype', { name, type: odd.attrs.spiType })); continue; }
     const pt = (el, tag) => { const v = nums(textOf(kid(el, tag))); return v.length >= 2 ? { x: v[1], y: v[0] } : null; };
     const pis = readCoordGeom(els, pt);
@@ -342,8 +347,8 @@ export function readLandXml(text) {
   }
   out.networks = [];
   for (const pns of kids(root, 'PipeNetworks')) for (const pn of kids(pns, 'PipeNetwork')) {
-    const net = { name: pn.attrs.name || t('lx.def.network'), type: pn.attrs.pipeNetType === 'sanitary' ? 'sanitary' : 'storm', structures: [], pipes: [] };
-    if (!['storm', 'sanitary'].includes(pn.attrs.pipeNetType)) note(pn.attrs.pipeNetType ? t('lx.net.type', { name: net.name, type: pn.attrs.pipeNetType }) : t('lx.net.untyped', { name: net.name }));
+    const net = { name: pn.attrs.name || t('lx.def.network'), type: pn.attrs.pipeNetType === 'sanitary' ? 'sanitary' : pn.attrs.pipeNetType === 'water' ? 'water' : 'storm', structures: [], pipes: [] };   // 0.8 LC.16 rest: a water network is read as water mains
+    if (!['storm', 'sanitary', 'water'].includes(pn.attrs.pipeNetType)) note(pn.attrs.pipeNetType ? t('lx.net.type', { name: net.name, type: pn.attrs.pipeNetType }) : t('lx.net.untyped', { name: net.name }));
     const byName = new Map(), inv = new Map();
     let k = 0;
     for (const sts of kids(pn, 'Structs')) for (const st of kids(sts, 'Struct')) {
@@ -487,8 +492,12 @@ function readCoordGeom(els, pt) {
       const r = Number(cv?.attrs.radius) || Number((sIn || sOut).attrs.radiusEnd) || Number(sOut?.attrs.radiusStart);
       if (!pi || !(r > 0)) return null;
       const rec = { x: pi.x, y: pi.y, r };
-      if (sIn) rec.ls1 = Number(sIn.attrs.length) || 0;
-      if (sOut) rec.ls2 = Number(sOut.attrs.length) || 0;
+      // 0.7.1 71.26: the kind (the first spiral's when the two differ: one PI has one kind); a cubic parabola's length is its curve's
+      const tr = SPI_READ[String((sIn || sOut).attrs.spiType || 'clothoid').toLowerCase()] || 'clothoid';
+      const lsOf = (e) => { const v = Number(e.attrs.length) || 0; return tr === 'cubic' && v > 0 ? cubicParamFor(r, v) : v; };
+      if (sIn) rec.ls1 = lsOf(sIn);
+      if (sOut) rec.ls2 = lsOf(sOut);
+      if (tr !== 'clothoid') rec.tr = tr;
       pis.push(rec);
     }
     i = j;
@@ -522,7 +531,7 @@ export function scaleImport(d, k) {
   d.points = d.points.map(p);
   for (const s of d.surfaces) { s.pts = s.pts.map(p); s.breaklines = s.breaklines.map((b) => ({ ...b, pts: b.pts.map(p) })); s.boundary = s.boundary && s.boundary.map(p); }
   for (const a of d.alignments) {
-    a.start *= k; a.pis = a.pis.map((q) => ({ ...p(q), r: q.r * k, ...(q.ls1 ? { ls1: q.ls1 * k } : {}), ...(q.ls2 ? { ls2: q.ls2 * k } : {}) }));
+    a.start *= k; a.pis = a.pis.map((q) => ({ ...p(q), r: q.r * k, ...(q.ls1 ? { ls1: q.ls1 * k } : {}), ...(q.ls2 ? { ls2: q.ls2 * k } : {}), ...(q.tr ? { tr: q.tr } : {}) }));
     for (const pr of a.profiles) pr.pvis = pr.pvis.map((v) => ({ sta: v.sta * k, z: v.z * k, L: v.L * k }));
     for (const ps of a.surfProfiles) ps.pts = ps.pts.map((v) => ({ sta: v.sta * k, z: v.z * k }));
   }

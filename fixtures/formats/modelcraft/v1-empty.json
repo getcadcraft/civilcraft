@@ -1,0 +1,21 @@
+{
+ "format": "modelcraft",
+ "version": 1,
+ "units": "ft-in",
+ "nextId": 1,
+ "defs": [
+  {
+   "id": "root",
+   "kind": "root",
+   "name": "Model",
+   "next": 1,
+   "verts": [],
+   "edges": [],
+   "faces": [],
+   "insts": []
+  }
+ ],
+ "guides": [],
+ "dims": [],
+ "scenes": []
+}

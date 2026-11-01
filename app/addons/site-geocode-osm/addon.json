@@ -1,0 +1,14 @@
+{
+  "id": "site-geocode-osm",
+  "name": "Address search (OpenStreetMap)",
+  "version": "0.8.0",
+  "apps": ["civilcraft"],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["network"],
+  "description": "Finds the latitude and longitude of an address with OpenStreetMap data (ODbL). The address goes to getcadcraft.com, which asks OpenStreetMap's Nominatim service for you (one request a second at most, answers kept 90 days so the same address is never asked twice; only a hash of the address is stored, never who asked). It asks only when you press its button in Surface › More › Address to site; nothing is sent at start-up, no key is used, and the answer is kept 24 hours in this browser.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

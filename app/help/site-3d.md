@@ -3,14 +3,14 @@ title: View the site in 3D
 summary: Open the 3D view, orbit, pan and zoom, set the vertical exaggeration and colouring, choose what shows, and click alignments, pads, feature lines, breaklines, pipes, structures and points to select them.
 section: tasks
 order: 125
-keywords: labels, 3d labels, billboard, labels facing the camera, station labels, contour labels, point labels, drape, aerial, map layers on the surface, 3d, three d, 3d view, view cube, compass, orbit, perspective, parallel, isometric, iso, vertical exaggeration, terrain, model, site model, fly around, visualize, render, pipes in 3d, structures, manholes, corridor 3d
+keywords: labels, 3d labels, billboard, labels facing the camera, station labels, contour labels, point labels, drape, aerial, map layers on the surface, 3d, three d, 3d view, view cube, compass, orbit, perspective, parallel, isometric, iso, vertical exaggeration, terrain, model, site model, fly around, visualize, render, pipes in 3d, structures, manholes, corridor 3d, road in 3d, road surface, lanes, curbs, sidewalks, plants in 3d, trees in 3d, shrubs, hedges, landscape 3d, ramps in 3d, steps, walls, paving, hardscape 3d
 ---
 
-The 3D view shows the site as one model: the existing ground and the graded surface, contours draped on them, breaklines and the surface edge, each alignment on its design profile with station ticks, the corridor feature lines, pads with their daylight lines, and the pipe network with pipes and structures at their real elevations. It reads the same project as the plan, so every edit shows in both.
+The 3D view shows the site as one model: the existing ground and the graded surface, contours draped on them, breaklines and the surface edge, each alignment on its design profile with station ticks, the corridor feature lines and the road itself (lanes, shoulders, gutters, curbs, strips and sidewalks in their own colours), pads with their daylight lines, the pipe network with pipes and structures at their real elevations, and from the Landscape workspace the plants, paving, paths, walls, kerbs, ramps and steps. It reads the same project as the plan, so every edit shows in both.
 
 ## Open the 3D view
 
-1. Open survey points (or a LandXML or project file) so there is a surface.
+1. Open survey points (or a LandXML or project file) so there is a surface. Plants, paving or ramps alone are enough to open it too.
 2. Press {{key:D}}, or click {{ui:3D}} in the {{ui:View}} group of the toolbar.
    The 3D view opens over the plan, looking at the whole site from the southeast. The first time, it takes a moment to load.
 3. Press {{key:D}} again, or click {{ui:3D}} again, to go back to the plan. Choosing a drawing tool such as {{ui:Alignment}} or {{ui:Pad}} also goes back to the plan, since drawing happens there.
@@ -65,6 +65,9 @@ Click {{ui:Show}} on the bar and tick or clear:
 | Breaklines | Every breakline, at its elevations |
 | Alignments and stations | Each alignment on its design profile (on the ground where there is no profile), with ticks every 50 ft or 20 m |
 | Corridor feature lines | Edge of pavement, shoulder and daylight on both sides |
+| Road surfaces | The road each corridor builds, from its assembly: lanes, shoulders, gutters, curbs, strips and sidewalks, each in its own colour, on the graded surface |
+| Plants | Every plant, and the plants in beds and hedges, as simple forms sized from the plant list: a tree is a trunk and a round crown (a cone for a conifer, a tuft on a tall trunk for a palm), shrubs, hedge plants, perennials and groundcovers are domes, grasses tufts, climbers thin columns. They stand on the graded surface (or the existing ground) at the size the plan shows: mature, or at planting |
+| Hardscape | Paving and paths with their falls, walls, kerbs, steps, and ramps that climb in runs with level landings between them |
 | Pads and daylight | Each pad outline at its elevation and its daylight line |
 | Pipes and structures | Pipes as round pipes between their inverts, structures from rim to sump |
 | Survey points | A dot at each point with an elevation (off at first) |
@@ -75,6 +78,10 @@ Labels stay the same size and upright however you turn or zoom, and a hill in fr
 
 Your choices, the exaggeration and the colouring are remembered in this browser.
 
+A road is built on the existing ground. With an alignment and a corridor but no survey points or surface yet, the road is drawn on flat stand-in ground for now: at the average elevation of its design profile, or level at elevation 0 when there is no profile either. A warning at the bottom of the 3D view and in the corridor's properties says so. It is only a picture: no volumes or sections come from it. Open survey points or a surface and the road moves onto the real ground by itself.
+
+The vertical exaggeration stretches the ground, not the plants: they stand on the exaggerated ground at their true height and spread, so a tree looks like a tree at any setting. Plants are simple shapes, not detailed models: thousands of them stay quick to turn and zoom.
+
 ## Pipes and structures
 
 - A pipe is drawn with its bottom inside at the inverts you set and its top inside (the crown) one inside diameter higher. Diameters are in inches on a feet project and millimeters on a meter project, as in the right panel.
@@ -84,7 +91,7 @@ Your choices, the exaggeration and the colouring are remembered in this browser.
 
 ## Select from the 3D view
 
-Click an alignment, a pad, a feature line, a pipe, a structure or a survey point. It is selected just as if you clicked it in the plan: its properties open in the right panel, where you can edit them, and it is drawn in the selection color on top of everything in 3D. Whatever you select on the plan is highlighted in 3D too. A tip next to the pointer names what you clicked with its easting, northing and elevation. Pipes and structures can be clicked even where they are under the ground; a line hidden behind a hill cannot be clicked through it.
+Click an alignment (or its road), a pad, a feature line, a pipe, a structure, a survey point, a plant, a ramp or other hardscape. It is selected just as if you clicked it in the plan: its properties open in the right panel, where you can edit them, and it is drawn in the selection color on top of everything in 3D. Whatever you select on the plan is highlighted in 3D too. A tip next to the pointer names what you clicked with its easting, northing and elevation. Pipes and structures can be clicked even where they are under the ground; a line hidden behind a hill cannot be clicked through it.
 
 Click a breakline to see which one it is: it is highlighted, and the status bar names it (breaklines have no properties of their own).
 

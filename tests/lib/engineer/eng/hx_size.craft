@@ -1,0 +1,37 @@
+% hx_size — the size (UA) a heat exchanger needs to move a given heat, by the epsilon-NTU method
+%
+% Usage:      r = hx_size(Q, Th_in, Tc_in, Ch, Cc, arrangement)
+%             Q the duty in W; Th_in and Tc_in the inlet temperatures of the hot and cold streams in kelvin (temp_k converts);
+%             Ch and Cc the heat capacity rates (mdot * cp) in W/K. The fields of r are quantities (value, unit, ref).
+% Computes:   Cmin, Cmax, Cr = Cmin / Cmax; the most heat possible Qmax = Cmin (Th_in - Tc_in); eps = Q / Qmax; NTU from ntu_for;
+%             UA = NTU Cmin; the outlet temperatures Th_out = Th_in - Q / Ch and Tc_out = Tc_in + Q / Cc.
+% Method:     the effectiveness-NTU method: no end temperature has to be guessed and a temperature cross is caught as eps >= 1.
+% Units:      SI: Q W, C rates W/K, UA W/K.
+% Limits:     the duty must be below Qmax; otherwise the function stops and says how much the exchanger could ever give.
+% References: Incropera et al., 7th ed., section 11.4 (eqs. 11.18 to 11.23, Table 11.4).
+% Check:      Q 50 kW, 90 C hot at 2 kW/K, 20 C cold at 3 kW/K, counterflow: eps = 0.3571, NTU = 0.5097, UA = 1019 W/K (tools/field-test/eng.mjs).
+function r = hx_size(Q, Th_in, Tc_in, Ch, Cc, arrangement)
+if nargin < 6
+  arrangement = 'counter';
+end
+if ~(Q > 0) || ~(Th_in > Tc_in) || ~(Ch > 0) || ~(Cc > 0)
+  error('hx_size: the duty and the heat capacity rates must be greater than zero and the hot inlet hotter than the cold one');
+end
+Cmin = min(Ch, Cc);
+Cmax = max(Ch, Cc);
+Cr = Cmin / Cmax;
+Qmax = Cmin * (Th_in - Tc_in);
+eps = Q / Qmax;
+if eps >= 1
+  error(sprintf('hx_size: %.4g W cannot be moved: at most %.4g W with these inlet temperatures and flows', Q, Qmax));
+end
+NTU = ntu_for(eps, Cr, arrangement);
+r = struct();
+r.Qmax = q(Qmax, 'W', 'Cmin (Th_in - Tc_in), Incropera 7e eq. 11.18');
+r.eps = q(eps, '-', 'Q / Qmax, Incropera 7e eq. 11.19');
+r.Cr = q(Cr, '-', 'Cmin / Cmax');
+r.NTU = q(NTU, '-', strcat('inverted epsilon-NTU relation (', arrangement, '), Incropera 7e Table 11.4'));
+r.UA = q(NTU * Cmin, 'W/K', 'NTU Cmin, Incropera 7e eq. 11.24');
+r.Th_out = q(Th_in - Q / Ch, 'K', 'energy balance');
+r.Tc_out = q(Tc_in + Q / Cc, 'K', 'energy balance');
+end

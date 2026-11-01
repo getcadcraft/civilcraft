@@ -10,7 +10,7 @@
  *     sceneItems(unitPerMm), overlay(c2d, toScreen, C, sel), section, renderSection(), updateTools(tool), quantities() }
  */
 
-import { GENERIC_HEADS, PIPE_SIZES, sizeOf, catalogOf, cleanIrrigation, analyse, coverage, headFlow, headRadius, dripFlow, KPA_PER_PSI, LMIN_PER_GPM, readHeads } from './irrigation.js';
+import { GENERIC_HEADS, PIPE_SIZES, sizeOf, catalogOf, cleanIrrigation, analyse, coverage, headFlow, headRadius, dripFlow, KPA_PER_PSI, LMIN_PER_GPM, readHeads, loadTypicalHeads, typicalHeads, adoptTypical } from './irrigation.js';
 import { unitM, edgeDist } from './planting.js';
 import { t } from '../i18n.js';
 import { fixed } from '../units.js';
@@ -30,6 +30,13 @@ export function createIrrUi(ctx, { edit, LS, U }) {
   let cur = { type: 'spray-4.5', arc: 360, rot: 0, lateral: null, main: null, coverage: false };
   /** A head kind's name: the generic ones by their own key (translated), the project's own as they were typed. */
   const headName = (h) => (h.source?.kind === 'generic' ? t('ls.i.h.' + h.key) : h.name);
+  // 0.8 LD.10: the typical heads (open sources, "typical values") are Library data read once, beside this module; a project copies a row in when it uses one
+  (async () => {
+    try {
+      const r = await fetch(new URL('./heads-typical.json', import.meta.url));
+      if (loadTypicalHeads(await r.json()).heads.length && section && !section.hidden) renderSection();
+    } catch (e) { /* the generic heads stand */ }
+  })();
   const typeName = (key) => { const ty = catalogOf(irr()).get(key); return ty ? headName(ty) : key; };
   const sizesFor = () => PIPE_SIZES.filter((s) => s.system === (ft() ? 'ft' : 'm'));
   const lateralSize = () => cur.lateral || (ft() ? 'ips-3/4' : 'pe-25');
@@ -74,7 +81,7 @@ export function createIrrUi(ctx, { edit, LS, U }) {
   function click(tool, w) {
     if (tool === 'ls-head') {
       const at = snap(w), id = nextId();
-      put(t('ls.i.undo.head'), (s) => s.heads.push({ id, ...at, type: cur.type, arc: cur.arc, rot: cur.rot, radius: null }));
+      put(t('ls.i.undo.head'), (s) => { adoptTypical(s, cur.type); s.heads.push({ id, ...at, type: cur.type, arc: cur.arc, rot: cur.rot, radius: null }); });
       ctx.say(t('ls.i.head.done', { n: irr().heads.length }));
       return true;
     }
@@ -197,7 +204,7 @@ export function createIrrUi(ctx, { edit, LS, U }) {
   const section = el('section', { className: 'cv-sec cv-ls-irr', dataset: { lsIrr: '' }, hidden: true, 'aria-labelledby': 'cv-ls-irr-h' });
   function renderSection() {
     const cat = catalogOf(irr()), S = irr().settings;
-    const ty = el('select', { className: 'cv-select', id: 'cv-ls-htype', 'data-ls-htype': '' }, ...[...cat.values()].map((h) => el('option', { value: h.key }, headName(h))));
+    const ty = el('select', { className: 'cv-select', id: 'cv-ls-htype', 'data-ls-htype': '' }, ...[...cat.values()].map((h) => el('option', { value: h.key }, headName(h))), ...typicalHeads().filter((h) => !cat.has(h.key)).map((h) => el('option', { value: h.key, 'data-ls-typical': '' }, h.name)));
     ty.value = cur.type; ty.addEventListener('change', () => { cur.type = ty.value; });
     const arc = el('select', { className: 'cv-select', id: 'cv-ls-harc', 'data-ls-harc': '' }, ...[90, 180, 270, 360].map((a) => el('option', { value: String(a) }, a + '°')));
     arc.value = String(cur.arc); arc.addEventListener('change', () => { cur.arc = Number(arc.value); });
@@ -216,6 +223,9 @@ export function createIrrUi(ctx, { edit, LS, U }) {
       ctx.say(t('ls.i.heads.done', { n: r.heads.length, refused: r.notes.filter((x) => x === 'no-grant').length }));
       renderSection();
     });
+    const typNote = () => { const h = typicalHeads().find((x) => x.key === ty.value); return h ? t('ls.i.typical.note', { basis: h.source.basis, licence: h.source.licence }) : ''; };
+    const typEl = el('p', { className: 'cv-note', 'data-ls-typical-note': '' }, typNote());
+    ty.addEventListener('change', () => { typEl.textContent = typNote(); });
     const parts = [el('h2', { className: 'cv-h', id: 'cv-ls-irr-h' }, t('ls.i.sec')), el('p', { className: 'cv-note' }, t('ls.i.aid')),
       el('div', { className: 'cv-props' },
         el('label', { for: 'cv-ls-htype' }, t('ls.i.f.type')), ty, el('label', { for: 'cv-ls-harc' }, t('ls.i.f.arc')), arc, el('label', { for: 'cv-ls-hrot' }, t('ls.i.f.rot')), rot,
@@ -225,6 +235,7 @@ export function createIrrUi(ctx, { edit, LS, U }) {
         el('label', { for: 'cv-ls-vmax' }, t('ls.i.f.vmax')), setting('vMax', t('ls.i.f.vmax'), 'cv-ls-vmax'),
         el('label', { for: 'cv-ls-vloss' }, t('ls.i.f.vloss')), setting('valveLoss', t('ls.i.f.vloss'), 'cv-ls-vloss'),
         el('label', { for: 'cv-ls-weekly' }, t('ls.i.f.weekly')), setting('weekly', t('ls.i.f.weekly'), 'cv-ls-weekly')),
+      typEl,
       el('p', { className: 'cv-note' }, t('ls.i.generic')),
       el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-heads-add': '', onclick: () => own.click() }, t('ls.i.heads.add')), el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-check': '', onclick: () => checkDialog() }, t('ls.i.k.check'))), own];
     if (cur.coverage && irr().heads.length) {

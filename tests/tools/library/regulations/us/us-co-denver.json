@@ -1,0 +1,81 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-co-denver",
+  "name": "Denver: Denver Residential Code (2025 Denver Building and Fire Code, IRC 2024 as amended)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-CO",
+    "name": "Denver"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2025-12-31",
+  "in_force": "2025-12-31",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (Denver City Council; D.R.M.C. Sec. 10-16). No city change to the eight checked rules in the text read. Design criteria from denvergov.org (2025-06-13). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Denver City Council, D.R.M.C. Sec. 10-16",
+    "url": "https://denvergov.org/files/assets/public/v/1/community-planning-and-development/documents/ds/building-codes/2025_Denver_Building_Code.pdf",
+    "date": "2025-06-13",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "43 psf (site-specific values allowed)",
+      "value": 43,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "115 / 125 / 140 mph by area (ultimate; see Denver Commercial Building Code Table 1609.3)"
+    },
+    "wind_topographic": {
+      "text": "No"
+    },
+    "special_wind_region": {
+      "text": "Yes"
+    },
+    "windborne_debris": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "B"
+    },
+    "weathering": {
+      "text": "Severe"
+    },
+    "frost_depth": {
+      "text": "36 in",
+      "value": 914.4,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "Slight to moderate"
+    },
+    "winter_design_temp": {
+      "text": "1 °F"
+    },
+    "ice_barrier": {
+      "text": "No"
+    },
+    "flood_hazards": {
+      "text": "FIRM 1986-04-15; FEMA FIS revised 2024-07-03 (D.R.M.C. 56-200 to 56-206)"
+    },
+    "air_freezing_index": {
+      "text": "712"
+    },
+    "mean_annual_temp": {
+      "text": "40-45 °F"
+    },
+    "climate_zone": {
+      "text": "5B (IECC county list; Denver Energy Code uses zone 5)"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

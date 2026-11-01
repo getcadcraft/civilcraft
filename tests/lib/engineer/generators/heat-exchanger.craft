@@ -1,0 +1,179 @@
+% Gyroid two-fluid heat exchanger (core): sized from the duty by the effectiveness-NTU method, the wall from the pressure.
+%
+% What it makes: a cube of gyroid sheet whose two interwoven channel networks carry the hot and the cold water; the sheet is the heat
+% transfer wall. It sizes the cube (side L), the wall (thickness t) and reports the pressure drops. The headers and ports that would
+% join one network to a pipe on each face are NOT modelled: this is the core.
+% Method (each step is a function of the engineering library, craftlib/eng, with its source in the data sheet):
+%   1. water properties at the mean temperatures (fluid), heat capacity rates, the size UA the duty needs (hx_size, counterflow);
+%   2. for a trial wall t and cell a: the sheet's area per volume 3.09/a and each channel's hydraulic diameter Dh = 4 e a / 3.09, with
+%      the channel volume fraction e = (1 - 3.09 t / a) / 2   (a gyroid sheet has about 3.09 a^2 of area per cell: tools/field-test checks it);
+%   3. the flow speed, Reynolds number and heat transfer coefficient of each side (nusselt_tube with the channel treated as a round tube);
+%   4. the area the duty needs, A = UA (1/h_hot + t/k_wall + 1/h_cold), hence the cube side L = (A / (3.09/a))^(1/3);
+%   5. the wall from the pressure: the channel as a thin-walled cylinder of radius Dh/2 under the working pressure, at the allowable
+%      stress of the material (yield / safety factor), but not below the process's thinnest wall nor 3 voxels;
+%   repeated until L and t stop changing; if a side's pressure drop is over the limit the cell is made 12 % bigger (wider channels) and
+%   the sizing is done again. Then the body is built, and the part is checked against the process. With "Check the pressure drop" on, one
+%   periodic cell is run through the lattice Boltzmann solver (check_flow) and the pressure drops are read from its permeability as well.
+% Assumptions that matter (the sheet prints the ones a number depends on): round-tube heat transfer for a tortuous channel is only a first
+% estimate: check the result with Flow (CFD) before relying on it. The path through the core is longer than L by the "path stretch" you give.
+% @generator Gyroid heat exchanger
+% @input Q: kW = 1 [0.2 .. 100] "Duty"
+% @input Th_in: C = 80 [30 .. 98] "Hot water in"
+% @input Tc_in: C = 20 [2 .. 60] "Cold water in"
+% @input mh: kg/s = 0.04 [0.005 .. 3] "Hot flow"
+% @input mc: kg/s = 0.05 [0.005 .. 3] "Cold flow"
+% @input p_max: bar = 10 [1 .. 60] "Working pressure, each side"
+% @input alloy: = ss304 {steel, ss304, al6061, ti64} "Wall material"
+% @input SF: = 3 [1.5 .. 8] "Safety factor on yield"
+% @input cell: mm = 12 [3 .. 24] "Cell size"
+% @input tau: = 1.5 [1 .. 3] "Path stretch (tortuosity)"
+% @input dp_max: kPa = 5 [0.001 .. 200] "Pressure drop limit, each side"
+% @input verify: = false "Check the pressure drop with a flow study on one cell"
+% @input process: = metal {sla, sls, metal} "Process"
+% @input h: mm = 0.6 [0.25 .. 1.5] "Voxel size"
+
+AV = 3.0915;                           % area of a gyroid sheet per cell, in cell edges squared (measured: tools/field-test/script.mjs)
+Qw = to_si(Q, 'kW', 'W');
+Thi = temp_k(Th_in, 'C');
+Tci = temp_k(Tc_in, 'C');
+a = to_si(cell, 'mm', 'm');
+hv = to_si(h, 'mm', 'm');
+pmax = to_si(p_max, 'bar', 'Pa');
+prof = process_profile(process);
+tmin = to_si(prof.min_wall.value, 'mm', 'm');
+mat = material(alloy);
+sig = allowable_stress(mat.yield.value, SF);
+kw = mat.k.value;
+
+% 1. what the duty needs: properties at the mean temperatures, a few passes to settle them
+Thm = Thi;
+Tcm = Tci;
+for it = 1:6
+  fh = fluid('water', Thm);
+  fc = fluid('water', Tcm);
+  Ch = mh * fh.cp.value;
+  Cc = mc * fc.cp.value;
+  sz = hx_size(Qw, Thi, Tci, Ch, Cc, 'counter');
+  Thm = Thi - Qw / (2 * Ch);
+  Tcm = Tci + Qw / (2 * Cc);
+end
+UA = sz.UA.value;
+
+% 2..5. the cube and the wall, together; a bigger cell if the pressure drop is over the limit
+dplim = to_si(dp_max, 'kPa', 'Pa');
+cm = cell;
+for grow = 1:25
+  a = to_si(cm, 'mm', 'm');
+  t = max(2 * tmin, 3 * hv);
+  L = 0.05;
+  for it = 1:80
+    phi = AV * t / a;
+    if phi > 0.6
+      error('the wall is too thick for this cell: use a bigger cell or a lower pressure');
+    end
+    e = (1 - phi) / 2;
+    Dh = 4 * e * a / AV;
+    Av = AV / a;
+    [hh, vh, Reh, fhf] = side(fh, mh, e, L, Dh);
+    [hc, vc, Rec, fcf] = side(fc, mc, e, L, Dh);
+    Areq = UA * (1 / hh + t / kw + 1 / hc);
+    Ln = (Areq / Av) ^ (1 / 3);
+    tp = max(wall_thin_cylinder(pmax, Dh / 2, sig), 2 * tmin);
+    tn = max(tp, 3 * hv);
+    if 3 * hv >= tp
+      gov = 'three voxels';
+    elseif tp > 2 * tmin
+      gov = 'the pressure';
+    else
+      gov = 'the process minimum';
+    end
+    done = abs(Ln - L) < 1e-5 * L && abs(tn - t) < 1e-9;
+    L = 0.5 * (L + Ln);
+    t = tn;
+    if done
+      break;
+    end
+  end
+  dph = fhf * (tau * L / Dh) * fh.rho.value * vh ^ 2 / 2;
+  dpc = fcf * (tau * L / Dh) * fc.rho.value * vc ^ 2 / 2;
+  if max(dph, dpc) <= dplim
+    break;
+  end
+  if grow == 25 || cm > 30
+    error(sprintf('the pressure drop (%.3g kPa) stays over the %.3g kPa limit even with a %.0f mm cell: raise the limit or lower the flow', max(dph, dpc) / 1000, dp_max, cm));
+  end
+  cm = cm * 1.12;
+end
+cell = cm;
+if L / hv > 450
+  error(sprintf('the core would be %.0f mm across: too many voxels at %.2f mm; use a bigger voxel size or a smaller duty', L * 1000, h));
+end
+A = Av * L ^ 3;
+
+% the body
+Lmm = L * 1000;
+tmm = t * 1000;
+half = Lmm / 2;
+f = tpms('gyroid', cell, tmm, struct('bounds', [-half -half -half half half half]));
+fb = field_bake(f, h);
+[body, info] = to_body(fb, h);
+chk = mfg_check(fb, process, struct(), h);
+problems = chk.problems;
+
+% an optional flow study on one periodic cell: permeability from the lattice Boltzmann solver, pressure drops from it
+cfd = false;
+if verify
+  cellf = tpms('gyroid', cell, tmm, struct('bounds', [0 0 0 cell cell cell]));
+  fl1 = check_flow(cellf, h, [0 0 0 cell cell cell], 'water', Thm);
+  kA = fl1.permeability.value / 2;                 % the two networks carry the flow alike: each has half the permeability of the whole cell
+  fl2 = check_flow(cellf, h, [0 0 0 cell cell cell], 'water', Tcm);
+  kB = fl2.permeability.value / 2;
+  dph_cfd = fh.mu.value * (mh / (fh.rho.value * L ^ 2)) * L / kA;
+  dpc_cfd = fc.mu.value * (mc / (fc.rho.value * L ^ 2)) * L / kB;
+  cfd = true;
+end
+
+sheet = struct();
+sheet.duty = q(Qw, 'W', 'given');
+sheet.UA_needed = sz.UA;
+sheet.NTU = sz.NTU;
+sheet.effectiveness = sz.eps;
+sheet.hot_out = q(temp_from_k(sz.Th_out.value, 'C'), 'C', 'energy balance');
+sheet.cold_out = q(temp_from_k(sz.Tc_out.value, 'C'), 'C', 'energy balance');
+sheet.core_side = q(Lmm, 'mm', 'iterated: area needed / sheet area per volume (3.09 / cell)');
+sheet.wall = q(tmm, 'mm', 'thin cylinder of the channel radius at yield / SF, not below the process minimum or 3 voxels');
+sheet.wall_set_by = gov;
+sheet.channel_Dh = q(Dh * 1000, 'mm', 'Dh = 4 e a / 3.09');
+sheet.hot_velocity = q(vh, 'm/s', 'continuity');
+sheet.cold_velocity = q(vc, 'm/s', 'continuity');
+sheet.hot_Re = q(Reh, '-', fh.rho.ref);
+sheet.cold_Re = q(Rec, '-', fc.rho.ref);
+sheet.hot_h = q(hh, 'W/(m2 K)', 'Nu k / Dh, nusselt_tube');
+sheet.cold_h = q(hc, 'W/(m2 K)', 'Nu k / Dh, nusselt_tube');
+sheet.hot_dp = q(dph, 'Pa', 'Darcy-Weisbach over the stretched path');
+sheet.cold_dp = q(dpc, 'Pa', 'Darcy-Weisbach over the stretched path');
+sheet.area = q(A, 'm2', '3.09 / cell * L^3');
+sheet.metal_mass = q(info.volume * 1e-9 * mat.density.value, 'kg', mat.density.ref);
+sheet.allowable_stress = q(sig, 'Pa', 'yield / safety factor, Shigley 11e eq. 1-3');
+sheet.water_hot = fh.rho;
+sheet.process = struct('value', prof.label, 'ref', prof.ref);
+sheet.watertight = info.watertight;
+sheet.checks_passed = chk.ok;
+sheet.cell_used = q(cell, 'mm', 'the input cell, made 12 % bigger until the pressure drop fits');
+if cfd
+  sheet.hot_dp_flow_study = q(dph_cfd, 'Pa', 'permeability of one periodic cell, lbm3d (check_flow), Darcy: dp = mu Us L / k');
+  sheet.cold_dp_flow_study = q(dpc_cfd, 'Pa', 'the same');
+  sheet.flow_study_converged = fl1.settings.converged;
+  sheet.flow_study_tau = fl1.settings.tau;
+  sheet.flow_study_steps = fl1.settings.steps;
+  sheet.flow_study_voxel = q(h, 'mm', 'the same voxel size as the body');
+end
+sheet.note = 'a first-estimate sizing: round-tube correlations, no headers; with Check the pressure drop on, one cell is run through the flow solver';
+
+function [hh, v, Re, f] = side(fl, md, e, L, Dh)
+v = md / (fl.rho.value * e * L ^ 2);
+Re = fl.rho.value * v * Dh / fl.mu.value;
+f = friction_factor(Re, 0);
+Nu = nusselt_tube(Re, fl.Pr.value, f, 'temperature');
+hh = htc(Nu, fl.k.value, Dh);
+end

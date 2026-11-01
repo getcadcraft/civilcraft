@@ -1,0 +1,887 @@
+[
+ {
+  "id": "describe-part",
+  "title": "Describe the screw",
+  "prompt": "Open the screw and tell me what it is made of and how many features it has.",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "name",
+    "eq": "Hex head screw ISO 4017"
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "features.length",
+    "eq": 4
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "material.name",
+    "eq": "Steel"
+   }
+  ]
+ },
+ {
+  "id": "list-features",
+  "title": "List the features",
+  "prompt": "List the features in order.",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "features_list",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "f"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "features[id=f2].type",
+    "eq": "extrude"
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "features.length",
+    "eq": 4
+   }
+  ]
+ },
+ {
+  "id": "list-parameters",
+  "title": "List the parameters",
+  "prompt": "What parameters drive this screw?",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "params_list",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "p"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "params.vars.length",
+    "eq": 4
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "params.vars[name=l].expr",
+    "eq": "20"
+   }
+  ]
+ },
+ {
+  "id": "mass",
+  "title": "Mass and volume",
+  "prompt": "How much does the screw weigh?",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "mass_properties",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "m"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "material.density",
+    "approx": 7.85,
+    "tol": 0.001
+   }
+  ]
+ },
+ {
+  "id": "lengthen-and-save",
+  "title": "Make the screw longer and save",
+  "prompt": "Change the length l to 30 and save it as a new part.",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "param_set",
+    "args": {
+     "doc": "$o.doc",
+     "name": "l",
+     "value": 30
+    },
+    "as": "s"
+   },
+   {
+    "tool": "part_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Parts/screw-30.partcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw-30.partcraft.json",
+    "kind": "json",
+    "path": "params.vars[name=l].expr",
+    "eq": "30"
+   },
+   {
+    "file": "Parts/screw-30.partcraft.json",
+    "kind": "json",
+    "path": "features.length",
+    "eq": 4
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "params.vars[name=l].expr",
+    "eq": "20"
+   }
+  ]
+ },
+ {
+  "id": "export-stl",
+  "title": "Export for printing (STL)",
+  "prompt": "Export the screw as an STL for printing.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "stl",
+     "out": "Out/screw.stl"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/screw.stl",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 1000
+   }
+  ]
+ },
+ {
+  "id": "export-3mf",
+  "title": "Export a 3MF",
+  "prompt": "Export a 3MF.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "3mf",
+     "out": "Out/screw.3mf"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/screw.3mf",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^PK"
+   }
+  ]
+ },
+ {
+  "id": "export-step",
+  "title": "Export STEP for a supplier",
+  "prompt": "Export a STEP file.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "step",
+     "out": "Out/screw.step"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/screw.step",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^ISO-10"
+   }
+  ]
+ },
+ {
+  "id": "export-usd",
+  "title": "Export OpenUSD",
+  "prompt": "Export it as USDA.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "usda",
+     "out": "Out/screw.usda"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/screw.usda",
+    "kind": "text",
+    "path": "text",
+    "includes": "#usda 1.0"
+   }
+  ]
+ },
+ {
+  "id": "manual-pdf",
+  "title": "Assembly manual views as PDF",
+  "prompt": "Write the manual's saved views as a PDF.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Manuals/four-bar.partcraft-manual.json": "fixtures/showcase/partcraft-four-bar.partcraft-manual.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "illustrate_export",
+    "args": {
+     "path": "Manuals/four-bar.partcraft-manual.json",
+     "out": "Out/four-bar.pdf",
+     "as": "pdf"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/four-bar.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   },
+   {
+    "file": "Out/four-bar.pdf",
+    "kind": "pdf",
+    "path": "pages",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "edit-refused",
+  "title": "Edit is refused until allowed",
+  "prompt": "Change the length to 40 (Edit is not allowed).",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "param_set",
+    "args": {
+     "doc": "$o.doc",
+     "name": "l",
+     "value": 40
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "params.vars[name=l].expr",
+    "eq": "20"
+   }
+  ]
+ },
+ {
+  "id": "export-refused",
+  "title": "Export is refused until allowed",
+  "prompt": "Export an STL (Export is not allowed).",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "stl",
+     "out": "Out/x.stl"
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "outside-folder-refused",
+  "title": "A file outside the granted folder is refused",
+  "prompt": "Open /etc/hostname as a part.",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "/etc/hostname"
+    },
+    "fail": "outside"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "not-a-part-refused",
+  "title": "A file that is not a part is refused",
+  "prompt": "Open a text file as a part.",
+  "fixtures": {
+   "Parts/notes.partcraft.json": "tools/mcp/evals/fixtures/marked.pdf"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/notes.partcraft.json"
+    },
+    "fail": "not a PartCraft part"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/notes.partcraft.json",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "design-bracket",
+  "title": "Bracket holding 20 pounds at 6 inches, aluminium, machinable",
+  "headliner": true,
+  "prompt": "I need a bracket holding 20 pounds at 6 inches, aluminium, machinable. Pick a generator, size it, check it and give me the part.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {},
+  "allow": [
+   "read",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "generators_find",
+    "args": {
+     "text": "bracket holding 20 pounds at 6 inches, aluminium, machinable"
+    },
+    "as": "g",
+    "expect": [
+     {
+      "path": "picks[id=bracket].score",
+      "gte": 3
+     }
+    ]
+   },
+   {
+    "tool": "design_estimate",
+    "args": {
+     "generator": "bracket",
+     "force": 20,
+     "force_unit": "lbf",
+     "arm": 6,
+     "length_unit": "in",
+     "material": "aluminium",
+     "process": "machined"
+    },
+    "as": "e",
+    "expect": [
+     {
+      "path": "ok",
+      "eq": true
+     },
+     {
+      "path": "dims.thickness_mm",
+      "eq": 5
+     },
+     {
+      "path": "dims.bolt",
+      "eq": "M5"
+     }
+    ]
+   },
+   {
+    "tool": "design_make",
+    "args": {
+     "generator": "bracket",
+     "force": 20,
+     "force_unit": "lbf",
+     "arm": 6,
+     "length_unit": "in",
+     "material": "aluminium",
+     "process": "machined",
+     "name": "Shelf bracket",
+     "out": "Out/bracket.partcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "bodies",
+    "eq": 1
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "failing.length",
+    "eq": 0
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "mass",
+    "approx": 81.7,
+    "tol": 1.0
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "stressPerN",
+    "lte": 1.5512
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "thickness",
+    "gte": 3.86
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "json",
+    "path": "material.name",
+    "eq": "aluminium 6061-T6"
+   }
+  ]
+ },
+ {
+  "id": "cost-estimate",
+  "title": "What would it cost to make the bracket",
+  "prompt": "What would it cost to make 10 of this bracket, machined?",
+  "fixtures": {
+   "Parts/bracket.partcraft.json": "fixtures/showcase/partcraft-bracket-20lb.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/bracket.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "cost_estimate",
+    "args": {
+     "doc": "$o.doc",
+     "process": "cnc",
+     "qty": 10
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "process",
+      "eq": "cnc"
+     },
+     {
+      "path": "qty",
+      "eq": 10
+     },
+     {
+      "path": "rows[id=holes].basis.holes",
+      "eq": 2
+     },
+     {
+      "path": "total",
+      "approx": 91.31,
+      "tol": 0.05
+     },
+     {
+      "path": "rows[id=setup].amount",
+      "eq": 6
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/bracket.partcraft.json",
+    "kind": "part",
+    "path": "bodies",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "photo-to-sketch",
+  "title": "Sketch a plate from a photo",
+  "prompt": "Here is a photo of a plate, 100 mm wide. Make it a part, 10 mm thick, and save it.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/blank.partcraft.json": "tools/mcp/evals/fixtures/blank.partcraft.json",
+   "Photos/plate.png": "tools/mcp/evals/fixtures/plate-photo.png"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/blank.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "photo_import",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Photos/plate.png",
+     "known_of": "width",
+     "known_mm": 100,
+     "extrude": 10
+    },
+    "as": "p",
+    "expect": [
+     {
+      "path": "entities.lines",
+      "eq": 4
+     },
+     {
+      "path": "entities.arcs",
+      "eq": 4
+     },
+     {
+      "path": "entities.circles",
+      "eq": 1
+     },
+     {
+      "path": "size_mm.width",
+      "approx": 100,
+      "tol": 0.3
+     }
+    ]
+   },
+   {
+    "tool": "part_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Out/plate.partcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/plate.partcraft.json",
+    "kind": "part",
+    "path": "bodies",
+    "eq": 1
+   },
+   {
+    "file": "Out/plate.partcraft.json",
+    "kind": "part",
+    "path": "failing.length",
+    "eq": 0
+   },
+   {
+    "file": "Out/plate.partcraft.json",
+    "kind": "part",
+    "path": "volume",
+    "approx": 58876,
+    "tol": 600
+   },
+   {
+    "file": "Out/plate.partcraft.json",
+    "kind": "json",
+    "path": "features.length",
+    "eq": 2
+   }
+  ]
+ },
+ {
+  "id": "hydrostatics-barge",
+  "title": "Will this barge float upright at 1 m draft",
+  "prompt": "This 10 \u00d7 3 \u00d7 4 m barge floats in the sea at 1 m draft with its centre of gravity 1.2 m above the keel. What does it displace, and is it stable?",
+  "fixtures": {
+   "Parts/barge.partcraft.json": "tools/mcp/evals/fixtures/barge.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/barge.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "hydrostatics_describe",
+    "args": {
+     "doc": "$o.doc",
+     "draft": 1,
+     "length_unit": "m",
+     "water": "sea",
+     "kg": 1.2,
+     "heel_to": 20
+    },
+    "as": "h",
+    "expect": [
+     {
+      "path": "displacement_t",
+      "approx": 41,
+      "tol": 0.01
+     },
+     {
+      "path": "kb_m",
+      "approx": 0.5,
+      "tol": 0.001
+     },
+     {
+      "path": "bm_transverse_m",
+      "approx": 1.3333,
+      "tol": 0.001
+     },
+     {
+      "path": "stability.gm_m",
+      "approx": 0.6333,
+      "tol": 0.001
+     },
+     {
+      "path": "stability.stable_upright",
+      "eq": true
+     },
+     {
+      "path": "stability.righting_arms[heel_deg=10].gz_m",
+      "approx": 0.1136,
+      "tol": 0.002
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/barge.partcraft.json",
+    "kind": "part",
+    "path": "bodies",
+    "eq": 1
+   }
+  ]
+ }
+]

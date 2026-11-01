@@ -1,0 +1,18 @@
+% fin_efficiency — the efficiency of a straight rectangular fin, and the heat it gives
+%
+% Usage:      [eta, m] = fin_efficiency(h, k, t, L)
+% Computes:   m = sqrt(2 h / (k t)); with the corrected length Lc = L + t/2 (a convecting tip), eta = tanh(m Lc) / (m Lc).
+%             The heat from the fin is eta h (2 w Lc) (T_base - T_fluid) for a fin of width w.
+% Method:     the one-dimensional fin equation, adiabatic tip at the corrected length.
+% Units:      SI: h W/(m2 K), k W/(m K), t m (thickness), L m (length from base to tip); eta has no unit; m is 1/m.
+% Limits:     a thin fin (h t / k below about 0.0625, the Biot number), constant h and k.
+% References: Incropera et al., 7th ed., eqs. 3.86, 3.89 and Table 3.5 (rectangular fin, corrected length).
+% Check:      h 100, k 200, t 2 mm, L 20 mm: m = 22.36 /m, eta = 0.9325 (tools/field-test/eng.mjs).
+function [eta, m] = fin_efficiency(h, k, t, L)
+if ~(h > 0) || ~(k > 0) || ~(t > 0) || ~(L > 0)
+  error('fin_efficiency: h, k, t and L must be greater than zero');
+end
+m = sqrt(2 * h / (k * t));
+Lc = L + t / 2;
+eta = tanh(m * Lc) / (m * Lc);
+end

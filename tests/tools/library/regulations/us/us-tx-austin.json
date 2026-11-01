@@ -1,0 +1,80 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-tx-austin",
+  "name": "Austin: 2024 IRC with City of Austin local amendments",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-TX",
+    "name": "Austin"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2025-07-10",
+  "in_force": "2025-07-10",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 — Austin amendments to the checked rules were not researched (Austin City Council; City Code 25-12-243 (Ordinance 20250410-040)). Design criteria from services.austintexas.gov (2025-04-10). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Austin City Council, City Code 25-12-243 (Ordinance 20250410-040)",
+    "url": "https://services.austintexas.gov/edims/document.cfm?id=450486",
+    "date": "2025-04-10",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "5 psf",
+      "value": 5,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "105 mph",
+      "value": 105,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "No"
+    },
+    "special_wind_region": {
+      "text": "No"
+    },
+    "windborne_debris": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "A"
+    },
+    "weathering": {
+      "text": "Negligible"
+    },
+    "frost_depth": {
+      "text": "12 in",
+      "value": 304.8,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "Yes (no class printed)"
+    },
+    "winter_design_temp": {
+      "text": "30 °F"
+    },
+    "ice_barrier": {
+      "text": "No"
+    },
+    "flood_hazards": {
+      "text": "Construction commenced after 1981-09-02"
+    },
+    "air_freezing_index": {
+      "text": "30"
+    },
+    "mean_annual_temp": {
+      "text": "68.1 °F"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

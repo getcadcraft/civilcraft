@@ -1,0 +1,19 @@
+{
+  "format": "cadcraft-tji-table",
+  "version": 1,
+  "manufacturer": "EXAMPLE maker",
+  "product": "EXAMPLE joists",
+  "edition": "EXAMPLE, not for design",
+  "source": "Made-up numbers for tests. EXAMPLE, not for design.",
+  "units": "imperial",
+  "example": true,
+  "cases": [
+    { "id": "EX-40-10-L480", "live": 40, "dead": 10, "deflection": "L/480", "bearing": 1.75, "note": "made up" },
+    { "id": "EX-30-10-L360", "live": 30, "dead": 10, "deflection": "L/360", "bearing": 1.75, "note": "made up" }
+  ],
+  "rows": [
+    { "series": "EX-A", "depth": 9.5, "spans": { "EX-40-10-L480": { "16": "10-0", "24": "8-0" }, "EX-30-10-L360": { "16": "11-0", "24": "9-0" } } },
+    { "series": "EX-B", "depth": 11.875, "spans": { "EX-40-10-L480": { "16": "14-0", "24": "11-0" }, "EX-30-10-L360": { "16": "15-0", "24": "12-0" } } },
+    { "series": "EX-B", "depth": 14, "spans": { "EX-40-10-L480": { "16": "18-0", "24": "14-6" }, "EX-30-10-L360": { "16": "19-0", "24": "15-6" } } }
+  ]
+}

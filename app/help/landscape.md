@@ -25,8 +25,10 @@ The left panel gains three sections at the top:
 | **Plant**, **Bed**, **Hedge** | Single plants, planting beds filled at the plants' spacing, hedges along a line | [Planting](topic:planting) |
 | **Grade** | Platforms, berms, swales, grading areas with spot elevations and contours, slope and flow checks | [Grading](topic:landscape-grading) |
 | **Hardscape** | Paving, paths, walls, kerbs, ramps and steps that follow the ground | [Hardscape](topic:hardscape) |
+| **Areas** | Planted areas: lawns, beds, meadows and groundcover with a build-up, clipped around hardscape | [Planted areas](topic:planted-areas) |
+| **Levels** | Ground modifiers in order with cut and fill, spot levels, gradient arrows, section lines | [Ground modifiers](topic:ground-modifiers), [Sections](topic:landscape-sections) |
 | **Irrigation** | Heads, pipes, valves, drip lines, the supply, coverage and a hydraulic check | [Irrigation](topic:irrigation) |
-| **More** | The plant schedule, freeform objects, landscape sheets, IFC export, plant size and labels | [Landscape sheets](topic:landscape-sheets), [Freeform objects](topic:freeform-objects) |
+| **More** | From a line (objects kept linked to linework), the plant schedule, the plant table, worksheets, plant graphics, freeform objects, landscape sheets and the publish set, IFC export, plant size and labels | [Objects from linework](topic:objects-from-lines), [Plant records](topic:plant-records), [Worksheets](topic:worksheets), [Landscape sheets](topic:landscape-sheets), [Freeform objects](topic:freeform-objects) |
 
 Everything you add is one undo step, is saved in the project file, and draws on the plan on layers named `L-PLNT-…`, `L-GRAD-…`, `L-HARD-…` and `L-IRRG-…`, so the DXF, DWG and PDF exports carry it too.
 

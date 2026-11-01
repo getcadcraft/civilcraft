@@ -1,0 +1,54 @@
+% friction_factor — the Darcy friction factor of flow in a duct, laminar to fully turbulent
+%
+% Usage:      [f, regime] = friction_factor(Re, rel_rough)
+%             rel_rough is the wall roughness divided by the hydraulic diameter (0 for a smooth wall).
+% Computes:   laminar (Re < 2300):         f = 64 / Re
+%             turbulent (Re >= 4000):      the Colebrook-White equation, 1 / sqrt(f) = -2 log10( e/(3.7 D) + 2.51 / (Re sqrt(f)) ),
+%                                          started from Haaland's explicit fit and iterated to 1e-14
+%             2300 to 4000 (transitional): a straight line between the two ends. That range has no reliable formula: the number
+%                                          is a placeholder, regime says 'transitional', and a design should stay out of it.
+% Method:     as above. The answer is the Darcy factor (four times the Fanning factor).
+% Units:      Re and rel_rough have no unit; f has none.
+% Limits:     Re > 0. Colebrook is for rel_rough up to about 0.05. Round tubes; for other shapes use the hydraulic diameter
+%             (turbulent flow only: laminar duct factors depend on the shape, see rect_channel).
+% References: Colebrook, J. Inst. Civil Eng. 11 (1939) 133; Haaland, J. Fluids Eng. 105 (1983) 89; Incropera et al. 7th ed.,
+%             eq. 8.19 (laminar) and Fig. 8.3.
+% Check:      Re 1e5, e/D 0.001 gives f = 0.02217; smooth pipe Re 1e5 gives 0.01799 (tools/field-test/eng.mjs).
+function [f, regime] = friction_factor(Re, rel_rough)
+if nargin < 2
+  rel_rough = 0;
+end
+if ~(Re > 0)
+  error('friction_factor: the Reynolds number must be greater than zero');
+end
+if rel_rough < 0
+  error('friction_factor: the relative roughness cannot be negative');
+end
+if Re < 2300
+  f = 64 / Re;
+  regime = 'laminar';
+  return;
+end
+ft = colebrook_f(max(Re, 4000), rel_rough);
+if Re >= 4000
+  f = ft;
+  regime = 'turbulent';
+else
+  fl = 64 / 2300;
+  f = fl + (ft - fl) * (Re - 2300) / 1700;
+  regime = 'transitional';
+end
+end
+
+function f = colebrook_f(Re, e)
+x = -1.8 * log10((e / 3.7) ^ 1.11 + 6.9 / Re);
+for k = 1:100
+  xn = -2 * log10(e / 3.7 + 2.51 * x / Re);
+  if abs(xn - x) < 1e-14 * abs(x)
+    x = xn;
+    break;
+  end
+  x = xn;
+end
+f = 1 / x ^ 2;
+end

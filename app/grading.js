@@ -13,6 +13,12 @@
  *     0.4 V14: a corner may carry its own elevation (pts[i].z; a closed feature line graded as a sloped pad): the edge
  *     between two corners runs at a constant grade and each ray starts at the edge's elevation where it leaves; corners
  *     without z use pad.z.
+ *     0.7.1 71.22: pad.sides (sides.js) = each side its own cut and fill slopes, or a vertical RETAINING WALL: sides.edges[k]
+ *     is the side from pts[k] to pts[k + 1] ({ wall, cut, fill }, any left out = the pad's). A wall side has no embankment: its
+ *     rays (kind 'wall') run sides.wallT outward to the ground (the wall's thickness, the surface steps there from the pad
+ *     edge to the ground), so the daylight line is the wall's outer face and no slope is graded. Corners: two walls meet in a
+ *     mitre; where a wall meets a slope the slope's fan wraps the wall's end. Every edge ray carries `k` (the pad's side);
+ *     result + `walls` (sides.js wallRuns) and `warnings` (sides.js sideWarnings: tall walls, slopes steeper than allowed).
  *
  *   gradedSurface(base, pads, build) → { surface, report, regions }
  *     the base surface's points outside every daylight line, plus each pad (flat, its edge a breakline)
@@ -27,16 +33,25 @@
 
 import { t } from "./i18n.js";
 import { ccw, pointInPoly, polyArea } from './tin.js';
+import { wallRuns, sideWarnings } from './sides.js';   // 0.7.1 71.22: walls and slope settings per side
 
 export function daylightPad(surface, pad, { spacing, fanStep = Math.PI / 18, maxDist } = {}) {
   const problems = [];
-  const poly = ccw(pad.pts.filter((p, i, a) => i === 0 || Math.hypot(p.x - a[i - 1].x, p.y - a[i - 1].y) > 1e-9));
+  const kept = pad.pts.map((p, k) => ({ ...p, _k: k })).filter((p, i, a) => i === 0 || Math.hypot(p.x - a[i - 1].x, p.y - a[i - 1].y) > 1e-9);   // _k: 0.7.1 71.22
+  const rev = polyArea(kept) < 0;
+  const poly = ccw(kept);
   if (poly.length > 2 && Math.hypot(poly[0].x - poly[poly.length - 1].x, poly[0].y - poly[poly.length - 1].y) < 1e-9) poly.pop();
   if (poly.length >= 4 && selfCrosses(poly)) return { rays: [], daylight: [], problems: [t('grade.err.cross')], poly };
   if (poly.length < 3 || Math.abs(polyArea(poly)) < 1e-9) return { rays: [], daylight: [], problems: [t('grade.err.three')], poly };
   const cut = Number(pad.cut), fill = Number(pad.fill), z = Number(pad.z);
   const zv = (p) => (Number.isFinite(p.z) ? p.z : z);   // 0.4 V14: per-corner elevations
   if (!(cut > 0) || !(fill > 0)) return { rays: [], daylight: [], problems: [t('grade.err.slopes')], poly };
+  // 0.7.1 71.22: the settings of the side that runs from poly[i] to poly[i + 1] (its index k in pad.pts, whichever way round)
+  const S = pad.sides || null, wallT = Number(S?.wallT) > 0 ? Number(S.wallT) : 0;
+  const sideOf = (i) => {
+    const a = poly[i], b = poly[(i + 1) % poly.length], k = rev ? b._k : a._k, e = S?.edges?.[k] || null;
+    return { k, wall: !!e?.wall && wallT > 0, cut: Number(e?.cut) > 0 ? Number(e.cut) : cut, fill: Number(e?.fill) > 0 ? Number(e.fill) : fill };
+  };
   let size = 0;
   for (const p of poly) for (const q of poly) size = Math.max(size, Math.hypot(p.x - q.x, p.y - q.y));
   const sp = spacing > 0 ? spacing : Math.max(size / 20, 0.5);
@@ -46,18 +61,29 @@ export function daylightPad(surface, pad, { spacing, fanStep = Math.PI / 18, max
   const edgeN = (i) => { const a = poly[i], b = poly[(i + 1) % n], L = Math.hypot(b.x - a.x, b.y - a.y); return { x: (b.y - a.y) / L, y: -(b.x - a.x) / L, L }; };   // outward (right of a counter-clockwise edge)
   for (let i = 0; i < n; i++) {
     const v = poly[i], nIn = edgeN((i - 1 + n) % n), nOut = edgeN(i);
+    const sIn = sideOf((i - 1 + n) % n), sOut = sideOf(i);   // 0.7.1 71.22
     const turn = Math.atan2(nIn.x * nOut.y - nIn.y * nOut.x, nIn.x * nOut.x + nIn.y * nOut.y);   // > 0 at a convex corner
-    if (turn > 1e-9) {
+    if (sIn.wall && sOut.wall && Math.abs(turn) > 1e-9) {   // two walls: a mitre
+      const bx = nIn.x + nOut.x, by = nIn.y + nOut.y, L = Math.hypot(bx, by);
+      rays.push(wall(v, bx / L, by / L, wallT / Math.max(0.25, Math.cos(Math.abs(turn) / 2)), zv(v), sOut.k));
+    } else if (turn > 1e-9) {
+      // a wall's end: its own ray, then the slope's fan round the corner (without the ray along the wall)
       const a0 = Math.atan2(nIn.y, nIn.x), k = Math.max(1, Math.ceil(turn / fanStep));
-      for (let j = 0; j <= k; j++) { const a = a0 + (turn * j) / k; rays.push(cast(v, Math.cos(a), Math.sin(a), 1, zv(v))); }
+      if (sIn.wall) rays.push(wall(v, nIn.x, nIn.y, wallT, zv(v), sIn.k));
+      for (let j = sIn.wall ? 1 : 0; j <= (sOut.wall ? k - 1 : k); j++) { const a = a0 + (turn * j) / k; rays.push(cast(v, Math.cos(a), Math.sin(a), 1, zv(v), j * 2 <= k ? (sIn.wall ? sOut : sIn) : (sOut.wall ? sIn : sOut))); }
+      if (sOut.wall) rays.push(wall(v, nOut.x, nOut.y, wallT, zv(v), sOut.k));
     } else if (turn < -1e-9) {
       const bx = nIn.x + nOut.x, by = nIn.y + nOut.y, L = Math.hypot(bx, by);
-      rays.push(cast(v, bx / L, by / L, Math.cos(Math.abs(turn) / 2), zv(v)));
+      rays.push(cast(v, bx / L, by / L, Math.cos(Math.abs(turn) / 2), zv(v), sIn.wall ? sOut : sIn));
       concave.push({ i, v, bx: bx / L, by: by / L });
-    } else rays.push(cast(v, nOut.x, nOut.y, 1, zv(v)));
+    } else rays.push(sOut.wall || sIn.wall ? wall(v, nOut.x, nOut.y, wallT, zv(v), sOut.wall ? sOut.k : sIn.k) : cast(v, nOut.x, nOut.y, 1, zv(v), sOut));   // in line: a wall runs to the corner
     // along the edge
     const b = poly[(i + 1) % n], m = Math.max(1, Math.ceil(nOut.L / sp));
-    for (let j = 1; j < m; j++) { const t = j / m; const r = cast({ x: v.x + (b.x - v.x) * t, y: v.y + (b.y - v.y) * t }, nOut.x, nOut.y, 1, zv(v) + (zv(b) - zv(v)) * t); r.edge = i; rays.push(r); }
+    for (let j = 1; j < m; j++) {
+      const t = j / m, p = { x: v.x + (b.x - v.x) * t, y: v.y + (b.y - v.y) * t }, ze = zv(v) + (zv(b) - zv(v)) * t;
+      const r = sOut.wall ? wall(p, nOut.x, nOut.y, wallT, ze, sOut.k) : cast(p, nOut.x, nOut.y, 1, ze, sOut);
+      r.edge = i; rays.push(r);
+    }
   }
   // at a concave corner the two slopes meet along the bisector: edge rays that would reach past it are dropped
   for (const c of concave) {
@@ -73,9 +99,21 @@ export function daylightPad(surface, pad, { spacing, fanStep = Math.PI / 18, max
   if (bad.length) problems.push(t('grade.off', { n: bad.length }));
   const daylight = rays.map((r) => ({ x: r.x, y: r.y, z: r.z }));
   if (!bad.length && selfCrosses(daylight)) problems.push(t('grade.daycross'));
-  return { rays, daylight, problems, poly };
+  const out = { rays, daylight, problems, poly };
+  if (S) { out.walls = wallRuns(rays); out.warnings = sideWarnings(out, pad); }   // 0.7.1 71.22
+  return out;
 
-  function cast(p0, ux, uy, rate, z0 = z) { const r = castSlope(surface, p0, ux, uy, z0, cut, fill, { rate, step: Math.max(sp / 4, 0.05), far }); r.z0 = z0; return r; }
+  function cast(p0, ux, uy, rate, z0 = z, sd = null) {
+    const r = castSlope(surface, p0, ux, uy, z0, sd ? sd.cut : cut, sd ? sd.fill : fill, { rate, step: Math.max(sp / 4, 0.05), far });
+    r.z0 = z0;
+    if (sd) r.k = sd.k;
+    return r;
+  }
+  /** 0.7.1 71.22: a wall side's ray: the wall's thickness out to the ground behind (or in front of) it, no slope. */
+  function wall(p0, ux, uy, d, z0, k) {
+    const x = p0.x + ux * d, y = p0.y + uy * d, g = surface.elevationAt(x, y, 1e-6);
+    return { x0: p0.x, y0: p0.y, x, y, z: g ?? z0, d, kind: g === null ? 'off' : 'wall', z0, k };
+  }
 }
 
 /**

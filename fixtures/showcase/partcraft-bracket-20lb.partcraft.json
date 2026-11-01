@@ -1,0 +1,334 @@
+{
+ "format": "partcraft",
+ "version": 3,
+ "name": "Shelf bracket 20 lb at 6 in",
+ "units": "mm",
+ "resolution": 64,
+ "seq": 5,
+ "rollback": null,
+ "features": [
+  {
+   "id": "f1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "plane": {
+    "kind": "base",
+    "name": "front"
+   },
+   "sketch": {
+    "seq": 36,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "p2",
+      "type": "point",
+      "x": 152.39999999999998,
+      "y": 0
+     },
+     {
+      "id": "l3",
+      "type": "line",
+      "p1": "p1",
+      "p2": "p2"
+     },
+     {
+      "id": "p4",
+      "type": "point",
+      "x": 152.39999999999998,
+      "y": 0
+     },
+     {
+      "id": "p6",
+      "type": "point",
+      "x": 152.39999999999998,
+      "y": 5
+     },
+     {
+      "id": "l7",
+      "type": "line",
+      "p1": "p4",
+      "p2": "p6"
+     },
+     {
+      "id": "p8",
+      "type": "point",
+      "x": 152.39999999999998,
+      "y": 5
+     },
+     {
+      "id": "p10",
+      "type": "point",
+      "x": 5,
+      "y": 5
+     },
+     {
+      "id": "l11",
+      "type": "line",
+      "p1": "p8",
+      "p2": "p10"
+     },
+     {
+      "id": "p12",
+      "type": "point",
+      "x": 5,
+      "y": 5
+     },
+     {
+      "id": "p14",
+      "type": "point",
+      "x": 5,
+      "y": 96.5
+     },
+     {
+      "id": "l15",
+      "type": "line",
+      "p1": "p12",
+      "p2": "p14"
+     },
+     {
+      "id": "p16",
+      "type": "point",
+      "x": 5,
+      "y": 96.5
+     },
+     {
+      "id": "p18",
+      "type": "point",
+      "x": 0,
+      "y": 96.5
+     },
+     {
+      "id": "l19",
+      "type": "line",
+      "p1": "p16",
+      "p2": "p18"
+     },
+     {
+      "id": "p20",
+      "type": "point",
+      "x": 0,
+      "y": 96.5
+     },
+     {
+      "id": "p22",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "l23",
+      "type": "line",
+      "p1": "p20",
+      "p2": "p22"
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k5",
+      "type": "coincident",
+      "refs": [
+       "p4",
+       "p2"
+      ]
+     },
+     {
+      "id": "k9",
+      "type": "coincident",
+      "refs": [
+       "p8",
+       "p6"
+      ]
+     },
+     {
+      "id": "k13",
+      "type": "coincident",
+      "refs": [
+       "p12",
+       "p10"
+      ]
+     },
+     {
+      "id": "k17",
+      "type": "coincident",
+      "refs": [
+       "p16",
+       "p14"
+      ]
+     },
+     {
+      "id": "k21",
+      "type": "coincident",
+      "refs": [
+       "p20",
+       "p18"
+      ]
+     },
+     {
+      "id": "k24",
+      "type": "coincident",
+      "refs": [
+       "p22",
+       "p1"
+      ]
+     },
+     {
+      "id": "k25",
+      "type": "coincident",
+      "refs": [
+       "O",
+       "p1"
+      ]
+     },
+     {
+      "id": "k26",
+      "type": "horizontal",
+      "refs": [
+       "l3"
+      ]
+     },
+     {
+      "id": "k27",
+      "type": "horizontal",
+      "refs": [
+       "l11"
+      ]
+     },
+     {
+      "id": "k28",
+      "type": "horizontal",
+      "refs": [
+       "l19"
+      ]
+     },
+     {
+      "id": "k29",
+      "type": "vertical",
+      "refs": [
+       "l7"
+      ]
+     },
+     {
+      "id": "k30",
+      "type": "vertical",
+      "refs": [
+       "l15"
+      ]
+     },
+     {
+      "id": "k31",
+      "type": "vertical",
+      "refs": [
+       "l23"
+      ]
+     },
+     {
+      "id": "k32",
+      "type": "hdistance",
+      "refs": [
+       "O",
+       "p2"
+      ],
+      "sign": 1,
+      "value": 152.39999999999998
+     },
+     {
+      "id": "k33",
+      "type": "distance",
+      "refs": [
+       "l7"
+      ],
+      "value": 5
+     },
+     {
+      "id": "k34",
+      "type": "vdistance",
+      "refs": [
+       "O",
+       "p16"
+      ],
+      "sign": 1,
+      "value": 96.5
+     },
+     {
+      "id": "k35",
+      "type": "hdistance",
+      "refs": [
+       "O",
+       "p10"
+      ],
+      "sign": 1,
+      "value": 5
+     }
+    ]
+   }
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Extrude1",
+   "sketch": "f1",
+   "op": "add",
+   "end": "blind",
+   "depth": 25,
+   "reverse": false
+  },
+  {
+   "id": "f3",
+   "type": "sketch",
+   "name": "Sketch2",
+   "plane": {
+    "kind": "base",
+    "name": "right"
+   },
+   "sketch": {
+    "seq": 5,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": -12.5,
+      "y": 13.25
+     },
+     {
+      "id": "c2",
+      "type": "circle",
+      "c": "p1",
+      "r": 2.75
+     },
+     {
+      "id": "p3",
+      "type": "point",
+      "x": -12.5,
+      "y": 88.25
+     },
+     {
+      "id": "c4",
+      "type": "circle",
+      "c": "p3",
+      "r": 2.75
+     }
+    ],
+    "constraints": []
+   }
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Extrude2",
+   "sketch": "f3",
+   "op": "cut",
+   "end": "mid",
+   "depth": 15,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "aluminium 6061-T6",
+  "density": 2.7
+ }
+}

@@ -13,10 +13,12 @@
 import { t } from './i18n.js';
 import { HYDRO_DEFAULTS, cleanHydro, catchmentArea, rationalFlows, sizePipes, hydraulicGrade } from './hydro.js';
 import { DIA_UNIT } from './pipes.js';
+import { createRoute } from './storm-route-ui.js';   // 0.8 LC.16
 import { fixed } from './units.js';
 
 export function createDrainage(ctx) {
   const { el } = ctx;
+  const rtUi = createRoute(ctx);
   const P = () => ctx.project(), U = () => ctx.units(), N = () => P().state.network;
   const qU = () => (U() === 'm' ? 'm³/s' : 'cfs'), aU = () => (U() === 'm' ? 'ha' : 'ac'), iU = () => (U() === 'm' ? 'mm/h' : 'in/h'), lU = () => (U() === 'm' ? 'm' : 'ft');
   const diaName = () => DIA_UNIT[U() === 'm' ? 'm' : 'ft'].name;
@@ -87,6 +89,7 @@ export function createDrainage(ctx) {
       out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-dr-size': '', onclick: sizeAll }, t('dr.size'))));
       out.push(el('p', { className: 'cv-note' }, t('dr.size.note')));
     }
+    out.push(...rtUi.block(n));   // 0.8 LC.16: the storm as hydrographs
     return out;
   }
   const dia = (p) => (Number(p.dia) || 0) / DIA_UNIT[U() === 'm' ? 'm' : 'ft'].perUnit;

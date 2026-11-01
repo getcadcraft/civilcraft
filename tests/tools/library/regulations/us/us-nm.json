@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-nm",
+  "name": "New Mexico: 2021 New Mexico Residential Building Code (NMRBC)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-NM",
+    "name": "New Mexico"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-07-14",
+  "in_force": "2023-07-14",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Construction Industries Commission / Construction Industries Division, RLD; 14.7.3 NMAC). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (research confidence: high); n…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Construction Industries Commission / Construction Industries Division, RLD, 14.7.3 NMAC",
+    "url": "https://srca.nm.gov/parts/title14/14.007.0003.html",
+    "date": "2023-07-14",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "14.7.3.11 NMAC (R311.7.5.1)",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 203.2
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "14.7.3.11 NMAC (R311.7.5.2)",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

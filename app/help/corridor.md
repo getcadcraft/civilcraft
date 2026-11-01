@@ -97,6 +97,10 @@ Turn on **Build each side from parts** under the corridor's settings. Each side 
 
 A cross slope is the fall away from the road, so a sidewalk that drains toward the road is negative. A curb is a face of the height you give, a top of the width you give and an optional drop at the back. Superelevation turns every lane in the first row; the gutter, curb, strip and sidewalk hang from the edge of the lanes as built. Targets still move the end of the lanes and the last part. Cross sections mark the gutter flowline, top and back of curb, and the rest. On a curve with spirals the runoff is the spiral: level crown at the TS, full superelevation at the SC.
 
+## Pavement courses
+
+A lane, shoulder, gutter, planting strip or sidewalk can carry its build-up: under the part, {{ui:Add a course}} adds a course with a name, a material, a thickness and its kind (surface, binder, base, subbase, capping or other), top down. The courses do not move the road's surface (its top is the design surface); each lies under its part, its depth measured straight down. Cross sections draw each course bottom as a dashed line, and {{ui:Pavement courses: quantities}} lists the plan area and volume of every course (area along the corridor from its sections, volume = area × thickness). The IFC export writes each course as its own element with its thickness and material (see [IFC export and import](topic:ifc)). The thickness you type is yours: CivilCraft does not size pavements.
+
 ## What is not built yet
 
 Assemblies that change along the road, regions, and targets for the daylight slope are not available yet. See [Not built yet](topic:not-built-yet).

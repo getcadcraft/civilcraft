@@ -123,7 +123,7 @@ try {
 
   console.log('\n== toolbar and language strings');
   const tb = await E(page, () => {
-    const t = document.querySelector('main > [role="toolbar"]'), gs = [...t.querySelectorAll(':scope > [role="group"]')];
+    const t = document.querySelector('main > [role="toolbar"]'), gs = [...t.querySelectorAll(':scope > [role="group"]')].filter((g) => g.getBoundingClientRect().height > 0);   // 0.7.1: hidden workspace groups left out
     return { tops: [...new Set(gs.map((g) => Math.round(g.getBoundingClientRect().top)))], right: Math.round(Math.max(...gs.map((g) => g.getBoundingClientRect().right))) };
   });
   ok(tb.tops.length === 1, `toolbar on one row at 1440 px (right edge ${tb.right} px)`);
@@ -174,26 +174,26 @@ try {
   await page.waitForSelector('[data-point-edit]');
   ok(await E(page, (n) => window.civilcraft.picked.join() === n, target.n), 'clicked point ' + target.n + ' is selected; Properties shows the editor');
   const steps0 = await E(page, () => window.civilcraft.project.undoStack.length);
-  await page.fill('#cv-pt-z', String(target.z + 5));
-  await page.press('#cv-pt-z', 'Enter');
+  await page.fill('[data-pg-row="z"]', String(target.z + 5));
+  await page.press('[data-pg-row="z"]', 'Enter');
   await page.waitForFunction((a) => window.civilcraft.project.points.find((q) => q.n === a.n).z === a.z + 5, target);
   ok(await E(page, (a) => Math.abs(window.civilcraft.project.eg().surface.elevationAt(a.x, a.y) - (a.z + 5)) < 1e-9, target), 'typed elevation + Enter: the point and the surface change');
   ok(/changed/.test(await page.textContent('[data-status]')), 'the status line says so');
-  await page.fill('#cv-pt-d', 'SPOT edited');
-  await page.press('#cv-pt-d', 'Enter');
+  await page.fill('[data-pg-row="d"]', 'SPOT edited');
+  await page.press('[data-pg-row="d"]', 'Enter');
   await page.waitForFunction((n) => window.civilcraft.project.points.find((q) => q.n === n).d === 'SPOT edited', target.n);
   ok(await E(page, () => window.civilcraft.project.state.surface.groups.SPOT === 'points'), 'a new description: group SPOT appears');
-  await page.fill('#cv-pt-x', 'not a number');
-  await page.press('#cv-pt-x', 'Enter');
-  ok(await page.getAttribute('#cv-pt-x', 'aria-invalid') === 'true', 'junk easting: the box is marked invalid');
+  await page.fill('[data-pg-row="x"]', 'not a number');
+  await page.press('[data-pg-row="x"]', 'Enter');
+  ok(await page.getAttribute('[data-pg-row="x"]', 'aria-invalid') === 'true', 'junk easting: the box is marked invalid');
   ok(/Type a number/.test(await page.textContent('[data-status]')), 'and the reason is said');
   ok(await E(page, (a) => window.civilcraft.project.points.find((q) => q.n === a.n).x === a.x, target), 'the point did not move');
   const other = await E(page, (n) => window.civilcraft.project.points.find((q) => q.n !== n).n, target.n);
-  await page.fill('#cv-pt-n', other);
-  await page.press('#cv-pt-n', 'Enter');
+  await page.fill('[data-pg-row="n"]', other);
+  await page.press('[data-pg-row="n"]', 'Enter');
   ok(/already exists/.test(await page.textContent('[data-status]')) && await E(page, (n) => window.civilcraft.project.points.some((q) => q.n === n), target.n), 'number ' + other + ' (another point’s) is refused, said; nothing renumbered');
-  await page.fill('#cv-pt-n', 'CTRL-A');
-  await page.press('#cv-pt-n', 'Enter');
+  await page.fill('[data-pg-row="n"]', 'CTRL-A');
+  await page.press('[data-pg-row="n"]', 'Enter');
   await page.waitForFunction(() => window.civilcraft.project.points.some((q) => q.n === 'CTRL-A'));
   await page.locator('[data-over]').focus();
   await wait(100);
@@ -741,7 +741,7 @@ try {
   const pcur = await E(page, () => ({ n: window.civilcraft.project.undoStack.length, legal: document.querySelector('[data-pc-legal]').value }));
   ok(pcur.n === st21 + 1 && /along a curve to the left, having a radius of 40\.00 feet/.test(pcur.legal), 'radius 40 typed on course 2: one undo step, a curve in the legal description');
   await shot(page, '23-parcel');
-  const [pdx] = await Promise.all([page.waitForEvent('download'), page.click('[data-cmd="dxf"]')]);
+  const [pdx] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => document.querySelector('[data-cmd="dxf"]').click())   /* 0.7.1 71.24: DXF is the DWG/DXF button's choice; its command stays (the shell clicks it) */]);
   const pdxF = path.join(OUT, 'parcels.dxf'); await pdx.saveAs(pdxF);
   const pdxT = fs.readFileSync(pdxF, 'utf8');
   ok(/\n\s*8\r?\nV-PROP\r?\n/.test(pdxT) && /N 0%%d00'00" E {2}80\.00'/.test(pdxT) && /R=40\.00' {2}L=67\.84' {2}Delta=97%%d10'51"/.test(pdxT) && /4,237 sq ft/.test(pdxT), 'the DXF has the parcel on V-PROP and its labels (degrees as %%d)');

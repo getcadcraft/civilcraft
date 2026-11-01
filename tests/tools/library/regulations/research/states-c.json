@@ -1,0 +1,212 @@
+[
+ {
+  "state": "Maryland",
+  "code": "US-MD",
+  "statewide": true,
+  "base_code": "IRC 2021",
+  "state_code_name": "Maryland Building Performance Standards (MBPS)",
+  "effective_date": "2023-05-29",
+  "adopting_authority": "Maryland Department of Labor, Building Codes Administration",
+  "citation": "COMAR 09.12.51",
+  "source_url": "https://labor.md.gov/labor/build/comar091251.pdf",
+  "source_date": "2023-05-29 (amendment published 50:10 Md. R. 407)",
+  "secondary_source_url": "https://www.iccsafe.org/advocacy/adoptions-map/",
+  "amendments": [],
+  "confidence": "high",
+  "notes": "COMAR 09.12.51.04C IRC modifications reviewed: none change the eight limits. Local jurisdictions may amend (e.g. Baltimore City 8 1/4 in riser). IRC 2024 proposed 2026-06-26; final adoption not confirmed.",
+  "as_of": "2023-05-29 COMAR; July 2026 proposal status"
+ },
+ {
+  "state": "Massachusetts",
+  "code": "US-MA",
+  "statewide": true,
+  "base_code": "IRC 2021",
+  "state_code_name": "Massachusetts State Building Code, 10th Edition, Residential Code (780 CMR 51.00)",
+  "effective_date": "2024-10-11",
+  "adopting_authority": "Board of Building Regulations and Standards (BBRS)",
+  "citation": "780 CMR 51.00",
+  "source_url": "https://www.mass.gov/handbook/tenth-edition-of-the-ma-state-building-code-780",
+  "source_date": "2024-10-11",
+  "secondary_source_url": "https://regulations.justia.com/states/massachusetts/780-cmr/chapter-chapter-51/chapter-3/section-r301/subsection-301-1/subsection-311-7",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (210 mm)",
+    "section": "780 CMR 51 R311.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "780 CMR 51 R311.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "medium",
+  "notes": "Concurrency with the 9th edition ended 2025-06-30. Riser/tread from Justia's copy of 780 CMR 51 (current through March 2025); official mass.gov chapter text not opened (403). Other six limits not confirmed either way.",
+  "as_of": "2025-03"
+ },
+ {
+  "state": "Michigan",
+  "code": "US-MI",
+  "statewide": true,
+  "base_code": "IRC 2015",
+  "state_code_name": "Michigan Residential Code 2015 (MRC)",
+  "effective_date": "2016-02-08",
+  "adopting_authority": "LARA, Bureau of Construction Codes",
+  "citation": "1972 PA 230 (MCL 125.1501 et seq.); Mich. Admin. Code R 408.30401 et seq.",
+  "source_url": "https://www.michigan.gov/en/lara/bureau-list/bcc/rules-acts/rules/currently-open",
+  "source_date": "2025-07-07 (Court of Claims stipulated order)",
+  "secondary_source_url": "https://www.law.cornell.edu/regulations/michigan/Mich-Admin-Code-R-408.30519",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (210 mm)",
+    "section": "R 408.30519 (IRC R311.7.5.1)",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "R 408.30519 (IRC R311.7.5.2)",
+    "source": ""
+   }
+  ],
+  "confidence": "medium",
+  "notes": "2021 MRC filed 2025-05-01 for 2025-08-29 but stayed by a 2025-07-07 Court of Claims order; LARA says the 2015 MRC remains in effect. Riser/tread confirmed in R 408.30519 text (2025).",
+  "as_of": "2026"
+ },
+ {
+  "state": "Minnesota",
+  "code": "US-MN",
+  "statewide": true,
+  "base_code": "IRC 2018",
+  "state_code_name": "2020 Minnesota Residential Code",
+  "effective_date": "2020-03-31",
+  "adopting_authority": "Minnesota Department of Labor and Industry",
+  "citation": "Minn. R. ch. 1309",
+  "source_url": "https://www.revisor.mn.gov/rules/1309/full",
+  "source_date": "2020-03-31",
+  "secondary_source_url": "https://dli.mn.gov/about-department/rulemaking/rulemaking-docket-minnesota-rules-chapter-1309",
+  "amendments": [],
+  "confidence": "high",
+  "notes": "MN rewrites R305.1/R311.7.1/R311.7.2 with the same values; existing basements allow 6 ft 4 in (R305.2). IRC 2024 request for comments 2026-02-02.",
+  "as_of": "2026-02"
+ },
+ {
+  "state": "Mississippi",
+  "code": "US-MS",
+  "statewide": false,
+  "base_code": "IRC 2018 (Council adoption); jurisdictions that opted out are not covered",
+  "state_code_name": "Mississippi State Uniform Construction Code",
+  "effective_date": "2019-12 (not confirmed)",
+  "adopting_authority": "Mississippi Building Codes Council",
+  "citation": "Miss. Code Ann. §17-2-1 et seq.",
+  "source_url": "https://www.mid.ms.gov/?p=1608",
+  "source_date": "not confirmed",
+  "secondary_source_url": "https://www.iccsafe.org/advocacy/adoptions-map/Mississippi/",
+  "amendments": [],
+  "confidence": "low",
+  "notes": "Hybrid: applies to jurisdictions that did not opt out in 2014; coastal counties must enforce.",
+  "as_of": "2026-03"
+ },
+ {
+  "state": "Missouri",
+  "code": "US-MO",
+  "statewide": false,
+  "base_code": "none statewide (local option)",
+  "state_code_name": "not confirmed",
+  "effective_date": "not applicable",
+  "adopting_authority": "Local governments",
+  "citation": "RSMo 67.280 (not confirmed)",
+  "source_url": "https://revisor.mo.gov/main/OneSection.aspx?section=67.280",
+  "source_date": "not confirmed",
+  "secondary_source_url": "https://energycodes.gov/status/states/missouri",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Home rule.",
+  "as_of": "2026"
+ },
+ {
+  "state": "Montana",
+  "code": "US-MT",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "Montana State Building Code (IRC as adopted, ARM 24.301)",
+  "effective_date": "2026-09-26",
+  "adopting_authority": "Montana Department of Labor and Industry, Building and Commercial Measurements Bureau",
+  "citation": "ARM 24.301.154; MAR Notice No. 2026-95",
+  "source_url": "https://bsd.dli.mt.gov/building-codes-permits/current-codes",
+  "source_date": "2026 (MAR Notice 2026-95)",
+  "secondary_source_url": "https://bsd.dli.mt.gov/_docs/building-codes-permits/2024-BUILDING-CODE-ADOPTION-AMENDMENTS.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in",
+    "section": "ARM 24.301.154 (IRC 2024 R318.7.5.1)",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "ARM 24.301.154 (IRC 2024 R318.7.5.2)",
+    "source": ""
+   }
+  ],
+  "confidence": "medium",
+  "notes": "IRC 2021 applied from 2022-06-11 before. Riser/tread from the draft notice (carried over from the 2021 rule); final notice not seen.",
+  "as_of": "2026-10"
+ },
+ {
+  "state": "Nebraska",
+  "code": "US-NE",
+  "statewide": true,
+  "base_code": "IRC 2018",
+  "state_code_name": "Nebraska State Building Code",
+  "effective_date": "2019 (exact date not confirmed)",
+  "adopting_authority": "Nebraska Legislature (by statute)",
+  "citation": "Neb. Rev. Stat. §71-6403(1)(b)",
+  "source_url": "https://nebraskalegislature.gov/laws/statutes.php?statute=71-6403",
+  "source_date": "Laws 2021, LB131 §21",
+  "secondary_source_url": "https://www.nebraskalegislature.gov/laws/statutes.php?statute=71-6406",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Localities adopt the state code or a conforming code; state code applies where none adopted within 2 years. No state program enforces it for private homes.",
+  "as_of": "2026-10"
+ },
+ {
+  "state": "Nevada",
+  "code": "US-NV",
+  "statewide": false,
+  "base_code": "none statewide (local adoption)",
+  "state_code_name": "not applicable",
+  "effective_date": "not applicable",
+  "adopting_authority": "Local governments",
+  "citation": "NRS 278.580",
+  "source_url": "https://nevada.public.law/statutes/nrs_278.580",
+  "source_date": "not confirmed",
+  "secondary_source_url": "",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Home rule; Clark County IRC 2024 effective 2026-01-11.",
+  "as_of": "2026-01"
+ },
+ {
+  "state": "New Hampshire",
+  "code": "US-NH",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "New Hampshire State Building Code",
+  "effective_date": "2026-07-01",
+  "adopting_authority": "NH Legislature with State Building Code Review Board amendments",
+  "citation": "RSA 155-A:1, IV; HB1159 (2026)",
+  "source_url": "https://gc.nh.gov/rsa/html/XII/155-A/155-A-1.htm",
+  "source_date": "2026-05-08 (HB1159 approved)",
+  "secondary_source_url": "https://bills.nhliberty.org/bills/2026/HB1159",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Permits 2026-07-01 to 2026-12-31 may use 2021 or 2024 codes; 2024 mandatory from 2027-01-01. State IRC amendment text not found.",
+  "as_of": "2026-07",
+  "amendments_unconfirmed": true
+ }
+]

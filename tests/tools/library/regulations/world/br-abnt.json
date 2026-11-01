@@ -1,0 +1,73 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "br-abnt",
+  "name": "Brazil: ABNT standards NBR 9077 (exits), NBR 9050 (accessibility), NBR 15575 (housing performance)",
+  "jurisdiction": {
+    "country": "BR",
+    "level": "country",
+    "region": "",
+    "name": "Brazil"
+  },
+  "base": null,
+  "edition": "ABNT standards NBR 9077 (exits), NBR 90…",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "Brazil has no national building code: ABNT standards apply nationally and municipal codes set room sizes and openings. Values from a 2001 NBR 9077 copy and secondary sources; current editions not confirmed. Width (1.10 m) is the emergency-exit rule and is not checked for houses. Not checked by this pack: stair width, stair headroom, glazing, share of floor area, openable area, share of floor area…"
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "ABNT; municipal Códigos de Obras; state fire brigades, ABNT standards NBR 9077 (exits), NBR 9050 (accessibility), NBR 1…",
+    "url": "https://www.mprj.mp.br/documents/20184/74453/nbr_9077_saidas_de_emergencia_em_edificios_2001.pdf",
+    "date": "2001-12",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "NBR 9077 4.7.3.1; NBR 9050 6.8.2",
+      "label": "Riser height",
+      "note": "160-180 mm; 630 ≤ 2h + b ≤ 640 mm.",
+      "value": 180
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "NBR 9050 6.8.2",
+      "label": "Tread depth (going)",
+      "note": "280-320 mm on accessible routes.",
+      "value": 280
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "NBR 9077 4.8.2.1",
+      "label": "Handrail height",
+      "note": "NBR 9050 accessible routes: double handrails at 700 and 920 mm.",
+      "min": 800,
+      "max": 920
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "NBR 15575-1",
+      "label": "Ceiling height",
+      "note": "2.30 m allowed in halls, corridors, toilets and bathrooms. Municipal codes may require more.",
+      "value": 2500
+    }
+  ]
+}

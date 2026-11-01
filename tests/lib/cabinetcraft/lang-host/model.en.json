@@ -1,0 +1,20 @@
+{
+  "mod.room.title": "Use the selected floor face as the room",
+  "mod.room.note": "Select a floor face (a level face looking up) in the model first. Its outline becomes the job's room, and the doors and windows of the starter library near its edge become openings.",
+  "mod.room.row": "{name}: {area} m2, {doors} doors, {windows} windows",
+  "mod.room.select": "Select a floor face in the model first (a level face looking up).",
+  "mod.room.unavailable": "This ModelCraft cannot hand a room to add-ons.",
+  "mod.place.title": "Cabinets in the model",
+  "mod.place.note": "Puts the cabinets in the model as bodies: one group for the job (tag \"CabinetCraft / cabinets\"), a sub-group for every cabinet, filler, end panel and countertop, each panel coloured by its material pick. They are real faces, so they render, select, measure, hide with their tag and go out with File > Export to OBJ, glTF and STL. One undo step; placing again replaces the group.",
+  "mod.place.unavailable": "This ModelCraft cannot take bodies from add-ons.",
+  "mod.place.do": "Place in the model",
+  "mod.place.replace": "Replace in the model",
+  "mod.place.label": "place cabinets",
+  "mod.place.done": "{cabs} cabinets placed ({n} panels).",
+  "mod.place.empty": "This job has no cabinets yet.",
+  "mod.remove": "Remove from the model",
+  "mod.remove.label": "remove cabinets",
+  "mod.removed": "The cabinets were taken out of the model.",
+  "mod.none": "Nothing of this job is in the model.",
+  "mod.count": "{n} panel bodies of this job are in the model."
+}

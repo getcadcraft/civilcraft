@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ga",
+  "name": "Georgia: Georgia State Minimum Standard One- and Two-Family Dwelling Code (IRC 2024 with Georgia amendments)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-GA",
+    "name": "Georgia"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2026-01-01",
+  "in_force": "2026-01-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (Georgia Department of Community Affairs (DCA) Board, on SCAC recommendation; O.C.G.A. § 8-2-23). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Georgia Department of Community Affairs (DCA) Board, on SCAC recommendation, O.C.G.A. § 8-2-23",
+    "url": "https://dca.georgia.gov/scac",
+    "date": "2025-12-01",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

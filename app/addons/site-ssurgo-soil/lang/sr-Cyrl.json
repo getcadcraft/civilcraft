@@ -1,0 +1,6 @@
+{
+  "@locale": "sr-Cyrl",
+  "@name": "Српски (ћирилица)",
+  "@note": "Draft: made from sr-Latn by tools/lang/sr-cyrl.mjs (transliteration); edit sr-Latn, not this file",
+  "site-ssurgo-soil.name": "Земљишта (USDA SSURGO)"
+}

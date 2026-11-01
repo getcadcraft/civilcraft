@@ -1,0 +1,31 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* Suggestions, Assistant activity and the Ask box (round 2, ai-trust_PART_2): what the panels need beyond app-tools.css (their frame, buttons and fields are the shared .cct ones). */
+.app-bar-suggest[aria-expanded="true"], .app-bar-activity[aria-expanded="true"], .app-bar-ask[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+.app-bar-suggest[data-count]:not([data-count=""]) .bi { color: var(--layer-ochre); }
+/* narrow screens: the three live in "More" (app-tools-ui.js makePanel), as Calc, Reasons and Lessons do */
+@media (max-width: 47.5rem) {
+  .app-bar > .app-bar-suggest, .app-bar > .app-bar-activity, .app-bar > .app-bar-ask { display: none; }
+}
+.cct-suggest, .cct-activity, .cct-ask { width: min(30rem, 100vw); }
+.cct-sg-set { border: var(--pen-1) solid var(--line); padding: .5rem; display: flex; flex-direction: column; gap: .35rem; }
+.cct-sg-set.is-pending, .cct-sg-set.is-partial { border-color: var(--layer-ochre); }
+.cct-sg-set .cct-sub { margin: 0; }
+.cct-sg-item { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem; }
+.cct-sg-item.is-accepted .cct-link { color: var(--layer-green); }
+.cct-sg-item.is-rejected .cct-link { color: var(--ink-2); text-decoration: line-through; }
+.cct-sg-item.is-failed .cct-link { color: var(--layer-red); }
+.cct-sg-item.is-stale .cct-link { border-bottom: var(--pen-1) dashed var(--layer-ochre); }
+.cct-sg-project { border: var(--pen-1) solid var(--line); padding: .4rem .5rem; display: flex; flex-direction: column; gap: .25rem; }
+.cct-sg-project legend { font-size: .8125rem; font-weight: 700; padding: 0 .25rem; }
+.cct-ac-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem; padding: .15rem 0; border-bottom: var(--pen-1) solid var(--grid); }
+.cct-ac-row.is-error .cct-ac-text, .cct-ac-row.is-refused .cct-ac-text { color: var(--layer-red); }
+.cct-ac-row.is-suggested .cct-ac-text { color: var(--layer-ochre); }
+.cct-ac-sum { color: var(--ink-2); font-size: .8125rem; }
+.cct-ask-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .6rem; }
+.cct-ask-item { border: var(--pen-1) solid var(--line); padding: .5rem; display: flex; flex-direction: column; gap: .35rem; }
+.cct-ask-item.is-working, .cct-ask-item.is-waiting { border-color: var(--layer-blue); }
+.cct-ask-item.is-failed, .cct-ask-item.is-no_route { border-color: var(--layer-red); }
+.cct-ask-q, .cct-ask-a { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cct-ask-steps { gap: .15rem; font-size: .8125rem; color: var(--ink-2); }
+.cct-ask-step.is-bad { color: var(--layer-red); }
+.cct-ask-step.is-say { color: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }

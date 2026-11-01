@@ -1,0 +1,74 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ut-salt-lake-city",
+  "name": "Salt Lake City: Utah State Construction Code, Salt Lake City design criteria",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-UT",
+    "name": "Salt Lake City"
+  },
+  "base": "us-ut",
+  "edition": "Utah State Construction Code, Salt Lake…",
+  "in_force": "2024-07-01",
+  "review": {
+    "state": "draft",
+    "note": "The Utah state pack for this city — the state code with the city's design criteria (Salt Lake City Building Services; Design Criteria handout (2024 IBC/IRC)). Design criteria from www.slc.gov (2026-07). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Salt Lake City Building Services, Design Criteria handout (2024 IBC/IRC)",
+    "url": "https://www.slc.gov/buildingservices/wp-content/uploads/sites/9/2026/07/SLC-Design-Criteria-2024-IBC_IRC.pdf",
+    "date": "2026-07",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "28 psf at or below 4,239 ft; above that per the Utah Snow Load Study",
+      "value": 28,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "115 mph (3-second gust)",
+      "value": 115,
+      "unit": "mph"
+    },
+    "seismic_category": {
+      "text": "D2"
+    },
+    "weathering": {
+      "text": "Severe"
+    },
+    "frost_depth": {
+      "text": "30 in",
+      "value": 762,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "None to slight"
+    },
+    "winter_design_temp": {
+      "text": "8 °F"
+    },
+    "ice_barrier": {
+      "text": "Yes"
+    },
+    "flood_hazards": {
+      "text": "floodhazards.utah.gov; Zones A or V per R322"
+    },
+    "air_freezing_index": {
+      "text": "1500 or less"
+    },
+    "mean_annual_temp": {
+      "text": "45 °F"
+    },
+    "climate_zone": {
+      "text": "5B"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

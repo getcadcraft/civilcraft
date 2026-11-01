@@ -9,8 +9,10 @@
  *
  *   serveNode({ transport, code: { tag, secret }, crypto, pool, kernels: { id: { url, fn } }, limits, onEvent }) → Promise<{ close() }>
  *     resolves once the handshake succeeds (rejects on a wrong code: onEvent('wrong-code') — 3 in a row, make a new code)
+ *     tasks (0.8 CH.31): { id: { run(input, { signal }) → JSON-able result } } — small JSON jobs the node's app knows by id (e.g. 'process-variant': solve one flowsheet variant). The node never
+ *       loads code named over the network; a task id it does not list is refused. limits.maxTaskBytes = 8 MiB in and out, maxTasks = 2 running at once.
  *     limits: { maxBytes = 512 MiB, maxPixels = 3840·2160, maxSpp = 1024, tile = 32 }
- *     onEvent(kind, detail): 'connected' | 'scene' {kernel, bytes} | 'range' {s0, spp, W, H, ms} | 'left' | 'wrong-code'
+ *     onEvent(kind, detail): 'connected' | 'scene' {kernel, bytes} | 'range' {s0, spp, W, H, ms} | 'task' {task, ms} | 'left' | 'wrong-code'
  */
 import { createChannel, handshakeNode, lanError, VERSION } from './lan-proto.js';
 import { createCpuRender } from './cpu-render.js';
@@ -18,11 +20,12 @@ import { createCpuRender } from './cpu-render.js';
 const KINDS = { f32: Float32Array, f64: Float64Array, u32: Uint32Array, i32: Int32Array, u8: Uint8Array };
 const NAME = /^[A-Za-z0-9_.-]{1,64}$/;
 
-export async function serveNode({ transport, code, crypto, pool, kernels, limits = {}, onEvent = () => {} }) {
-  const L = { maxBytes: 512 * 1024 * 1024, maxPixels: 3840 * 2160, maxSpp: 1024, tile: 32, ...limits };
+export async function serveNode({ transport, code, crypto, pool, kernels, tasks = {}, limits = {}, onEvent = () => {} }) {
+  const L = { maxBytes: 512 * 1024 * 1024, maxPixels: 3840 * 2160, maxSpp: 1024, tile: 32, maxTaskBytes: 8 * 1024 * 1024, maxTasks: 2, ...limits };
   const say = (k, d) => { try { onEvent(k, d); } catch { /* the app's */ } };
   const session = await handshakeNode(transport, code, crypto, { onWrong: () => say('wrong-code') });
   say('connected');
+  let taskCount = 0;
   let scene = null;          // { id, kernel, buffers, params, renders: Map("WxH" → cpuRender) }
   const jobs = new Map();    // job → AbortController
   let ch = null;
@@ -80,13 +83,34 @@ export async function serveNode({ transport, code, crypto, pool, kernels, limits
     } finally { jobs.delete(job); }
   }
 
+  async function runTask(head, payload) {
+    const { job, task } = head;
+    if (!Number.isInteger(job)) return;
+    if (typeof task !== 'string' || !Object.hasOwn(tasks, task) || !tasks[task] || typeof tasks[task].run !== 'function') return refuse({ job }, 'unknown_task', 'this node cannot run ' + String(task).slice(0, 40));
+    if (payload.length > L.maxTaskBytes) return refuse({ job }, 'too_big', 'the job is over this node\'s limit');
+    if ([...jobs.keys()].length >= L.maxTasks + 8 || taskCount >= L.maxTasks) return refuse({ job }, 'busy', 'this node is running its limit of jobs');
+    let input; try { input = JSON.parse(new TextDecoder().decode(payload)); } catch { return refuse({ job }, 'bad_task', 'the job is not JSON'); }
+    const ac = new AbortController(); jobs.set(job, ac); taskCount++;
+    const t0 = Date.now();
+    try {
+      const out = await tasks[task].run(input, { signal: ac.signal });
+      if (ac.signal.aborted) return refuse({ job }, 'cancelled', 'cancelled');
+      const bytes = new TextEncoder().encode(JSON.stringify(out ?? null));
+      if (bytes.length > L.maxTaskBytes) return refuse({ job }, 'too_big', 'the result is over this node\'s limit');
+      ch.send({ type: 'task-result', job, task }, bytes);
+      say('task', { task, ms: Date.now() - t0 });
+    } catch (e) { refuse({ job }, 'failed', String(e?.message || e).slice(0, 200)); }
+    finally { jobs.delete(job); taskCount--; }
+  }
+
   ch = createChannel({
     transport, session, maxBytes: L.maxBytes,
     onError: () => { for (const ac of jobs.values()) ac.abort(); if (scene) for (const r of scene.renders.values()) r.release(); scene = null; say('left'); },
     onMessage(head, payload) {
-      if (head.type === 'hello') { if (head.v !== VERSION) { refuse({}, 'version', 'protocol ' + head.v); ch.close(); return; } ch.send({ type: 'ready', v: VERSION, kernels: Object.keys(kernels), workers: pool.size, maxBytes: L.maxBytes }); return; }
+      if (head.type === 'hello') { if (head.v !== VERSION) { refuse({}, 'version', 'protocol ' + head.v); ch.close(); return; } ch.send({ type: 'ready', v: VERSION, kernels: Object.keys(kernels), tasks: Object.keys(tasks), workers: pool.size, maxBytes: L.maxBytes }); return; }
       if (head.type === 'scene') { loadScene(head, payload); return; }
       if (head.type === 'range') { range(head); return; }
+      if (head.type === 'task') { runTask(head, payload); return; }
       if (head.type === 'cancel') { jobs.get(head.job)?.abort(); return; }
       if (head.type === 'bye') { ch.close(); say('left'); }
       // anything else: ignored (the protocol grows by new types)

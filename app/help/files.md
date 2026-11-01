@@ -28,7 +28,15 @@ Details: [Point file formats](topic:point-file-formats), [LandXML: what is read 
 
 ## What it saves
 
-{{ui:Save}} ({{key:Mod+S}}) downloads the whole project as `<name>.civilcraft.json`, named after **Name** in the left panel. It keeps:
+{{ui:Save}} ({{key:Mod+S}}) writes two files side by side, named after **Name** in the left panel: `<name>.civilcraft.json`, the project you go on editing, and `<name>.ifc`, the same design as IFC 4.3 for everyone else (see [IFC export and import](topic:ifc)). Each file records the other, and the IFC also carries a compressed copy of the project, so an IFC sent on its own still reopens fully editable.
+
+- **In Studio** both files are written next to each other, in place.
+- **In Chrome and Edge** the first Save asks for a folder and writes both into it; later saves go to the same folder. Cancel the folder question to download both instead.
+- **In other browsers** both files download, the project file first.
+
+Opening either file looks for the other. Open both together (or drop both), or open one: in Studio the other is found in the same folder; in a browser CivilCraft asks you to add it, or to go on with the one you have. If the IFC was changed by another program after CivilCraft saved it, or one file is older than the other, the project opens from the newer design and the Problems panel says what happened, with **Save now** (writes both files again) and **Show the IFC's geometry as reference**. An IFC on its own that another program changed opens from its copy of the project with what still matches: alignments it changed take its geometry, objects it removed are left out, and the rest of its changes are listed, not taken. A project file from before 0.7.1 opens as before.
+
+The project file keeps:
 
 - every point (number, coordinates, elevation, description) and the name of the point file they came from
 - the surface settings: group choices, drawn breaklines, the boundary, the longest outside edge, and a TIN read from LandXML
@@ -92,6 +100,14 @@ For field use, save CivilCraft for offline use and bring your point files on the
 :::
 
 Cloud saving is not available yet, and desktop builds are not out yet. Today, the files you save are the only copy: keep them somewhere that is backed up.
+
+## Add-ons a file uses
+
+When you save a project that holds data from an add-on (the Building regulations ticks, or an Address to site source), the file records which add-ons and which versions. Open it on a computer that lacks one and a bar above the plan says so and offers to add it from your account's list. The record is only a note: the file opens either way.
+
+## Undo from Studio
+
+Inside CadCraft Studio, each step you finish in CivilCraft is told to Studio, so its project-level undo can take back the latest step across apps. Studio only undoes a step when CivilCraft's own undo stack is exactly as that step left it; after you open another file it skips this window.
 
 ## Closing with unsaved changes
 

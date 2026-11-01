@@ -1,0 +1,211 @@
+{
+ "checked": "2026-10-27",
+ "note": "Values and section numbers from each edition's Chapter 3 in ICC's free viewer (codes.iccsafe.org), read 2026-10-27; 'published' = the First Printing date on each edition's copyright page (ICC table-of-contents previews). No value changed 2015-2024; the 2024 IRC renumbered all eight sections. Tier 2 (rooms, halls, egress door, escape openings) read 2026-10-27 from the same viewer: no value changed 2015-2024; 2021 split R310.2 and 2024 renumbered (R312, R318, R319). Electrical (chapter 39) and smoke alarms read 2026-10-27 for IRC 2021 and 2024 only (2015/2018 not researched for these). GFCI/AFCI locations are listed in research/irc-electrical-notes but not checked (circuit protection is not in the model).",
+ "editions": [
+  {
+   "edition": "IRC 2015",
+   "id": "us-irc-2015",
+   "published": "2014-05",
+   "published_source": "https://shop.iccsafe.org/media/wysiwyg/material/3100S15-TOC.pdf",
+   "viewer_url": "https://codes.iccsafe.org/content/IRC2015/chapter-3-building-planning",
+   "clauses": {
+    "stair.riser.max": "R311.7.5.1",
+    "stair.tread.min": "R311.7.5.2",
+    "stair.width.min": "R311.7.1",
+    "stair.headroom.min": "R311.7.2",
+    "stair.rail.height": "R311.7.8.1",
+    "room.ceiling.min": "R305.1",
+    "room.light.min": "R303.1",
+    "room.vent.min": "R303.1",
+    "room.area.min": "R304.1",
+    "room.dim.min": "R304.2",
+    "hall.width.min": "R311.6",
+    "door.egress.width.min": "R311.2",
+    "door.egress.height.min": "R311.2",
+    "escape.area.min": "R310.2.1",
+    "escape.width.min": "R310.2.1",
+    "escape.height.min": "R310.2.1",
+    "escape.sill.max": "R310.2.2"
+   }
+  },
+  {
+   "edition": "IRC 2018",
+   "id": "us-irc-2018",
+   "published": "2017-08",
+   "published_source": "https://shop.iccsafe.org/media/wysiwyg/material/3100S18-TOC.pdf",
+   "viewer_url": "https://codes.iccsafe.org/content/IRC2018/chapter-3-building-planning",
+   "clauses": {
+    "stair.riser.max": "R311.7.5.1",
+    "stair.tread.min": "R311.7.5.2",
+    "stair.width.min": "R311.7.1",
+    "stair.headroom.min": "R311.7.2",
+    "stair.rail.height": "R311.7.8.1",
+    "room.ceiling.min": "R305.1",
+    "room.light.min": "R303.1",
+    "room.vent.min": "R303.1",
+    "room.area.min": "R304.1",
+    "room.dim.min": "R304.2",
+    "hall.width.min": "R311.6",
+    "door.egress.width.min": "R311.2",
+    "door.egress.height.min": "R311.2",
+    "escape.area.min": "R310.2.1",
+    "escape.width.min": "R310.2.1",
+    "escape.height.min": "R310.2.1",
+    "escape.sill.max": "R310.2.2"
+   }
+  },
+  {
+   "edition": "IRC 2021",
+   "id": "us-irc-2021",
+   "published": "2021-01",
+   "published_source": "https://shop.iccsafe.org/media/wysiwyg/material/3100S21-TOC.pdf",
+   "viewer_url": "https://codes.iccsafe.org/content/IRC2021P1/chapter-3-building-planning",
+   "clauses": {
+    "stair.riser.max": "R311.7.5.1",
+    "stair.tread.min": "R311.7.5.2",
+    "stair.width.min": "R311.7.1",
+    "stair.headroom.min": "R311.7.2",
+    "stair.rail.height": "R311.7.8.1",
+    "room.ceiling.min": "R305.1",
+    "room.light.min": "R303.1",
+    "room.vent.min": "R303.1",
+    "room.area.min": "R304.1",
+    "room.dim.min": "R304.2",
+    "hall.width.min": "R311.6",
+    "door.egress.width.min": "R311.2",
+    "door.egress.height.min": "R311.2",
+    "escape.area.min": "R310.2.1",
+    "escape.width.min": "R310.2.2",
+    "escape.height.min": "R310.2.2",
+    "escape.sill.max": "R310.2.3",
+    "elec.wall.spacing.max": "E3901.2.1",
+    "elec.light.room.min": "E3903.2",
+    "elec.bath.outlet.min": "E3901.6",
+    "elec.laundry.outlet.min": "E3901.8",
+    "elec.garage.outlet.min": "E3901.9",
+    "elec.hall.outlet.min": "E3901.10",
+    "elec.outdoor.outlet.min": "E3901.7",
+    "alarm.smoke.bedroom.min": "R314.3",
+    "alarm.smoke.story.min": "R314.3"
+   }
+  },
+  {
+   "edition": "IRC 2024",
+   "id": "us-irc-2024",
+   "published": "2024-05",
+   "published_source": "https://shop.iccsafe.org/media/wysiwyg/material/3100S24-TOC.pdf",
+   "viewer_url": "https://codes.iccsafe.org/content/IRC2024V1.0/chapter-3-building-planning",
+   "clauses": {
+    "stair.riser.max": "R318.7.5.1",
+    "stair.tread.min": "R318.7.5.2",
+    "stair.width.min": "R318.7.1",
+    "stair.headroom.min": "R318.7.2",
+    "stair.rail.height": "R320.2",
+    "room.ceiling.min": "R313.1",
+    "room.light.min": "R325.1.1",
+    "room.vent.min": "R325.1.2",
+    "room.area.min": "R312.1",
+    "room.dim.min": "R312.2",
+    "hall.width.min": "R318.6",
+    "door.egress.width.min": "R318.2",
+    "door.egress.height.min": "R318.2",
+    "escape.area.min": "R319.2.1",
+    "escape.width.min": "R319.2.2",
+    "escape.height.min": "R319.2.2",
+    "escape.sill.max": "R319.2.3",
+    "elec.wall.spacing.max": "E3901.2.1",
+    "elec.light.room.min": "E3903.2",
+    "elec.bath.outlet.min": "E3901.6",
+    "elec.laundry.outlet.min": "E3901.8",
+    "elec.garage.outlet.min": "E3901.9",
+    "elec.hall.outlet.min": "E3901.10",
+    "elec.outdoor.outlet.min": "E3901.7",
+    "alarm.smoke.bedroom.min": "R310.3",
+    "alarm.smoke.story.min": "R310.3"
+   },
+   "note": "Renumbered in 2024; old numbers reused for other topics. Later printings (V1.1, V2.0) not confirmed."
+  }
+ ],
+ "values": {
+  "stair.riser.max": {
+   "in": 7.75
+  },
+  "stair.tread.min": {
+   "in": 10
+  },
+  "stair.width.min": {
+   "in": 36
+  },
+  "stair.headroom.min": {
+   "in": 80
+  },
+  "stair.rail.height": {
+   "min_in": 34,
+   "max_in": 38
+  },
+  "room.ceiling.min": {
+   "in": 84
+  },
+  "room.light.min": {
+   "pct": 8
+  },
+  "room.vent.min": {
+   "pct": 4
+  },
+  "room.area.min": {
+   "sqft": 70
+  },
+  "room.dim.min": {
+   "in": 84
+  },
+  "hall.width.min": {
+   "in": 36
+  },
+  "door.egress.width.min": {
+   "in": 32
+  },
+  "door.egress.height.min": {
+   "in": 78
+  },
+  "escape.area.min": {
+   "sqft": 5.7
+  },
+  "escape.width.min": {
+   "in": 20
+  },
+  "escape.height.min": {
+   "in": 24
+  },
+  "escape.sill.max": {
+   "in": 44
+  },
+  "elec.wall.spacing.max": {
+   "in": 72
+  },
+  "elec.light.room.min": {
+   "count": 1
+  },
+  "elec.bath.outlet.min": {
+   "count": 1
+  },
+  "elec.laundry.outlet.min": {
+   "count": 1
+  },
+  "elec.garage.outlet.min": {
+   "count": 1
+  },
+  "elec.hall.outlet.min": {
+   "count": 1
+  },
+  "elec.outdoor.outlet.min": {
+   "count": 2
+  },
+  "alarm.smoke.bedroom.min": {
+   "count": 1
+  },
+  "alarm.smoke.story.min": {
+   "count": 1
+  }
+ },
+ "caveats": "Every rule has exceptions a single number can't express (spiral stairs, sloped ceilings, beams, artificial light or mechanical ventilation instead of natural). States and cities often amend these values."
+}

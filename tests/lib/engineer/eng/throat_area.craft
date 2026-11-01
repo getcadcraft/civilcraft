@@ -1,0 +1,11 @@
+% throat_area — the throat area that passes a given mass flow at sonic speed
+%
+% Usage:      A = throat_area(mdot, p0, T0, R, gamma)
+% Computes:   A = mdot / ( p0 sqrt( gamma / (R T0) ) (2/(gamma+1))^((gamma+1)/(2(gamma-1))) ), the inverse of choked_flow.
+% Method:     as choked_flow.
+% Units:      SI: mdot kg/s, p0 Pa, T0 K, R J/(kg K), A m2.
+% References: Anderson, Modern Compressible Flow, 3rd ed., eq. 4.79.
+% Check:      the inverse of choked_flow: 0.2333 kg/s at 1 MPa and 300 K in air gives 1 cm2 (tools/field-test/eng.mjs).
+function A = throat_area(mdot, p0, T0, R, gamma)
+A = mdot / choked_flow(p0, T0, 1, R, gamma);
+end

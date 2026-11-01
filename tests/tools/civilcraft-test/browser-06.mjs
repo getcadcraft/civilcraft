@@ -167,7 +167,7 @@ try {
     const xml = fs.readFileSync(await dl.path(), 'utf8');
     ok(/<PlanFeature name="[^"]+">/.test(xml) && /<Curve rot="(cw|ccw)" crvType="arc"/.test(xml.slice(xml.indexOf('<PlanFeatures'))), 'LandXML: the feature line as a PlanFeature with its Curve');
     // DXF out, then opened as linework: the feature line comes back with its arc
-    const [dd] = await Promise.all([page.waitForEvent('download'), page.click('[data-cmd="dxf"]')]);
+    const [dd] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => document.querySelector('[data-cmd="dxf"]').click())   /* 0.7.1 71.24: DXF is the DWG/DXF button's choice; its command stays (the shell clicks it) */]);
     const dxfFile = path.join(OUT, 'wl24.dxf');
     fs.copyFileSync(await dd.path(), dxfFile);
     await page.setInputFiles('[data-file]', dxfFile);
@@ -279,7 +279,7 @@ try {
     await page.selectOption('[data-st-pick]', k.id);
     await page.waitForFunction((id) => window.civilcraft.project.state.network.structures[0].type === id, k.id);
     const s = await E(page, () => window.civilcraft.project.state.network.structures[0]);
-    ok(s.dia === 30 && await page.isDisabled('#cv-st-dia'), 'a structure takes the type: its size from the type (Diameter box off)');
+    ok(s.dia === 30 && await page.isDisabled('[data-pg-row="dia"]'), 'a structure takes the type: its size from the type (Diameter box off)');
     // edit the type: the structure follows
     await E(page, () => window.civilcraft.select(null));
     await page.click('[data-st-edit]');
@@ -352,7 +352,7 @@ try {
     ok(rev.d < 1e-6, 'reversing: the trailer\'s axle ends at the end of the line (' + rev.d.toExponential(1) + ')' + (rev.n ? ', ' + rev.n + ' problem(s) said' : ''));
     await shot(page, 'wl28-03-reverse');
     // the DXF carries it
-    const [dd] = await Promise.all([page.waitForEvent('download'), page.click('[data-cmd="dxf"]')]);
+    const [dd] = await Promise.all([page.waitForEvent('download'), page.evaluate(() => document.querySelector('[data-cmd="dxf"]').click())   /* 0.7.1 71.24: DXF is the DWG/DXF button's choice; its command stays (the shell clicks it) */]);
     const dxf = fs.readFileSync(await dd.path(), 'utf8');
     ok((dxf.match(/\r\n  8\r\nC-ROAD-SWPT\r\n/g) || []).length >= 5, 'the DXF has the swept path on C-ROAD-SWPT');
     // delete and undo
@@ -410,7 +410,7 @@ try {
     await page.waitForFunction(() => window.civilcraft.project.state.alignments.length === 1);
     await page.keyboard.press('v');
     await E(page, () => { const c = window.civilcraft; c.select({ kind: 'alignment', id: c.project.state.alignments[0].id }); });
-    await page.fill('#cv-al-start', '10+00'); await page.press('#cv-al-start', 'Enter');
+    await page.fill('[data-pg-row="start"]', '10+00'); await page.press('[data-pg-row="start"]', 'Enter');
     await page.waitForFunction(() => window.civilcraft.project.state.alignments[0].start === 1000);
     ok(true, 'the start station box reads 10+00 as station 1000, not a sum');
     await shot(page, 'df3-01');

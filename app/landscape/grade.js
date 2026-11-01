@@ -15,7 +15,7 @@
  *     the outline the ground is rebuilt from its edge (on the existing ground), the spot elevations and the edited contours
  * ]
  *
- *   cleanGrading(list, units) (untrusted) · gradeItems(ls, units) → items for gradedSurface (in drawing order)
+ *   cleanGrading(list, units) (untrusted) · gradeItems(ls, units) → items for gradedSurface (in the stack's order, ls.stack, 0.8 LA.4; else drawing order)
  *   gradeDeps(ls) → a string that changes when any grading object does (project.gradeDeps)
  *   planeZ(pts, z0, fall) → corner elevations of a sloped platform · swalePatch(surface, swale, units) → a gradedSurface patch
  *   slopeClasses(surface, limits) → { counts, tris: [{ pts, cls }] }   triangles by gradient (cls 0 … limits.length)
@@ -25,10 +25,14 @@
  */
 
 import { daylightPad, castSlope } from '../grading.js';
+import { cleanSides } from '../sides.js';   // 0.7.1 71.22
 import { pointInPoly, polyArea } from '../tin.js';
 import { t } from '../i18n.js';
 import { hardGradeItems } from './hardscape.js';   // LD.4: paving and paths are part of the proposed surface too
 import { freeformGradeItems } from './freeform.js';   // LD.7: freeform objects that cut the ground
+import { areaGradeItems } from './planted.js';   // 0.8 LA.5: planted areas with a finished level
+import { orderItems } from './stack.js';
+import { cleanLink } from './links.js';   // 0.8 LA.2   // 0.8 LA.4: one ordered stack of ground modifiers
 import './layers.js';
 
 export const KINDS = ['platform', 'berm', 'swale', 'area'];
@@ -50,7 +54,8 @@ export function cleanGrading(list, units) {
   for (const g of list.slice(0, MAX_GRADING)) {
     if (!g || typeof g !== 'object' || !KINDS.includes(g.kind) || !/^l\d{1,9}$/.test(String(g.id))) continue;
     const pts = (Array.isArray(g.pts) ? g.pts.slice(0, 5000) : []).map(XY).filter(Boolean);
-    const base = { id: g.id, kind: g.kind, name: str(g.name) || t('ls.g.' + g.kind), pts };
+    const lk = cleanLink(g.link);
+    const base = { id: g.id, kind: g.kind, name: str(g.name) || t('ls.g.' + g.kind), pts, ...(lk ? { link: lk } : {}) };
     if (g.kind === 'swale') {
       if (pts.length < 2) continue;
       out.push({ ...base, depth: pos(g.depth, d.depth, 100), bottom: fin(g.bottom) && g.bottom >= 0 && g.bottom <= 1000 ? g.bottom : d.bottom, side: pos(g.side, d.side, 100),
@@ -60,9 +65,11 @@ export function cleanGrading(list, units) {
     if (pts.length < 3) continue;
     if (g.kind === 'platform') {
       const fall = g.fall && fin(g.fall.pct) && g.fall.pct > 0 && g.fall.pct <= 100 && fin(g.fall.dir) ? { pct: g.fall.pct, dir: ((g.fall.dir % 360) + 360) % 360 } : null;
-      out.push({ ...base, z: fin(g.z) && Math.abs(g.z) < 1e6 ? g.z : null, fall, cut: pos(g.cut, d.cut, 100), fill: pos(g.fill, d.fill, 100) });
+      const sides = cleanSides(g.sides, units, pts.length);   // 0.7.1 71.22: slopes per side, retaining walls
+      out.push({ ...base, z: fin(g.z) && Math.abs(g.z) < 1e6 ? g.z : null, fall, cut: pos(g.cut, d.cut, 100), fill: pos(g.fill, d.fill, 100), ...(sides ? { sides } : {}) });
     } else if (g.kind === 'berm') {
-      out.push({ ...base, height: pos(g.height, d.height, 1000), cut: pos(g.cut, d.cut, 100), fill: pos(g.fill, d.fill, 100) });
+      const sides = cleanSides(g.sides, units, pts.length);
+      out.push({ ...base, height: pos(g.height, d.height, 1000), cut: pos(g.cut, d.cut, 100), fill: pos(g.fill, d.fill, 100), ...(sides ? { sides } : {}) });
     } else {
       const spots = (Array.isArray(g.spots) ? g.spots.slice(0, 5000) : []).filter((s) => XY(s) && fin(s.z) && Math.abs(s.z) < 1e6 && /^s\d{1,6}$/.test(String(s.id))).map((s) => ({ id: s.id, x: s.x, y: s.y, z: s.z }));
       const contours = (Array.isArray(g.contours) ? g.contours.slice(0, 500) : []).map((c) => ({ id: /^c\d{1,6}$/.test(String(c?.id)) ? c.id : null, z: fin(c?.z) && Math.abs(c.z) < 1e6 ? c.z : null, pts: (Array.isArray(c?.pts) ? c.pts.slice(0, 5000) : []).map(XY).filter(Boolean) }))
@@ -73,7 +80,7 @@ export function cleanGrading(list, units) {
   return out;
 }
 
-export const gradeDeps = (ls) => JSON.stringify([ls?.grading || [], (ls?.hardscape || []).filter((h) => h.grade), (ls?.freeform || []).filter((f) => f.base === 'cut').map((f) => [f.id, f.at, f.baseZ, f.cut, f.fill, f.mesh.positions.length])]);
+export const gradeDeps = (ls) => JSON.stringify([ls?.grading || [], (ls?.areas || []).filter((a) => a.level != null).map((a) => [a.id, a.pts, a.level]), ls?.stack || null, (ls?.hardscape || []).filter((h) => h.grade), (ls?.freeform || []).filter((f) => f.base === 'cut').map((f) => [f.id, f.at, f.baseZ, f.cut, f.fill, f.mesh.positions.length])]);
 
 /** A sloped platform's corner elevations: a plane through the centroid at z0 falling `pct` % towards `dir`. */
 export function planeZ(pts, z0, fall) {
@@ -160,7 +167,7 @@ export function gradeItems(ls, units) {
       if (mg === null) return { problems: [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
       const z0 = g.kind === 'berm' ? mg + g.height : g.z ?? mg;
       const pts = g.kind === 'platform' ? planeZ(g.pts, z0, g.fall) : g.pts.map((p) => ({ x: p.x, y: p.y, z: z0 }));
-      const dl = daylightPad(surf, { pts, z: z0, cut: g.cut, fill: g.fill });
+      const dl = daylightPad(surf, { pts, z: z0, cut: g.cut, fill: g.fill, sides: g.sides || null, id: g.id, name: g.name, about: { kind: 'ls-grade', id: g.id } });   // sides: 0.7.1 71.22
       if (dl.problems.length || !dl.rays.length) return { problems: dl.problems.length ? dl.problems : [t('grade.none')], region: null, points: [], breaklines: [], info: dl };
       const zv = (p) => (fin(p.z) ? p.z : z0);
       const bl = [{ name: g.name, pts: [...dl.poly, dl.poly[0]].map((p) => ({ x: p.x, y: p.y, z: zv(p) })) }, { name: g.name + ' daylight', pts: [...dl.daylight, dl.daylight[0]] }];
@@ -168,8 +175,8 @@ export function gradeItems(ls, units) {
       return { problems: [], region: dl.daylight, points: [], breaklines: bl, info: { ...dl, z: z0, kind: g.kind } };
     } });
   }
-  out.push(...hardGradeItems(ls, units), ...freeformGradeItems(ls, units));
-  return out;
+  out.push(...hardGradeItems(ls, units), ...areaGradeItems(ls), ...freeformGradeItems(ls, units));
+  return orderItems(out, ls?.stack);   // LA.4: the person's order (later wins inside overlaps); unlisted ones keep this order after it
 }
 
 // ---- reading the surface: slope classes, flow and ponding ----

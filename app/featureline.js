@@ -51,6 +51,7 @@
  */
 
 import { t } from './i18n.js';
+import { cleanLink } from './landscape/links.js';   // 0.8 LA.2 outputs (landscape-finish_PART_4): a feature line made from a line keeps its link
 
 export const USES = ['eg', 'design', 'off'];
 export const MAX_VERTICES = 10000;
@@ -80,6 +81,10 @@ export function cleanFeature(o, units = 'ft') {
     daylight: o.daylight === true,
     cut: fin(o.cut) && o.cut > 0 && o.cut < 1000 ? o.cut : d.cut,
     fill: fin(o.fill) && o.fill > 0 && o.fill < 1000 ? o.fill : d.fill,
+    // 0.8 WL.26: the team's shared line this one came from or went to (team-lines.js); the project file keeps the link
+    ...(o.shared && typeof o.shared === 'object' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(o.shared.uuid || ''))
+      ? { shared: { uuid: String(o.shared.uuid).toLowerCase(), revision: Number.isInteger(o.shared.revision) && o.shared.revision >= 1 && o.shared.revision < 1e9 ? o.shared.revision : 1 } } : {}),
+    ...(o.link && cleanLink(o.link) ? { link: cleanLink(o.link) } : {}),   // 0.8 LA.2: "From a line" made it; it follows its line (landscape/link-ui.js)
   };
 }
 

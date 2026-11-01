@@ -90,6 +90,8 @@ export function createHardUi(ctx, { edit, LS, U }) {
   function props(sel, box, head) {
     const h = isMine(sel) && find(sel.id);
     if (!h) return false;
+    /** 0.8 LA.4: steps and ramps with a level shape the proposed ground (a modifier in the stack) when this is on. */
+    const groundBox = (x0) => { const c = el('input', { type: 'checkbox', id: 'cv-hd-grade', checked: !!x0.grade, 'data-ls-hd-grade': '' }); c.addEventListener('change', () => edit(t('ls.h.undo.edit', { name: x0.name }), () => { const x = find(x0.id); if (c.checked) x.grade = true; else delete x.grade; })); return el('label', { className: 'cv-check', for: 'cv-hd-grade' }, c, ' ', t('ls.h.f.shapes')); };
     const sf = surface(), fields = [], put = (label, fn) => edit(label, () => fn(find(h.id)));
     const num = (label, id, value, set, { calc = true, blankOk = false, min = 0, max = 1e6, strict = false } = {}) => {
       fields.push(el('label', { for: id }, label), ctx.numInput(value ?? '', (v) => {
@@ -145,6 +147,10 @@ export function createHardUi(ctx, { edit, LS, U }) {
       num(L('ls.h.f.fs'), 'cv-hd-fs', h.footing.step, (x, n) => { x.footing = { ...x.footing, step: n }; }, { strict: true, max: 100 });
       num(L('ls.h.f.coping'), 'cv-hd-co', h.coping.overhang, (x, n) => { x.coping = { ...x.coping, overhang: n }; }, { max: 10 });
       if (h.wall === 'retaining') num(L('ls.h.f.drain'), 'cv-hd-dr', h.drain, (x, n) => { x.drain = n; }, { max: 100 });
+      if (h.wall === 'retaining') {   // 0.8 LA.4: the wall as a ground modifier: the high side holds the ground (the top follows it), the low side the typed foot level or the ground there
+        fields.push(groundBox(h));
+        if (h.grade) num(L('ls.h.f.foot'), 'cv-hd-foot', h.foot, (x, n) => { x.foot = n; }, { blankOk: true, min: -1e6 });
+      }
       const w = wallLayout(h, sf, U());
       facts.push([t('ls.h.length'), fixed(w.length, 2) + ' ' + uLen()], [t('ls.h.f.heights'), t('ls.h.range', { a: fixed(w.minHeight, 2), b: fixed(w.maxHeight, 2), u: uLen() })], [t('ls.h.f.face'), t(U() === 'm' ? 'ls.area.m' : 'ls.area.ft', { a: fixed(w.faceArea, 1) })], [t('ls.h.f.steps'), String(w.steps)]);
       if (w.engineer) checks.push({ ok: false, text: t('ls.h.chk.engineer', { h: fixed(hardDefaults(U()).wall.engineerFrom, 1), u: uLen() }) });
@@ -159,6 +165,7 @@ export function createHardUi(ctx, { edit, LS, U }) {
       num(t('ls.h.f.maxgrade'), 'cv-hd-mg', h.maxGrade, (x, n) => { x.maxGrade = n; }, { calc: false, strict: true, max: 100 });
       num(L('ls.h.f.landevery'), 'cv-hd-le', h.landingEvery, (x, n) => { x.landingEvery = n; }, { strict: true, max: 100 });
       num(L('ls.h.f.landing'), 'cv-hd-ll', h.landing, (x, n) => { x.landing = n; }, { strict: true, max: 100 });
+      fields.push(groundBox(h));   // 0.8 LA.4
       const r = rampLayout(h, sf, U());
       facts.push([t('ls.h.f.rise'), fixed(r.rise, 3) + ' ' + uLen()], [t('ls.h.length'), fixed(r.length, 2) + ' ' + uLen()], [t('ls.h.f.grade'), fixed(r.grade, 2) + ' %'], [t('ls.h.f.landings'), String(r.landings)]);   // i18n-ignore: a unit
       for (const c of r.checks) checks.push({ ok: c.ok, text: t('ls.h.chk.ramp.' + c.key + (c.ok ? '.ok' : '.bad'), { v: fixed(c.value, 2), max: fixed(c.limit, 2), need: fixed(r.need, 2), u: uLen() }) });
@@ -169,6 +176,7 @@ export function createHardUi(ctx, { edit, LS, U }) {
       num(L('ls.h.f.riser'), 'cv-hd-rm', h.riserMax, (x, n) => { x.riserMax = n; }, { strict: true, max: 10 });
       num(L('ls.h.f.going'), 'cv-hd-gm', h.goingMin, (x, n) => { x.goingMin = n; }, { strict: true, max: 10 });
       num(t('ls.h.f.maxrisers'), 'cv-hd-mr', h.maxRisers, (x, n) => { x.maxRisers = Math.max(2, Math.min(50, Math.round(n))); }, { calc: false, strict: true, max: 50 });
+      fields.push(groundBox(h));   // 0.8 LA.4
       const s = stepsLayout(h, sf, U());
       facts.push([t('ls.h.f.rise'), fixed(s.H, 3) + ' ' + uLen()], [t('ls.h.f.risers'), s.n ? t('ls.h.risers.v', { n: s.n, r: fixed(s.riser, 3), u: uLen() }) : '—'], [t('ls.h.f.treads'), s.n ? t('ls.h.treads.v', { n: s.treads, g: fixed(s.going, 3), u: uLen() }) : '—'], [t('ls.h.f.flights'), String(s.flights || 0)], [t('ls.h.f.run'), fixed(s.run, 2) + ' ' + uLen()]);
       checks.push({ ok: s.n > 0 && s.fits, text: s.n ? t(s.fits ? 'ls.h.chk.steps.ok' : 'ls.h.chk.steps.short', { need: fixed(s.need, 2), u: uLen() }) : t('ls.h.steps.flat') });

@@ -1,0 +1,59 @@
+% check_flow — how much a channel network resists a flow, by PartCraft's lattice Boltzmann solver, on one periodic cell
+%
+% Usage:      r = check_flow(f, h, box, fluid_name, T, opts)
+%             f      the part as a field (inside = wall); box [x0 y0 z0 x1 y1 z1] in mm: one repeating cell of the network, a whole
+%                    number of voxels h each way; the cell repeats in all three directions and the flow runs along x
+%             fluid_name 'water' or 'air', T its temperature in K; opts (optional): tau 0.8, maxSteps 20000, tol 1e-6
+% Returns:    r.permeability (m2): Darcy velocity over pressure gradient times viscosity, over the whole cell;
+%             r.dp_per_m(Us) is not a function: use  dp/L = mu Us / k  with the Darcy velocity Us = mass flow / (rho * cross-section);
+%             r.superficial_per_gradient: the same as a number; r.settings: tau, steps, converged, largest lattice speed, mesh, units.
+% Method:     field_kind gives wall and fluid cells; lbm3d (the D3Q19 two-relaxation-time scheme of the Flow workspace) runs with a body
+%             force along x, periodic on all faces. The lattice scales are set by the viscosity: nu_lat = (tau - 1/2)/3, so
+%             dt = nu_lat dx^2 / nu, a lattice speed u_lat is u_lat dx / dt, and a body force a_lat is a_lat dx / dt^2 per unit mass; the
+%             equivalent pressure gradient is rho a. In the laminar range the pressure drop is linear in the speed (Darcy), so one run
+%             gives the permeability for every speed in that range.
+% Units:      mm in, SI out.
+% Limits:     laminar only (the answer is valid while the real Reynolds number stays under about 1000 and the lattice speed under 0.1,
+%             which it checks); a converged steady flow; the wall is a staircase at voxel size h, so use at least 8 voxels across a channel.
+% References: see lbm3d (Ginzburg, Verhaeghe, d'Humieres 2008); Darcy's law (Whitaker, Transport in Porous Media 1986).
+% Check:      a square duct of side w in a periodic cell: the mean speed u = 2 w^2 (dp/dx) / (fRe mu), fRe = 56.91 (Shah and London),
+%             within 4 % at 16 voxels across (tools/field-test/check.mjs).
+function r = check_flow(f, h, box, fluid_name, T, opts)
+if ~solver_available('flow')
+  error(solver_none('flow'));
+end
+if nargin < 6
+  opts = struct();
+end
+fl = fluid(fluid_name, T);
+tau = getopt(opts, 'tau', 0.8);
+kind = field_kind(f, h, box);
+nlat = (tau - 0.5) / 3;
+dx = h / 1000;
+dt = nlat * dx ^ 2 / fl.nu.value;
+Flat = 2e-5;                                   % lattice acceleration; small enough for a lattice speed well under 0.1 in a channel of 16 cells
+s = lbm3d(kind, struct('tau', tau, 'force', [Flat 0 0], 'periodic', [1 1 1], 'maxSteps', getopt(opts, 'maxSteps', 20000), 'tol', getopt(opts, 'tol', 1e-6), 'every', 200));
+fluidcells = (kind == 0);
+ntot = numel(kind);
+Ulat = sum(s.ux(fluidcells)) / ntot;           % Darcy (superficial) speed over the whole cell, lattice units
+umax = max(abs(s.ux(fluidcells)));
+Us = Ulat * dx / dt;                           % m/s
+a = Flat * dx / dt ^ 2;                        % m/s2, per unit mass
+grad = fl.rho.value * a;                       % Pa/m
+k = fl.mu.value * Us / grad;
+r = struct();
+r.permeability = q(k, 'm2', 'Darcy: k = mu Us / (dp/dx); lbm3d (D3Q19 TRT, Ginzburg et al. 2008)');
+r.superficial_per_gradient = Us / grad;
+r.settings = struct('tau', tau, 'cells', numel(kind), 'steps', s.steps, 'converged', s.converged, 'max_lattice_speed', umax, 'voxel_mm', h, 'lattice_speed_ok', umax < 0.1);
+if umax >= 0.1
+  warning('check_flow: the lattice speed reached %.3g: the answer is not reliable; use a smaller voxel size or a weaker force', umax);
+end
+end
+
+function v = getopt(s, name, default)
+if isfield(s, name)
+  v = s.(name);
+else
+  v = default;
+end
+end

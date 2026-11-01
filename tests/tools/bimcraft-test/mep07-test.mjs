@@ -99,11 +99,11 @@ export async function mep07Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = [] 
   if (want('api')) for (const schema of ['IFC4', 'IFC2X3']) {
     console.log('== add-on API 1.1 (addons/bimcraft-api.js) on a new ' + schema + ' building');
     const BA = await import(path.join(APP, 'addons/bimcraft-api.js'));
-    ok(BA.BIMCRAFT_API_VERSION === '1.1', 'the API says 1.1');
+    ok(/^1\.([1-9]\d*)$/.test(BA.BIMCRAFT_API_VERSION), 'the API says 1.1 or later (' + BA.BIMCRAFT_API_VERSION + ')');   // 0.8 (mep-08): moved on with REG.1 and later
     const A = await import(path.join(APP, 'addons.js'));
     ok(A.checkManifest({ id: 'zz.a', name: 'A', version: '1.0.0', apps: ['bimcraft'], api: '1.0', license: 'Apache-2.0', entry: 'main.js' }, { app: 'bimcraft', apiVersion: BA.BIMCRAFT_API_VERSION }).ok
-      && !A.checkManifest({ id: 'zz.a', name: 'A', version: '1.0.0', apps: ['bimcraft'], api: '1.2', license: 'Apache-2.0', entry: 'main.js' }, { app: 'bimcraft', apiVersion: BA.BIMCRAFT_API_VERSION }).ok,
-      'an add-on written for 1.0 still loads; one asking for 1.2 does not');
+      && !A.checkManifest({ id: 'zz.a', name: 'A', version: '1.0.0', apps: ['bimcraft'], api: '1.99', license: 'Apache-2.0', entry: 'main.js' }, { app: 'bimcraft', apiVersion: BA.BIMCRAFT_API_VERSION }).ok,
+      'an add-on written for 1.0 still loads; one asking for a later API than the app has does not');
     const b = await building(schema);
     const lvl = b.levels[0];
     // a pipe run drawn the usual way, so mep.runs / mep.ports have something to read

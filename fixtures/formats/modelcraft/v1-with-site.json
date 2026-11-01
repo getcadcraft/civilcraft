@@ -1,0 +1,233 @@
+{
+ "format": "modelcraft",
+ "version": 1,
+ "units": "ft-in",
+ "nextId": 1,
+ "defs": [
+  {
+   "id": "root",
+   "kind": "root",
+   "name": "Model",
+   "next": 1,
+   "verts": [],
+   "edges": [],
+   "faces": [],
+   "insts": []
+  }
+ ],
+ "guides": [],
+ "dims": [],
+ "scenes": [],
+ "site": {
+  "v": 1,
+  "address": "Schlossplatz 1, Stuttgart",
+  "label": "",
+  "origin": {
+   "lat": 48.7783,
+   "lon": 9.1776
+  },
+  "radius": 150,
+  "fetched": "2026-10-30",
+  "attribution": [
+   "OpenStreetMap buildings"
+  ],
+  "sources": [
+   {
+    "id": "osm-geocode",
+    "name": "OpenStreetMap address search",
+    "licence": "ODbL",
+    "where": "https://nominatim.openstreetmap.org",
+    "via": "fetch",
+    "fetched": "2026-10-30",
+    "kinds": []
+   },
+   {
+    "id": "fema-nfhl",
+    "name": "FEMA National Flood Hazard Layer",
+    "licence": "US federal data (public)",
+    "where": "https://www.fema.gov",
+    "via": "fetch",
+    "fetched": "2026-10-29",
+    "kinds": [
+     "flood"
+    ]
+   }
+  ],
+  "info": [
+   {
+    "id": "usgs-3dep-elevation",
+    "key": "elevation",
+    "value": 247.3,
+    "src": "usgs-3dep"
+   },
+   {
+    "id": "ssurgo-soil",
+    "key": "soil",
+    "value": {
+     "symbol": "Ud",
+     "name": "Udorthents",
+     "mukey": "123"
+    },
+    "src": "ssurgo"
+   }
+  ],
+  "items": [
+   {
+    "id": "b-1dc2yix",
+    "kind": "building",
+    "name": "A",
+    "ring": [
+     [
+      14.67,
+      22.26
+     ],
+     [
+      29.34,
+      22.26
+     ],
+     [
+      29.34,
+      44.53
+     ],
+     [
+      14.67,
+      44.53
+     ]
+    ],
+    "height": 9,
+    "heightFrom": "levels",
+    "label": ""
+   },
+   {
+    "id": "b-jre2cp",
+    "kind": "building",
+    "name": "",
+    "ring": [
+     [
+      36.68,
+      55.66
+     ],
+     [
+      51.35,
+      55.66
+     ],
+     [
+      51.35,
+      77.92
+     ],
+     [
+      36.68,
+      77.92
+     ]
+    ],
+    "height": 11,
+    "heightFrom": "source",
+    "label": ""
+   },
+   {
+    "id": "p-twb6oo",
+    "kind": "parcel",
+    "name": "APN 7 Schlossplatz 1",
+    "ring": [
+     [
+      7.34,
+      11.13
+     ],
+     [
+      51.35,
+      11.13
+     ],
+     [
+      51.35,
+      77.92
+     ],
+     [
+      7.34,
+      77.92
+     ]
+    ],
+    "height": null,
+    "heightFrom": null,
+    "label": ""
+   },
+   {
+    "id": "f-vnxrl7",
+    "kind": "flood",
+    "name": "",
+    "ring": [
+     [
+      -44.01,
+      -33.4
+     ],
+     [
+      102.7,
+      -33.4
+     ],
+     [
+      102.7,
+      189.24
+     ],
+     [
+      -44.01,
+      189.24
+     ]
+    ],
+    "height": null,
+    "heightFrom": null,
+    "label": "Zone AE"
+   },
+   {
+    "id": "z-alac8e",
+    "kind": "zoning",
+    "name": "",
+    "ring": [
+     [
+      -44.01,
+      -33.4
+     ],
+     [
+      102.7,
+      -33.4
+     ],
+     [
+      102.7,
+      189.24
+     ],
+     [
+      -44.01,
+      189.24
+     ]
+    ],
+    "height": null,
+    "heightFrom": null,
+    "label": "MU – mixed use"
+   },
+   {
+    "id": "s-unidlk",
+    "kind": "soil",
+    "name": "",
+    "ring": [
+     [
+      -44.01,
+      -33.4
+     ],
+     [
+      102.7,
+      -33.4
+     ],
+     [
+      102.7,
+      189.24
+     ],
+     [
+      -44.01,
+      189.24
+     ]
+    ],
+    "height": null,
+    "heightFrom": null,
+    "label": "Ud Udorthents"
+   }
+  ]
+ }
+}

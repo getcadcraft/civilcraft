@@ -1,0 +1,2827 @@
+{
+ "format": "partcraft-assembly",
+ "version": 2,
+ "name": "Milling fixture",
+ "seq": 31,
+ "parts": {
+  "p1": {
+   "name": "Base plate",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Base plate",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 9,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -170,
+         "y": -120
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 170,
+         "y": -120
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 170,
+         "y": -120
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 170,
+         "y": 120
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 170,
+         "y": 120
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -170,
+         "y": 120
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -170,
+         "y": 120
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -170,
+         "y": -120
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 25,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        25,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 36,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -120,
+         "y": 80
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": -120,
+         "y": 40
+        },
+        {
+         "id": "p3",
+         "type": "point",
+         "x": -120,
+         "y": 0
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": -120,
+         "y": -40
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": -120,
+         "y": -80
+        },
+        {
+         "id": "p6",
+         "type": "point",
+         "x": -80,
+         "y": 80
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": -80,
+         "y": 40
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -80,
+         "y": 0
+        },
+        {
+         "id": "p9",
+         "type": "point",
+         "x": -80,
+         "y": -40
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -80,
+         "y": -80
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -40,
+         "y": 80
+        },
+        {
+         "id": "p12",
+         "type": "point",
+         "x": -40,
+         "y": 40
+        },
+        {
+         "id": "p13",
+         "type": "point",
+         "x": -40,
+         "y": 0
+        },
+        {
+         "id": "p14",
+         "type": "point",
+         "x": -40,
+         "y": -40
+        },
+        {
+         "id": "p15",
+         "type": "point",
+         "x": -40,
+         "y": -80
+        },
+        {
+         "id": "p16",
+         "type": "point",
+         "x": 0,
+         "y": 80
+        },
+        {
+         "id": "p17",
+         "type": "point",
+         "x": 0,
+         "y": 40
+        },
+        {
+         "id": "p18",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "p19",
+         "type": "point",
+         "x": 0,
+         "y": -40
+        },
+        {
+         "id": "p20",
+         "type": "point",
+         "x": 0,
+         "y": -80
+        },
+        {
+         "id": "p21",
+         "type": "point",
+         "x": 40,
+         "y": 80
+        },
+        {
+         "id": "p22",
+         "type": "point",
+         "x": 40,
+         "y": 40
+        },
+        {
+         "id": "p23",
+         "type": "point",
+         "x": 40,
+         "y": 0
+        },
+        {
+         "id": "p24",
+         "type": "point",
+         "x": 40,
+         "y": -40
+        },
+        {
+         "id": "p25",
+         "type": "point",
+         "x": 40,
+         "y": -80
+        },
+        {
+         "id": "p26",
+         "type": "point",
+         "x": 80,
+         "y": 80
+        },
+        {
+         "id": "p27",
+         "type": "point",
+         "x": 80,
+         "y": 40
+        },
+        {
+         "id": "p28",
+         "type": "point",
+         "x": 80,
+         "y": 0
+        },
+        {
+         "id": "p29",
+         "type": "point",
+         "x": 80,
+         "y": -40
+        },
+        {
+         "id": "p30",
+         "type": "point",
+         "x": 80,
+         "y": -80
+        },
+        {
+         "id": "p31",
+         "type": "point",
+         "x": 120,
+         "y": 80
+        },
+        {
+         "id": "p32",
+         "type": "point",
+         "x": 120,
+         "y": 40
+        },
+        {
+         "id": "p33",
+         "type": "point",
+         "x": 120,
+         "y": 0
+        },
+        {
+         "id": "p34",
+         "type": "point",
+         "x": 120,
+         "y": -40
+        },
+        {
+         "id": "p35",
+         "type": "point",
+         "x": 120,
+         "y": -80
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f3",
+      "kind": "simple",
+      "d": 8.5,
+      "depth": 25,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     },
+     {
+      "id": "f5",
+      "type": "sketch",
+      "name": "Sketch3",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        25,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 5,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -150,
+         "y": 100
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 150,
+         "y": 100
+        },
+        {
+         "id": "p3",
+         "type": "point",
+         "x": 150,
+         "y": -100
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": -150,
+         "y": -100
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f6",
+      "type": "hole",
+      "name": "Hole2",
+      "sketch": "f5",
+      "kind": "cbore",
+      "d": 11,
+      "depth": 25,
+      "through": true,
+      "cboreD": 18,
+      "cboreDepth": 11,
+      "reverse": false
+     },
+     {
+      "id": "f7",
+      "type": "sketch",
+      "name": "Sketch4",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        25,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -45,
+         "y": -72
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 45,
+         "y": -72
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f8",
+      "type": "hole",
+      "name": "Hole3",
+      "sketch": "f7",
+      "kind": "simple",
+      "d": 10.2,
+      "depth": 25,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-101",
+   "description": "Fixture base plate",
+   "material": {
+    "name": "Steel S355",
+    "density": 7.85
+   }
+  },
+  "p3": {
+   "name": "Rest pad",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Rest pad",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 3,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 15
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 10,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-110",
+   "description": "Rest pad Ø30",
+   "material": {
+    "name": "Steel 1.2842, hardened",
+    "density": 7.85
+   }
+  },
+  "p7": {
+   "name": "Bore locator",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Bore locator",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 28
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 10,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        10,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 19.9
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "extrude",
+      "name": "Extrude2",
+      "sketch": "f3",
+      "op": "add",
+      "end": "blind",
+      "depth": 35,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-120",
+   "description": "Locator for the Ø40 bore",
+   "material": {
+    "name": "Steel 1.2842, hardened",
+    "density": 7.85
+   }
+  },
+  "p9": {
+   "name": "Locating pin",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Locating pin",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 8
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 10,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        10,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 4.45
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "extrude",
+      "name": "Extrude2",
+      "sketch": "f3",
+      "op": "add",
+      "end": "blind",
+      "depth": 28,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-121",
+   "description": "Locating pin Ø9",
+   "material": {
+    "name": "Steel 1.2842, hardened",
+    "density": 7.85
+   }
+  },
+  "p11": {
+   "name": "Edge stop",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Edge stop",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -20,
+         "y": -10
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 20,
+         "y": -10
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 20,
+         "y": -10
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 20,
+         "y": 10
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 20,
+         "y": 10
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -20,
+         "y": 10
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -20,
+         "y": 10
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -20,
+         "y": -10
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 35,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        35,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -10,
+         "y": 0
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 10,
+         "y": 0
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f3",
+      "kind": "simple",
+      "d": 6.6,
+      "depth": 35,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-130",
+   "description": "Edge stop",
+   "material": {
+    "name": "Steel 1.2842, hardened",
+    "density": 7.85
+   }
+  },
+  "p14": {
+   "name": "Gearbox cover",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Gearbox cover",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 9,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 29,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -75,
+         "y": -55
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 75,
+         "y": -55
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 75,
+         "y": -40
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 75,
+         "y": -55
+        },
+        {
+         "id": "p6",
+         "type": "point",
+         "x": 90,
+         "y": -40
+        },
+        {
+         "id": "a7",
+         "type": "arc",
+         "c": "p4",
+         "s": "p5",
+         "e": "p6"
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": 90,
+         "y": -40
+        },
+        {
+         "id": "p9",
+         "type": "point",
+         "x": 90,
+         "y": 40
+        },
+        {
+         "id": "l10",
+         "type": "line",
+         "p1": "p8",
+         "p2": "p9"
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": 75,
+         "y": 40
+        },
+        {
+         "id": "p12",
+         "type": "point",
+         "x": 90,
+         "y": 40
+        },
+        {
+         "id": "p13",
+         "type": "point",
+         "x": 75,
+         "y": 55
+        },
+        {
+         "id": "a14",
+         "type": "arc",
+         "c": "p11",
+         "s": "p12",
+         "e": "p13"
+        },
+        {
+         "id": "p15",
+         "type": "point",
+         "x": 75,
+         "y": 55
+        },
+        {
+         "id": "p16",
+         "type": "point",
+         "x": -75,
+         "y": 55
+        },
+        {
+         "id": "l17",
+         "type": "line",
+         "p1": "p15",
+         "p2": "p16"
+        },
+        {
+         "id": "p18",
+         "type": "point",
+         "x": -75,
+         "y": 40
+        },
+        {
+         "id": "p19",
+         "type": "point",
+         "x": -75,
+         "y": 55
+        },
+        {
+         "id": "p20",
+         "type": "point",
+         "x": -90,
+         "y": 40
+        },
+        {
+         "id": "a21",
+         "type": "arc",
+         "c": "p18",
+         "s": "p19",
+         "e": "p20"
+        },
+        {
+         "id": "p22",
+         "type": "point",
+         "x": -90,
+         "y": 40
+        },
+        {
+         "id": "p23",
+         "type": "point",
+         "x": -90,
+         "y": -40
+        },
+        {
+         "id": "l24",
+         "type": "line",
+         "p1": "p22",
+         "p2": "p23"
+        },
+        {
+         "id": "p25",
+         "type": "point",
+         "x": -75,
+         "y": -40
+        },
+        {
+         "id": "p26",
+         "type": "point",
+         "x": -90,
+         "y": -40
+        },
+        {
+         "id": "p27",
+         "type": "point",
+         "x": -75,
+         "y": -55
+        },
+        {
+         "id": "a28",
+         "type": "arc",
+         "c": "p25",
+         "s": "p26",
+         "e": "p27"
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 18,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        18,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 35
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "extrude",
+      "name": "Extrude2",
+      "sketch": "f3",
+      "op": "add",
+      "end": "blind",
+      "depth": 30,
+      "reverse": false
+     },
+     {
+      "id": "f5",
+      "type": "sketch",
+      "name": "Sketch3",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        48,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 20
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f6",
+      "type": "extrude",
+      "name": "Extrude3",
+      "sketch": "f5",
+      "op": "cut",
+      "end": "blind",
+      "depth": 48,
+      "reverse": false
+     },
+     {
+      "id": "f7",
+      "type": "sketch",
+      "name": "Sketch4",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        18,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 5,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -70,
+         "y": 35
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 70,
+         "y": 35
+        },
+        {
+         "id": "p3",
+         "type": "point",
+         "x": 70,
+         "y": -35
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": -70,
+         "y": -35
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f8",
+      "type": "hole",
+      "name": "Hole1",
+      "sketch": "f7",
+      "kind": "simple",
+      "d": 9,
+      "depth": 18,
+      "through": true,
+      "cboreD": 11,
+      "cboreDepth": 6,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "GB-220",
+   "description": "Workpiece (as cast, machined here)",
+   "material": {
+    "name": "Aluminium A356",
+    "density": 2.68
+   }
+  },
+  "p16": {
+   "name": "Clamp heel",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Clamp heel",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 3,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -14,
+         "y": -10
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 14,
+         "y": -10
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 14,
+         "y": -10
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 14,
+         "y": 10
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 14,
+         "y": 10
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -14,
+         "y": 10
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -14,
+         "y": 10
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -14,
+         "y": -10
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 28,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-140",
+   "description": "Heel block",
+   "material": {
+    "name": "Steel S355",
+    "density": 7.85
+   }
+  },
+  "p18": {
+   "name": "Clamp stud M12",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Clamp stud M12",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 3,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 6
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 70,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-142",
+   "description": "Stud M12 × 70",
+   "material": {
+    "name": "Steel S355",
+    "density": 7.85
+   }
+  },
+  "p20": {
+   "name": "Clamp strap",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Clamp strap",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 21,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -14,
+         "y": -40
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": 14,
+         "y": -40
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 14,
+         "y": -40
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": 14,
+         "y": 40
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": 14,
+         "y": 40
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -14,
+         "y": 40
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -14,
+         "y": 40
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": -14,
+         "y": -40
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k13",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k14",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k15",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k16",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p1"
+         ]
+        },
+        {
+         "id": "k17",
+         "type": "horizontal",
+         "refs": [
+          "l3"
+         ]
+        },
+        {
+         "id": "k18",
+         "type": "horizontal",
+         "refs": [
+          "l9"
+         ]
+        },
+        {
+         "id": "k19",
+         "type": "vertical",
+         "refs": [
+          "l6"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "vertical",
+         "refs": [
+          "l12"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 16,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        16,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 15,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": -7,
+         "y": 22
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": -7,
+         "y": -18
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": 0,
+         "y": -18
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": -7,
+         "y": -18
+        },
+        {
+         "id": "p6",
+         "type": "point",
+         "x": 7,
+         "y": -18
+        },
+        {
+         "id": "a7",
+         "type": "arc",
+         "c": "p4",
+         "s": "p5",
+         "e": "p6"
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": 7,
+         "y": -18
+        },
+        {
+         "id": "p9",
+         "type": "point",
+         "x": 7,
+         "y": 22
+        },
+        {
+         "id": "l10",
+         "type": "line",
+         "p1": "p8",
+         "p2": "p9"
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": 0,
+         "y": 22
+        },
+        {
+         "id": "p12",
+         "type": "point",
+         "x": 7,
+         "y": 22
+        },
+        {
+         "id": "p13",
+         "type": "point",
+         "x": -7,
+         "y": 22
+        },
+        {
+         "id": "a14",
+         "type": "arc",
+         "c": "p11",
+         "s": "p12",
+         "e": "p13"
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "extrude",
+      "name": "Extrude2",
+      "sketch": "f3",
+      "op": "cut",
+      "end": "blind",
+      "depth": 16,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-141",
+   "description": "Strap clamp 80",
+   "material": {
+    "name": "Steel S355",
+    "density": 7.85
+   }
+  },
+  "p22": {
+   "name": "Washer M12",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Washer M12",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 12
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 4,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        4,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 6.5
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "extrude",
+      "name": "Extrude2",
+      "sketch": "f3",
+      "op": "cut",
+      "end": "blind",
+      "depth": 4,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-143",
+   "description": "Spherical washer M12",
+   "material": {
+    "name": "Steel S355",
+    "density": 7.85
+   }
+  },
+  "p24": {
+   "name": "Hex nut M12",
+   "part": {
+    "format": "partcraft",
+    "version": 2,
+    "name": "Hex nut M12",
+    "units": "mm",
+    "resolution": 64,
+    "seq": 5,
+    "rollback": null,
+    "features": [
+     {
+      "id": "f1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        0,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 25,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 9.500000000000002,
+         "y": 5.484827557301441
+        },
+        {
+         "id": "p2",
+         "type": "point",
+         "x": -2.015092953577323e-15,
+         "y": 10.969655114602888
+        },
+        {
+         "id": "l3",
+         "type": "line",
+         "p1": "p1",
+         "p2": "p2"
+        },
+        {
+         "id": "p4",
+         "type": "point",
+         "x": -2.015092953577323e-15,
+         "y": 10.969655114602888
+        },
+        {
+         "id": "p5",
+         "type": "point",
+         "x": -9.500000000000002,
+         "y": 5.484827557301442
+        },
+        {
+         "id": "l6",
+         "type": "line",
+         "p1": "p4",
+         "p2": "p5"
+        },
+        {
+         "id": "p7",
+         "type": "point",
+         "x": -9.500000000000002,
+         "y": 5.484827557301442
+        },
+        {
+         "id": "p8",
+         "type": "point",
+         "x": -9.499999999999996,
+         "y": -5.484827557301448
+        },
+        {
+         "id": "l9",
+         "type": "line",
+         "p1": "p7",
+         "p2": "p8"
+        },
+        {
+         "id": "p10",
+         "type": "point",
+         "x": -9.499999999999996,
+         "y": -5.484827557301448
+        },
+        {
+         "id": "p11",
+         "type": "point",
+         "x": 6.716976511924409e-16,
+         "y": -10.969655114602888
+        },
+        {
+         "id": "l12",
+         "type": "line",
+         "p1": "p10",
+         "p2": "p11"
+        },
+        {
+         "id": "p13",
+         "type": "point",
+         "x": 6.716976511924409e-16,
+         "y": -10.969655114602888
+        },
+        {
+         "id": "p14",
+         "type": "point",
+         "x": 9.5,
+         "y": -5.484827557301443
+        },
+        {
+         "id": "l15",
+         "type": "line",
+         "p1": "p13",
+         "p2": "p14"
+        },
+        {
+         "id": "p16",
+         "type": "point",
+         "x": 9.5,
+         "y": -5.484827557301443
+        },
+        {
+         "id": "p17",
+         "type": "point",
+         "x": 9.500000000000002,
+         "y": 5.484827557301441
+        },
+        {
+         "id": "l18",
+         "type": "line",
+         "p1": "p16",
+         "p2": "p17"
+        }
+       ],
+       "constraints": [
+        {
+         "id": "k19",
+         "type": "coincident",
+         "refs": [
+          "p2",
+          "p4"
+         ]
+        },
+        {
+         "id": "k20",
+         "type": "coincident",
+         "refs": [
+          "p5",
+          "p7"
+         ]
+        },
+        {
+         "id": "k21",
+         "type": "coincident",
+         "refs": [
+          "p8",
+          "p10"
+         ]
+        },
+        {
+         "id": "k22",
+         "type": "coincident",
+         "refs": [
+          "p11",
+          "p13"
+         ]
+        },
+        {
+         "id": "k23",
+         "type": "coincident",
+         "refs": [
+          "p14",
+          "p16"
+         ]
+        },
+        {
+         "id": "k24",
+         "type": "coincident",
+         "refs": [
+          "p17",
+          "p1"
+         ]
+        }
+       ]
+      }
+     },
+     {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Extrude1",
+      "sketch": "f1",
+      "op": "add",
+      "end": "blind",
+      "depth": 12,
+      "reverse": false
+     },
+     {
+      "id": "f3",
+      "type": "sketch",
+      "name": "Sketch2",
+      "plane": {
+       "kind": "fixed",
+       "o": [
+        0,
+        12,
+        0
+       ],
+       "n": [
+        0,
+        1,
+        0
+       ]
+      },
+      "sketch": {
+       "seq": 3,
+       "entities": [
+        {
+         "id": "p1",
+         "type": "point",
+         "x": 0,
+         "y": 0
+        },
+        {
+         "id": "c2",
+         "type": "circle",
+         "c": "p1",
+         "r": 6
+        }
+       ],
+       "constraints": []
+      }
+     },
+     {
+      "id": "f4",
+      "type": "extrude",
+      "name": "Extrude2",
+      "sketch": "f3",
+      "op": "cut",
+      "end": "blind",
+      "depth": 12,
+      "reverse": false
+     }
+    ]
+   },
+   "number": "FX-144",
+   "description": "Flange nut M12",
+   "material": {
+    "name": "Steel S355",
+    "density": 7.85
+   }
+  }
+ },
+ "instances": [
+  {
+   "id": "i2",
+   "part": "p1",
+   "name": "Base plate<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i4",
+   "part": "p3",
+   "name": "Rest pad<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -40,
+    25,
+    -30,
+    1
+   ]
+  },
+  {
+   "id": "i5",
+   "part": "p3",
+   "name": "Rest pad<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -40,
+    25,
+    30,
+    1
+   ]
+  },
+  {
+   "id": "i6",
+   "part": "p3",
+   "name": "Rest pad<3>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    55,
+    25,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i8",
+   "part": "p7",
+   "name": "Bore locator<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    25,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i10",
+   "part": "p9",
+   "name": "Locating pin<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -70,
+    25,
+    -35,
+    1
+   ]
+  },
+  {
+   "id": "i12",
+   "part": "p11",
+   "name": "Edge stop<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -30,
+    25,
+    -65,
+    1
+   ]
+  },
+  {
+   "id": "i13",
+   "part": "p11",
+   "name": "Edge stop<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    40,
+    25,
+    -65,
+    1
+   ]
+  },
+  {
+   "id": "i15",
+   "part": "p14",
+   "name": "Gearbox cover<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    35,
+    0,
+    1
+   ]
+  },
+  {
+   "id": "i17",
+   "part": "p16",
+   "name": "Clamp heel<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -45,
+    25,
+    103,
+    1
+   ]
+  },
+  {
+   "id": "i19",
+   "part": "p18",
+   "name": "Clamp stud M12<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -45,
+    25,
+    72,
+    1
+   ]
+  },
+  {
+   "id": "i21",
+   "part": "p20",
+   "name": "Clamp strap<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -45,
+    53,
+    75,
+    1
+   ]
+  },
+  {
+   "id": "i23",
+   "part": "p22",
+   "name": "Washer M12<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -45,
+    69,
+    72,
+    1
+   ]
+  },
+  {
+   "id": "i25",
+   "part": "p24",
+   "name": "Hex nut M12<1>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    -45,
+    73,
+    72,
+    1
+   ]
+  },
+  {
+   "id": "i26",
+   "part": "p16",
+   "name": "Clamp heel<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    45,
+    25,
+    103,
+    1
+   ]
+  },
+  {
+   "id": "i27",
+   "part": "p18",
+   "name": "Clamp stud M12<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    45,
+    25,
+    72,
+    1
+   ]
+  },
+  {
+   "id": "i28",
+   "part": "p20",
+   "name": "Clamp strap<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    45,
+    53,
+    75,
+    1
+   ]
+  },
+  {
+   "id": "i29",
+   "part": "p22",
+   "name": "Washer M12<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    45,
+    69,
+    72,
+    1
+   ]
+  },
+  {
+   "id": "i30",
+   "part": "p24",
+   "name": "Hex nut M12<2>",
+   "place": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    45,
+    73,
+    72,
+    1
+   ]
+  }
+ ],
+ "joints": [],
+ "views": []
+}

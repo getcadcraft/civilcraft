@@ -119,8 +119,16 @@ export function suggest([lon, lat], { unit = null, limit = 12 } = {}) {
 }
 
 export function crsFromEntry(e) {
-  return { code: e.code, name: e.name, proj4: e.proj4, unit: e.unit === 'deg' ? 'deg' : e.unit, local: null };
+  return { code: e.code, name: e.name, proj4: e.proj4, unit: e.unit === 'deg' ? 'deg' : e.unit, local: null, ...(e.axes === 'ws' ? { axes: 'ws' } : {}) };
 }
+/**
+ * West/south systems (0.8 ZA.1: South Africa's Lo zones, EPSG Hartebeesthoek94 / Lo15 … Lo33 and Cape / Lo15 … Lo33): the surveyors' grid
+ * reads Y = westing, X = southing. The project keeps CAD's east/north (x east, y north, so the plan is not mirrored); the catalog's
+ * definition is the ordinary east/north one (`axes: 'ws'` marks the flip). `frame.surveyor(x, y)` → [Y, X] as written on a South African
+ * plan and `frame.fromSurveyor(Y, X)` → the project's [x, y]: both are the grid (after the local step) with the signs reversed.
+ * `axisNames(crs)` → ['E', 'N'] or ['Y', 'X']. A .prj is not written for them (its WKT says west/south, the file would not be).
+ */
+export const axisNames = (crs) => (crs?.axes === 'ws' ? ['Y', 'X'] : ['E', 'N']);
 
 /** A .prj (ESRI or OGC WKT 1). Matches it to a catalog system when one gives the same coordinates (to 1 mm). */
 export function crsFromPrj(wkt) {
@@ -313,6 +321,9 @@ export function frame(crs) {
   const f = {
     crs,
     toGrid, fromGrid,
+    axes: crs.axes === 'ws' ? 'ws' : 'en',
+    surveyor(x, y) { const g = toGrid(x, y); return crs.axes === 'ws' ? [-g[0], -g[1]] : g; },
+    fromSurveyor(a, b) { return crs.axes === 'ws' ? fromGrid(-a, -b) : fromGrid(a, b); },
     toLonLat(x, y) { const g = toGrid(x, y); return geo.forward(g); },
     fromLonLat(lon, lat) { const g = geo.inverse([lon, lat]); return fromGrid(g[0], g[1]); },
     to(other) {
@@ -368,6 +379,7 @@ export const groundLocal = (combined, base) => ({ scale: combined, rotation: 0, 
 
 export async function prjFor(crs) {
   if (!crs) return null;
+  if (crs.axes === 'ws') return null;   // the files are east/north; the registry's WKT would say west/south (see axisNames)
   if (crs.code == null) return /^(PROJCS|GEOGCS)\[/i.test(crs.proj4) ? crs.proj4 : null;
   if (!WKT) {
     const r = await fetch(new URL('./crs-wkt.json', import.meta.url));

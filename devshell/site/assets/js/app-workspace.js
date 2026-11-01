@@ -672,7 +672,7 @@ export function mountWorkspaces(A) {
     palettes: mountPalettes, viewtabs: mountViewtabs, viewbar: (o) => { P.viewbar = mountSlotsBar(o, 'ws-view-controls', T('shell.ws.viewcontrols')); },
     quickbar: (o) => { P.quickbar = mountSlotsBar(o, 'tbx-quick', T('shell.ws.quickbar')); }, statusbar: mountStatusbar,
     petpalette: () => { pet.hide(); stage.append(pet.el); P.petpalette = { el: pet.el, float: true }; } };
-  const bodyCls = () => ['ws-on', 'ws-look-' + cur.layout.look.outline, 'ws-tabs-' + cur.layout.look.tabs, cur.layout.look.density === 'compact' ? 'ws-dense' : null,
+  const bodyCls = () => ['ws-on', 'ws-layout-' + cur.layout.id, 'ws-look-' + cur.layout.look.outline, 'ws-tabs-' + cur.layout.look.tabs, cur.layout.look.density === 'compact' ? 'ws-dense' : null,
     ...[...cur.blocks.keys()].map((b) => 'ws-b-' + b), cur.blocks.has('titlebar') ? 'has-live-workspace' : null, cur.blocks.has('toolbox') ? 'has-toolbox' : null,
     top || bottom ? 'ws-chrome-on' : null].filter(Boolean);
   function enter(next) {

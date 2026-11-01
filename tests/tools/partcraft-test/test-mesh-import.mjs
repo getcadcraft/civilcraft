@@ -232,7 +232,7 @@ print(m.is_watertight, m.volume)`, dir], { encoding: 'utf8' });
     // the file: version 5, read back, the same body; tampered meshes refused
     const text = P.toJSON(part);
     const j = JSON.parse(text);
-    ok(j.version === 5 && P.VERSION === 5 && j.features[0].mesh.nt === clean.indices.length / 3, 'saved as version 5 (a 0.6 PartCraft refuses it by its version)');
+    ok(j.version === 5 && P.VERSION >= 5 && j.features[0].mesh.nt === clean.indices.length / 3, 'saved as version 5 (a 0.6 PartCraft refuses it by its version)');
     const back = P.readPart(text);
     const r3 = K.regenerate(back, M);
     ok(rel(r3.stats.volume, r2.stats.volume, 1e-9) && back.features[0].report.closed === true, 'read back: the same body, the repair report kept');

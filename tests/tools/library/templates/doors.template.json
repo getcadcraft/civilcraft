@@ -1,0 +1,50 @@
+{
+  "name": "Specification: Doors and hardware",
+  "description": "A specification for doors and joinery, filled from the open IFC model: quantities by type, tag values and schedules. Edit the text, then save the document as PDF or Word. Reads the model’s tags (the definitions are listed with the template).",
+  "template": {
+    "format": "cadcraft-doc-template",
+    "version": 1,
+    "key": "spec-doors",
+    "trade": "doors and joinery",
+    "title": "Doors and hardware",
+    "tags": [
+      {
+        "name": "Door finish",
+        "kind": "text",
+        "values": [
+          "Paint grade",
+          "Oak veneer",
+          "Laminate",
+          "Factory primed"
+        ],
+        "classes": [
+          "IfcDoor"
+        ]
+      },
+      {
+        "name": "Fire rating",
+        "kind": "integer",
+        "values": [
+          0,
+          20,
+          30,
+          45,
+          60,
+          90,
+          120
+        ],
+        "classes": [],
+        "note": "Minutes"
+      },
+      {
+        "name": "Hardware set",
+        "kind": "text",
+        "values": [],
+        "classes": [
+          "IfcDoor"
+        ]
+      }
+    ],
+    "text": "# Doors and hardware\n\n**Project:** {{project}}. **Model:** {{file}}. **Issued:** {{date}}.\n\nQuantities are read from the model's quantity sets; finishes, fire ratings and hardware come from the model's tags.\n\n## Summary\n\nThe project has {{count IfcDoor}} doors.\n\n{{qty IfcDoor Area by Type}}\n\n## Door schedule\n\n{{table IfcDoor cols Mark, Type, Storey, Width, Height, tag:Door finish, tag:Fire rating, tag:Hardware set}}\n\n## Doors by type\n\n{{#group IfcDoor by Type}}\n### {{value}}\n\n{{count}} doors. Finishes: {{tag Door finish}}. Fire ratings: {{tag Fire rating}}.\n\n{{#each}}\n- **{{mark}} {{name}}** ({{storey}}): finish {{tag Door finish}}, hardware set {{tag Hardware set}}.\n{{/each}}\n{{/group}}\n\n## Fire-rated doors\n\n{{#each IfcDoor where Fire rating > 0}}\n1. {{mark}} {{name}} on {{storey}}: {{tag Fire rating}} minutes, {{tag Door finish}}.\n{{else}}\nNo door is tagged with a fire rating above 0.\n{{/each}}\n\n## Workmanship\n\nSupply and install the doors above complete with frames, hardware to the named sets and the finishes stated. Check every opening\non site before ordering.\n"
+  }
+}

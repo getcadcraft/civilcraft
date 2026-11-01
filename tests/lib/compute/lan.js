@@ -11,6 +11,7 @@
  *   node.info → { kernels: [id], workers, maxBytes }
  *   await node.loadScene({ kernel: id, buffers: { name: typedArray }, params }) → sceneId     (replaces the node's last scene)
  *   node.device(sceneId, { W, H }) → { id: 'lan:<tag>', kind: 'lan', renderRange(s0, spp, { signal }) → Float32Array W·H·4 }
+ *   await node.runTask(task, input, { signal }) → the node's JSON result (0.8 CH.31: a small job the node's app knows by id, e.g. 'process-variant'; node.info.tasks lists them)
  *   node.close() · node.closed · node.onclose = () => {}
  * Errors carry `code`: bad_code, wrong_code, timeout, closed, node_left, refused (the node said no: unknown kernel, too big…),
  * cancelled.
@@ -41,7 +42,7 @@ export async function connectNode({ transport, code, crypto, maxBytes = 512 * 10
     transport, session, maxBytes,
     onError: leave,
     onMessage(head, payload) {
-      if (head.type === 'ready') { node.info = { kernels: Array.isArray(head.kernels) ? head.kernels.map(String).slice(0, 64) : [], workers: head.workers | 0, maxBytes: head.maxBytes | 0 }; readyResolve(); return; }
+      if (head.type === 'ready') { node.info = { kernels: Array.isArray(head.kernels) ? head.kernels.map(String).slice(0, 64) : [], tasks: Array.isArray(head.tasks) ? head.tasks.map(String).slice(0, 64) : [], workers: head.workers | 0, maxBytes: head.maxBytes | 0 }; readyResolve(); return; }
       const key = head.type === 'scene-ok' || (head.type === 'error' && head.scene) ? 's' + head.scene : 'j' + head.job;
       const w = waiting.get(key);
       if (!w) return;
@@ -93,6 +94,21 @@ export async function connectNode({ transport, code, crypto, maxBytes = 512 * 10
       } finally { signal?.removeEventListener('abort', onAbort); }
     },
   });
+
+  node.runTask = async (task, input, { signal = null } = {}) => {
+    if (signal?.aborted) throw lanError('cancelled');
+    if (!node.info.tasks.includes(task)) throw lanError('refused', 'this node cannot run ' + String(task).slice(0, 40));
+    const job = nextJob++;
+    const body = new TextEncoder().encode(JSON.stringify(input ?? null));
+    const p = ask('j' + job, { type: 'task', job, task }, body);
+    const onAbort = () => { try { ch.send({ type: 'cancel', job }); } catch { /* gone */ } };
+    signal?.addEventListener('abort', onAbort, { once: true });
+    try {
+      const { head, payload } = await p;
+      if (head.type !== 'task-result' || head.task !== task) throw lanError('refused', 'a result that does not match the request');
+      return JSON.parse(new TextDecoder().decode(payload));
+    } finally { signal?.removeEventListener('abort', onAbort); }
+  };
 
   node.close = () => { try { ch.send({ type: 'bye' }); } catch { /* gone */ } ch.close(); leave(lanError('closed')); };
   return node;

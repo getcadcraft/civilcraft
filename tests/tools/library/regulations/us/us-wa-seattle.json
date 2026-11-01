@@ -1,0 +1,77 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-wa-seattle",
+  "name": "Seattle: 2021 Seattle Residential Code (IRC 2021 with Washington and Seattle amendments)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-WA",
+    "name": "Seattle"
+  },
+  "base": "us-wa",
+  "edition": "2021 Seattle Residential Code (IRC 2021…",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "The Washington state pack for this city — Seattle amendments to the checked rules were not researched; design criteria from the city's table (Seattle Department of Construction and Inspections; Seattle Residential Code [S] Table R301.2). Design criteria from www.seattle.gov (2021). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Seattle Department of Construction and Inspections, Seattle Residential Code [S] Table R301.2",
+    "url": "https://www.seattle.gov/documents/Departments/SDCI/Codes/SeattleResidentialCode/2021SRCChapter3.pdf",
+    "date": "2025-06-18",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "20 psf (a uniform 25 psf roof snow load may be used)",
+      "value": 20,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "98 mph (ultimate)",
+      "value": 98,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "Yes"
+    },
+    "special_wind_region": {
+      "text": "No"
+    },
+    "windborne_debris": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "D2"
+    },
+    "weathering": {
+      "text": "Moderate"
+    },
+    "frost_depth": {
+      "text": "12 in",
+      "value": 304.8,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "None to slight"
+    },
+    "ice_barrier": {
+      "text": "No"
+    },
+    "flood_hazards": {
+      "text": "NFIP 1989; FIS 1995-05-16"
+    },
+    "air_freezing_index": {
+      "text": "250"
+    },
+    "mean_annual_temp": {
+      "text": "52.8 °F"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

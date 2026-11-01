@@ -62,7 +62,7 @@ export async function inputMode({ APP, ROOT }) {
     ok(!lost.length, id + ': every menu, tab, panel and label in en.json' + (lost.length ? ': ' + lost.join(', ') : ''));
     eq(IP.conflicts(s, COMMANDS), [], id + ': no clashing keys');
     eq(IP.unplaced(s, COMMANDS), [], id + ': every command has a place');
-    const all = [...(s.menus || []).flatMap((m) => m.items), ...(s.bar || []), ...(s.quick || []), ...(s.tabs || []).flatMap((t) => t.panels.flatMap((p) => p.items))].filter((x) => x !== '-');
+    const all = [...(s.menus || []).flatMap((m) => m.items), ...(s.bar || []), ...(s.quick || []), ...(s.tabs || []).flatMap((t) => t.panels.flatMap((p) => [...p.items, ...(p.more || [])]))].flatMap((x) => (typeof x === 'string' ? [x] : x.split || (x.id ? [x.id] : []))).filter((x) => x !== '-');   // 0.8: panel items may be { id, size } / { split } and a panel has `more`
     ok(all.every((x) => ids.includes(x)), id + ': only known commands');
     const r = IP.importProfile(IP.exportProfile({ ...s, name: id, base: id }), COMMANDS, STYLES);
     ok(r.ok && !r.problems.length && JSON.stringify(IP.resolve(r.profile, STYLES).keys) === JSON.stringify(s.keys), id + ': export → import gives the same keys');

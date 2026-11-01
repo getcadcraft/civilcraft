@@ -1,0 +1,386 @@
+[
+ {
+  "id": "cadcraft-drafting.count-by-layer",
+  "title": "Count objects by layer",
+  "pack": "cadcraft-drafting",
+  "prompt": "Open Kitchen/k.dwg and tell me how many objects it has, by layer.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 254
+   },
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "layers[name=A-WALL].objects",
+    "eq": 4
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-drafting.list-layer",
+  "title": "List one layer",
+  "pack": "cadcraft-drafting",
+  "prompt": "List the objects on layer A-WALL of Kitchen/k.dwg.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "objects_list",
+    "args": {
+     "doc": "$o.doc",
+     "layer": "A-WALL"
+    },
+    "as": "l"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "layers[name=A-WALL].objects",
+    "eq": 4
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-drafting.draw-rectangle",
+  "title": "Draw a rectangle",
+  "pack": "cadcraft-drafting",
+  "prompt": "Make a new drawing with a 4000 x 3000 rectangle and save it as room.dwg.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_new",
+    "args": {
+     "name": "Room"
+    },
+    "as": "n"
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$n.doc",
+     "input": [
+      "RECTANG",
+      "0,0",
+      "4000,3000"
+     ]
+    },
+    "as": "r"
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.dwg"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.dwg",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^AC10"
+   },
+   {
+    "file": "room.dwg",
+    "kind": "cad",
+    "path": "byType.poly",
+    "eq": 1
+   },
+   {
+    "file": "room.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-drafting.tidy-copy",
+  "title": "Purge and save a tidy copy",
+  "pack": "cadcraft-drafting",
+  "prompt": "Purge the unused blocks in Kitchen/k.dwg and save a tidy copy as Kitchen/tidy.dwg.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d0"
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$o.doc",
+     "input": "PURGE"
+    }
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Kitchen/tidy.dwg"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/tidy.dwg",
+    "kind": "cad",
+    "path": "blocks.length",
+    "lte": 163
+   },
+   {
+    "file": "Kitchen/tidy.dwg",
+    "kind": "cad",
+    "path": "layers[name=K-EQPM].objects",
+    "eq": 122
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-drafting.insert-block",
+  "title": "Insert a block",
+  "pack": "cadcraft-drafting",
+  "prompt": "Insert the first block of Kitchen/k.dwg at 1000,1000 and save it as Kitchen/ins.dwg.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   },
+   {
+    "tool": "block_insert",
+    "args": {
+     "doc": "$o.doc",
+     "block": "$d.blocks.0.name",
+     "at": [
+      1000,
+      1000
+     ]
+    }
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Kitchen/ins.dwg"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/ins.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 255
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-standards.check-layer-zero",
+  "title": "Check that a layer is empty",
+  "pack": "cadcraft-standards",
+  "prompt": "Check Kitchen/k.dwg: nothing may be on layer 0.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_check",
+    "args": {
+     "doc": "$o.doc",
+     "rules": {
+      "layers": {
+       "noObjectsOn": [
+        "0"
+       ]
+      }
+     }
+    },
+    "as": "c"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "layers[name=0].objects",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-standards.plot-first-layout",
+  "title": "Plot the first layout to PDF",
+  "pack": "cadcraft-standards",
+  "prompt": "Plot the first layout of Kitchen/k.dwg to Plots/sheet.pdf.",
+  "folders": [
+   "Plots"
+  ],
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   },
+   {
+    "tool": "drawing_plot",
+    "args": {
+     "doc": "$o.doc",
+     "layout": "$d.layouts.0.name",
+     "out": "Plots/sheet.pdf"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Plots/sheet.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   },
+   {
+    "file": "Plots/sheet.pdf",
+    "kind": "pdf",
+    "path": "pages",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "cadcraft-standards.convert-version",
+  "title": "Save a copy in another DWG version",
+  "pack": "cadcraft-standards",
+  "prompt": "Save a copy of Kitchen/k.dwg as a 2013 DWG at Out/k2013.dwg.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_convert",
+    "args": {
+     "path": "Kitchen/k.dwg",
+     "out": "Out/k2013.dwg",
+     "version": "2013"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/k2013.dwg",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^AC1027"
+   }
+  ]
+ }
+]

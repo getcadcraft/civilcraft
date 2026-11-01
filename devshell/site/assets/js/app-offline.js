@@ -55,6 +55,16 @@
     }).filter(Boolean);
   }
 
+  /** What the app itself asks to keep (window.ccOfflineExtra() → URLs; MarkupCraft: the OCR language data for English and the
+   *  interface language, 0.7.1). Same-origin only. */
+  function extraUrls() {
+    var list = [];
+    try { list = typeof window.ccOfflineExtra === 'function' ? window.ccOfflineExtra() || [] : []; } catch (e) { list = []; }
+    return list.map(function (u) {
+      try { var x = new URL(u, location.href); return x.origin === location.origin ? x.pathname + x.search : null; } catch (e) { return null; }
+    }).filter(Boolean);
+  }
+
   var sw = null;
   function send(msg) {
     if (!sw) return;
@@ -104,7 +114,7 @@
   function save() {
     if (!navigator.onLine) { set(state, label.textContent, T('shell.offline.needs_net')); return; }
     set('saving', T('shell.offline.saving'), T('shell.offline.saving.title'), 'bi-cloud-arrow-down');
-    var urls = data.urls.concat(pageUrls());
+    var urls = data.urls.concat(pageUrls(), extraUrls());
     send({ type: 'save', key: data.key, page: data.page, urls: urls });
   }
 

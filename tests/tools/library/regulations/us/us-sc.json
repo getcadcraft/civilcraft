@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-sc",
+  "name": "South Carolina: 2021 South Carolina Residential Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-SC",
+    "name": "South Carolina"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-01-01",
+  "in_force": "2023-01-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (South Carolina Building Codes Council (LLR); S.C. Code Ann. §6-9-50). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "South Carolina Building Codes Council (LLR), S.C. Code Ann. §6-9-50",
+    "url": "https://llr.sc.gov/bcc/BCAdoption.aspx",
+    "date": "2021-10-06",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

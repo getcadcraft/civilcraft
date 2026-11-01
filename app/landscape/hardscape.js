@@ -11,7 +11,8 @@
  *   { id, kind: 'path', name, pts (open), width, crossfall (%), edge, layers, maxGrade (%) }
  *   { id, kind: 'wall', name, pts (open), wall: 'retaining'|'freestanding', thickness, top: null (ground + height) | z, height,
  *     batter (deg, the face leaning back), footing: { width, depth, step }, coping: { overhang, thickness }, drain (drainage layer
- *     thickness behind a retaining wall, 0 = none), material }
+ *     thickness behind a retaining wall, 0 = none), material,
+ *     grade (0.8 LA.4: a retaining wall that shapes the ground: a modifier in the stack), foot: null | z (the low side's held level) }
  *   { id, kind: 'kerb', name, pts (open), width, upstand, depth }
  *   { id, kind: 'ramp', name, pts (open, bottom → top), width, zStart: null | z, zEnd: null | z, maxGrade (%), landingEvery (rise), landing (length) }
  *   { id, kind: 'steps', name, pts: [bottom, top] (the line of travel up), width, zBottom: null | z, zTop: null | z, riserMax, goingMin, maxRisers, landing }
@@ -24,7 +25,8 @@
  *   wallLayout(w, surface, units) → { stations: [{ s, x, y, ground, top, height, footing }], maxHeight, length, faceArea, volume, steps, engineer }
  *   rampLayout(r, surface, units) → { zs, ze, rise, length, grade, runs, landings, need, ok, checks }
  *   stepsLayout(s, surface, units) → { H, n, riser, going, treads, flights, run, length, fits, need, checks, treadLines }
- *   hardGradeItems(ls, units) → gradedSurface items for paving and paths marked `grade`
+ *   hardGradeItems(ls, units) → gradedSurface items for paving, paths, steps, ramps and retaining walls marked `grade`
+ *   wallPatch(wall, surface, units) → a gradedSurface patch: the strip under a retaining wall, its high side held at the ground there (the top follows it), its low side at `foot` or the ground there
  *   hardSceneItems(ls, surface, units, { unitPerMm, fixed }) → plan items on the L-HARD-* layers
  *   hardElements(ls, surface, units) → IFC elements (ifc-landscape.js): IfcPavement, IfcWall, IfcKerb, IfcRamp, IfcStair, IfcSlab (edging)
  *   hardQuantities(ls, surface, units) → [{ key, name, unit, qty }] for TakeoffCraft
@@ -33,6 +35,7 @@
 import { meanGround, planeZ } from './grade.js';
 import { inside, offsetLine } from './planting.js';
 import { t } from '../i18n.js';
+import { cleanLink } from './links.js';   // 0.8 LA.2
 import './layers.js';
 
 export const HARD_KINDS = ['paving', 'path', 'wall', 'kerb', 'ramp', 'steps'];
@@ -71,7 +74,8 @@ export function cleanHardscape(list, units) {
     const pts = (Array.isArray(h.pts) ? h.pts.slice(0, 5000) : []).map(XY).filter(Boolean);
     const closed = h.kind === 'paving';
     if (pts.length < (closed ? 3 : 2)) continue;
-    const base = { id: h.id, kind: h.kind, name: str(h.name) || t('ls.h.k.' + h.kind), pts };
+    const lk = cleanLink(h.link);   // 0.8 LA.2: made from a line, kept linked
+    const base = { id: h.id, kind: h.kind, name: str(h.name) || t('ls.h.k.' + h.kind), pts, ...(lk ? { link: lk } : {}) };
     if (h.kind === 'paving') {
       const f = h.falls && typeof h.falls === 'object' ? h.falls : {};
       const mode = ['none', 'cross', 'drain'].includes(f.mode) ? f.mode : 'none';
@@ -90,13 +94,14 @@ export function cleanHardscape(list, units) {
         batter: fin(h.batter) && h.batter >= 0 && h.batter < 45 ? h.batter : 0,
         footing: { width: pos(fo.width, D.wall.footing.width, 100), depth: pos(fo.depth, D.wall.footing.depth, 100), step: pos(fo.step, D.wall.footing.step, 100) },
         coping: { overhang: fin(co.overhang) && co.overhang >= 0 && co.overhang < 10 ? co.overhang : D.wall.coping.overhang, thickness: fin(co.thickness) && co.thickness >= 0 && co.thickness < 10 ? co.thickness : D.wall.coping.thickness },
-        drain: fin(h.drain) && h.drain >= 0 && h.drain < 100 ? h.drain : D.wall.drain, material: str(h.material, 60) || t('ls.h.m.wall') });
+        drain: fin(h.drain) && h.drain >= 0 && h.drain < 100 ? h.drain : D.wall.drain, material: str(h.material, 60) || t('ls.h.m.wall'), ...(h.retain === true ? { retain: true } : {}),
+        ...(h.wall !== 'freestanding' && h.grade === true ? { grade: true } : {}), foot: nz(h.foot) });   // 0.8 LA.4: a retaining wall that shapes the ground holds the high side at its top and the low side at `foot` (null = the ground there)
     } else if (h.kind === 'kerb') {
       out.push({ ...base, width: pos(h.width, D.kerb.width, 10), upstand: fin(h.upstand) && h.upstand >= 0 && h.upstand < 10 ? h.upstand : D.kerb.upstand, depth: pos(h.depth, D.kerb.depth, 10) });
     } else if (h.kind === 'ramp') {
-      out.push({ ...base, width: pos(h.width, D.ramp.width, 100), zStart: nz(h.zStart), zEnd: nz(h.zEnd), maxGrade: pos(h.maxGrade, D.ramp.maxGrade, 100), landingEvery: pos(h.landingEvery, D.ramp.landingEvery, 100), landing: pos(h.landing, D.ramp.landing, 100) });
+      out.push({ ...base, ...(h.grade === true ? { grade: true } : {}), width: pos(h.width, D.ramp.width, 100), zStart: nz(h.zStart), zEnd: nz(h.zEnd), maxGrade: pos(h.maxGrade, D.ramp.maxGrade, 100), landingEvery: pos(h.landingEvery, D.ramp.landingEvery, 100), landing: pos(h.landing, D.ramp.landing, 100) });
     } else {
-      out.push({ ...base, pts: pts.slice(0, 2), width: pos(h.width, D.steps.width, 100), zBottom: nz(h.zBottom), zTop: nz(h.zTop), riserMax: pos(h.riserMax, D.steps.riserMax, 10),
+      out.push({ ...base, ...(h.grade === true ? { grade: true } : {}), pts: pts.slice(0, 2), width: pos(h.width, D.steps.width, 100), zBottom: nz(h.zBottom), zTop: nz(h.zTop), riserMax: pos(h.riserMax, D.steps.riserMax, 10),
         goingMin: pos(h.goingMin, D.steps.goingMin, 10), maxRisers: Number.isInteger(h.maxRisers) && h.maxRisers >= 2 && h.maxRisers <= 50 ? h.maxRisers : D.steps.maxRisers, landing: pos(h.landing, D.steps.landing, 100) });
     }
   }
@@ -221,9 +226,18 @@ export function wallLayout(wl, surface, units) {
   const step = Math.max(units === 'm' ? 0.25 : 0.75, w.L / 400);
   let lastFoot = null;
   for (const s of stations(w, step)) {
-    const q = w.at(s), g = ground(surface, q.x, q.y);
+    const q = w.at(s);
+    let g = ground(surface, q.x, q.y);
     if (g === null) { out.off++; continue; }
-    const top = wl.top ?? g + wl.height, height = top - g;
+    let top = wl.top ?? g + wl.height;
+    if (wl.grade) {   // 0.8 LA.4: a wall that shapes the ground reads the surface it made: the top is the high side (or the typed top), the face the low side
+      const off = wl.thickness / 2 + (units === 'm' ? 0.05 : 0.15), gl = ground(surface, q.x - q.uy * off, q.y + q.ux * off), gr = ground(surface, q.x + q.uy * off, q.y - q.ux * off);
+      if (gl !== null && gr !== null) { top = wl.top ?? Math.max(gl, gr) + wl.coping.thickness; g = Math.min(gl, gr); }
+    } else if (wl.retain && wl.top == null) {   // 0.8 LA.4: the top follows the high side of the ground, the face is what the low side shows
+      const off = wl.thickness / 2 + (units === 'm' ? 0.05 : 0.15), gl = ground(surface, q.x - q.uy * off, q.y + q.ux * off), gr = ground(surface, q.x + q.uy * off, q.y - q.ux * off);
+      if (gl !== null && gr !== null) { top = Math.max(gl, gr) + wl.coping.thickness; g = Math.min(gl, gr); }
+    }
+    const height = top - g;
     // the footing's top sits `depth` below the ground, stepped down in whole `step`s so it is level between steps
     const foot = Math.floor((g - wl.footing.depth) / wl.footing.step) * wl.footing.step;
     if (lastFoot !== null && Math.abs(foot - lastFoot) > 1e-9) out.steps++;
@@ -287,21 +301,70 @@ export function stepsLayout(st, surface, units) {
 }
 
 // ---- the proposed surface ----
+/**
+ * A retaining wall as a ground modifier (0.8 LA.4). The strip under the wall (its thickness wide) is rebuilt: the edge on the HIGH side (the side whose ground
+ * is higher over the whole wall, so it never flips along it) is held at the ground there, station by station, so the wall's top follows the high side; a typed
+ * `top` holds it at top minus the coping instead. The edge on the LOW side is held at `foot`, or at the ground there. The ground beyond the strip is not changed.
+ */
+export function wallPatch(h, surf, units) {
+  const fail = (key) => ({ problems: [t(key)], region: null, points: [], breaklines: [], info: null });
+  const w = walk(h.pts);
+  if (!w.segs.length) return fail('ls.h.err.wallshort');
+  const hw = h.thickness / 2, off = hw + (units === 'm' ? 0.05 : 0.15), rows = [];
+  let offCount = 0;
+  for (const s of stations(w, Math.max(units === 'm' ? 0.25 : 0.75, w.L / 400))) {
+    const q = w.at(s), nx = -q.uy, ny = q.ux, gl = ground(surf, q.x + nx * off, q.y + ny * off), gr = ground(surf, q.x - nx * off, q.y - ny * off);
+    if (gl === null || gr === null) { offCount++; continue; }
+    rows.push({ q, nx, ny, gl, gr });
+  }
+  if (rows.length < 2) return fail('ls.g.err.off');
+  const hiLeft = rows.reduce((v, r) => v + (r.gl - r.gr), 0) >= 0;
+  const left = [], right = [];
+  for (const r of rows) {
+    const hi = h.top != null ? h.top - h.coping.thickness : hiLeft ? r.gl : r.gr, lo = h.foot != null ? h.foot : hiLeft ? r.gr : r.gl;
+    left.push({ x: r.q.x + r.nx * hw, y: r.q.y + r.ny * hw, z: hiLeft ? hi : lo });
+    right.push({ x: r.q.x - r.nx * hw, y: r.q.y - r.ny * hw, z: hiLeft ? lo : hi });
+  }
+  const region = [...left, ...right.slice().reverse()].map((q) => ({ x: q.x, y: q.y }));
+  let a = 0;
+  for (let i = 0; i < region.length; i++) { const p = region[i], q = region[(i + 1) % region.length]; a += p.x * q.y - q.x * p.y; }
+  if (Math.abs(a) / 2 < 1e-9) return fail('ls.g.err.flat');
+  const mean = (arr) => arr.reduce((v, q) => v + q.z, 0) / arr.length;
+  return { problems: [], region, points: [], breaklines: [{ name: h.name + ' L', pts: left }, { name: h.name + ' R', pts: right }, { name: h.name + ' start', pts: [left[0], right[0]] }, { name: h.name + ' end', pts: [left.at(-1), right.at(-1)] }],
+    info: { kind: 'wall', hiLeft, high: mean(hiLeft ? left : right), low: mean(hiLeft ? right : left), off: offCount } };
+}
+
 export function hardGradeItems(ls, units) {
-  const out = [];
+  const out = [], late = [];   // 0.8 LA.4: steps and ramps after the paving they land on, so they win at the shared edge
   for (const h of ls?.hardscape || []) {
     if (h.kind === 'paving' && h.grade) out.push({ id: h.id, kind: 'ls-paving', name: h.name, patch: (surf) => {
       const ps = pavingSurface(h, surf);
       if (ps.corners.some((c) => !fin(c.z))) return { problems: [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
       return { problems: [], region: h.pts.map((q) => ({ x: q.x, y: q.y })), points: ps.drain ? [ps.drain] : [], breaklines: [{ name: h.name, pts: [...ps.corners, ps.corners[0]] }], info: { kind: 'paving', z0: ps.z0 } };
     } });
+    if (h.kind === 'steps' && h.grade && (h.zBottom != null || h.zTop != null)) late.push({   // 0.8 LA.4: only when "Shapes the ground" is on (older files keep the ground as it was)
+     id: h.id, kind: 'ls-steps', name: h.name, patch: (surf) => {   // 0.8 LA.4: steps with a level shape the ground under them
+      const [a, b] = h.pts, zB = h.zBottom ?? ground(surf, a.x, a.y), zT = h.zTop ?? ground(surf, b.x, b.y);
+      if (zB === null || zT === null) return { problems: [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
+      const L = offsetLine([a, b], h.width / 2), R = offsetLine([a, b], -h.width / 2);
+      return { problems: [], region: [L[0], L[1], R[1], R[0]], points: [], breaklines: [{ name: h.name + ' bottom', pts: [{ ...L[0], z: zB }, { ...R[0], z: zB }] }, { name: h.name + ' top', pts: [{ ...L[1], z: zT }, { ...R[1], z: zT }] },
+        { name: h.name + ' L', pts: [{ ...L[0], z: zB }, { ...L[1], z: zT }] }, { name: h.name + ' R', pts: [{ ...R[0], z: zB }, { ...R[1], z: zT }] }], info: { kind: 'steps', zB, zT } };
+    } });
+    if (h.kind === 'ramp' && h.grade && (h.zStart != null || h.zEnd != null)) late.push({ id: h.id, kind: 'ls-ramp', name: h.name, patch: (surf) => {   // 0.8 LA.4: a ramp with a level shapes the ground under it
+      const w = walk(h.pts), a = h.pts[0], b = h.pts[h.pts.length - 1], zs = h.zStart ?? ground(surf, a.x, a.y), ze = h.zEnd ?? ground(surf, b.x, b.y);
+      if (zs === null || ze === null || !w.segs.length) return { problems: [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
+      const zAt = (i) => { let s0 = 0; for (let k = 0; k < i; k++) s0 += Math.hypot(h.pts[k + 1].x - h.pts[k].x, h.pts[k + 1].y - h.pts[k].y); return zs + ((ze - zs) * s0) / w.L; };
+      const L = offsetLine(h.pts, h.width / 2).map((p, i) => ({ ...p, z: zAt(i) })), R = offsetLine(h.pts, -h.width / 2).map((p, i) => ({ ...p, z: zAt(i) }));
+      return { problems: [], region: [...L, ...R.slice().reverse()].map((q) => ({ x: q.x, y: q.y })), points: [], breaklines: [{ name: h.name + ' L', pts: L }, { name: h.name + ' R', pts: R }, { name: h.name + ' start', pts: [L[0], R[0]] }, { name: h.name + ' end', pts: [L.at(-1), R.at(-1)] }], info: { kind: 'ramp', zs, ze } };
+    } });
+    if (h.kind === 'wall' && h.grade && h.wall === 'retaining') late.push({ id: h.id, kind: 'ls-wall', name: h.name, patch: (surf) => wallPatch(h, surf, units) });   // 0.8 LA.4: walls as modifiers
     if (h.kind === 'path' && h.grade) out.push({ id: h.id, kind: 'ls-path', name: h.name, patch: (surf) => {
       const st = pathStrip(h, surf);
       if (st.left.length < 2) return { problems: [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
       return { problems: [], region: [...st.left, ...st.right.slice().reverse()].map((q) => ({ x: q.x, y: q.y })), points: [], breaklines: [{ name: h.name + ' L', pts: st.left }, { name: h.name + ' R', pts: st.right }], info: { kind: 'path', steepest: st.steepest } };
     } });
   }
-  return out;
+  return [...out, ...late];
 }
 
 // ---- the plan ----

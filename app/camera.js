@@ -7,7 +7,8 @@
  *   cam.view() / proj() / viewProj()      4×4 column-major (OpenGL clip space, like three.js)
  *   cam.project(p) → [x, y, depth] | null screen pixels from the top-left; null behind the eye
  *   cam.ray(x, y) → {o, d}                the pick ray through a pixel (d unit)
- *   cam.orbit(dx, dy) · pan(dx, dy) · zoomAt(factor, x, y, pivot?) · fit(bbox) · standard(name)
+ *   cam.orbit(dx, dy, pivot?) · pan(dx, dy, at?) · zoomAt(factor, x, y, pivot?) · fit(bbox) · standard(name)
+ *   cam.orbitSpeed / panSpeed               1 = as before; the app's settings scale drags with them
  *   cam.toJSON() / set(json)              {eye, target, fov, persp, height} (scenes)
  * Z is up. Parallel projection shows the same area the perspective view shows at the target.
  */
@@ -33,6 +34,8 @@ export class Camera {
     this.w = 800; this.h = 600;
     this.near = 0.05; this.far = 5000;
     this.sceneRadius = 20;
+    this.orbitSpeed = 1;      // 0.7.1: how far a drag turns / slides the view (the viewer's setting, not saved with scenes)
+    this.panSpeed = 1;
   }
   setSize(w, h) { this.w = Math.max(1, w); this.h = Math.max(1, h); }
   get aspect() { return this.w / this.h; }
@@ -92,16 +95,36 @@ export class Camera {
     return (2 * depth * Math.tan((this.fov * Math.PI) / 360)) / this.h;
   }
 
-  orbit(dx, dy) {
+  /**
+   * Turn the view by a drag of dx, dy pixels (× orbitSpeed). With a `pivot` (0.7.1: the point under the cursor) the view
+   * turns about that point, so it stays where it is on screen; without one it turns about the target (the view centre).
+   */
+  orbit(dx, dy, pivot = null) {
+    const k = 0.008 * this.orbitSpeed;
     const off = sub(this.eye, this.target);
     const r = len(off);
-    let yaw = Math.atan2(off[1], off[0]) - dx * 0.008;
-    let pitch = Math.acos(Math.max(-1, Math.min(1, off[2] / r))) - dy * 0.008;
+    const pitch0 = Math.acos(Math.max(-1, Math.min(1, off[2] / r)));
+    let pitch = pitch0 - dy * k;
     pitch = Math.max(0.001, Math.min(Math.PI - 0.001, pitch));
-    this.eye = add(this.target, [r * Math.sin(pitch) * Math.cos(yaw), r * Math.sin(pitch) * Math.sin(yaw), r * Math.cos(pitch)]);
+    if (!pivot) {
+      const yaw = Math.atan2(off[1], off[0]) - dx * k;
+      this.eye = add(this.target, [r * Math.sin(pitch) * Math.cos(yaw), r * Math.sin(pitch) * Math.sin(yaw), r * Math.cos(pitch)]);
+      return;
+    }
+    // the same turn as a rigid rotation of eye and target about the pivot: first about the blue axis, then about the
+    // view's level side axis (a positive turn about up × view direction tips the view direction down)
+    let e = sub(this.eye, pivot), tg = sub(this.target, pivot);
+    const yawR = (v) => turnAbout(v, [0, 0, 1], -dx * k);
+    e = yawR(e); tg = yawR(tg);
+    let side = cross([0, 0, 1], sub(e, tg));
+    side = len(side) < 1e-12 * r ? this.axes().x : norm(side);
+    e = turnAbout(e, side, pitch - pitch0); tg = turnAbout(tg, side, pitch - pitch0);
+    this.eye = add(pivot, e);
+    this.target = add(pivot, tg);
   }
-  pan(dx, dy) {
-    const { x, y } = this.axes(), s = this.pixelSize(this.target);
+  /** Slide the view by dx, dy pixels (× panSpeed); `at` (0.7.1: the point under the cursor) moves with the cursor, else the target does. */
+  pan(dx, dy, at = null) {
+    const { x, y } = this.axes(), s = this.pixelSize(at || this.target) * this.panSpeed;
     const mv = add(mul(x, -dx * s), mul(y, dy * s));
     this.eye = add(this.eye, mv);
     this.target = add(this.target, mv);
@@ -148,6 +171,12 @@ export class Camera {
     if (j.fov) this.fov = j.fov;
     this.persp = j.persp !== false;
   }
+}
+
+/** v turned by angle a (radians) about the unit axis u (Rodrigues). */
+function turnAbout(v, u, a) {
+  const c = Math.cos(a), s = Math.sin(a);
+  return add(add(mul(v, c), mul(cross(u, v), s)), mul(u, dot(u, v) * (1 - c)));
 }
 
 /** Camera halfway between two saved cameras (scene transitions): eye and target move in straight lines. */

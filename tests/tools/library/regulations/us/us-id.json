@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-id",
+  "name": "Idaho: Idaho Building Code (residential portion)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-ID",
+    "name": "Idaho"
+  },
+  "base": "us-irc-2018",
+  "edition": "IRC 2018 as adopted, 2024-07-01",
+  "in_force": "2024-07-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2018 (Idaho Building Code Board / DOPL; IDAPA 24.39.30.600.03; Idaho Code § 39-4109). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Idaho Building Code Board / DOPL, IDAPA 24.39.30.600.03; Idaho Code § 39-4109",
+    "url": "https://adminrules.idaho.gov/rules/current/24/243930.pdf",
+    "date": "2024-07-01",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-tn",
+  "name": "Tennessee: One and Two Family Dwellings and Townhouses (Rule 0780-02-23)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-TN",
+    "name": "Tennessee"
+  },
+  "base": "us-irc-2018",
+  "edition": "IRC 2018 as adopted, 2020-07-16",
+  "in_force": "2020-07-16",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2018 (Tennessee Dept. of Commerce & Insurance, Division of Fire Prevention; Tenn. Comp. R. & Regs. 0780-02-23-.02). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms)…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Tennessee Dept. of Commerce & Insurance, Division of Fire Prevention, Tenn. Comp. R. & Regs. 0780-02-23-.02",
+    "url": "https://www.law.cornell.edu/regulations/tennessee/Tenn-Comp-R-Regs-0780-02-23-.02",
+    "date": "2020-04-17",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

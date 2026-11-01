@@ -7,7 +7,8 @@
  *   project.gisFeatures: Map(layerId → [{ g, p }]) in project coordinates (gis-geom.js geometry; p = attributes),
  *   outside the undo snapshots; project.editGis(label, fn) is one undo step.
  *
- *   addLayers(project, layers, { label, crs }) → ids      one undo step; `crs` (optional) becomes state.crs in the same step
+ *   addLayers(project, layers, { label, crs, also }) → ids  one undo step; `crs` (optional) becomes state.crs in the same step;
+ *                                                         `also(state, ids, featureMap)` changes more in that step
  *   removeLayer(project, id) · setLayer(project, id, { name, visible, color, label })   undo steps (label: a field name or
  *                                                         null — 0.4 V7: the plan labels each feature with its value)
  *   labelItems(layer, features, mmPerUnit) → scene text items (≤ MAX_LABELS per layer), labelText(value)
@@ -40,7 +41,7 @@ export const gisOf = (project) => (project.state.gis ||= { layers: [], maps: [] 
 export const layerOf = (project, id) => gisOf(project).layers.find((l) => l.id === id) || null;
 export const featuresOf = (project, id) => project.gisFeatures.get(id) || [];
 
-export function addLayers(project, layers, { label = t('layers.undo.import'), crs } = {}) {
+export function addLayers(project, layers, { label = t('layers.undo.import'), crs, also } = {}) {
   const ids = [];
   const ok = project.editGis(label, (map, s) => {
     const g = s.gis ||= { layers: [], maps: [] };
@@ -53,6 +54,7 @@ export function addLayers(project, layers, { label = t('layers.undo.import'), cr
       g.layers.push({ id, name: clean(l.name, 120) || t('layers.default'), geom: l.geom, hasZ: !!l.hasZ, fields: (l.fields || []).map((f) => ({ name: f.name, type: f.type })), visible: true, color: LAYER_TOKENS[k++ % LAYER_TOKENS.length], source: { file: clean(l.source?.file, 200), format: clean(l.source?.format, 40), crs: l.source?.crs ? clean(l.source.crs, 200) : null } });
       map.set(id, l.features);
     }
+    also?.(s, ids, map);   // Super 0.1 (scan-start-ui.js): more of the same step, e.g. a scan's old drawing out and its record updated
     return map;
   });
   return ok ? ids : [];

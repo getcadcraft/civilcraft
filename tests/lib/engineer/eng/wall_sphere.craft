@@ -1,0 +1,15 @@
+% wall_sphere — the wall a thin spherical shell needs against internal pressure
+%
+% Usage:      t = wall_sphere(p, ri, s_allow)
+% Computes:   membrane stress sigma = p r / (2 t), so t = p ri / (2 s_allow): half the wall of a cylinder of the same radius.
+% Method:     thin-wall theory.
+% Units:      SI: p Pa (gauge), ri m, s_allow Pa, t m.
+% Limits:     thin wall (t / ri below about 0.1); no allowances; not a code calculation.
+% References: Shigley, 11th ed., eq. 3-52; Roark, 8th ed., Table 13.5.
+% Check:      p 2 MPa, ri 50 mm, s_allow 100 MPa: t = 0.500 mm (tools/field-test/eng.mjs).
+function t = wall_sphere(p, ri, s_allow)
+if ~(p > 0) || ~(ri > 0) || ~(s_allow > 0)
+  error('wall_sphere: the pressure, the radius and the allowable stress must be greater than zero');
+end
+t = p * ri / (2 * s_allow);
+end

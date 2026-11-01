@@ -379,6 +379,24 @@
   function mark(e, cls) { if (!e.classList.contains(cls)) { e.classList.add(cls); marked.push([e, cls]); } }
   function unmarkAll() { marked.forEach(function (m) { m[0].classList.remove(m[1]); }); marked = []; }
 
+  // The bar's buttons (Find, Help, Settings, offline, screen mode) un-hide as their scripts start, after the first layout():
+  // measure again when one does, or a bar that only overflows at a wide window (DetailCraft at 1920 px) keeps its last buttons off the edge.
+  function barFit() {
+    var appBar = document.querySelector('.app-bar');
+    if (!appBar) return;
+    root.classList.remove('cc-bar-narrow');
+    if (!root.classList.contains('cc-phone') && appBar.scrollWidth > appBar.clientWidth + 1) root.classList.add('cc-bar-narrow');
+  }
+  var barPending = false;
+  (function () {
+    var ab = document.querySelector('.app-bar');
+    if (!ab) return;
+    new MutationObserver(function () {
+      if (barPending) return; barPending = true;
+      requestAnimationFrame(function () { barPending = false; barFit(); });
+    }).observe(ab, { attributes: true, attributeFilter: ['hidden'], subtree: true, childList: true });
+  })();
+
   function layout() {
     state = decide();
     root.setAttribute('data-cc-size', state.size);
@@ -392,11 +410,7 @@
     tabletSheets(!!state.tablet);   // never with the phone layout: decide() makes them exclusive
     // an app bar too full for its window (tablets turned sideways) takes the narrow "More" layout instead of pushing its last
     // buttons off the edge; measured with the class off, so it comes back as soon as the bar fits
-    var appBar = document.querySelector('.app-bar');
-    if (appBar) {
-      root.classList.remove('cc-bar-narrow');
-      if (!state.on && appBar.scrollWidth > appBar.clientWidth + 1) root.classList.add('cc-bar-narrow');
-    }
+    barFit();
     // a touch tablet keeps its own layout, but its toolbars are one row that scrolls sideways (Warren, 2026-10-15: on an 11.5"
     // tablet ModelCraft's wrapped to three lines, nearly half the screen; the button styles could not win the space back)
     var touchTb = !state.on && coarse();
@@ -473,7 +487,11 @@
       syncSet();
     }
     if (P.seen) root.classList.add('cc-pen');
+    // 0.8 Track ID: with the input-device layer (app-devices-ui.js) the pen's buttons and the taps take any command, every app or
+    // one app (Settings › Global › Input devices); its answer wins, and 'cmd:' / 'view:' actions run there
+    function choice(path, own) { var d = window.ccShellDevices; var v = d && d.pick ? d.pick(path) : null; return v == null ? own : v; }
     function act(what) {
+      if (what && (what.indexOf('cmd:') === 0 || what.indexOf('view:') === 0)) { if (window.ccShellDevices) window.ccShellDevices.perform(what); return; }
       var id = what === 'undo' ? 'edit.undo' : what === 'redo' ? 'edit.redo' : null;
       if (!id) return;
       if (window.ccInput && typeof window.ccInput.run === 'function') {
@@ -512,7 +530,7 @@
       if (tap.active > 0) return;
       var t = tap;
       tap = null;
-      if (P.taps && !t.moved && !t.late && now() - t.t0 < TAP_MS && (t.max === 2 || t.max === 3)) act(t.max === 2 ? 'undo' : 'redo');
+      if (!t.moved && !t.late && now() - t.t0 < TAP_MS && (t.max === 2 || t.max === 3)) act(choice(t.max === 2 ? 'touch.tap2' : 'touch.tap3', P.taps ? (t.max === 2 ? 'undo' : 'redo') : 'off'));
     }
 
     window.addEventListener('pointerdown', function (e) {
@@ -521,7 +539,8 @@
         seen(); record(e); penDown = true;
         if (!inStage(e.target)) return;
         var eraser = e.button === 5 || (e.buttons & 32) !== 0, barrel = e.button === 2;
-        var what = eraser ? P.eraser : barrel ? P.side : 'app';
+        var what = eraser ? choice('pen.eraser', P.eraser) : barrel ? choice('pen.side', P.side) : 'app';
+        if (what === 'off') { swallow(e); penOwn.add(e.pointerId); if (barrel) eatMenuAt = now(); return; }
         if (what !== 'app') { swallow(e); penOwn.add(e.pointerId); if (barrel) eatMenuAt = now(); act(what); }
         return;
       }
@@ -583,6 +602,12 @@
       else if (CHOICES[k] && CHOICES[k].indexOf(val) >= 0) P[k] = val;
       else return false;
       savePen(); syncSet();
+      // 0.8 Track ID: the device layer is the one answer for the pen's buttons and the taps; a choice made here goes there too
+      var d = window.ccShellDevices, cmd = function (v) { return v === 'undo' ? 'cmd:edit.undo' : v === 'redo' ? 'cmd:edit.redo' : 'app'; };
+      if (d && d.set) {
+        if (k === 'side' || k === 'eraser') d.set('pen.' + k, cmd(val));
+        else if (k === 'taps') { d.set('touch.tap2', val ? 'cmd:edit.undo' : 'off'); d.set('touch.tap3', val ? 'cmd:edit.redo' : 'off'); }
+      }
       return true;
     }
     if (set) {

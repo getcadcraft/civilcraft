@@ -54,9 +54,9 @@ function drawer(prefix) {
   };
 }
 
-function item({ name, description, plan, params, attrs }) {
+function item({ name, description, plan, params, attrs, category = 'details/generic' }) {
   return {
-    format: 'cadcraft-library-item', format_version: 1, name, kind: 'detail', category: 'details/generic', description,
+    format: 'cadcraft-library-item', format_version: 1, name, kind: 'detail', category, description,
     maker: '', model: '', plan, body: null, params, source_attrs: attrs,
   };
 }
@@ -96,6 +96,7 @@ export function sectionItem(sec, { view = 'section', length = 3000 } = {}) {
     d.line(-e, 0, Lm + e, 0, 'CENTER');
     attrs[PART_TAGS.length] = String(r1(Lm));
     return item({
+      category: 'structural/steel',
       name: sec.name + ' elevation, ' + num(Lm) + ' mm',
       description: sec.name + ' (' + type + ') from the ' + src.title + ': ' + secDims(sec) + '; ' + kgm(massM) + ' kg/m. Side elevation, ' + num(Lm) + ' mm long, from the middle of the left end.' + how,
       plan: { layers: layers('STEEL'), entities: d.ents },
@@ -107,6 +108,7 @@ export function sectionItem(sec, { view = 'section', length = 3000 } = {}) {
   for (const l of loops) d.poly(l);
   d.cross(0, 0, bb.w / 2 + Math.max(5, bb.w * 0.12), bb.h / 2 + Math.max(5, bb.h * 0.12));
   return item({
+      category: 'structural/steel',
     name: sec.name + ' section',
     description: sec.name + ' (' + type + ') from the ' + src.title + ': ' + secDims(sec) + '; ' + kgm(massM) + ' kg/m. Cross-section at its centre.' + how,
     plan: { layers: layers('STEEL'), entities: d.ents },
@@ -202,6 +204,7 @@ export function partItem(p) {
   if (p.massKg) params.weight_kg = p.massKg;
   const ref = p.type === 'gear' ? 'Modules from ISO 54:1996, tooth form from the ISO 53:1998 basic rack.' : 'Dimensions from ' + p.standardTitle.split(' ').slice(0, 2).join(' ') + '.';
   return item({
+    category: 'mechanical/parts',
     name: fam.name + ' ' + p.designation,
     description: (fam.name + ', ' + partDims(p) + '. ' + VIEW_TEXT[how] + ' ' + ref + (p.massKg ? ' Weight from the nominal shape in steel (7850 kg/m³), threads not taken off.' : '')).slice(0, 500),
     plan: { layers: layers('PART'), entities: d.ents },

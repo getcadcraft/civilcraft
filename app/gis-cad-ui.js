@@ -16,6 +16,10 @@
  * CivilCraft's own feature lines (0.6 WL.24; cad-linework.js cadFeatureLines): when the drawing holds 3D polylines CivilCraft
  * wrote as feature lines, a box (`[data-cad-fl]`, on at first) brings them back as feature lines with their arcs (one undo
  * step) instead of as linework.
+ * Survey levels and the check (0.8 LA.3; lib/survey/survey.js): levels written as TEXT / MTEXT numbers or in a block attribute (the attribute
+ * is found by name, or picked once and remembered per file) can come in as survey points (one undo step), and a check report before use — units,
+ * coordinate system, distance from the origin, contours flat at 0, level outliers, duplicates — is listed in the dialog and, on Add, handed to the
+ * shell's Problems as the source 'civilcraft.survey' (kind import; one row per kind of issue). Nothing is changed in the drawing.
  * window.civilcraft.gis.cad (host.cad) = { open(files), last } for tests. Every word goes through t() (lang/en.json, cad.*).
  */
 
@@ -23,6 +27,7 @@ import { t } from './i18n.js';
 import { cadLinework, unitScale, cadFeatureLines } from './cad-linework.js';
 import { blockRefs, pointsFromBlocks } from './block-points.js';
 import { addLayers, useChoices, useForSurface, layerOf } from './gis-layers.js';
+import { surveyLevels, checkSurvey, toProblems, rememberTag, recallTag } from './survey.js';   // 0.8 LA.3 (lib/survey, synced)
 
 const CAD = /\.(dwg|dxf)$/i;
 const MAX_BYTES = 200 * 1024 * 1024;
@@ -133,6 +138,43 @@ export async function install(host) {
           el('label', { for: bDesc.id }, t('cad.blk.desc')), bDesc,
           el('label', { for: bZ.id }, t('cad.blk.z')), bZ),
         bWhat);
+      // ---- survey levels + the check (LA.3) ----
+      let svTag = recallTag(globalThis.localStorage, file), svOn = null, lv = { points: [], tags: [], layers: [], tag: null }, chk = { issues: [] };
+      const svBox = el('input', { type: 'checkbox', 'data-sv-take': '' });
+      const svSel = el('select', { className: 'cv-select', id: 'cv-sv-tag-' + uid, 'data-sv-tag': '' });
+      const svWhat = el('p', { className: 'cv-note', 'data-sv-what': '' });
+      const svReport = el('div', { className: 'cv-report', 'data-sv-report': '', role: 'status' });
+      svBox.onchange = () => { svOn = svBox.checked; surveyRun(); };
+      svSel.onchange = () => { svTag = svSel.value === '' ? undefined : svSel.value === '-' ? null : svSel.value.slice(5); rememberTag(globalThis.localStorage, file, svTag); surveyRun(true); };
+      const svSec = el('section', { className: 'cv-blk', 'data-sv-sec': '' },
+        el('h3', { className: 'cv-h3' }, t('cad.sv.head')), el('p', { className: 'cv-note' }, t('cad.sv.lede')),
+        el('label', { className: 'cv-check' }, svBox, ' ', el('span', { 'data-sv-take-label': '' })),
+        el('div', { className: 'cv-props' }, el('label', { for: svSel.id }, t('cad.sv.tag')), svSel), svWhat,
+        el('h4', { className: 'cv-h3' }, t('cad.sv.check.head')), svReport);
+      const svSeverity = { warning: 'bi-exclamation-triangle', note: 'bi-info-circle', error: 'bi-x-octagon' };
+      const svRows = () => toProblems(chk.issues, { file }).map((q) => ({ ...q, text: t(q.msg.key, q.msg.vars) }));
+      /** Read the levels (again when the attribute choice changed) and run the check on what would come in. */
+      function surveyRun(reread = true) {
+        const header = unitCode === null ? model.header : { ...model.header, INSUNITS: unitCode };
+        if (reread) {
+          lv = surveyLevels({ ...model, header }, { scale: r.scale, tag: svTag });
+          const opts = [['', t('cad.sv.tag.auto')], ['-', t('cad.sv.tag.none')], ...lv.tags.map((x) => ['attr:' + x.tag, t('cad.sv.tag.n', { tag: x.tag, n: x.numeric, all: x.count })])];
+          svSel.replaceChildren(...opts.map(([v, label]) => el('option', { value: v }, label)));
+          svSel.value = svTag === undefined ? '' : svTag === null ? '-' : 'attr:' + svTag;
+          if (svSel.value !== (svTag === undefined ? '' : svTag === null ? '-' : 'attr:' + svTag)) svSel.value = '';
+          if (svOn === null) svOn = false;   // opt in: the block section below already takes attribute levels, and text levels are not always spot heights
+        }
+        svBox.checked = !!svOn && lv.points.length > 0;
+        svBox.disabled = !lv.points.length;
+        svSec.querySelector('[data-sv-take-label]').textContent = lv.points.length ? t('cad.sv.take', { n: num(lv.points.length), text: lv.points.filter((x) => x.src === 'text').length, attr: lv.points.filter((x) => x.src === 'attrib').length }) : t('cad.sv.none');
+        const taken = svBox.checked ? lv.points : [];
+        const fromBlocks = chosenRefs().map((x) => ({ x: x.x, y: x.y, z: Number.isFinite(x.z) && x.z !== 0 ? x.z : null }));
+        chk = checkSurvey({ header, points: [...taken, ...fromBlocks], layers: r.layers, projectUnit, scale: r.scale, crs: P().state.crs });
+        svWhat.textContent = taken.length ? t('cad.sv.what', { n: taken.length }) : '';
+        svReport.replaceChildren(...(chk.issues.length
+          ? [el('ul', { className: 'cv-sv-list' }, ...svRows().map((q) => el('li', { 'data-sv-issue': q.code, className: 'is-' + q.severity }, el('i', { className: 'bi ' + (svSeverity[q.severity] || 'bi-info-circle'), 'aria-hidden': 'true' }), ' ', q.text)))]
+          : [el('p', { className: 'cv-note', 'data-sv-clean': '' }, t('cad.sv.check.clean'))]));
+      }
       const chosenRefs = () => br.refs.filter((x) => bPick.has(x.block) || lPick.has(x.layer));
       /** Fill a select with fixed choices + one per attribute tag of the chosen references; keep or guess its value. */
       function fillSelect(sel, fixed, tags, guess, keep) {
@@ -200,6 +242,7 @@ export async function install(host) {
         rebuildBlocks();
         notesBox.replaceChildren(...(r.notes.length ? [el('ul', {}, ...r.notes.map((n) => el('li', {}, n)))] : []));
         notesBox.hidden = !r.notes.length;
+        surveyRun(true);
         sum();
       }
       function chosen() {
@@ -211,8 +254,9 @@ export async function install(host) {
         const nPts = chosenRefs().length;
         const nFl = flOn ? fls.length : 0;
         what.textContent = [ls.length ? t('cad.ui.what', { n: ls.length, uses }) : '', nPts ? t('cad.blk.what', { n: nPts }) : '', nFl ? t('cad.fl.what', { n: nFl }) : ''].filter(Boolean).join(' ') || t('cad.ui.what.none');
+        surveyRun(false);
         bWhat.textContent = nPts ? t('cad.blk.what', { n: nPts }) : t('cad.blk.what.none');
-        go.disabled = !ls.length && !nPts && !nFl;
+        go.disabled = !ls.length && !nPts && !nFl && !(svBox.checked && lv.points.length);
       }
       unitSel.onchange = () => { unitCode = unitSel.value === '' ? null : Number(unitSel.value); rebuild(); };
 
@@ -226,6 +270,7 @@ export async function install(host) {
         notesBox,
         flSec,
         blkSec,
+        svSec,
         el('h3', { className: 'cv-h3' }, t('cad.ui.what.head')), what]);
       let result = null;
       go.onclick = () => {
@@ -241,6 +286,20 @@ export async function install(host) {
           if (blk.skipped.noZ) msgs.push(t('cad.blk.noz', { n: blk.skipped.noZ }));
           if (blk.skipped.noNumber) msgs.push(t('cad.blk.nonum', { n: blk.skipped.noNumber }));
         }
+        let svN = 0;
+        if (svBox.checked && lv.points.length) {   // 0.8 LA.3: levels from text and attributes, one undo step
+          const taken = new Set(P().points.map((q) => String(q.n)));
+          let highest = P().points.reduce((m, q) => (/^\d+$/.test(String(q.n)) ? Math.max(m, Number(q.n)) : m), 0);
+          const fresh = () => { do highest++; while (taken.has(String(highest))); taken.add(String(highest)); return String(highest); };
+          const add = lv.points.map((q) => ({ n: fresh(), x: q.x, y: q.y, z: q.z, d: (q.src === 'attrib' ? q.block || q.layer : q.layer).slice(0, 200) }));
+          P().editPoints(t('cad.sv.undo', { file }), (pts) => [...pts, ...add]);
+          svN = add.length;
+          msgs.push(t('cad.sv.added', { n: svN, file }));
+        }
+        if (chk.issues.length) {   // the check goes to the shell's Problems (when the app has it): one row per kind of issue
+          try { const store = globalThis.ccProblems; if (store?.source) { (api.problemSource ||= store.source({ id: 'civilcraft.survey', kind: 'import', label: t('cad.sv.source') })).set(svRows()); } } catch { /* no Problems in this build */ }
+          msgs.push(t('cad.sv.issues', { n: chk.issues.length }));
+        }
         if (flOn && fls.length) {   // 0.6 WL.24: the feature lines, arcs and all, as one undo step
           const p = P();
           p.change(t('cad.fl.undo', { file }), (s) => { for (const f of fls) (s.features ||= []).push({ ...f, id: p.nextId('f') }); });
@@ -254,7 +313,7 @@ export async function install(host) {
           const u = useForSurface(P(), ids[i], { use: c.use, from: c.from, field });
           msgs.push(u.message);
         });
-        result = { ids, layers: ids.map((id) => layerOf(P(), id)?.name), notes: r.notes, scale: r.scale, points: blk ? blk.points.length : 0, features: flOn ? fls.length : 0 };
+        result = { ids, layers: ids.map((id) => layerOf(P(), id)?.name), notes: r.notes, scale: r.scale, points: blk ? blk.points.length : 0, levels: svN, survey: chk.issues.map((q) => q.code), features: flOn ? fls.length : 0 };
         api.last = result;
         dlg.close();
         host.fitAll();

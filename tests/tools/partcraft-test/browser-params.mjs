@@ -23,7 +23,7 @@ export async function run(h) {
   const vol = async () => { await built(); return pc(() => window.partcraft.regen.stats.volume); };
   const params = () => pc(() => JSON.parse(JSON.stringify(window.partcraft.part.params || null)));
   const varExpr = async (n) => (await params())?.vars.find((v) => v.name === n)?.expr;
-  const depthSel = 'label:has-text("Depth (mm)") + input';
+  const depthSel = '[data-param-key="f2.depth"]';
   const tab = (t) => page.click(`#pc-tab-${t}`);
   const settle = () => page.waitForTimeout(120);
 

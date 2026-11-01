@@ -79,6 +79,29 @@ export async function run(h) {
   ok(stk && stk.spec && stk.spec.min === 0.3 && stk.spec.max === undefined, 'Ctrl+Z takes the upper limit back (one step)');
   const file = await pc(() => JSON.parse(window.partcraft.A.toJSON(window.partcraft.asm)));
   ok(file.version === 5 && file.stackups.length === 1 && file.stackups[0].links.length === 3, 'the assembly file: version 5, the stack-up in it');
+  // 0.8 STACK-DIR: a free chain judged along X and Y — the picks keep their own directions
+  await page.click('[data-stackup] [data-stk-new]'); await page.waitForTimeout(150);
+  await page.selectOption('[data-stackup] [data-stk-dir]', 'xyz');
+  await page.click('[data-stackup] [data-stk-pick]');
+  // the card now covers part of the stage: let the clicks through it while picking
+  await page.evaluate(() => { document.querySelector('[data-stackup]').style.pointerEvents = 'none'; });
+  for (const [x, y] of tops) { await page.mouse.click(x, y); await page.waitForTimeout(150); }
+  await page.evaluate(() => { document.querySelector('[data-stackup]').style.pointerEvents = ''; });
+  await page.click('[data-stackup] [data-stk-done]'); await page.waitForTimeout(200);
+  const free = await pc(() => { const s = window.partcraft.asm.stackups[1]; return s && { outs: (s.outputs || []).map((o) => o.name), link: s.links[0] }; });
+  ok(free && free.outs.join() === 'X,Y,Z' && free.link.dir && Math.abs(Math.hypot(...free.link.dir) - 1) < 1e-9 && free.link.nominal > 1, 'a free chain (X, Y and Z): the link keeps its own direction (' + JSON.stringify(free && free.link.dir) + ', ' + (free && free.link.nominal.toFixed(3)) + ' mm)');
+  const set2 = async (sel, v) => { await page.fill(sel, String(v)); await page.press(sel, 'Tab'); await page.waitForTimeout(120); };
+  await set2('[data-stackup] [data-stk-up="0"]', 0.1); await set2('[data-stackup] [data-stk-lo="0"]', -0.1);
+  const txt = (await page.textContent('[data-stackup]')).replace(/\s+/g, ' ');
+  const u = free.link.dir;
+  const expect = (c) => (0.1 * Math.abs(c)).toFixed(4).replace(/\.?0+$/, '');
+  ok(/Along X/.test(txt) && /Along Y/.test(txt) && /Along Z/.test(txt) && /Along the gap itself/.test(txt), 'one result block per direction, and one along the gap itself');
+  const blocks = await page.$$eval('[data-stackup] [data-stk-result]', (ds) => ds.map((d) => d.textContent.replace(/\s+/g, ' ')));
+  ok(blocks.length === 4 && new RegExp('Worst case± ' + expect(u[0]) + ' mm').test(blocks[0]) && new RegExp('Worst case± ' + expect(u[1]) + ' mm').test(blocks[1]) && /Worst case± 0\.1 mm/.test(blocks[3]), 'the ±0.1 link counts by its cosine along each direction (X ± ' + expect(u[0]) + ', Y ± ' + expect(u[1]) + ') and in full along the gap — ' + blocks.join(' | ').slice(0, 300));
+  ok(await page.isVisible('[data-stackup] [data-stk-swing="0"]') && !(await page.$('[data-stackup] [data-stk-min]')), 'a swing column for each link; the single gap limits are replaced by one pair per direction');
+  const file6 = await pc(() => JSON.parse(window.partcraft.A.toJSON(window.partcraft.asm)));
+  ok(file6.version === 6 && file6.stackups.length === 2 && file6.stackups[1].outputs.length === 3, 'the assembly file with a free chain is version 6');
+  await shot('stackup-free');
   await page.click('[data-stackup] [data-stk-close]');
   ok(!(await page.$('[data-stackup]')), 'Close takes the card away');
   ok(h.problems.length === 0, 'no console errors' + (h.problems.length ? ': ' + h.problems.join(' | ') : ''));

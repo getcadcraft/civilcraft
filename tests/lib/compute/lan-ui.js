@@ -8,7 +8,7 @@
  *   mountLan(host, box) → { devices({ W, H, scene }) → Promise<[hybrid device of every connected node]>, close() }
  *     scene = { kernel: id, buffers: { name: typedArray }, params } — what the render shares with its own pool; each node that
  *     has that kernel gets it once and becomes a device
- *   host = { el, t, bridge, crypto, pool, kernels: { id: {url, fn} },
+ *   host = { el, t, bridge, crypto, pool, kernels: { id: {url, fn} }, tasks?: { id: { run(input) } } (0.8 CH.31: small JSON jobs this computer runs for others),
  *            storage (localStorage-like; 'cc-compute.node' = '1' when this computer serves) }
  *   bridge = window.cadcraftDesktop.renderNodes (desktop-shell, `platforms`; contract in docs/apps/compute.md § LAN):
  *     advertise(tag) → Promise · stopAdvertising() · onConnection(cb(transport)) · browse() → Promise<[{tag, name, host, port}]>
@@ -22,7 +22,7 @@ import { connectNode } from './lan.js';
 const KEY = 'cc-compute.node';
 
 export function mountLan(host, box) {
-  const { el, t, bridge, crypto, pool, kernels } = host;
+  const { el, t, bridge, crypto, pool, kernels, tasks } = host;
   if (!bridge || typeof bridge.advertise !== 'function' || !crypto) { box.replaceChildren(); box.hidden = true; return { devices: () => [], close() {} }; }
   box.hidden = false;
   const store = host.storage || { getItem: () => null, setItem() {} };
@@ -57,7 +57,7 @@ export function mountLan(host, box) {
     if (servedNow) { transport.close(); return; }   // one at a time
     const c = crypto.parseCode(code);
     try {
-      servedNow = await serveNode({ transport, code: { tag: c.tag, secret: c.secret }, crypto, pool, kernels,
+      servedNow = await serveNode({ transport, code: { tag: c.tag, secret: c.secret }, crypto, pool, kernels, tasks: tasks || {},
         onEvent: (k, d) => {
           if (k === 'wrong-code' && ++wrong >= 3) { freshCode(); say('compute.lan.wrong-tries'); }
           if (k === 'range') say('compute.lan.rendering', { w: d.W, h: d.H, spp: d.spp });
@@ -131,6 +131,8 @@ export function mountLan(host, box) {
       }
       return out;
     },
+    /** The connected nodes that list this job id (0.8 CH.31: 'process-variant'); each has runTask(task, input). */
+    taskNodes(task) { return [...nodes.values()].filter((n) => !n.node.closed && n.info.tasks && n.info.tasks.includes(task)).map((n) => n.node); },
     close() { stopServing(); for (const tag of [...nodes.keys()]) disconnect(tag); },
   };
 }

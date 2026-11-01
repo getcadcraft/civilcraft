@@ -66,7 +66,7 @@ export function createSheetsDialog(ctx) {
     go.onclick = async () => {
       const r = range(); if (!r) return;
       const s = sc();
-      const out = planProfileSheets(ctx.buildScene(s.mmPerUnit), { alignment: al, eg: p.egProfile(a), profile: a.pvis?.length >= 2 ? p.designProfile(a) : null, paper: paper.value, scale: s, vex: Number(vex.value), units: U, title: p.state.name, name: a.name, from: r[0], to: r[1] });
+      const out = planProfileSheets(ctx.buildScene(s.mmPerUnit), { alignment: al, eg: p.egProfile(a), profile: a.pvis?.length >= 2 ? p.designProfile(a) : null, paper: paper.value, scale: s, vex: Number(vex.value), units: U, title: p.state.name, name: a.name, from: r[0], to: r[1], cant: p.railPlan?.(a) || null });   // cant: 0.7.1 71.26
       const { bytes, report } = await toPdfPages(out.sheets, { mono: ink.value === 'mono', title: p.state.name + ' ' + a.name });
       const file = t('pp.ui.file', { stem: ctx.fileStem(), name: a.name });
       ctx.download(bytes, file, 'application/pdf');

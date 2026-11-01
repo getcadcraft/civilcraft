@@ -1,0 +1,63 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-or",
+  "name": "Oregon: 2026 Oregon Residential Specialty Code (ORSC)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-OR",
+    "name": "Oregon"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2026-10-01",
+  "in_force": "2026-10-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (Department of Consumer and Business Services, Building Codes Division; OAR 918-480-0005, 918-480-0010). State amendments to the checked rules: riser height, tread depth, handrail height. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Department of Consumer and Business Services, Building Codes Division, OAR 918-480-0005, 918-480-0010",
+    "url": "https://www.oregon.gov/bcd/laws-rules/Documents/20261001-2026orsc-adoption-pr.pdf",
+    "date": "2026-09-30",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "ORSC R318.7.5.1",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 203.2
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "ORSC R318.7.5.2",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "ORSC R320.2",
+      "label": "Handrail height",
+      "note": "State amendment.",
+      "min": 762,
+      "max": 965.2
+    }
+  ]
+}

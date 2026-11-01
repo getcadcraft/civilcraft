@@ -1,0 +1,402 @@
+{
+ "file": "scan-filters.pdf",
+ "made_by": "tools/markupcraft-test/make-scan-pdfs.py",
+ "dpi": 150,
+ "pages": [
+  "DCT",
+  "CCITT",
+  "CCITT mask",
+  "JBIG2",
+  "JPX",
+  "Flate 1-bit",
+  "Huge page",
+  "Turned 300 dpi"
+ ],
+ "image_px": [
+  1275,
+  1650
+ ],
+ "lines": [
+  {
+   "text": "SECTION R311",
+   "box": [
+    523.0,
+    158,
+    751.0,
+    180
+   ]
+  },
+  {
+   "text": "MEANS OF EGRESS",
+   "box": [
+    482.0,
+    210,
+    793.0,
+    232
+   ]
+  },
+  {
+   "text": "R311.1 Means of egress. Dwellings shall be provided",
+   "box": [
+    150,
+    259,
+    620,
+    279
+   ]
+  },
+  {
+   "text": "with a means of egress in accordance with this",
+   "box": [
+    150,
+    288,
+    559,
+    308
+   ]
+  },
+  {
+   "text": "section. The means of egress shall provide a",
+   "box": [
+    150,
+    317,
+    538,
+    337
+   ]
+  },
+  {
+   "text": "continuous and unobstructed path of vertical and",
+   "box": [
+    150,
+    346,
+    579,
+    366
+   ]
+  },
+  {
+   "text": "horizontal egress travel from all portions of the",
+   "box": [
+    150,
+    375,
+    565,
+    395
+   ]
+  },
+  {
+   "text": "dwelling to the required egress door without",
+   "box": [
+    150,
+    404,
+    540,
+    424
+   ]
+  },
+  {
+   "text": "requiring travel through a garage.",
+   "box": [
+    150,
+    433,
+    445,
+    453
+   ]
+  },
+  {
+   "text": "R311.2 Egress door. Not less than one egress door",
+   "box": [
+    150,
+    462,
+    592,
+    482
+   ]
+  },
+  {
+   "text": "shall be provided for each dwelling unit. The egress",
+   "box": [
+    150,
+    491,
+    606,
+    511
+   ]
+  },
+  {
+   "text": "door shall be side-hinged, and shall provide a clear",
+   "box": [
+    150,
+    520,
+    598,
+    540
+   ]
+  },
+  {
+   "text": "width of not less than 32 inches where measured",
+   "box": [
+    150,
+    549,
+    578,
+    564
+   ]
+  },
+  {
+   "text": "between the face of the door and the stop, with the",
+   "box": [
+    150,
+    578,
+    594,
+    598
+   ]
+  },
+  {
+   "text": "door open 90 degrees. The clear height of the door",
+   "box": [
+    150,
+    607,
+    595,
+    627
+   ]
+  },
+  {
+   "text": "opening shall be not less than 78 inches in height.",
+   "box": [
+    150,
+    636,
+    587,
+    656
+   ]
+  },
+  {
+   "text": "R311.7.5.1 Risers. The riser height shall be not",
+   "box": [
+    150,
+    665,
+    564,
+    685
+   ]
+  },
+  {
+   "text": "more than 7 3/4 inches (196 mm). The riser shall be",
+   "box": [
+    150,
+    694,
+    606,
+    714
+   ]
+  },
+  {
+   "text": "measured vertically between leading edges of the",
+   "box": [
+    150,
+    723,
+    584,
+    743
+   ]
+  },
+  {
+   "text": "adjacent treads.",
+   "box": [
+    150,
+    752,
+    287,
+    772
+   ]
+  },
+  {
+   "text": "48",
+   "box": [
+    622,
+    1536,
+    644,
+    1550
+   ]
+  }
+ ],
+ "lines_300": [
+  {
+   "text": "SECTION R311",
+   "box": [
+    1046.0,
+    315,
+    1503.0,
+    360
+   ]
+  },
+  {
+   "text": "MEANS OF EGRESS",
+   "box": [
+    964.0,
+    420,
+    1585.0,
+    465
+   ]
+  },
+  {
+   "text": "R311.1 Means of egress. Dwellings shall be provided",
+   "box": [
+    300,
+    520,
+    1262,
+    561
+   ]
+  },
+  {
+   "text": "with a means of egress in accordance with this",
+   "box": [
+    300,
+    580,
+    1137,
+    621
+   ]
+  },
+  {
+   "text": "section. The means of egress shall provide a",
+   "box": [
+    300,
+    640,
+    1094,
+    681
+   ]
+  },
+  {
+   "text": "continuous and unobstructed path of vertical and",
+   "box": [
+    300,
+    700,
+    1177,
+    741
+   ]
+  },
+  {
+   "text": "horizontal egress travel from all portions of the",
+   "box": [
+    300,
+    760,
+    1148,
+    801
+   ]
+  },
+  {
+   "text": "dwelling to the required egress door without",
+   "box": [
+    300,
+    820,
+    1098,
+    861
+   ]
+  },
+  {
+   "text": "requiring travel through a garage.",
+   "box": [
+    300,
+    880,
+    903,
+    921
+   ]
+  },
+  {
+   "text": "R311.2 Egress door. Not less than one egress door",
+   "box": [
+    300,
+    940,
+    1203,
+    981
+   ]
+  },
+  {
+   "text": "shall be provided for each dwelling unit. The egress",
+   "box": [
+    300,
+    1000,
+    1233,
+    1041
+   ]
+  },
+  {
+   "text": "door shall be side-hinged, and shall provide a clear",
+   "box": [
+    300,
+    1060,
+    1216,
+    1101
+   ]
+  },
+  {
+   "text": "width of not less than 32 inches where measured",
+   "box": [
+    300,
+    1120,
+    1175,
+    1151
+   ]
+  },
+  {
+   "text": "between the face of the door and the stop, with the",
+   "box": [
+    300,
+    1180,
+    1208,
+    1221
+   ]
+  },
+  {
+   "text": "door open 90 degrees. The clear height of the door",
+   "box": [
+    300,
+    1240,
+    1209,
+    1281
+   ]
+  },
+  {
+   "text": "opening shall be not less than 78 inches in height.",
+   "box": [
+    300,
+    1300,
+    1195,
+    1341
+   ]
+  },
+  {
+   "text": "R311.7.5.1 Risers. The riser height shall be not",
+   "box": [
+    300,
+    1360,
+    1147,
+    1401
+   ]
+  },
+  {
+   "text": "more than 7 3/4 inches (196 mm). The riser shall be",
+   "box": [
+    300,
+    1420,
+    1233,
+    1461
+   ]
+  },
+  {
+   "text": "measured vertically between leading edges of the",
+   "box": [
+    300,
+    1480,
+    1187,
+    1521
+   ]
+  },
+  {
+   "text": "adjacent treads.",
+   "box": [
+    300,
+    1540,
+    580,
+    1581
+   ]
+  },
+  {
+   "text": "48",
+   "box": [
+    1245,
+    3072,
+    1290,
+    3101
+   ]
+  }
+ ],
+ "note": "every page is only a picture of the same text (no text layer); boxes are pixels in the 150 dpi picture (lines_300: the 300 dpi page before it was turned 1.2 degrees)"
+}

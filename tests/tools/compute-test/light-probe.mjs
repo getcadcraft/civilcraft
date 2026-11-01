@@ -6,7 +6,7 @@
  * software fallback, none), checks the probe never asks for a device or a WebGL context, sends each through
  * HardwareReports::clean (PHP, no database) and checks every column comes back as sent; then the switch rules of report.js
  * without the shell (desktop default off), the sync copies (tools/compute/sync.mjs --check shell) and which builds opt in
- * (AppBuilds::hardware: the six dev builds, not BimCraft/ModelCraft, no frozen release). No database, no network.
+ * (AppBuilds::hardware: the six dev builds, not BimCraft/ModelCraft, no release older than 0.7). No database, no network.
  *   node tools/compute-test/light-probe.mjs
  */
 import { execFileSync } from 'node:child_process'; import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
@@ -86,7 +86,9 @@ const php = "require '" + path.join(REPO, 'public_html/core/bootstrap.php') + "'
 const who = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', '-r', php], { encoding: 'utf8' }));
 ok(SIX.every((s) => who[s].dev === true), 'the six dev builds opt in', JSON.stringify(SIX.map((s) => who[s].dev)));
 ok(who.bimcraft.dev === false && who.modelcraft.dev === false, 'BimCraft and ModelCraft do not (they report from their own compute/)');
-ok(Object.values(who).every((x) => !x.releases.length), 'no frozen release opts in', JSON.stringify(Object.fromEntries(Object.entries(who).map(([k, v]) => [k, v.releases]))));
+// releases cut from dev from 0.7 on carry the key (0.7 was cut after HW.2 landed); nothing older may
+const olderOpt = Object.entries(who).flatMap(([k, v]) => v.releases.filter((r) => parseFloat(r) < 0.7).map((r) => k + ' ' + r));
+ok(!olderOpt.length, 'no release older than 0.7 opts in', JSON.stringify(olderOpt));
 ok(fs.readFileSync(path.join(REPO, 'public_html/assets/js/app-hardware.js'), 'utf8').includes("from './compute/report.js'"), 'app-hardware.js uses the shared report.js');
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -1,0 +1,102 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "in-mbbl-2016",
+  "name": "India: Model Building Bye-Laws 2016 (TCPO, Ministry of Housing and Urban Affairs)",
+  "jurisdiction": {
+    "country": "IN",
+    "level": "country",
+    "region": "",
+    "name": "India"
+  },
+  "base": null,
+  "edition": "Model Building Bye-Laws 2016 (TCPO, Min…",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "A model: states and cities issue the binding bye-laws, often based on it, and numbers vary by city. NBC 2016 was withdrawn on 2026-04-30 (replaced by the voluntary NBCS 2026). Light: 1/10 in hot-dry climates (1/6 warm-humid, 1/8 intermediate, 1/12 cold). The handrail rule has only a minimum (900), so it is not checked. Not checked by this pack: handrail height. Room size, hallway, egress door and…"
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "TCPO / Ministry of Housing and Urban Affairs, Model Building Bye-Laws 2016 (TCPO, Ministry of Housing and Urban Affairs)",
+    "url": "https://www.mohua.gov.in/static/uploads/2026/07/0e33558a9326c8a89f945cae00cc3647.pdf",
+    "date": "2016",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "MBBL 4.17.4.1",
+      "label": "Riser height",
+      "note": "Residential buildings; at most 12 risers per flight.",
+      "value": 190
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "MBBL 4.17.3",
+      "label": "Tread depth (going)",
+      "note": "Without the nosing.",
+      "value": 250
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "MBBL 4.17.2",
+      "label": "Stair width",
+      "note": "Residential dwellings; 750 for two-storey row housing.",
+      "value": 1000
+    },
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "MBBL 4.17.4.2",
+      "label": "Stair headroom",
+      "note": "",
+      "value": 2200
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "MBBL 4.3.1.1",
+      "label": "Ceiling height",
+      "note": "Floor to the lowest point of the ceiling; at least 2400 under beams.",
+      "value": 2750
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "MBBL 4.30.1.2",
+      "label": "Glazing, share of floor area",
+      "note": "Openings excluding doors; climate values in 4.30.1.1.",
+      "value": 10
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "MBBL 4.30.1.1 Note 1",
+      "label": "Openable area, share of floor area",
+      "note": "The same openings give light and air; only the openable part counts.",
+      "value": 10
+    }
+  ]
+}

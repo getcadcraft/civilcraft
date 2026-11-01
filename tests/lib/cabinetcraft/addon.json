@@ -1,0 +1,25 @@
+{
+  "id": "cabinetcraft",
+  "name": "CabinetCraft",
+  "version": "0.8.3",
+  "apps": [
+    "partcraft",
+    "bimcraft",
+    "cadcraft",
+    "modelcraft"
+  ],
+  "api": "1.1",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "files",
+    "storage",
+    "commands"
+  ],
+  "description": "Lay out cabinets along the walls of a room (angled and curved walls, islands, corner cabinets). Cut list, nest, drilling, cost, drawings. PartCraft: viewport bodies, G-code. BimCraft: furniture elements, schedule from the model, plan on the level. CadCraft: shop drawings as CAD entities. ModelCraft: coloured bodies.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

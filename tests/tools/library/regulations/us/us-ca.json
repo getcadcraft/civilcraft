@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ca",
+  "name": "California: 2025 California Residential Code (CRC), Title 24 Part 2.5",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-CA",
+    "name": "California"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2026-01-01",
+  "in_force": "2026-01-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (California Building Standards Commission (HCD proposes for dwellings); Cal. Code Regs. Title 24, Part 2.5 (2024 triennial cycle, HCD 07/24)). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, esca…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "California Building Standards Commission (HCD proposes for dwellings), Cal. Code Regs. Title 24, Part 2.5 (2024 trienni…",
+    "url": "https://www.dgs.ca.gov/bsc/codes",
+    "date": "2025-07-01",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

@@ -50,6 +50,18 @@ The hydraulic grade line (HGL) is worked out from the outlet upstream:
 
 A pipe that flows full is listed, and so is any structure where the HGL is above the rim: water reaches the surface there, and the structure is ringed in red on the plan. Select a pipe or a structure to see its flow, depth, velocity and both grade lines in its Properties.
 
+## Route a storm
+
+The rational method gives one peak for each pipe. {{ui:Route the storm}} (under the results, in the network's Properties) works out the whole storm instead: each catchment's runoff over time, carried down the pipes with their travel time and storage, and added where they meet.
+
+1. Leave {{ui:Rain lasts}} and {{ui:Rain intensity}} empty to use the longest time of concentration and the rainfall curve above, or type your own.
+2. Press {{ui:Route the storm}}. The table lists, for each pipe, the highest flow in and out, how much lower the outgoing peak is, how much of the pipe's full capacity it uses, and the minute it peaks.
+3. Each outlet gets a small flow-over-time chart and {{ui:Download the hydrograph (CSV)}}.
+
+A catchment sends out the rain averaged over its time of concentration, so a storm shorter than that peaks lower than C × i × A. Each pipe is routed with the Muskingum–Cunge method, using the flow-depth the rational method already found. Two branches with different times of concentration do not peak together, so their sum is lower than the sum of their peaks.
+
+This does not model surcharge, backwater, storage in structures or flooding. A pipe whose routed peak is above its full capacity is listed, and its water is passed on as if it fitted. Use it to see timing and attenuation, not to size the pipe. It is a calculation aid: an engineer checks it.
+
 ## Saved with the project
 
 Catchments and the storm settings are saved in the project file. They are not yet in the PDF plot, the DWG or DXF, or LandXML: see [Not built yet](topic:not-built-yet).

@@ -1,0 +1,1716 @@
+{
+ "checked": "2026-10-27",
+ "spans": {
+  "IRC 2021": {
+   "floor_40psf": {
+    "id": "Table R502.3.1(2)",
+    "live_psf": 40,
+    "dead_psf": 10,
+    "deflection": "L/360",
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-9",
+       "16": "9-9",
+       "19.2": "9-2",
+       "24": "8-3"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-2",
+       "16": "12-9",
+       "19.2": "11-8",
+       "24": "10-5"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "18-0",
+       "16": "15-7",
+       "19.2": "14-3",
+       "24": "12-9"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "20-11",
+       "16": "18-1",
+       "19.2": "16-6",
+       "24": "14-9"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-0",
+       "16": "9-1",
+       "19.2": "8-7",
+       "24": "7-11"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "13-2",
+       "16": "12-0",
+       "19.2": "11-3",
+       "24": "10-2"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "16-10",
+       "16": "15-2",
+       "19.2": "13-10",
+       "24": "12-5"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "20-4",
+       "16": "17-7",
+       "19.2": "16-1",
+       "24": "14-4"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-3",
+       "16": "9-4",
+       "19.2": "8-6",
+       "24": "7-7"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "13-6",
+       "16": "11-10",
+       "19.2": "10-10",
+       "24": "9-8"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "16-2",
+       "16": "14-0",
+       "19.2": "12-10",
+       "24": "11-5"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "19-1",
+       "16": "16-6",
+       "19.2": "15-1",
+       "24": "13-6"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-3",
+       "16": "9-4",
+       "19.2": "8-9",
+       "24": "8-1"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "13-6",
+       "16": "12-3",
+       "19.2": "11-6",
+       "24": "10-3"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "17-3",
+       "16": "15-5",
+       "19.2": "14-1",
+       "24": "12-7"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "20-7",
+       "16": "17-10",
+       "19.2": "16-3",
+       "24": "14-7"
+      }
+     }
+    ]
+   },
+   "floor_30psf": {
+    "id": "Table R502.3.1(1)",
+    "live_psf": 30,
+    "dead_psf": 10,
+    "deflection": "L/360",
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-10",
+       "16": "10-9",
+       "19.2": "10-1",
+       "24": "9-3"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "15-7",
+       "16": "14-2",
+       "19.2": "13-0",
+       "24": "11-8"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "19-10",
+       "16": "17-5",
+       "19.2": "15-11",
+       "24": "14-3"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "23-4",
+       "16": "20-3",
+       "19.2": "18-6",
+       "24": "16-6"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-0",
+       "16": "10-0",
+       "19.2": "9-5",
+       "24": "8-9"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-6",
+       "16": "13-2",
+       "19.2": "12-5",
+       "24": "11-4"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "18-6",
+       "16": "16-10",
+       "19.2": "15-6",
+       "24": "13-10"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "22-6",
+       "16": "19-8",
+       "19.2": "17-1",
+       "24": "16-1"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-3",
+       "16": "10-3",
+       "19.2": "9-6",
+       "24": "8-6"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-11",
+       "16": "13-3",
+       "19.2": "12-1",
+       "24": "10-10"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "18-1",
+       "16": "15-8",
+       "19.2": "14-4",
+       "24": "12-10"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "21-4",
+       "16": "18-6",
+       "19.2": "16-10",
+       "24": "15-1"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-3",
+       "16": "10-3",
+       "19.2": "9-8",
+       "24": "8-11"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-11",
+       "16": "13-6",
+       "19.2": "12-9",
+       "24": "11-6"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "19-0",
+       "16": "17-2",
+       "19.2": "15-8",
+       "24": "14-1"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "23-0",
+       "16": "19-11",
+       "19.2": "18-3",
+       "24": "16-3"
+      }
+     }
+    ]
+   },
+   "ceiling": {
+    "id": "Table R802.5.1(1)",
+    "live_psf": 10,
+    "dead_psf": 5,
+    "deflection": "L/240",
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "12-5",
+       "16": "11-3",
+       "19.2": "10-7",
+       "24": "9-10"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "19-6",
+       "16": "17-8",
+       "19.2": "16-8",
+       "24": "15-0"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "25-8",
+       "16": "23-4",
+       "19.2": "21-4",
+       "24": "19-1"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": ">26-0",
+       "19.2": "26-0",
+       "24": "23-3"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "11-7",
+       "16": "10-6",
+       "19.2": "9-11",
+       "24": "9-2"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "18-2",
+       "16": "16-6",
+       "19.2": "15-7",
+       "24": "14-5"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "24-0",
+       "16": "21-9",
+       "19.2": "20-6",
+       "24": "18-6"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": ">26-0",
+       "19.2": "25-3",
+       "24": "22-7"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "11-10",
+       "16": "10-9",
+       "19.2": "10-2",
+       "24": "9-3"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "18-8",
+       "16": "16-11",
+       "19.2": "15-7",
+       "24": "13-11"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "24-7",
+       "16": "21-7",
+       "19.2": "19-8",
+       "24": "17-7"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": "25-7",
+       "19.2": "23-5",
+       "24": "20-11"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "11-10",
+       "16": "10-9",
+       "19.2": "10-2",
+       "24": "9-5"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "18-8",
+       "16": "16-11",
+       "19.2": "15-11",
+       "24": "14-9"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "24-7",
+       "16": "22-4",
+       "19.2": "21-0",
+       "24": "18-9"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": ">26-0",
+       "19.2": "25-8",
+       "24": "22-11"
+      }
+     }
+    ]
+   },
+   "rafter": {
+    "id": "Table R802.4.1(1)",
+    "roof_live_psf": 20,
+    "dead_psf": 10,
+    "deflection": "L/180",
+    "ceiling_attached": false,
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "16-10",
+       "16": "14-7",
+       "19.2": "13-3",
+       "24": "11-11"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "21-4",
+       "16": "18-5",
+       "19.2": "16-10",
+       "24": "15-1"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "26-0",
+       "16": "22-6",
+       "19.2": "20-7",
+       "24": "18-5"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "26-0",
+       "19.2": "23-10",
+       "24": "21-4"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "15-11",
+       "16": "14-2",
+       "19.2": "12-11",
+       "24": "11-7"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "20-8",
+       "16": "17-11",
+       "19.2": "16-4",
+       "24": "14-8"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "25-3",
+       "16": "21-11",
+       "19.2": "20-0",
+       "24": "17-10"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "25-5",
+       "19.2": "23-2",
+       "24": "20-9"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "15-7",
+       "16": "13-6",
+       "19.2": "12-3",
+       "24": "11-0"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "19-8",
+       "16": "17-1",
+       "19.2": "15-7",
+       "24": "13-11"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "23-5",
+       "16": "20-3",
+       "19.2": "18-6",
+       "24": "16-6"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "23-10",
+       "19.2": "21-9",
+       "24": "19-6"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "16-3",
+       "16": "14-4",
+       "19.2": "13-1",
+       "24": "11-9"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "21-0",
+       "16": "18-2",
+       "19.2": "16-7",
+       "24": "14-10"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "25-8",
+       "16": "22-3",
+       "19.2": "20-3",
+       "24": "18-2"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "25-9",
+       "19.2": "23-6",
+       "24": "21-0"
+      }
+     }
+    ]
+   }
+  },
+  "IRC 2024": {
+   "floor_40psf": {
+    "id": "Table R502.3.1(2)",
+    "live_psf": 40,
+    "dead_psf": 10,
+    "deflection": "L/360",
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-9",
+       "16": "9-9",
+       "19.2": "9-2",
+       "24": "8-3"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-2",
+       "16": "12-9",
+       "19.2": "11-8",
+       "24": "10-5"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "18-0",
+       "16": "15-7",
+       "19.2": "14-3",
+       "24": "12-9"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "20-11",
+       "16": "18-1",
+       "19.2": "16-6",
+       "24": "14-9"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-0",
+       "16": "9-1",
+       "19.2": "8-7",
+       "24": "7-11"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "13-2",
+       "16": "12-0",
+       "19.2": "11-3",
+       "24": "10-2"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "16-10",
+       "16": "15-2",
+       "19.2": "13-10",
+       "24": "12-5"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "20-4",
+       "16": "17-7",
+       "19.2": "16-1",
+       "24": "14-4"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-3",
+       "16": "9-4",
+       "19.2": "8-6",
+       "24": "7-7"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "13-6",
+       "16": "11-10",
+       "19.2": "10-10",
+       "24": "9-8"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "16-2",
+       "16": "14-0",
+       "19.2": "12-10",
+       "24": "11-5"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "19-1",
+       "16": "16-6",
+       "19.2": "15-1",
+       "24": "13-6"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "10-3",
+       "16": "9-4",
+       "19.2": "8-9",
+       "24": "8-1"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "13-6",
+       "16": "12-3",
+       "19.2": "11-6",
+       "24": "10-3"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "17-3",
+       "16": "15-5",
+       "19.2": "14-1",
+       "24": "12-7"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "20-7",
+       "16": "17-10",
+       "19.2": "16-3",
+       "24": "14-7"
+      }
+     }
+    ]
+   },
+   "floor_30psf": {
+    "id": "Table R502.3.1(1)",
+    "live_psf": 30,
+    "dead_psf": 10,
+    "deflection": "L/360",
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-10",
+       "16": "10-9",
+       "19.2": "10-1",
+       "24": "9-3"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "15-7",
+       "16": "14-2",
+       "19.2": "13-0",
+       "24": "11-8"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "19-10",
+       "16": "17-5",
+       "19.2": "15-11",
+       "24": "14-3"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "23-4",
+       "16": "20-3",
+       "19.2": "18-6",
+       "24": "16-6"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-0",
+       "16": "10-0",
+       "19.2": "9-5",
+       "24": "8-9"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-6",
+       "16": "13-2",
+       "19.2": "12-5",
+       "24": "11-4"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "18-6",
+       "16": "16-10",
+       "19.2": "15-6",
+       "24": "13-10"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "22-6",
+       "16": "19-8",
+       "19.2": "17-1",
+       "24": "16-1"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-3",
+       "16": "10-3",
+       "19.2": "9-6",
+       "24": "8-6"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-11",
+       "16": "13-3",
+       "19.2": "12-1",
+       "24": "10-10"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "18-1",
+       "16": "15-8",
+       "19.2": "14-4",
+       "24": "12-10"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "21-4",
+       "16": "18-6",
+       "19.2": "16-10",
+       "24": "15-1"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "11-3",
+       "16": "10-3",
+       "19.2": "9-8",
+       "24": "8-11"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "14-11",
+       "16": "13-6",
+       "19.2": "12-9",
+       "24": "11-6"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "19-0",
+       "16": "17-2",
+       "19.2": "15-8",
+       "24": "14-1"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": "23-0",
+       "16": "19-11",
+       "19.2": "18-3",
+       "24": "16-3"
+      }
+     }
+    ]
+   },
+   "ceiling": {
+    "id": "Table R802.5.1(1)",
+    "live_psf": 10,
+    "dead_psf": 5,
+    "deflection": "L/240",
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "12-5",
+       "16": "11-3",
+       "19.2": "10-7",
+       "24": "9-10"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "19-6",
+       "16": "17-8",
+       "19.2": "16-8",
+       "24": "15-0"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "25-8",
+       "16": "23-4",
+       "19.2": "21-4",
+       "24": "19-1"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": ">26-0",
+       "19.2": "26-0",
+       "24": "23-3"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "11-7",
+       "16": "10-6",
+       "19.2": "9-11",
+       "24": "9-2"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "18-2",
+       "16": "16-6",
+       "19.2": "15-7",
+       "24": "14-5"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "24-0",
+       "16": "21-9",
+       "19.2": "20-6",
+       "24": "18-6"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": ">26-0",
+       "19.2": "25-3",
+       "24": "22-7"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "11-10",
+       "16": "10-9",
+       "19.2": "10-2",
+       "24": "9-3"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "18-8",
+       "16": "16-11",
+       "19.2": "15-7",
+       "24": "13-11"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "24-7",
+       "16": "21-7",
+       "19.2": "19-8",
+       "24": "17-7"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": "25-7",
+       "19.2": "23-5",
+       "24": "20-11"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x4",
+      "spans": {
+       "12": "11-10",
+       "16": "10-9",
+       "19.2": "10-2",
+       "24": "9-5"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "18-8",
+       "16": "16-11",
+       "19.2": "15-11",
+       "24": "14-9"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "24-7",
+       "16": "22-4",
+       "19.2": "21-0",
+       "24": "18-9"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": ">26-0",
+       "16": ">26-0",
+       "19.2": "25-8",
+       "24": "22-11"
+      }
+     }
+    ]
+   },
+   "rafter": {
+    "id": "Table R802.4.1(1)",
+    "roof_live_psf": 20,
+    "dead_psf": 10,
+    "deflection": "L/180",
+    "ceiling_attached": false,
+    "rows": [
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "16-10",
+       "16": "14-7",
+       "19.2": "13-3",
+       "24": "11-11"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "21-4",
+       "16": "18-5",
+       "19.2": "16-10",
+       "24": "15-1"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "26-0",
+       "16": "22-6",
+       "19.2": "20-7",
+       "24": "18-5"
+      }
+     },
+     {
+      "species": "Douglas fir-larch",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "26-0",
+       "19.2": "23-10",
+       "24": "21-4"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "15-11",
+       "16": "14-2",
+       "19.2": "12-11",
+       "24": "11-7"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "20-8",
+       "16": "17-11",
+       "19.2": "16-4",
+       "24": "14-8"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "25-3",
+       "16": "21-11",
+       "19.2": "20-0",
+       "24": "17-10"
+      }
+     },
+     {
+      "species": "Hem-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "25-5",
+       "19.2": "23-2",
+       "24": "20-9"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "15-7",
+       "16": "13-6",
+       "19.2": "12-3",
+       "24": "11-0"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "19-8",
+       "16": "17-1",
+       "19.2": "15-7",
+       "24": "13-11"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "23-5",
+       "16": "20-3",
+       "19.2": "18-6",
+       "24": "16-6"
+      }
+     },
+     {
+      "species": "Southern pine",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "23-10",
+       "19.2": "21-9",
+       "24": "19-6"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x6",
+      "spans": {
+       "12": "16-3",
+       "16": "14-4",
+       "19.2": "13-1",
+       "24": "11-9"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x8",
+      "spans": {
+       "12": "21-0",
+       "16": "18-2",
+       "19.2": "16-7",
+       "24": "14-10"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x10",
+      "spans": {
+       "12": "25-8",
+       "16": "22-3",
+       "19.2": "20-3",
+       "24": "18-2"
+      }
+     },
+     {
+      "species": "Spruce-pine-fir",
+      "grade": "#2",
+      "size": "2x12",
+      "spans": {
+       "12": ">26-0",
+       "16": "25-9",
+       "19.2": "23-6",
+       "24": "21-0"
+      }
+     }
+    ]
+   }
+  }
+ },
+ "energy": {
+  "IECC 2021": {
+   "id": "Table R402.1.3",
+   "irc_id": "IRC 2021 Table N1102.1.3",
+   "source": "codes.iccsafe.org IECC2021P2 + IRC2021P2",
+   "zones": {
+    "0": {
+     "fenestration_u": "NR",
+     "skylight_u": "0.75",
+     "shgc": "0.25",
+     "ceiling_r": "30",
+     "wood_wall_r": "13 or 0&10ci",
+     "mass_wall_r": "3/4",
+     "floor_r": "13",
+     "basement_wall_r": "0",
+     "slab_r": "0",
+     "crawl_wall_r": "0"
+    },
+    "1": {
+     "fenestration_u": "NR",
+     "skylight_u": "0.75",
+     "shgc": "0.25",
+     "ceiling_r": "30",
+     "wood_wall_r": "13 or 0&10ci",
+     "mass_wall_r": "3/4",
+     "floor_r": "13",
+     "basement_wall_r": "0",
+     "slab_r": "0",
+     "crawl_wall_r": "0"
+    },
+    "2": {
+     "fenestration_u": "0.40",
+     "skylight_u": "0.65",
+     "shgc": "0.25",
+     "ceiling_r": "49",
+     "wood_wall_r": "13 or 0&10ci",
+     "mass_wall_r": "4/6",
+     "floor_r": "13",
+     "basement_wall_r": "0",
+     "slab_r": "0",
+     "crawl_wall_r": "0"
+    },
+    "3": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.55",
+     "shgc": "0.25",
+     "ceiling_r": "49",
+     "wood_wall_r": "20 or 13&5ci or 0&15ci",
+     "mass_wall_r": "8/13",
+     "floor_r": "19",
+     "basement_wall_r": "5ci or 13",
+     "slab_r": "10ci, 2 ft",
+     "crawl_wall_r": "5ci or 13"
+    },
+    "4 except marine": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.55",
+     "shgc": "0.40",
+     "ceiling_r": "60",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "8/13",
+     "floor_r": "19",
+     "basement_wall_r": "10ci or 13",
+     "slab_r": "10ci, 4 ft",
+     "crawl_wall_r": "10ci or 13"
+    },
+    "5 and marine 4": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.55",
+     "shgc": "0.40",
+     "ceiling_r": "60",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "13/17",
+     "floor_r": "30",
+     "basement_wall_r": "15ci or 19 or 13&5ci",
+     "slab_r": "10ci, 4 ft",
+     "crawl_wall_r": "15ci or 19 or 13&5ci"
+    },
+    "6": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.55",
+     "shgc": "NR",
+     "ceiling_r": "60",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "15/20",
+     "floor_r": "30",
+     "basement_wall_r": "15ci or 19 or 13&5ci",
+     "slab_r": "10ci, 4 ft",
+     "crawl_wall_r": "15ci or 19 or 13&5ci"
+    },
+    "7 and 8": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.55",
+     "shgc": "NR",
+     "ceiling_r": "60",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "19/21",
+     "floor_r": "38",
+     "basement_wall_r": "15ci or 19 or 13&5ci",
+     "slab_r": "10ci, 4 ft",
+     "crawl_wall_r": "15ci or 19 or 13&5ci"
+    }
+   }
+  },
+  "IECC 2024": {
+   "id": "Table R402.1.3",
+   "irc_id": "IRC 2024 Table N1102.1.3",
+   "source": "codes.iccsafe.org IECC2024P1 + IRC2024V2.1",
+   "zones": {
+    "0": {
+     "fenestration_u": "0.50",
+     "skylight_u": "0.60",
+     "shgc": "0.25",
+     "skylight_shgc": "0.28",
+     "ceiling_r": "30",
+     "roof_deck_above_r": "25ci",
+     "wood_wall_r": "13 or 0&10ci",
+     "mass_wall_r": "3/4",
+     "floor_r": "13 or 7+5ci or 10ci",
+     "basement_wall_r": "0",
+     "slab_r": "0",
+     "heated_slab_r": "R-5ci edge and R-5 full slab",
+     "crawl_wall_r": "0"
+    },
+    "1": {
+     "fenestration_u": "0.50",
+     "skylight_u": "0.60",
+     "shgc": "0.25",
+     "skylight_shgc": "0.28",
+     "ceiling_r": "30",
+     "roof_deck_above_r": "25ci",
+     "wood_wall_r": "13 or 0&10ci",
+     "mass_wall_r": "3/4",
+     "floor_r": "13 or 7+5ci or 10ci",
+     "basement_wall_r": "0",
+     "slab_r": "0",
+     "heated_slab_r": "R-5ci edge and R-5 full slab",
+     "crawl_wall_r": "0"
+    },
+    "2": {
+     "fenestration_u": "0.40",
+     "skylight_u": "0.60",
+     "shgc": "0.25",
+     "skylight_shgc": "0.28",
+     "ceiling_r": "38",
+     "roof_deck_above_r": "25ci",
+     "wood_wall_r": "13 or 0&10ci",
+     "mass_wall_r": "4/6",
+     "floor_r": "13 or 7+5ci or 10ci",
+     "basement_wall_r": "0",
+     "slab_r": "0",
+     "heated_slab_r": "R-5ci edge and R-5 full slab",
+     "crawl_wall_r": "0"
+    },
+    "3": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.53",
+     "shgc": "0.25",
+     "skylight_shgc": "0.28",
+     "ceiling_r": "38",
+     "roof_deck_above_r": "25ci",
+     "wood_wall_r": "20 or 13&5ci or 0&15ci",
+     "mass_wall_r": "8/13",
+     "floor_r": "19 or 13+5ci or 15ci",
+     "basement_wall_r": "5ci or 13",
+     "slab_r": "10ci, 2 ft",
+     "heated_slab_r": "R-10ci, 2 ft and R-5 full slab",
+     "crawl_wall_r": "5ci or 13"
+    },
+    "4 except marine": {
+     "fenestration_u": "0.30",
+     "skylight_u": "0.53",
+     "shgc": "0.40",
+     "skylight_shgc": "0.40",
+     "ceiling_r": "49",
+     "roof_deck_above_r": "30ci",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "8/13",
+     "floor_r": "19 or 13+5ci or 15ci",
+     "basement_wall_r": "10ci or 13",
+     "slab_r": "10ci, 3 ft",
+     "heated_slab_r": "R-10ci, 3 ft and R-5 full slab",
+     "crawl_wall_r": "10ci or 13"
+    },
+    "5 and marine 4": {
+     "fenestration_u": "0.28",
+     "skylight_u": "0.50",
+     "shgc": "NR",
+     "skylight_shgc": "NR",
+     "ceiling_r": "49",
+     "roof_deck_above_r": "30ci",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "13/17",
+     "floor_r": "30 or 19+7.5ci or 20ci",
+     "basement_wall_r": "15ci or 19 or 13&5ci",
+     "slab_r": "10ci, 3 ft",
+     "heated_slab_r": "R-10ci, 3 ft and R-5 full slab",
+     "crawl_wall_r": "15ci or 19 or 13&5ci"
+    },
+    "6": {
+     "fenestration_u": "0.28",
+     "skylight_u": "0.50",
+     "shgc": "NR",
+     "skylight_shgc": "NR",
+     "ceiling_r": "49",
+     "roof_deck_above_r": "30ci",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "15/20",
+     "floor_r": "30 or 19+7.5ci or 20ci",
+     "basement_wall_r": "15ci or 19 or 13&5ci",
+     "slab_r": "10ci, 4 ft",
+     "heated_slab_r": "R-10ci, 4 ft and R-5 full slab",
+     "crawl_wall_r": "15ci or 19 or 13&5ci"
+    },
+    "7 and 8": {
+     "fenestration_u": "0.27",
+     "skylight_u": "0.50",
+     "shgc": "NR",
+     "skylight_shgc": "NR",
+     "ceiling_r": "49",
+     "roof_deck_above_r": "35ci",
+     "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+     "mass_wall_r": "19/21",
+     "floor_r": "38 or 19+10ci or 25ci",
+     "basement_wall_r": "15ci or 19 or 13&5ci",
+     "slab_r": "10ci, 4 ft",
+     "heated_slab_r": "R-10ci, 4 ft and R-5 full slab",
+     "crawl_wall_r": "15ci or 19 or 13&5ci"
+    }
+   }
+  }
+ },
+ "notes": "Source: ICC free viewer (codes.iccsafe.org), rendered headlessly 2026-10-27: IRC2021P2 ch5/ch8/ch11, IRC2024V2.1 ch5/ch8/ch11, IECC2021P1 + IECC2021P2 ch4, IECC2024P1 ch4. Values were parsed from the page text, not typed in by hand; the IRC 2021 DFL #2 floor_40psf and ceiling rows also match the City of Sacramento handout CDD-0277. | Table numbers: ceiling joists = Table R802.5.1(1) and rafters = Table R802.4.1(1) in both 2021 and 2024. The brief had these two numbers swapped. | 2024 renumbering: none of the tables used here changed number. R502.3.1(1), R502.3.1(2), R802.4.1(1), R802.5.1(1), R402.1.3 and N1102.1.3 are the same in 2021 and 2024. | Rafters: a roof live load 20 psf table exists (R802.4.1(1), ceiling not attached, L/180), so it is used here, not the 30 psf ground snow table. The snow tables are R802.4.1(3) to (8) for 30/50/70 psf ground snow. Spans are horizontal projection. Footnote a of R802.4.1(1): if ceiling joists or rafter ties sit higher in the attic, apply the factor in Table R802.4.1(9). | Ceiling joist table has only one dead load column, 5 psf (not 10 psf), and covers 2x4 to 2x10. | '>26-0' stands for the table footnote 'span exceeds 26 feet' (Note a in R802.5.1(1), Note b in R802.4.1(1)). | Every span cell for the four #2 species is identical in IRC 2021 and IRC 2024 (compared cell by cell). In these tables spruce-pine-fir #2 equals spruce-pine-fir #1. | IECC 2021 printings differ on wood frame walls. First printing (IECC2021P1): CZ 4 and CZ 5/Marine 4 '20+5 or 13+10ci or 0+15', CZ 6-8 '20+5ci or 13+10ci or 0+20'. Second printing (IECC2021P2) and IRC 2021 P2: CZ 4-8 '30 or 20&5ci or 13&10ci or 0&20ci', CZ 3 '20 or 13&5ci or 0&15ci'. The values above use the second printing. | Notation: '&' is kept as the current ICC text writes it (first value cavity, second value continuous). IECC2021P1 writes '+'. The 2024 floor row writes '+'. | Footnote letters were removed from cells. 2021 fenestration_u carries footnote i: max 0.32 in CZ 3-8 above 4,000 ft elevation or in windborne debris regions. 2024 fenestration_u CZ 5-8 carries footnote g: max 0.30 in Marine 4 and CZ 5-8 under the same two conditions. Basement and crawl wall CZ 3 '5ci or 13' carry a footnote: not required in Warm Humid locations. In 2021 the wood wall cells for CZ 3-8 carry an h mark. | Source typos: IECC2021P1 shows CZ 3 and 4 fenestration as '.30' (= 0.30). IRC 2021 shows crawl wall CZ 7-8 as '1 9' (= 19). | 2021 slab_r: heated slabs also need R-5 under the full slab area (footnote d). 2024 splits the slab into unheated (slab_r) and heated (heated_slab_r) rows. It also adds skylight SHGC and insulation-entirely-above-roof-deck rows, and its 'shgc' is vertical fenestration only. | IECC 2024 R402.1.3 and IRC 2024 N1102.1.3 have the same values, and so do IECC 2021 (P2) and IRC 2021 N1102.1.3. From 2021 to 2024: ceiling R drops (CZ 2-3 49 to 38, CZ 4-8 60 to 49) and skylight U drops; fenestration U is added in CZ 0-1 (NR to 0.50) and tightened in CZ 5-8. Local adoptions often amend this table."
+}

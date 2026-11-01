@@ -100,7 +100,7 @@ try {
   await page.click('[data-fam-newok]');
   await page.waitForSelector('[data-fam-editor][open]', { timeout: 30000 });
   const tabs = await page.$$eval('[data-fam-editor] [role=tab]', (t) => t.map((x) => x.dataset.feTab));
-  ok(tabs.join() === 'params,solids,booleans,symbol,parts,hotspots', 'the editor has the new tabs: ' + tabs.join(', '));
+  ok(tabs.join() === 'params,solids,booleans,symbol,connectors,parts,hotspots', 'the editor has the new tabs: ' + tabs.join(', '));
 
   console.log('== typed parameters');
   const kinds = await page.$$eval('[data-fe-paddkind] option', (o) => o.map((x) => x.value));
@@ -209,6 +209,16 @@ try {
   await settled();
   ok(await page.inputValue('[data-famlist-detail]') === 'coarse', 'the detail level list takes Coarse (no error)');
   await shot(page, 'more-03-list');
+  // 0.8 step 8: every family of the building as one library file, opened again as a family file
+  ok(await page.isVisible('[data-famlist-savelib]'), 'the list offers "Save all as a library"');
+  const lib = await download('[data-famlist-savelib]');
+  const libJson = JSON.parse(lib.bytes.toString('utf8'));
+  ok(/\.ccfamilies\.json$/.test(lib.name) && libJson.format === 'cadcraft-family-library' && libJson.families.length >= 1, 'it saves a .ccfamilies.json library: ' + lib.name + ', ' + libJson.families.length + ' families');
+  await page.click('[data-famlist-file]');
+  await page.setInputFiles('[data-fam-fileinput]', { name: lib.name, mimeType: 'application/json', buffer: lib.bytes });
+  await waitStatus(/\d+ famil\w+ opened/i, 30000).catch(() => {});
+  ok(/\d+ families opened/.test(await page.textContent('[data-status]')), 'opening the library file loads its families: ' + (await page.textContent('[data-status]')).slice(0, 80));
+  await page.setInputFiles('[data-fam-fileinput]', { name: 'bad.ccfamilies.json', mimeType: 'application/json', buffer: Buffer.from('{"format":"cadcraft-family-library","families":[]}') }).catch(() => {});
 } catch (e) {
   fail++;
   console.log('  FAIL ' + (e.stack || e.message || e));

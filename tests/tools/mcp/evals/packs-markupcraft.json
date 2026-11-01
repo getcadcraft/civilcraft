@@ -1,0 +1,172 @@
+[
+ {
+  "id": "markupcraft-review.list-markups",
+  "title": "List all the markups",
+  "pack": "markupcraft-review",
+  "prompt": "List all the markups in Set/marked.pdf.",
+  "fixtures": {
+   "Set/marked.pdf": "tools/mcp/evals/fixtures/marked.pdf"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "markups_list",
+    "args": {
+     "path": "Set/marked.pdf"
+    },
+    "as": "l",
+    "expect": [
+     {
+      "path": "total",
+      "eq": 4
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "file": "Set/marked.pdf",
+    "kind": "pdf",
+    "path": "pages",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-review.open-markups",
+  "title": "What is still open",
+  "pack": "markupcraft-review",
+  "prompt": "Show me only the markups in Set/marked.pdf that are still Open.",
+  "fixtures": {
+   "Set/marked.pdf": "tools/mcp/evals/fixtures/marked.pdf"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "markups_list",
+    "args": {
+     "path": "Set/marked.pdf",
+     "status": "Open"
+    },
+    "as": "l",
+    "expect": [
+     {
+      "path": "total",
+      "eq": 2
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "file": "Set/marked.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-review.by-author",
+  "title": "What one person marked",
+  "pack": "markupcraft-review",
+  "prompt": "What did Ana mark in Set/marked.pdf?",
+  "fixtures": {
+   "Set/marked.pdf": "tools/mcp/evals/fixtures/marked.pdf"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "markups_list",
+    "args": {
+     "path": "Set/marked.pdf",
+     "author": "Ana"
+    },
+    "as": "l"
+   }
+  ],
+  "check": [
+   {
+    "file": "Set/marked.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-review.by-type",
+  "title": "One kind of markup",
+  "pack": "markupcraft-review",
+  "prompt": "List the cloudrect markups in Set/marked.pdf.",
+  "fixtures": {
+   "Set/marked.pdf": "tools/mcp/evals/fixtures/marked.pdf"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "markups_list",
+    "args": {
+     "path": "Set/marked.pdf",
+     "type": "cloudrect"
+    },
+    "as": "l"
+   }
+  ],
+  "check": [
+   {
+    "file": "Set/marked.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-review.page-through",
+  "title": "Page through the markups",
+  "pack": "markupcraft-review",
+  "prompt": "Give me the markups in Set/marked.pdf 2 at a time.",
+  "fixtures": {
+   "Set/marked.pdf": "tools/mcp/evals/fixtures/marked.pdf"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "markups_list",
+    "args": {
+     "path": "Set/marked.pdf",
+     "limit": 2
+    },
+    "as": "l"
+   },
+   {
+    "tool": "markups_list",
+    "args": {
+     "path": "Set/marked.pdf",
+     "limit": 2,
+     "offset": 2
+    },
+    "as": "l"
+   }
+  ],
+  "check": [
+   {
+    "file": "Set/marked.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   }
+  ]
+ }
+]

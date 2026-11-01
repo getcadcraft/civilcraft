@@ -1,0 +1,794 @@
+[
+ {
+  "id": "new-model",
+  "title": "What a new model has",
+  "prompt": "Look at the model before drawing anything.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "model_describe",
+    "expect": [
+     {
+      "path": "units",
+      "eq": "mm"
+     },
+     {
+      "path": "grids.numbered.length",
+      "eq": 3
+     },
+     {
+      "path": "levels.length",
+      "eq": 2
+     },
+     {
+      "path": "members.length",
+      "eq": 0
+     }
+    ]
+   },
+   {
+    "tool": "app_info",
+    "expect": [
+     {
+      "path": "members",
+      "eq": 0
+     },
+     {
+      "path": "steelKg",
+      "eq": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "column-and-beam",
+  "title": "A column and a beam",
+  "prompt": "Draw a 4 m column and a 6 m beam on top of it.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "parts_list",
+    "path": "total",
+    "eq": 2
+   }
+  ]
+ },
+ {
+  "id": "steel-weight",
+  "title": "Weigh a column",
+  "prompt": "How much does a 4 m W10x33 column weigh?",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "parts_list",
+    "path": "parts.0.weightEachKg",
+    "approx": 196.4,
+    "tol": 0.1
+   }
+  ]
+ },
+ {
+  "id": "endplate",
+  "title": "Connect the beam to the column",
+  "prompt": "Connect the beam to the column with an end plate.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "connection_add",
+    "args": {
+     "type": "endplate",
+     "members": [
+      "$c.id",
+      "$b.id"
+     ]
+    },
+    "expect": [
+     {
+      "path": "added.length",
+      "eq": 1
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "model_describe",
+    "path": "connections.0.count",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "autopilot-baseplates",
+  "title": "Base plates by autopilot",
+  "prompt": "Put base plates under the columns.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "connection_autopilot",
+    "args": {},
+    "expect": [
+     {
+      "path": "counts.baseplate",
+      "eq": 1
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "model_describe",
+    "path": "connections.0.type",
+    "eq": "baseplate"
+   }
+  ]
+ },
+ {
+  "id": "clash-and-checks",
+  "title": "Find clashes",
+  "prompt": "Check the frame for clashes and for things that cannot be built.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "clash_check",
+    "args": {},
+    "expect": [
+     {
+      "path": "checked",
+      "eq": 2
+     },
+     {
+      "path": "total",
+      "eq": 1
+     }
+    ]
+   },
+   {
+    "tool": "constructability_check",
+    "args": {},
+    "expect": [
+     {
+      "path": "problems.length",
+      "eq": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "select-by-mark",
+  "title": "Select a part by its mark",
+  "prompt": "Select beam b1 and tell me what it is.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "selection_set",
+    "args": {
+     "marks": [
+      "b1"
+     ]
+    },
+    "expect": [
+     {
+      "path": "selected",
+      "eq": 1
+     }
+    ]
+   },
+   {
+    "tool": "selection_get",
+    "expect": [
+     {
+      "path": "selected.0.type",
+      "eq": "beam"
+     },
+     {
+      "path": "selected.0.mark",
+      "eq": "b1"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "framing-wall",
+  "title": "A stud wall",
+  "prompt": "Add a 4 m by 2.4 m timber wall and give me its cut list.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "framing_panel_add",
+    "args": {
+     "kind": "wall",
+     "length": 4000,
+     "height": 2400
+    },
+    "expect": [
+     {
+      "path": "summary.pieces",
+      "eq": 14
+     }
+    ]
+   },
+   {
+    "tool": "framing_panels",
+    "expect": [
+     {
+      "path": "panels.0.cutList.0.piece",
+      "eq": "plate"
+     },
+     {
+      "path": "panels.0.cutList.0.count",
+      "eq": 3
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "undo-two",
+  "title": "Take two steps back",
+  "prompt": "Draw a column, a beam and a connection, then undo the last two.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "connection_add",
+    "args": {
+     "type": "endplate",
+     "members": [
+      "$c.id",
+      "$b.id"
+     ]
+    }
+   },
+   {
+    "tool": "undo",
+    "args": {
+     "steps": 2
+    },
+    "expect": [
+     {
+      "path": "undone.length",
+      "eq": 2
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "parts_list",
+    "path": "total",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "says-what-to-try",
+  "title": "Errors say what is wrong",
+  "prompt": "Try a beam with no length, then a connection with a made-up member.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      0
+     ]
+    },
+    "fail": "same"
+   },
+   {
+    "tool": "connection_add",
+    "args": {
+     "type": "endplate",
+     "members": [
+      1,
+      2
+     ]
+    },
+    "fail": "must be string"
+   }
+  ],
+  "check": [
+   {
+    "tool": "app_info",
+    "path": "members",
+    "eq": 0
+   }
+  ]
+ },
+ {
+  "id": "read-only-refuses",
+  "title": "Read-only means read-only",
+  "prompt": "With only Read allowed, try to add a beam.",
+  "allow": [
+   "read"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      6000,
+      0,
+      0
+     ]
+    },
+    "fail": "permission"
+   },
+   {
+    "tool": "model_describe",
+    "expect": [
+     {
+      "path": "members.length",
+      "eq": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "preview-first",
+  "title": "Preview first",
+  "prompt": "Show what a beam would do without drawing it.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      6000,
+      0,
+      0
+     ],
+     "preview": true
+    },
+    "expect": [
+     {
+      "path": "preview",
+      "eq": true
+     },
+     {
+      "path": "applied",
+      "eq": false
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "parts_list",
+    "path": "total",
+    "eq": 0
+   }
+  ]
+ },
+ {
+  "id": "parts-by-type",
+  "title": "Parts of one kind",
+  "prompt": "List only the beams.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "parts_list",
+    "args": {
+     "type": "beam"
+    },
+    "expect": [
+     {
+      "path": "total",
+      "eq": 1
+     },
+     {
+      "path": "parts.0.profile",
+      "eq": "W16x26"
+     }
+    ]
+   }
+  ]
+ }
+]

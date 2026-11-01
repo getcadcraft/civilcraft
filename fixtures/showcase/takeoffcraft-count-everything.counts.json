@@ -1,0 +1,122 @@
+{
+ "note": "What Count everything should find on takeoffcraft-count-everything.pdf (the legend on E-001 is not counted). Made once by tools/takeoffcraft-test/make-count-everything-showcase_PART_2.mjs; CC0.",
+ "legendBox": "E-001: the box round SYMBOL LEGEND, lower left",
+ "totals": {
+  "Duplex receptacle": 275,
+  "Quad receptacle": 207,
+  "Ceiling light": 132,
+  "Wall switch": 88,
+  "Exit sign": 28,
+  "Smoke detector": 67
+ },
+ "bySheet": [
+  {
+   "sheet": "E-001",
+   "Duplex receptacle": 0,
+   "Quad receptacle": 0,
+   "Ceiling light": 0,
+   "Wall switch": 0,
+   "Exit sign": 0,
+   "Smoke detector": 0
+  },
+  {
+   "sheet": "E-101",
+   "Duplex receptacle": 21,
+   "Quad receptacle": 18,
+   "Ceiling light": 12,
+   "Wall switch": 8,
+   "Exit sign": 5,
+   "Smoke detector": 6
+  },
+  {
+   "sheet": "E-102",
+   "Duplex receptacle": 25,
+   "Quad receptacle": 19,
+   "Ceiling light": 12,
+   "Wall switch": 8,
+   "Exit sign": 1,
+   "Smoke detector": 7
+  },
+  {
+   "sheet": "E-103",
+   "Duplex receptacle": 26,
+   "Quad receptacle": 20,
+   "Ceiling light": 12,
+   "Wall switch": 9,
+   "Exit sign": 0,
+   "Smoke detector": 3
+  },
+  {
+   "sheet": "E-104",
+   "Duplex receptacle": 23,
+   "Quad receptacle": 17,
+   "Ceiling light": 12,
+   "Wall switch": 8,
+   "Exit sign": 2,
+   "Smoke detector": 4
+  },
+  {
+   "sheet": "E-105",
+   "Duplex receptacle": 29,
+   "Quad receptacle": 21,
+   "Ceiling light": 12,
+   "Wall switch": 9,
+   "Exit sign": 3,
+   "Smoke detector": 9
+  },
+  {
+   "sheet": "E-106",
+   "Duplex receptacle": 28,
+   "Quad receptacle": 20,
+   "Ceiling light": 12,
+   "Wall switch": 6,
+   "Exit sign": 2,
+   "Smoke detector": 6
+  },
+  {
+   "sheet": "E-107",
+   "Duplex receptacle": 24,
+   "Quad receptacle": 18,
+   "Ceiling light": 12,
+   "Wall switch": 8,
+   "Exit sign": 3,
+   "Smoke detector": 7
+  },
+  {
+   "sheet": "E-108",
+   "Duplex receptacle": 22,
+   "Quad receptacle": 17,
+   "Ceiling light": 12,
+   "Wall switch": 9,
+   "Exit sign": 4,
+   "Smoke detector": 6
+  },
+  {
+   "sheet": "E-109",
+   "Duplex receptacle": 23,
+   "Quad receptacle": 17,
+   "Ceiling light": 12,
+   "Wall switch": 9,
+   "Exit sign": 2,
+   "Smoke detector": 8
+  },
+  {
+   "sheet": "E-110",
+   "Duplex receptacle": 25,
+   "Quad receptacle": 19,
+   "Ceiling light": 12,
+   "Wall switch": 8,
+   "Exit sign": 2,
+   "Smoke detector": 7
+  },
+  {
+   "sheet": "E-111",
+   "Duplex receptacle": 29,
+   "Quad receptacle": 21,
+   "Ceiling light": 12,
+   "Wall switch": 6,
+   "Exit sign": 4,
+   "Smoke detector": 4
+  }
+ ]
+}

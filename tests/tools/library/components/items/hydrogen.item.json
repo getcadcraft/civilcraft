@@ -1,0 +1,131 @@
+{
+  "format": "cadcraft-library-item",
+  "format_version": 1,
+  "name": "Hydrogen",
+  "kind": "component",
+  "category": "components/process",
+  "description": "Pure component Hydrogen (H2). Properties cite the Smith, Van Ness and Abbott tables in their rows; not yet checked by an engineer.",
+  "plan": {
+    "layers": [],
+    "entities": []
+  },
+  "body": null,
+  "params": {},
+  "component": {
+    "format": "cadcraft-component",
+    "version": 1,
+    "id": "substance.hydrogen",
+    "class": "substance",
+    "formula": "H2",
+    "sources": [
+      {
+        "key": "SVN7-B1",
+        "kind": "textbook",
+        "title": "J.M. Smith, H.C. Van Ness, M.M. Abbott, Introduction to Chemical Engineering Thermodynamics, 7th ed. (McGraw-Hill, 2005)",
+        "note": "Table B.1: critical constants, acentric factor, normal boiling point, heat of vaporisation at Tb"
+      },
+      {
+        "key": "SVN7-B2",
+        "kind": "textbook",
+        "title": "J.M. Smith, H.C. Van Ness, M.M. Abbott, Introduction to Chemical Engineering Thermodynamics, 7th ed. (McGraw-Hill, 2005)",
+        "note": "Table B.2: Antoine constants, ln P (kPa) = A - B/(T °C + C)"
+      },
+      {
+        "key": "SVN7-C1",
+        "kind": "textbook",
+        "title": "J.M. Smith, H.C. Van Ness, M.M. Abbott, Introduction to Chemical Engineering Thermodynamics, 7th ed. (McGraw-Hill, 2005)",
+        "note": "Table C.1: ideal-gas heat capacity, Cp/R = A + B T + C T^2 + D/T^2 (T in K)"
+      },
+      {
+        "key": "SVN7-C4",
+        "kind": "textbook",
+        "title": "J.M. Smith, H.C. Van Ness, M.M. Abbott, Introduction to Chemical Engineering Thermodynamics, 7th ed. (McGraw-Hill, 2005)",
+        "note": "Table C.4: standard enthalpy and Gibbs energy of formation at 298.15 K"
+      }
+    ],
+    "properties": [
+      {
+        "key": "Tc",
+        "value": 33.19,
+        "unit": "K",
+        "src": "SVN7-B1",
+        "table": "B.1"
+      },
+      {
+        "key": "Pc",
+        "value": 13.13,
+        "unit": "bar",
+        "src": "SVN7-B1",
+        "table": "B.1"
+      },
+      {
+        "key": "omega",
+        "value": -0.216,
+        "unit": "-",
+        "src": "SVN7-B1",
+        "table": "B.1"
+      },
+      {
+        "key": "Tb",
+        "value": 20.4,
+        "unit": "K",
+        "src": "SVN7-B1",
+        "table": "B.1"
+      },
+      {
+        "key": "dHvap_Tb",
+        "value": 904,
+        "unit": "J/mol",
+        "src": "SVN7-B1",
+        "table": "B.1"
+      },
+      {
+        "key": "cp_A",
+        "value": 3.249,
+        "unit": "Cp/R",
+        "src": "SVN7-C1",
+        "table": "C.1"
+      },
+      {
+        "key": "cp_B",
+        "value": 0.000422,
+        "unit": "Cp/R, 1/K",
+        "src": "SVN7-C1",
+        "table": "C.1"
+      },
+      {
+        "key": "cp_C",
+        "value": 0,
+        "unit": "Cp/R, 1/K^2",
+        "src": "SVN7-C1",
+        "table": "C.1"
+      },
+      {
+        "key": "cp_D",
+        "value": 8300,
+        "unit": "Cp/R, K^2",
+        "src": "SVN7-C1",
+        "table": "C.1"
+      },
+      {
+        "key": "hf_298",
+        "value": 0,
+        "unit": "J/mol",
+        "src": "SVN7-C4",
+        "table": "C.4"
+      },
+      {
+        "key": "gf_298",
+        "value": 0,
+        "unit": "J/mol",
+        "src": "SVN7-C4",
+        "table": "C.4"
+      }
+    ],
+    "failure_data": [],
+    "review": {
+      "state": "draft",
+      "note": "Typed from the cited tables and checked by tests against known values (Antoine at the normal boiling point, Cp at 298 K). Not yet checked against the book by an engineer (lib/process/data.js, D-CH4, O7)."
+    }
+  }
+}

@@ -1,14 +1,14 @@
 ---
-title: Design one site together, live
-summary: What changes in CivilCraft while you are in a CadCraft Studio live session: everyone's points, alignments, pads and parcels in one project, the surface built in every window, your own undo, and joining from a browser on the same network.
+title: Design one site together with Live TeamWork
+summary: What changes in CivilCraft while you are in a Live TeamWork session from CadCraft Studio: everyone's points, alignments, pads and parcels in one project, the surface built in every window, your own undo, and joining from a browser on the same network.
 section: tasks
 order: 145
-keywords: live, studio live, together, collaborate, session, share live, join, points, alignment, surface, tin, undo, host
+keywords: live, live teamwork, studio live, together, collaborate, session, share live, join, points, alignment, surface, tin, undo, host
 ---
 
 ## What you will learn
 
-What happens to a project while several people work on it at the same time. CadCraft Studio starts and joins the session (Share live, Join); this page is about the project itself.
+What happens to a project while several people work on it at the same time. CadCraft Studio starts and joins the Live TeamWork session (Share live, Join); this page is about the project itself.
 
 ## Everyone works at once
 

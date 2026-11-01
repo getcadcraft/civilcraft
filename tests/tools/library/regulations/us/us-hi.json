@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-hi",
+  "name": "Hawaii: Hawaii State Residential Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-HI",
+    "name": "Hawaii"
+  },
+  "base": "us-irc-2018",
+  "edition": "IRC 2018 as adopted, 2020-11-17",
+  "in_force": "2020-11-17",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2018 (State Building Code Council (SBCC), DAGS; HRS § 107-24, § 107-28). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (re…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "State Building Code Council (SBCC), DAGS, HRS § 107-24, § 107-28",
+    "url": "https://ags.hawaii.gov/bcc/building-code-rules/",
+    "date": "2020-11-17",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

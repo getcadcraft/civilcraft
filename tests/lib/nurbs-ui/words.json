@@ -1,0 +1,522 @@
+{
+  "nurbs.ui.title": [
+    "Surfaces",
+    "The panel's heading (NURBS curves and surfaces).",
+    "Superficies"
+  ],
+  "nurbs.ui.open": [
+    "Open the Surfaces panel",
+    "Button that loads the panel.",
+    "Abrir el panel Superficies"
+  ],
+  "nurbs.ui.intro": [
+    "NURBS curves and untrimmed surfaces with measured continuity (G0, G1, G2). Sizes are in millimeters.",
+    "One line under the heading.",
+    "Curvas NURBS y superficies sin recortar con continuidad medida (G0, G1, G2). Las medidas están en milímetros."
+  ],
+  "nurbs.ui.g.curves": [
+    "Curves",
+    "Command group.",
+    "Curvas"
+  ],
+  "nurbs.ui.g.surfaces": [
+    "Surfaces",
+    "Command group.",
+    "Superficies"
+  ],
+  "nurbs.ui.g.match": [
+    "Match and blend",
+    "Command group.",
+    "Igualar y fundir"
+  ],
+  "nurbs.ui.need.points": [
+    "Type at least {n} points, one per line (x, y, z in mm), or pick them in the view.",
+    "What a command still needs.",
+    "Escriba al menos {n} puntos, uno por línea (x, y, z en mm), o selecciónelos en la vista."
+  ],
+  "nurbs.ui.need.curve": [
+    "Pick a curve ({have} of {n}).",
+    "What a command still needs.",
+    "Seleccione una curva ({have} de {n})."
+  ],
+  "nurbs.ui.need.surface": [
+    "Pick a surface ({have} of {n}).",
+    "What a command still needs.",
+    "Seleccione una superficie ({have} de {n})."
+  ],
+  "nurbs.ui.need.edge": [
+    "Pick a surface edge ({have} of {n}): click near the edge in the view, or an edge button in the list.",
+    "What a command still needs.",
+    "Seleccione un borde de superficie ({have} de {n}): haga clic cerca del borde en la vista o en un botón de borde de la lista."
+  ],
+  "nurbs.ui.need.end": [
+    "Pick a curve end ({have} of {n}): click near the end in the view, or Start / End in the list.",
+    "What a command still needs.",
+    "Seleccione un extremo de curva ({have} de {n}): haga clic cerca del extremo en la vista o en Inicio / Fin de la lista."
+  ],
+  "nurbs.ui.ready": [
+    "Ready: check the options and press Make.",
+    "All picks are in.",
+    "Listo: revise las opciones y pulse Crear."
+  ],
+  "nurbs.ui.run": [
+    "Make",
+    "Runs the command.",
+    "Crear"
+  ],
+  "nurbs.ui.back": [
+    "Undo last pick",
+    "Removes the last pick.",
+    "Deshacer la última selección"
+  ],
+  "nurbs.ui.cancel": [
+    "Cancel",
+    "Stops the command.",
+    "Cancelar"
+  ],
+  "nurbs.ui.pick": [
+    "Pick",
+    "Adds this item to the command.",
+    "Seleccionar"
+  ],
+  "nurbs.ui.points.label": [
+    "Points (x, y, z in mm, one per line)",
+    "Field label.",
+    "Puntos (x, y, z en mm, uno por línea)"
+  ],
+  "nurbs.ui.points.pick": [
+    "Pick points in the view",
+    "Click points in 3D; Enter or a double click ends.",
+    "Seleccionar puntos en la vista"
+  ],
+  "nurbs.ui.points.hint": [
+    "Click points for the curve ({n} so far). Enter or a double click finishes, Esc cancels.",
+    "Status while picking points.",
+    "Haga clic en los puntos de la curva ({n} hasta ahora). Intro o un doble clic termina, Esc cancela."
+  ],
+  "nurbs.ui.pick.hint": [
+    "Click a curve or surface in the view (near an edge or an end when the command asks for one). Esc stops.",
+    "Status while picking items.",
+    "Haga clic en una curva o superficie de la vista (cerca de un borde o extremo si el comando lo pide). Esc detiene."
+  ],
+  "nurbs.ui.pick.miss": [
+    "That is not what the command needs next.",
+    "A pick that does not fit.",
+    "Eso no es lo que el comando necesita ahora."
+  ],
+  "nurbs.ui.sub.u0": [
+    "Edge u0",
+    "Surface edge where u starts.",
+    "Borde u0"
+  ],
+  "nurbs.ui.sub.u1": [
+    "Edge u1",
+    "Surface edge where u ends.",
+    "Borde u1"
+  ],
+  "nurbs.ui.sub.v0": [
+    "Edge v0",
+    "Surface edge where v starts.",
+    "Borde v0"
+  ],
+  "nurbs.ui.sub.v1": [
+    "Edge v1",
+    "Surface edge where v ends.",
+    "Borde v1"
+  ],
+  "nurbs.ui.sub.start": [
+    "Start",
+    "Curve start.",
+    "Inicio"
+  ],
+  "nurbs.ui.sub.end": [
+    "End",
+    "Curve end.",
+    "Fin"
+  ],
+  "nurbs.ui.kind.curve": [
+    "Curve",
+    "Item kind.",
+    "Curva"
+  ],
+  "nurbs.ui.kind.surface": [
+    "Surface",
+    "Item kind.",
+    "Superficie"
+  ],
+  "nurbs.ui.items": [
+    "Curves and surfaces",
+    "List heading.",
+    "Curvas y superficies"
+  ],
+  "nurbs.ui.empty": [
+    "Nothing yet. Start with Curve through points under Curves.",
+    "Empty list.",
+    "Nada todavía. Empiece con Curva por puntos en Curvas."
+  ],
+  "nurbs.ui.edge": [
+    "Edge",
+    "Continuity table column.",
+    "Borde"
+  ],
+  "nurbs.ui.hide": [
+    "Hide",
+    "Hide an item.",
+    "Ocultar"
+  ],
+  "nurbs.ui.show": [
+    "Show",
+    "Show an item.",
+    "Mostrar"
+  ],
+  "nurbs.ui.rename": [
+    "Rename",
+    "Rename an item.",
+    "Cambiar nombre"
+  ],
+  "nurbs.ui.delete": [
+    "Delete",
+    "Delete an item.",
+    "Eliminar"
+  ],
+  "nurbs.ui.undo": [
+    "Undo",
+    "The panel's own undo.",
+    "Deshacer"
+  ],
+  "nurbs.ui.redo": [
+    "Redo",
+    "The panel's own redo.",
+    "Rehacer"
+  ],
+  "nurbs.ui.undid": [
+    "Surfaces: undid {what}.",
+    "Status line.",
+    "Superficies: se deshizo {what}."
+  ],
+  "nurbs.ui.redid": [
+    "Surfaces: redid {what}.",
+    "Status line.",
+    "Superficies: se rehízo {what}."
+  ],
+  "nurbs.ui.view": [
+    "Show as",
+    "View mode select label.",
+    "Mostrar como"
+  ],
+  "nurbs.ui.mode.shaded": [
+    "Shaded",
+    "View mode.",
+    "Sombreado"
+  ],
+  "nurbs.ui.mode.zebra": [
+    "Zebra stripes",
+    "View mode.",
+    "Rayas de cebra"
+  ],
+  "nurbs.ui.mode.curvature": [
+    "Curvature (Gaussian)",
+    "View mode.",
+    "Curvatura (gaussiana)"
+  ],
+  "nurbs.ui.cvs": [
+    "Control points",
+    "Show the control nets.",
+    "Puntos de control"
+  ],
+  "nurbs.ui.krange": [
+    "Gaussian curvature shown from {min} (blue, saddle) to {max} (red, dome) 1/mm²; white is flat.",
+    "Curvature legend.",
+    "Curvatura gaussiana de {min} (azul, silla) a {max} (rojo, cúpula) 1/mm²; el blanco es plano."
+  ],
+  "nurbs.ui.done": [
+    "Surfaces: {what} done.",
+    "Status line.",
+    "Superficies: {what} hecho."
+  ],
+  "nurbs.ui.deviation": [
+    "Largest deviation measured: {mm} mm.",
+    "A fitted command's measured deviation.",
+    "Mayor desviación medida: {mm} mm."
+  ],
+  "nurbs.ui.export.step": [
+    "STEP…",
+    "Export button.",
+    "STEP…"
+  ],
+  "nurbs.ui.export.iges": [
+    "IGES…",
+    "Export button.",
+    "IGES…"
+  ],
+  "nurbs.ui.export.ccnurbs": [
+    "Patch set…",
+    "Export the .ccnurbs file.",
+    "Conjunto de parches…"
+  ],
+  "nurbs.ui.exported": [
+    "Saved {file}.",
+    "Status line.",
+    "Se guardó {file}."
+  ],
+  "nurbs.ui.import": [
+    "Import…",
+    "Import STEP, IGES or a patch set.",
+    "Importar…"
+  ],
+  "nurbs.ui.imported": [
+    "Added {n} curves and surfaces from {file}.",
+    "Status line.",
+    "Se agregaron {n} curvas y superficies de {file}."
+  ],
+  "nurbs.ui.opt.degree": [
+    "Degree",
+    "Option.",
+    "Grado"
+  ],
+  "nurbs.ui.opt.at": [
+    "Where (0 to 1 along it)",
+    "Option.",
+    "Dónde (0 a 1 a lo largo)"
+  ],
+  "nurbs.ui.opt.times": [
+    "How many times",
+    "Option.",
+    "Cuántas veces"
+  ],
+  "nurbs.ui.opt.tol": [
+    "Tolerance (mm)",
+    "Option.",
+    "Tolerancia (mm)"
+  ],
+  "nurbs.ui.opt.by": [
+    "Raise by",
+    "Option.",
+    "Elevar en"
+  ],
+  "nurbs.ui.opt.count": [
+    "Control points",
+    "Option.",
+    "Puntos de control"
+  ],
+  "nurbs.ui.opt.continuity": [
+    "Continuity",
+    "Option.",
+    "Continuidad"
+  ],
+  "nurbs.ui.opt.bulge": [
+    "Bulge at each end",
+    "Option (two numbers).",
+    "Abombado en cada extremo"
+  ],
+  "nurbs.ui.opt.dir": [
+    "Direction",
+    "Option (a vector in mm, or u / v).",
+    "Dirección"
+  ],
+  "nurbs.ui.opt.origin": [
+    "Axis point (mm)",
+    "Option.",
+    "Punto del eje (mm)"
+  ],
+  "nurbs.ui.opt.axis": [
+    "Axis direction",
+    "Option.",
+    "Dirección del eje"
+  ],
+  "nurbs.ui.opt.angle": [
+    "Angle (degrees)",
+    "Option.",
+    "Ángulo (grados)"
+  ],
+  "nurbs.ui.opt.frame": [
+    "Profile follows",
+    "Option.",
+    "El perfil sigue"
+  ],
+  "nurbs.ui.opt.frame.rmf": [
+    "The rail (turns with it)",
+    "Sweep frame.",
+    "El riel (gira con él)"
+  ],
+  "nurbs.ui.opt.frame.fixed": [
+    "Fixed (keeps its direction)",
+    "Sweep frame.",
+    "Fijo (mantiene su dirección)"
+  ],
+  "nurbs.ui.opt.dir.u": [
+    "u",
+    "Surface direction.",
+    "u"
+  ],
+  "nurbs.ui.opt.dir.v": [
+    "v",
+    "Surface direction.",
+    "v"
+  ],
+  "nurbs.ui.opt.keep_height": [
+    "Keep the profile's height",
+    "Option.",
+    "Mantener la altura del perfil"
+  ],
+  "nurbs.ui.opt.distance": [
+    "Distance (mm)",
+    "Option.",
+    "Distancia (mm)"
+  ],
+  "nurbs.ui.opt.length": [
+    "Length (mm)",
+    "Option.",
+    "Longitud (mm)"
+  ],
+  "nurbs.ui.opt.nu": [
+    "Control points in u",
+    "Option.",
+    "Puntos de control en u"
+  ],
+  "nurbs.ui.opt.nv": [
+    "Control points in v",
+    "Option.",
+    "Puntos de control en v"
+  ],
+  "nurbs.ui.opt.du": [
+    "Degree in u",
+    "Option.",
+    "Grado en u"
+  ],
+  "nurbs.ui.opt.dv": [
+    "Degree in v",
+    "Option.",
+    "Grado en v"
+  ],
+  "nurbs.ui.opt.profiles": [
+    "How many of the picked curves are profiles (the rest are guides)",
+    "Option of the curve network.",
+    "Cuántas de las curvas seleccionadas son perfiles (el resto son guías)"
+  ],
+  "nurbs.ui.err.option": [
+    "That option cannot be set.",
+    "Error.",
+    "Esa opción no se puede establecer."
+  ],
+  "nurbs.ui.err.number": [
+    "Type a number.",
+    "Error.",
+    "Escriba un número."
+  ],
+  "nurbs.ui.err.whole": [
+    "Type a whole number.",
+    "Error.",
+    "Escriba un número entero."
+  ],
+  "nurbs.ui.err.range": [
+    "Type a number from {min} to {max}.",
+    "Error.",
+    "Escriba un número de {min} a {max}."
+  ],
+  "nurbs.ui.err.zero": [
+    "The distance cannot be zero.",
+    "Error.",
+    "La distancia no puede ser cero."
+  ],
+  "nurbs.ui.err.continuity": [
+    "Choose G0, G1 or G2.",
+    "Error.",
+    "Elija G0, G1 o G2."
+  ],
+  "nurbs.ui.err.vec3": [
+    "Type three numbers: x, y, z.",
+    "Error.",
+    "Escriba tres números: x, y, z."
+  ],
+  "nurbs.ui.err.pair": [
+    "Type two numbers.",
+    "Error.",
+    "Escriba dos números."
+  ],
+  "nurbs.ui.err.points": [
+    "Each line needs two or three numbers (x, y, z).",
+    "Error.",
+    "Cada línea necesita dos o tres números (x, y, z)."
+  ],
+  "nurbs.ui.err.no_command": [
+    "Choose a command first.",
+    "Error.",
+    "Elija primero un comando."
+  ],
+  "nurbs.ui.err.failed": [
+    "That did not work: {error}",
+    "Error.",
+    "Eso no funcionó: {error}"
+  ],
+  "nurbs.ui.err.import_empty": [
+    "The file has no curves or surfaces this panel can read.",
+    "Error.",
+    "El archivo no tiene curvas ni superficies que este panel pueda leer."
+  ],
+  "nurbs.ui.err.export_empty": [
+    "There is nothing to save yet.",
+    "Error.",
+    "Todavía no hay nada que guardar."
+  ],
+  "nurbs.ui.undo.label": [
+    "Surfaces",
+    "Undo label prefix.",
+    "Superficies"
+  ],
+  "nurbs.ui.g.trim": [
+    "Trim",
+    "Command group: cut away part of a surface.",
+    "Recortar"
+  ],
+  "nurbs.ui.opt.u0": [
+    "From across (0–1)",
+    "Option: where the trim starts across the surface, as a share.",
+    "Desde el ancho (0–1)"
+  ],
+  "nurbs.ui.opt.u1": [
+    "To across (0–1)",
+    "Option: where the trim ends across the surface, as a share.",
+    "Hasta el ancho (0–1)"
+  ],
+  "nurbs.ui.opt.v0": [
+    "From along (0–1)",
+    "Option: where the trim starts along the surface, as a share.",
+    "Desde el largo (0–1)"
+  ],
+  "nurbs.ui.opt.v1": [
+    "To along (0–1)",
+    "Option: where the trim ends along the surface, as a share.",
+    "Hasta el largo (0–1)"
+  ],
+  "nurbs.ui.opt.u": [
+    "Centre across (0–1)",
+    "Option: circle centre across the surface, as a share.",
+    "Centro a lo ancho (0–1)"
+  ],
+  "nurbs.ui.opt.v": [
+    "Centre along (0–1)",
+    "Option: circle centre along the surface, as a share.",
+    "Centro a lo largo (0–1)"
+  ],
+  "nurbs.ui.opt.r": [
+    "Radius (share, 0.001–0.5)",
+    "Option: circle radius as a share of the surface.",
+    "Radio (proporción, 0.001–0.5)"
+  ],
+  "nurbs.ui.opt.hole": [
+    "Cut a hole (otherwise keep only this part)",
+    "Option: the loop removes its inside rather than keeping it.",
+    "Hacer un agujero (si no, se conserva solo esta parte)"
+  ],
+  "nurbs.ui.trimmed": [
+    "trimmed, {holes} holes",
+    "Item list: a surface with a trim.",
+    "recortada, {holes} agujeros"
+  ],
+  "nurbs.ui.iges_untrimmed": [
+    "IGES holds the whole patches: the trims were not written.",
+    "Export note.",
+    "IGES guarda las superficies completas: los recortes no se escribieron."
+  ]
+}

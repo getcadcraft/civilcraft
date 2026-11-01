@@ -80,6 +80,11 @@
             "spdx": "MIT",
             "url": "https://github.com/paulmillr/noble-hashes"
         },
+        "pdfjs": {
+            "name": "PDF.js",
+            "spdx": "Apache-2.0",
+            "url": "https://github.com/mozilla/pdf.js"
+        },
         "proj4": {
             "name": "Proj4js",
             "spdx": "MIT",

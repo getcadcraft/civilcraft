@@ -1,0 +1,56 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "eu-en1993-1-8-bolts",
+  "name": "Europe: EN 1993-1-8 bolt edge distances and spacing",
+  "jurisdiction": {
+    "country": "EU",
+    "level": "country",
+    "name": "European Union (EN)"
+  },
+  "base": null,
+  "edition": "EN 1993-1-8:2005",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "Minimum edge distances and spacing as multiples of the hole diameter d0, from Table 3.3 (the same numbers DetailCraft has always used for its connection warnings). Entered from the published table; not yet reviewed by a professional."
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "CEN, EN 1993-1-8:2005 Design of joints",
+    "url": "https://www.cencenelec.eu/",
+    "checked": "2026-10-28"
+  },
+  "rules": [
+    {
+      "id": "conn.bolt.edge.min",
+      "applies": "connection",
+      "op": ">=",
+      "value": 1.2,
+      "unit": "ratio",
+      "clause": "Table 3.3",
+      "label": "Bolt edge distance (e1, e2)",
+      "note": "At least 1.2 times the hole diameter."
+    },
+    {
+      "id": "conn.bolt.pitch.min",
+      "applies": "connection",
+      "op": ">=",
+      "value": 2.2,
+      "unit": "ratio",
+      "clause": "Table 3.3",
+      "label": "Bolt spacing in the line of force (p1)",
+      "note": "At least 2.2 times the hole diameter."
+    },
+    {
+      "id": "conn.bolt.gauge.min",
+      "applies": "connection",
+      "op": ">=",
+      "value": 2.4,
+      "unit": "ratio",
+      "clause": "Table 3.3",
+      "label": "Bolt spacing across the line of force (p2)",
+      "note": "At least 2.4 times the hole diameter."
+    }
+  ]
+}

@@ -11,7 +11,7 @@ keywords: dxf, dwg, cad, export, linework, r12, 2000, 2004, 2007, 2010, 2013, 20
 ## Export
 
 1. Set up the plan the way you want the drawing: under **Display**, choose the surface (existing or proposed), the contour interval, and which things are on (contours, labels, points, point labels, triangles, breaklines, surface edge, pipes, slope arrows).
-2. Click {{ui:DXF}} in the **Export** group.
+2. Click {{ui:DWG/DXF}} in the **Export** group and pick {{ui:DXF (R12, text) — the plain exchange file}}, then {{ui:Download}}.
 3. The browser downloads `<name>.dxf`. The status bar says, for example, "Exported R12 DXF: 2,140 objects; labels sized for 1" = 40'. Bands are not exported."
 
 Coordinates are written in your project units, at their real values (state plane coordinates stay as they are). Nothing is scaled or moved.
@@ -53,7 +53,7 @@ Text has to have a size in drawing units. CivilCraft sizes labels for the scale 
 
 ## DWG
 
-{{ui:DWG}} writes the same linework as a DWG drawing. A small dialog asks for the format: 2000, 2004, 2007, 2010, 2013 or 2018. 2000 opens in almost every CAD program, old and new; pick a newer one when whoever gets the drawing asks for it. Your choice is remembered in this browser.
+{{ui:DWG/DXF}} writes the same linework as a DWG drawing too. Its dialog asks for the format: DXF, or a DWG of 2000, 2004, 2007, 2010, 2013 or 2018. 2000 opens in almost every CAD program, old and new; pick a newer one when whoever gets the drawing asks for it. Your choice is remembered in this browser.
 
 1. Click {{ui:DWG}} in the **Export** group.
 2. Pick the **Format** and click **Download DWG**.

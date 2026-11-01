@@ -1,0 +1,14 @@
+% hydraulic_diameter — the diameter of a round pipe that behaves like a duct of any shape
+%
+% Usage:      Dh = hydraulic_diameter(A, P)
+% Computes:   Dh = 4 A / P, with A the flow area and P the wetted perimeter. A rectangle w by h gives 2 w h / (w + h).
+% Method:     the definition.
+% Units:      SI: A m2, P m, Dh m.
+% References: Incropera et al., Fundamentals of Heat and Mass Transfer, 7th ed., eq. 8.66.
+% Check:      a 10 mm by 5 mm channel: A 5e-5, P 0.03, Dh 6.667 mm (tools/field-test/eng.mjs).
+function Dh = hydraulic_diameter(A, P)
+if ~(A > 0) || ~(P > 0)
+  error('hydraulic_diameter: the area and the perimeter must be greater than zero');
+end
+Dh = 4 * A / P;
+end

@@ -17,14 +17,27 @@
  * simple round masses through the IFC/3D export, never a scatter.
  */
 
-import { readPlants, plantsFromCsv, plantsToCsv, search, displayName, sizeOf, TYPES, LIGHT, WATER, mergeLists } from './plants.js';
-import { emptyLandscape, speciesIndex, bedFill, hedgeFill, schedule, scheduleRows, scheduleCsv, scheduleQuantities, sceneItems as plantItems,
-  pickPlanting, unitM, bedSpacingM, inside } from './planting.js';
+import { readPlants, plantsFromCsv, plantsToCsv, search, displayName, sizeOf, TYPES, LIGHT, WATER, mergeLists, supplyLabel } from './plants.js';
+import { loadPlants } from './plants-live.js';   // 0.8 LD.1
+import { emptyLandscape, speciesIndex, bedFill, hedgeFill, schedule, supplyWords, scheduleRows, scheduleCsv, scheduleQuantities, sceneItems as plantItems,
+  pickPlanting, unitM, bedSpacingM, inside, useSpeciesIndex, spacingStale, listSpacingM, usedSpacingM, dropSpacing } from './planting.js';
 import { writeLandscapeIfc, plantingElements } from './ifc-landscape.js';
 import { createGradeUi } from './grade-ui.js';
 import { createHardUi } from './hard-ui.js';
 import { createIrrUi } from './irr-ui.js';
 import { createFfUi } from './ff-ui.js';
+import { createPlantTable } from './plant-table-ui.js';   // 0.8 LA.6
+import { createAreaUi } from './area-ui.js';   // 0.8 LA.5
+import { createStackUi } from './stack-ui.js';   // 0.8 LA.4
+import { createLinkUi, LIST_OF } from './link-ui.js';   // 0.8 LA.2
+import { cleanHardscape } from './hardscape.js';
+import { cleanAreas } from './planted.js';
+import { cleanGrading } from './grade.js';
+import { createWsUi } from './ws-ui.js';   // 0.8 LA.8
+import { createGraphicsUi } from './graphics-ui.js';   // 0.8 LA.7
+import { createSectionUi } from './section-ui.js';   // 0.8 LA.9
+import { wsRows } from './ws-sources.js';
+import { cutFillBy } from './stack.js';
 import { landscapeSheets, SHEET_KINDS } from './sheets.js';
 import { PAPERS, paperBy, scalesFor, fitScale, toPdfPages } from '../plot.js';
 import { wallLayout, stepsLayout } from './hardscape.js';
@@ -49,8 +62,54 @@ export function createLandscape(ctx) {
   const hd = createHardUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.4
   const ir = createIrrUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.5
   const ff = createFfUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.7
-  const TOOLS = [...PLANT_TOOLS, ...gr.tools, ...hd.tools, ...ir.tools, ...ff.tools];
-  const parts = [gr, hd, ir, ff];
+  const pa = createAreaUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U(), index: () => index(), current: () => cur,   // 0.8 LA.5
+    speciesSelect: (...x) => speciesSelect(...x), variantPick: (id, m, set) => { const sp = index().get(m.key); return pt.hasVariants(sp) ? [pt.variantSelect(id, sp, m.cv, m.sup, set, supLabel)] : []; } });
+  const st = createStackUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // 0.8 LA.4
+  /** LA.2: make an object of `kind` on a line's points, linked to it (one undo step); returns the selection. */
+  const makers = { make(kind, pts, link) {
+    const id = P().nextId('l'), list = LIST_OF[kind];
+    if (list === 'hardscape') {
+      const n = (LS().hardscape || []).filter((h) => h.kind === kind).length + 1, name = t('ls.h.name.' + kind, { n });
+      const rec = cleanHardscape([{ id, kind, name, pts: kind === 'steps' ? [pts[0], pts[pts.length - 1]] : pts, ...(kind === 'paving' ? { falls: { mode: 'none' } } : {}), link }], U())[0];
+      if (!rec) return null;
+      edit(t('ls.gr.undo.draw', { name }), (l) => { l.hardscape = [...(l.hardscape || []), rec]; });
+      return { kind: 'ls-hard', id };
+    }
+    if (list === 'areas') {
+      const k = kind.slice(3), n = (LS().areas || []).filter((a) => a.kind === k).length + 1, name = t('ls.a.name.' + k, { n });
+      const rec = cleanAreas([{ id, kind: k, name, pts, mix: k !== 'lawn' && cur && index().has(cur) ? [{ key: cur, pct: 100 }] : [], seed: n, link }], U())[0];
+      if (!rec) return null;
+      edit(t('ls.gr.undo.draw', { name }), (l) => { l.areas = [...(l.areas || []), rec]; });
+      return { kind: 'ls-pa', id };
+    }
+    if (list === 'grading') {
+      const n = (LS().grading || []).filter((g) => g.kind === kind).length + 1, name = t('ls.gr.name.' + kind, { n });
+      const rec = cleanGrading([{ id, kind, name, pts, link }], U())[0];
+      if (!rec) return null;
+      edit(t('ls.gr.undo.draw', { name }), (l) => { l.grading = [...(l.grading || []), rec]; });
+      return { kind: 'ls-grade', id };
+    }
+    if (!cur || !index().has(cur)) { ctx.say(t('ls.need.species')); return null; }
+    if (list === 'beds') { const n = LS().beds.length + 1; edit(t('ls.undo.bed'), (l) => l.beds.push({ id, name: t('ls.bed.name', { n }), pts, mix: [{ key: cur, pct: 100 }], spacing: null, pattern: 'triangular', angle: 0, seed: n, link })); return { kind: 'ls-bed', id }; }
+    if (list === 'hedges') { const n = LS().hedges.length + 1; edit(t('ls.undo.hedge'), (l) => l.hedges.push({ id, name: t('ls.hedge.name', { n }), pts, key: cur, spacing: null, rows: 1, rowGap: 0.4, link })); return { kind: 'ls-hedge', id }; }
+    return null;
+  } };
+  const lk = createLinkUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U(), makers });   // 0.8 LA.2
+  /** LA.4/LA.8: each modifier's cut and fill (the Ground modifiers dialog's numbers), for worksheets. */
+  const modCut = () => { const m = st.modifiers().filter((x) => x.region); const cf = cutFillBy(ctx.existing?.() || null, P().graded().surface || null, m.map((x) => ({ id: String(x.id), pts: x.region }))); return m.map((x) => ({ name: x.name, kind: x.kind, cut: cf.by[String(x.id)]?.cut || 0, fill: cf.by[String(x.id)]?.fill || 0 })); };
+  const ws = createWsUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), rows: (source) => wsRows(source, { ls: LS(), index: index(), units: U(), surface: ctx.surface(), lang: lang(),
+    quantities: () => [...hd.quantities(), ...pa.quantities(), ...ir.quantities()], modifiers: modCut }) });   // 0.8 LA.8
+  const gx = createGraphicsUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), index: () => index() });   // 0.8 LA.7
+  let forcedLevel = null;   // LA.7: a sheet's own plant detail level while its scene is built
+  const sec = createSectionUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U(), index: () => index(), makeSheets: (...x) => makeSheets(...x) });   // 0.8 LA.9
+  st.menu.querySelector('.cv-menu-list')?.append(el('button', { type: 'button', role: 'menuitemcheckbox', dataset: { cmd: 'ls-section' }, title: t('ls.sec.tool.title') }, t('ls.sec.tool')));
+  const TOOLS = [...PLANT_TOOLS, ...gr.tools, ...hd.tools, ...ir.tools, ...ff.tools, ...pa.tools, ...st.tools, ...lk.tools, ...sec.tools];
+  const parts = [gr, hd, ir, ff, pa, st, sec];
+  const pt = createPlantTable(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), index: () => index(), lang: () => lang(), current: () => cur, importList: (f) => importList(f) });   // 0.8 LA.6
+  const supLabel = (s) => supplyLabel(s, supplyWords());
+  /** LA.6: the cultivar + supplied-size picker for a placement (shown only when the record has them). */
+  const variantRow = (id, key, o, set) => { const sp = index().get(key); return pt.hasVariants(sp) ? [el('label', { for: id }, t('ls.v.label')), pt.variantSelect(id, sp, o.cv, o.sup, (cv, sup) => edit(t('ls.undo.variant'), () => set(cv, sup)), supLabel)] : []; };
+  const setVar = (o, cv, sup) => { if (cv) o.cv = cv; else delete o.cv; if (sup) o.sup = sup; else delete o.sup; };
 
   // ---- the seed list (loaded once, beside this module) ----
   const ready = (async () => {
@@ -60,7 +119,19 @@ export function createLandscape(ctx) {
     } catch (e) { seed = []; ctx.say(t('ls.seed.failed', { why: String(e.message || e) })); }
     idxCache.key = '';
     if (on) { renderPlants(); ctx.refresh(); }
+    // 0.8 LD.1: then the Library's plants over the bundled list, live; the bundled list stands if the Library is empty or unreachable
+    try {
+      const live = await loadPlants({ seed });
+      if (live.source === 'library') { seed = live.species; idxCache.key = ''; if (on) { renderPlants(); ctx.refresh(); } }
+    } catch (e) { /* the bundled list stands */ }
   })();
+  useSpeciesIndex(() => (seed.length ? index() : null));   // 0.7.1: project.js toJSON keeps each bed's and hedge's spacing as filled
+  /** 0.7.1: "Spacing from an older plant list" + Update (one undo step) for a bed or hedge filled from an older list. */
+  function staleNote(kind, it, idx) {
+    if (!spacingStale(it, idx)) return '';
+    return el('div', { className: 'cv-report', 'data-ls-spacing-old': it.id }, el('p', {}, t('ls.b.spacing.old', { s: fixed(usedSpacingM(it, idx), 2), n: fixed(listSpacingM(it, idx), 2) })),
+      el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-spacing-update': it.id, onclick: () => { edit(t('ls.undo.respace'), () => dropSpacing(find(kind, it.id))); ctx.refresh(); } }, t('ls.b.spacing.update')));
+  }
   function index() {
     const pal = LS().palette || [];
     const key = seed.length + '|' + JSON.stringify(pal);
@@ -92,7 +163,11 @@ export function createLandscape(ctx) {
   const more = el('details', { className: 'cv-menu', dataset: { groupMenu: 'Landscape' } },   // i18n-ignore: the group's key
     el('summary', { className: 'cv-tool', title: t('ls.more.title') }, el('i', { className: 'bi bi-three-dots', 'aria-hidden': 'true' }), el('span', {}, t('toolbar.more'))),
     el('div', { className: 'cv-menu-list', role: 'menu' },
+      menuItem('ls-fromline', t('ls.tb.fromline'), t('ls.tb.fromline.title'), 'menuitemcheckbox'),   // 0.8 LA.2 (in More: the toolbar stays one row at 1440 px)
       menuItem('ls-schedule', t('ls.tb.schedule'), t('ls.tb.schedule.title')),
+      menuItem('ls-plant-table', t('ls.tb.ptable'), t('ls.tb.ptable.title')),
+      menuItem('ls-worksheets', t('ls.tb.ws'), t('ls.tb.ws.title')),
+      menuItem('ls-graphics', t('ls.tb.gx'), t('ls.tb.gx.title')),
       menuItem('ls-freeform-open', t('ls.tb.freeform'), t('ls.tb.freeform.title')),
       menuItem('ls-sheets', t('ls.tb.sheets'), t('ls.tb.sheets.title')),
       menuItem('ls-ifc', t('ls.tb.ifc'), t('ls.tb.ifc.title')),
@@ -107,6 +182,8 @@ export function createLandscape(ctx) {
       btn('ls-hedge', 'border-style', t('ls.tb.hedge'), t('ls.tb.hedge.title')),
       gr.menu,
       hd.menu,
+      pa.menu,
+      st.menu,
       ir.menu,
       more));
   if (toolbar) {
@@ -159,6 +236,10 @@ export function createLandscape(ctx) {
         [t('ls.pl.f.light'), sp.light.map((x) => t('ls.light.' + x)).join(', ')],
         [t('ls.pl.f.water'), sp.water ? t('ls.water.' + sp.water) : ''],
         [t('ls.pl.f.notes'), sp.notes],
+        [t('ls.pl.f.density'), sp.density ? t('ls.pl.density', { d: sp.density }) : ''],   // LA.6
+        [t('ls.pl.f.supplies'), (sp.supplies || []).map(supLabel).join('; ')],
+        [t('ls.pl.f.cultivars'), (sp.cultivars || []).map((c) => c.name).join(', ')],
+        [t('ls.pl.f.spec'), sp.spec || ''],
       ].filter(([, v]) => v);
       const own = (LS().palette || []).some((x) => x.key === sp.key);
       detail.replaceChildren(
@@ -166,6 +247,7 @@ export function createLandscape(ctx) {
         el('div', { className: 'cv-props' }, ...facts.flatMap(([k, v]) => [el('span', { className: 'k' }, k), el('span', { className: 'v' }, String(v))])),
         el('div', { className: 'cv-actions' },
           el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-use': 'plant', onclick: () => ctx.command('ls-plant') }, t('ls.pl.place')),
+          ...gx.recordButtons(sp),   // 0.8 LA.7: the record's own symbol and 3D model
           own ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-unown': '', onclick: () => { edit(t('ls.undo.unown'), (l) => { l.palette = l.palette.filter((x) => x.key !== sp.key); }); renderPlants(); } }, t('ls.pl.unown'))
             : el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-own': '', onclick: () => { edit(t('ls.undo.own'), (l) => { l.palette = [...(l.palette || []), JSON.parse(JSON.stringify(sp))]; }); renderPlants(); } }, t('ls.pl.own'))));
     }
@@ -182,7 +264,8 @@ export function createLandscape(ctx) {
       count, list, detail,
       el('div', { className: 'cv-actions' },
         el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-import': '', onclick: () => fileIn.click() }, t('ls.pl.import')),
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-export': '', onclick: () => exportList() }, t('ls.pl.export'))),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-export': '', onclick: () => exportList() }, t('ls.pl.export')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-ptable': '', onclick: () => pt.open() }, t('ls.tb.ptable'))),
       el('p', { className: 'cv-note' }, t('ls.pl.own.note', { n: (LS().palette || []).length })), fileIn);
     renderList(); renderDetail();
   }
@@ -234,10 +317,10 @@ export function createLandscape(ctx) {
       if (c === 'ls-labels') b.setAttribute('aria-checked', String(LS().labels !== false));
       if (c === 'ls-schedule' || c === 'ls-ifc' || c === 'ls-sheets') b.disabled = !hasPlanting();
     }
-    gr.updateTools(ctx.tool()); hd.updateTools(ctx.tool()); ir.updateTools(ctx.tool());
+    gr.updateTools(ctx.tool()); hd.updateTools(ctx.tool()); ir.updateTools(ctx.tool()); pa.updateTools(ctx.tool()); st.updateTools(ctx.tool());
     if (on) gr.renderSection();
   }
-  const hasPlanting = () => { const l = LS(); return l.plants.length + l.beds.length + l.hedges.length + (l.hardscape || []).length + (l.irrigation?.heads.length || 0) + (l.freeform || []).length > 0; };
+  const hasPlanting = () => { const l = LS(); return l.plants.length + l.beds.length + l.hedges.length + (l.hardscape || []).length + (l.irrigation?.heads.length || 0) + (l.freeform || []).length + (l.areas || []).length > 0; };
 
   function command(c) {
     switch (c) {
@@ -250,6 +333,9 @@ export function createLandscape(ctx) {
         updateTools();
         return true;
       case 'ls-schedule': scheduleDialog(); return true;
+      case 'ls-plant-table': if (!on) setActive(true); pt.open(); return true;   // 0.8 LA.6
+      case 'ls-worksheets': if (!on) setActive(true); ws.open(); return true;   // 0.8 LA.8
+      case 'ls-graphics': gx.open(); return true;   // 0.8 LA.7
       case 'ls-platform': case 'ls-berm': case 'ls-swale': case 'ls-area': case 'ls-spot': case 'ls-contour': case 'ls-slope': case 'ls-flow':
         if (!on) setActive(true);
         gr.command(c); updateTools(); return true;
@@ -259,6 +345,14 @@ export function createLandscape(ctx) {
       case 'ls-head': case 'ls-lateral': case 'ls-main': case 'ls-valve': case 'ls-drip': case 'ls-poc': case 'ls-coverage': case 'ls-check':
         if (!on) setActive(true);
         ir.command(c); updateTools(); return true;
+      case 'ls-pa-lawn': case 'ls-pa-bed': case 'ls-pa-meadow': case 'ls-pa-groundcover':   // 0.8 LA.5
+        if (!on) setActive(true);
+        pa.command(c); updateTools(); return true;
+      case 'ls-fromline': if (!on) setActive(true); lk.command(c); updateTools(); return true;   // 0.8 LA.2
+      case 'ls-section': if (!on) setActive(true); sec.command(c); updateTools(); return true;   // 0.8 LA.9
+      case 'ls-stack': case 'ls-spotlevel': case 'ls-gradearrow':   // 0.8 LA.4
+        if (!on) setActive(true);
+        st.command(c); updateTools(); return true;
       case 'ls-ifc': exportIfc(); return true;
       case 'ls-sheets': sheetsDialog(); return true;
       case 'ls-freeform-open': if (!on) setActive(true); ff.command(c); return true;
@@ -270,6 +364,7 @@ export function createLandscape(ctx) {
 
   // ---- drawing ----
   function click(tool, w) {
+    if (tool === 'ls-fromline') return lk.click(tool, w);   // 0.8 LA.2
     for (const x of parts) if (x.tools.includes(tool)) return x.click(tool, w);
     if (tool !== 'ls-plant') return false;   // beds and hedges collect corners like any drawn line (civilcraft.js)
     const id = P().nextId('l');
@@ -306,7 +401,7 @@ export function createLandscape(ctx) {
   const isMine = (sel) => isPlanting(sel) || parts.some((x) => x.isMine(sel));
   function pick(w, tol) {
     const h = pickPlanting(LS(), index(), U(), w.x, w.y, tol);
-    return h ? { kind: 'ls-' + h.kind, id: h.id } : ir.pick(w, tol) || ff.pick(w, tol) || hd.pick(w, tol) || gr.pick(w, tol);
+    return h ? { kind: h.kind === 'area' ? 'ls-pa' : 'ls-' + h.kind, id: h.id } : st.pick(w, tol) || sec.pick(w, tol) || ir.pick(w, tol) || ff.pick(w, tol) || hd.pick(w, tol) || pa.pick(w, tol) || gr.pick(w, tol);
   }
   /** Grips (civilcraft.js gripAt): a plant moves whole; a bed's and a hedge's corners; the grading items' (grade-ui.js). */
   function grip(sel) {
@@ -339,6 +434,12 @@ export function createLandscape(ctx) {
   const facts = (rows) => el('div', { className: 'cv-props', 'data-ls-facts': '' }, ...rows.flatMap(([k, v]) => [el('span', { className: 'k' }, k), el('span', { className: 'v' }, String(v))]));
 
   function props(sel, box, head) {
+    const shown = propsOf(sel, box, head);
+    const lb = shown && lk.linkBlock(sel);   // 0.8 LA.2: "Linked to …" + Break link on any linked object
+    if (lb) box.append(lb);
+    return shown;
+  }
+  function propsOf(sel, box, head) {
     for (const x of parts) if (x.isMine(sel)) return x.props(sel, box, head);
     if (!isMine(sel)) return false;
     const kind = sel.kind.slice(3), it = find(kind, sel.id);
@@ -351,7 +452,8 @@ export function createLandscape(ctx) {
       const lab = el('input', { type: 'text', className: 'cv-input', id: 'cv-ls-plabel', value: it.label || '', maxLength: 200, placeholder: t('ls.p.label.ph') });
       lab.addEventListener('change', () => edit(t('ls.undo.label'), () => { const p = find('plant', it.id); if (lab.value.trim()) p.label = lab.value.trim().slice(0, 200); else delete p.label; }));
       box.replaceChildren(el('div', { className: 'cv-props' },
-        el('label', { for: 'cv-ls-psp' }, t('ls.p.species')), speciesSelect('cv-ls-psp', it.key, (k) => edit(t('ls.undo.species'), () => { find('plant', it.id).key = k; })),
+        el('label', { for: 'cv-ls-psp' }, t('ls.p.species')), speciesSelect('cv-ls-psp', it.key, (k) => edit(t('ls.undo.species'), () => { const p = find('plant', it.id); p.key = k; setVar(p, '', ''); })),
+        ...variantRow('cv-ls-pvar', it.key, it, (cv, sup) => setVar(find('plant', it.id), cv, sup)),
         el('label', { for: 'cv-ls-px' }, t('ls.p.x')), ctx.numInput(fixed(it.x, 3), (v) => { const n = Number(v); if (!Number.isFinite(n)) return false; edit(t('ls.undo.move'), () => { find('plant', it.id).x = n; }); return true; }, { label: t('ls.p.x'), id: 'cv-ls-px' }),
         el('label', { for: 'cv-ls-py' }, t('ls.p.y')), ctx.numInput(fixed(it.y, 3), (v) => { const n = Number(v); if (!Number.isFinite(n)) return false; edit(t('ls.undo.move'), () => { find('plant', it.id).y = n; }); return true; }, { label: t('ls.p.y'), id: 'cv-ls-py' }),
         el('label', { for: 'cv-ls-pz' }, t('ls.p.z')), z,
@@ -367,9 +469,10 @@ export function createLandscape(ctx) {
       const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-ls-bname', value: it.name, maxLength: 120 });
       nm.addEventListener('change', () => edit(t('ls.undo.rename'), () => { find('bed', it.id).name = nm.value.trim().slice(0, 120) || it.name; }));
       const mixRows = it.mix.map((m, i) => el('tr', { dataset: { lsMix: String(i) } },
-        el('td', {}, speciesSelect('cv-ls-mix-' + i, m.key, (k) => edit(t('ls.undo.mix'), () => { find('bed', it.id).mix[i].key = k; }))),
+        el('td', {}, speciesSelect('cv-ls-mix-' + i, m.key, (k) => edit(t('ls.undo.mix'), () => { const q = find('bed', it.id).mix[i]; q.key = k; setVar(q, '', ''); })),
+          ...(pt.hasVariants(idx.get(m.key)) ? [pt.variantSelect('cv-ls-mixv-' + i, idx.get(m.key), m.cv, m.sup, (cv, sup) => edit(t('ls.undo.variant'), () => setVar(find('bed', it.id).mix[i], cv, sup)), supLabel)] : [])),
         el('td', {}, ctx.numInput(m.pct, (v) => { const n = Number(v); if (!(n > 0 && n <= 100)) return false; edit(t('ls.undo.mix'), () => { find('bed', it.id).mix[i].pct = n; }); return true; }, { label: t('ls.b.pct'), id: 'cv-ls-pct-' + i, width: '4.5rem', calc: false })),
-        el('td', { className: 'num' }, String(f.counts[m.key] || 0)),
+        el('td', { className: 'num' }, String(f.mixCounts?.[i] ?? f.counts[m.key] ?? 0)),
         el('td', {}, it.mix.length > 1 ? el('button', { type: 'button', className: 'cv-linkbtn', 'data-ls-mix-remove': String(i), 'aria-label': t('ls.b.remove'), onclick: () => edit(t('ls.undo.mix'), () => { find('bed', it.id).mix.splice(i, 1); }) }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' })) : '')));
       const pat = el('select', { className: 'cv-select', id: 'cv-ls-bpat' }, el('option', { value: 'triangular' }, t('ls.b.tri')), el('option', { value: 'square' }, t('ls.b.square')));
       pat.value = it.pattern;
@@ -380,6 +483,7 @@ export function createLandscape(ctx) {
         el('label', { for: 'cv-ls-bpat' }, t('ls.b.pattern')), pat,
         el('label', { for: 'cv-ls-bang' }, t('ls.b.angle')), ctx.numInput(it.angle, (v) => { const n = Number(v); if (!Number.isFinite(n)) return false; edit(t('ls.undo.angle'), () => { find('bed', it.id).angle = ((n % 360) + 360) % 360; }); return true; }, { label: t('ls.b.angle'), id: 'cv-ls-bang', calc: false })),
       el('p', { className: 'cv-note' }, it.spacing ? t('ls.b.spacing.own') : t('ls.b.spacing.from', { s: fixed(bedSpacingM(it, idx), 2) })),
+      staleNote('bed', it, idx),
       el('table', { className: 'cv-groups cv-ls-mix', 'data-ls-mix': '' }, el('caption', { className: 'cv-note' }, t('ls.b.mix')),
         el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, t('ls.p.species')), el('th', { scope: 'col' }, t('ls.b.pct')), el('th', { scope: 'col', className: 'num' }, t('ls.b.qty')), el('th', {}))),
         el('tbody', {}, ...mixRows)),
@@ -400,11 +504,13 @@ export function createLandscape(ctx) {
     rows.addEventListener('change', () => edit(t('ls.undo.rows'), () => { find('hedge', it.id).rows = rows.value === '2' ? 2 : 1; }));
     box.replaceChildren(el('div', { className: 'cv-props' },
       el('label', { for: 'cv-ls-hname' }, t('ls.b.name')), nm,
-      el('label', { for: 'cv-ls-hsp' }, t('ls.p.species')), speciesSelect('cv-ls-hsp', it.key, (k) => edit(t('ls.undo.species'), () => { find('hedge', it.id).key = k; })),
+      el('label', { for: 'cv-ls-hsp' }, t('ls.p.species')), speciesSelect('cv-ls-hsp', it.key, (k) => edit(t('ls.undo.species'), () => { const h = find('hedge', it.id); h.key = k; setVar(h, '', ''); })),
+      ...variantRow('cv-ls-hvar', it.key, it, (cv, sup) => setVar(find('hedge', it.id), cv, sup)),
       el('label', { for: 'cv-ls-hspc' }, t('ls.b.spacing')), ctx.numInput(it.spacing ?? '', (v) => { const n = v.trim() === '' ? null : Number(v); if (n !== null && !(n >= 0.05 && n <= 50)) return false; edit(t('ls.undo.spacing'), () => { find('hedge', it.id).spacing = n; }); return true; }, { label: t('ls.b.spacing'), id: 'cv-ls-hspc', calc: false }),
       el('label', { for: 'cv-ls-hrows' }, t('ls.h.rows')), rows,
       el('label', { for: 'cv-ls-hgap' }, t('ls.h.gap')), ctx.numInput(it.rowGap, (v) => { const n = Number(v); if (!(n > 0 && n <= 10)) return false; edit(t('ls.undo.rows'), () => { find('hedge', it.id).rowGap = n; }); return true; }, { label: t('ls.h.gap'), id: 'cv-ls-hgap', calc: false })),
     facts([[t('ls.h.length'), lenText(f.length * um())], [t('ls.b.count'), String(f.pts.length)], [t('ls.b.spacing.used'), lenText(f.spacing * um())]]),
+    staleNote('hedge', it, idx),
     delBtn());
     return true;
   }
@@ -449,24 +555,26 @@ export function createLandscape(ctx) {
     const fill = () => { const s = scalesFor(U()); const fit = fitScale(U(), { ...ext, maxX: ext.maxX + (ext.maxX - ext.minX) * 0.35 }, paperBy(paper.value)); scale.replaceChildren(...s.map((x) => el('option', { value: x.label }, x.label))); scale.value = fit.label; };
     paper.addEventListener('change', fill); fill();
     const ink = el('select', { className: 'cv-select', id: 'cv-ls-sh-ink' }, el('option', { value: 'color' }, t('ls.sh.color')), el('option', { value: 'mono' }, t('ls.sh.mono')));
+    const detail = el('select', { className: 'cv-select', id: 'cv-ls-sh-detail', 'data-ls-sh-detail': '' }, el('option', { value: '' }, t('ls.gx.auto')), ...['simple', 'outline', 'detailed'].map((x) => el('option', { value: x }, t('ls.gx.l.' + x))));   // 0.8 LA.7
     const dlg = el('dialog', { className: 'cv-dialog', 'aria-labelledby': 'cv-ls-sh-h', 'data-ls-sheets': '' },
       el('div', { className: 'cv-dlg' },
         el('div', { className: 'cv-dlg-head' }, el('h2', { className: 'cv-h', id: 'cv-ls-sh-h' }, t('ls.sh.head'))),
         el('div', { className: 'cv-dlg-body' },
           el('div', { className: 'cv-checks' }, ...kinds.map((x) => x[2])),
-          el('div', { className: 'cv-props' }, el('label', { for: paper.id }, t('ls.sh.paper')), paper, el('label', { for: scale.id }, t('ls.sh.scale')), scale, el('label', { for: ink.id }, t('ls.sh.ink')), ink),
+          el('div', { className: 'cv-props' }, el('label', { for: paper.id }, t('ls.sh.paper')), paper, el('label', { for: scale.id }, t('ls.sh.scale')), scale, el('label', { for: ink.id }, t('ls.sh.ink')), ink, el('label', { for: detail.id }, t('ls.gx.level')), detail),
           el('p', { className: 'cv-note' }, t('ls.sh.note'))),
         el('div', { className: 'cv-dlg-foot' },
           el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => dlg.close() }, t('ls.close')),
+          el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-sh-publish': '', title: t('ls.pub.title'), onclick: async () => {   // 0.8 LA.9
+            const sc = scalesFor(U()).find((x) => x.label === scale.value);
+            const r = await sec.publish({ paper: paper.value, scale: sc, mono: ink.value === 'mono', level: detail.value || null, extents: ext });
+            if (r) dlg.close();
+          } }, t('ls.pub.go')),
           el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-ls-sh-go': '', onclick: async () => {
             const pick = kinds.filter((x) => x[1].checked).map((x) => x[0]);
             if (!pick.length) { ctx.say(t('ls.sh.pick')); return; }
             const sc = scalesFor(U()).find((x) => x.label === scale.value);
-            const sheets = landscapeSheets(ctx.buildScene(sc.mmPerUnit), { kinds: pick, extents: ext, paper: paper.value, landscape: true, scale: sc, units: U(), title: P().state.name || ctx.fileStem(), fmt: sheetFmt(),
-              plants: { rows: schedule(LS(), index(), U(), lang()).rows, index: index() }, irrigation: ir.result(), details: {
-                walls: (LS().hardscape || []).filter((h) => h.kind === 'wall').map((w) => ({ wall: w, layout: wallLayout(w, ctx.surface(), U()) })),
-                pavings: (LS().hardscape || []).filter((h) => h.kind === 'paving' || h.kind === 'path'),
-                steps: (LS().hardscape || []).filter((h) => h.kind === 'steps').map((s) => ({ steps: s, layout: stepsLayout(s, ctx.surface(), U()) })) } });
+            const sheets = makeSheets(pick, { paper: paper.value, scale: sc, level: detail.value || null, extents: ext });
             const { bytes, report } = await toPdfPages(sheets, { mono: ink.value === 'mono', title: P().state.name });
             ctx.download(bytes, ctx.fileStem() + '-landscape-sheets.pdf', 'application/pdf');   // i18n-ignore: a file name ending
             ctx.say(t('ls.sh.done', { n: sheets.length, missing: report.missing }));
@@ -476,10 +584,22 @@ export function createLandscape(ctx) {
     root.append(dlg);
     dlg.showModal();
   }
+  /** The sheets of `kinds` at one scale (the Sheets dialog and the publish set share it). `scene` = the plan built for that scale. */
+  function makeSheets(kinds, { paper, scale: sc, level = null, extents, scene = null }) {
+    forcedLevel = level;   // LA.7: this set's plant detail (automatic = by the sheet's scale)
+    let scene0 = scene;
+    try { scene0 = scene0 || ctx.buildScene(sc.mmPerUnit); } finally { forcedLevel = null; }
+    return landscapeSheets(scene0, { kinds, extents, paper, landscape: true, scale: sc, units: U(), title: P().state.name || ctx.fileStem(), fmt: sheetFmt(),
+      plants: { rows: schedule(LS(), index(), U(), lang()).rows, index: index() }, irrigation: ir.result(), worksheets: ws.results().filter((r) => r.ws.onSheet),
+      sectionSheets: kinds.includes('sections') ? sec.sheets({ paper, scale: sc }) : [], details: {
+        walls: (LS().hardscape || []).filter((h) => h.kind === 'wall').map((w) => ({ wall: w, layout: wallLayout(w, ctx.surface(), U()) })),
+        pavings: (LS().hardscape || []).filter((h) => h.kind === 'paving' || h.kind === 'path'),
+        steps: (LS().hardscape || []).filter((h) => h.kind === 'steps').map((s) => ({ steps: s, layout: stepsLayout(s, ctx.surface(), U()) })) } });
+  }
   /** The plant counts plus the hardscape's areas, lengths and step counts, in one quantities file. */
-  function withHard(q) { return { ...q, items: [...q.items, ...hd.quantities(), ...ir.quantities()].slice(0, 500) }; }
+  function withHard(q) { return { ...q, items: [...q.items, ...hd.quantities(), ...pa.quantities(), ...ir.quantities()].slice(0, 500) }; }
   function exportIfc() {
-    const els = [...plantingElements(LS(), index(), U(), { zAt: ctx.groundAt, lang: lang() }), ...hd.elements(), ...ff.elements()];
+    const els = [...plantingElements(LS(), index(), U(), { zAt: ctx.groundAt, lang: lang() }), ...hd.elements(), ...pa.elements(), ...ff.elements()];
     if (!els.length) { ctx.say(t('ls.ifc.none')); return; }
     const out = writeLandscapeIfc({ name: P().state.name || ctx.fileStem(), units: U(), elements: els }, { seed: P().state.name || 'site' });
     ctx.download(new TextEncoder().encode(out.text), ctx.fileStem() + '-landscape.ifc', 'application/x-step');   // i18n-ignore: a file name ending
@@ -488,14 +608,15 @@ export function createLandscape(ctx) {
 
   // ---- plan and overlay ----
   function sceneItems(unitPerMm) {
+    lk.watch();   // 0.8 LA.2: follow linked lines on every change of the project in use
     const l = P().state.landscape;
     if (!l) return [];
-    const plantsOut = !seed.length && !(l.palette || []).length ? [] : plantItems(l, index(), U(), { unitPerMm, lang: lang() });
-    return [...gr.sceneItems(unitPerMm), ...hd.sceneItems(unitPerMm), ...ff.sceneItems(unitPerMm), ...plantsOut, ...ir.sceneItems(unitPerMm)];
+    const plantsOut = !seed.length && !(l.palette || []).length ? [] : plantItems(l, index(), U(), { unitPerMm, lang: lang(), level: forcedLevel });
+    return [...gr.sceneItems(unitPerMm), ...hd.sceneItems(unitPerMm), ...ff.sceneItems(unitPerMm), ...plantsOut, ...ir.sceneItems(unitPerMm), ...st.sceneItems(unitPerMm), ...sec.sceneItems(unitPerMm)];
   }
   function overlay(c2d, toScreen, C, sel) {
     const tool = ctx.tool(), cu = ctx.cursor?.();
-    gr.overlay(c2d, toScreen, C, sel); hd.overlay(c2d, toScreen, C, sel); ir.overlay(c2d, toScreen, C, sel); ff.overlay(c2d, toScreen, C, sel);
+    gr.overlay(c2d, toScreen, C, sel); hd.overlay(c2d, toScreen, C, sel); pa.overlay(c2d, toScreen, C, sel); st.overlay(c2d, toScreen, C, sel); sec.overlay(c2d, toScreen, C, sel); ir.overlay(c2d, toScreen, C, sel); ff.overlay(c2d, toScreen, C, sel);
     const gp = ctx.tool() === 'select' ? grip(sel) : null;   // the grips civilcraft.js lets you drag
     if (gp) {
       c2d.save(); c2d.fillStyle = C.bg; c2d.strokeStyle = C.action; c2d.lineWidth = 1.5;
@@ -527,9 +648,9 @@ export function createLandscape(ctx) {
   }
 
   return {
-    active: () => on, setActive, command, ownsTool: (tl) => TOOLS.includes(tl), click, finish, closedTool: (tl) => tl === 'ls-bed' || gr.closed.has(tl) || hd.closed.has(tl),
-    hints: { 'ls-plant': 'ls.hint.plant', 'ls-bed': 'ls.hint.bed', 'ls-hedge': 'ls.hint.hedge', ...gr.hints, ...hd.hints, ...ir.hints, ...ff.hints },
-    isMine, props, remove, pick, grip, grade: gr, hard: hd, irrigation: ir, seedSpecies: () => seed, sceneItems, overlay, updateTools, ready, index,
+    active: () => on, setActive, command, ownsTool: (tl) => TOOLS.includes(tl), click, finish, closedTool: (tl) => tl === 'ls-bed' || gr.closed.has(tl) || hd.closed.has(tl) || pa.closed.has(tl),
+    hints: { 'ls-plant': 'ls.hint.plant', 'ls-bed': 'ls.hint.bed', 'ls-hedge': 'ls.hint.hedge', ...gr.hints, ...hd.hints, ...ir.hints, ...ff.hints, ...pa.hints, ...st.hints, ...lk.hints, ...sec.hints },
+    isMine, props, remove, pick, grip, grade: gr, hard: hd, areas: pa, stack: st, plantTable: pt, worksheets: ws, sections: sec, linkNotes: () => lk.notes(), linkSource: (ref, pts) => lk.linkSource(ref, pts), fromSource: (ref, pts) => lk.fromSource(ref, pts), linkBlock: (sel) => lk.linkBlock(sel), links: () => lk.links(), syncLinks: () => lk.sync(), irrigation: ir, seedSpecies: () => seed, sceneItems, overlay, updateTools, ready, index,
     schedule: () => schedule(LS(), index(), U(), lang()), get current() { return cur; }, set current(k) { cur = k; if (on) renderPlants(); },
     inside,
   };

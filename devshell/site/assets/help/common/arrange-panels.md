@@ -1,9 +1,9 @@
 ---
 title: Arrange the panels and use a second monitor
-summary: Dock the side panels left, right or at the bottom, stack them, group them as tabs, pin or hide them, float them over the drawing, make the layout denser, or move them to their own window on another screen.
+summary: Dock the side panels left, right or at the bottom, stack them, group them as tabs, pin or hide them, float them over the drawing, make the layout denser, choose how many lines the toolbar uses, or move them to their own window on another screen.
 section: start
 order: 35
-keywords: panels, dock, float, move panel, drag, layout, tabs, tab group, stack, pin, auto-hide, hide panel, close panel, compact, layout density, dense, second monitor, two screens, dual monitor, multiple monitors, window, pop-up, reset layout
+keywords: panels, dock, float, move panel, drag, layout, tabs, tab group, stack, pin, auto-hide, hide panel, close panel, compact, layout density, dense, toolbar rows, wrap, 1 row, 2 rows, toolbar lines, second monitor, two screens, dual monitor, multiple monitors, window, pop-up, reset layout
 ---
 
 The panels beside the drawing can move. Put them where they suit you, or give them a window of their own on a second monitor so the drawing gets the whole of the first one.
@@ -40,6 +40,10 @@ To take a panel out of the group, choose {{ui:Move out of the tab group}} in its
 ## Make the layout denser
 
 {{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} has two choices. {{ui:Comfortable}} is the default. {{ui:Compact}} tightens the row heights, panel padding, toolbar buttons and panel text of that app so more fits on the screen. It is kept for each app. A touch screen keeps its large buttons in both, and a phone keeps its own layout. {{ui:Reset layout}} leaves the density as you set it.
+
+## Choose how many lines the toolbar uses
+
+{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} has three choices. {{ui:Wrap}} is the default: every tool group shows, on as many lines as it takes. {{ui:2 rows}} keeps the toolbar to two lines and {{ui:1 row}} to one, so the drawing gets the height; the groups that do not fit scroll sideways inside the toolbar (use the mouse wheel, a two-finger swipe, or {{key:Tab}} to a tool). A toolbar that already fits in two lines stays as it is under {{ui:2 rows}}, because a grid would only make it taller. The choice is kept for each app. A touch screen and a phone keep their own layout. CadCraft has its own setting for its toolbar, under {{ui:Settings}} › {{ui:CadCraft}}.
 
 ## Use the keyboard
 

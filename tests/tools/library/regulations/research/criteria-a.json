@@ -1,0 +1,25 @@
+[
+{"pack":"us-az-phoenix","source_url":"https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/codes-ordinances/amendmentcodes/2024-irc.pdf","source_date":"2025-06-18","confidence":"high","criteria":{
+ "ground_snow_load":{"text":"N/A (none)","value":0,"unit":"psf"},"wind_speed":{"text":"105 mph","value":105,"unit":"mph"},"wind_topographic":{"text":"No"},"special_wind_region":{"text":"No"},"windborne_debris":{"text":"No"},
+ "seismic_category":{"text":"B"},"weathering":{"text":"Negligible"},"frost_depth":{"text":"0 in","value":0,"unit":"mm"},"termite":{"text":"Moderate to heavy"},"ice_barrier":{"text":"No"},
+ "flood_hazards":{"text":"See Phoenix City Code"},"air_freezing_index":{"text":"N/A"},"mean_annual_temp":{"text":"71.2 °F"},"climate_zone":{"text":"2B (IECC county list; not in the city table)"}}},
+{"pack":"us-tx-dallas","source_url":"https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/pdf/code_amendments/2021_codes/23-0471.pdf","source_date":"2023-04-12","confidence":"high","criteria":{
+ "ground_snow_load":{"text":"5 psf","value":5,"unit":"psf"},"wind_speed":{"text":"115 mph (3-second gust)","value":115,"unit":"mph"},"wind_topographic":{"text":"No"},"special_wind_region":{"text":"No"},"windborne_debris":{"text":"No"},
+ "seismic_category":{"text":"A"},"weathering":{"text":"Moderate"},"frost_depth":{"text":"6 in","value":152.4,"unit":"mm"},"termite":{"text":"Very heavy"},
+ "flood_hazards":{"text":"Dallas City Code ch. 51A"},"air_freezing_index":{"text":"150"},"mean_annual_temp":{"text":"64.9 °F"},"climate_zone":{"text":"3A (IECC county list; not in the city table)"}}},
+{"pack":"us-co-denver","source_url":"https://denvergov.org/files/assets/public/v/1/community-planning-and-development/documents/ds/building-codes/2025_Denver_Building_Code.pdf","source_date":"2025-06-13","confidence":"high","criteria":{
+ "ground_snow_load":{"text":"43 psf (site-specific values allowed)","value":43,"unit":"psf"},"wind_speed":{"text":"115 / 125 / 140 mph by area (ultimate; see Denver Commercial Building Code Table 1609.3)"},"wind_topographic":{"text":"No"},"special_wind_region":{"text":"Yes"},"windborne_debris":{"text":"No"},
+ "seismic_category":{"text":"B"},"weathering":{"text":"Severe"},"frost_depth":{"text":"36 in","value":914.4,"unit":"mm"},"termite":{"text":"Slight to moderate"},"winter_design_temp":{"text":"1 °F"},"ice_barrier":{"text":"No"},
+ "flood_hazards":{"text":"FIRM 1986-04-15; FEMA FIS revised 2024-07-03 (D.R.M.C. 56-200 to 56-206)"},"air_freezing_index":{"text":"712"},"mean_annual_temp":{"text":"40-45 °F"},"climate_zone":{"text":"5B (IECC county list; Denver Energy Code uses zone 5)"}}},
+{"pack":"us-ny-nyc","source_url":"https://www.nyc.gov/assets/buildings/codes-pdf/cons_codes_2022/2022BC_Chapter16_StructuralDesignWBwm.pdf","source_date":"2022","confidence":"medium","criteria":{
+ "ground_snow_load":{"text":"25 psf (BC 1608.2)","value":25,"unit":"psf"},"wind_speed":{"text":"117 mph, Risk Category II, ultimate (BC Table 1609.3)","value":117,"unit":"mph"},
+ "seismic_category":{"text":"Not required for one- and two-family dwellings of three stories or less (BC 1613.1 Exc. 1)"},"frost_depth":{"text":"4 ft below the lowest adjacent grade (BC 1809.3.1)","value":1219.2,"unit":"mm"},
+ "flood_hazards":{"text":"BC Appendix G and the FEMA FIRM"},"climate_zone":{"text":"4A (IECC county list)"}}},
+{"pack":"us-il-chicago","source_url":"https://up.codes/viewer/chicago/chi-building-code-2019/chapter/16/structural-design","source_date":"2019-04-10","confidence":"medium","criteria":{
+ "ground_snow_load":{"text":"25 psf (14B-16-1608.2)","value":25,"unit":"psf"},"wind_speed":{"text":"107 mph, Risk Category II (14B-16-1609)","value":107,"unit":"mph"},
+ "frost_depth":{"text":"42 in below final grade (14B-18-1809.5)","value":1066.8,"unit":"mm"},"climate_zone":{"text":"5A (IECC county list)"}}},
+{"pack":"us-dc","source_url":"https://up.codes/viewer/district-of-columbia/irc-2015/chapter/3/building-planning","source_date":"2020-05-29","confidence":"medium","criteria":{
+ "ground_snow_load":{"text":"30 psf","value":30,"unit":"psf"},"wind_speed":{"text":"115 mph (ultimate)","value":115,"unit":"mph"},"wind_topographic":{"text":"N/A"},"seismic_category":{"text":"A"},"weathering":{"text":"Severe"},
+ "frost_depth":{"text":"30 in (not confirmed against the official table)"},"termite":{"text":"Moderate to heavy"},"winter_design_temp":{"text":"17 °F"},"ice_barrier":{"text":"Yes"},
+ "flood_hazards":{"text":"FIRM panels 2010-09-27; FIS 1985-11-15 and 2010-09-27"},"air_freezing_index":{"text":"500"},"mean_annual_temp":{"text":"55 °F"},"climate_zone":{"text":"4A (IECC county list)"}}}
+]

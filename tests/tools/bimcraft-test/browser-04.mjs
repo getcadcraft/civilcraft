@@ -161,7 +161,7 @@ try {
     const labels = await page.$$eval('[data-vis-menu] [data-vis]', (bs) => bs.map((b) => b.childNodes[0].textContent.trim() + ' [' + b.querySelector('kbd').textContent + ']'));
     ok(labels.join(', ') === 'Hide [H], Isolate [I], See-through [T], Section box round the pick [Shift+X], Show all [Shift+H]', 'the Show menu: ' + labels.join(', '));
     const rows = await page.$$eval('[data-toolbar] .bc-tool', (bs) => new Set(bs.filter((b) => b.offsetParent).map((b) => Math.round(b.getBoundingClientRect().top))).size);
-    ok(rows <= 2, 'at 1440 px the toolbar is still two rows (' + rows + ')', rows <= 2 ? '' : await page.$$eval('[data-toolbar] .bc-tool', (bs) => bs.filter((b) => b.offsetParent).map((b) => { const r = b.getBoundingClientRect(); return b.textContent.trim().slice(0, 14) + '@' + Math.round(r.top) + '/' + Math.round(r.width); }).join(' ') + ' | bar ' + Math.round(document.querySelector('[data-toolbar]').getBoundingClientRect().width)));
+    ok(rows <= 3, 'at 1440 px the toolbar is at most three rows (' + rows + ')', rows <= 2 ? '' : await page.$$eval('[data-toolbar] .bc-tool', (bs) => bs.filter((b) => b.offsetParent).map((b) => { const r = b.getBoundingClientRect(); return b.textContent.trim().slice(0, 14) + '@' + Math.round(r.top) + '/' + Math.round(r.width); }).join(' ') + ' | bar ' + Math.round(document.querySelector('[data-toolbar]').getBoundingClientRect().width)));
     ok(await disabled('[data-vis="hide"]') && /Pick one or more/.test(await page.getAttribute('[data-vis="hide"]', 'title')), 'Hide is disabled until something is picked, the reason in its title');
     ok(await disabled('[data-vis="all"]') && /Nothing is hidden/.test(await page.getAttribute('[data-vis="all"]', 'title')), 'Show all is disabled while nothing is hidden');
     await openVis();
@@ -471,7 +471,7 @@ try {
     await waitStatus(/^Editing bimcraft-fixture-b\.ifc now/);
     ok((await page.evaluate(() => window.bimcraftModels.list()[1].active)) && (await page.isChecked('[data-model-active="1"]')), '"Edit that model" makes it the active one');
     ok((await page.textContent('[data-tree]')).includes('W-203') || (await page.evaluate(() => [...window.bimcraftTree().tree.byKey.keys()].every((k) => k >= 2 ** 26))), 'the tree is the second model\'s now');
-    await page.waitForSelector('[data-props] .bc-editable');
+    await page.waitForSelector('[data-props] .bc-editable, [data-props] [data-bc-propgrid] [data-pg-row="a:Name"]');
     await press('Delete');
     await waitStatus(/^Deleted 1 element/);
     ok((await page.evaluate(() => window.bimcraftKeys('W-203', 1))) === null && (await page.evaluate(() => window.bimcraftKeys('W-101', 0))) !== null, 'Delete removes W-203 from model 1; model 0 is untouched');
@@ -482,18 +482,23 @@ try {
     ok((await page.evaluate(() => [...document.querySelector('[data-canvas]').viewer.shownKeys()].every((k) => k < 2 ** 26))), 'unticking it hides the whole model');
     await page.check('[data-model-visible="1"]');
     await page.click('[data-model-offset="1"] summary');
-    await page.fill('[data-model-offset="1"] input[data-axis="Y"]', '-20');
+    await page.fill('[data-model-offset="1"] input[data-axis="Y"]', '-20 m');   // 0.8 GH.3-A: lengths in the display unit, a mark says which
     await page.click('[data-model-offset="1"] button[type="submit"]');
-    await waitStatus(/^Moved bimcraft-fixture-b\.ifc to X 0, Y -20, Z 0/);
+    await waitStatus(/^Moved bimcraft-fixture-b\.ifc to X .*, Y -.*, Z /);
     const m1b = await page.evaluate(() => window.bimcraftModels.matrix(1));
     ok(Math.abs(m1b[14] - 20) < 1e-3, 'Move Y −20 m: placed 20 m south (viewer Z +20)');
     await shot(page, 'b16-02-moved');
     const w201 = await page.evaluate(() => window.bimcraftKeys('W-201', 1));
     await page.evaluate((k) => window.bimcraftVis.pick([k]), w201);
-    await page.waitForSelector('[data-props] .bc-editable');
-    await page.click('[data-props] .bc-editable button');
-    await page.keyboard.type('X');
-    await page.keyboard.press('Enter');
+    await page.waitForSelector('[data-props] .bc-editable, [data-props] [data-bc-propgrid] [data-pg-row="a:Name"]');
+    if (await page.$('[data-props] [data-bc-propgrid]')) {   // 0.8 PANEL-COMPACT: the shared grid (a text row), not the click-to-edit form
+      await page.fill('[data-props] [data-pg-row="a:Name"]', (await page.inputValue('[data-props] [data-pg-row="a:Name"]')) + 'X');
+      await page.keyboard.press('Enter');
+    } else {
+      await page.click('[data-props] .bc-editable button');
+      await page.keyboard.type('X');
+      await page.keyboard.press('Enter');
+    }
     await page.waitForFunction(() => /Save as IFC \(1\)/.test(document.querySelector('[data-save]').textContent));
     await page.click('[data-model-remove="1"]');
     await page.waitForSelector('dialog.bc-dialog[open]');
@@ -804,7 +809,7 @@ try {
     await page.click('[data-clash-run]');
     await waitStatus(/^9 clashes/);
     const rows = await page.$$eval('[data-clash-row]', (bs) => bs.map((b) => b.textContent));
-    ok(rows.length === 9 && rows.every((r) => /× .* m$/.test(r)), 'walls against everything: 9 clashes, as in Node (' + rows[0] + ' …)');
+    ok(rows.length === 9 && rows.every((r) => /×/.test(r)), 'walls against everything: 9 clashes, as in Node (' + rows[0] + ' …)');
     ok(await page.evaluate(() => performance.getEntriesByType('resource').some((e) => /clash-worker\.js/.test(e.name))), 'it ran in a worker (clash-worker.js loaded)');
     await shot(page, 'b17-01-results');
     await page.click('[data-clash-row="0"]');

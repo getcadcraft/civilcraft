@@ -72,7 +72,7 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Not built yet | Instead, today |
 |---|---|
 | More than one network per project | Separate projects for storm and sanitary |
-| Water mains (pressure networks: demands, pressures, fire flow, tanks, pumps, valves) | Check them in water distribution software; sanitary design flows are in [Sanitary design flows](topic:sanitary-design) |
+| Water mains: water quality and age, rule-based controls, other valve types (flow control, throttle, sustaining), pumps given by power, demand that depends on pressure, a Darcy–Weisbach option, a pipe catalogue with wall thicknesses and pressure classes. The rest of pressure networks is in the lab: [Water mains](topic:water-mains) | Check those in water distribution software; sanitary design flows are in [Sanitary design flows](topic:sanitary-design) |
 | Sewer flows over time (hydrographs, dynamic routing, storage, pumps, overflows) | [Sanitary design flows](topic:sanitary-design) gives the steady peak flow a design sheet uses |
 | Inlet capacity, gutter spread, detention routing, hydrographs, energy losses other than one junction coefficient | Check them in other software; flows, sizes and the grade lines are in [Storm drainage](topic:storm-drainage) |
 | Catchments in the PDF plot, DWG, DXF or LandXML; catchments from the surface (watersheds) | Draw catchments by hand; they are saved in the project file |
@@ -124,9 +124,10 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Maximum lateral lengths for drip lines, flows over time, pumps, looped pipe networks | Keep drip runs to the maker's published length; the check needs a branching network |
 | The exact outline of a concave freeform object; its below-ground volume measured exactly | The convex hull is graded and the below-ground volume is an estimate (said in Properties) |
 | Plants in BimCraft's and ModelCraft's own Place from library | Export landscape IFC and open it in BimCraft beside the building |
-| Plant models scattered in the 3D view from the planting | The 3D view shows the ground and hardscape; ModelCraft's scatter makes planting pictures |
-| Walls that retain a graded level behind them on the surface | Grade the level behind a wall with a platform or a grading area |
-| Sections through the terrain along a line you draw | Sections along an alignment ([Sections](topic:sections)); wall sections on the details sheet |
+| Detailed plant models (leaves, branches, seasons) in the 3D view; freeform objects and irrigation in the 3D view | Plants show in 3D as simple forms sized from the plant list ([View the site in 3D](topic:site-3d)); ModelCraft's scatter makes planting pictures |
+| Hardscape walls that retain a graded level behind them on the surface | Give a platform or pad vertical sides: they are retaining walls on the surface ([Grading](topic:grading)) |
+| SVG transforms in your own symbols; textures and colours of your own GLB plant models; compressed GLB geometry | Flatten transforms in your drawing program first; models are drawn in the plant's colour; export the GLB without compression ([Plant graphics](topic:plant-graphics)) |
+| Your own plant list kept in your Library account (edited in the app) | Edit the project's own list in the Plant table and save it as a plants file |
 | The landscape tools for assistants without the window (the file server and the command line) | They work with the CivilCraft window open ([Let an AI assistant work with your site](topic:assistants)) |
 
 ## Power lines

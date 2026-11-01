@@ -39,7 +39,7 @@ const u64 = (dv, o) => { const lo = dv.getUint32(o, true), hi = dv.getUint32(o +
 const bad = (key, fill) => new Error(t(key, fill));
 
 export async function readLasHeader(file) {
-  if (file.size > LIMITS.fileBytes) throw new Error(t('raster.too_big', { name: file.name, mb: (file.size / 1048576).toFixed(0), max: String(LIMITS.fileBytes / 1048576) }));
+  if (file.size > LIMITS.lasBytes) throw new Error(t('raster.too_big', { name: file.name, mb: (file.size / 1048576).toFixed(0), max: String(LIMITS.lasBytes / 1048576) }));   // streamed: the cap is not the 200 MB of a whole-file read
   if (file.size < 227) throw bad('las.bad.short');
   const hb = await file.slice(0, 375).arrayBuffer(), dv = new DataView(hb);
   if (ascii(dv, 0, 4) !== 'LASF') throw new Error(t('las.not_las'));

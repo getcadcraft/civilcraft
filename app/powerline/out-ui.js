@@ -280,7 +280,7 @@ export function createOutUi(ctx, { P, edit, U, S, lib, compute, libUi, issueText
         if (!a?.ok) { ctx.say(t('pl.don.notsolved')); return; }
         const xml = writeDon({ state: S(), line: l, analysis: a, lib: lib(), units: U(), meta: { description: desc.value, project: job.value } });
         save(donBytes(xml), '-' + safe(l.name) + '.DON', 'application/xml');   // i18n-ignore: a file name ending
-        ctx.say(t('pl.don.done', { name: l.name }));
+        ctx.say(t('pl.don.done', { name: l.name }) + ' ' + t('pl.don.untested'));
         dlg.close();
       }, { primary: true, data: { plDonGo: '' } }),
     ]);
@@ -310,7 +310,7 @@ export function createOutUi(ctx, { P, edit, U, S, lib, compute, libUi, issueText
         libUi.ensureInProject([conductor, ...supports.flatMap((p) => [p.support, ...p.equip])].filter(Boolean), s);
       });
       ctx.select({ kind: 'pl-line', id });
-      ctx.say(t('pl.don.read', { n: supports.length, cond: st.conductor || '—', matched: conductor ? t('pl.don.matched') : t('pl.don.unmatched') }));
+      ctx.say(t('pl.don.read', { n: supports.length, cond: st.conductor || '—', matched: conductor ? t('pl.don.matched') : t('pl.don.unmatched') }) + ' ' + t('pl.don.readuntested'));   // 0.8 PL.7: said every time, until a real file has been read
       renderSection();
     });
     root.append(fileIn);

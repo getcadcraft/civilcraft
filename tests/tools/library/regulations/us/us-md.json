@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-md",
+  "name": "Maryland: Maryland Building Performance Standards (MBPS)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-MD",
+    "name": "Maryland"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-05-29",
+  "in_force": "2023-05-29",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Maryland Department of Labor, Building Codes Administration; COMAR 09.12.51). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 202…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Maryland Department of Labor, Building Codes Administration, COMAR 09.12.51",
+    "url": "https://labor.md.gov/labor/build/comar091251.pdf",
+    "date": "2023-05-29",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

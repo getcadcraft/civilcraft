@@ -14,7 +14,9 @@
  *     → { layers: [{ cadLayer, name, geom, hasZ, fields, features, source }], cadLayers: [{ name, on, frozen, lines,
  *         polygons, points, z }], skipped: { TYPE: n }, units, scale, notes }
  *     `layers` (optional Set/array of CAD layer names) keeps only those. Fields on every feature: LAYER (text), TYPE
- *     (text, the CAD object type) and ELEV (number: the object's one elevation when every vertex has it, else null).
+
+ *     (text, the CAD object type), ELEV (number: the object's one elevation when every vertex has it, else null) and HANDLE (text: the
+ *     entity's DWG/DXF handle in upper-case hex, '' inside a block or when the file gives none; 0.8 LA.3, for landscape object links).
  *
  * Geometry: LINE, POINT, CIRCLE, ARC, ELLIPSE, LWPOLYLINE (bulges), POLYLINE_2D (bulges) / POLYLINE_3D, SPLINE (the curve
  * itself: de Boor on the control points, else a smooth curve through the fit points), SOLID/TRACE/3DFACE outlines, and INSERT / MINSERT (the block's
@@ -258,6 +260,7 @@ export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null
   const tableLayers = new Map((model.tables?.layers || []).map((l) => [l.name, l]));
   const by = new Map();   // cad layer → { lines: [], polygons: [], points: [] }
   let vertices = 0, depthHit = 0, cut = false;
+  let curHandle = '';   // 0.8 LA.3: the entity's own handle (top level only: inside a block it names no single line), so a link from a landscape object can find its line again
   const top = [k, 0, 0, 0, 0, k, 0, 0, 0, 0, k, 0];
 
   const add = (layer, kind, feat) => {
@@ -268,7 +271,7 @@ export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null
   const props = (layer, type, pts) => {
     const z0 = pts[0]?.[2];
     const same = pts.length && pts.every((p) => Math.abs(p[2] - z0) <= 1e-9 * Math.max(1, Math.abs(z0)));
-    return { LAYER: layer, TYPE: type, ELEV: same && Number.isFinite(z0) && z0 !== 0 ? z0 : null };
+    return { LAYER: layer, TYPE: type, ELEV: same && Number.isFinite(z0) && z0 !== 0 ? z0 : null, HANDLE: curHandle };
   };
   const shape = (pts) => {
     const flat = pts.every((p) => p[2] === 0 || Math.abs(p[2]) < 1e-12);
@@ -300,6 +303,7 @@ export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null
         }
         continue;
       }
+      curHandle = depth === 0 && /^[0-9a-f]{1,16}$/i.test(String(e.handle ?? '')) ? String(e.handle).toUpperCase() : '';
       const sh = shapeOf(e);
       if (!sh) { skipped[e.type] = (skipped[e.type] || 0) + 1; continue; }
       const mm = sh.wcs ? m : withOcs(m, e.extrusion);
@@ -328,7 +332,7 @@ export function cadLinework(model, { file = '', projectUnit = 'ft', scale = null
   const skippedN = Object.values(skipped).reduce((a, b) => a + b, 0);
   if (skippedN) notes.push(t('cad.skipped', { n: skippedN, list: Object.entries(skipped).map(([k2, v]) => k2 + ' ' + v).join(', ') }));
 
-  const fields = [{ name: 'LAYER', type: 'text' }, { name: 'TYPE', type: 'text' }, { name: 'ELEV', type: 'number' }];
+  const fields = [{ name: 'LAYER', type: 'text' }, { name: 'TYPE', type: 'text' }, { name: 'ELEV', type: 'number' }, { name: 'HANDLE', type: 'text' }];
   const out = [], cadLayers = [];
   const names = [...by.keys()].sort((a, b) => a.localeCompare(b));
   for (const name of names) {

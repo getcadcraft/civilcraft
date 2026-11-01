@@ -1,0 +1,235 @@
+[
+ {
+  "id": "modelcraft-massing.draw-a-box",
+  "title": "Draw a box",
+  "pack": "modelcraft-massing",
+  "prompt": "Draw a box 2m by 1m by 1m.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "box_add",
+    "args": {
+     "size": [
+      "2m",
+      "1m",
+      "1m"
+     ],
+     "name": "2m by 1m by 1m"
+    },
+    "expect": [
+     {
+      "path": "volume",
+      "approx": 2,
+      "tol": 0.000001
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "model_describe",
+    "path": "instances.0.volumeM3",
+    "approx": 2,
+    "tol": 1e-9
+   }
+  ]
+ },
+ {
+  "id": "modelcraft-massing.raise-the-top",
+  "title": "Raise the top of a box",
+  "pack": "modelcraft-massing",
+  "prompt": "Make the box taller by 0.5m by pushing its top face up.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "box_add",
+    "args": {
+     "size": [
+      "2m",
+      "1m",
+      "1m"
+     ]
+    },
+    "as": "b"
+   },
+   {
+    "tool": "faces_list",
+    "args": {
+     "instance": "$b.instance"
+    },
+    "as": "f"
+   },
+   {
+    "tool": "push_pull",
+    "args": {
+     "instance": "$b.instance",
+     "face": "$f.faces[normal.2=1].id",
+     "distance": "0.5m"
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "model_describe",
+    "path": "instances.0.volumeM3",
+    "approx": 3,
+    "tol": 1e-9
+   }
+  ]
+ },
+ {
+  "id": "modelcraft-massing.paint-the-top",
+  "title": "Paint the top face",
+  "pack": "modelcraft-massing",
+  "prompt": "Paint the top of the box with brick-red.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "box_add",
+    "args": {
+     "size": [
+      "2m",
+      "1m",
+      "1m"
+     ]
+    },
+    "as": "b"
+   },
+   {
+    "tool": "faces_list",
+    "args": {
+     "instance": "$b.instance"
+    },
+    "as": "f"
+   },
+   {
+    "tool": "paint",
+    "args": {
+     "instance": "$b.instance",
+     "faces": [
+      "$f.faces[normal.2=1].id"
+     ],
+     "paint": "brick-red"
+    },
+    "expect": [
+     {
+      "path": "paint",
+      "eq": "mat:brick-red"
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "materials_list",
+    "path": "materials.length",
+    "gte": 20
+   }
+  ]
+ },
+ {
+  "id": "modelcraft-massing.golden-hour",
+  "title": "Golden hour with fog",
+  "pack": "modelcraft-massing",
+  "prompt": "Light the model at golden-hour with fog.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "look_set",
+    "args": {
+     "time": "golden-hour",
+     "weather": "fog"
+    }
+   },
+   {
+    "tool": "look_describe",
+    "as": "l",
+    "expect": [
+     {
+      "path": "time",
+      "eq": "golden-hour"
+     },
+     {
+      "path": "weather",
+      "eq": "fog"
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "look_describe",
+    "path": "fog.on",
+    "eq": true
+   }
+  ]
+ },
+ {
+  "id": "modelcraft-massing.add-people",
+  "title": "Put people in the yard",
+  "pack": "modelcraft-massing",
+  "prompt": "Put 2 people in the yard.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "box_add",
+    "args": {
+     "size": [
+      "2m",
+      "1m",
+      "1m"
+     ]
+    },
+    "as": "b"
+   },
+   {
+    "tool": "people_add",
+    "args": {
+     "where": {
+      "rect": [
+       0,
+       3,
+       6,
+       6
+      ]
+     },
+     "count": 2,
+     "seed": 1
+    },
+    "expect": [
+     {
+      "path": "people.placed.length",
+      "eq": 2
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "look_describe",
+    "path": "scene.people",
+    "eq": 2
+   }
+  ]
+ }
+]

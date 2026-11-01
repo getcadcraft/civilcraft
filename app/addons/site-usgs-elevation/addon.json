@@ -1,0 +1,14 @@
+{
+  "id": "site-usgs-elevation",
+  "name": "Ground elevation (USGS)",
+  "version": "0.8.0",
+  "apps": ["civilcraft"],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["network"],
+  "description": "Reads the ground elevation at the point from the USGS Elevation Point Query Service (United States only). It asks the service only when you press its button in Surface › More › Address to site; nothing is sent at start-up, no key is used, and the answer is kept 24 hours in this browser.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

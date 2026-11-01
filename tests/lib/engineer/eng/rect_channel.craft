@@ -1,0 +1,44 @@
+% rect_channel — flow in a straight rectangular channel: velocity, Reynolds number, friction factor, pressure drop
+%
+% Usage:      r = rect_channel(w, h, L, mdot, rho, mu, rough)
+%             The fields of r are quantities (value, unit, ref).
+% Computes:   Dh = 2 w h / (w + h); v = mdot / (rho w h); Re = rho v Dh / mu;
+%             laminar (Re < 2300): f Re = 96 (1 - 1.3553 a + 1.9467 a^2 - 1.7012 a^3 + 0.9564 a^4 - 0.2537 a^5), a = min(w,h) / max(w,h)
+%             turbulent: friction_factor with the hydraulic diameter; between 2300 and 4000 the same blend as friction_factor.
+%             dp = f (L / Dh) rho v^2 / 2.
+% Method:     Shah and London's fit of the exact laminar solution, f here being the Darcy factor (four times the Fanning factor).
+% Units:      SI: w, h, L m; mdot kg/s; rho kg/m3; mu Pa s; rough m.
+% Limits:     fully developed flow. For a short channel the entrance region adds pressure drop (not included).
+% References: Shah and London, Laminar Flow Forced Convection in Ducts, Academic Press 1978, Table 42; Incropera et al. 7th ed. Table 8.1.
+% Check:      a square channel: f Re = 56.91 (96 times the fit at a = 1 = 0.5929); a flat channel (a -> 0): 96 (tools/field-test/eng.mjs).
+function r = rect_channel(w, h, L, mdot, rho, mu, rough)
+if nargin < 7
+  rough = 0;
+end
+Dh = hydraulic_diameter(w * h, 2 * (w + h));
+v = mdot / (rho * w * h);
+Re = reynolds(rho, v, Dh, mu);
+a = min(w, h) / max(w, h);
+fl = 96 * (1 - 1.3553 * a + 1.9467 * a ^ 2 - 1.7012 * a ^ 3 + 0.9564 * a ^ 4 - 0.2537 * a ^ 5);
+if Re < 2300
+  f = fl / Re;
+  regime = 'laminar';
+else
+  [ft, regime] = friction_factor(max(Re, 4000), rough / Dh);
+  if Re >= 4000
+    f = ft;
+  else
+    f0 = fl / 2300;
+    f = f0 + (ft - f0) * (Re - 2300) / 1700;
+    regime = 'transitional';
+  end
+end
+dp = darcy_weisbach(f, L, Dh, rho, v);
+r = struct();
+r.Dh = q(Dh, 'm', 'Incropera 7e eq. 8.66');
+r.v = q(v, 'm/s', 'continuity, mdot / (rho w h)');
+r.Re = q(Re, '-', 'Incropera 7e eq. 8.1');
+r.f = q(f, '-', strcat('Shah and London 1978 Table 42 fit (laminar) / Colebrook (', regime, ')'));
+r.dp = q(dp, 'Pa', 'Darcy-Weisbach, Incropera 7e eq. 8.22a');
+r.regime = regime;
+end

@@ -1,0 +1,553 @@
+[
+ {
+  "id": "count-by-layer",
+  "title": "Count objects by layer (the test prompt)",
+  "prompt": "Open the kitchen drawing and tell me how many objects it has, by layer.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 254
+   },
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "layers[name=A-WALL].objects",
+    "eq": 4
+   }
+  ]
+ },
+ {
+  "id": "list-walls",
+  "title": "List the wall objects",
+  "prompt": "List the objects on layer A-WALL.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "objects_list",
+    "args": {
+     "doc": "$o.doc",
+     "layer": "A-WALL"
+    },
+    "as": "l"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "layers[name=A-WALL].objects",
+    "eq": 4
+   }
+  ]
+ },
+ {
+  "id": "draw-rectangle",
+  "title": "Draw a rectangle",
+  "prompt": "Make a new drawing with a 4000 x 3000 rectangle and save it.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_new",
+    "args": {
+     "name": "Room"
+    },
+    "as": "n"
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$n.doc",
+     "input": [
+      "RECTANG",
+      "0,0",
+      "4000,3000"
+     ]
+    },
+    "as": "r"
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.dwg"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.dwg",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^AC10"
+   },
+   {
+    "file": "room.dwg",
+    "kind": "cad",
+    "path": "byType.poly",
+    "eq": 1
+   },
+   {
+    "file": "room.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "circle-and-undo",
+  "title": "One undo step per call",
+  "prompt": "Draw a circle, then undo it.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$n.doc",
+     "input": [
+      "CIRCLE",
+      "0,0",
+      "5"
+     ]
+    },
+    "as": "c"
+   },
+   {
+    "tool": "undo",
+    "args": {
+     "doc": "$n.doc"
+    }
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "u.dxf",
+     "format": "dxf2000"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "u.dxf",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 0
+   }
+  ]
+ },
+ {
+  "id": "purge-unused",
+  "title": "Purge unused blocks",
+  "prompt": "Purge the unused blocks and save a tidy copy.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d0"
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$o.doc",
+     "input": "PURGE"
+    }
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Kitchen/tidy.dwg"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/tidy.dwg",
+    "kind": "cad",
+    "path": "blocks.length",
+    "lte": 163
+   },
+   {
+    "file": "Kitchen/tidy.dwg",
+    "kind": "cad",
+    "path": "layers[name=K-EQPM].objects",
+    "eq": 122
+   }
+  ]
+ },
+ {
+  "id": "convert-2013",
+  "title": "Convert to AutoCAD 2013",
+  "prompt": "Save a copy as AutoCAD 2013 DWG.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_convert",
+    "args": {
+     "path": "Kitchen/k.dwg",
+     "out": "Out/k2013.dwg",
+     "version": "2013"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/k2013.dwg",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^AC1027"
+   }
+  ],
+  "folders": [
+   "Out"
+  ]
+ },
+ {
+  "id": "plot-sheets",
+  "title": "Plot a sheet to PDF",
+  "prompt": "Plot the first layout to a PDF.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   },
+   {
+    "tool": "drawing_plot",
+    "args": {
+     "doc": "$o.doc",
+     "layout": "$d.layouts.0.name",
+     "out": "Plots/sheet.pdf"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Plots/sheet.pdf",
+    "kind": "pdf",
+    "path": "head",
+    "matches": "^%PDF"
+   },
+   {
+    "file": "Plots/sheet.pdf",
+    "kind": "pdf",
+    "path": "pages",
+    "gte": 1
+   }
+  ],
+  "folders": [
+   "Plots"
+  ]
+ },
+ {
+  "id": "check-standards",
+  "title": "Check the drawing against office rules",
+  "prompt": "Check the drawing: nothing on layer 0, colour by layer.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_check",
+    "args": {
+     "doc": "$o.doc",
+     "rules": {
+      "layers": {
+       "noObjectsOn": [
+        "0"
+       ]
+      }
+     }
+    },
+    "as": "c"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "layers[name=0].objects",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "script-lines",
+  "title": "Run a script",
+  "prompt": "Draw ten lines with a script.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "script_run",
+    "args": {
+     "doc": "$n.doc",
+     "language": "scr",
+     "script": "LINE 0,0 10,0 \n"
+    }
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$n.doc",
+     "input": [
+      "LINE",
+      "0,0",
+      "10,10",
+      ""
+     ]
+    }
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "s.dxf",
+     "format": "dxf2000"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "s.dxf",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 2
+   }
+  ]
+ },
+ {
+  "id": "insert-block",
+  "title": "Insert a block",
+  "prompt": "Insert the first block of the drawing at 1000,1000.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "drawing_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   },
+   {
+    "tool": "block_insert",
+    "args": {
+     "doc": "$o.doc",
+     "block": "$d.blocks.0.name",
+     "at": [
+      1000,
+      1000
+     ]
+    }
+   },
+   {
+    "tool": "drawing_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Kitchen/ins.dwg"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/ins.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 255
+   }
+  ]
+ },
+ {
+  "id": "refuses-without-permission",
+  "title": "Edit is refused until the person allows it",
+  "prompt": "Draw a line in the kitchen drawing (Edit is not allowed).",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "Kitchen/k.dwg"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "command_run",
+    "args": {
+     "doc": "$o.doc",
+     "input": [
+      "LINE",
+      "0,0",
+      "1,1",
+      ""
+     ]
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 254
+   }
+  ]
+ },
+ {
+  "id": "outside-folder-refused",
+  "title": "A file outside the granted folder is refused",
+  "prompt": "Open /etc/passwd.",
+  "fixtures": {
+   "Kitchen/k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "drawing_open",
+    "args": {
+     "path": "/etc/passwd"
+    },
+    "fail": "outside"
+   }
+  ],
+  "check": [
+   {
+    "file": "Kitchen/k.dwg",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 1
+   }
+  ]
+ }
+]

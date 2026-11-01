@@ -31,6 +31,7 @@
 .cv-tool[aria-pressed="true"] { border-color: var(--ink); background: var(--sheet); }
 .cv-tool:disabled { opacity: .45; cursor: default; }
 
+.cv-tool[data-cmd="ifc"] { min-width: 2.25rem; }   /* 0.7.1 71.24: a short label; the toolbar keeps one row at 1440 px with it */
 summary.cv-tool { list-style: none; }
 summary.cv-tool::-webkit-details-marker { display: none; }
 .cv-menu { position: relative; }
@@ -71,6 +72,9 @@ body.app-shell .sp-tab { bottom: 2.6rem; }
   background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .2rem .4rem;
   font-variant-numeric: tabular-nums;
 }
+.cv-props .cv-span { grid-column: 1 / -1; }   /* 0.7.1 71.24: a note across both columns */
+.cv-courses { display: flex; flex-direction: column; align-items: flex-start; gap: .25rem; padding-left: 1rem; }   /* 0.7.1 71.24: a part's pavement courses */
+.cv-courses .cv-row { flex-wrap: wrap; gap: .25rem; }
 .cv-input:focus, .cv-select:focus { outline: var(--pen-2) solid var(--action); outline-offset: 0; border-color: var(--action); }
 .cv-input[aria-invalid="true"] { border-color: var(--layer-red); }
 .cv-props { display: grid; grid-template-columns: fit-content(48%) minmax(0, 1fr); gap: .35rem .6rem; align-items: center; font-size: .875rem; margin: 0; }
@@ -129,10 +133,16 @@ body.app-shell .sp-tab { bottom: 2.6rem; }
 .cv-over.is-panning { cursor: grabbing; }
 .cv-over.is-select { cursor: default; }
 .cv-hint {
-  position: absolute; z-index: 2; top: 1rem; left: 1rem; max-width: min(34rem, calc(100% - 2rem));
+  position: absolute; z-index: 5; top: 1rem; left: 1rem; max-width: min(34rem, calc(100% - 2rem));   /* over the view cube (4): in a narrow pane it sat on the card's X */
   padding: .75rem 1rem; font-size: .875rem; background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius);
 }
 .cv-hint-h { margin: 0 0 .35rem; font-weight: 700; font-stretch: 112%; }
+.cv-plan:has(> .cv3:not([hidden])) > .cv-hint { display: none; }   /* the 3D view (4) used to cover it */
+.cv-hint-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; margin-bottom: .35rem; }
+.cv-hint-head .cv-hint-h { margin: 0; }
+.cv-hint-close { padding: .15rem .35rem; font-size: .8125rem; line-height: 1; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: pointer; }
+.cv-hint-close:hover { border-color: var(--line); background: var(--sheet); }
+.cv-hint-close:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 1px; }
 .cv-hint ol { margin: 0; padding-left: 1.2rem; }
 .cv-hint li + li { margin-top: .25rem; }
 .cv-hint-foot { margin: .5rem 0 0; }
@@ -391,3 +401,26 @@ html.cc-compact .cv-toolhint { left: .5rem; right: 5.75rem; transform: none; max
 .cv-ws-pb-go:hover { border-color: var(--line); }
 .cv-ws-pb-go[aria-current="true"] { border-color: var(--layer, var(--action)); font-weight: 600; }
 .cv-ws-pb-go[aria-disabled="true"] { color: var(--ink-2); }
+/* Check against IDS (0.7.1 71.25): ids-ui.js */
+.cv-ids-specs { list-style: none; padding: 0; margin: .5rem 0 0; display: grid; gap: .4rem; }
+.cv-ids-specs li { border-left: var(--pen-3) solid var(--line); padding-left: .5rem; }
+.cv-ids-specs li[data-ids-spec="fail"] { border-left-color: var(--layer-red); }
+.cv-ids-specs li[data-ids-spec="pass"] { border-left-color: var(--layer-green); }
+
+/* 0.8 LC.16: the Water mains window is not modal (the plan stays clickable for the tools); it sits at the right edge, scrolls inside */
+.cv-wmdlg { position: fixed; inset: 4.5rem 1rem auto auto; margin: 0; width: min(34rem, calc(100vw - 2rem)); max-height: calc(100vh - 6rem); overflow: auto; z-index: 30; }
+.cv-wmdlg .cv-dlg-body { max-height: calc(100vh - 12rem); overflow: auto; }
+
+/* Super 0.1: Start from a scan (scan-start-ui.js over lib/scanstart) — the chosen way of placing the sheet reads as chosen */
+.cv-scanin .cv-seg { display: flex; flex-wrap: wrap; gap: .25rem; margin: .25rem 0 .5rem; }
+.cv-scanin [data-scanin-mode-btn][aria-checked="true"] { color: var(--on-action); background: var(--action); border-color: var(--action); }
+.cv-scanin [data-scanin-go]:disabled { opacity: .45; cursor: not-allowed; }
+.cv-scanin-srcs { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+.cv-scanin-src { flex: 1 1 10rem; flex-direction: column; min-height: 5rem; }
+.cv-scanin-src .bi { font-size: 1.5rem; }
+.cv-scanin-src:disabled { opacity: .45; cursor: not-allowed; }
+.cv-scan-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.cv-scan { border: var(--pen-1, 1px) solid var(--line); padding: .5rem; }
+.cv-scan[data-scan-state="drawn"] { border-left: 4px solid var(--action); }
+.cv-scan .cv-note, .cv-scan-status { margin: .25rem 0; }
+.cv-scan-acts { display: flex; flex-wrap: wrap; gap: .25rem; }

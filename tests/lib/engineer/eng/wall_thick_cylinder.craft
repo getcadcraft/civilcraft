@@ -1,0 +1,37 @@
+% wall_thick_cylinder — the wall a thick-walled cylinder needs against internal pressure (Lame)
+%
+% Usage:      [t, ro] = wall_thick_cylinder(p, ri, s_allow, criterion)
+%             criterion 'hoop' (the default): the hoop stress at the bore stays below s_allow; 'tresca': the largest shear
+%             stress (twice, as a stress) at the bore stays below s_allow (the usual one for a ductile metal).
+% Computes:   Lame's solution for a cylinder with closed ends or free ends, bore stress
+%               hoop:   sigma_t = p (ro^2 + ri^2) / (ro^2 - ri^2)        ->  ro = ri sqrt( (s + p) / (s - p) )
+%               tresca: sigma_t - sigma_r = 2 p ro^2 / (ro^2 - ri^2)     ->  ro = ri sqrt( s / (s - 2 p) )
+%             t = ro - ri.
+% Method:     Lame's equations for a thick-walled cylinder.
+% Units:      SI: p Pa (gauge), ri m, s_allow Pa; t and ro m.
+% Limits:     elastic. When s_allow is not above p (hoop) or 2 p (tresca) no wall is thick enough: the function stops with an error.
+%             No corrosion allowance, no code margin.
+% References: Shigley, 11th ed., eqs. 3-49 to 3-51; Roark, 8th ed., Table 13.5 case 1b.
+% Check:      p 100 MPa, ri 50 mm, s_allow 300 MPa: hoop ro = 50 sqrt(400/200) = 70.71 mm; tresca ro = 50 sqrt(300/100) = 86.60 mm (tools/field-test/eng.mjs).
+function [t, ro] = wall_thick_cylinder(p, ri, s_allow, criterion)
+if nargin < 4
+  criterion = 'hoop';
+end
+if ~(p > 0) || ~(ri > 0) || ~(s_allow > 0)
+  error('wall_thick_cylinder: the pressure, the radius and the allowable stress must be greater than zero');
+end
+if strcmp(criterion, 'tresca')
+  if s_allow <= 2 * p
+    error('wall_thick_cylinder: no wall is thick enough: the allowable stress must be more than twice the pressure on the shear criterion');
+  end
+  ro = ri * sqrt(s_allow / (s_allow - 2 * p));
+elseif strcmp(criterion, 'hoop')
+  if s_allow <= p
+    error('wall_thick_cylinder: no wall is thick enough: the allowable stress must be more than the pressure');
+  end
+  ro = ri * sqrt((s_allow + p) / (s_allow - p));
+else
+  error('wall_thick_cylinder: the criterion is hoop or tresca');
+end
+t = ro - ri;
+end

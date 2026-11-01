@@ -44,8 +44,8 @@ import { t } from './i18n.js';
 const LIMIT = 1000;
 const XY = { type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' } }, required: ['x', 'y'], additionalProperties: false };
 const FILTERS = {
-  group: { type: 'string', description: 'Point group: the first word of the description, upper case (as the Points panel lists them).' },
-  description: { type: 'string', description: 'Text the description contains (case does not matter).' },
+  group: { type: 'string', maxLength: 255, description: 'Point group: the first word of the description, upper case (as the Points panel lists them).' },
+  description: { type: 'string', maxLength: 255, description: 'Text the description contains (case does not matter).' },
   within: {
     type: 'object', description: 'A box in project coordinates.',
     properties: { minX: { type: 'number' }, minY: { type: 'number' }, maxX: { type: 'number' }, maxY: { type: 'number' } },
@@ -81,6 +81,12 @@ const PATH = { type: 'string', minLength: 1, maxLength: 4096, description: 'Stud
 const POLY = { type: 'array', items: XY, minItems: 3, maxItems: 10000 };
 const unitsOf = (p) => UNITS[p.state.units] || UNITS.ft;
 
+/** Rollback for previews of the edit tools (AI-CONNECT-SPEC § 2.3): civilcraft.js mounts it once — fileHost.control.configure({ rollback: civilRollback(app) }). */
+export function civilRollback(app) {
+  const P = () => app.project();
+  return { begin: () => ({ depth: P().undoStack.length, redo: P().redoStack.slice() }), rollback: (tok) => { const p = P(); let n = 0; while (p.undoStack.length > tok.depth && n++ < 50) p.undo(); p.redoStack.length = 0; p.redoStack.push(...tok.redo); } };
+}
+
 export function civilTools(app) {
   const P = () => app.project();
   const findAl = (p, ref) => {
@@ -95,7 +101,7 @@ export function civilTools(app) {
   };
   return [
     {
-      name: 'site_describe', group: 'read', title: 'Describe the site',
+      name: 'site_describe', group: 'read', untrusted: true, title: 'Describe the site',
       description: 'The open CivilCraft project: name, units, coordinate system, survey points and their groups, alignments, surfaces, parcels and pipes.',
       run: () => {
         const p = P(), s = p.state, groups = new Map();
@@ -113,9 +119,9 @@ export function civilTools(app) {
       },
     },
     {
-      name: 'points_list', group: 'read', title: 'List survey points',
+      name: 'points_list', group: 'read', untrusted: true, title: 'List survey points',
       description: 'Survey points of the open site (number, easting x, northing y, elevation z, description), filtered and paged.',
-      inputSchema: { type: 'object', properties: { ...FILTERS, offset: { type: 'integer', minimum: 0 }, limit: { type: 'integer', minimum: 1, maximum: LIMIT } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { ...FILTERS, offset: { description: 'How many results to skip, for paging (default 0).', type: 'integer', minimum: 0 }, limit: { description: 'Most results to return in one call (use offset for the next page).', type: 'integer', minimum: 1, maximum: LIMIT } }, additionalProperties: false },
       run: (a) => {
         const pts = filterPoints(P().points, a), offset = a.offset || 0, limit = a.limit || 100;
         return { total: pts.length, offset, points: pts.slice(offset, offset + limit).map((q) => ({ n: q.n, x: q.x, y: q.y, z: q.z ?? null, d: q.d || '' })) };
@@ -124,7 +130,7 @@ export function civilTools(app) {
     {
       name: 'surface_elevation', group: 'read', title: 'Surface elevations',
       description: 'Elevation of the existing ground (eg) or the graded surface at given points; null where a point is off the surface.',
-      inputSchema: { type: 'object', properties: { points: { type: 'array', items: XY, minItems: 1, maxItems: LIMIT }, surface: { type: 'string', enum: ['eg', 'graded'] } }, required: ['points'], additionalProperties: false },
+      inputSchema: { type: 'object', properties: { points: { description: 'Points {x, y} to look up, in project units.', type: 'array', items: XY, minItems: 1, maxItems: LIMIT }, surface: { description: 'eg (existing ground) or graded.', type: 'string', enum: ['eg', 'graded'] } }, required: ['points'], additionalProperties: false },
       run: (a) => {
         const p = P(), sf = (a.surface === 'graded' ? p.graded() : p.eg()).surface;
         if (!sf) throw new Error(a.surface === 'graded' ? 'The site has no graded surface (no pads or grading yet).' : 'The site has no existing-ground surface (no points with elevations).');
@@ -136,9 +142,9 @@ export function civilTools(app) {
       description: 'Station and offset (+ = right) of points along an alignment, or the coordinates of stations on it (with the ground elevation there).',
       inputSchema: {
         type: 'object', properties: {
-          alignment: { type: 'string', description: 'Its name or id; may be left out when the site has one alignment.' },
-          points: { type: 'array', items: XY, maxItems: LIMIT },
-          stations: { type: 'array', items: { type: 'number' }, maxItems: LIMIT },
+          alignment: { type: 'string', maxLength: 255, description: 'Its name or id; may be left out when the site has one alignment.' },
+          points: { description: 'Points {x, y} to turn into station and offset.', type: 'array', items: XY, maxItems: LIMIT },
+          stations: { description: 'Stations to turn into points on the alignment.', type: 'array', items: { type: 'number' }, maxItems: LIMIT },
         }, additionalProperties: false,
       },
       run: (a) => {
@@ -157,10 +163,10 @@ export function civilTools(app) {
       },
     },
     {
-      name: 'points_select', group: 'edit', title: 'Select survey points',
+      name: 'points_select', group: 'edit', dryRun: true, title: 'Select survey points',
       description: 'Select survey points on the plan (by number or by the points_list filters), to show them to the person or before they copy or delete them. Changes no point.',
-      inputSchema: { type: 'object', properties: { numbers: { type: 'array', items: { type: 'string' }, maxItems: 100000 }, ...FILTERS, mode: { type: 'string', enum: ['replace', 'add', 'remove'] } }, additionalProperties: false },
-      run: (a) => {
+      inputSchema: { type: 'object', properties: { numbers: { description: 'Point numbers to select; an unknown number refuses the whole call.', type: 'array', items: { type: 'string', maxLength: 255 }, maxItems: 100000 }, ...FILTERS, mode: { description: 'replace (default) selects only these; add keeps the current selection too; remove deselects these.', type: 'string', enum: ['replace', 'add', 'remove'] } }, additionalProperties: false },
+      run: (a, ctx) => {
         const p = P();
         let nums;
         if (a.numbers) {
@@ -169,7 +175,7 @@ export function civilTools(app) {
           nums = [...new Set(a.numbers)];
         } else if (a.group || a.description || a.within) nums = filterPoints(p.points, a).map((q) => q.n);
         else throw new Error('Say which points: numbers, or group / description / within.');
-        return { matched: nums.length, selected: app.select(nums, a.mode || 'replace') };
+        return { matched: nums.length, selected: ctx.preview ? nums.length : app.select(nums, a.mode || 'replace') };
       },
     },
     ...moreTools(app, P, findAl),
@@ -191,9 +197,9 @@ function moreTools(app, P, findAl) {
   const stem = (p) => (p.state.name || 'site').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '_').trim().slice(0, 80) || 'site';
   const tools = [
     {
-      name: 'parcels_list', group: 'read', title: 'List parcels',
+      name: 'parcels_list', group: 'read', untrusted: true, title: 'List parcels',
       description: 'Parcels of the site: name, corners (x, y; a bulge b on a corner makes the side after it an arc), area (square units and in words, with acres or hectares), perimeter. legal: true adds each one\'s legal description (metes and bounds).',
-      inputSchema: { type: 'object', properties: { legal: { type: 'boolean', default: false }, name: { type: 'string', maxLength: 200 } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { legal: { description: 'true adds the legal description of each parcel (default false).', type: 'boolean', default: false }, name: { description: 'Only the parcel with this name.', type: 'string', maxLength: 200 } }, additionalProperties: false },
       run: (a) => {
         const p = P(), u = p.state.units;
         const list = (p.state.parcels || []).filter((x) => !a.name || x.name.toLowerCase().includes(String(a.name).toLowerCase()));
@@ -203,7 +209,7 @@ function moreTools(app, P, findAl) {
     {
       name: 'surface_volume', group: 'read', title: 'Cut and fill',
       description: 'Cut and fill volumes (grid method), in cubic yards (ft projects) or cubic meters: between the existing ground and the graded surface inside the pads\' and corridors\' daylight lines (each item too), or inside a region you give; with datum, between the existing ground and that level (cut = ground above it to take off, fill = room below it to fill). cell = the grid size (default about 1/250 000 of the area).',
-      inputSchema: { type: 'object', properties: { datum: { type: 'number' }, region: { ...POLY, description: 'A closed outline [{x, y}, …] in project coordinates.' }, cell: { type: 'number', minimum: 0.001, maximum: 1e6 } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { datum: { description: 'Compare against this flat elevation instead of the existing ground.', type: 'number' }, region: { ...POLY, description: 'A closed outline [{x, y}, …] in project coordinates.' }, cell: { description: 'Grid cell size in project units (smaller is slower and more exact).', type: 'number', minimum: 0.001, maximum: 1e6 } }, additionalProperties: false },
       run: (a) => {
         const p = P(), eg = p.eg().surface, u = unitsOf(p);
         if (!eg) throw new Error('The site has no existing-ground surface (no points with elevations).');
@@ -223,7 +229,7 @@ function moreTools(app, P, findAl) {
     {
       name: 'profile_sample', group: 'read', title: 'Profile along an alignment',
       description: 'Elevations along an alignment every step (default: the alignment length / 1000, at least 0.5, plus its key stations): existing ground, the design profile where it has one, the graded surface where there is one. Stations as numbers and as text (12+34.56). At most 2000 rows.',
-      inputSchema: { type: 'object', properties: { alignment: { type: 'string' }, step: { type: 'number', minimum: 0.01, maximum: 1e6 }, from: { type: 'number' }, to: { type: 'number' } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { alignment: { description: 'Alignment name (default: the only one).', type: 'string', maxLength: 255 }, step: { description: 'Distance between samples in project units.', type: 'number', minimum: 0.01, maximum: 1e6 }, from: { description: 'Start station (default: the alignment start).', type: 'number' }, to: { description: 'End station (default: the alignment end).', type: 'number' } }, additionalProperties: false },
       run: (a) => {
         const p = P(), ref = findAl(p, a.alignment), al = p.alignment(ref);
         if (!al.ok) throw new Error('Alignment "' + ref.name + '" cannot be built: ' + (al.errors[0] || 'it needs at least two PIs') + '.');
@@ -239,9 +245,9 @@ function moreTools(app, P, findAl) {
       },
     },
     {
-      name: 'points_add', group: 'edit', title: 'Add survey points',
+      name: 'points_add', group: 'edit', rollbackPreview: true, title: 'Add survey points',
       description: 'Add survey points (x = easting, y = northing, z = elevation or left out, d = description; n = point number, else the next free numbers). One undo step; a number already used is refused.',
-      inputSchema: { type: 'object', properties: { points: { type: 'array', minItems: 1, maxItems: 10000, items: { type: 'object', properties: { n: { type: 'string', minLength: 1, maxLength: 40 }, x: { type: 'number' }, y: { type: 'number' }, z: { type: ['number', 'null'] }, d: { type: 'string', maxLength: 200 } }, required: ['x', 'y'], additionalProperties: false } } }, required: ['points'], additionalProperties: false },
+      inputSchema: { type: 'object', properties: { points: { description: 'The points: each with x (easting), y (northing), optional z, d (description) and n (number).', type: 'array', minItems: 1, maxItems: 10000, items: { type: 'object', properties: { n: { type: 'string', minLength: 1, maxLength: 40 }, x: { type: 'number' }, y: { type: 'number' }, z: { type: ['number', 'null'] }, d: { type: 'string', maxLength: 200 } }, required: ['x', 'y'], additionalProperties: false } } }, required: ['points'], additionalProperties: false },
       run: (a) => {
         const p = P(), used = new Set(p.points.map((q) => String(q.n)));
         let next = Math.max(0, ...p.points.map((q) => Number(q.n)).filter(Number.isInteger)) + 1;
@@ -262,7 +268,7 @@ function moreTools(app, P, findAl) {
     {
       name: 'landxml_export', group: 'export', title: 'Export LandXML',
       description: 'The site as LandXML 1.2 (points, existing and graded surfaces, alignments with ground and design profiles, feature lines, the pipe network), as Export › LandXML writes it.',
-      inputSchema: { type: 'object', properties: { path: PATH, overwrite: { type: 'boolean', default: false } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { path: PATH, overwrite: { description: 'true replaces an existing file at the path (default false: an existing file is never overwritten).', type: 'boolean', default: false } }, additionalProperties: false },
       run: async (a) => {
         const p = P();
         if (!p.points.length && !p.eg().surface && !p.state.alignments.length && !(p.state.features || []).length) throw new Error('The site has nothing to export yet.');
@@ -274,7 +280,7 @@ function moreTools(app, P, findAl) {
     {
       name: 'usd_export', group: 'export', title: 'Export USD',
       description: 'The site in 3D as OpenUSD (the existing ground, graded surface, pads, corridors, pipes, as the 3D view\'s Export › USD makes it), .usdz (default), .usda or .usdc; with the coordinate system when the project has one.',
-      inputSchema: { type: 'object', properties: { format: { type: 'string', enum: ['usdz', 'usda', 'usdc'], description: 'Default: from the path, else usdz.' }, path: PATH, overwrite: { type: 'boolean', default: false } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { format: { type: 'string', enum: ['usdz', 'usda', 'usdc'], description: 'Default: from the path, else usdz.' }, path: PATH, overwrite: { description: 'true replaces an existing file at the path (default false: an existing file is never overwritten).', type: 'boolean', default: false } }, additionalProperties: false },
       run: async (a) => {
         const p = P(), fmt = a.format || (a.path && /\.(usd[acz])$/i.exec(a.path)?.[1].toLowerCase()) || 'usdz';
         if (a.path && !new RegExp('\\.' + fmt + '$', 'i').test(a.path)) throw new Error('A .' + fmt + ' file ends in .' + fmt + '.');
@@ -289,7 +295,7 @@ function moreTools(app, P, findAl) {
   if (app.saveProject) tools.push({
     name: 'project_save', group: 'save', title: 'Save the project',
     description: 'CivilCraft\'s own Save: the project file (.civilcraft.json) in place when it was opened from one on the desktop, else a new file; with a path (Studio) it is written there.',
-    inputSchema: { type: 'object', properties: { path: PATH, overwrite: { type: 'boolean', default: false } }, additionalProperties: false },
+    inputSchema: { type: 'object', properties: { path: PATH, overwrite: { description: 'true replaces an existing file at the path (default false: an existing file is never overwritten).', type: 'boolean', default: false } }, additionalProperties: false },
     run: async (a) => {
       if (a.path) {
         if (!/\.civilcraft\.json$/i.test(a.path)) throw new Error('A CivilCraft project is a .civilcraft.json file.');
@@ -303,7 +309,7 @@ function moreTools(app, P, findAl) {
   if (app.exportDwg) tools.push({
     name: 'dwg_export', group: 'export', title: 'Export DWG',
     description: 'The plan as a DWG (the same drawing as the DWG button: contours, breaklines, points, alignments, pads, parcels, pipes …), version 2000 (default), 2004, 2007, 2010, 2013 or 2018. With a path (Studio) it is written there.',
-    inputSchema: { type: 'object', properties: { version: { type: 'string', enum: ['2000', '2004', '2007', '2010', '2013', '2018'], default: '2000' }, path: PATH, overwrite: { type: 'boolean', default: false } }, additionalProperties: false },
+    inputSchema: { type: 'object', properties: { version: { description: 'DWG version to write (default 2000).', type: 'string', enum: ['2000', '2004', '2007', '2010', '2013', '2018'], default: '2000' }, path: PATH, overwrite: { description: 'true replaces an existing file at the path (default false: an existing file is never overwritten).', type: 'boolean', default: false } }, additionalProperties: false },
     run: async (a) => {
       const v = { 2000: 'AC1015', 2004: 'AC1018', 2007: 'AC1021', 2010: 'AC1024', 2013: 'AC1027', 2018: 'AC1032' }[a.version || '2000'];
       if (a.path) {

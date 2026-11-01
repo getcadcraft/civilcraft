@@ -16,9 +16,23 @@
     "sql.js": "/assets/vendor/sql.js/current/sql-wasm.esm.js",
     "@noble/curves/": "/assets/vendor/noble-curves/current/",
     "@noble/hashes/": "/assets/vendor/noble-hashes/current/",
-    "@noble/ciphers/": "/assets/vendor/noble-ciphers/current/"
+    "@noble/ciphers/": "/assets/vendor/noble-ciphers/current/",
+    "pdfjs-dist": "/assets/vendor/pdfjs/current/build/pdf.min.mjs"
   },
+  "pdfWorker": "/assets/vendor/pdfjs/current/build/pdf.worker.min.mjs",
   "phone": { "hint": "[data-toolhint]" },
+  "devices": true,
+  "calc": true,
+  "reasons": true,
+  "teamwork": true,
+  "totals": true,
+  "lessons": true,
+  "ai-suggest": true,
+  "ai-activity": true,
+  "ai-ask": true,
+  "access": true,
+  "fields": true,
+  "propgrid": true,
   "panels": [
     "move",
     "window"
@@ -30,9 +44,12 @@
   "workspaces": {
     "layouts": [
       "docked",
-      "toolbox"
+      "toolbox",
+      "autorev"
     ],
     "adapter": "workspace-civilcraft.js"
   },
-  "hardware": true
+  "hardware": true,
+  "problems": true,
+  "engines": true
 }

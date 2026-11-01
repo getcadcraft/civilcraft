@@ -98,7 +98,7 @@ try {
     await buildMenu();
     await page.click('[data-fam-list]');
     await page.waitForSelector('[data-famlist-dialog][open]');
-    ok(await page.isVisible('[data-famlist-row="door-single"]') && /21|20/.test(await page.textContent('[data-famlist-starters] > summary')), 'Build › Families…: the family listed, the starter families below');
+    ok(await page.isVisible('[data-famlist-row="door-single"]') && /3[0-3]/.test(await page.textContent('[data-famlist-starters] > summary')), 'Build › Families…: the family listed, the starter families below');
     await shot(page, 'a-01-list');
     await page.click('[data-famlist-open="door-single"]');
     await page.waitForSelector('[data-fam-dialog="door-single"][open]');
@@ -190,7 +190,7 @@ try {
     await page.click('[data-mtool="family"]');
     await page.waitForSelector('[data-mopts="family"]:not([hidden])');
     const opts = await page.$$eval('[data-fam-pfam] option', (o) => o.map((x) => x.value));
-    ok(opts.join() === 'fam-table,fam-shelf,fam-cabinet', 'Place family: the starter table, shelf unit and base cabinet', opts.join());
+    ok(opts.join() === 'fam-table,fam-shelf,fam-cabinet,fam-bed,fam-sofa,fam-wardrobe,fam-chair,fam-desk,fam-wc,fam-lavatory,fam-kitchensink,fam-shower,fam-laundrytub,fam-bathtub', 'Place family: the starter furniture (table, shelf unit, base cabinet, bed, sofa, wardrobe, chair, desk) and the six plumbing fixtures', opts.join());
     ok(/R turns/.test(await page.textContent('[data-model-hint]')), 'its hint says R turns it');
     const [px, py] = await at(3000, 3000);
     await page.mouse.move(px, py, { steps: 3 });

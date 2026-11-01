@@ -1,0 +1,293 @@
+[
+ {
+  "state": "South Carolina",
+  "code": "US-SC",
+  "statewide": true,
+  "base_code": "IRC 2021 (in force now); IRC 2024 adopted, enforced from 2027-01-01",
+  "state_code_name": "2021 South Carolina Residential Code",
+  "effective_date": "2023-01-01",
+  "adopting_authority": "South Carolina Building Codes Council (LLR)",
+  "citation": "S.C. Code Ann. §6-9-50",
+  "source_url": "https://llr.sc.gov/bcc/BCAdoption.aspx",
+  "source_date": "2021-10-06 (2021 IRC adopted)",
+  "secondary_source_url": "https://llr.sc.gov/bcc/PDFfiles/2024%20Final%20Modification%20Index%20with%20Hyperlinks.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 in",
+    "section": "SC mod R311.7.5.1",
+    "skip": "South Carolina allows 8 in only for masonry stairs; the 7 3/4 in limit stays for other stairs, so the base value is kept."
+   }
+  ],
+  "confidence": "high",
+  "notes": "2024 SC Residential Code from 2027-01-01.",
+  "as_of": "2026-05-22"
+ },
+ {
+  "state": "South Dakota",
+  "code": "US-SD",
+  "statewide": false,
+  "base_code": "IRC 2024 (optional, municipalities only)",
+  "state_code_name": "none",
+  "effective_date": "2026-07-01",
+  "adopting_authority": "South Dakota Legislature; municipalities choose",
+  "citation": "SDCL §11-10-12",
+  "source_url": "https://mylrc.sdlegislature.gov/api/Documents/SessionLaw/304391.pdf?Year=2026",
+  "source_date": "2026-03-04",
+  "secondary_source_url": "https://www.icc-nta.org/states/south-dakota/",
+  "amendments": [],
+  "confidence": "high",
+  "notes": "No mandatory statewide residential code.",
+  "as_of": "2026-03-04"
+ },
+ {
+  "state": "Tennessee",
+  "code": "US-TN",
+  "statewide": true,
+  "base_code": "IRC 2018",
+  "state_code_name": "One and Two Family Dwellings and Townhouses (Rule 0780-02-23)",
+  "effective_date": "2020-07-16",
+  "adopting_authority": "Tennessee Dept. of Commerce & Insurance, Division of Fire Prevention",
+  "citation": "Tenn. Comp. R. & Regs. 0780-02-23-.02",
+  "source_url": "https://www.law.cornell.edu/regulations/tennessee/Tenn-Comp-R-Regs-0780-02-23-.02",
+  "source_date": "2020-04-17 (amendments filed)",
+  "secondary_source_url": "https://www.icc-nta.org/states/tennessee",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Local governments may enforce their own codes or opt out. Whether this chapter moved to IRC 2021 in 2025 is not confirmed; official tn.gov pages unreachable.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "Texas",
+  "code": "US-TX",
+  "statewide": false,
+  "base_code": "IRC 2012 as the municipal residential code (cities may adopt later editions)",
+  "state_code_name": "Municipal residential code (Tex. Loc. Gov't Code §214.212)",
+  "effective_date": "2022-01-01",
+  "adopting_authority": "Texas Legislature; each municipality administers and amends",
+  "citation": "Tex. Loc. Gov't Code §214.212",
+  "source_url": "https://capitol.texas.gov/tlodocs/87R/billtext/html/HB00738F.htm",
+  "source_date": "2021",
+  "secondary_source_url": "https://texas.public.law/statutes/tex._local_gov't_code_section_214.212",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "No state-run residential code; the code in force varies by city.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "Utah",
+  "code": "US-UT",
+  "statewide": true,
+  "base_code": "IRC 2021",
+  "state_code_name": "State Construction Code (Utah Construction Code)",
+  "effective_date": "2026-07-01 (current amendment set under H.B. 65)",
+  "adopting_authority": "Utah Legislature, with the Uniform Building Code Commission",
+  "citation": "Utah Code §15A-2-103(1)(b); §15A-3-202",
+  "source_url": "https://le.utah.gov/Session/2026/bills/enrolled/HB0065.pdf",
+  "source_date": "2026-03-03 (enrolled)",
+  "secondary_source_url": "https://www.icc-nta.org/code-update/utah-adopts-new-i-codes/",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 in (203 mm)",
+    "section": "Utah Code §15A-3-202 (R311.7.5.1)",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (228 mm)",
+    "section": "Utah Code §15A-3-202 (R311.7.5.2)",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Utah kept the 2021 IRC when other codes moved to 2024.",
+  "as_of": "2026-07-01"
+ },
+ {
+  "state": "Vermont",
+  "code": "US-VT",
+  "statewide": false,
+  "base_code": "none (no residential construction code for one- and two-family dwellings)",
+  "state_code_name": "RBES (energy only)",
+  "effective_date": "not confirmed",
+  "adopting_authority": "none",
+  "citation": "not confirmed",
+  "source_url": "https://legislature.vermont.gov/bill/status/2026/H.718",
+  "source_date": "2026-04-24",
+  "secondary_source_url": "",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Do not apply IRC limits as state law.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "Virginia",
+  "code": "US-VA",
+  "statewide": true,
+  "base_code": "IRC 2021 (as amended)",
+  "state_code_name": "2021 Virginia Residential Code (VRC)",
+  "effective_date": "2024-01-18",
+  "adopting_authority": "Virginia Board of Housing and Community Development (DHCD)",
+  "citation": "13VAC5-63-210",
+  "source_url": "https://law.lis.virginia.gov/admincode/title13/agency5/chapter63/section210/",
+  "source_date": "Virginia Register Vol. 40, Issue 9 (effective 2024-01-18)",
+  "secondary_source_url": "https://dhcd.virginia.gov/codes",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (210 mm)",
+    "section": "VRC R311.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "VRC R311.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Only 2021 code from 2025-01-18; 2024 codes planned 2027-10.",
+  "as_of": "2026-10-26"
+ },
+ {
+  "state": "Washington",
+  "code": "US-WA",
+  "statewide": true,
+  "base_code": "IRC 2021 (as amended)",
+  "state_code_name": "Washington State Residential Code (chapter 51-51 WAC)",
+  "effective_date": "2024-03-15",
+  "adopting_authority": "Washington State Building Code Council",
+  "citation": "Chapter 51-51 WAC",
+  "source_url": "https://app.leg.wa.gov/wac/default.aspx?cite=51-51",
+  "source_date": "2023-11-15 (latest WSR filing)",
+  "secondary_source_url": "https://sbcc.wa.gov/",
+  "amendments": [
+   {
+    "rule": "room.vent.min",
+    "remove": true,
+    "note": "Washington deletes the 4% openable-area requirement and requires whole-house and local exhaust mechanical ventilation instead (WAC 51-51-0303).",
+    "section": "WAC 51-51-0303"
+   }
+  ],
+  "confidence": "high",
+  "notes": "8% natural light kept with an artificial-light exception. 2024 codes targeted for 2027-05-03.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "West Virginia",
+  "code": "US-WV",
+  "statewide": true,
+  "scope_note": "— where a county or municipality adopts the State Building Code (there is no mandatory statewide enforcement)",
+  "base_code": "IRC 2018 (as modified)",
+  "state_code_name": "West Virginia State Building Code (87CSR4)",
+  "effective_date": "2022-08-01",
+  "adopting_authority": "West Virginia State Fire Commission / State Fire Marshal",
+  "citation": "W. Va. Code R. §87-4-4",
+  "source_url": "https://apps.sos.wv.gov/adlaw/csr/rule.aspx?rule=87-04",
+  "source_date": "2022-05-05 (final file)",
+  "secondary_source_url": "https://buckhannonwv.org/wp-content/uploads/2026/08/480-State-Building-Code-Update-Adoption-2024-Edition.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in",
+    "section": "87CSR4 §4.1.i.1 (R311.7.5.1)",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "87CSR4 §4.1.i.2 (R311.7.5.2)",
+    "source": ""
+   }
+  ],
+  "confidence": "medium",
+  "notes": "Applies only where a locality adopts it. 2024 IRC update pending (in progress).",
+  "as_of": "2026-10-26"
+ },
+ {
+  "state": "Wisconsin",
+  "code": "US-WI",
+  "statewide": true,
+  "own_code": true,
+  "base_code": "Wisconsin Uniform Dwelling Code (not IRC-based)",
+  "state_code_name": "Wisconsin Uniform Dwelling Code (UDC)",
+  "effective_date": "not confirmed (UDC in force since 1980-06-01)",
+  "adopting_authority": "Wisconsin Dept. of Safety and Professional Services (DSPS)",
+  "citation": "Wis. Admin. Code chs. SPS 320-325",
+  "source_url": "https://docs.legis.wisconsin.gov/code/admin_code/sps/safety_and_buildings_and_environment/320_325/321",
+  "source_date": "2024-11 (Register November 2024 No. 827)",
+  "secondary_source_url": "https://docs.legis.wisconsin.gov/document/administrativecode/ch.%20SPS%20321.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 in",
+    "section": "SPS 321.04(2)(b)1.",
+    "note": "Spiral stairs 9.5 in."
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "SPS 321.04(2)(c)1.",
+    "note": "Rectangular treads."
+   },
+   {
+    "rule": "stair.width.min",
+    "value": "36 in",
+    "section": "SPS 321.04(2)(a)",
+    "note": "Spiral stairs 26 in."
+   },
+   {
+    "rule": "stair.headroom.min",
+    "value": "76 in",
+    "section": "SPS 321.04(2)(d)1.",
+    "note": "6 ft 4 in."
+   },
+   {
+    "rule": "stair.rail.height",
+    "value": "30 to 38 in",
+    "section": "SPS 321.04(3)(b)1.a.",
+    "note": "Above the tread nosing."
+   },
+   {
+    "rule": "room.ceiling.min",
+    "value": "7 ft",
+    "section": "SPS 321.06",
+    "note": "A room may be lower if at least half its floor area is 7 ft or more; beams may project 8 in below."
+   },
+   {
+    "rule": "room.light.min",
+    "value": "8 %",
+    "section": "SPS 321.05(1)",
+    "note": "Exception for some basement, ground-floor and above-garage rooms other than bedrooms."
+   },
+   {
+    "rule": "room.vent.min",
+    "value": "3.5 %",
+    "section": "SPS 321.05(2)(a)1.",
+    "note": "Or balanced mechanical ventilation of at least 1 air change an hour."
+   }
+  ],
+  "confidence": "high",
+  "notes": "Mandatory statewide for one- and two-family dwellings built since 1980-06-01; municipalities may not adopt a different code.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "Wyoming",
+  "code": "US-WY",
+  "statewide": false,
+  "base_code": "none statewide (IRC adopted locally)",
+  "state_code_name": "none",
+  "effective_date": "not confirmed",
+  "adopting_authority": "Local governments",
+  "citation": "W.S. 35-9-121",
+  "source_url": "https://www.law.cornell.edu/regulations/wyoming/041-1-Wyo-Code-R-SSSS-1-2",
+  "source_date": "2024-06-26",
+  "secondary_source_url": "https://www.iccsafe.org/advocacy/adoptions-map/wyoming/",
+  "amendments": [],
+  "confidence": "medium",
+  "notes": "Home rule for dwellings.",
+  "as_of": "2026-10-27"
+ }
+]

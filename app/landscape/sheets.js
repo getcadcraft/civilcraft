@@ -19,8 +19,9 @@ import { planSheet, orient, paperBy, MARGIN, TITLE_H, RGB } from '../plot.js';
 import { symbolPlan, sizeOf } from './plants.js';
 import { t } from '../i18n.js';
 import { GENERIC_HEADS } from './irrigation.js';
+import { tableLayout } from './worksheet.js';   // 0.8 LA.8: worksheets as tables on a sheet
 
-export const SHEET_KINDS = ['planting', 'grading', 'irrigation', 'details'];
+export const SHEET_KINDS = ['planting', 'grading', 'irrigation', 'details', 'sections', 'worksheets'];
 export const SHEET_LAYERS = {
   planting: ['C-TOPO-', 'V-PROP', 'L-PLNT-', 'L-HARD-'],
   grading: ['C-TOPO-', 'C-GRAD-', 'L-GRAD-', 'L-HARD-', 'V-PROP'],
@@ -166,10 +167,43 @@ function detailsSheet(o) {
   return sh;
 }
 
+/** 0.8 LA.8: the worksheets marked "On the sheets", as ruled tables (as many sheets as they need). */
+export function worksheetSheets(o) {
+  const out = [], P = orient(paperBy(o.paper), o.landscape), width = P.w - 2 * MARGIN - 12;
+  let sh = null, y = 0;
+  const fresh = () => {
+    sh = planSheet({ layers: [], items: [] }, { extents: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, paper: o.paper, landscape: o.landscape, scale: o.scale, title: t('ls.sh.title.worksheets', { name: o.title }), units: o.units });
+    sh.chrome = sh.chrome.slice(0, 2);
+    sh.chromeTexts = [sh.chromeTexts[0], { ...sh.chromeTexts[1], text: '' }, sh.chromeTexts[2]];
+    out.push(sh); y = P.h - MARGIN - 8;
+  };
+  fresh();
+  for (const { ws, res } of o.worksheets || []) {
+    let start = 0;
+    const rowsAll = res.body;
+    do {
+      const room = Math.floor((y - (MARGIN + TITLE_H + 6) - 8) / 5) - 2;
+      if (room < 3) { fresh(); continue; }
+      const part = { ...res, body: rowsAll.slice(start, start + room), totals: start + room >= rowsAll.length ? res.totals : null };
+      T(sh, MARGIN + 6, y, ws.name + (start ? ' ' + t('ls.sh.cont') : ''), 3);
+      const lay = tableLayout(part, { x0: MARGIN + 6, y1: y - 3, width, rowH: 5, textH: 1.8, totalLabel: t('ls.st.total') });
+      for (const s of lay.strokes) L(sh, s.pts, s.w);
+      for (const x of lay.texts) T(sh, x.x, x.y, x.text, x.h, x.align);
+      y -= lay.height + 12;
+      start += room;
+      if (start < rowsAll.length) fresh();
+    } while (start < rowsAll.length);
+  }
+  if (!(o.worksheets || []).length) T(sh, MARGIN + 10, P.h / 2, t('ls.sh.w.none'), 3);
+  return out;
+}
+
 export function landscapeSheets(scene, o) {
   const out = [];
   for (const kind of o.kinds) {
     if (kind === 'details') { out.push(detailsSheet(o)); continue; }
+    if (kind === 'worksheets') { out.push(...worksheetSheets(o)); continue; }
+    if (kind === 'sections') { out.push(...(o.sectionSheets || [])); continue; }   // 0.8 LA.9: drawn by section-ls.js
     if (!SHEET_LAYERS[kind]) continue;
     const { sh, col } = planWithLegend(scene, kind, o);
     if (kind === 'planting') plantingLegend(sh, col, o.plants, o.units);

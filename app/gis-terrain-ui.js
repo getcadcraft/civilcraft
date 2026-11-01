@@ -29,6 +29,7 @@ import { openRaster, readWindow, sampleStats, probeTiff, fmtBig } from './raster
 import { t } from "./i18n.js";   // 0.4 V9 strings
 import { readLasHeader, scanPoints, className } from './las.js';
 import { Thinner, gridStep, Coverage } from './thin.js';
+import { classifyGround } from './ground-classify.js';   // 0.8 SU.935: find the ground in a cloud without a ground class
 import { LIMITS, UNIT_WORDS, projectZUnit, zFactor, toProject, toSource, lonLatOf, boxThrough, gridWindow, nodeXY, gridPoints, gridTin, nextNumber, niceStep } from './terrain.js';
 import { crsProblem, frame, byCode, METRES_PER } from './crs.js';
 import { averageEdge, surfaceGrid, writeDemTiff, NODATA } from './geotiff-write.js';
@@ -131,7 +132,7 @@ export async function install(host) {
     const st = {
       srcCrs: src.crs, srcChosen: !!src.crs, adopt: !project.state.crs && !!src.crs && !crsProblem(src.crs, project.state.units), newCrs: null,
       area: 'all', margin: pUnits() === 'm' ? 30 : 100, spacing: null, mode: 'nearest',
-      classes: null, zUnit: src.zUnit || null, as: 'points', job: null, coverage: null, scanned: false,
+      classes: null, ground: 'class', objectSize: 0, slope: 0.3, zUnit: src.zUnit || null, as: 'points', job: null, coverage: null, scanned: false,
     };
     const pc = project.state.crs;
     const ext = host.extentsAll();
@@ -159,6 +160,11 @@ export async function install(host) {
     const asPts = el('input', { type: 'radio', name: fid('as'), value: 'points', checked: true });
     const asTin = el('input', { type: 'radio', name: fid('as'), value: 'surface' });
     const classBox = el('div', { className: 'cv-terrain-classes' });
+    // 0.8 SU.935: ground from the file's class, or found here (drone clouds have none)
+    const groundSel = el('select', { className: 'cv-select', id: fid('ground'), 'data-terrain-ground': '' },
+      el('option', { value: 'class' }, t('sx.su935.ground.class')), el('option', { value: 'find' }, t('sx.su935.ground.find')));
+    const objectIn = el('input', { className: 'cv-input', id: fid('object'), type: 'number', min: '0', step: 'any', inputMode: 'decimal', 'data-terrain-object': '' });
+    const slopeIn = el('input', { className: 'cv-input', id: fid('slope'), type: 'number', min: '0', step: 'any', value: '0.3', inputMode: 'decimal', 'data-terrain-slope': '' });
     const count = el('p', { className: 'cv-note', role: 'status', 'aria-live': 'polite' });
     const zInfo = el('p', { className: 'cv-note' });
     const prog = progressBox();
@@ -170,6 +176,9 @@ export async function install(host) {
       ...row(t('tui.l.margin', { unit: uWord() }), marginIn, fid('margin')),
       ...row(t('tui.l.thin', { unit: uWord() }), spacingIn, fid('spacing')),
       ...(kind === 'lidar' ? row(t('tui.l.keep'), modeSel, fid('mode')) : []),
+      ...(kind === 'lidar' ? row(t('sx.su935.l.ground'), groundSel, fid('ground')) : []),
+      ...(kind === 'lidar' ? row(t('sx.su935.l.object', { unit: uWord() }), objectIn, fid('object')) : []),
+      ...(kind === 'lidar' ? row(t('sx.su935.l.slope'), slopeIn, fid('slope')) : []),
       ...row(t('tui.l.zfile'), zSel, fid('z')),
       ...(kind === 'grid' ? [el('span', { className: 'k' }, t('tui.l.as')), el('span', { className: 'v cv-terrain-as' },
         el('label', { className: 'cv-check' }, asPts, t('tui.as.points')),
@@ -301,6 +310,7 @@ export async function install(host) {
       st.scanned = true;
       const has = [...st.classCounts.keys()].sort((a, b) => a - b);
       st.classes = new Set(st.classCounts.has(2) ? [2] : has);
+      if (!st.classCounts.has(2)) { groundSel.value = 'find'; groundMode(); return; }   // 0.8 SU.935: no ground class in the file: find it
       renderClasses();
       refresh();
     }
@@ -390,6 +400,18 @@ export async function install(host) {
     let spacingTouched = false;
     spacingIn.oninput = () => { spacingTouched = true; st.spacing = Number(spacingIn.value); refresh(); };
     modeSel.onchange = () => { st.mode = modeSel.value; };
+    function groundMode() {   // 'find': every class but the noise ones (7, 18), the lowest point per cell, then the filter
+      st.ground = groundSel.value;
+      objectIn.disabled = slopeIn.disabled = st.ground !== 'find';
+      if (st.ground === 'find') { st.mode = 'lowest'; modeSel.value = 'lowest'; if (st.classCounts) st.classes = new Set([...st.classCounts.keys()].filter((c) => c !== 7 && c !== 18)); }
+      else if (st.classCounts) st.classes = new Set(st.classCounts.has(2) ? [2] : [...st.classCounts.keys()]);
+      modeSel.disabled = st.ground === 'find';
+      if (st.classCounts) renderClasses();
+      refresh();
+    }
+    groundSel.onchange = groundMode;
+    objectIn.oninput = () => { st.objectSize = Number(objectIn.value) || 0; };
+    slopeIn.oninput = () => { st.slope = Number(slopeIn.value) || 0; };
     zSel.onchange = () => { st.zUnit = zSel.value || null; refresh(); };
     for (const r of [asPts, asTin]) r.onchange = () => { st.as = asTin.checked ? 'surface' : 'points'; if (!spacingTouched) { st.spacing = defaultSpacing(); spacingIn.value = String(st.spacing); } refresh(); };
     const stop = () => { if (st.job) st.job.abort(); else dlg.close(); };
@@ -403,7 +425,7 @@ export async function install(host) {
       if (!plan.ok) return;
       st.job = new AbortController();
       okBtn.disabled = true;
-      for (const c of [areaSel, marginIn, spacingIn, modeSel, zSel, asPts, asTin]) c.disabled = true;
+      for (const c of [areaSel, marginIn, spacingIn, modeSel, zSel, asPts, asTin, groundSel, objectIn, slopeIn]) c.disabled = true;
       const signal = st.job.signal;
       const t0 = performance.now();
       const proj = host.project, epc = effCrs(), tr = xf(), zf = zFactor(st.zUnit, projectZUnit({ state: { ...proj.state, crs: epc } }));
@@ -440,7 +462,16 @@ export async function install(host) {
           }, { signal, progress: (fr) => prog.set(fr * 0.95, t('tui.points.reading_pct', { pct: Math.round(fr * 100), kept: num(th.count) })) });
           if (!th.count) throw new Error(t('tui.err.no_point'));
           let n = nextNumber(proj.points);
-          const pts = th.points().map((p) => ({ n: String(n++), x: p.x, y: p.y, z: p.z, d: 'LIDAR' }));
+          let cloud = th.points();
+          if (st.ground === 'find') {   // 0.8 SU.935
+            prog.set(0.96, t('sx.su935.finding'));
+            await new Promise((r) => setTimeout(r, 0));
+            const g = classifyGround(cloud, { cell: Number(st.spacing), maxObject: st.objectSize > 0 ? st.objectSize : Number(st.spacing) * 20, slope: st.slope > 0 ? st.slope : 0.3 });
+            notes.push(t('sx.su935.found', { ground: num(g.counts.ground), objects: num(g.counts.objects), noise: num(g.counts.lowNoise) }));
+            cloud = g.ground;
+            if (!cloud.length) throw new Error(t('tui.err.no_point'));
+          }
+          const pts = cloud.map((p) => ({ n: String(n++), x: p.x, y: p.y, z: p.z, d: st.ground === 'find' ? 'GROUND' : 'LIDAR' }));
           applyPoints(pts, epc, t('tui.undo.import', { name: src.name }));
           const keep = { nearest: t('tui.keep.nearest.in'), lowest: t('tui.keep.lowest.in'), average: t('tui.keep.average.in') }[st.mode] || modeSel.selectedOptions[0].textContent.toLowerCase();
           notes.push(t('tui.done.lidar', { count: num(pts.length), name: src.name, sp: fixed(Number(st.spacing), 2), unit: uWord(), keep, seen: num(th.seen), filtered: num(th.filtered), outside: num(th.outside) }));

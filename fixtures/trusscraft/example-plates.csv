@@ -1,0 +1,7 @@
+# label: TEST FILE - made-up plate sizes and capacities to try loading a table. NOT a manufacturer's values.
+id,w,h,kN
+TEST-A,76,102,4
+TEST-B,102,152,9
+TEST-C,152,203,18
+TEST-D,203,254,30
+TEST-E,254,305,45

@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ny",
+  "name": "New York: 2025 Residential Code of New York State (RCNYS)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-NY",
+    "name": "New York"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2025-12-31",
+  "in_force": "2025-12-31",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (State Fire Prevention and Building Code Council; NY Department of State; 19 NYCRR Part 1220). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (research confidence: high…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "State Fire Prevention and Building Code Council; NY Department of State, 19 NYCRR Part 1220",
+    "url": "https://dos.ny.gov/notice-adoption",
+    "date": "2025-07-25",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "[NY] R318.7.5.1",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "[NY] R318.7.5.2",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

@@ -3,7 +3,7 @@ title: Grade a building pad
 summary: Draw a flat pad, set its elevation and cut and fill slopes, and let CivilCraft daylight it to the existing ground and add it to the proposed surface.
 section: tasks
 order: 70
-keywords: grading, pad, building pad, daylight, feature line, grading group, cut slope, fill slope, finished grade, proposed surface, site grading
+keywords: retaining wall, retaining walls, vertical side, wall instead of slope, side slope per side, embankment, grading, pad, building pad, daylight, feature line, grading group, cut slope, fill slope, finished grade, proposed surface, site grading
 ---
 
 A pad is a flat area at one elevation. From its edge, CivilCraft grades outward at your cut slope where the ground is higher than the pad and at your fill slope where it is lower, until the slope meets the existing ground. That meeting line is the daylight line. The pad and its slopes replace the existing ground inside the daylight line to make the proposed surface.
@@ -43,6 +43,21 @@ Under the fields, a line reads for example "Daylight line: 48 slope lines (20 in
 - At outside corners they fan out every 10°, so the slope wraps round the corner.
 - At inside corners one line runs along the bisector, where the slopes from the two edges meet.
 - Each line climbs at the cut slope or falls at the fill slope until it reaches the ground.
+
+## Slopes per side and retaining walls
+
+Under **Sides and retaining walls** in the Properties of a pad, a platform or a berm, each side can be graded its own way. Side 1 runs from the first corner you clicked to the second, side 2 from the second to the third, and so on.
+
+- **All sides**: **Sloped** uses the cut and fill slopes above on every side; **Vertical: retaining walls** puts a wall on every side.
+- Per side: **Slopes above**, **Its own slopes** (type a cut and a fill slope for that side) or **Vertical (retaining wall)**.
+- Type a slope as `3` or `3:1` (horizontal to 1 vertical), `33%` or `18.4°`; it is shown as H:1. The pad's own **Cut slope** and **Fill slope** take the same.
+- A vertical side has no embankment: a retaining wall runs along the edge, from the pad down to the existing ground (in fill) or from the ground down to the pad (in cut). **Wall thickness** (0.3 m or 1 ft to start with) is how far the ground steps from the pad edge to the existing ground. Cut and fill volumes leave out the embankment that side no longer has.
+- Where a wall meets a sloped side, the slope wraps round the end of the wall; two walls meet in a mitre.
+- Under the fields: the walls' length, exposed face (height × length), tallest and average height.
+
+The plan draws each wall's outer face with short ticks across it and its height at both ends and at its tallest (on the retaining walls layer, which also goes into DXF and DWG). The 3D view shows the walls as solids (Show › Retaining walls), and GLB, OBJ and USD exports include them. Sections across the edge show the step.
+
+**Warnings** (in Properties, and in the Problems panel): a wall higher than **Warn above a wall height of** (1.0 m or 3.3 ft to start with) "may need an engineered wall or a permit; check local rules", and, when you type the **Steepest slope the soil stands**, any side whose cut or fill slope is steeper than that. They are warnings: the grading still builds. Every change is one step for {{key:Mod+Z}}.
 
 ## Move corners
 

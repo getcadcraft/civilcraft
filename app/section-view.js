@@ -37,6 +37,7 @@ export class SectionView {
     let lo = Infinity, hi = -Infinity;
     for (const r of [...s.ground, ...s.design]) for (const q of r) { lo = Math.min(lo, q.z); hi = Math.max(hi, q.z); }
     for (const m of s.marks) if (Number.isFinite(m.z)) { lo = Math.min(lo, m.z); hi = Math.max(hi, m.z); }
+    for (const L of s.layers || []) lo = Math.min(lo, L.a.z, L.b.z);   // 0.7.1 71.24: the course bottoms stay in view
     if (!Number.isFinite(lo)) { lo = 0; hi = 10; }
     const pxPerO = (P.x1 - P.x0) / Math.max(this.o1 - this.o0, 1e-9);
     // a fixed exaggeration when asked, else fit the elevations (at least 1×)
@@ -106,6 +107,7 @@ export class SectionView {
     };
     line(s.ground, C.eg, 1.6);
     if (s.design !== s.ground) line(s.design, C.fg, 2.2);   // only where something is graded (sections.js clips it)
+    for (const L of s.layers || []) line([[L.a, L.b]], C.ink2, 1, [4, 2]);   // 0.7.1 71.24: pavement course bottoms
     ctx.restore();
     // corridor points
     ctx.font = '600 11px ' + LABEL_FONT;

@@ -92,7 +92,8 @@ juniperus-virginiana,Juniperus virginiana,Eastern red cedar,Enebro de Virginia,J
 ilex-aquifolium,Ilex aquifolium,Holly,Acebo,Azevinho,tree,conifer,evergreen,10,5,1.75,0.6,slow,part;shade,medium,well-drained,6,8,5,45 L,temperate,,,female plants berry; spiny leaves,cc
 platanus-x-hispanica,Platanus × hispanica,London plane,Plátano de sombra,Plátano,tree,broadleaf,deciduous,30,20,2.75,1,fast,sun,medium,any,5,8,20,45 L,temperate;mediterranean,,,the classic city street tree; pollards well,cc
 populus-alba,Populus alba,White poplar,Álamo blanco,Choupo-branco,tree,broadleaf,deciduous,20,15,2.75,1,fast,sun,medium,any,3,8,15,45 L,temperate;mediterranean,,,suckers widely; keep away from drains,cc
-populus-nigra,Populus nigra,Black poplar,Chopo,Choupo-negro,tree,columnar,deciduous,25,6,1.75,0.6,fast,sun,high,moist,3,9,6,45 L,temperate;mediterranean,,,columnar forms for windbreaks; thirsty roots,cc
+populus-nigra,Populus nigra,Black poplar,Chopo,Choupo-negro,tree,spreading,deciduous,25,18,2.75,1,fast,sun,high,moist,3,9,18,45 L,temperate;mediterranean,,,broad spreading crown; thirsty roots; the columnar Lombardy poplar is 'Italica',cc
+populus-nigra-italica,Populus nigra 'Italica',Lombardy poplar,Chopo lombardo,Choupo-de-Itália,tree,columnar,deciduous,25,4,1.75,0.6,fast,sun,high,moist,3,9,4,45 L,temperate;mediterranean,,,narrow column; windbreaks; thirsty roots,cc
 populus-tremula,Populus tremula,Aspen,Álamo temblón,Choupo-tremedor,tree,upright,deciduous,18,8,2.75,1,fast,sun,medium,moist,2,6,8,45 L,temperate,,,leaves tremble in the wind; suckers,cc
 prunus-avium,Prunus avium,Wild cherry,Cerezo,Cerejeira,tree,broadleaf,deciduous,18,10,2.75,1,fast,sun,medium,well-drained;loam,4,8,10,45 L,temperate,,,white spring blossom,cc
 prunus-cerasifera,Prunus cerasifera,Cherry plum,Ciruelo mirobolán,Abrunheiro-de-jardim,tree,rounded,deciduous,8,6,2.75,1,medium,sun,medium,any,4,8,6,45 L,temperate;mediterranean,,,purple-leaved forms common,cc

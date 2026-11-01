@@ -1,0 +1,68 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ma-boston",
+  "name": "Boston: Massachusetts Residential Code (780 CMR 51), Boston values",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-MA",
+    "name": "Boston"
+  },
+  "base": "us-ma",
+  "edition": "Massachusetts Residential Code (780 CMR…",
+  "in_force": "2024-10-11",
+  "review": {
+    "state": "draft",
+    "note": "The Massachusetts state pack for this city — the state code with Boston's row of the state design-criteria tables (Massachusetts BBRS (state table, Boston row); 780 CMR 51 Table R301.2(1), R301.2(2)). Design criteria from www.mass.gov (2025-03-28). Entered from the cited source on 2026-10-27 (research confidence: medium); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Massachusetts BBRS (state table, Boston row), 780 CMR 51 Table R301.2(1), R301.2(2)",
+    "url": "https://www.mass.gov/doc/10th-edition-residential-chapter-3-building-planning/download",
+    "date": "2025-03-28",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "40 psf (Boston row; minimum flat roof snow load 30 psf)",
+      "value": 40,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "120 mph (ultimate, Boston row)",
+      "value": 120,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "Yes (as printed; no letter)"
+    },
+    "weathering": {
+      "text": "Severe"
+    },
+    "frost_depth": {
+      "text": "48 in",
+      "value": 1219.2,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "Moderate to heavy"
+    },
+    "ice_barrier": {
+      "text": "Yes"
+    },
+    "flood_hazards": {
+      "text": "See R322"
+    },
+    "air_freezing_index": {
+      "text": "1500"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

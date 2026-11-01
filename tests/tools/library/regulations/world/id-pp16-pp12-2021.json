@@ -1,0 +1,82 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "id-pp16-pp12-2021",
+  "name": "Indonesia: PP 16/2021 Bangunan Gedung (stairs) and PP 12/2021 Perumahan (rumah tapak)",
+  "jurisdiction": {
+    "country": "ID",
+    "level": "country",
+    "region": "",
+    "name": "Indonesia"
+  },
+  "base": null,
+  "edition": "PP 16/2021 Bangunan Gedung (stairs) and…",
+  "in_force": "2021-02-02",
+  "review": {
+    "state": "draft",
+    "note": "National law; local Perda add rules and handle permits. Room values are for landed houses (rumah tapak). Stair width is set only for exit stairs, headroom was not found, and handrails are a pair at 650 and 800 mm, so those are not checked. Not checked by this pack: stair width, stair headroom, handrail height. Room size, hallway, egress door and escape-opening rules have not been researched for t…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Pemerintah Republik Indonesia; Kementerian PUPR Ditjen Cipta Karya, PP 16/2021 Bangunan Gedung (stairs) and PP 12/2021…",
+    "url": "https://peraturan.bpk.go.id/Details/161846/pp-no-16-tahun-2021",
+    "date": "2021-02-02",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "PP 16/2021 Lampiran, Tangga",
+      "label": "Riser height",
+      "note": "Riser 150-170 mm; at most 12 steps per landing.",
+      "value": 170
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "PP 16/2021 Lampiran, Tangga",
+      "label": "Tread depth (going)",
+      "note": "",
+      "value": 300
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "PP 12/2021 Lamp. I.A.2.b",
+      "label": "Ceiling height",
+      "note": "Rumah tapak.",
+      "value": 2700
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "PP 12/2021 Lamp. I.A.3.b.2",
+      "label": "Glazing, share of floor area",
+      "note": "",
+      "value": 10
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "PP 12/2021 Lamp. I.A.3.a.1",
+      "label": "Openable area, share of floor area",
+      "note": "Cross-ventilation openings.",
+      "value": 5
+    }
+  ]
+}

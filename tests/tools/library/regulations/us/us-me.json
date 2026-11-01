@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-me",
+  "name": "Maine: Maine Uniform Building and Energy Code (MUBEC), Residential Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-ME",
+    "name": "Maine"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2025-04-07",
+  "in_force": "2025-04-07",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Technical Building Codes and Standards Board / Department of Public Safety; 16-642 CMR ch. 5; 10 M.R.S. § 9722). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alar…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Technical Building Codes and Standards Board / Department of Public Safety, 16-642 CMR ch. 5; 10 M.R.S. § 9722",
+    "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/642c005.docx",
+    "date": "2025-01-07",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

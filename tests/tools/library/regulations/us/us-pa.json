@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-pa",
+  "name": "Pennsylvania: Pennsylvania Uniform Construction Code (UCC), residential",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-PA",
+    "name": "Pennsylvania"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2026-01-01",
+  "in_force": "2026-01-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Department of Labor & Industry; 34 Pa. Code § 403.21(a)(7)). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (research confidence: high); not yet reviewed by a professi…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Department of Labor & Industry, 34 Pa. Code § 403.21(a)(7)",
+    "url": "https://www.pacodeandbulletin.gov/Display/pacode?file=/secure/pacode/data/034/chapter403/s403.21.html",
+    "date": "2025-11-07",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "34 Pa. Code § 403.21(a)(7)(ii)(A)",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "§ 403.21(a)(7)(ii)(B)",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

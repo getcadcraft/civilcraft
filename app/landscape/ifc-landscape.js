@@ -15,6 +15,7 @@
  *           | { kind: 'prisms', list: [{ pts, z0, z1 }] }   (several: stepped footings, a flight's treads)
  *       type?: { key, cls, predefined, name, psets }     (a shared type: its psets once; occurrences of one key share it)
  *       psets: { name: { prop: value } }   (number → IfcReal, integer-valued counts as IfcInteger when key ends 'Count', string → IfcLabel/Text, boolean)
+ *       qsets?: { name: { prop: { kind: 'area'|'length'|'volume'|'count', v } } }   (0.8 LA.5: an IfcElementQuantity; v in project units, written in metres)
  *       material?: string | [{ name, thickness }]       (IfcMaterial, or an IfcMaterialLayerSet for walls and paving) }
  *   plantingElements(ls, index, units, { zAt, lang, which }) → elements for every plant, bed and hedge
  *   guid(seed) → a 22-character IFC GlobalId from a string (stable: the same project exports with the same ids)
@@ -153,6 +154,16 @@ export function writeLandscapeIfc({ name = 'Landscape', units = 'm', elements = 
     for (const [pname, props] of Object.entries(e.psets || {})) {
       const set = psetOn([el], pname, props, 'el|' + tag);
       if (set) w.add('IFCRELDEFINESBYPROPERTIES(' + id('rdp|' + tag + '|' + pname) + ',$,$,$,(' + el + '),' + set + ')');
+    }
+    for (const [qname, props] of Object.entries(e.qsets || {})) {   // 0.8 LA.5
+      const qs = Object.entries(props).filter(([, q]) => q && Number.isFinite(q.v)).map(([qk, q]) => {
+        const f = q.kind === 'area' ? k * k : q.kind === 'volume' ? k * k * k : q.kind === 'length' ? k : 1;
+        const T = { area: 'IFCQUANTITYAREA', volume: 'IFCQUANTITYVOLUME', length: 'IFCQUANTITYLENGTH', count: 'IFCQUANTITYCOUNT' }[q.kind] || 'IFCQUANTITYCOUNT';
+        return w.add(T + '(' + S(qk) + ',$,$,' + R(q.v * f) + ',$)');
+      });
+      if (!qs.length) continue;
+      const set = w.add('IFCELEMENTQUANTITY(' + id('qto|' + tag + '|' + qname) + ',$,' + S(qname) + ',$,$,(' + qs.join(',') + '))');
+      w.add('IFCRELDEFINESBYPROPERTIES(' + id('rdq|' + tag + '|' + qname) + ',$,$,$,(' + el + '),' + set + ')');
     }
     if (e.material) material(e.material, 'el|' + tag, [el]);
     if (e.type) {

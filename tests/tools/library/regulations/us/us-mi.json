@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-mi",
+  "name": "Michigan: Michigan Residential Code 2015 (MRC)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-MI",
+    "name": "Michigan"
+  },
+  "base": "us-irc-2015",
+  "edition": "IRC 2015 as adopted, 2016-02-08",
+  "in_force": "2016-02-08",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2015 (LARA, Bureau of Construction Codes; 1972 PA 230 (MCL 125.1501 et seq.); Mich. Admin. Code R 408.30401 et seq.). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (researc…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "LARA, Bureau of Construction Codes, 1972 PA 230 (MCL 125.1501 et seq.); Mich. Admin. Code R 408.30401 et seq.",
+    "url": "https://www.michigan.gov/en/lara/bureau-list/bcc/rules-acts/rules/currently-open",
+    "date": "2025-07-07",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "R 408.30519 (IRC R311.7.5.1)",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R 408.30519 (IRC R311.7.5.2)",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

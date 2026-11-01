@@ -109,7 +109,8 @@ Juniperus virginiana|Eastern red cedar|Enebro de Virginia|Junípero-da-virgínia
 Ilex aquifolium|Holly|Acebo|Azevinho|T|co|E|10|5|s|ph|M|w|6-8|t|female plants berry; spiny leaves
 Platanus × hispanica|London plane|Plátano de sombra|Plátano|T|bl|D|30|20|f|s|M|*|5-8|tm|the classic city street tree; pollards well
 Populus alba|White poplar|Álamo blanco|Choupo-branco|T|bl|D|20|15|f|s|M|*|3-8|tm|suckers widely; keep away from drains
-Populus nigra|Black poplar|Chopo|Choupo-negro|T|cl|D|25|6|f|s|H|m|3-9|tm|columnar forms for windbreaks; thirsty roots
+Populus nigra|Black poplar|Chopo|Choupo-negro|T|sp|D|25|18|f|s|H|m|3-9|tm|broad spreading crown; thirsty roots; the columnar Lombardy poplar is 'Italica'
+Populus nigra 'Italica'|Lombardy poplar|Chopo lombardo|Choupo-de-Itália|T|cl|D|25|4|f|s|H|m|3-9|tm|narrow column; windbreaks; thirsty roots
 Populus tremula|Aspen|Álamo temblón|Choupo-tremedor|T|up|D|18|8|f|s|M|m|2-6|t|leaves tremble in the wind; suckers
 Prunus avium|Wild cherry|Cerezo|Cerejeira|T|bl|D|18|10|f|s|M|wl|4-8|t|white spring blossom
 Prunus cerasifera|Cherry plum|Ciruelo mirobolán|Abrunheiro-de-jardim|T|ro|D|8|6|m|s|M|*|4-8|tm|purple-leaved forms common

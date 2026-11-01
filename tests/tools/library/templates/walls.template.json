@@ -1,0 +1,55 @@
+{
+  "name": "Specification: Walls, linings and finishes",
+  "description": "A specification for drywall and finishes, filled from the open IFC model: quantities by type, tag values and schedules. Edit the text, then save the document as PDF or Word. Reads the model’s tags (the definitions are listed with the template).",
+  "template": {
+    "format": "cadcraft-doc-template",
+    "version": 1,
+    "key": "spec-walls",
+    "trade": "drywall and finishes",
+    "title": "Walls, linings and finishes",
+    "tags": [
+      {
+        "name": "Wall finish",
+        "kind": "text",
+        "values": [
+          "Paint",
+          "Tile",
+          "Wallpaper",
+          "Exposed"
+        ],
+        "classes": [
+          "IfcWall"
+        ]
+      },
+      {
+        "name": "Lining",
+        "kind": "text",
+        "values": [
+          "12.5 mm board",
+          "2 x 12.5 mm board",
+          "15 mm fire board",
+          "None"
+        ],
+        "classes": [
+          "IfcWall"
+        ]
+      },
+      {
+        "name": "Fire rating",
+        "kind": "integer",
+        "values": [
+          0,
+          20,
+          30,
+          45,
+          60,
+          90,
+          120
+        ],
+        "classes": [],
+        "note": "Minutes"
+      }
+    ],
+    "text": "# Walls, linings and finishes\n\n**Project:** {{project}}. **Model:** {{file}}. **Issued:** {{date}}.\n\n## Quantities by wall type\n\n{{qty IfcWall NetSideArea by Type}}\n\n{{qty IfcWall Length by Type}}\n\n## Quantities by finish\n\n{{qty IfcWall NetSideArea by tag:Wall finish}}\n\n## Wall types\n\n{{#group IfcWall by Type}}\n### {{value}}\n\n{{count}} walls, {{sum NetSideArea}} net side area, {{sum Length}} long in all.\n\n- Lining: {{tag Lining}}\n- Finish: {{tag Wall finish}}\n- Fire rating: {{tag Fire rating}}\n{{/group}}\n\n## Walls with no finish tagged\n\n{{#each IfcWall where Wall finish hasnot}}\n- {{name}} ({{type}}, {{storey}})\n{{else}}\nEvery wall has a finish.\n{{/each}}\n\n## Workmanship\n\nAreas are net of openings as the model's quantity sets state them. Allow for waste and laps when ordering.\n"
+  }
+}

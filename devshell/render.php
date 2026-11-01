@@ -144,6 +144,11 @@ ob_start();
 <?php if (AppBuilds::input($__build)): /* menus, keys and mouse (0.5 track IP) */ ?>
   <link rel="stylesheet" href="<?= $R ?>assets/css/app-input.css">
 <?php endif; ?>
+<?php if (AppBuilds::propgrid($__build)): /* shared property grid (0.7 PANEL-COMPACT item 4) */ ?>
+  <link rel="stylesheet" href="<?= $R ?>assets/css/app-propgrid.css">
+<?php endif; ?>
+<?php if (AppBuilds::extras($__build)): ?>  <link rel="stylesheet" href="<?= $R ?>assets/css/app-tools.css">
+<?php endif; ?>
 <?php if ($__wsCfg): /* workspace layouts (0.7 WS.6) */ ?>
   <link rel="stylesheet" href="<?= $R ?>assets/css/app-workspace.css">
   <script>(function(){try{if(window.matchMedia&&matchMedia('(max-width: 760px)').matches)return;var w=new URLSearchParams(location.search).get('workspace')||localStorage.getItem('cc-workspace');if(w==='live')w='docked';var ok=<?= json_encode($__wsCfg['layouts']) ?>.indexOf(w)>=0||/^addon:/.test(w||'');if(!ok&&/^file:[a-z][a-z0-9-]{1,39}$/.test(w||'')){var f=JSON.parse(localStorage.getItem('cc-workspace-files')||'{}');ok=!!f&&typeof f[w.slice(5)]==='string';}if(ok)document.documentElement.setAttribute('data-cc-ws-boot',w)}catch(e){}})()</script>
@@ -202,6 +207,9 @@ ob_start();
 <?php if ($__wsCfg): ?>
 <script type="application/json" id="cc-workspace"><?= json_embed($__wsCfg) ?></script>
 <?php endif; ?>
+<?php if (AppBuilds::propgrid($__build)): ?>
+<script src="<?= $R ?>assets/js/app-propgrid.js" defer></script>
+<?php endif; ?>
 <?php if ($__input = AppBuilds::input($__build)): ?>
 <script type="application/json" id="cc-input"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name'], 'registry' => $__input]) ?></script>
 <script type="module" src="<?= $R ?>assets/js/app-input-ui.js"></script>
@@ -210,6 +218,14 @@ ob_start();
 <script type="application/json" id="cc-hardware"><?= json_embed(['app' => $app['slug'], 'build' => (string)$__ver]) ?></script>
 <script type="module" src="<?= $R ?>assets/js/app-hardware.js"></script>
 <?php endif; ?>
+<?php if (AppBuilds::devices($__build)): /* input devices (0.8 Track ID): same module and settings as the site */ ?>
+<script type="application/json" id="cc-devices"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name']]) ?></script>
+<script type="module" src="<?= $R ?>assets/js/app-devices-ui.js"></script>
+<?php endif; ?>
+<?php foreach (AppBuilds::extras($__build) as $__x): /* round 2 shell_PART_2: calc sheets, design reasons, running totals, lessons: same modules as the site */ ?>
+<script type="application/json" id="cc-<?= $__x ?>"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name']]) ?></script>
+<script type="module" src="<?= $R ?>assets/js/app-<?= $__x ?>.js"></script>
+<?php endforeach; ?>
 </body>
 </html>
 <?php

@@ -1,0 +1,249 @@
+[
+ {
+  "id": "civilcraft-site.describe-site",
+  "title": "Describe the site",
+  "pack": "civilcraft-site",
+  "prompt": "Open site.civilcraft.json and tell me how many survey points, which alignments and parcels it has.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "site_describe",
+    "args": {
+     "doc": "$s.doc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   },
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "alignments.length",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "civilcraft-site.elevation-at",
+  "title": "Ground elevation at a point",
+  "pack": "civilcraft-site",
+  "prompt": "What is the ground elevation at 6150200, 2080100 in site.civilcraft.json?",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "surface_elevation",
+    "args": {
+     "doc": "$s.doc",
+     "points": [
+      {
+       "x": 6150200,
+       "y": 2080100
+      }
+     ]
+    },
+    "as": "e"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "points.length",
+    "eq": 276
+   }
+  ]
+ },
+ {
+  "id": "civilcraft-site.cut-fill",
+  "title": "Cut and fill of the pad",
+  "pack": "civilcraft-site",
+  "prompt": "How much cut and fill does the pad in site.civilcraft.json need?",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "surface_volume",
+    "args": {
+     "doc": "$s.doc"
+    },
+    "as": "v"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "pads.length",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "civilcraft-site.street-profile",
+  "title": "Profile along a street",
+  "pack": "civilcraft-site",
+  "prompt": "Give the ground elevation every 100 along the alignment in site.civilcraft.json.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "alignment_station",
+    "args": {
+     "doc": "$s.doc",
+     "stations": [
+      0,
+      100
+     ]
+    },
+    "as": "a"
+   },
+   {
+    "tool": "profile_sample",
+    "args": {
+     "doc": "$s.doc",
+     "step": 100
+    },
+    "as": "pr"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "alignments[name=Main street].name",
+    "eq": "Main street"
+   }
+  ]
+ },
+ {
+  "id": "civilcraft-site.legal-description",
+  "title": "Legal description of a parcel",
+  "pack": "civilcraft-site",
+  "prompt": "Write the legal description of the parcel in site.civilcraft.json.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "parcels_list",
+    "args": {
+     "doc": "$s.doc",
+     "legal": true
+    },
+    "as": "p"
+   }
+  ],
+  "check": [
+   {
+    "file": "site.civilcraft.json",
+    "kind": "json",
+    "path": "parcels.length",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "civilcraft-site.export-landxml",
+  "title": "Export the surface as LandXML",
+  "pack": "civilcraft-site",
+  "prompt": "Export the surface of site.civilcraft.json as LandXML at site.xml.",
+  "fixtures": {
+   "site.civilcraft.json": "tools/mcp/evals/fixtures/site.civilcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "site_open",
+    "args": {
+     "path": "site.civilcraft.json"
+    },
+    "as": "s"
+   },
+   {
+    "tool": "landxml_export",
+    "args": {
+     "doc": "$s.doc",
+     "path": "site.xml"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "site.xml",
+    "kind": "text",
+    "path": "text",
+    "includes": "<LandXML"
+   },
+   {
+    "file": "site.xml",
+    "kind": "text",
+    "path": "text",
+    "includes": "<Surface"
+   }
+  ]
+ }
+]

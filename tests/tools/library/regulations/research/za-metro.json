@@ -1,0 +1,37 @@
+{
+  "checked": "2026-10-27",
+  "municipality": "City of Cape Town",
+  "province": "ZA-WC",
+  "id_suggestion": "za-wc-cape-town",
+  "by_laws": [
+    {
+      "name": "City of Cape Town Municipal Planning By-law, 2015 (includes the Development Management Scheme as Schedule 3); text read is the consolidation as at 3 February 2020 (amended 2017, 2019; later amendments 2022 and 2025 exist but were not read)",
+      "url": "https://media.lawlibrary.org.za/media/legislation/273134/source_file/1fbd0425b2c44629/2015-municipal-planning.pdf",
+      "in_force": "2015-07-01",
+      "authority_body": "City of Cape Town (Council)"
+    },
+    {
+      "name": "Municipal Planning By-law 2015, web version with amendment status",
+      "url": "https://openbylaws.org.za/akn/za-cpt/act/by-law/2015/municipal-planning",
+      "in_force": "2015-07-01",
+      "authority_body": "City of Cape Town (Council)"
+    },
+    {
+      "name": "City of Cape Town planning by-law page (lists 2017, 2019, 2022, 2025 amendments)",
+      "url": "https://www.capetown.gov.za/work and business/planning-portal/regulations-and-legislations/planning-by-law",
+      "in_force": "2015",
+      "authority_body": "City of Cape Town"
+    }
+  ],
+  "limits": [],
+  "criteria": [],
+  "not_modelled": [
+    "The by-law is a land-use and zoning instrument: zoning categories, consent uses, development rules per zone (the DMS), departures, subdivision, rezoning, engineering services and development charges.",
+    "Development rules in the DMS cover things such as height, floor area ratio, coverage, building lines and parking bays; these were not extracted into rule ids because none of our rule ids model them.",
+    "The by-law defines 'habitable space' and 'stairs' (definitions only, used for floor-area calculation) but sets no numeric room, stair, light or ventilation limit.",
+    "Room size, ceiling height, stair geometry, daylight and ventilation are left to the National Building Regulations and Building Standards Act, 1977 and SANS 10400, applied by the City through building plan approval; the by-law only refers to that Act.",
+    "No published climate zone for Cape Town was found in the by-law, so no climate_zone criterion is recorded.",
+    "The 2022 and 2025 amendments and the 2025 consolidation were not read; they are amendments to planning rules and are unlikely to add technical limits, but this is unverified."
+  ],
+  "summary": "Searched Cape Town's Municipal Planning By-law, 2015 (with the Development Management Scheme as Schedule 3), reading the full 2020 consolidation and searching it for habitable, ceiling, stair, ventilation, passage and bedroom terms. It sets zoning and land-use development rules, and no numeric limit that maps to our room, stair or hall rule ids, so zero limits are recorded and none override SANS 10400. Johannesburg and Tshwane were not checked, since the task only fell back to them if Cape Town had nothing usable, which could still be argued. A metro pack for Cape Town would be an empty inheritance proof unless the owner accepts that."
+}

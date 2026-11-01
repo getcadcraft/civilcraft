@@ -1,0 +1,318 @@
+[
+ {
+  "id": "partcraft-mechanical.describe-part",
+  "title": "Describe a part",
+  "pack": "partcraft-mechanical",
+  "prompt": "Open Parts/screw.partcraft.json and tell me what it is made of and how many features it has.",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_describe",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "d"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "name",
+    "eq": "Hex head screw ISO 4017"
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "features.length",
+    "eq": 4
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "material.name",
+    "eq": "Steel"
+   }
+  ]
+ },
+ {
+  "id": "partcraft-mechanical.weight",
+  "title": "How much does it weigh",
+  "pack": "partcraft-mechanical",
+  "prompt": "How much does the part in Parts/screw.partcraft.json weigh?",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "mass_properties",
+    "args": {
+     "doc": "$o.doc"
+    },
+    "as": "m"
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "material.density",
+    "approx": 7.85,
+    "tol": 0.001
+   }
+  ]
+ },
+ {
+  "id": "partcraft-mechanical.change-parameter",
+  "title": "Change a parameter",
+  "pack": "partcraft-mechanical",
+  "prompt": "In Parts/screw.partcraft.json change the parameter l to 30 and save it as Parts/screw-30.partcraft.json.",
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "param_set",
+    "args": {
+     "doc": "$o.doc",
+     "name": "l",
+     "value": 30
+    },
+    "as": "s"
+   },
+   {
+    "tool": "part_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "Parts/screw-30.partcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Parts/screw-30.partcraft.json",
+    "kind": "json",
+    "path": "params.vars[name=l].expr",
+    "eq": "30"
+   },
+   {
+    "file": "Parts/screw-30.partcraft.json",
+    "kind": "json",
+    "path": "features.length",
+    "eq": 4
+   },
+   {
+    "file": "Parts/screw.partcraft.json",
+    "kind": "json",
+    "path": "params.vars[name=l].expr",
+    "eq": "20"
+   }
+  ]
+ },
+ {
+  "id": "partcraft-mechanical.export-for-printing",
+  "title": "Export for printing",
+  "pack": "partcraft-mechanical",
+  "prompt": "Export Parts/screw.partcraft.json as an STL for printing at Out/screw.stl.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "stl",
+     "out": "Out/screw.stl"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/screw.stl",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 1000
+   }
+  ]
+ },
+ {
+  "id": "partcraft-mechanical.export-for-supplier",
+  "title": "Export for a supplier",
+  "pack": "partcraft-mechanical",
+  "prompt": "Export Parts/screw.partcraft.json as a STEP file for a supplier at Out/screw.step.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {
+   "Parts/screw.partcraft.json": "tools/mcp/evals/fixtures/screw.partcraft.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "part_open",
+    "args": {
+     "path": "Parts/screw.partcraft.json"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "part_export",
+    "args": {
+     "doc": "$o.doc",
+     "format": "step",
+     "out": "Out/screw.step"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/screw.step",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^ISO-10"
+   }
+  ]
+ },
+ {
+  "id": "partcraft-mechanical.design-bracket",
+  "title": "Design a bracket from a load",
+  "pack": "partcraft-mechanical",
+  "prompt": "I need a bracket holding 20 pounds at 6 inches, aluminium, machinable. Pick a generator, size it, check it and give me the part.",
+  "folders": [
+   "Out"
+  ],
+  "fixtures": {},
+  "allow": [
+   "read",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "generators_find",
+    "args": {
+     "text": "bracket holding 20 pounds at 6 inches, aluminium, machinable"
+    },
+    "as": "g",
+    "expect": [
+     {
+      "path": "picks[id=bracket].score",
+      "gte": 3
+     }
+    ]
+   },
+   {
+    "tool": "design_estimate",
+    "args": {
+     "generator": "bracket",
+     "force": 20,
+     "force_unit": "lbf",
+     "arm": 6,
+     "length_unit": "in",
+     "material": "aluminium",
+     "process": "machined"
+    },
+    "as": "e",
+    "expect": [
+     {
+      "path": "ok",
+      "eq": true
+     },
+     {
+      "path": "dims.thickness_mm",
+      "eq": 5
+     },
+     {
+      "path": "dims.bolt",
+      "eq": "M5"
+     }
+    ]
+   },
+   {
+    "tool": "design_make",
+    "args": {
+     "generator": "bracket",
+     "force": 20,
+     "force_unit": "lbf",
+     "arm": 6,
+     "length_unit": "in",
+     "material": "aluminium",
+     "process": "machined",
+     "name": "Shelf bracket",
+     "out": "Out/bracket.partcraft.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "bodies",
+    "eq": 1
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "part",
+    "path": "failing.length",
+    "eq": 0
+   },
+   {
+    "file": "Out/bracket.partcraft.json",
+    "kind": "json",
+    "path": "material.name",
+    "eq": "aluminium 6061-T6"
+   }
+  ]
+ }
+]

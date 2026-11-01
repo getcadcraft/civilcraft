@@ -1,0 +1,46 @@
+% mach_from_area — the Mach number at a given area ratio in a nozzle
+%
+% Usage:      M = mach_from_area(AR, gamma, branch)
+%             AR = A / A* >= 1; branch 'sub' (the converging side, M < 1) or 'super' (the diverging side, M > 1).
+% Computes:   the root of A/A*(M) = AR (isentropic) by bisection, 200 halvings: the same bits every run.
+% Method:     the area-Mach relation is monotonic on each side of M = 1, so bisection cannot miss.
+% Units:      none.
+% Limits:     as isentropic. A given area ratio has two answers, one on each side of the throat: the branch picks.
+% References: Anderson, Modern Compressible Flow, 3rd ed., eq. 4.80.
+% Check:      AR 1.6875, gamma 1.4: supersonic M = 2.000, subsonic M = 0.3722 (tools/field-test/eng.mjs).
+function M = mach_from_area(AR, gamma, branch)
+if nargin < 3
+  branch = 'super';
+end
+if ~(AR >= 1)
+  error('mach_from_area: the area ratio A / A* is at least 1');
+end
+if strcmp(branch, 'sub')
+  lo = 1e-6;
+  hi = 1;
+elseif strcmp(branch, 'super')
+  lo = 1;
+  hi = 60;
+else
+  error('mach_from_area: the branch is sub or super');
+end
+for k = 1:200
+  mid = (lo + hi) / 2;
+  tr = 1 + (gamma - 1) / 2 * mid ^ 2;
+  a = (1 / mid) * (2 / (gamma + 1) * tr) ^ ((gamma + 1) / (2 * (gamma - 1)));
+  if strcmp(branch, 'sub')
+    if a > AR
+      lo = mid;
+    else
+      hi = mid;
+    end
+  else
+    if a < AR
+      lo = mid;
+    else
+      hi = mid;
+    end
+  end
+end
+M = (lo + hi) / 2;
+end

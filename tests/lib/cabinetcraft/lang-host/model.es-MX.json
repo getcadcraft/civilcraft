@@ -1,0 +1,20 @@
+{
+  "mod.room.title": "Usar la cara de piso seleccionada como cuarto",
+  "mod.room.note": "Seleccione primero una cara de piso (una cara horizontal que mira hacia arriba) en el modelo. Su contorno pasa a ser el cuarto del trabajo y las puertas y ventanas de la biblioteca inicial cerca de su borde pasan a ser aberturas.",
+  "mod.room.row": "{name}: {area} m2, {doors} puertas, {windows} ventanas",
+  "mod.room.select": "Seleccione primero una cara de piso en el modelo (una cara horizontal que mira hacia arriba).",
+  "mod.room.unavailable": "Este ModelCraft no puede entregar un cuarto a los complementos.",
+  "mod.place.title": "Gabinetes en el modelo",
+  "mod.place.note": "Pone los gabinetes en el modelo como cuerpos: un grupo para el trabajo (etiqueta \"CabinetCraft / cabinets\"), un subgrupo por cada gabinete, relleno, panel lateral y cubierta, cada panel coloreado según su material. Son caras reales: se renderizan, se seleccionan, se miden, se ocultan con su etiqueta y salen con Archivo > Exportar a OBJ, glTF y STL. Un solo paso de deshacer; colocar de nuevo reemplaza el grupo.",
+  "mod.place.unavailable": "Este ModelCraft no puede recibir cuerpos de complementos.",
+  "mod.place.do": "Colocar en el modelo",
+  "mod.place.replace": "Reemplazar en el modelo",
+  "mod.place.label": "colocar gabinetes",
+  "mod.place.done": "{cabs} gabinetes colocados ({n} paneles).",
+  "mod.place.empty": "Este trabajo todavía no tiene gabinetes.",
+  "mod.remove": "Quitar del modelo",
+  "mod.remove.label": "quitar gabinetes",
+  "mod.removed": "Los gabinetes se quitaron del modelo.",
+  "mod.none": "Nada de este trabajo está en el modelo.",
+  "mod.count": "{n} cuerpos de panel de este trabajo están en el modelo."
+}

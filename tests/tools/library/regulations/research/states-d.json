@@ -1,0 +1,317 @@
+[
+ {
+  "state": "New Jersey",
+  "code": "US-NJ",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "Uniform Construction Code, One- and Two-Family Dwelling Subcode (IRC 2024, New Jersey edition)",
+  "effective_date": "2026-08-17",
+  "adopting_authority": "NJ Department of Community Affairs, Division of Codes and Standards",
+  "citation": "N.J.A.C. 5:23-3.21",
+  "source_url": "https://www.nj.gov/dca/codes/codreg/pdf_rule_adoptions/model_codes_2024_adopt.pdf",
+  "source_date": "2026-07-15 (adopted and filed); published 2026-08-17",
+  "secondary_source_url": "https://www.nj.gov/dca/codes/codreg/pdf_regs/njac_5_23_3.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (210 mm)",
+    "section": "N.J.A.C. 5:23-3.21(c), R318.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "N.J.A.C. 5:23-3.21(c), R318.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "6-month grace period for the prior code. Replaces IRC 2021.",
+  "as_of": "2026-08-17"
+ },
+ {
+  "state": "New Mexico",
+  "code": "US-NM",
+  "statewide": true,
+  "base_code": "IRC 2021",
+  "state_code_name": "2021 New Mexico Residential Building Code (NMRBC)",
+  "effective_date": "2023-07-14",
+  "adopting_authority": "Construction Industries Commission / Construction Industries Division, RLD",
+  "citation": "14.7.3 NMAC",
+  "source_url": "https://srca.nm.gov/parts/title14/14.007.0003.html",
+  "source_date": "2023-07-14 (rule); amended 2025-01-13",
+  "secondary_source_url": "https://www.rld.nm.gov/construction-industries/rules-laws-and-building-codes/",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 in (203 mm)",
+    "section": "14.7.3.11 NMAC (R311.7.5.1)",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "14.7.3.11 NMAC (R311.7.5.2)",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Mandatory from 2023-12-14.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "New York",
+  "code": "US-NY",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "2025 Residential Code of New York State (RCNYS)",
+  "effective_date": "2025-12-31",
+  "adopting_authority": "State Fire Prevention and Building Code Council; NY Department of State",
+  "citation": "19 NYCRR Part 1220",
+  "source_url": "https://dos.ny.gov/notice-adoption",
+  "source_date": "2025-07-25 (Code Council adoption)",
+  "secondary_source_url": "https://dos.ny.gov/system/files/documents/2025/07/2025rcnys_noa_2025-07-24_compressed.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (209 mm)",
+    "section": "[NY] R318.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "[NY] R318.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "New York City is not covered (own construction codes).",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "North Carolina",
+  "code": "US-NC",
+  "statewide": true,
+  "base_code": "IRC 2015 (as the 2018 NC Residential Code)",
+  "state_code_name": "2018 North Carolina State Building Code: Residential Code (NCRC)",
+  "effective_date": "2019-01-01",
+  "adopting_authority": "NC Building Code Council / Residential Code Council; Office of State Fire Marshal",
+  "citation": "N.C.G.S. 143-138",
+  "source_url": "https://www.ncosfm.gov/letter-re-2024-state-building-code-effective-date/open",
+  "source_date": "2025-03-31 (OSFM letter)",
+  "secondary_source_url": "https://nclicensing.org/wp-content/uploads/2026/05/2026-06-01-Code-Update.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in",
+    "section": "2018 NCRC R311.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "2018 NCRC R311.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "medium",
+  "notes": "2024 NCRC (IRC 2021) not yet in effect (earliest 2027-05-01). Tread value from a county guide; the 2015 IRC base is from memory, not re-checked.",
+  "as_of": "2026-06-01"
+ },
+ {
+  "state": "North Dakota",
+  "code": "US-ND",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "North Dakota State Building Code (IRC 2024 with ND amendments)",
+  "effective_date": "2026-01-01",
+  "adopting_authority": "ND Department of Commerce, Community Services Division",
+  "citation": "N.D.C.C. ch. 54-21.3",
+  "source_url": "https://www.medialibrary.nd.gov/assetbank-nd/assetfile/156311.pdf",
+  "source_date": "2025-09-11 (amendments adopted)",
+  "secondary_source_url": "https://www.commerce.nd.gov/community-services/building-codes",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 in",
+    "section": "R318.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "R318.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Local option: applies where a city or county enforces a building code.",
+  "as_of": "2026-01-01"
+ },
+ {
+  "state": "Ohio",
+  "code": "US-OH",
+  "statewide": true,
+  "base_code": "IRC 2018",
+  "state_code_name": "Residential Code of Ohio (RCO), 2019 edition",
+  "effective_date": "2019-07-01",
+  "adopting_authority": "Ohio Board of Building Standards, Department of Commerce",
+  "citation": "Ohio Adm. Code 4101:8",
+  "source_url": "https://codes.ohio.gov/ohio-administrative-code/rule-4101:8-3-01",
+  "source_date": "2019-07-01 (rule 4101:8-3-01 effective)",
+  "secondary_source_url": "https://com.ohio.gov/divisions-and-programs/industrial-compliance/boards/board-of-building-standards/building-codes-and-interpretations/proposed-obc-opc-and+rco-rules-amendments",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (209 mm)",
+    "section": "RCO R311.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "RCO R311.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Other six limits unchanged in the rule text.",
+  "as_of": "2026-10-27"
+ },
+ {
+  "state": "Oklahoma",
+  "code": "US-OK",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "Oklahoma Uniform Building Code Commission adoption of IRC 2024",
+  "effective_date": "2026-09-14",
+  "adopting_authority": "Oklahoma Uniform Building Code Commission (OUBCC)",
+  "citation": "OAC 748:20-6",
+  "source_url": "https://oklahoma.gov/content/dam/ok/en/oubcc/documents/rules/2026%2009%2014%20IRC%202024%20Permanent%20Rule.pdf",
+  "source_date": "not confirmed",
+  "secondary_source_url": "https://oklahoma.gov/content/dam/ok/en/oubcc/documents/2024-pending-rules/2024%20IRC%20Pending%20Rules.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "7 3/4 in",
+    "section": "R318.7.5.1 (kept; new exception for the top and bottom riser)",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Statewide minimum code. Replaces IRC 2018.",
+  "as_of": "2026-09-14"
+ },
+ {
+  "state": "Oregon",
+  "code": "US-OR",
+  "statewide": true,
+  "base_code": "IRC 2024",
+  "state_code_name": "2026 Oregon Residential Specialty Code (ORSC)",
+  "effective_date": "2026-10-01",
+  "adopting_authority": "Department of Consumer and Business Services, Building Codes Division",
+  "citation": "OAR 918-480-0005, 918-480-0010",
+  "source_url": "https://www.oregon.gov/bcd/laws-rules/Documents/20261001-2026orsc-adoption-pr.pdf",
+  "source_date": "2026-09-30 (order filed)",
+  "secondary_source_url": "https://www.oregon.gov/bcd/codes-stand/Documents/26orsc-matrix.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 in",
+    "section": "ORSC R318.7.5.1"
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "ORSC R318.7.5.2"
+   },
+   {
+    "rule": "stair.width.min",
+    "value": "30 in",
+    "section": "ORSC R318.7.1",
+    "skip": "Oregon allows 30 in only for stairways other than the first stairway serving a floor; the first stays 36 in. A single minimum cannot say that, so the base 36 in is kept."
+   },
+   {
+    "rule": "stair.rail.height",
+    "value": "30-38 in",
+    "section": "ORSC R320.2"
+   }
+  ],
+  "confidence": "high",
+  "notes": "Mandatory from 2027-04-01 after a six-month phase-in. Amendments from the RMSB review matrix.",
+  "as_of": "2026-09-30"
+ },
+ {
+  "state": "Pennsylvania",
+  "code": "US-PA",
+  "statewide": true,
+  "base_code": "IRC 2021",
+  "state_code_name": "Pennsylvania Uniform Construction Code (UCC), residential",
+  "effective_date": "2026-01-01",
+  "adopting_authority": "Department of Labor & Industry",
+  "citation": "34 Pa. Code § 403.21(a)(7)",
+  "source_url": "https://www.pacodeandbulletin.gov/Display/pacode?file=/secure/pacode/data/034/chapter403/s403.21.html",
+  "source_date": "2025-11-07 (55 Pa.B. 7701)",
+  "secondary_source_url": "https://www.jensenhughes.com/code-alerts/pennsylvania-adopts-2021-i-codes-into-the-ucc",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in",
+    "section": "34 Pa. Code § 403.21(a)(7)(ii)(A)",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in",
+    "section": "§ 403.21(a)(7)(ii)(B)",
+    "source": ""
+   },
+   {
+    "rule": "stair.width.min",
+    "value": "3 ft",
+    "section": "§ 403.21(a)(7)(ii)(E)",
+    "source": ""
+   },
+   {
+    "rule": "stair.headroom.min",
+    "value": "6 ft 8 in",
+    "section": "§ 403.21(a)(7)(ii)(E)",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "Replaces IRC 2018.",
+  "as_of": "2026-08-08"
+ },
+ {
+  "state": "Rhode Island",
+  "code": "US-RI",
+  "statewide": true,
+  "base_code": "IRC 2021",
+  "state_code_name": "SBC-2 Rhode Island One & Two Family Dwelling Code",
+  "effective_date": "2025-12-01",
+  "adopting_authority": "Building Code Standards Committee, RI Building Code Commission",
+  "citation": "510-RICR-00-00-2",
+  "source_url": "https://rules.sos.ri.gov/Regulations/part/510-00-00-2",
+  "source_date": "2025-09-30 (filed text)",
+  "secondary_source_url": "https://risos-apa-production-public.s3.amazonaws.com/BCC/REG_13394_20250930093046621.pdf",
+  "amendments": [
+   {
+    "rule": "stair.riser.max",
+    "value": "8 1/4 in (210 mm)",
+    "section": "R311.7.5.1",
+    "source": ""
+   },
+   {
+    "rule": "stair.tread.min",
+    "value": "9 in (229 mm)",
+    "section": "R311.7.5.2",
+    "source": ""
+   }
+  ],
+  "confidence": "high",
+  "notes": "IRC 2024 required by 2027-01-01 (H 7774 Sub A, not confirmed signed).",
+  "as_of": "2026-10-27"
+ }
+]

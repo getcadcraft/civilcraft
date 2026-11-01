@@ -26,6 +26,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const BASE = 'https://getcadcraft.com';
@@ -508,13 +509,18 @@ try {
   await page.keyboard.press('Control+,');
   await page.waitForSelector('[data-app-settings][open]');
   await page.click('[data-settings-tab="app"]');
+  await showSetting(page, '[data-dc-settings]');   // 0.7: one Settings section at a time
   ok(await page.locator('[data-dc-settings]').isVisible() && await page.locator('[data-settings-tab="app"]').textContent() === 'DetailCraft', 'Settings has a DetailCraft tab with its own fields');
   ok(await dc(() => document.querySelector('input[name="dcSteel"][value="us"]').checked && document.querySelector('input[name="dcOffX"]').value === '6000' && document.querySelector('input[name="dcBolts"]').checked), 'fields filled from the defaults when the dialog opens');
+  await showSetting(page, 'input[name="dcSteel"]');
   await page.check('input[name="dcSteel"][value="eu"]');
+  await showSetting(page, 'input[name="dcOffX"]');
   await page.fill('input[name="dcOffX"]', '0');
   await page.fill('input[name="dcOffY"]', '7000');
   await page.locator('input[name="dcOffY"]').dispatchEvent('change');
+  await showSetting(page, 'input[name="dcBolts"]');
   await page.uncheck('input[name="dcBolts"]');
+  await showSetting(page, 'input[name="dcConns"]');
   await page.uncheck('input[name="dcConns"]');
   await page.screenshot({ path: path.join(OUT, '13-settings-detailcraft.png') });
   const st1 = await dc(() => ({ s: JSON.parse(localStorage.getItem('detailcraft.settings')), beam: window.detailcraft.toolOptions.beam.profile + ' ' + window.detailcraft.toolOptions.beam.material, col: window.detailcraft.toolOptions.column.profile, bolts: window.detailcraft.view.root.children.find((o) => o.userData.bolts)?.visible }));

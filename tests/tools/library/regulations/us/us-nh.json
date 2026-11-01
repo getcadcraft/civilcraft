@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-nh",
+  "name": "New Hampshire: New Hampshire State Building Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-NH",
+    "name": "New Hampshire"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2026-07-01",
+  "in_force": "2026-07-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (NH Legislature with State Building Code Review Board amendments; RSA 155-A:1, IV; HB1159 (2026)). State amendments to the checked rules could not be checked: the pack has only the base code's numbers. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Ente…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "NH Legislature with State Building Code Review Board amendments, RSA 155-A:1, IV; HB1159 (2026)",
+    "url": "https://gc.nh.gov/rsa/html/XII/155-A/155-A-1.htm",
+    "date": "2026-05-08",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

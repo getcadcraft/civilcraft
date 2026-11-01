@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "za-wc-cape-town",
+  "name": "City of Cape Town: Municipal Planning By-law 2015 (on SANS 10400)",
+  "jurisdiction": {
+    "country": "ZA",
+    "level": "city",
+    "region": "ZA-WC",
+    "name": "City of Cape Town"
+  },
+  "base": "za-sans10400",
+  "edition": "Municipal Planning By-law 2015",
+  "in_force": "2015-07-01",
+  "review": {
+    "state": "unchecked",
+    "note": "Read from the by-law text on 2026-10-27 (consolidation as at 2020-02-03; the 2022 and 2025 amendments were not read). It is a zoning and land-use by-law: it sets no room, stair, light or ventilation limit the checker knows, so this pack changes none of SANS 10400's rules and carries none of its own. Room, stair and ventilation rules stay those of SANS 10400, which is itself not confirmed."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "City of Cape Town (Council), Municipal Planning By-law, 2015",
+    "url": "https://openbylaws.org.za/akn/za-cpt/act/by-law/2015/municipal-planning",
+    "date": "2020-02-03",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

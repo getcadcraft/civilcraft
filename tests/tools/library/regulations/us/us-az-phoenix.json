@@ -1,0 +1,80 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-az-phoenix",
+  "name": "Phoenix: 2024 Phoenix Building Construction Code (IRC 2024 as amended by Phoenix)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-AZ",
+    "name": "Phoenix"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2025-08-01",
+  "in_force": "2025-08-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (Phoenix City Council; Ordinance G-7397). No city change to the eight checked rules in the text read. Design criteria from www.phoenix.gov (2025-06-18). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Phoenix City Council, Ordinance G-7397",
+    "url": "https://www.phoenix.gov/administration/departments/pdd/tools-resources/codes-ordinance/building-code.html",
+    "date": "2025-06-18",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "N/A (none)",
+      "value": 0,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "105 mph",
+      "value": 105,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "No"
+    },
+    "special_wind_region": {
+      "text": "No"
+    },
+    "windborne_debris": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "B"
+    },
+    "weathering": {
+      "text": "Negligible"
+    },
+    "frost_depth": {
+      "text": "0 in",
+      "value": 0,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "Moderate to heavy"
+    },
+    "ice_barrier": {
+      "text": "No"
+    },
+    "flood_hazards": {
+      "text": "See Phoenix City Code"
+    },
+    "air_freezing_index": {
+      "text": "N/A"
+    },
+    "mean_annual_temp": {
+      "text": "71.2 °F"
+    },
+    "climate_zone": {
+      "text": "2B (IECC county list; not in the city table)"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

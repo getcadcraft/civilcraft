@@ -1,0 +1,77 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-tx-dallas",
+  "name": "Dallas: Dallas One- to Eight-Family Dwelling Code (City Code ch. 57, IRC 2021 as amended)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-TX",
+    "name": "Dallas"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-05-12",
+  "in_force": "2023-05-12",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 — Dallas keeps the 7 3/4 in riser and 10 in tread, with an exception (8 in / 9 in) only for private stairs serving fewer than 10 occupants and stairs to unoccupied roofs (Dallas City Council; Dallas City Code ch. 57). No city change to the eight checked rules in the text read. Design criteria from dallascityhall.com (2023-04-12). Entered from the cited source on 2026-10-27 (resear…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Dallas City Council, Dallas City Code ch. 57",
+    "url": "https://dallas.gov/departments/sustainabledevelopment/buildinginspection/DCH%20documents/pdf/code_amendments/2021_codes/23-0471.pdf",
+    "date": "2023-04-12",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "5 psf",
+      "value": 5,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "115 mph (3-second gust)",
+      "value": 115,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "No"
+    },
+    "special_wind_region": {
+      "text": "No"
+    },
+    "windborne_debris": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "A"
+    },
+    "weathering": {
+      "text": "Moderate"
+    },
+    "frost_depth": {
+      "text": "6 in",
+      "value": 152.4,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "Very heavy"
+    },
+    "flood_hazards": {
+      "text": "Dallas City Code ch. 51A"
+    },
+    "air_freezing_index": {
+      "text": "150"
+    },
+    "mean_annual_temp": {
+      "text": "64.9 °F"
+    },
+    "climate_zone": {
+      "text": "3A (IECC county list; not in the city table)"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

@@ -1,0 +1,645 @@
+{
+ "format": "partcraft",
+ "version": 3,
+ "name": "Wind tunnel car",
+ "units": "mm",
+ "resolution": 64,
+ "seq": 5,
+ "rollback": null,
+ "features": [
+  {
+   "id": "f1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "plane": {
+    "kind": "base",
+    "name": "front"
+   },
+   "sketch": {
+    "seq": 81,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": 14,
+      "y": 4
+     },
+     {
+      "id": "p2",
+      "type": "point",
+      "x": 1.5427664129268237,
+      "y": 9.921818710068983
+     },
+     {
+      "id": "p4",
+      "type": "point",
+      "x": 1.5427664129268237,
+      "y": 9.921818710068983
+     },
+     {
+      "id": "p5",
+      "type": "point",
+      "x": 1,
+      "y": 13.000000000000002
+     },
+     {
+      "id": "p7",
+      "type": "point",
+      "x": 1,
+      "y": 13.000000000000002
+     },
+     {
+      "id": "p8",
+      "type": "point",
+      "x": 1.5427664129268255,
+      "y": 16.07818128993102
+     },
+     {
+      "id": "p10",
+      "type": "point",
+      "x": 1.5427664129268255,
+      "y": 16.07818128993102
+     },
+     {
+      "id": "p11",
+      "type": "point",
+      "x": 3.105600011929199,
+      "y": 18.785088487178854
+     },
+     {
+      "id": "p13",
+      "type": "point",
+      "x": 3.105600011929199,
+      "y": 18.785088487178854
+     },
+     {
+      "id": "p14",
+      "type": "point",
+      "x": 5.500000000000002,
+      "y": 20.794228634059948
+     },
+     {
+      "id": "p16",
+      "type": "point",
+      "x": 5.500000000000002,
+      "y": 20.794228634059948
+     },
+     {
+      "id": "p17",
+      "type": "point",
+      "x": 8.437166400997627,
+      "y": 21.86326977710987
+     },
+     {
+      "id": "p19",
+      "type": "point",
+      "x": 8.437166400997627,
+      "y": 21.86326977710987
+     },
+     {
+      "id": "p20",
+      "type": "point",
+      "x": 22,
+      "y": 22.5
+     },
+     {
+      "id": "p22",
+      "type": "point",
+      "x": 22,
+      "y": 22.5
+     },
+     {
+      "id": "p23",
+      "type": "point",
+      "x": 38,
+      "y": 25
+     },
+     {
+      "id": "p25",
+      "type": "point",
+      "x": 38,
+      "y": 25
+     },
+     {
+      "id": "p26",
+      "type": "point",
+      "x": 44,
+      "y": 26
+     },
+     {
+      "id": "p28",
+      "type": "point",
+      "x": 44,
+      "y": 26
+     },
+     {
+      "id": "p29",
+      "type": "point",
+      "x": 52,
+      "y": 36
+     },
+     {
+      "id": "p31",
+      "type": "point",
+      "x": 52,
+      "y": 36
+     },
+     {
+      "id": "p32",
+      "type": "point",
+      "x": 60,
+      "y": 38.5
+     },
+     {
+      "id": "p34",
+      "type": "point",
+      "x": 60,
+      "y": 38.5
+     },
+     {
+      "id": "p35",
+      "type": "point",
+      "x": 72,
+      "y": 38.5
+     },
+     {
+      "id": "p37",
+      "type": "point",
+      "x": 72,
+      "y": 38.5
+     },
+     {
+      "id": "p38",
+      "type": "point",
+      "x": 84,
+      "y": 35.5
+     },
+     {
+      "id": "p40",
+      "type": "point",
+      "x": 84,
+      "y": 35.5
+     },
+     {
+      "id": "p41",
+      "type": "point",
+      "x": 100,
+      "y": 29
+     },
+     {
+      "id": "p43",
+      "type": "point",
+      "x": 100,
+      "y": 29
+     },
+     {
+      "id": "p44",
+      "type": "point",
+      "x": 112,
+      "y": 25.5
+     },
+     {
+      "id": "p46",
+      "type": "point",
+      "x": 112,
+      "y": 25.5
+     },
+     {
+      "id": "p47",
+      "type": "point",
+      "x": 118,
+      "y": 22
+     },
+     {
+      "id": "p49",
+      "type": "point",
+      "x": 118,
+      "y": 22
+     },
+     {
+      "id": "p50",
+      "type": "point",
+      "x": 119,
+      "y": 12
+     },
+     {
+      "id": "p52",
+      "type": "point",
+      "x": 119,
+      "y": 12
+     },
+     {
+      "id": "p53",
+      "type": "point",
+      "x": 116,
+      "y": 6
+     },
+     {
+      "id": "p55",
+      "type": "point",
+      "x": 116,
+      "y": 6
+     },
+     {
+      "id": "p56",
+      "type": "point",
+      "x": 108,
+      "y": 4
+     },
+     {
+      "id": "p58",
+      "type": "point",
+      "x": 108,
+      "y": 4
+     },
+     {
+      "id": "p59",
+      "type": "point",
+      "x": 14,
+      "y": 4
+     },
+     {
+      "id": "l3",
+      "type": "line",
+      "p1": "p1",
+      "p2": "p2"
+     },
+     {
+      "id": "l6",
+      "type": "line",
+      "p1": "p4",
+      "p2": "p5"
+     },
+     {
+      "id": "l9",
+      "type": "line",
+      "p1": "p7",
+      "p2": "p8"
+     },
+     {
+      "id": "l12",
+      "type": "line",
+      "p1": "p10",
+      "p2": "p11"
+     },
+     {
+      "id": "l15",
+      "type": "line",
+      "p1": "p13",
+      "p2": "p14"
+     },
+     {
+      "id": "l18",
+      "type": "line",
+      "p1": "p16",
+      "p2": "p17"
+     },
+     {
+      "id": "l21",
+      "type": "line",
+      "p1": "p19",
+      "p2": "p20"
+     },
+     {
+      "id": "l24",
+      "type": "line",
+      "p1": "p22",
+      "p2": "p23"
+     },
+     {
+      "id": "l27",
+      "type": "line",
+      "p1": "p25",
+      "p2": "p26"
+     },
+     {
+      "id": "l30",
+      "type": "line",
+      "p1": "p28",
+      "p2": "p29"
+     },
+     {
+      "id": "l33",
+      "type": "line",
+      "p1": "p31",
+      "p2": "p32"
+     },
+     {
+      "id": "l36",
+      "type": "line",
+      "p1": "p34",
+      "p2": "p35"
+     },
+     {
+      "id": "l39",
+      "type": "line",
+      "p1": "p37",
+      "p2": "p38"
+     },
+     {
+      "id": "l42",
+      "type": "line",
+      "p1": "p40",
+      "p2": "p41"
+     },
+     {
+      "id": "l45",
+      "type": "line",
+      "p1": "p43",
+      "p2": "p44"
+     },
+     {
+      "id": "l48",
+      "type": "line",
+      "p1": "p46",
+      "p2": "p47"
+     },
+     {
+      "id": "l51",
+      "type": "line",
+      "p1": "p49",
+      "p2": "p50"
+     },
+     {
+      "id": "l54",
+      "type": "line",
+      "p1": "p52",
+      "p2": "p53"
+     },
+     {
+      "id": "l57",
+      "type": "line",
+      "p1": "p55",
+      "p2": "p56"
+     },
+     {
+      "id": "l60",
+      "type": "line",
+      "p1": "p58",
+      "p2": "p59"
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k61",
+      "type": "coincident",
+      "refs": [
+       "p2",
+       "p4"
+      ]
+     },
+     {
+      "id": "k62",
+      "type": "coincident",
+      "refs": [
+       "p5",
+       "p7"
+      ]
+     },
+     {
+      "id": "k63",
+      "type": "coincident",
+      "refs": [
+       "p8",
+       "p10"
+      ]
+     },
+     {
+      "id": "k64",
+      "type": "coincident",
+      "refs": [
+       "p11",
+       "p13"
+      ]
+     },
+     {
+      "id": "k65",
+      "type": "coincident",
+      "refs": [
+       "p14",
+       "p16"
+      ]
+     },
+     {
+      "id": "k66",
+      "type": "coincident",
+      "refs": [
+       "p17",
+       "p19"
+      ]
+     },
+     {
+      "id": "k67",
+      "type": "coincident",
+      "refs": [
+       "p20",
+       "p22"
+      ]
+     },
+     {
+      "id": "k68",
+      "type": "coincident",
+      "refs": [
+       "p23",
+       "p25"
+      ]
+     },
+     {
+      "id": "k69",
+      "type": "coincident",
+      "refs": [
+       "p26",
+       "p28"
+      ]
+     },
+     {
+      "id": "k70",
+      "type": "coincident",
+      "refs": [
+       "p29",
+       "p31"
+      ]
+     },
+     {
+      "id": "k71",
+      "type": "coincident",
+      "refs": [
+       "p32",
+       "p34"
+      ]
+     },
+     {
+      "id": "k72",
+      "type": "coincident",
+      "refs": [
+       "p35",
+       "p37"
+      ]
+     },
+     {
+      "id": "k73",
+      "type": "coincident",
+      "refs": [
+       "p38",
+       "p40"
+      ]
+     },
+     {
+      "id": "k74",
+      "type": "coincident",
+      "refs": [
+       "p41",
+       "p43"
+      ]
+     },
+     {
+      "id": "k75",
+      "type": "coincident",
+      "refs": [
+       "p44",
+       "p46"
+      ]
+     },
+     {
+      "id": "k76",
+      "type": "coincident",
+      "refs": [
+       "p47",
+       "p49"
+      ]
+     },
+     {
+      "id": "k77",
+      "type": "coincident",
+      "refs": [
+       "p50",
+       "p52"
+      ]
+     },
+     {
+      "id": "k78",
+      "type": "coincident",
+      "refs": [
+       "p53",
+       "p55"
+      ]
+     },
+     {
+      "id": "k79",
+      "type": "coincident",
+      "refs": [
+       "p56",
+       "p58"
+      ]
+     },
+     {
+      "id": "k80",
+      "type": "coincident",
+      "refs": [
+       "p59",
+       "p1"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Extrude1",
+   "sketch": "f1",
+   "op": "add",
+   "end": "mid",
+   "depth": 48,
+   "reverse": false
+  },
+  {
+   "id": "f3",
+   "type": "sketch",
+   "name": "Sketch2",
+   "plane": {
+    "kind": "base",
+    "name": "front"
+   },
+   "sketch": {
+    "seq": 5,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": 28,
+      "y": 7
+     },
+     {
+      "id": "p3",
+      "type": "point",
+      "x": 94,
+      "y": 7
+     },
+     {
+      "id": "c2",
+      "type": "circle",
+      "c": "p1",
+      "r": 11
+     },
+     {
+      "id": "c4",
+      "type": "circle",
+      "c": "p3",
+      "r": 11
+     }
+    ],
+    "constraints": []
+   }
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Extrude2",
+   "sketch": "f3",
+   "op": "add",
+   "end": "mid",
+   "depth": 54,
+   "reverse": false
+  }
+ ],
+ "studies": {
+  "simulation": {
+   "v": 1,
+   "kind": "flow",
+   "material": "al6061",
+   "h": null,
+   "elem": "h8i",
+   "mesher": "tet",
+   "modes": 4,
+   "seq": 0,
+   "constraints": [],
+   "loads": [],
+   "flow": {
+    "v": 1,
+    "type": "external",
+    "fluid": "air",
+    "h": 2.5,
+    "wall": "interpolated",
+    "model": "laminar",
+    "maxSteps": 40000,
+    "tol": 0.000001,
+    "seq": 0,
+    "openings": [],
+    "ext": {
+     "speed": 0.02,
+     "dir": [
+      1,
+      0,
+      0
+     ],
+     "up": 40,
+     "down": 160,
+     "side": 40,
+     "refArea": null,
+     "lift": null
+    }
+   }
+  }
+ }
+}

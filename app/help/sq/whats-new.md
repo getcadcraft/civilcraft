@@ -1,0 +1,90 @@
+---
+title: Çfarë është e re në 0.7
+summary: CivilCraft 0.7 shton një Hapësirë të linjave elektrike (linja ajrore dhe kabllo nëntokësore me bibliotekat e tua, lakim dhe tension, kontrolle largësie dhe rezistence, tabela tendosjeje, sasi, fletë dhe GIS), një Hapësirë peizazhi (listë bimësh, plane mbjellje dhe tabela, nivelim peizazhi, shtrim, mure dhe shkallë, një ndihmës llogaritjeje ujitjeje, fletë peizazhi dhe objekte të lira), masa ndërtesash me kufij zonimi që shkruan ti dhe orë dielli, spirale klotoide, korridore të ndërtuara nga pjesë në çdo anë, eksport USD dhe më shumë mjete për asistentët AI.
+keywords: çfarë është e re, what's new, shënime lançimi, regjistri i ndryshimeve, ndryshime, 0.7, version, veçori të reja, peizazh, hapësira e peizazhit, listë bimësh, bimë, mbjellje, tabela e bimëve, shtrat, gardh, nivelim, platformë, berm, kanal, analizë pjerrësie, ujëmbledhje, elemente të ngurta, shtrim, shteg, mur, bordurë, rampë, shkallë, ujitje, aspersor, pikim, fletë peizazhi, objekt i lirë, masë ndërtese, zonim, largesë nga rruga, mbështjellës, orë dielli, hije, ifc, zhvillo në bimcraft, spirale, klotoide, kalim, montim, trotuar, usd, asistentë, njësi, portugalisht
+from: 3c9d79db
+---
+
+Kjo është ajo që ndryshoi në CivilCraft 0.7, krahasuar me 0.6. Pjesët më të mëdha të reja janë Hapësirat e linjave elektrike dhe të peizazhit, dhe masat e ndërtesave.
+
+## E re
+
+### Hapësira e peizazhit
+
+- **Një Hapësirë peizazhi mbi të njëjtin vend.** {{ui:Surface}} › {{ui:More}} › {{ui:Landscape workspace}} shton mjete mbjelljeje, nivelimi, elementesh të ngurta dhe ujitjeje te vendi që ke tashmë: të njëjtat pika rilevimi, sipërfaqe dhe skedar projekti. Zgjidh **Civil** nën **Hapësira e punës** për t'u kthyer. Shih [Hapësira e peizazhit](topic:landscape).
+- **Një listë bimësh.** Rreth 420 pemë, shkurre, gardhe, bar, bimë shumëvjeçare, mbulesa toke dhe ngjitëse të zakonshme të zonave të buta dhe mesdhetare, me madhësitë e tyre në mbjellje dhe në pjekuri, zonën e qëndrueshmërisë ndaj ngricës, dritën, ujin dhe distancën. Kërko me çdo emër në anglisht, spanjisht ose portugalisht. Importo listën tënde si CSV; ruhet me projektin. Madhësitë e integruara janë tipike dhe të rrumbullakosura: kontrollo ato me një vendtharje lokale. Shih [Lista e bimëve](topic:plant-list).
+- **Plane mbjellje.** {{ui:Plant}} vendos bimë të vetme që qëndrojnë në tokë dhe ndjekin nivelimin e mëvonshëm, {{ui:Bed}} mbush një kontur me distancën e bimëve me një përzierje sipas përqindjes, dhe {{ui:Hedge}} vendos një ose dy rreshta përgjatë një vije. Bimët etiketohen në planimetri. Shih [Planet e mbjelljes dhe tabelat](topic:planting).
+- **Një tabelë bimësh.** Më shumë › {{ui:Plant schedule…}} numëron bimët sipas specieve dhe madhësisë së mbjelljes. Ruaje si CSV ose XLSX, ose dërgoje në TakeoffCraft për ta çmuar. Shih [Tabela e bimëve](topic:planting#the-plant-schedule).
+- **Nivelim për peizazh.** {{ui:Grade}} ka platforma (të nivelta ose me rënie), berma, kanale dhe zona nivelimi me kota pikash dhe izoipsa që tërheq. Gërmimi dhe mbushja shfaqen ndërsa punon. **Analiza e pjerrësisë** ngjyros sipërfaqen sipas dy kufijve të tu, dhe **Shigjetat e rrjedhës dhe ujëmbledhja** tregon ku rrjedh uji dhe ku do të mblidhej. E gjithë kjo hyn në të njëjtën sipërfaqe të propozuar si platformat dhe korridoret. Shih [Nivelimi për peizazh](topic:landscape-grading).
+- **Shtrim, shtigje, mure, bordura, rampa dhe shkallë.** {{ui:Hardscape}} vizaton shtrim me pjerrësi tërthore ose rënie drejt një kanali, me një model dhe shtresat e tij; shtigje që ndjekin tokën; mure mbajtëse dhe të pavarura me themele shkallëzuar; bordura; dhe rampa dhe shkallë të kontrolluara me kufij që vendos ti. Një mur mbajtës mbi 1.2 m (4 ft) shënohet për një inxhinier. Shih [Shtrim, mure dhe shkallë](topic:hardscape).
+- **Një ndihmës llogaritjeje ujitjeje.** {{ui:Irrigation}} vendos koka, linja degëzuese, linjën kryesore, valvula, linja pikimi dhe pikën e lidhjes. {{ui:Check the system…}} gjen zonat nga tubat dhe llogarit rrjedhën e secilës zonë, presionin e nevojshëm te valvula e saj dhe te furnizimi (Hazen–Williams), reshjet, kohët e funksionimit, mbulimin dhe një listë materialesh. Është një ndihmës llogaritjeje, jo një certifikim projektimi: një projektues ujitjeje kontrollon çdo rezultat. Kokat janë lloje të përgjithshme, ose të tuat nga një skedar. Shih [Projektimi i ujitjes](topic:irrigation).
+- **Fletë peizazhi.** Më shumë › {{ui:Landscape sheets…}} bën plane mbjellje, nivelimi dhe ujitjeje me legjendat e tyre, dhe një fletë detajesh me seksione muresh, ndërtime shtrimi dhe shkallë, si një PDF të vetëm. Shih [Fletët e peizazhit](topic:landscape-sheets).
+- **Objekte të lira.** Më shumë › {{ui:Freeform object…}} vendos një rrjetë STL, OBJ ose element biblioteke të bërë në një aplikacion tjetër, si një vazo lulesh ose një skulpturë. Qëndron mbi tokë ose pritet në të, dhe vëllimi, sipërfaqja dhe gjurma e saj numërohen. Shih [Objektet e lira](topic:freeform-objects).
+- **IFC e peizazhit.** Më shumë › {{ui:Export landscape IFC}} ruan bimët (si vegjetacion me vetitë e tyre), elementet e ngurta dhe objektet e lira si IFC 4.3 për një model BIM. Shih [IFC](topic:planting#ifc).
+- **Nga fillimi në fund.** [Projekto një kopsht, nga fillimi në fund](topic:landscape-walkthrough) ec nëpër gjithë hapësirën mbi terrenin shembull.
+
+### Hapësira e linjave elektrike
+
+- **Linja ajrore dhe kabllo nëntokësore në vendin tënd.** {{ui:Surface}} › {{ui:More}} › {{ui:Power lines workspace}}: vizato një linjë sipas mbajtësve të saj, kabllot në hendeqe, pajisjet dhe pengesat, mbi të njëjtin terren dhe në të njëjtin skedar projekti. Shih [Hapësira e linjave elektrike](topic:power-lines).
+- **Bibliotekat e tua.** Përçues, kabllo, mbajtës, pajisje (krahë traversash, izolatorë, pajisje lidhëse, tirantë, transformatorë, kabinete, bashkime) dhe lloje hendeqesh, në kategori që emëron ti, të ndara si skedar ose tabelë. Asnjë katalog vendi ose prodhuesi nuk është integruar; shembujt thonë se janë shembuj. Shih [Biblioteka jote e linjave elektrike](topic:power-line-library).
+- **Lakimi dhe tensioni sipas ngarkesave të tua.** Temperatura, era, akulli dhe akulli në një anë; kufij tensioni si një pjesë e forcës së prishjes; katenari i saktë në çdo hapësirë, përfshi pjerrësitë; tabela tendosjeje. Shih [Lakimi dhe tensioni](topic:sag-and-tension).
+- **Kontrolle, gjithmonë të përditësuara.** Largësia mbi tokë dhe pengesat, distanca e fazave, lëvizja e izolatorit, ngritja, ngarkesat e mbajtësve me dimensionim nga biblioteka jote, tirantët, lidhësat, themelet, të dhënat që mungojnë, kabllot e shkëputura, mbingarkesat dhe rënia e tensionit, të shënuara në planimetri dhe në profilin e linjës. Një ndihmës projektimi: një inxhinier e kontrollon. Shih [Kontrollet e linjave elektrike](topic:power-line-checks).
+- **Tabela, fletë dhe GIS.** Tabela tendosjeje dhe mbajtësish, sasi (CSV, Excel, TakeoffCraft), fletë planimetrie dhe profili me një raport studimi në një PDF, shtresa GIS me të dhënat e çdo aseti. Shih [Tabelat, sasitë, fletët dhe GIS-i i linjave elektrike](topic:power-line-outputs).
+- **Pas provave të para.** Profili i linjës ndjek linjën që zgjedh, ka një listë **Linja**, lexon tokën, përçuesin dhe largësinë nën treguesin, dhe mat midis dy pikave. Bimët dhe muret e peizazhit numërohen si pengesa nën linjat; rrugët e kabllove dhe tubat shfaqen në profilin e linjës dhe kryqëzohen me një rregull largësie që zgjedh ti; **Rregullat…** pranë çdo largësie hap rregullat e tua, dhe grupet e rregullave me bibliotekë ruhen si paketa për t'u ndarë sipas vendit. Shih [Kontrollet e linjave elektrike](topic:power-line-checks) dhe [Paketat](topic:sag-and-tension#packs-rules-and-a-library-for-a-country).
+- **Formatet e tua të skedarëve.** Linjat elektrike ruhen në skedarin e projektit CivilCraft, bibliotekat në `.cclines.json` ose CSV, grupet e rregullave dhe paketat në skedarët e tyre JSON: formate të hapura që këdo mund t'i lexojë ose konvertojë. Skedari i studimit `.DON` është një import dhe eksport shtesë pranë tyre.
+- **Skedarët e studimit (.DON), të pa testuar.** Ruaj një linjë si skedar studimi `.DON` për një program tjetër të linjave, ose lexo mbajtësit e një skedari të tillë; i ndërtuar nga emrat e fushave të formatit, ende i pa testuar me atë program. Shih [Skedarët e studimit](topic:power-line-study-file).
+
+### Matja
+
+- **Një mjet matjeje.** {{ui:Surface}} › {{ui:More}} › {{ui:Measure}} (ose {{key:M}}) mat në planimetri: gjatësinë dhe drejtimin e çdo ane, totalin e vazhdueshëm, gjatësinë përgjatë tokës dhe pjerrësinë, dhe sipërfaqen dhe perimetrin pasi mbyll formën. Asgjë nuk vizatohet në projekt. Shih [Mas](topic:measure).
+
+### Masat e ndërtesave
+
+- **Vizato masa ndërtesash.** Te Vetitë, nën **Masat e ndërtesave**, {{ui:Draw a mass}} (gjithashtu {{ui:Surface}} › {{ui:More}} › {{ui:Masses}}). Jepi masës kate dhe lartësi kati dhe lexo sipërfaqen bruto të kateve. Zgjidh si qëndron në tokë me pjerrësi (me shkallë, podium ose prerje) dhe shiko mbushjen dhe prerjen. Masat shfaqen në planimetri, në PDF dhe në DWG dhe DXF në shtresat e veta. Shih [Vizato masa ndërtesash në një vend](topic:building-masses).
+- **Shtyj dhe tërhiq në 3D.** Në pamjen 3D, tërhiq çatinë e një mase të zgjedhur, ose shtyp {{key:PageUp}} dhe {{key:PageDown}}, për ta ndryshuar një kat në çdo herë, në një hap zhbërjeje. **Dielli** hedh hijet e masave. Shih [Në pamjen 3D](topic:building-masses#in-the-3d-view).
+- **Kufij zonimi që shkruan ti.** Largësi nga vija e rrugës, rresht për rresht, një kufi lartësie, një plan ekspozimi ndaj qiellit, një raport sipërfaqeje katesh dhe një mbulim. Mbështjellësi i ndërtueshëm vizatohet në planimetri, dhe çdo masë merr një shenjë kontrolli ose një kryq për çdo kufi. CivilCraft nuk ka brenda një kod zonimi: çdo numër është një që shkruan ti nga rregullorja jote. Shih [Kontrollo masat me kufijtë e zonimit që shkruan ti](topic:zoning-limits).
+- **Orë dielli.** Zgjidh një ditë, ose një stinë, dhe një zonë kohore sipas emrit ose ofsetit, dhe lexo orët e diellit direkt në çdo mur të çdo mase, kat për kat, dhe në tokën rreth tyre, të vizatuara në planimetri. Ruaj muret dhe tokën si CSV. Projekti ka nevojë për një sistem koordinatash. Shih [Llogarit orët e diellit në një vend](topic:sun-hours).
+- **Masat si IFC, dhe më tej te BimCraft.** {{ui:Masses as IFC}} ruan masat si IFC4, të vendosura në hartë kur projekti ka një sistem koordinatash. {{ui:Develop in BimCraft}} hap BimCraft në një skedë të re me masat, ku **Zhvillo këtë masë** ndërton mure në çdo nivel dhe një dysheme nga gjurma. Asgjë nuk ngarkohet. Shih [Dërgoje më tej](topic:building-masses#send-it-on).
+
+### Aksët rrugorë
+
+- **Spirale klotoide.** Shkruaj një gjatësi te **Spiralja në** dhe **Spiralja jashtë** në tabelën PI për një lakim: tangjente, spirale, lakim, spirale, tangjente, me gjatësi të barabarta ose të ndryshme. Planimetria etiketon TS, SC, CS dhe ST, lista e lakimeve jep θs dhe distancat tangjente dhe të jashtme, dhe stacionet dhe ofsetet kalojnë nëpër spiralet. Shih [Spiralet](topic:alignment#spirals).
+- **Spiralet në LandXML.** LandXML shkruan dhe lexon spirale klotoide. Aksët me spirale, që CivilCraft dikur i kalonte në import, tani hapen. Shih [Shkëmbimi LandXML](topic:landxml).
+
+### Korridoret
+
+- **Ndërto çdo anë nga pjesë.** Ndiz **Ndërto çdo anë nga pjesë** për t'i dhënë çdo ane listën e vet nga qendra jashtë: korsi, bërryl, kanal ujërash, bordurë, shirit mbjellje, trotuar dhe pjerrësi anësore me gërmimin dhe mbushjen e vet. Fillo nga {{ui:Rural road}} ose {{ui:Urban street}} dhe kopjo një anë në tjetrën. Prerjet tërthore shënojnë vijën e rrjedhës, bordurën dhe shëtitjen, dhe sipërfaqja e nivelluar ka bordurën. Shih [Ndërto çdo anë nga pjesë](topic:corridor#build-each-side-from-parts).
+- **Superelevacioni mbi spirale.** Në një lakim me spirale, shtrirja e superelevacionit shtrihet mbi spiralen: kurorë e sheshtë te TS, superelevacion i plotë te SC. Shih [Superelevacioni](topic:corridor#superelevation).
+
+### Skedarët 3D
+
+- **Eksporti USD.** Në pamjen 3D, {{ui:USD}} shkruan vendin si `.usda`, `.usdc` ose `.usdz` në shkallë të vërtetë dhe në koordinatat e projektit: sipërfaqet, tubat dhe strukturat si rrjetë, linjat, çdo aks rrugor, dhe pikat e rilevimit me numrat e tyre. Shih [Eksporto vendin 3D si USD](topic:usd).
+
+### Asistentët AI
+
+- **Më shumë për asistentët.** Me asistentët të ndezur te {{ui:Settings}} › {{ui:CivilCraft}}, një asistent tani mund të lexojë gjithashtu parcelat, prerjen dhe mbushjen dhe profilet, të shtojë pika rilevimi, të ruajë projektin, të eksportojë LandXML, DWG dhe USD, dhe të punojë në dosje që zgjedh në CadCraft Studio. Hapësira e peizazhit shton mjete për gjetjen e bimëve, vendosjen e bimëve, shtretërve dhe gardheve, nivelimin dhe kontrollin e ujitjes. Serveri i skedarëve dhe komanda `cadcraft` hapin projekte të ruajtura pa dritare. Shih [Lëre një asistent AI të punojë me vendin tënd](topic:assistants).
+
+## Në çdo aplikacion
+
+- **Njësitë.** {{ui:Settings}} › {{ui:General}} › {{ui:Units}} ka një listë të veçantë për gjatësinë, sipërfaqen, vëllimin, këndin dhe pjerrësinë, me madhësitë e sakta që japin përkufizimet e njësive (këmba topografike amerikane është njësi e vet). Fik njësitë që nuk i përdor kurrë dhe ato largohen nga listat e njësive; vendos yll te një dhe punët e reja fillojnë me të. Një skedar mban gjithmonë njësinë e vet. Në CivilCraft lista **Njësitë** e projektit ndjek ndërrimet: një yll për gjatësi në metra fillon projektet e reja në metra (përndryshe në këmbë, që janë këmbë amerikane topografike); një yll për sipërfaqe ose vëllim vendos njësitë në të cilat raportohen sipërfaqet dhe vëllimet; dhe një kuti gjatësie pranon shenjën e çdo njësie, si `3 ch` ose `450 mm`. Shih [Njësitë, vlerat e shkruara dhe listat e njësive](common:unit-lists).
+- **Një paraqitje më e dendur dhe panele që fshihen.** {{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} › {{ui:Compact}} përshtat më shumë në ekran (ekranet me prekje dhe telefonat mbajnë butonat e tyre të mëdhenj). Çdo panel anësor ka një shirit titulli të hollë: tërhiqe për ta ankoruar ose ta lëshosh të lirë, lësho mbi shiritin e një paneli tjetër për të ndarë një kornizë si skeda, fiksoje për ta rrëshqitur në anë, ose fshihe dhe kthe nga ana. Shih [Rregullo panelet](common:arrange-panels#make-the-layout-denser).
+- **Dialogët lëvizin.** Tërhiq një dialog nga shiriti i titullit jashtë rrugës së vizatimit; kthehet atje ku e le. Kliko dy herë shiritin e titullit për ta vendosur përsëri në qendër. Shih [Lëviz një dialog](common:arrange-panels#move-a-dialog).
+- **Recetat për asistentët AI.** Dhjetë kërkesa të punuara për asistentin tënd (pastro një vizatim, printo një grup, kontrollo vizatimet, bëj pyetje modelit, mblidh një llogaritje sasish, provo një variant pjese…), çdo njëra me mjetet që thërret dhe lejet që i duhen, dhe çdo njëra rikontrollohet nga testet tona. Aplikacionet nuk përmbajnë AI. Shih [Recetat për asistentët AI](common:assistants-recipes).
+- **Gjuhët.** **Português (Portugal)** është e re te {{ui:Settings}} › {{ui:General}} › {{ui:Language}}. Ajo, **Português (Brasil)**, **Español (México)** dhe **Bahasa Indonesia** kanë tani çdo fjalë të aplikacioneve, si draft që nuk i ka rishikuar ende një folës amtar. Temat e ndihmës janë në anglisht, me disa në spanjisht.
+- **CadCraft Studio** tregon pse dështoi kontrolli i përditësimit (nuk ka skedar për sistemin tënd akoma, nuk ka rrjet, nënshkrim i gabuar) në vend që të thotë vetëm "U krye", dhe ndalon kthimin e një karte Çfarë është e re që ke mbyllur derisa të ketë një version më të ri.
+
+## Jo në këtë version akoma
+
+- **0.7 nuk është me nënshkrim kodi.** Nënshkrimi dhe paketa e Microsoft Store u zhvendosën në 0.8, sepse vlerësimi i certifikatës nuk ka ardhur ende. Kontrollo SHA-256 pranë çdo skedari në getcadcraft.com/download. Në Windows, nëse SmartScreen ndalon instaluesin, zgjidh {{ui:More info}}, pastaj {{ui:Run anyway}}. Në Mac, herën e parë, kliko me butonin e djathtë CadCraft Studio dhe zgjidh {{ui:Open}}. CadCraft Studio nuk është ende në një dyqan aplikacionesh, dhe nuk ka ende version për iPad ose iPhone.
+- Listat e këndit dhe të pjerrësisë te {{ui:Units}} ruhen, por asnjë kuti nuk i lexon akoma.
+- Kokat e ujitjes të prodhuesve: vetëm koka të përgjithshme dhe të tuat nga një skedar. Të dhënat e prodhuesve hyjnë vetëm me lejen e tyre, dhe asnjë leje nuk është dhënë akoma.
+- BimCraft dhe ModelCraft mbajnë listën e bimëve, por Vendos nga biblioteka e tyre nuk ofron bimë akoma. Bimët arrijnë te BimCraft përmes IFC të peizazhit.
+- Mjetet e peizazhit për asistentët funksionojnë me dritaren e CivilCraft të hapur; serveri i skedarëve dhe komanda nuk i kanë ende.
+- Masat e ndërtesave: nuk ka dritë dielli në fasadë ose erë, nuk ka hije nga pemët ose nga çdo gjë që nuk vizatohet si masë, nuk ka forma çatish, dhe orët e diellit shfaqen në planimetri, jo në pamjen 3D. Zhvillo në BimCraft ndërton mure të thjeshta dhe një dysheme, pa hapje ose çati.
+- Linjat elektrike: nuk ka standard vendi të integruar (ti vendos ngarkesat, kufijtë dhe largësitë); nuk ka studime të zvarritjes së përçuesit, vlerësim termik të kabllove nëntokësore, qark të shkurtër, mbrojtje ose tokëzim; nuk ka linja në pamjen 3D ose IFC. Skedari i studimit `.DON` nuk është testuar me programin që e lexon.
+- Spirale të tjera nga klotoidja, një spirale midis dy lakimeve, dhe spirale në vijat e veçorive. Spiralet janë kontrolluar me formulat dhe skemën LandXML, jo akoma me një skedar LandXML me spirale nga një program tjetër.
+- Montimet e korridorit që ndryshojnë përgjatë rrugës, rajonet dhe objektivat për pjerrësinë anësore.
+- Tubat kryesorë të ujit dhe rrjetet me presion (puna e ardhshme civile), rrjedhat që ndryshojnë me kohën, dhe lidhjet midis rrjeteve të ujit dhe atyre të ujërave të shiut.
+- Harqe në vijat e thyerjes të vizatuara. Tabelat standarde të automjeteve projektuese: pesë automjetet që vijnë janë vende-mbajtëse të etiketuara. Vijat e veçorive të ndara midis projekteve presin projektet e ekipit.
+
+Çdo gjë tjetër është te [Nuk është ndërtuar ende](topic:not-built-yet).

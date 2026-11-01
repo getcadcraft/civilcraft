@@ -1,0 +1,33 @@
+% nusselt_tube — the Nusselt number of flow in a round tube, laminar or turbulent, with the correlation named
+%
+% Usage:      [Nu, model] = nusselt_tube(Re, Pr, f, wall)
+%             wall is 'flux' (constant heat flux, the default) or 'temperature' (constant wall temperature); it matters only when laminar.
+% Computes:   Re < 2300:  fully developed laminar flow, Nu = 4.36 (flux) or 3.66 (temperature), independent of Re and Pr
+%             Re >= 3000: nusselt_gnielinski
+%             2300 to 3000: no reliable correlation. The answer is the laminar one (the safe side for a heat exchanger: it gives
+%             less heat transfer) and model says 'laminar (transition range)'.
+% Method:     chosen by the Reynolds number, as above. The model name is returned so a data sheet can print it.
+% Units:      none.
+% Limits:     fully developed flow (the thermal entrance region raises Nu; not included); Pr limits of nusselt_gnielinski.
+% References: Incropera et al., 7th ed., eq. 8.53 (4.36) and eq. 8.55 (3.66); Gnielinski via nusselt_gnielinski.
+% Check:      Re 1000: 4.36; Re 1000 with 'temperature': 3.66; Re 50 000, Pr 5, f 0.0209: 284.6 (tools/field-test/eng.mjs).
+function [Nu, model] = nusselt_tube(Re, Pr, f, wall)
+if nargin < 4
+  wall = 'flux';
+end
+if Re < 3000
+  if strcmp(wall, 'temperature')
+    Nu = 3.66;
+  else
+    Nu = 4.36;
+  end
+  if Re < 2300
+    model = 'laminar, fully developed';
+  else
+    model = 'laminar (transition range)';
+  end
+else
+  Nu = nusselt_gnielinski(Re, Pr, f);
+  model = 'Gnielinski';
+end
+end

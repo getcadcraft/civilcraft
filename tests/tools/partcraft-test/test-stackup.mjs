@@ -157,8 +157,8 @@ export async function runStackupTests({ ok, section }) {
     A.removeInstance(back, id2);
     ok(back.stackups[0].links.length === 2 && back.stackups[0].links[1].inst === null && near(SU.analyze(back.stackups[0]).nominal, 30), 'removing a part keeps its link\'s numbers (the part shows as none)');
     let refused = '';
-    try { A.readAssembly(JSON.stringify({ ...JSON.parse(A.toJSON(asm)), version: 6 })); } catch (e) { refused = e.message; }
-    ok(/newer/.test(refused), 'a version 6 file is refused as newer (and 0.5, whose newest is 4, refuses version 5 the same way)');
+    try { A.readAssembly(JSON.stringify({ ...JSON.parse(A.toJSON(asm)), version: A.VERSION + 1 })); } catch (e) { refused = e.message; }
+    ok(/newer/.test(refused), 'a file newer than this build reads (VERSION + 1) is refused as newer (0.5, whose newest is 4, refuses version 5 the same way)');
   }
 }
 

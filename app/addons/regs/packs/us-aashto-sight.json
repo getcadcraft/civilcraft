@@ -1,0 +1,71 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-aashto-sight",
+  "name": "United States: AASHTO crest curve K by design speed",
+  "jurisdiction": {
+    "country": "US",
+    "level": "country",
+    "name": "United States"
+  },
+  "base": null,
+  "edition": "AASHTO Green Book (metric), stopping sight distance",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "Minimum K for crest vertical curves (stopping sight distance) by design speed in km/h. Entered from memory of the published table and NOT confirmed against the book. Check before relying on it."
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "AASHTO, A Policy on Geometric Design of Highways and Streets",
+    "url": "https://www.transportation.org/",
+    "checked": "2026-10-28"
+  },
+  "rules": [
+    {
+      "id": "road.crestk.min",
+      "applies": "road",
+      "op": ">=",
+      "value": 1,
+      "unit": "ratio",
+      "clause": "Green Book ch. 3",
+      "label": "Crest curve K (length per percent of grade change)",
+      "note": "The minimum for the alignment's design speed, from the table. Not confirmed against the standard."
+    }
+  ],
+  "tables": {
+    "sight": {
+      "kind": "sight",
+      "clause": "Green Book ch. 3",
+      "label": "Crest K by design speed",
+      "note": "Not confirmed against the standard.",
+      "data": {
+        "unit": "km/h",
+        "speeds": [
+          30,
+          40,
+          50,
+          60,
+          70,
+          80,
+          90,
+          100,
+          110,
+          120
+        ],
+        "crestK": [
+          2,
+          4,
+          7,
+          11,
+          17,
+          26,
+          39,
+          52,
+          74,
+          95
+        ]
+      }
+    }
+  }
+}

@@ -13,6 +13,8 @@ import { defaults, meanGround, slopeClasses, ponding, gradeSceneItems } from './
 import { inside, edgeDist } from './planting.js';
 import { t } from '../i18n.js';
 import { fixed } from '../units.js';
+import { sidesBlock, slopeInput } from '../sides-ui.js';   // 0.7.1 71.22
+import { cleanSides, wallSceneItems } from '../sides.js';
 
 const VIEW_KEY = 'civilcraft.landscape.checks';
 const TOOLS = ['ls-platform', 'ls-berm', 'ls-swale', 'ls-area', 'ls-spot', 'ls-contour'];
@@ -200,8 +202,9 @@ export function createGradeUi(ctx, { edit, LS, U }) {
     }
     if (g.kind === 'berm') num(t('ls.gr.f.height', { u: uLen() }), 'cv-gr-h', g.height, (n) => { if (!(n > 0)) return false; put(t('ls.gr.undo.height'), (x) => { x.height = n; }); });
     if (g.kind === 'platform' || g.kind === 'berm') {
-      num(t('ls.gr.f.cut'), 'cv-gr-cut', g.cut, (n) => { if (!(n > 0 && n <= 100)) return false; put(t('ls.gr.undo.slopes'), (x) => { x.cut = n; }); }, { calc: false });
-      num(t('ls.gr.f.fill'), 'cv-gr-fill', g.fill, (n) => { if (!(n > 0 && n <= 100)) return false; put(t('ls.gr.undo.slopes'), (x) => { x.fill = n; }); }, { calc: false });
+      // 0.7.1 71.22: typed as 3, 3:1, 33% or 18.4°
+      fields.push(el('label', { for: 'cv-gr-cut' }, t('ls.gr.f.cut')), slopeInput(ctx.numInput, g.cut, (n) => { put(t('ls.gr.undo.slopes'), (x) => { x.cut = n; }); }, { id: 'cv-gr-cut', label: t('ls.gr.f.cut') }));
+      fields.push(el('label', { for: 'cv-gr-fill' }, t('ls.gr.f.fill')), slopeInput(ctx.numInput, g.fill, (n) => { put(t('ls.gr.undo.slopes'), (x) => { x.fill = n; }); }, { id: 'cv-gr-fill', label: t('ls.gr.f.fill') }));
     }
     if (g.kind === 'swale') {
       num(t('ls.gr.f.depth', { u: uLen() }), 'cv-gr-depth', g.depth, (n) => { if (!(n > 0)) return false; put(t('ls.gr.undo.swale'), (x) => { x.depth = n; }); });
@@ -230,6 +233,11 @@ export function createGradeUi(ctx, { edit, LS, U }) {
           el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, t('ls.gr.col.contour')), el('th', { scope: 'col' }, t('ls.gr.col.z', { u: uLen() })), el('th', { scope: 'col', className: 'num' }, t('ls.gr.col.pts')))), el('tbody', {}, ...conRows)),
         el('p', { className: 'cv-note' }, t('ls.gr.area.note')));
       if (sel.sub) out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-sub-del': '', onclick: () => ctx.command('delete') }, t(sel.sub.startsWith('s') ? 'ls.gr.spot.del' : 'ls.gr.contour.del'))));
+    }
+    if (g.kind === 'platform' || g.kind === 'berm') {   // 0.7.1 71.22: each side its own slopes or a retaining wall
+      const info = P().graded().items?.find((x) => x.id === g.id);
+      out.push(...sidesBlock({ el, numInput: ctx.numInput, units: U(), n: g.pts.length, sides: g.sides, cut: g.cut, fill: g.fill, info,
+        change: (label, sides) => put(label, (x) => { const c = cleanSides(sides, U(), x.pts.length); if (c) x.sides = c; else delete x.sides; }), idp: 'cv-gr-sd' }));
     }
     const probs = problemsOf(g.id);
     if (probs.length) out.push(el('p', { className: 'cv-report is-error', 'data-ls-gr-problems': '' }, probs.join(' ')));
@@ -276,7 +284,8 @@ export function createGradeUi(ctx, { edit, LS, U }) {
   // ---- plan and overlay ----
   function sceneItems(unitPerMm) {
     const sf = surface();
-    return gradeSceneItems(LS(), sf, U(), { unitPerMm, slope: view.slope ? { limits: view.limits.map((x) => x / 100) } : null, flow: view.flow, fixed: (v) => fixed(v, 2) });
+    const walls = (P().graded().items || []).filter((x) => /^(ls-)?(platform|berm)$/.test(x.kind)).flatMap((x) => wallSceneItems(x.walls, { layer: 'L-HARD-WALL', unitPerMm, fixed: (v) => fixed(v, 2) }));   // 0.7.1 71.22
+    return [...gradeSceneItems(LS(), sf, U(), { unitPerMm, slope: view.slope ? { limits: view.limits.map((x) => x / 100) } : null, flow: view.flow, fixed: (v) => fixed(v, 2) }), ...walls];
   }
   let slopeCache = { s: null, key: '', paths: null, o: null };
   function overlay(c2d, toScreen, C, sel) {

@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ne",
+  "name": "Nebraska: Nebraska State Building Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-NE",
+    "name": "Nebraska"
+  },
+  "base": "us-irc-2018",
+  "edition": "IRC 2018 as adopted, 2019",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2018 (Nebraska Legislature (by statute); Neb. Rev. Stat. §71-6403(1)(b)). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (r…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Nebraska Legislature (by statute), Neb. Rev. Stat. §71-6403(1)(b)",
+    "url": "https://nebraskalegislature.gov/laws/statutes.php?statute=71-6403",
+    "date": "2021",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

@@ -81,6 +81,7 @@ export function sectionSheets(set, { paper = 'tabloid', landscape = true, scale,
       }
       for (const run of x.ground) strokes.push({ color: EG, width: 0.25, dash: [1.5, 0.8], pts: run.map((q) => ({ x: X(q.o), y: Y(q.z) })) });
       if (x.design !== x.ground) for (const run of x.design) strokes.push({ color: FG, width: 0.4, pts: run.map((q) => ({ x: X(q.o), y: Y(q.z) })) });
+      for (const L of x.layers || []) strokes.push({ color: INK, width: 0.13, dash: [1, 0.5], pts: [{ x: X(L.a.o), y: Y(L.a.z) }, { x: X(L.b.o), y: Y(L.b.z) }] });   // 0.7.1 71.24: course bottoms
       for (const m of x.marks || []) if (Number.isFinite(m.z)) { const q = { x: X(m.o), y: Y(m.z) }; strokes.push({ color: MARK, width: 0.25, pts: [{ x: q.x - 0.6, y: q.y - 0.6 }, { x: q.x + 0.6, y: q.y + 0.6 }, { x: q.x - 0.6, y: q.y + 0.6 }, { x: q.x + 0.6, y: q.y - 0.6 }] }); }
       texts.push({ color: INK, x: (cx0 + xr) / 2, y: cy0 - 7.5, h: 1.8, rot: 0, align: 'center', text: t('xs.cell', { sta: formatStation(x.sta, units), cut: fixed(x.cut, 2), fill: fixed(x.fill, 2), u: areaU }) });
     });

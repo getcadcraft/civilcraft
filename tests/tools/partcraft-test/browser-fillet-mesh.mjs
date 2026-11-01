@@ -41,7 +41,7 @@ try {
   await tool('fillet');
   const fil = await pc(() => window.partcraft.part.features.at(-1));
   ok(fil.type === 'fillet' && fil.edges.length === 2, 'Fillet makes a fillet of the two picked edges');
-  const rIn = page.locator('.pc-right label:has-text("Radius") + input');
+  const rIn = page.locator('.pc-right [data-param-key$=".r"]');
   await rIn.fill('5'); await rIn.press('Enter');
   s = await stats();
   const corner = (25 - 25 * PI / 4) * 20;

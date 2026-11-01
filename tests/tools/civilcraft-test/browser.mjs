@@ -22,6 +22,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -187,7 +188,7 @@ try {
   for (const [u, v] of [[150, 120], [230, 120], [230, 180], [150, 180]]) await clickWorld(page, E0 + u, N0 + v);
   await page.keyboard.press('Enter');
   await page.waitForSelector('[data-vol-cut]');
-  const z = page.locator('#cv-pad-z');
+  const z = page.locator('[data-pg-row="z"]');
   await z.fill('254'); await z.press('Enter');
   await page.locator('[data-props-h]').click();
   await wait(150);
@@ -229,7 +230,7 @@ try {
   await page.mouse.click(mp.x, mp.y);
   ok((await page.textContent('[data-props-h]')) === 'Pipe', 'clicking a pipe selects it');
   const upBefore = await page.evaluate(() => { const c = window.civilcraft; return c.project.state.network.pipes.find((q) => q.id === c.sel.id).invUp; });
-  const up = page.locator('#cv-pp-up');
+  const up = page.locator('[data-pg-row="invUp"]');
   await up.fill('300'); await up.press('Enter');
   await page.locator('[data-props-h]').click();
   await wait(100);
@@ -245,7 +246,7 @@ try {
   ok(cx.schema === 'valid' || cx.schema === 'skipped', 'LandXML export validates against the 1.2 XSD (' + cx.schema + ')' + (cx.schema_errors?.length ? ' ' + cx.schema_errors.join(' | ') : ''));
   ok(cx.points === 276 && cx.surfaces.length === 2 && cx.alignments[0].curves === 2 && cx.alignments[0].paracurves[0] === 120, 'LandXML: points, existing + proposed surfaces, alignment with 2 curves, the 120 ft vertical curve');
   ok(cx.networks.length === 1 && cx.networks[0].structs === 4 && cx.networks[0].pipes === 3 && cx.networks[0].inverts === 6, 'LandXML: the storm network (4 structures, 3 pipes, 6 inverts)');
-  const dxf = await download(page, () => page.click('[data-cmd="dxf"]'));
+  const dxf = await download(page, () => page.evaluate(() => document.querySelector('[data-cmd="dxf"]').click())   /* 0.7.1 71.24: DXF is the DWG/DXF button's choice; its command stays (the shell clicks it) */);
   const cd = check('dxf', dxf);
   ok(cd.skipped || (cd.version === 'AC1009' && cd.errors === 0 && cd.counts.ARC === 2 && cd.layers['C-GRAD-DAYL'] === 3 && cd.layers['C-STRM-PIPE'] >= 3), 'DXF export: R12, no audit errors, 2 arcs, 3 daylight lines (pad + both corridor sides), pipes');
   // DWG: the same drawing as the DXF, read back by libredwg-web (vendored) and by every installed
@@ -281,15 +282,19 @@ try {
       // (R12 DXF contours are 2D POLYLINEs carrying the elevation; the DWG has LWPOLYLINEs — dxfdump gives both an elev)
       const fromDxf = dd.entities;
       const want = sig(fromDxf);
-      const lw = await import(pathToFileURL(path.join(REPO, 'public_html/assets/vendor/libredwg-web/current/dist/libredwg-web.js')).href);
+      // libredwg-web (GPL) left the site with the old releases (OLD-GPL, 2026-10-30): its check runs only where a copy is installed
+      const lwPath = path.join(REPO, 'public_html/assets/vendor/libredwg-web/current/dist/libredwg-web.js');
+      const lw = fs.existsSync(lwPath) ? await import(pathToFileURL(lwPath).href) : null;
       const quiet = async (fn) => { const l = console.log, w = console.warn; console.log = console.warn = () => {}; try { return await fn(); } finally { console.log = l; console.warn = w; } };
-      const L = await quiet(() => lw.LibreDwg.create(path.join(REPO, 'public_html/assets/vendor/libredwg-web/current/wasm') + '/'));
+      const L = lw ? await quiet(() => lw.LibreDwg.create(path.join(REPO, 'public_html/assets/vendor/libredwg-web/current/wasm') + '/')) : null;
       const { availableReaders } = await import(pathToFileURL(path.join(HERE, 'dwg-readers.mjs')).href);
       for (const [file, year] of [[dwg, '2000'], [dwg18, '2018']]) {
-        const raw = await quiet(() => L.dwg_read_data(fs.readFileSync(file), lw.Dwg_File_Type.DWG));
-        const db = L.convert(raw); L.dwg_free(raw);
-        const viaWeb = db.entities.map((e) => ({ layer: e.layer, t: e.type === 'TEXT' ? 'text' : e.type, text: e.text, elev: e.type === 'LWPOLYLINE' ? e.elevation : undefined }));
-        ok(sig(viaWeb) === want, `libredwg-web reads the ${year} DWG: ${db.entities.length} entities, same layers, labels and contour elevations as the DXF`);
+        if (L) {
+          const raw = await quiet(() => L.dwg_read_data(fs.readFileSync(file), lw.Dwg_File_Type.DWG));
+          const db = L.convert(raw); L.dwg_free(raw);
+          const viaWeb = db.entities.map((e) => ({ layer: e.layer, t: e.type === 'TEXT' ? 'text' : e.type, text: e.text, elev: e.type === 'LWPOLYLINE' ? e.elevation : undefined }));
+          ok(sig(viaWeb) === want, `libredwg-web reads the ${year} DWG: ${db.entities.length} entities, same layers, labels and contour elevations as the DXF`);
+        }
         for (const rd of availableReaders(HERE)) {
           const r = rd.run([file], DL).get(file);
           if (r.problems.length) { ok(false, rd.name + ` opens the ${year} DWG: ` + r.problems.join(' | ')); continue; }
@@ -307,12 +312,15 @@ try {
   const txt = execFileSync('pdftotext', [pdf, '-'], { encoding: 'utf8' });
   ok(/Pages:\s+1/.test(info) && txt.includes('Scale 1" = 40\''), 'PDF plot: one page, scale in the title strip');
   const vSaved = await page.evaluate(() => window.civilcraft.project.volumes().cut);
+  await page.evaluate(() => { window.showDirectoryPicker = async () => { throw new DOMException('cancelled', 'AbortError'); }; });   // 0.7.1 71.27: Save writes the .civilcraft.json + .ifc pair; no folder chosen = two downloads, the project file first
   const proj = await download(page, () => page.keyboard.press('Control+s'));
   ok(proj.endsWith('.civilcraft.json') && JSON.parse(fs.readFileSync(proj, 'utf8')).pads.length === 1, 'Ctrl+S downloads the project file');
 
   console.log('\n== reopen');
   await page.goto(BASE + '/lab/civilcraft?space=model', { waitUntil: 'networkidle' });
   await page.setInputFiles('[data-file]', proj);
+  await page.waitForSelector('[data-ifc-pair]');   // 0.7.1 71.27: the project file alone asks for its IFC; go on without it
+  await page.click('[data-ifc-pair-alone]');
   await page.waitForFunction(() => window.civilcraft.project.points.length === 276);
   const re = await page.evaluate(() => { const p = window.civilcraft.project; return { al: p.state.alignments.length, pvis: p.state.alignments[0].pvis.length, pads: p.state.pads.length, cut: p.volumes()?.cut }; });
   ok(re.al === 1 && re.pvis === 3 && re.pads === 1 && re.cut === vSaved, 'the project file reopens with the same alignment, profile, corridor, pad and cut');
@@ -347,7 +355,7 @@ try {
   await page.evaluate(() => { try { localStorage.removeItem('civilcraft.clipboard'); localStorage.removeItem('civilcraft.settings'); } catch { /* fine */ } });
   await page.reload({ waitUntil: 'networkidle' });
   const tb = await page.evaluate(() => {
-    const t = document.querySelector('main > [role="toolbar"]'), gs = [...t.querySelectorAll(':scope > [role="group"]')];
+    const t = document.querySelector('main > [role="toolbar"]'), gs = [...t.querySelectorAll(':scope > [role="group"]')].filter((g) => g.getBoundingClientRect().height > 0);   // 0.7.1: a workspace's context groups are hidden until it is open
     const kids = (g) => [...g.querySelector('[class$="-tool-row"]').children].map((c) => c.dataset.cmd || (c.matches('details[data-edit-menu]') ? 'more' : c.tagName));
     return { tops: [...new Set(gs.map((g) => Math.round(g.getBoundingClientRect().top)))], names: gs.map((g) => g.getAttribute('aria-label')), edit: kids(gs.find((g) => g.getAttribute('aria-label') === 'Edit')), view: kids(gs.find((g) => g.getAttribute('aria-label') === 'View')), right: Math.round(Math.max(...gs.map((g) => g.getBoundingClientRect().right))) };
   });
@@ -456,11 +464,14 @@ try {
   await page.keyboard.press('Control+,');
   await page.waitForSelector('[data-app-settings][open]');
   await page.click('[data-settings-tab="app"]');
+  await showSetting(page, '[data-cv-settings]');   // 0.7: one Settings section at a time
   ok(await page.isVisible('[data-cv-settings]') && (await page.textContent('[data-settings-tab="app"]')).trim() === 'CivilCraft', 'the Settings dialog has a CivilCraft tab with our fields');
   ok(await page.evaluate(() => ['cvOrder', 'cvRenumber', 'cvLabels'].every((n) => document.querySelector(`[data-app-settings] input[name="${n}"]:checked`))), 'the fields show the current settings when the dialog opens');
   await page.check('[data-app-settings] input[name="cvOrder"][value="PENZD"]');
+  await showSetting(page, 'input[name="cvRenumber"]');
   await page.check('[data-app-settings] input[name="cvRenumber"][value="always"]');
   await page.fill('[data-app-settings] input[name="cvStart"]', '5000'); await page.press('[data-app-settings] input[name="cvStart"]', 'Tab');
+  await showSetting(page, 'input[name="cvLabels"]');
   await page.check('[data-app-settings] input[name="cvLabels"][value="n"]');
   await page.screenshot({ path: path.join(OUT, '14-settings-civilcraft.png') });
   await page.keyboard.press('Escape');

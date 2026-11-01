@@ -3,7 +3,7 @@ title: Grading for landscape
 summary: Platforms, berms, swales and free grading with spot elevations and contours you drag, cut and fill live, slope analysis, flow arrows and ponding — all in CivilCraft's proposed surface.
 section: tasks
 order: 153
-keywords: grading, landscape grading, platform, terrace, pad, berm, mound, swale, spot elevation, spot level, contours, edit contours, cut and fill, earthwork, slope analysis, accessibility, steep slopes, flow arrows, drainage, ponding, puddles
+keywords: retaining wall, retaining walls, vertical side, wall instead of slope, side slope per side, embankment, grading, landscape grading, platform, terrace, pad, berm, mound, swale, spot elevation, spot level, contours, edit contours, cut and fill, earthwork, slope analysis, accessibility, steep slopes, flow arrows, drainage, ponding, puddles
 ---
 
 Everything here is graded into the **proposed surface** with the same grading as pads and corridors. The **existing ground** is never changed, and Earthwork counts it all. The Grade menu is in the Landscape group.
@@ -11,6 +11,21 @@ Everything here is graded into the **proposed surface** with the same grading as
 ## Platforms
 
 {{ui:Grade}} › {{ui:Platform}}, then click the corners and press {{key:Enter}}. The platform starts at the mean ground elevation under it; type an **Elevation** to set it, or empty it to follow the ground again. A **Fall** in % and **Falls towards** in degrees (0 = east, 90 = north) tilt it. Its sides are graded out to the ground at the **Cut slope** and **Fill slope** (horizontal to 1).
+
+## Slopes per side and retaining walls
+
+Under **Sides and retaining walls** in the Properties of a pad, a platform or a berm, each side can be graded its own way. Side 1 runs from the first corner you clicked to the second, side 2 from the second to the third, and so on.
+
+- **All sides**: **Sloped** uses the cut and fill slopes above on every side; **Vertical: retaining walls** puts a wall on every side.
+- Per side: **Slopes above**, **Its own slopes** (type a cut and a fill slope for that side) or **Vertical (retaining wall)**.
+- Type a slope as `3` or `3:1` (horizontal to 1 vertical), `33%` or `18.4°`; it is shown as H:1. The pad's own **Cut slope** and **Fill slope** take the same.
+- A vertical side has no embankment: a retaining wall runs along the edge, from the pad down to the existing ground (in fill) or from the ground down to the pad (in cut). **Wall thickness** (0.3 m or 1 ft to start with) is how far the ground steps from the pad edge to the existing ground. Cut and fill volumes leave out the embankment that side no longer has.
+- Where a wall meets a sloped side, the slope wraps round the end of the wall; two walls meet in a mitre.
+- Under the fields: the walls' length, exposed face (height × length), tallest and average height.
+
+The plan draws each wall's outer face with short ticks across it and its height at both ends and at its tallest (on the retaining walls layer, which also goes into DXF and DWG). The 3D view shows the walls as solids (Show › Retaining walls), and GLB, OBJ and USD exports include them. Sections across the edge show the step.
+
+**Warnings** (in Properties, and in the Problems panel): a wall higher than **Warn above a wall height of** (1.0 m or 3.3 ft to start with) "may need an engineered wall or a permit; check local rules", and, when you type the **Steepest slope the soil stands**, any side whose cut or fill slope is steeper than that. They are warnings: the grading still builds. Every change is one step for {{key:Mod+Z}}.
 
 ## Berms
 

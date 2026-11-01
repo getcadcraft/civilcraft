@@ -1,0 +1,678 @@
+[
+ {
+  "id": "describe-model",
+  "title": "Describe the house",
+  "prompt": "What levels, walls, doors and windows does the house have?",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "model_describe",
+    "args": {
+     "doc": "$o.doc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 13
+   },
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCDOOR",
+    "eq": 7
+   }
+  ]
+ },
+ {
+  "id": "query-doors",
+  "title": "List the doors",
+  "prompt": "List every door in the house.",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "ifc_query",
+    "args": {
+     "doc": "$o.doc",
+     "class": "IfcDoor",
+     "limit": 50
+    },
+    "as": "q"
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCDOOR",
+    "eq": 7
+   },
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWINDOW",
+    "eq": 9
+   }
+  ]
+ },
+ {
+  "id": "door-properties",
+  "title": "Read a door's properties",
+  "prompt": "Show the properties of the first door.",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "ifc_query",
+    "args": {
+     "doc": "$o.doc",
+     "class": "IfcDoor",
+     "limit": 1
+    },
+    "as": "q"
+   },
+   {
+    "tool": "ifc_properties",
+    "args": {
+     "doc": "$o.doc",
+     "id": "$q.elements.0.id"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCSPACE",
+    "eq": 5
+   }
+  ]
+ },
+ {
+  "id": "walls-by-level",
+  "title": "List walls on Level 1",
+  "prompt": "List the walls of Level 1 with their openings.",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "walls_list",
+    "args": {
+     "doc": "$o.doc",
+     "level": "Level 1"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "gte": 13
+   }
+  ]
+ },
+ {
+  "id": "draw-room",
+  "title": "Draw a closed room of walls",
+  "prompt": "Make a new model with a 6 x 4 m room and save it.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 4
+   },
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "header",
+    "includes": "ISO-10303-21"
+   }
+  ]
+ },
+ {
+  "id": "room-with-window",
+  "title": "Add a window to a wall",
+  "prompt": "Draw the room and put a window in its first wall.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "opening_add",
+    "args": {
+     "doc": "$n.doc",
+     "wall": "$w.walls.0",
+     "kind": "window"
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWINDOW",
+    "eq": 1
+   },
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCOPENINGELEMENT",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "room-with-floor",
+  "title": "Add a floor slab",
+  "prompt": "Draw the room and add a floor.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "floor_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ]
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCSLAB",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "add-level",
+  "title": "Add a third level",
+  "prompt": "Add a level at 6000 mm.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "levels_add",
+    "args": {
+     "doc": "$n.doc",
+     "elevations": [
+      6000
+     ]
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "l.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "l.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCBUILDINGSTOREY",
+    "eq": 3
+   }
+  ]
+ },
+ {
+  "id": "delete-wall",
+  "title": "Delete a wall",
+  "prompt": "Delete the third wall of the room.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "elements_delete",
+    "args": {
+     "doc": "$n.doc",
+     "guids": [
+      "$w.walls.2"
+     ]
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 3
+   }
+  ]
+ },
+ {
+  "id": "rename-wall",
+  "title": "Rename an element",
+  "prompt": "Rename the first wall to 'North wall'.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "element_set",
+    "args": {
+     "doc": "$n.doc",
+     "guid": "$w.walls.0",
+     "attribute": "Name",
+     "value": "North wall"
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "names",
+    "includes": "North wall"
+   },
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 4
+   }
+  ]
+ },
+ {
+  "id": "edit-refused",
+  "title": "Edit is refused until allowed",
+  "prompt": "Add a wall to the house (Edit not allowed).",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$o.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       1000,
+       0
+      ]
+     ]
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 13
+   }
+  ]
+ },
+ {
+  "id": "save-refused",
+  "title": "Save is refused until allowed",
+  "prompt": "Save the house under a new name (Save not allowed).",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$o.doc",
+     "path": "copy.ifc"
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 13
+   }
+  ]
+ },
+ {
+  "id": "outside-folder-refused",
+  "title": "A file outside the granted folder is refused",
+  "prompt": "Open /etc/passwd as a model.",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "/etc/passwd"
+    },
+    "fail": "outside"
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 13
+   }
+  ]
+ }
+]

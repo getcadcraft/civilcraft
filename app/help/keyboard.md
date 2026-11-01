@@ -133,3 +133,7 @@ On a touch screen:
 ## Browser keys that win
 
 Some keys belong to the browser and never reach CivilCraft, for example {{key:Mod+W}} (close tab), {{key:Mod+T}} (new tab), {{key:Mod+N}} (new window) and {{key:F11}} (full screen in Windows and Linux browsers). CivilCraft does not use them. If a shortcut opens something in the browser instead, click the plan once so the page has the focus, and try again.
+
+## Where Move lives
+
+There is no Move command: choose {{ui:Select}} and drag a point or a vertex, or edit its coordinates in {{ui:Properties}}. See [Edit points](topic:edit-points).

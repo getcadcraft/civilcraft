@@ -68,6 +68,10 @@ Choose **Use**:
 
 Volumes, sections and the 3D view include feature lines graded into the design, like pads. Each change is one step: {{key:Mod+Z}} undoes it.
 
+## Sharing lines with your team
+
+In a drawing opened from your cloud files in CadCraft Studio, on a team plan, the project's Properties (nothing selected) has a **Team** section with {{ui:Team lines…}}: the lines your team has shared, each with its revision, without selecting a feature line first. Select a line to share it, push a new revision, pull the team's, or stop sharing. Outside that setting the section says what it needs.
+
 ## Arcs in other files
 
 | File | What happens to a feature line with arcs |

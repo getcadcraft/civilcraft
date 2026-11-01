@@ -67,7 +67,7 @@ for (const def of AG.civilTools(app)) d.tool(def);
 const call = async (name, a) => { const r = await d.call(name, a); return { r, v: r.structuredContent, text: r.content?.[0]?.text || '' }; };
 
 section('the tools and their permissions');
-ok(d.list().map((t) => t.name).join() === 'site_describe,points_list,surface_elevation,alignment_station,parcels_list,surface_volume,profile_sample', 'read: site_describe, points_list, surface_elevation, alignment_station (+ 0.7: parcels_list, surface_volume, profile_sample)');
+ok(d.list().map((t) => t.name).join() === 'alignment_station,parcels_list,points_list,profile_sample,site_describe,surface_elevation,surface_volume', 'read tools (the dispatcher lists them in alphabetical order): site_describe, points_list, surface_elevation, alignment_station, parcels_list, surface_volume, profile_sample');
 allowed = ['read', 'edit'];
 ok(d.list().length === 9 && d.list().some((t) => t.name === 'points_select') && d.list().some((t) => t.name === 'points_add'), 'edit adds points_select (+ 0.7: points_add)');
 allowed = ['read'];

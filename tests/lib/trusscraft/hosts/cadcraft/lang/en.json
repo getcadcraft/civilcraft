@@ -1,0 +1,17 @@
+{
+  "h.cadcraft.place": "Draw the roof truss layout plan",
+  "h.cadcraft.undo.plan": "Truss layout plan",
+  "h.cadcraft.undo.elevation": "Truss elevation",
+  "h.cadcraft.undo.forces": "Truss force diagram",
+  "h.cadcraft.undo.table": "Truss schedule",
+  "h.cadcraft.undo.clear": "Remove truss drawings",
+  "h.cadcraft.nodoc": "There is no drawing open.",
+  "h.cadcraft.pick": "Take outline from the selected closed polyline",
+  "h.cadcraft.nopoly": "Select a closed polyline (the roof's plan) first.",
+  "h.cadcraft.elevation": "Draw the truss elevation",
+  "h.cadcraft.forces": "Draw the member force diagram",
+  "h.cadcraft.table": "Draw the cut list and joint schedule",
+  "h.cadcraft.drawn": "Drawn: {n} objects on the TRUSS-* layers (one undo step). Save as DXF or DWG as for any drawing.",
+  "h.cadcraft.limit.entities": "CadCraft: the drawings are plain lines, polylines, text, hatches and dimensions on the TRUSS-* layers. They do not follow the design if you edit them; draw again (Remove the drawings first). Nothing is drawn in 3D.",
+  "h.cadcraft.limit.roofs": "CadCraft has no roof model to read: type the roof outline, or take it from a selected closed polyline. Hips and valleys come from the straight skeleton of that outline at one pitch; per-edge pitches and gables need BimCraft's roof tool."
+}

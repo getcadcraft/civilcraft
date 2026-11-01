@@ -17,7 +17,7 @@
  */
 
 import { el } from './ui-util.js';
-import { search, suggest, byCode, crsFromEntry, crsFromPrj, crsProblem, frame, localFromPairs, groundLocal, loadGrid, gridInfo, suggestGrids, GRID_CDN } from './crs.js';
+import { search, suggest, byCode, crsFromEntry, crsFromPrj, crsProblem, frame, axisNames, localFromPairs, groundLocal, loadGrid, gridInfo, suggestGrids, GRID_CDN } from './crs.js';
 import { t } from './i18n.js';   // 0.4 V11
 import { systemsThatFit, describe, latLonText, parseLatLon, gridOf, misclosure, groundFactor, reprojectProject, unitWords } from './crs-pick.js';
 
@@ -47,7 +47,15 @@ export function install(host) {
     out.hidden = !f;
     if (!f) { out.textContent = ''; return; }
     if (!cur) { out.textContent = t('crs.d.latlon.none'); return; }
-    try { const [lon, lat] = f.toLonLat(cur.x, cur.y); out.textContent = latLonText(lon, lat, host.settings.latlon); } catch { out.textContent = t('crs.d.latlon.off'); }
+    try {
+      const [lon, lat] = f.toLonLat(cur.x, cur.y);
+      let text = latLonText(lon, lat, host.settings.latlon);
+      if (f.axes === 'ws') {   // 0.8 ZA.1: a South African Lo zone reads Y (westing) and X (southing), the project stays east/north
+        const [Y, X] = f.surveyor(cur.x, cur.y), n = axisNames(f.crs);
+        text = n[0] + ' ' + Y.toFixed(2) + '  ' + n[1] + ' ' + X.toFixed(2) + '  ' + text;
+      }
+      out.textContent = text;
+    } catch { out.textContent = t('crs.d.latlon.off'); }
   }
   reg.status.push(showLatLon);
   reg.onProject.push(() => showLatLon(host.cursor));
@@ -233,7 +241,9 @@ export function install(host) {
               el('label', { htmlFor: nearIn.id }, t('crs.d.near')), el('div', { className: 'cv-row' }, nearIn, el('button', { type: 'button', className: 'btn-line btn-sm-cc', dataset: { crsNear: '' } }, t('crs.d.suggest')))),
             el('div', { className: 'cv-links' },
               hasData ? el('button', { type: 'button', className: 'cv-linkbtn', dataset: { crsFits: '' } }, t('crs.d.fits')) : null,
-              el('button', { type: 'button', className: 'cv-linkbtn', dataset: { crsPrj: '' } }, t('crs.d.prj')), prjIn),
+              el('button', { type: 'button', className: 'cv-linkbtn', dataset: { crsPrj: '' } }, t('crs.d.prj')), prjIn,
+              el('button', { type: 'button', className: 'cv-linkbtn', dataset: { crsMore: '' }, title: t('crs.d.more.help') }, t('crs.d.more'))),
+            el('p', { className: 'cv-note', dataset: { crsMoreHelp: '' } }, t('crs.d.more.help')),   // 0.8 D8.9 (crs-share_PART_3): the shared picker
             listHead, list),
           el('section', { className: 'cv-crs-sec' }, el('h3', { className: 'cv-h3' }, t('crs.d.chosen')), chosenBox, problemBox),
           gglPanel),
@@ -472,6 +482,24 @@ export function install(host) {
       } catch (e) { listHead.textContent = t('gread.file.note', { file: file.name, note: e.message }); list.replaceChildren(); }
     }
 
+    // ---------------- the shared picker (lib/crs-pick: UTM zone, EPSG number, words, own definition, My projections)
+    let ps = null;
+    async function openMore() {
+      const D = await import('./crs-pick-dialog.js');
+      ps ||= D.problemSource(t('crs.d.more.title'));
+      await D.openCrsDialog({
+        title: t('crs.d.more.title'), intro: t('crs.d.more.intro'), near: here, current: current ? t('crs.d.now') + ' ' + current.name : '',
+        projectedOnly: true, root: host.root, check: (c) => crsProblem(c, units()),
+        onProblem: (pr) => ps.set(pr),
+        onPick: (c) => {
+          const ent = c.code != null ? safeByCode(c.code) : null;
+          choose({ crs: { ...c, local: null }, entry: ent, notes: [] });
+          if (ent) showList(c.name, [ent]);
+          listHead.textContent = c.name;
+        },
+      });
+    }
+
     // ---------------- apply
     async function apply() {
       if (pick) {
@@ -543,6 +571,7 @@ export function install(host) {
       if (btn.dataset.crsFits !== undefined) { q.value = ''; doFits(); return; }
       if (btn.dataset.crsNear !== undefined) { doNear(); return; }
       if (btn.dataset.crsPrj !== undefined) { prjIn.click(); return; }
+      if (btn.dataset.crsMore !== undefined) { openMore(); return; }
       if (btn.dataset.crsCompute !== undefined) { computeFactor(); return; }
       if (btn.dataset.crsUseFactor) { csf.value = btn.dataset.crsUseFactor; csf.focus(); return; }
       if (btn.dataset.crsPickPlan) { pickOnPlan(btn.dataset.crsPickPlan); return; }

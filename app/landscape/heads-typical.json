@@ -1,0 +1,945 @@
+{
+ "format": "cadcraft-irrigation-heads",
+ "version": 1,
+ "label": "typical values",
+ "licence": {
+  "id": "CC0-1.0",
+  "holder": "CadCraft"
+ },
+ "note": "Typical values for planning only, worked out from published maths (docs/landscape/IRRIGATION-SOURCING.md § 1c). No manufacturer table is copied. Check the real head data before building.",
+ "units": {
+  "radius": "m",
+  "flow": "L/min (full circle; drip and micro: per head)",
+  "pressure": "kPa",
+  "pr": "mm/h at head-to-head spacing"
+ },
+ "generated": "tools/landscape/build-heads.mjs",
+ "heads": [
+  {
+   "key": "typ-spray-1-6",
+   "kind": "spray",
+   "name": "Typical fixed spray, 1.6 mm nozzle (typical values)",
+   "nozzleMm": 1.6,
+   "radius": 2.7,
+   "flow": 2.2,
+   "pr": 18.3,
+   "pressure": {
+    "min": 140,
+    "nominal": 205,
+    "max": 310
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": false,
+   "table": [
+    {
+     "kPa": 140,
+     "flowLmin": 1.82,
+     "radiusM": 2.2
+    },
+    {
+     "kPa": 205,
+     "flowLmin": 2.2,
+     "radiusM": 2.7
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 2.7,
+     "radiusM": 3.3
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.464 fitted to CadCraft's own CC0 generic spray.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-spray-2",
+   "kind": "spray",
+   "name": "Typical fixed spray, 2 mm nozzle (typical values)",
+   "nozzleMm": 2,
+   "radius": 3,
+   "flow": 3.44,
+   "pr": 22.9,
+   "pressure": {
+    "min": 140,
+    "nominal": 205,
+    "max": 310
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": false,
+   "table": [
+    {
+     "kPa": 140,
+     "flowLmin": 2.84,
+     "radiusM": 2.5
+    },
+    {
+     "kPa": 205,
+     "flowLmin": 3.44,
+     "radiusM": 3
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 4.22,
+     "radiusM": 3.7
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.464 fitted to CadCraft's own CC0 generic spray.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-spray-2-5",
+   "kind": "spray",
+   "name": "Typical fixed spray, 2.5 mm nozzle (typical values)",
+   "nozzleMm": 2.5,
+   "radius": 3.4,
+   "flow": 5.37,
+   "pr": 28.6,
+   "pressure": {
+    "min": 140,
+    "nominal": 205,
+    "max": 310
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": false,
+   "table": [
+    {
+     "kPa": 140,
+     "flowLmin": 4.44,
+     "radiusM": 2.8
+    },
+    {
+     "kPa": 205,
+     "flowLmin": 5.37,
+     "radiusM": 3.4
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 6.6,
+     "radiusM": 4.1
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.464 fitted to CadCraft's own CC0 generic spray.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-spray-3-2",
+   "kind": "spray",
+   "name": "Typical fixed spray, 3.2 mm nozzle (typical values)",
+   "nozzleMm": 3.2,
+   "radius": 3.8,
+   "flow": 8.79,
+   "pr": 36.6,
+   "pressure": {
+    "min": 140,
+    "nominal": 205,
+    "max": 310
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": false,
+   "table": [
+    {
+     "kPa": 140,
+     "flowLmin": 7.27,
+     "radiusM": 3.1
+    },
+    {
+     "kPa": 205,
+     "flowLmin": 8.79,
+     "radiusM": 3.8
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 10.81,
+     "radiusM": 4.7
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.464 fitted to CadCraft's own CC0 generic spray.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-spray-4-5",
+   "kind": "spray",
+   "name": "Typical fixed spray, 4.5 mm nozzle (typical values)",
+   "nozzleMm": 4.5,
+   "radius": 4.5,
+   "flow": 17.39,
+   "pr": 51.5,
+   "pressure": {
+    "min": 140,
+    "nominal": 205,
+    "max": 310
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": false,
+   "table": [
+    {
+     "kPa": 140,
+     "flowLmin": 14.37,
+     "radiusM": 3.7
+    },
+    {
+     "kPa": 205,
+     "flowLmin": 17.39,
+     "radiusM": 4.5
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 21.38,
+     "radiusM": 5.5
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.464 fitted to CadCraft's own CC0 generic spray.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotary-1-2",
+   "kind": "rotary",
+   "name": "Typical rotary nozzle, 1.2 mm nozzle (typical values)",
+   "nozzleMm": 1.2,
+   "radius": 4.3,
+   "flow": 1.43,
+   "pr": 4.6,
+   "pressure": {
+    "min": 205,
+    "nominal": 275,
+    "max": 380
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 205,
+     "flowLmin": 1.24,
+     "radiusM": 3.7
+    },
+    {
+     "kPa": 275,
+     "flowLmin": 1.43,
+     "radiusM": 4.3
+    },
+    {
+     "kPa": 380,
+     "flowLmin": 1.68,
+     "radiusM": 5.1
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.746 fitted to CadCraft's own CC0 generic rotary.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotary-1-6",
+   "kind": "rotary",
+   "name": "Typical rotary nozzle, 1.6 mm nozzle (typical values)",
+   "nozzleMm": 1.6,
+   "radius": 5,
+   "flow": 2.55,
+   "pr": 6.1,
+   "pressure": {
+    "min": 205,
+    "nominal": 275,
+    "max": 380
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 205,
+     "flowLmin": 2.2,
+     "radiusM": 4.3
+    },
+    {
+     "kPa": 275,
+     "flowLmin": 2.55,
+     "radiusM": 5
+    },
+    {
+     "kPa": 380,
+     "flowLmin": 2.99,
+     "radiusM": 5.9
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.746 fitted to CadCraft's own CC0 generic rotary.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotary-2",
+   "kind": "rotary",
+   "name": "Typical rotary nozzle, 2 mm nozzle (typical values)",
+   "nozzleMm": 2,
+   "radius": 5.6,
+   "flow": 3.98,
+   "pr": 7.6,
+   "pressure": {
+    "min": 205,
+    "nominal": 275,
+    "max": 380
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 205,
+     "flowLmin": 3.44,
+     "radiusM": 4.8
+    },
+    {
+     "kPa": 275,
+     "flowLmin": 3.98,
+     "radiusM": 5.6
+    },
+    {
+     "kPa": 380,
+     "flowLmin": 4.68,
+     "radiusM": 6.6
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.746 fitted to CadCraft's own CC0 generic rotary.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotary-2-5",
+   "kind": "rotary",
+   "name": "Typical rotary nozzle, 2.5 mm nozzle (typical values)",
+   "nozzleMm": 2.5,
+   "radius": 6.3,
+   "flow": 6.22,
+   "pr": 9.5,
+   "pressure": {
+    "min": 205,
+    "nominal": 275,
+    "max": 380
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 205,
+     "flowLmin": 5.37,
+     "radiusM": 5.4
+    },
+    {
+     "kPa": 275,
+     "flowLmin": 6.22,
+     "radiusM": 6.3
+    },
+    {
+     "kPa": 380,
+     "flowLmin": 7.31,
+     "radiusM": 7.3
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.746 fitted to CadCraft's own CC0 generic rotary.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotor-3",
+   "kind": "rotor",
+   "name": "Typical gear rotor, 3 mm nozzle (typical values)",
+   "nozzleMm": 3,
+   "radius": 7.8,
+   "flow": 9.5,
+   "pr": 9.4,
+   "pressure": {
+    "min": 240,
+    "nominal": 310,
+    "max": 450
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 240,
+     "flowLmin": 8.36,
+     "radiusM": 6.9
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 9.5,
+     "radiusM": 7.8
+    },
+    {
+     "kPa": 450,
+     "flowLmin": 11.45,
+     "radiusM": 9.4
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.8 fitted to CadCraft's own CC0 generic rotor.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotor-4",
+   "kind": "rotor",
+   "name": "Typical gear rotor, 4 mm nozzle (typical values)",
+   "nozzleMm": 4,
+   "radius": 9,
+   "flow": 16.9,
+   "pr": 12.5,
+   "pressure": {
+    "min": 240,
+    "nominal": 310,
+    "max": 450
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 240,
+     "flowLmin": 14.87,
+     "radiusM": 7.9
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 16.9,
+     "radiusM": 9
+    },
+    {
+     "kPa": 450,
+     "flowLmin": 20.36,
+     "radiusM": 10.8
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.8 fitted to CadCraft's own CC0 generic rotor.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotor-5",
+   "kind": "rotor",
+   "name": "Typical gear rotor, 5 mm nozzle (typical values)",
+   "nozzleMm": 5,
+   "radius": 10.1,
+   "flow": 26.4,
+   "pr": 15.6,
+   "pressure": {
+    "min": 240,
+    "nominal": 310,
+    "max": 450
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 240,
+     "flowLmin": 23.23,
+     "radiusM": 8.9
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 26.4,
+     "radiusM": 10.1
+    },
+    {
+     "kPa": 450,
+     "flowLmin": 31.81,
+     "radiusM": 12.1
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.8 fitted to CadCraft's own CC0 generic rotor.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotor-6",
+   "kind": "rotor",
+   "name": "Typical gear rotor, 6 mm nozzle (typical values)",
+   "nozzleMm": 6,
+   "radius": 11,
+   "flow": 38.02,
+   "pr": 18.8,
+   "pressure": {
+    "min": 240,
+    "nominal": 310,
+    "max": 450
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 240,
+     "flowLmin": 33.45,
+     "radiusM": 9.7
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 38.02,
+     "radiusM": 11
+    },
+    {
+     "kPa": 450,
+     "flowLmin": 45.8,
+     "radiusM": 13.3
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.8 fitted to CadCraft's own CC0 generic rotor.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-rotor-8",
+   "kind": "rotor",
+   "name": "Typical gear rotor, 8 mm nozzle (typical values)",
+   "nozzleMm": 8,
+   "radius": 12.7,
+   "flow": 67.59,
+   "pr": 25,
+   "pressure": {
+    "min": 240,
+    "nominal": 310,
+    "max": 450
+   },
+   "arcs": [
+    90,
+    180,
+    270,
+    360
+   ],
+   "adjustable": true,
+   "table": [
+    {
+     "kPa": 240,
+     "flowLmin": 59.47,
+     "radiusM": 11.2
+    },
+    {
+     "kPa": 310,
+     "flowLmin": 67.59,
+     "radiusM": 12.7
+    },
+    {
+     "kPa": 450,
+     "flowLmin": 81.43,
+     "radiusM": 15.3
+    }
+   ],
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Worked out by CadCraft from published maths, not copied from any table: orifice equation Q = Cd·A·√(2p/ρ) with Cd = 0.9; throw R = c·√(d·H) with c = 0.8 fitted to CadCraft's own CC0 generic rotor.",
+    "refs": [
+     "Torricelli / orifice discharge (public maths)",
+     "Keller & Bliesner, Sprinkle and Trickle Irrigation (1990): method only, no data taken"
+    ]
+   }
+  },
+  {
+   "key": "typ-microspray-0-5",
+   "kind": "microspray",
+   "name": "Typical micro-spray, 30 L/h (typical values)",
+   "radius": 1,
+   "flow": 0.5,
+   "pressure": {
+    "min": 100,
+    "nominal": 140,
+    "max": 250
+   },
+   "arcs": [
+    90,
+    180,
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (micro-spray, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-microspray-1",
+   "kind": "microspray",
+   "name": "Typical micro-spray, 60 L/h (typical values)",
+   "radius": 1.5,
+   "flow": 1,
+   "pressure": {
+    "min": 100,
+    "nominal": 140,
+    "max": 250
+   },
+   "arcs": [
+    90,
+    180,
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (micro-spray, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-microspray-1-5",
+   "kind": "microspray",
+   "name": "Typical micro-spray, 90 L/h (typical values)",
+   "radius": 2.5,
+   "flow": 1.5,
+   "pressure": {
+    "min": 100,
+    "nominal": 140,
+    "max": 250
+   },
+   "arcs": [
+    90,
+    180,
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (micro-spray, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-bubbler-0-5",
+   "kind": "bubbler",
+   "name": "Typical bubbler, 0.5 gpm class (typical values)",
+   "radius": 0.5,
+   "flow": 1.89,
+   "pressure": {
+    "min": 100,
+    "nominal": 205,
+    "max": 410
+   },
+   "arcs": [
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (bubbler, gallons per minute); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-bubbler-1",
+   "kind": "bubbler",
+   "name": "Typical bubbler, 1 gpm class (typical values)",
+   "radius": 0.5,
+   "flow": 3.79,
+   "pressure": {
+    "min": 100,
+    "nominal": 205,
+    "max": 410
+   },
+   "arcs": [
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (bubbler, gallons per minute); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-emitter-1",
+   "kind": "emitter",
+   "name": "Typical point emitter, 1 L/h (typical values)",
+   "radius": 0.2,
+   "flow": 0.017,
+   "pressure": {
+    "min": 70,
+    "nominal": 140,
+    "max": 350
+   },
+   "arcs": [
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (drip emitter, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-emitter-2",
+   "kind": "emitter",
+   "name": "Typical point emitter, 2 L/h (typical values)",
+   "radius": 0.2,
+   "flow": 0.033,
+   "pressure": {
+    "min": 70,
+    "nominal": 140,
+    "max": 350
+   },
+   "arcs": [
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (drip emitter, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-emitter-4",
+   "kind": "emitter",
+   "name": "Typical point emitter, 4 L/h (typical values)",
+   "radius": 0.2,
+   "flow": 0.067,
+   "pressure": {
+    "min": 70,
+    "nominal": 140,
+    "max": 350
+   },
+   "arcs": [
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (drip emitter, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  },
+  {
+   "key": "typ-emitter-8",
+   "kind": "emitter",
+   "name": "Typical point emitter, 8 L/h (typical values)",
+   "radius": 0.2,
+   "flow": 0.133,
+   "pressure": {
+    "min": 70,
+    "nominal": 140,
+    "max": 350
+   },
+   "arcs": [
+    360
+   ],
+   "adjustable": false,
+   "source": {
+    "kind": "open",
+    "licence": "CC0-1.0",
+    "holder": "CadCraft",
+    "label": "typical values",
+    "basis": "Nominal flow class (drip emitter, litres per hour); the trade names the classes, the values are not taken from any maker's table. Radius is a typical wetting radius chosen by CadCraft.",
+    "refs": [
+     "Nominal flow classes"
+    ]
+   }
+  }
+ ]
+}

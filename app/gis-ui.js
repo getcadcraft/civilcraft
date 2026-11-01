@@ -17,6 +17,8 @@ const PARTS = [
   () => import('./gis-terrain-ui.js'),
   // 0.4 V1 (session civil): DWG / DXF as linework (gis-cad-ui.js); its opener goes first (unshift)
   () => import('./gis-cad-ui.js'),
+  // Super 0.1: Start from a scan (scan-start-ui.js over lib/scanstart): a PDF, or a picture with no world file; its opener goes first
+  () => import('./scan-start-ui.js'),
   () => import('./gis-map-ui.js'),   // builder C, last: its opener takes pictures (+ world file) after builder B's has looked at a .tif
 ];
 

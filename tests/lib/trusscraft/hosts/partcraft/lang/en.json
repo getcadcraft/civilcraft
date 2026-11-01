@@ -1,0 +1,10 @@
+{
+  "h.partcraft.place": "Place as bodies in the viewport",
+  "h.partcraft.undo": "Place trusses",
+  "h.partcraft.none": "There are no members to place: lay a roof out first.",
+  "h.partcraft.pick": "Take outline from the selected sketch",
+  "h.partcraft.nosketch": "Select a sketch feature with a closed outline (the roof's plan) in the feature tree first.",
+  "h.partcraft.noloop": "The selected sketch has no closed loop of three or more corners.",
+  "h.partcraft.limit.bodies": "PartCraft: the trusses are display bodies in the viewport, kept in the part file but not part of the part's solid: no boolean, mass, STEP or picking. The set leaves through this add-on's STL, OBJ, CSV and jig exports.",
+  "h.partcraft.limit.roofs": "PartCraft has no roofs to read: type the roof outline, or take it from a sketch. Hips and valleys come from the straight skeleton of that outline at one pitch; per-edge pitches and gables need BimCraft's roof tool."
+}

@@ -1,0 +1,58 @@
+{
+ "format": "detailcraft",
+ "version": 2,
+ "name": "model.name.untitled",
+ "grids": {
+  "x": [
+   {
+    "label": "1",
+    "at": 0
+   },
+   {
+    "label": "2",
+    "at": 6000
+   },
+   {
+    "label": "3",
+    "at": 12000
+   }
+  ],
+  "y": [
+   {
+    "label": "A",
+    "at": 0
+   },
+   {
+    "label": "B",
+    "at": 6000
+   }
+  ]
+ },
+ "levels": [
+  {
+   "name": "model.level",
+   "z": 0
+  },
+  {
+   "name": "model.level",
+   "z": 4000
+  }
+ ],
+ "members": [],
+ "connections": [],
+ "footings": [],
+ "stairs": [],
+ "bolts": [],
+ "profiles": [],
+ "seq": 1,
+ "phases": [
+  {
+   "n": 1,
+   "name": ""
+  }
+ ],
+ "numbering": {
+  "perPhase": true
+ },
+ "issues": []
+}

@@ -1,0 +1,44 @@
+% effectiveness — the effectiveness of a heat exchanger from its NTU and capacity ratio
+%
+% Usage:      eps = effectiveness(NTU, Cr, arrangement)
+%             arrangement: 'counter' (counterflow), 'parallel', 'shell' (one shell pass, 2, 4 ... tube passes), 'crossflow'
+%             (both streams unmixed) or 'single' (one stream changes phase, Cr = 0).
+% Computes:   counter:  (1 - exp(-NTU (1-Cr))) / (1 - Cr exp(-NTU (1-Cr))), and NTU / (1 + NTU) when Cr = 1
+%             parallel: (1 - exp(-NTU (1+Cr))) / (1 + Cr)
+%             shell:    2 / ( 1 + Cr + c (1 + exp(-NTU c)) / (1 - exp(-NTU c)) ), c = sqrt(1 + Cr^2)
+%             crossflow: 1 - exp( NTU^0.22 (exp(-Cr NTU^0.78) - 1) / Cr )   (an approximation, within a few percent)
+%             single:   1 - exp(-NTU)
+% Method:     the epsilon-NTU relations; Cr = Cmin / Cmax is between 0 and 1.
+% Units:      none.
+% References: Kays and London, Compact Heat Exchangers (1984); Incropera et al., 7th ed., Table 11.3.
+% Check:      NTU 1, Cr 0.5: counter 0.5647, parallel 0.5179 ('single' at Cr 0: 0.6321) (tools/field-test/eng.mjs).
+function eps = effectiveness(NTU, Cr, arrangement)
+if NTU < 0 || Cr < 0 || Cr > 1
+  error('effectiveness: NTU cannot be negative and Cr is between 0 and 1');
+end
+switch arrangement
+  case 'counter'
+    if abs(1 - Cr) < 1e-9
+      eps = NTU / (1 + NTU);
+    else
+      e = exp(-NTU * (1 - Cr));
+      eps = (1 - e) / (1 - Cr * e);
+    end
+  case 'parallel'
+    eps = (1 - exp(-NTU * (1 + Cr))) / (1 + Cr);
+  case 'shell'
+    c = sqrt(1 + Cr ^ 2);
+    e = exp(-NTU * c);
+    eps = 2 / (1 + Cr + c * (1 + e) / (1 - e));
+  case 'crossflow'
+    if Cr == 0
+      eps = 1 - exp(-NTU);
+    else
+      eps = 1 - exp(NTU ^ 0.22 * (exp(-Cr * NTU ^ 0.78) - 1) / Cr);
+    end
+  case 'single'
+    eps = 1 - exp(-NTU);
+  otherwise
+    error('effectiveness: the arrangement is counter, parallel, shell, crossflow or single');
+end
+end

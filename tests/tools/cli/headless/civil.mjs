@@ -10,7 +10,9 @@
  * LandXML is not opened here: turning a LandXML file into a project is the CivilCraft window's (civilcraft.js
  * openLandXml), as is its DWG export (the drawing comes from its panels). Both are said in `cadcraft tools`.
  */
-import { load } from './apps.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { load, appDir } from './apps.mjs';
 
 const APP = 'civilcraft';
 export const extOf = (name) => (String(name).match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
@@ -19,8 +21,20 @@ export const POINT_EXTS = ['csv', 'txt', 'pnezd', 'penzd', 'xyz', 'pts'];
 let M = null;
 export async function civilModules() {
   if (M) return M;
-  const [PJ, PTS, AG] = await Promise.all([load(APP, 'project.js'), load(APP, 'points.js'), load(APP, 'civil-agent.js')]);
-  M = { Project: PJ.Project, parsePoints: PTS.parsePoints, civilTools: AG.civilTools, landXmlOf: AG.landXmlOf };
+  const [PJ, PTS, AG, LS, PL, PLANTS, PLIB, WA] = await Promise.all([load(APP, 'project.js'), load(APP, 'points.js'), load(APP, 'civil-agent.js'),
+    load(APP, 'landscape/ls-agent.js'), load(APP, 'powerline/pl-agent.js'), load(APP, 'landscape/plants.js'), load(APP, 'powerline/library.js'), load(APP, 'water-agent.js')]);
+  // 0.8 LD.8 / PL.8 headless: the Landscape and Power lines tools beside the civil ones, over the same Project. The window gets the
+  // seed plant list by fetch and the power-line library from its panel; here they come from the build's own files.
+  let seed = null;
+  const seedSpecies = () => seed || (seed = PLANTS.readPlants(JSON.parse(fs.readFileSync(path.join(appDir(APP), 'landscape', 'plants-seed.json'), 'utf8'))).library.species);
+  const starter = PLIB.starterLibrary();
+  const toolsFor = (app) => {
+    const P = app.project;
+    const lib = () => { const m = new Map(); for (const it of starter) m.set(it.key, it); for (const it of P()?.state.powerlines?.items || []) m.set(it.key, { ...it, source: 'project' }); return m; };
+    const groundAt = (x, y) => { const p = P(), z = (p.graded().surface || p.eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; };
+    return [...AG.civilTools(app), ...LS.landscapeTools({ ...app, seed: seedSpecies }), ...PL.powerlineTools({ ...app, lib, groundAt }), ...WA.waterTools({ ...app, groundAt })];
+  };
+  M = { Project: PJ.Project, parsePoints: PTS.parsePoints, civilTools: AG.civilTools, allTools: toolsFor, landXmlOf: AG.landXmlOf };
   return M;
 }
 

@@ -1,0 +1,13 @@
+# format = cadcraft-tji-table
+# manufacturer = EXAMPLE maker
+# product = EXAMPLE joists
+# edition = EXAMPLE, not for design
+# source = Made-up numbers for tests. EXAMPLE, not for design.
+# units = imperial
+# example = true
+# case = EX-40-10-L480; 40; 10; L/480; 1.75
+series,depth,case,spacing,span
+EX-A,9.5,EX-40-10-L480,16,10-0
+EX-A,9.5,EX-40-10-L480,24,8-0
+EX-B,11.875,EX-40-10-L480,16,14-0
+EX-B,11.875,EX-40-10-L480,24,11-0

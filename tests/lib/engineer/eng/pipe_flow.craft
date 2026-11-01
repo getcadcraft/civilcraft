@@ -1,0 +1,25 @@
+% pipe_flow — mass flow through a round pipe: velocity, Reynolds number, friction factor, pressure drop
+%
+% Usage:      r = pipe_flow(mdot, D, L, rho, mu, rough)
+%             rough is the wall roughness in metres (0 for smooth). Every field of r is a quantity: r.dp.value, r.dp.unit, r.dp.ref.
+% Computes:   v = mdot / (rho pi D^2 / 4); Re = rho v D / mu; f from friction_factor; dp = f (L/D) rho v^2 / 2.
+% Method:     reynolds, friction_factor and darcy_weisbach, put together.
+% Units:      SI: mdot kg/s, D m, L m, rho kg/m3, mu Pa s, rough m.
+% References: see reynolds, friction_factor, darcy_weisbach.
+% Check:      water, 0.5 kg/s in 20 mm, 5 m: Re 31 767, f 0.02317, dp 7.35 kPa (tools/field-test/eng.mjs).
+function r = pipe_flow(mdot, D, L, rho, mu, rough)
+if nargin < 6
+  rough = 0;
+end
+A = pi * D ^ 2 / 4;
+v = mdot / (rho * A);
+Re = reynolds(rho, v, D, mu);
+[f, regime] = friction_factor(Re, rough / D);
+dp = darcy_weisbach(f, L, D, rho, v);
+r = struct();
+r.v = q(v, 'm/s', 'continuity, mdot / (rho A)');
+r.Re = q(Re, '-', 'Incropera 7e eq. 8.1');
+r.f = q(f, '-', strcat('Colebrook 1939 / laminar 64 / Re (', regime, ')'));
+r.dp = q(dp, 'Pa', 'Darcy-Weisbach, Incropera 7e eq. 8.22a');
+r.regime = regime;
+end

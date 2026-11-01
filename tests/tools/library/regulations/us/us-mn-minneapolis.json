@@ -1,0 +1,65 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-mn-minneapolis",
+  "name": "Minneapolis: 2020 Minnesota Residential Code, Minneapolis values",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-MN",
+    "name": "Minneapolis"
+  },
+  "base": "us-mn",
+  "edition": "2020 Minnesota Residential Code, Minnea…",
+  "in_force": "2020-03-31",
+  "review": {
+    "state": "draft",
+    "note": "The Minnesota state pack for this city — the state code with the values for Minneapolis (local amendments are not permitted) (Minnesota DLI (state table; Hennepin County values); Minn. R. 1309.0301; 1303.1600; 1303.1700). Design criteria from www.revisor.mn.gov (2020-03-31). Entered from the cited source on 2026-10-27 (research confidence: medium); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Minnesota DLI (state table; Hennepin County values), Minn. R. 1309.0301; 1303.1600; 1303.1700",
+    "url": "https://www.revisor.mn.gov/rules/1309.0301/",
+    "date": "2020-03-31",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "50 psf (Minn. R. 1303.1700)",
+      "value": 50,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "115 mph",
+      "value": 115,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "Yes"
+    },
+    "seismic_category": {
+      "text": "A"
+    },
+    "weathering": {
+      "text": "Severe"
+    },
+    "frost_depth": {
+      "text": "42 in (Minn. R. 1303.1600)",
+      "value": 1066.8,
+      "unit": "mm"
+    },
+    "winter_design_temp": {
+      "text": "-15 °F"
+    },
+    "ice_barrier": {
+      "text": "Yes"
+    },
+    "flood_hazards": {
+      "text": "Minn. R. ch. 1335"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

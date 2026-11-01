@@ -65,7 +65,10 @@ body.ws-b-titlebar .ws-stage { height: auto; min-height: 0; min-width: 0; border
 .ws-quick { display: flex; gap: 1px; border-right: 1px solid var(--ws-line); padding-right: 0.5rem; }
 .ws-quick .ws-tool { width: 1.5625rem; min-width: 1.5625rem; max-width: 1.5625rem; height: 1.5625rem; display: grid; place-items: center; padding: 2px; }
 .ws-quick .ws-tool.ws-compact { min-width: 1.5625rem; max-width: 1.5625rem; width: 1.5625rem; display: grid; place-items: center; padding: 2px; }
-.ws-quick .ws-tool span { display: none; } .ws-quick :is(.ws-icon, .ws-icon-bi) { width: 1.0625rem; height: 1.0625rem; font-size: 1rem; }
+.ws-quick .ws-tool span { display: none; } .ws-quick :is(.ws-icon, .ws-icon-bi) { width: 1.0625rem; height: 1.0625rem; font-size: 1rem; margin: 0; }
+.ws-quick .ws-tool, .ws-quick .ws-tool.ws-compact { justify-content: center; align-content: center; }   /* the 1.0625rem icon track sat at the start of the 19px content box, 1px left of the middle */
+.ws-quick .ws-icon-bi { display: grid; place-items: center; text-align: center; }   /* the glyph in the middle of its square: no 1px margin under it, no baseline offset */
+.ws-quick .ws-icon-bi::before { display: block; line-height: 1; vertical-align: 0; }
 .ws-project { flex: 1; min-width: 3.125rem; text-align: center; text-overflow: ellipsis; overflow: hidden; }
 .ws-titlebar > button { font-size: 0.6875rem; flex-shrink: 0; }
 .ws-shell-btn { font-size: 1rem !important; padding: .125rem .375rem !important; }
@@ -313,3 +316,37 @@ body.shell-tb-nogroups :is(.tbx-group > summary, .tbx-group-title) { display: no
 .panel-popout .ws-popout-box { height: 100%; display: flex; flex-direction: column; min-height: 0; overflow: auto; }
 .panel-popout .ws-popout-box > .ws-palettes { flex: 1 1 auto; min-height: 0; }
 .panel-popout .ws-popout-box > aside { position: static !important; flex: 1 1 auto; width: auto !important; max-width: none !important; height: auto !important; min-height: 0; overflow: auto; border: 0 !important; }
+
+/* ---- layout "autorev" (0.8, owner 2026-10-26): the familiar BIM-authoring arrangement, drawn flat — a quick-access bar without boxes, ribbon tabs
+   that merge into their panel, panels named in a strip along their foot, borderless tools that light on hover, a thin view control bar.
+   Structure comes from the layout file; this block is only paint, keyed on body.ws-layout-autorev, tokens only (the owner restyles it here). ---- */
+.ws-layout-autorev .ws-titlebar { background: var(--ws-chrome); min-height: 1.75rem; gap: 0.375rem; }
+.ws-layout-autorev .ws-brand { font-size: 0.8125rem; font-stretch: 100%; }
+.ws-layout-autorev .ws-quick { border-right: 0; padding-right: 0.25rem; gap: 0; }
+.ws-layout-autorev :is(.ws-quick .ws-tool, .ws-titlebar > button) { border-color: transparent; background: transparent; }
+.ws-layout-autorev :is(.ws-quick .ws-tool, .ws-titlebar > button):hover { border-color: var(--ws-line); background: var(--ws-soft); }
+.ws-layout-autorev .ws-project { font-size: 0.75rem; }
+/* tabs: flat; the open one is the panel's own colour with a hairline frame on three sides, so it reads as part of the ribbon below it */
+.ws-layout-autorev .ws-ribbon-tabs { background: var(--ws-chrome); border-bottom: 1px solid var(--ws-line); padding: 0.125rem 0.25rem 0; gap: 0; }
+.ws-layout-autorev .ws-ribbon-tabs button { padding: 0.1875rem 0.75rem; border: 1px solid transparent; border-bottom: 0; background: transparent; font-weight: 400; margin-bottom: -1px; }
+.ws-layout-autorev .ws-ribbon-tabs button:hover { background: var(--ws-soft); }
+.ws-layout-autorev .ws-ribbon-tabs button[aria-selected="true"] { background: var(--ws-panel-bg); color: var(--ws-ink); font-weight: 400; border: 1px solid var(--ws-line); border-bottom: 1px solid var(--ws-panel-bg); }
+.ws-layout-autorev .ws-ribbon-tabs .ws-context-tab[aria-selected="true"] { background: color-mix(in srgb, var(--layer-green) 16%, var(--sheet)); }
+.ws-layout-autorev .ws-ribbon { padding: 0.125rem 0.1875rem 0; background: var(--ws-panel-bg); }
+/* panels: the name sits in a tinted strip across the foot, separators run the full height */
+.ws-layout-autorev .ws-group { padding: 0; height: 5.5rem; border-right: 1px solid var(--ws-line); }
+.ws-layout-autorev .ws-group-tools { padding: 0.125rem 0.25rem 0; }
+.ws-layout-autorev .ws-group-title { background: color-mix(in srgb, var(--ws-chrome) 70%, var(--ws-panel-bg)); border-top: 1px solid color-mix(in srgb, var(--ws-line) 55%, transparent); font-size: 0.6875rem; line-height: 1rem; }
+.ws-layout-autorev .ws-tool { height: 3.75rem; }
+.ws-layout-autorev .ws-tool:hover { background: var(--ws-soft); border-color: var(--ws-hover); }
+.ws-layout-autorev :is(.ws-stack .ws-tool, .ws-tool.ws-compact) { height: 1.1875rem; min-width: 4.5rem; }
+/* the options bar joins the ribbon (no rule between them) and names the running tool in bold */
+.ws-layout-autorev .ws-options { background: var(--ws-panel-bg); border-top: 0; border-bottom: 1px solid var(--ws-line); padding-block: 0.125rem; gap: 0.5rem; }
+.ws-layout-autorev .ws-options strong { font-weight: 700; }
+/* the view control bar: small, borderless, at the foot of the view */
+.ws-layout-autorev .ws-view-controls { gap: 0.25rem; padding: 0.0625rem 0.25rem; background: var(--ws-chrome); border-top: 1px solid var(--ws-line); }
+.ws-layout-autorev .ws-view-controls button { border-color: transparent; background: transparent; }
+.ws-layout-autorev .ws-view-controls button:hover { border-color: var(--ws-line); background: var(--ws-soft); }
+.ws-layout-autorev .ws-statusbar { background: var(--ws-chrome); border-top: 1px solid var(--ws-line); }
+/* a tool that is on stays lit (the borderless looks above must not hide it) */
+.ws-layout-autorev :is(.ws-top, .ws-bottom, .ws-region, .ws-palettes) :is(.ws-tool, .tbx-tool, .ws-view-controls button)[aria-pressed="true"] { background: color-mix(in srgb, var(--layer, var(--action)) 16%, var(--sheet)); border-color: var(--layer, var(--action)); }

@@ -1,0 +1,67 @@
+% check_thermal — the temperatures in a generated part with fixed temperatures and heat input, by PartCraft's thermal solver
+%
+% Usage:      r = check_thermal(f, h, alloy, bc)
+%             bc.T     = { struct('box', box, 'value', T) , … }    nodes inside the box [x0 y0 z0 x1 y1 z1] (mm) held at T (K or C, the same everywhere)
+%             bc.power = { struct('box', box, 'power', P) , … }    heat input P in W shared equally by the nodes in the box
+% Returns:    r.T_max, r.T_min (quantities, in the unit of the temperatures given), r.boundary_heat (W each fixed-temperature box puts into
+%             the part, in the order given: positive at a hot end, negative at a cold one), r.heat_flow (the largest of them, a quantity),
+%             r.settings (voxel size, unknowns, material and its conductivity with its source), r.raw (heat_steady's result).
+% Method:     field_voxel, a node pick per box, heat_steady (K T = f with the cube conduction matrix of thermal.js, solved directly).
+%             It calls the solver and changes nothing in it. Steady state; conductivity constant at its room-temperature value.
+% Units:      mm, W, K; the conductivity is taken from the material in W/(m K) and converted.
+% Limits:     conduction only: no convection, no radiation. Cubes, so thin walls need at least two voxels across.
+% References: see heat_steady (Incropera et al.; Lewis et al.).
+% Check:      a 100 x 10 x 10 mm steel bar with its ends at 20 and 100: heat flow k A dT / L = 4.15 W (tools/field-test/check.mjs).
+function r = check_thermal(f, h, alloy, bc)
+if ~solver_available('thermal')
+  error(solver_none('thermal'));
+end
+mat = material(alloy);
+v = field_voxel(f, h);
+k = mat.k.value / 1000;                        % W/(mm K)
+b = struct();
+T = {};
+for i = 1:numel(bc.T)
+  n = nodes_in(v, bc.T{i}.box);
+  if isempty(n)
+    error('check_thermal: a temperature box holds no node of the part');
+  end
+  T{end + 1} = struct('nodes', n, 'value', bc.T{i}.value);
+end
+b.T = T;
+if isfield(bc, 'power')
+  P = {};
+  for i = 1:numel(bc.power)
+    n = nodes_in(v, bc.power{i}.box);
+    if isempty(n)
+      error('check_thermal: a power box holds no node of the part');
+    end
+    P{end + 1} = struct('nodes', n, 'power', bc.power{i}.power);
+  end
+  b.power = P;
+end
+s = heat_steady(v, k, b, struct('show', false));
+sys = heat_system(v, k, b);
+Rres = sys.K * s.T - sys.f;                     % heat the boundary puts into each node (W): positive at a hot end, negative at a cold one
+into = zeros(1, numel(T));
+for i = 1:numel(T)
+  into(i) = sum(Rres(T{i}.nodes));
+end
+r = struct();
+r.T_max = q(s.Tmax, 'same as the input', 'heat_steady: conduction on cubes, thermal.js');
+r.T_min = q(s.Tmin, 'same as the input', 'heat_steady');
+r.boundary_heat = into;
+r.heat_flow = q(max(abs(into)), 'W', 'heat_steady: K T - f summed over the nodes of each fixed-temperature box (positive = into the part)');
+r.settings = struct('voxel_mm', h, 'material', alloy, 'conductivity_W_per_mK', mat.k.value, 'source', mat.k.ref);
+r.raw = s;
+end
+
+function nodes = nodes_in(v, bx)
+X = meshNodes(v);
+E = meshElems(v);
+used = false(size(X, 1), 1);
+used(E(:)) = true;
+h = meshInfo(v).h;
+mask = X(:, 1) >= bx(1) - 1e-6 * h & X(:, 1) <= bx(4) + 1e-6 * h & X(:, 2) >= bx(2) - 1e-6 * h & X(:, 2) <= bx(5) + 1e-6 * h & X(:, 3) >= bx(3) - 1e-6 * h & X(:, 3) <= bx(6) + 1e-6 * h;
+nodes = find(used & mask);
+end

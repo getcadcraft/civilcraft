@@ -1,0 +1,25 @@
+{
+  "id": "trusscraft",
+  "name": "TrussCraft",
+  "version": "0.8.1",
+  "apps": [
+    "bimcraft",
+    "partcraft",
+    "modelcraft",
+    "cadcraft"
+  ],
+  "api": "1.3",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "commands",
+    "panel",
+    "files",
+    "storage"
+  ],
+  "description": "Timber roof trusses in BimCraft, PartCraft, ModelCraft and CadCraft: common, hip, girder with jacks and valley sets from a roof outline; cut, joint and stock lists; a jig layout drawn 1:1; your own loads, combinations, plate and species tables; a first member check in Problems. Not a substitute for engineered truss design or manufacturer sign-off.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

@@ -1,0 +1,4214 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-irc-2021",
+  "name": "United States: International Residential Code 2021",
+  "jurisdiction": {
+    "country": "US",
+    "level": "country",
+    "region": "",
+    "name": "United States"
+  },
+  "base": null,
+  "edition": "IRC 2021",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "The model code: numbers and section numbers entered from the IRC 2021 text in ICC's free viewer, checked 2026-10-27. A model code is not law until a state or city adopts it; pick your state's pack to check against what applies there."
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "International Code Council, International Residential Code 2021",
+    "url": "https://codes.iccsafe.org/content/IRC2021P1/chapter-3-building-planning",
+    "date": "2021-01",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {
+    "R403.1(1)": {
+      "kind": "footing",
+      "clause": "Table R403.1(1)",
+      "label": "Footing width x thickness (in), light frame",
+      "note": "Rows: load (20 = 20 psf roof live or 25 psf ground snow), stories, foundation; columns: soil bearing psf.",
+      "data": {
+        "construction": "light frame",
+        "columns_psf": [
+          1500,
+          2000,
+          2500,
+          3000,
+          3500,
+          4000
+        ],
+        "rows": [
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "22x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "16x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "22x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "18x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "17x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "21x7",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "18x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "20x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "24x8",
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "17x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "22x7",
+              "17x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "20x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "22x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "24x8",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          }
+        ]
+      }
+    },
+    "R403.1(2)": {
+      "kind": "footing",
+      "clause": "Table R403.1(2)",
+      "label": "Footing width x thickness (in), light frame with brick veneer or lath and plaster",
+      "note": "Rows: load (20 = 20 psf roof live or 25 psf ground snow), stories, foundation; columns: soil bearing psf.",
+      "data": {
+        "construction": "light frame with brick veneer or lath and plaster",
+        "columns_psf": [
+          1500,
+          2000,
+          2500,
+          3000,
+          3500,
+          4000
+        ],
+        "rows": [
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "18x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "20x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "23x8",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "23x8",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "29x11",
+              "21x7",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "20x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "24x8",
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "23x8",
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "26x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "29x11",
+              "22x7",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "17x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "20x60",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "20x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "22x7",
+              "17x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "27x10",
+              "21x7",
+              "16x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "31x12",
+              "23x8",
+              "18x6",
+              "15x6",
+              "13x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "22x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "21x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "24x8",
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "27x10",
+              "20x6",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "27x10",
+              "20x6",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "29x11",
+              "22x7",
+              "17x6",
+              "15x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "32x12",
+              "24x8",
+              "19x6",
+              "16x6",
+              "14x6",
+              "12x6"
+            ]
+          }
+        ]
+      }
+    },
+    "R403.1(3)": {
+      "kind": "footing",
+      "clause": "Table R403.1(3)",
+      "label": "Footing width x thickness (in), cast-in-place concrete or partially grouted masonry (CMU or concrete)",
+      "note": "Rows: load (20 = 20 psf roof live or 25 psf ground snow), stories, foundation; columns: soil bearing psf.",
+      "data": {
+        "construction": "cast-in-place concrete or partially grouted masonry (CMU or concrete)",
+        "columns_psf": [
+          1500,
+          2000,
+          2500,
+          3000,
+          3500,
+          4000
+        ],
+        "rows": [
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "22x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "28x10",
+              "21x7",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 20,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "31x12",
+              "23x8",
+              "18x6",
+              "15x6",
+              "13x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "19x7",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "19x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "22x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "26x9",
+              "19x6",
+              "15x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "28x10",
+              "21x7",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 30,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "31x12",
+              "23x8",
+              "19x6",
+              "16x6",
+              "13x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "18x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "21x7",
+              "16x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "21x7",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "24x8",
+              "18x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "27x10",
+              "20x6",
+              "16x6",
+              "13x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "27x10",
+              "20x6",
+              "16x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "30x11",
+              "22x7",
+              "18x6",
+              "15x6",
+              "13x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 50,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "33x13",
+              "25x9",
+              "20x6",
+              "16x6",
+              "14x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "17x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "crawl space",
+            "cells": [
+              "19x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 1,
+            "foundation": "basement",
+            "cells": [
+              "22x7",
+              "17x6",
+              "13x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "23x8",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "crawl space",
+            "cells": [
+              "25x9",
+              "19x6",
+              "15x6",
+              "12x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 2,
+            "foundation": "basement",
+            "cells": [
+              "28x10",
+              "21x7",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "slab-on-grade",
+            "cells": [
+              "29x11",
+              "22x7",
+              "17x6",
+              "14x6",
+              "12x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "crawl space",
+            "cells": [
+              "31x12",
+              "23x8",
+              "19x6",
+              "16x6",
+              "13x6",
+              "12x6"
+            ]
+          },
+          {
+            "load": 70,
+            "stories": 3,
+            "foundation": "basement",
+            "cells": [
+              "34x13",
+              "26x9",
+              "21x7",
+              "17x6",
+              "15x6",
+              "13x6"
+            ]
+          }
+        ]
+      }
+    },
+    "R602.3(5)": {
+      "kind": "stud",
+      "clause": "Table R602.3(5)",
+      "label": "Wood stud size, height and spacing",
+      "note": "Rows: size, bearing_max_height_ft, roof_ceiling_only_in, one_floor_plus_roof_in, two_floors_plus_roof_in, one_floor_only_in, nonbearing_max_height_ft, nonbearing_max_spacing_in (feet / inches; null = not permitted).",
+      "data": {
+        "columns": [
+          "size",
+          "bearing_max_height_ft",
+          "roof_ceiling_only_in",
+          "one_floor_plus_roof_in",
+          "two_floors_plus_roof_in",
+          "one_floor_only_in",
+          "nonbearing_max_height_ft",
+          "nonbearing_max_spacing_in"
+        ],
+        "rows": [
+          [
+            "2x3",
+            null,
+            null,
+            null,
+            null,
+            null,
+            10,
+            16
+          ],
+          [
+            "2x4",
+            10,
+            24,
+            16,
+            null,
+            24,
+            14,
+            24
+          ],
+          [
+            "3x4",
+            10,
+            24,
+            24,
+            16,
+            24,
+            14,
+            24
+          ],
+          [
+            "2x5",
+            10,
+            24,
+            24,
+            null,
+            24,
+            16,
+            24
+          ],
+          [
+            "2x6",
+            10,
+            24,
+            24,
+            16,
+            24,
+            20,
+            24
+          ]
+        ]
+      }
+    },
+    "R602.7(1)": {
+      "kind": "header",
+      "clause": "Table R602.7(1)",
+      "label": "Header spans, exterior bearing walls",
+      "note": "Cells: span ft-in / jack studs, by ground snow load column and building width (ft).",
+      "data": {
+        "species": "Douglas fir-larch, hem-fir, Southern pine, spruce-pine-fir; No. 2",
+        "rows": [
+          {
+            "supporting": "Roof and ceiling",
+            "size": "1-2x6",
+            "cells": {
+              "30psf": {
+                "12": "4-0 / 1",
+                "24": "3-1 / 2",
+                "36": "2-7 / 2"
+              },
+              "50psf": {
+                "12": "3-5 / 1",
+                "24": "2-8 / 2",
+                "36": "2-3 / 2"
+              },
+              "70psf": {
+                "12": "3-0 / 2",
+                "24": "2-4 / 2",
+                "36": "2-0 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "1-2x8",
+            "cells": {
+              "30psf": {
+                "12": "5-1 / 2",
+                "24": "3-11 / 2",
+                "36": "3-3 / 2"
+              },
+              "50psf": {
+                "12": "4-4 / 2",
+                "24": "3-4 / 2",
+                "36": "2-10 / 2"
+              },
+              "70psf": {
+                "12": "3-10 / 2",
+                "24": "3-0 / 2",
+                "36": "2-6 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "1-2x10",
+            "cells": {
+              "30psf": {
+                "12": "6-0 / 2",
+                "24": "4-8 / 2",
+                "36": "3-11 / 2"
+              },
+              "50psf": {
+                "12": "5-2 / 2",
+                "24": "4-0 / 2",
+                "36": "3-4 / 3"
+              },
+              "70psf": {
+                "12": "4-7 / 2",
+                "24": "3-6 / 3",
+                "36": "3-0 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "1-2x12",
+            "cells": {
+              "30psf": {
+                "12": "7-1 / 2",
+                "24": "5-5 / 2",
+                "36": "4-7 / 3"
+              },
+              "50psf": {
+                "12": "6-1 / 2",
+                "24": "4-8 / 3",
+                "36": "3-11 / 3"
+              },
+              "70psf": {
+                "12": "5-5 / 2",
+                "24": "4-2 / 3",
+                "36": "3-6 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "2-2x4",
+            "cells": {
+              "30psf": {
+                "12": "4-0 / 1",
+                "24": "3-1 / 1",
+                "36": "2-7 / 1"
+              },
+              "50psf": {
+                "12": "3-5 / 1",
+                "24": "2-7 / 1",
+                "36": "2-2 / 1"
+              },
+              "70psf": {
+                "12": "3-0 / 1",
+                "24": "2-4 / 1",
+                "36": "2-0 / 1"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "2-2x6",
+            "cells": {
+              "30psf": {
+                "12": "6-0 / 1",
+                "24": "4-7 / 1",
+                "36": "3-10 / 1"
+              },
+              "50psf": {
+                "12": "5-1 / 1",
+                "24": "3-11 / 1",
+                "36": "3-3 / 2"
+              },
+              "70psf": {
+                "12": "4-6 / 1",
+                "24": "3-6 / 2",
+                "36": "2-11 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "2-2x8",
+            "cells": {
+              "30psf": {
+                "12": "7-7 / 1",
+                "24": "5-9 / 1",
+                "36": "4-10 / 2"
+              },
+              "50psf": {
+                "12": "6-5 / 1",
+                "24": "5-0 / 2",
+                "36": "4-2 / 2"
+              },
+              "70psf": {
+                "12": "5-9 / 1",
+                "24": "4-5 / 2",
+                "36": "3-9 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "2-2x10",
+            "cells": {
+              "30psf": {
+                "12": "9-0 / 1",
+                "24": "6-10 / 2",
+                "36": "5-9 / 2"
+              },
+              "50psf": {
+                "12": "7-8 / 2",
+                "24": "5-11 / 2",
+                "36": "4-11 / 2"
+              },
+              "70psf": {
+                "12": "6-9 / 2",
+                "24": "5-3 / 2",
+                "36": "4-5 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "2-2x12",
+            "cells": {
+              "30psf": {
+                "12": "10-7 / 2",
+                "24": "8-1 / 2",
+                "36": "6-10 / 2"
+              },
+              "50psf": {
+                "12": "9-0 / 2",
+                "24": "6-11 / 2",
+                "36": "5-10 / 2"
+              },
+              "70psf": {
+                "12": "8-0 / 2",
+                "24": "6-2 / 2",
+                "36": "5-2 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "3-2x8",
+            "cells": {
+              "30psf": {
+                "12": "9-5 / 1",
+                "24": "7-3 / 1",
+                "36": "6-1 / 1"
+              },
+              "50psf": {
+                "12": "8-1 / 1",
+                "24": "6-3 / 1",
+                "36": "5-3 / 2"
+              },
+              "70psf": {
+                "12": "7-2 / 1",
+                "24": "5-6 / 2",
+                "36": "4-8 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "3-2x10",
+            "cells": {
+              "30psf": {
+                "12": "11-3 / 1",
+                "24": "8-7 / 1",
+                "36": "7-3 / 2"
+              },
+              "50psf": {
+                "12": "9-7 / 1",
+                "24": "7-4 / 2",
+                "36": "6-2 / 2"
+              },
+              "70psf": {
+                "12": "8-6 / 1",
+                "24": "6-7 / 2",
+                "36": "5-6 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "3-2x12",
+            "cells": {
+              "30psf": {
+                "12": "13-2 / 1",
+                "24": "10-1 / 2",
+                "36": "8-6 / 2"
+              },
+              "50psf": {
+                "12": "11-3 / 2",
+                "24": "8-8 / 2",
+                "36": "7-4 / 2"
+              },
+              "70psf": {
+                "12": "10-0 / 2",
+                "24": "7-9 / 2",
+                "36": "6-6 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "4-2x8",
+            "cells": {
+              "30psf": {
+                "12": "10-11 / 1",
+                "24": "8-4 / 1",
+                "36": "7-0 / 1"
+              },
+              "50psf": {
+                "12": "9-4 / 1",
+                "24": "7-2 / 1",
+                "36": "6-0 / 1"
+              },
+              "70psf": {
+                "12": "8-3 / 1",
+                "24": "6-4 / 1",
+                "36": "5-4 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "4-2x10",
+            "cells": {
+              "30psf": {
+                "12": "12-11 / 1",
+                "24": "9-11 / 1",
+                "36": "8-4 / 1"
+              },
+              "50psf": {
+                "12": "11-1 / 1",
+                "24": "8-6 / 1",
+                "36": "7-2 / 2"
+              },
+              "70psf": {
+                "12": "9-10 / 1",
+                "24": "7-7 / 2",
+                "36": "6-4 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof and ceiling",
+            "size": "4-2x12",
+            "cells": {
+              "30psf": {
+                "12": "15-3 / 1",
+                "24": "11-8 / 1",
+                "36": "9-10 / 2"
+              },
+              "50psf": {
+                "12": "13-0 / 1",
+                "24": "10-0 / 2",
+                "36": "8-5 / 2"
+              },
+              "70psf": {
+                "12": "11-7 / 1",
+                "24": "8-11 / 2",
+                "36": "7-6 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "1-2x6",
+            "cells": {
+              "30psf": {
+                "12": "3-3 / 1",
+                "24": "2-7 / 2",
+                "36": "2-2 / 2"
+              },
+              "50psf": {
+                "12": "3-0 / 2",
+                "24": "2-4 / 2",
+                "36": "2-0 / 2"
+              },
+              "70psf": {
+                "12": "2-9 / 2",
+                "24": "2-2 / 2",
+                "36": "1-10 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "1-2x8",
+            "cells": {
+              "30psf": {
+                "12": "4-1 / 2",
+                "24": "3-3 / 2",
+                "36": "2-9 / 2"
+              },
+              "50psf": {
+                "12": "3-9 / 2",
+                "24": "3-0 / 2",
+                "36": "2-6 / 3"
+              },
+              "70psf": {
+                "12": "3-6 / 2",
+                "24": "2-9 / 2",
+                "36": "2-4 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "1-2x10",
+            "cells": {
+              "30psf": {
+                "12": "4-11 / 2",
+                "24": "3-10 / 2",
+                "36": "3-3 / 3"
+              },
+              "50psf": {
+                "12": "4-6 / 2",
+                "24": "3-6 / 3",
+                "36": "3-0 / 3"
+              },
+              "70psf": {
+                "12": "4-1 / 2",
+                "24": "3-3 / 3",
+                "36": "2-9 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "1-2x12",
+            "cells": {
+              "30psf": {
+                "12": "5-9 / 2",
+                "24": "4-6 / 3",
+                "36": "3-10 / 3"
+              },
+              "50psf": {
+                "12": "5-3 / 2",
+                "24": "4-2 / 3",
+                "36": "3-6 / 3"
+              },
+              "70psf": {
+                "12": "4-10 / 3",
+                "24": "3-10 / 3",
+                "36": "3-3 / 4"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "2-2x4",
+            "cells": {
+              "30psf": {
+                "12": "3-3 / 1",
+                "24": "2-6 / 1",
+                "36": "2-2 / 1"
+              },
+              "50psf": {
+                "12": "3-0 / 1",
+                "24": "2-4 / 1",
+                "36": "2-0 / 1"
+              },
+              "70psf": {
+                "12": "2-8 / 1",
+                "24": "2-2 / 1",
+                "36": "1-10 / 1"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "2-2x6",
+            "cells": {
+              "30psf": {
+                "12": "4-10 / 1",
+                "24": "3-9 / 1",
+                "36": "3-3 / 2"
+              },
+              "50psf": {
+                "12": "4-5 / 1",
+                "24": "3-6 / 2",
+                "36": "3-0 / 2"
+              },
+              "70psf": {
+                "12": "4-1 / 1",
+                "24": "3-3 / 2",
+                "36": "2-9 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "2-2x8",
+            "cells": {
+              "30psf": {
+                "12": "6-1 / 1",
+                "24": "4-10 / 2",
+                "36": "4-1 / 2"
+              },
+              "50psf": {
+                "12": "5-7 / 2",
+                "24": "4-5 / 2",
+                "36": "3-9 / 2"
+              },
+              "70psf": {
+                "12": "5-2 / 2",
+                "24": "4-1 / 2",
+                "36": "3-6 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "2-2x10",
+            "cells": {
+              "30psf": {
+                "12": "7-3 / 2",
+                "24": "5-8 / 2",
+                "36": "4-10 / 2"
+              },
+              "50psf": {
+                "12": "6-8 / 2",
+                "24": "5-3 / 2",
+                "36": "4-5 / 2"
+              },
+              "70psf": {
+                "12": "6-1 / 2",
+                "24": "4-10 / 2",
+                "36": "4-1 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "2-2x12",
+            "cells": {
+              "30psf": {
+                "12": "8-6 / 2",
+                "24": "6-8 / 2",
+                "36": "5-8 / 2"
+              },
+              "50psf": {
+                "12": "7-10 / 2",
+                "24": "6-2 / 2",
+                "36": "5-3 / 3"
+              },
+              "70psf": {
+                "12": "7-2 / 2",
+                "24": "5-8 / 2",
+                "36": "4-10 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "3-2x8",
+            "cells": {
+              "30psf": {
+                "12": "7-8 / 1",
+                "24": "6-0 / 1",
+                "36": "5-1 / 2"
+              },
+              "50psf": {
+                "12": "7-0 / 1",
+                "24": "5-6 / 2",
+                "36": "4-8 / 2"
+              },
+              "70psf": {
+                "12": "6-5 / 1",
+                "24": "5-1 / 2",
+                "36": "4-4 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "3-2x10",
+            "cells": {
+              "30psf": {
+                "12": "9-1 / 1",
+                "24": "7-2 / 2",
+                "36": "6-1 / 2"
+              },
+              "50psf": {
+                "12": "8-4 / 1",
+                "24": "6-7 / 2",
+                "36": "5-7 / 2"
+              },
+              "70psf": {
+                "12": "7-8 / 2",
+                "24": "6-1 / 2",
+                "36": "5-2 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "3-2x12",
+            "cells": {
+              "30psf": {
+                "12": "10-8 / 2",
+                "24": "8-5 / 2",
+                "36": "7-2 / 2"
+              },
+              "50psf": {
+                "12": "9-10 / 2",
+                "24": "7-8 / 2",
+                "36": "6-7 / 2"
+              },
+              "70psf": {
+                "12": "9-0 / 2",
+                "24": "7-1 / 2",
+                "36": "6-1 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "4-2x8",
+            "cells": {
+              "30psf": {
+                "12": "8-10 / 1",
+                "24": "6-11 / 1",
+                "36": "5-11 / 1"
+              },
+              "50psf": {
+                "12": "8-1 / 1",
+                "24": "6-4 / 1",
+                "36": "5-5 / 2"
+              },
+              "70psf": {
+                "12": "7-5 / 1",
+                "24": "5-11 / 1",
+                "36": "5-0 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "4-2x10",
+            "cells": {
+              "30psf": {
+                "12": "10-6 / 1",
+                "24": "8-3 / 2",
+                "36": "7-0 / 2"
+              },
+              "50psf": {
+                "12": "9-8 / 1",
+                "24": "7-7 / 2",
+                "36": "6-5 / 2"
+              },
+              "70psf": {
+                "12": "8-10 / 1",
+                "24": "7-0 / 2",
+                "36": "6-0 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one center-bearing floor",
+            "size": "4-2x12",
+            "cells": {
+              "30psf": {
+                "12": "12-4 / 1",
+                "24": "9-8 / 2",
+                "36": "8-3 / 2"
+              },
+              "50psf": {
+                "12": "11-4 / 2",
+                "24": "8-11 / 2",
+                "36": "7-7 / 2"
+              },
+              "70psf": {
+                "12": "10-4 / 2",
+                "24": "8-3 / 2",
+                "36": "7-0 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "1-2x6",
+            "cells": {
+              "30psf": {
+                "12": "2-11 / 2",
+                "24": "2-3 / 2",
+                "36": "1-11 / 2"
+              },
+              "50psf": {
+                "12": "2-9 / 2",
+                "24": "2-1 / 2",
+                "36": "1-9 / 2"
+              },
+              "70psf": {
+                "12": "2-7 / 2",
+                "24": "2-0 / 2",
+                "36": "1-8 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "1-2x8",
+            "cells": {
+              "30psf": {
+                "12": "3-9 / 2",
+                "24": "2-10 / 2",
+                "36": "2-5 / 3"
+              },
+              "50psf": {
+                "12": "3-6 / 2",
+                "24": "2-8 / 2",
+                "36": "2-3 / 3"
+              },
+              "70psf": {
+                "12": "3-3 / 2",
+                "24": "2-6 / 3",
+                "36": "2-2 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "1-2x10",
+            "cells": {
+              "30psf": {
+                "12": "4-5 / 2",
+                "24": "3-5 / 3",
+                "36": "2-10 / 3"
+              },
+              "50psf": {
+                "12": "4-2 / 2",
+                "24": "3-2 / 3",
+                "36": "2-8 / 3"
+              },
+              "70psf": {
+                "12": "3-11 / 2",
+                "24": "3-0 / 3",
+                "36": "2-6 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "1-2x12",
+            "cells": {
+              "30psf": {
+                "12": "5-2 / 2",
+                "24": "4-0 / 3",
+                "36": "3-4 / 3"
+              },
+              "50psf": {
+                "12": "4-10 / 3",
+                "24": "3-9 / 3",
+                "36": "3-2 / 4"
+              },
+              "70psf": {
+                "12": "4-7 / 3",
+                "24": "3-6 / 3",
+                "36": "3-0 / 4"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "2-2x4",
+            "cells": {
+              "30psf": {
+                "12": "2-11 / 1",
+                "24": "2-3 / 1",
+                "36": "1-10 / 1"
+              },
+              "50psf": {
+                "12": "2-9 / 1",
+                "24": "2-1 / 1",
+                "36": "1-9 / 1"
+              },
+              "70psf": {
+                "12": "2-7 / 1",
+                "24": "2-0 / 1",
+                "36": "1-8 / 1"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "2-2x6",
+            "cells": {
+              "30psf": {
+                "12": "4-4 / 1",
+                "24": "3-4 / 2",
+                "36": "2-10 / 2"
+              },
+              "50psf": {
+                "12": "4-1 / 1",
+                "24": "3-2 / 2",
+                "36": "2-8 / 2"
+              },
+              "70psf": {
+                "12": "3-10 / 1",
+                "24": "3-0 / 2",
+                "36": "2-6 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "2-2x8",
+            "cells": {
+              "30psf": {
+                "12": "5-6 / 2",
+                "24": "4-3 / 2",
+                "36": "3-7 / 2"
+              },
+              "50psf": {
+                "12": "5-2 / 2",
+                "24": "4-0 / 2",
+                "36": "3-4 / 2"
+              },
+              "70psf": {
+                "12": "4-10 / 2",
+                "24": "3-9 / 2",
+                "36": "3-2 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "2-2x10",
+            "cells": {
+              "30psf": {
+                "12": "6-7 / 2",
+                "24": "5-0 / 2",
+                "36": "4-2 / 2"
+              },
+              "50psf": {
+                "12": "6-1 / 2",
+                "24": "4-9 / 2",
+                "36": "4-0 / 2"
+              },
+              "70psf": {
+                "12": "5-9 / 2",
+                "24": "4-5 / 2",
+                "36": "3-9 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "2-2x12",
+            "cells": {
+              "30psf": {
+                "12": "7-9 / 2",
+                "24": "5-11 / 2",
+                "36": "4-11 / 3"
+              },
+              "50psf": {
+                "12": "7-2 / 2",
+                "24": "5-7 / 2",
+                "36": "4-8 / 3"
+              },
+              "70psf": {
+                "12": "6-9 / 2",
+                "24": "5-3 / 3",
+                "36": "4-5 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "3-2x8",
+            "cells": {
+              "30psf": {
+                "12": "6-11 / 1",
+                "24": "5-3 / 2",
+                "36": "4-5 / 2"
+              },
+              "50psf": {
+                "12": "6-5 / 1",
+                "24": "5-0 / 2",
+                "36": "4-2 / 2"
+              },
+              "70psf": {
+                "12": "6-1 / 1",
+                "24": "4-8 / 2",
+                "36": "4-0 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "3-2x10",
+            "cells": {
+              "30psf": {
+                "12": "8-3 / 2",
+                "24": "6-3 / 2",
+                "36": "5-3 / 2"
+              },
+              "50psf": {
+                "12": "7-8 / 2",
+                "24": "5-11 / 2",
+                "36": "5-0 / 2"
+              },
+              "70psf": {
+                "12": "7-3 / 2",
+                "24": "5-7 / 2",
+                "36": "4-8 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "3-2x12",
+            "cells": {
+              "30psf": {
+                "12": "9-8 / 2",
+                "24": "7-5 / 2",
+                "36": "6-2 / 2"
+              },
+              "50psf": {
+                "12": "9-0 / 2",
+                "24": "7-0 / 2",
+                "36": "5-10 / 2"
+              },
+              "70psf": {
+                "12": "8-6 / 2",
+                "24": "6-7 / 2",
+                "36": "5-6 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "4-2x8",
+            "cells": {
+              "30psf": {
+                "12": "8-0 / 1",
+                "24": "6-1 / 1",
+                "36": "5-1 / 2"
+              },
+              "50psf": {
+                "12": "7-5 / 1",
+                "24": "5-9 / 2",
+                "36": "4-10 / 2"
+              },
+              "70psf": {
+                "12": "7-0 / 1",
+                "24": "5-5 / 2",
+                "36": "4-7 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "4-2x10",
+            "cells": {
+              "30psf": {
+                "12": "9-6 / 1",
+                "24": "7-3 / 2",
+                "36": "6-1 / 2"
+              },
+              "50psf": {
+                "12": "8-10 / 1",
+                "24": "6-10 / 2",
+                "36": "5-9 / 2"
+              },
+              "70psf": {
+                "12": "8-4 / 1",
+                "24": "6-5 / 2",
+                "36": "5-5 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and one clear-span floor",
+            "size": "4-2x12",
+            "cells": {
+              "30psf": {
+                "12": "11-2 / 2",
+                "24": "8-6 / 2",
+                "36": "7-2 / 2"
+              },
+              "50psf": {
+                "12": "10-5 / 2",
+                "24": "8-0 / 2",
+                "36": "6-9 / 2"
+              },
+              "70psf": {
+                "12": "9-10 / 2",
+                "24": "7-7 / 2",
+                "36": "6-5 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "1-2x6",
+            "cells": {
+              "30psf": {
+                "12": "2-8 / 2",
+                "24": "2-1 / 2",
+                "36": "1-10 / 2"
+              },
+              "50psf": {
+                "12": "2-7 / 2",
+                "24": "2-0 / 2",
+                "36": "1-9 / 2"
+              },
+              "70psf": {
+                "12": "2-5 / 2",
+                "24": "1-11 / 2",
+                "36": "1-8 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "1-2x8",
+            "cells": {
+              "30psf": {
+                "12": "3-5 / 2",
+                "24": "2-8 / 2",
+                "36": "2-4 / 3"
+              },
+              "50psf": {
+                "12": "3-3 / 2",
+                "24": "2-7 / 2",
+                "36": "2-2 / 3"
+              },
+              "70psf": {
+                "12": "3-1 / 2",
+                "24": "2-5 / 3",
+                "36": "2-1 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "1-2x10",
+            "cells": {
+              "30psf": {
+                "12": "4-0 / 2",
+                "24": "3-2 / 3",
+                "36": "2-9 / 3"
+              },
+              "50psf": {
+                "12": "3-10 / 2",
+                "24": "3-1 / 3",
+                "36": "2-7 / 3"
+              },
+              "70psf": {
+                "12": "3-8 / 2",
+                "24": "2-11 / 3",
+                "36": "2-5 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "1-2x12",
+            "cells": {
+              "30psf": {
+                "12": "4-9 / 3",
+                "24": "3-9 / 3",
+                "36": "3-2 / 4"
+              },
+              "50psf": {
+                "12": "4-6 / 3",
+                "24": "3-7 / 3",
+                "36": "3-1 / 4"
+              },
+              "70psf": {
+                "12": "4-3 / 3",
+                "24": "3-5 / 3",
+                "36": "2-11 / 4"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "2-2x4",
+            "cells": {
+              "30psf": {
+                "12": "2-8 / 1",
+                "24": "2-1 / 1",
+                "36": "1-9 / 1"
+              },
+              "50psf": {
+                "12": "2-6 / 1",
+                "24": "2-0 / 1",
+                "36": "1-8 / 1"
+              },
+              "70psf": {
+                "12": "2-5 / 1",
+                "24": "1-11 / 1",
+                "36": "1-7 / 1"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "2-2x6",
+            "cells": {
+              "30psf": {
+                "12": "4-0 / 1",
+                "24": "3-2 / 2",
+                "36": "2-8 / 2"
+              },
+              "50psf": {
+                "12": "3-9 / 1",
+                "24": "3-0 / 2",
+                "36": "2-7 / 2"
+              },
+              "70psf": {
+                "12": "3-7 / 1",
+                "24": "2-10 / 2",
+                "36": "2-5 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "2-2x8",
+            "cells": {
+              "30psf": {
+                "12": "5-0 / 2",
+                "24": "4-0 / 2",
+                "36": "3-5 / 2"
+              },
+              "50psf": {
+                "12": "4-10 / 2",
+                "24": "3-10 / 2",
+                "36": "3-3 / 2"
+              },
+              "70psf": {
+                "12": "4-7 / 2",
+                "24": "3-7 / 2",
+                "36": "3-1 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "2-2x10",
+            "cells": {
+              "30psf": {
+                "12": "6-0 / 2",
+                "24": "4-9 / 2",
+                "36": "4-0 / 2"
+              },
+              "50psf": {
+                "12": "5-8 / 2",
+                "24": "4-6 / 2",
+                "36": "3-10 / 3"
+              },
+              "70psf": {
+                "12": "5-5 / 2",
+                "24": "4-3 / 2",
+                "36": "3-8 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "2-2x12",
+            "cells": {
+              "30psf": {
+                "12": "7-0 / 2",
+                "24": "5-7 / 2",
+                "36": "4-9 / 3"
+              },
+              "50psf": {
+                "12": "6-8 / 2",
+                "24": "5-4 / 3",
+                "36": "4-6 / 3"
+              },
+              "70psf": {
+                "12": "6-4 / 2",
+                "24": "5-0 / 3",
+                "36": "4-3 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "3-2x8",
+            "cells": {
+              "30psf": {
+                "12": "6-4 / 1",
+                "24": "5-0 / 2",
+                "36": "4-3 / 2"
+              },
+              "50psf": {
+                "12": "6-0 / 1",
+                "24": "4-9 / 2",
+                "36": "4-1 / 2"
+              },
+              "70psf": {
+                "12": "5-8 / 2",
+                "24": "4-6 / 2",
+                "36": "3-10 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "3-2x10",
+            "cells": {
+              "30psf": {
+                "12": "7-6 / 2",
+                "24": "5-11 / 2",
+                "36": "5-1 / 2"
+              },
+              "50psf": {
+                "12": "7-1 / 2",
+                "24": "5-8 / 2",
+                "36": "4-10 / 2"
+              },
+              "70psf": {
+                "12": "6-9 / 2",
+                "24": "5-4 / 2",
+                "36": "4-7 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "3-2x12",
+            "cells": {
+              "30psf": {
+                "12": "8-10 / 2",
+                "24": "7-0 / 2",
+                "36": "5-11 / 2"
+              },
+              "50psf": {
+                "12": "8-5 / 2",
+                "24": "6-8 / 2",
+                "36": "5-8 / 3"
+              },
+              "70psf": {
+                "12": "8-0 / 2",
+                "24": "6-4 / 2",
+                "36": "5-4 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "4-2x8",
+            "cells": {
+              "30psf": {
+                "12": "7-3 / 1",
+                "24": "5-9 / 1",
+                "36": "4-11 / 2"
+              },
+              "50psf": {
+                "12": "6-11 / 1",
+                "24": "5-6 / 2",
+                "36": "4-8 / 2"
+              },
+              "70psf": {
+                "12": "6-7 / 1",
+                "24": "5-2 / 2",
+                "36": "4-5 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "4-2x10",
+            "cells": {
+              "30psf": {
+                "12": "8-8 / 1",
+                "24": "6-10 / 2",
+                "36": "5-10 / 2"
+              },
+              "50psf": {
+                "12": "8-3 / 2",
+                "24": "6-6 / 2",
+                "36": "5-7 / 2"
+              },
+              "70psf": {
+                "12": "7-10 / 2",
+                "24": "6-2 / 2",
+                "36": "5-3 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling and two center-bearing floors",
+            "size": "4-2x12",
+            "cells": {
+              "30psf": {
+                "12": "10-2 / 2",
+                "24": "8-1 / 2",
+                "36": "6-10 / 2"
+              },
+              "50psf": {
+                "12": "9-8 / 2",
+                "24": "7-8 / 2",
+                "36": "6-7 / 2"
+              },
+              "70psf": {
+                "12": "9-2 / 2",
+                "24": "7-3 / 2",
+                "36": "6-2 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "1-2x6",
+            "cells": {
+              "30psf": {
+                "12": "2-3 / 2",
+                "24": "1-9 / 2",
+                "36": "1-5 / 2"
+              },
+              "50psf": {
+                "12": "2-3 / 2",
+                "24": "1-9 / 2",
+                "36": "1-5 / 3"
+              },
+              "70psf": {
+                "12": "2-2 / 2",
+                "24": "1-8 / 2",
+                "36": "1-5 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "1-2x8",
+            "cells": {
+              "30psf": {
+                "12": "2-10 / 2",
+                "24": "2-2 / 3",
+                "36": "1-10 / 3"
+              },
+              "50psf": {
+                "12": "2-10 / 2",
+                "24": "2-2 / 3",
+                "36": "1-10 / 3"
+              },
+              "70psf": {
+                "12": "2-9 / 2",
+                "24": "2-1 / 3",
+                "36": "1-10 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "1-2x10",
+            "cells": {
+              "30psf": {
+                "12": "3-4 / 2",
+                "24": "2-7 / 3",
+                "36": "2-2 / 3"
+              },
+              "50psf": {
+                "12": "3-4 / 3",
+                "24": "2-7 / 3",
+                "36": "2-2 / 4"
+              },
+              "70psf": {
+                "12": "3-3 / 3",
+                "24": "2-6 / 3",
+                "36": "2-2 / 4"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "1-2x12",
+            "cells": {
+              "30psf": {
+                "12": "4-0 / 3",
+                "24": "3-0 / 3",
+                "36": "2-7 / 4"
+              },
+              "50psf": {
+                "12": "4-0 / 3",
+                "24": "3-0 / 4",
+                "36": "2-7 / 4"
+              },
+              "70psf": {
+                "12": "3-10 / 3",
+                "24": "3-0 / 4",
+                "36": "2-6 / 4"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "2-2x4",
+            "cells": {
+              "30psf": {
+                "12": "2-3 / 1",
+                "24": "1-8 / 1",
+                "36": "1-4 / 1"
+              },
+              "50psf": {
+                "12": "2-3 / 1",
+                "24": "1-8 / 1",
+                "36": "1-4 / 1"
+              },
+              "70psf": {
+                "12": "2-2 / 1",
+                "24": "1-8 / 1",
+                "36": "1-4 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "2-2x6",
+            "cells": {
+              "30psf": {
+                "12": "3-4 / 1",
+                "24": "2-6 / 2",
+                "36": "2-2 / 2"
+              },
+              "50psf": {
+                "12": "3-4 / 2",
+                "24": "2-6 / 2",
+                "36": "2-2 / 2"
+              },
+              "70psf": {
+                "12": "3-3 / 2",
+                "24": "2-6 / 2",
+                "36": "2-1 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "2-2x8",
+            "cells": {
+              "30psf": {
+                "12": "4-3 / 2",
+                "24": "3-3 / 2",
+                "36": "2-8 / 2"
+              },
+              "50psf": {
+                "12": "4-3 / 2",
+                "24": "3-3 / 2",
+                "36": "2-8 / 2"
+              },
+              "70psf": {
+                "12": "4-1 / 2",
+                "24": "3-2 / 2",
+                "36": "2-8 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "2-2x10",
+            "cells": {
+              "30psf": {
+                "12": "5-0 / 2",
+                "24": "3-10 / 2",
+                "36": "3-2 / 3"
+              },
+              "50psf": {
+                "12": "5-0 / 2",
+                "24": "3-10 / 2",
+                "36": "3-2 / 3"
+              },
+              "70psf": {
+                "12": "4-10 / 2",
+                "24": "3-9 / 3",
+                "36": "3-2 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "2-2x12",
+            "cells": {
+              "30psf": {
+                "12": "5-11 / 2",
+                "24": "4-6 / 3",
+                "36": "3-9 / 3"
+              },
+              "50psf": {
+                "12": "5-11 / 2",
+                "24": "4-6 / 3",
+                "36": "3-9 / 3"
+              },
+              "70psf": {
+                "12": "5-8 / 2",
+                "24": "4-5 / 3",
+                "36": "3-9 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "3-2x8",
+            "cells": {
+              "30psf": {
+                "12": "5-3 / 1",
+                "24": "4-0 / 2",
+                "36": "3-5 / 2"
+              },
+              "50psf": {
+                "12": "5-3 / 2",
+                "24": "4-0 / 2",
+                "36": "3-5 / 2"
+              },
+              "70psf": {
+                "12": "5-1 / 2",
+                "24": "3-11 / 2",
+                "36": "3-4 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "3-2x10",
+            "cells": {
+              "30psf": {
+                "12": "6-3 / 2",
+                "24": "4-9 / 2",
+                "36": "4-0 / 2"
+              },
+              "50psf": {
+                "12": "6-3 / 2",
+                "24": "4-9 / 2",
+                "36": "4-0 / 2"
+              },
+              "70psf": {
+                "12": "6-1 / 2",
+                "24": "4-8 / 2",
+                "36": "4-0 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "3-2x12",
+            "cells": {
+              "30psf": {
+                "12": "7-5 / 2",
+                "24": "5-8 / 2",
+                "36": "4-9 / 3"
+              },
+              "50psf": {
+                "12": "7-5 / 2",
+                "24": "5-8 / 2",
+                "36": "4-9 / 3"
+              },
+              "70psf": {
+                "12": "7-2 / 2",
+                "24": "5-6 / 3",
+                "36": "4-8 / 3"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "4-2x8",
+            "cells": {
+              "30psf": {
+                "12": "6-1 / 1",
+                "24": "4-8 / 2",
+                "36": "3-11 / 2"
+              },
+              "50psf": {
+                "12": "6-1 / 1",
+                "24": "4-8 / 2",
+                "36": "3-11 / 2"
+              },
+              "70psf": {
+                "12": "5-11 / 1",
+                "24": "4-7 / 2",
+                "36": "3-10 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "4-2x10",
+            "cells": {
+              "30psf": {
+                "12": "7-3 / 2",
+                "24": "5-6 / 2",
+                "36": "4-8 / 2"
+              },
+              "50psf": {
+                "12": "7-3 / 2",
+                "24": "5-6 / 2",
+                "36": "4-8 / 2"
+              },
+              "70psf": {
+                "12": "7-0 / 2",
+                "24": "5-5 / 2",
+                "36": "4-7 / 2"
+              }
+            }
+          },
+          {
+            "supporting": "Roof, ceiling, and two clear-span floors",
+            "size": "4-2x12",
+            "cells": {
+              "30psf": {
+                "12": "8-6 / 2",
+                "24": "6-6 / 2",
+                "36": "5-6 / 2"
+              },
+              "50psf": {
+                "12": "8-6 / 2",
+                "24": "6-6 / 2",
+                "36": "5-6 / 2"
+              },
+              "70psf": {
+                "12": "8-3 / 2",
+                "24": "6-4 / 2",
+                "36": "5-4 / 3"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "R502.3.1(2)": {
+      "kind": "joist",
+      "clause": "Table R502.3.1(2)",
+      "label": "Floor joist spans, 40 psf living areas",
+      "note": "Spans ft-in by spacing (in), No. 2 lumber; \">26-0\" = over 26 ft. 40 psf live, 10 psf dead, L/360.",
+      "data": {
+        "live_psf": 40,
+        "dead_psf": 10,
+        "deflection": "L/360",
+        "rows": [
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "10-9",
+              "16": "9-9",
+              "24": "8-3",
+              "19.2": "9-2"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "14-2",
+              "16": "12-9",
+              "24": "10-5",
+              "19.2": "11-8"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "18-0",
+              "16": "15-7",
+              "24": "12-9",
+              "19.2": "14-3"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": "20-11",
+              "16": "18-1",
+              "24": "14-9",
+              "19.2": "16-6"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "10-0",
+              "16": "9-1",
+              "24": "7-11",
+              "19.2": "8-7"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "13-2",
+              "16": "12-0",
+              "24": "10-2",
+              "19.2": "11-3"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "16-10",
+              "16": "15-2",
+              "24": "12-5",
+              "19.2": "13-10"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": "20-4",
+              "16": "17-7",
+              "24": "14-4",
+              "19.2": "16-1"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "10-3",
+              "16": "9-4",
+              "24": "7-7",
+              "19.2": "8-6"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "13-6",
+              "16": "11-10",
+              "24": "9-8",
+              "19.2": "10-10"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "16-2",
+              "16": "14-0",
+              "24": "11-5",
+              "19.2": "12-10"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": "19-1",
+              "16": "16-6",
+              "24": "13-6",
+              "19.2": "15-1"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "10-3",
+              "16": "9-4",
+              "24": "8-1",
+              "19.2": "8-9"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "13-6",
+              "16": "12-3",
+              "24": "10-3",
+              "19.2": "11-6"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "17-3",
+              "16": "15-5",
+              "24": "12-7",
+              "19.2": "14-1"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": "20-7",
+              "16": "17-10",
+              "24": "14-7",
+              "19.2": "16-3"
+            }
+          }
+        ]
+      }
+    },
+    "R802.5.1(1)": {
+      "kind": "ceiling-joist",
+      "clause": "Table R802.5.1(1)",
+      "label": "Ceiling joist spans, uninhabitable attic without storage",
+      "note": "Spans ft-in by spacing (in), No. 2 lumber; \">26-0\" = over 26 ft. 10 psf live, 5 psf dead, L/240.",
+      "data": {
+        "live_psf": 10,
+        "dead_psf": 5,
+        "deflection": "L/240",
+        "rows": [
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x4",
+            "spans": {
+              "12": "12-5",
+              "16": "11-3",
+              "24": "9-10",
+              "19.2": "10-7"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "19-6",
+              "16": "17-8",
+              "24": "15-0",
+              "19.2": "16-8"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "25-8",
+              "16": "23-4",
+              "24": "19-1",
+              "19.2": "21-4"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": ">26-0",
+              "16": ">26-0",
+              "24": "23-3",
+              "19.2": "26-0"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x4",
+            "spans": {
+              "12": "11-7",
+              "16": "10-6",
+              "24": "9-2",
+              "19.2": "9-11"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "18-2",
+              "16": "16-6",
+              "24": "14-5",
+              "19.2": "15-7"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "24-0",
+              "16": "21-9",
+              "24": "18-6",
+              "19.2": "20-6"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": ">26-0",
+              "16": ">26-0",
+              "24": "22-7",
+              "19.2": "25-3"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x4",
+            "spans": {
+              "12": "11-10",
+              "16": "10-9",
+              "24": "9-3",
+              "19.2": "10-2"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "18-8",
+              "16": "16-11",
+              "24": "13-11",
+              "19.2": "15-7"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "24-7",
+              "16": "21-7",
+              "24": "17-7",
+              "19.2": "19-8"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": ">26-0",
+              "16": "25-7",
+              "24": "20-11",
+              "19.2": "23-5"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x4",
+            "spans": {
+              "12": "11-10",
+              "16": "10-9",
+              "24": "9-5",
+              "19.2": "10-2"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "18-8",
+              "16": "16-11",
+              "24": "14-9",
+              "19.2": "15-11"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "24-7",
+              "16": "22-4",
+              "24": "18-9",
+              "19.2": "21-0"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": ">26-0",
+              "16": ">26-0",
+              "24": "22-11",
+              "19.2": "25-8"
+            }
+          }
+        ]
+      }
+    },
+    "R802.4.1(1)": {
+      "kind": "rafter",
+      "clause": "Table R802.4.1(1)",
+      "label": "Rafter spans, 20 psf roof live load, ceiling not attached",
+      "note": "Spans ft-in by spacing (in), No. 2 lumber; \">26-0\" = over 26 ft. 20 psf roof live, 10 psf dead, L/180.",
+      "data": {
+        "live_psf": 20,
+        "dead_psf": 10,
+        "deflection": "L/180",
+        "rows": [
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "16-10",
+              "16": "14-7",
+              "24": "11-11",
+              "19.2": "13-3"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "21-4",
+              "16": "18-5",
+              "24": "15-1",
+              "19.2": "16-10"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "26-0",
+              "16": "22-6",
+              "24": "18-5",
+              "19.2": "20-7"
+            }
+          },
+          {
+            "species": "Douglas fir-larch",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": ">26-0",
+              "16": "26-0",
+              "24": "21-4",
+              "19.2": "23-10"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "15-11",
+              "16": "14-2",
+              "24": "11-7",
+              "19.2": "12-11"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "20-8",
+              "16": "17-11",
+              "24": "14-8",
+              "19.2": "16-4"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "25-3",
+              "16": "21-11",
+              "24": "17-10",
+              "19.2": "20-0"
+            }
+          },
+          {
+            "species": "Hem-fir",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": ">26-0",
+              "16": "25-5",
+              "24": "20-9",
+              "19.2": "23-2"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "15-7",
+              "16": "13-6",
+              "24": "11-0",
+              "19.2": "12-3"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "19-8",
+              "16": "17-1",
+              "24": "13-11",
+              "19.2": "15-7"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "23-5",
+              "16": "20-3",
+              "24": "16-6",
+              "19.2": "18-6"
+            }
+          },
+          {
+            "species": "Southern pine",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": ">26-0",
+              "16": "23-10",
+              "24": "19-6",
+              "19.2": "21-9"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x6",
+            "spans": {
+              "12": "16-3",
+              "16": "14-4",
+              "24": "11-9",
+              "19.2": "13-1"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x8",
+            "spans": {
+              "12": "21-0",
+              "16": "18-2",
+              "24": "14-10",
+              "19.2": "16-7"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x10",
+            "spans": {
+              "12": "25-8",
+              "16": "22-3",
+              "24": "18-2",
+              "19.2": "20-3"
+            }
+          },
+          {
+            "species": "Spruce-pine-fir",
+            "grade": "#2",
+            "size": "2x12",
+            "spans": {
+              "12": ">26-0",
+              "16": "25-9",
+              "24": "21-0",
+              "19.2": "23-6"
+            }
+          }
+        ]
+      }
+    },
+    "N1102.1.3": {
+      "kind": "energy",
+      "clause": "Table N1102.1.3",
+      "label": "Insulation and fenestration by climate zone (prescriptive)",
+      "note": "Same values as IECC Table R402.1.3. R-values as printed (cavity & continuous); local adoptions often amend this table.",
+      "data": {
+        "zones": {
+          "0": {
+            "fenestration_u": "NR",
+            "skylight_u": "0.75",
+            "shgc": "0.25",
+            "ceiling_r": "30",
+            "wood_wall_r": "13 or 0&10ci",
+            "mass_wall_r": "3/4",
+            "floor_r": "13",
+            "basement_wall_r": "0",
+            "slab_r": "0",
+            "crawl_wall_r": "0"
+          },
+          "1": {
+            "fenestration_u": "NR",
+            "skylight_u": "0.75",
+            "shgc": "0.25",
+            "ceiling_r": "30",
+            "wood_wall_r": "13 or 0&10ci",
+            "mass_wall_r": "3/4",
+            "floor_r": "13",
+            "basement_wall_r": "0",
+            "slab_r": "0",
+            "crawl_wall_r": "0"
+          },
+          "2": {
+            "fenestration_u": "0.40",
+            "skylight_u": "0.65",
+            "shgc": "0.25",
+            "ceiling_r": "49",
+            "wood_wall_r": "13 or 0&10ci",
+            "mass_wall_r": "4/6",
+            "floor_r": "13",
+            "basement_wall_r": "0",
+            "slab_r": "0",
+            "crawl_wall_r": "0"
+          },
+          "3": {
+            "fenestration_u": "0.30",
+            "skylight_u": "0.55",
+            "shgc": "0.25",
+            "ceiling_r": "49",
+            "wood_wall_r": "20 or 13&5ci or 0&15ci",
+            "mass_wall_r": "8/13",
+            "floor_r": "19",
+            "basement_wall_r": "5ci or 13",
+            "slab_r": "10ci, 2 ft",
+            "crawl_wall_r": "5ci or 13"
+          },
+          "6": {
+            "fenestration_u": "0.30",
+            "skylight_u": "0.55",
+            "shgc": "NR",
+            "ceiling_r": "60",
+            "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+            "mass_wall_r": "15/20",
+            "floor_r": "30",
+            "basement_wall_r": "15ci or 19 or 13&5ci",
+            "slab_r": "10ci, 4 ft",
+            "crawl_wall_r": "15ci or 19 or 13&5ci"
+          },
+          "4 except marine": {
+            "fenestration_u": "0.30",
+            "skylight_u": "0.55",
+            "shgc": "0.40",
+            "ceiling_r": "60",
+            "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+            "mass_wall_r": "8/13",
+            "floor_r": "19",
+            "basement_wall_r": "10ci or 13",
+            "slab_r": "10ci, 4 ft",
+            "crawl_wall_r": "10ci or 13"
+          },
+          "5 and marine 4": {
+            "fenestration_u": "0.30",
+            "skylight_u": "0.55",
+            "shgc": "0.40",
+            "ceiling_r": "60",
+            "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+            "mass_wall_r": "13/17",
+            "floor_r": "30",
+            "basement_wall_r": "15ci or 19 or 13&5ci",
+            "slab_r": "10ci, 4 ft",
+            "crawl_wall_r": "15ci or 19 or 13&5ci"
+          },
+          "7 and 8": {
+            "fenestration_u": "0.30",
+            "skylight_u": "0.55",
+            "shgc": "NR",
+            "ceiling_r": "60",
+            "wood_wall_r": "30 or 20&5ci or 13&10ci or 0&20ci",
+            "mass_wall_r": "19/21",
+            "floor_r": "38",
+            "basement_wall_r": "15ci or 19 or 13&5ci",
+            "slab_r": "10ci, 4 ft",
+            "crawl_wall_r": "15ci or 19 or 13&5ci"
+          }
+        }
+      }
+    }
+  },
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "R311.7.5.1",
+      "label": "Riser height",
+      "note": "",
+      "value": 196.85
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.5.2",
+      "label": "Tread depth",
+      "note": "",
+      "value": 254
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.1",
+      "label": "Stair width",
+      "note": "",
+      "value": 914.4
+    },
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.2",
+      "label": "Stair headroom",
+      "note": "",
+      "value": 2032
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "R311.7.8.1",
+      "label": "Handrail height",
+      "note": "",
+      "min": 863.6,
+      "max": 965.2
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R305.1",
+      "label": "Ceiling height",
+      "note": "Simplified: the code has exceptions for beams, sloped ceilings and basements.",
+      "value": 2133.6
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "R303.1",
+      "label": "Glazing, share of floor area",
+      "note": "Simplified: lighting by artificial means is allowed in some rooms.",
+      "value": 8
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "R303.1",
+      "label": "Openable area, share of floor area",
+      "note": "Simplified: mechanical ventilation is allowed instead.",
+      "value": 4
+    },
+    {
+      "id": "room.area.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "m2",
+      "clause": "R304.1",
+      "label": "Habitable room floor area",
+      "note": "Every habitable room; kitchens are exempt. Floor under ceilings lower than 5 ft (sloped) or 7 ft (furred) does not count.",
+      "value": 6.5032
+    },
+    {
+      "id": "room.dim.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R304.2",
+      "label": "Habitable room least dimension",
+      "note": "In any horizontal direction; kitchens are exempt.",
+      "value": 2133.6
+    },
+    {
+      "id": "hall.width.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.6",
+      "label": "Hallway width",
+      "note": "",
+      "value": 914.4
+    },
+    {
+      "id": "door.egress.width.min",
+      "applies": "door",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.2",
+      "label": "Egress door clear width",
+      "note": "One side-hinged egress door per dwelling unit; clear width with the door open 90 degrees (the checker estimates it as the leaf width less 2 in).",
+      "value": 812.8
+    },
+    {
+      "id": "door.egress.height.min",
+      "applies": "door",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.2",
+      "label": "Egress door clear height",
+      "note": "Clear height from the top of the threshold to the bottom of the stop.",
+      "value": 1981.2
+    },
+    {
+      "id": "escape.area.min",
+      "applies": "window",
+      "op": ">=",
+      "unit": "m2",
+      "clause": "R310.2.1",
+      "label": "Escape opening net clear area",
+      "note": "Every sleeping room (and basements, habitable attics). Grade-floor openings may be 5.0 sq ft. The checker estimates the clear opening from the window type.",
+      "value": 0.5295
+    },
+    {
+      "id": "escape.width.min",
+      "applies": "window",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R310.2.2",
+      "label": "Escape opening clear width",
+      "note": "Net clear opening width.",
+      "value": 508
+    },
+    {
+      "id": "escape.height.min",
+      "applies": "window",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R310.2.2",
+      "label": "Escape opening clear height",
+      "note": "Net clear opening height.",
+      "value": 609.6
+    },
+    {
+      "id": "escape.sill.max",
+      "applies": "window",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "R310.2.3",
+      "label": "Escape opening sill height",
+      "note": "Measured from the floor to the bottom of the clear opening.",
+      "value": 1117.6
+    },
+    {
+      "id": "elec.wall.spacing.max",
+      "applies": "room",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "E3901.2.1",
+      "label": "Wall outlets: farthest point from an outlet",
+      "note": "Measured along the floor line in each wall space 2 ft or wider, unbroken by doorways; kitchens, living, dining, family rooms, bedrooms and similar rooms.",
+      "value": 1828.8
+    },
+    {
+      "id": "elec.light.room.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "E3903.2",
+      "label": "Switched lighting outlet",
+      "note": "",
+      "value": 1
+    },
+    {
+      "id": "elec.bath.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "E3901.6",
+      "label": "Bathroom outlet",
+      "note": "The code asks for one within 36 in of each basin; the checker counts outlets in the bathroom.",
+      "value": 1
+    },
+    {
+      "id": "elec.laundry.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "E3901.8",
+      "label": "Laundry outlet",
+      "note": "",
+      "value": 1
+    },
+    {
+      "id": "elec.garage.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "E3901.9",
+      "label": "Garage outlet",
+      "note": "One per vehicle bay.",
+      "value": 1
+    },
+    {
+      "id": "elec.hall.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "E3901.10",
+      "label": "Hallway outlet (halls 10 ft or longer)",
+      "note": "",
+      "value": 1
+    },
+    {
+      "id": "elec.outdoor.outlet.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "count",
+      "clause": "E3901.7",
+      "label": "Outdoor outlets (front and back)",
+      "note": "One at the front and one at the back, no higher than 6 ft 6 in above grade; the checker counts outlets outside the rooms.",
+      "value": 2
+    },
+    {
+      "id": "alarm.smoke.bedroom.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "R314.3",
+      "label": "Smoke alarm in each sleeping room",
+      "note": "",
+      "value": 1
+    },
+    {
+      "id": "alarm.smoke.story.min",
+      "applies": "storey",
+      "op": ">=",
+      "unit": "count",
+      "clause": "R314.3",
+      "label": "Smoke alarm on each story",
+      "note": "Each story including basements; also outside each sleeping area.",
+      "value": 1
+    },
+    {
+      "id": "found.footing.depth.min",
+      "applies": "foundation",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R403.1.4",
+      "label": "Footing depth below grade",
+      "note": "Exterior footings, below undisturbed ground; at least the frost depth where the place gives one (R403.1.4.1). The checker takes the footing bottom less 6 in for the floor above grade.",
+      "value": 304.8
+    },
+    {
+      "id": "found.footing.width.min",
+      "applies": "foundation",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R403.1.1",
+      "label": "Footing width",
+      "note": "At least 12 in; the size table for the loads, stories and soil (1500 psf presumed) can ask for more.",
+      "value": 304.8
+    },
+    {
+      "id": "found.footing.thick.min",
+      "applies": "foundation",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R403.1.1",
+      "label": "Footing thickness",
+      "note": "At least 6 in; the size table can ask for more.",
+      "value": 152.4
+    },
+    {
+      "id": "found.slab.thick.min",
+      "applies": "foundation",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R506.1",
+      "label": "Slab thickness",
+      "note": "Concrete floor slabs on ground.",
+      "value": 88.9
+    },
+    {
+      "id": "frame.stud.spacing.max",
+      "applies": "wall",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "Table R602.3(5)",
+      "label": "Wall stud spacing",
+      "note": "From Table R602.3(5) by stud size and what the wall carries; the checker takes exterior walls as bearing.",
+      "value": 609.6
+    },
+    {
+      "id": "frame.stud.height.max",
+      "applies": "wall",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "Table R602.3(5)",
+      "label": "Wall stud height",
+      "note": "Height between lateral supports, from Table R602.3(5) by stud size.",
+      "value": 3048
+    },
+    {
+      "id": "frame.header.span.max",
+      "applies": "header",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "Table R602.7(1)",
+      "label": "Header span",
+      "note": "From Table R602.7(1) (exterior bearing walls) by header plies and size, building width, floors above and ground snow load (30 psf column at least); the value shown is the table's largest span. The checker takes the clear span as the header length less 3 in.",
+      "value": 4648.2
+    },
+    {
+      "id": "frame.joist.span.max",
+      "applies": "floor",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "Table R502.3.1(2)",
+      "label": "Floor joist span",
+      "note": "From Table R502.3.1(2) (40 psf live load, living areas; sleeping areas may use the 30 psf table) by joist size and spacing, No. 2 lumber; the species is not recorded, so the lowest span of the four species is asked; the value shown is the table's largest span. Engineered (TJI) joists follow the make",
+      "value": 6375.4
+    },
+    {
+      "id": "frame.rafter.span.max",
+      "applies": "roof",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "Table R802.4.1(1)",
+      "label": "Rafter span",
+      "note": "Table R802.4.1(1), 20 psf roof live, ceiling not attached, lowest species. Span = horizontal projection (sloped length x cos pitch). Not judged where ground snow is over 20 psf or the roof is trusses.",
+      "value": 7924.8
+    },
+    {
+      "id": "frame.ceilingjoist.span.max",
+      "applies": "roof",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "Table R802.5.1(1)",
+      "label": "Ceiling joist span",
+      "note": "From Table R802.5.1(1) (uninhabitable attic without storage, 10 psf live) by joist size and spacing, No. 2 lumber, lowest of the species; the value shown is the table's largest span.",
+      "value": 7924.8
+    },
+    {
+      "id": "energy.wall.r.min",
+      "applies": "wall",
+      "op": ">=",
+      "unit": "r",
+      "clause": "N1102.1.3",
+      "label": "Exterior wall insulation R-value",
+      "note": "By climate zone (from the place criteria). Compares the insulation layers of each exterior wall type (nominal R) with the cavity and continuous options; no insulation layer is a note, not a pass.",
+      "value": 30
+    },
+    {
+      "id": "energy.roof.r.min",
+      "applies": "roof",
+      "op": ">=",
+      "unit": "r",
+      "clause": "N1102.1.3",
+      "label": "Roof or ceiling insulation R-value",
+      "note": "Ceiling R-value by climate zone. The model records no roof insulation yet: shown as a note where the building has a roof.",
+      "value": 60
+    },
+    {
+      "id": "energy.window.u.max",
+      "applies": "window",
+      "op": "<=",
+      "unit": "u",
+      "clause": "N1102.1.3",
+      "label": "Window U-factor",
+      "note": "Fenestration U-factor by climate zone. Windows carry no U-factor in the model yet: shown as a note where the building has windows.",
+      "value": 0.3
+    }
+  ]
+}

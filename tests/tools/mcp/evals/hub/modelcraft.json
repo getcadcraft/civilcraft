@@ -1,0 +1,689 @@
+[
+  {
+    "id": "box-volume",
+    "title": "A box of known size",
+    "prompt": "Draw a box 2 m by 1 m by 1 m.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b",
+        "expect": [
+          {
+            "path": "volume",
+            "approx": 2,
+            "tol": 1e-06
+          },
+          {
+            "path": "closed",
+            "eq": true
+          }
+        ]
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "instances.0.volumeM3",
+        "approx": 2,
+        "tol": 1e-09
+      }
+    ]
+  },
+  {
+    "id": "push-pull-top",
+    "title": "Raise the top of a box",
+    "prompt": "Make the box 0.5 m taller by pushing its top face up.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "faces_list",
+        "args": {
+          "instance": "$b.instance"
+        },
+        "as": "f"
+      },
+      {
+        "tool": "push_pull",
+        "args": {
+          "instance": "$b.instance",
+          "face": "$f.faces[normal.2=1].id",
+          "distance": "0.5m"
+        }
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "instances.0.volumeM3",
+        "approx": 3,
+        "tol": 1e-09
+      }
+    ]
+  },
+  {
+    "id": "paint-face",
+    "title": "Paint one face",
+    "prompt": "Paint the top of the box brick red.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "faces_list",
+        "args": {
+          "instance": "$b.instance"
+        },
+        "as": "f"
+      },
+      {
+        "tool": "paint",
+        "args": {
+          "instance": "$b.instance",
+          "faces": [
+            "$f.faces[normal.2=1].id"
+          ],
+          "paint": "brick-red"
+        },
+        "expect": [
+          {
+            "path": "paint",
+            "eq": "mat:brick-red"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "group-and-scene",
+    "title": "Group it and save the view",
+    "prompt": "Group the box as Outer and save the view as a scene.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "group_make",
+        "args": {
+          "instances": [
+            "$b.instance"
+          ],
+          "name": "Outer"
+        },
+        "expect": [
+          {
+            "path": "instance",
+            "exists": true
+          }
+        ]
+      },
+      {
+        "tool": "scene_add",
+        "args": {
+          "name": "Overview"
+        },
+        "expect": [
+          {
+            "path": "scenes",
+            "gte": 1
+          }
+        ]
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "scenes.length",
+        "gte": 1
+      }
+    ]
+  },
+  {
+    "id": "undo-steps",
+    "title": "Take two steps back",
+    "prompt": "Draw a box and a cylinder, then undo both.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "cylinder_add",
+        "args": {
+          "radius": "0.5m",
+          "height": "2m"
+        }
+      },
+      {
+        "tool": "undo",
+        "args": {
+          "steps": 2
+        },
+        "expect": [
+          {
+            "path": "undone.length",
+            "eq": 2
+          }
+        ]
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "instances.length",
+        "eq": 0
+      }
+    ]
+  },
+  {
+    "id": "mesh-modifier",
+    "title": "A cube with subdivision",
+    "prompt": "Add a cube and subdivide it twice.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "mesh_add",
+        "args": {
+          "primitive": "cube",
+          "options": {
+            "size": "1m"
+          },
+          "at": [
+            "3m",
+            0
+          ]
+        },
+        "as": "m"
+      },
+      {
+        "tool": "modifier_add",
+        "args": {
+          "instance": "$m.instance",
+          "type": "subsurf",
+          "settings": {
+            "levels": 2
+          }
+        }
+      },
+      {
+        "tool": "modifiers_list",
+        "args": {
+          "instance": "$m.instance"
+        },
+        "as": "l"
+      }
+    ],
+    "check": [
+      {
+        "tool": "modifiers_list",
+        "args": {
+          "instance": "$m.instance"
+        },
+        "path": "modifiers.0.settings.levels",
+        "eq": 2
+      }
+    ]
+  },
+  {
+    "id": "move-and-erase",
+    "title": "Move it, then remove it",
+    "prompt": "Move the box one metre along x, then delete it.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "instance_move",
+        "args": {
+          "id": "$b.instance",
+          "by": [
+            "1m",
+            "0m",
+            "0m"
+          ]
+        },
+        "expect": [
+          {
+            "path": "moved",
+            "eq": 1
+          }
+        ]
+      },
+      {
+        "tool": "model_describe",
+        "as": "d",
+        "expect": [
+          {
+            "path": "instances.0.at.0",
+            "approx": 1,
+            "tol": 1e-09
+          }
+        ]
+      },
+      {
+        "tool": "instances_erase",
+        "args": {
+          "ids": [
+            "$b.instance"
+          ]
+        },
+        "expect": [
+          {
+            "path": "erased",
+            "eq": 1
+          }
+        ]
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "instances.length",
+        "eq": 0
+      }
+    ]
+  },
+  {
+    "id": "light-and-fog",
+    "title": "Golden hour with fog",
+    "prompt": "Set the light to golden hour with fog.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "look_set",
+        "args": {
+          "time": "golden-hour",
+          "weather": "fog"
+        }
+      },
+      {
+        "tool": "look_describe",
+        "as": "l",
+        "expect": [
+          {
+            "path": "weather",
+            "eq": "fog"
+          },
+          {
+            "path": "fog.on",
+            "eq": true
+          },
+          {
+            "path": "time",
+            "eq": "golden-hour"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "people-in-yard",
+    "title": "People in a rectangle",
+    "prompt": "Put two people in the yard.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "people_add",
+        "args": {
+          "where": {
+            "rect": [
+              0,
+              3,
+              6,
+              6
+            ]
+          },
+          "count": 2,
+          "seed": 1
+        },
+        "expect": [
+          {
+            "path": "people.placed.length",
+            "eq": 2
+          },
+          {
+            "path": "scene.people",
+            "eq": 2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "library-and-places",
+    "title": "What is there to use",
+    "prompt": "Which materials are in the library, and what stands on the site?",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "materials_list",
+        "expect": [
+          {
+            "path": "materials.length",
+            "gte": 20
+          }
+        ]
+      },
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "as": "b"
+      },
+      {
+        "tool": "places_list",
+        "args": {},
+        "expect": [
+          {
+            "path": "total",
+            "eq": 1
+          },
+          {
+            "path": "places.0.name",
+            "eq": "Box"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "says-what-to-try",
+    "title": "Errors say what is wrong",
+    "prompt": "Try a box with a negative width, then push a face that is not there.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "-1m",
+            "1m",
+            "1m"
+          ]
+        },
+        "fail": "above zero"
+      },
+      {
+        "tool": "push_pull",
+        "args": {
+          "instance": 99,
+          "face": 1,
+          "distance": "1m"
+        },
+        "fail": "model_describe lists them"
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "instances.length",
+        "eq": 0
+      }
+    ]
+  },
+  {
+    "id": "read-only-refuses",
+    "title": "Read-only means read-only",
+    "prompt": "With only Read allowed, try to draw.",
+    "allow": [
+      "read"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ]
+        },
+        "fail": "permission"
+      },
+      {
+        "tool": "model_describe",
+        "expect": [
+          {
+            "path": "instances.length",
+            "eq": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "preview-changes-nothing",
+    "title": "Preview first",
+    "prompt": "Show what a box would do without drawing it.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "size": [
+            "2m",
+            "1m",
+            "1m"
+          ],
+          "preview": true
+        },
+        "expect": [
+          {
+            "path": "preview",
+            "eq": true
+          },
+          {
+            "path": "applied",
+            "eq": false
+          }
+        ]
+      }
+    ],
+    "check": [
+      {
+        "tool": "model_describe",
+        "path": "instances.length",
+        "eq": 0
+      }
+    ]
+  },
+  {
+    "id": "say-the-scene",
+    "title": "EG.61 ★ say the scene",
+    "prompt": "Make it dusk with light rain, autumn trees and people on the plaza.",
+    "allow": [
+      "read",
+      "edit"
+    ],
+    "setup": {},
+    "steps": [
+      {
+        "tool": "box_add",
+        "args": {
+          "at": [
+            "0m",
+            "0m",
+            "0m"
+          ],
+          "size": [
+            "26m",
+            "24m",
+            "0.2m"
+          ],
+          "name": "Plaza"
+        },
+        "as": "p"
+      },
+      {
+        "tool": "look_set",
+        "args": {
+          "time": "dusk",
+          "weather": "light-rain",
+          "season": "autumn",
+          "trees": {
+            "kind": "tree-deciduous-6m",
+            "count": 8,
+            "where": {
+              "instance": "$p.instance"
+            },
+            "seed": 4
+          },
+          "people": {
+            "count": 12,
+            "where": {
+              "instance": "$p.instance"
+            },
+            "seed": 5
+          }
+        }
+      },
+      {
+        "tool": "look_describe",
+        "as": "l",
+        "expect": [
+          {
+            "path": "weather",
+            "eq": "light-rain"
+          },
+          {
+            "path": "season",
+            "eq": "autumn"
+          },
+          {
+            "path": "sky",
+            "eq": "overcast"
+          },
+          {
+            "path": "time",
+            "eq": "dusk"
+          }
+        ]
+      }
+    ],
+    "check": [
+      {
+        "tool": "places_list",
+        "path": "places.0.name",
+        "eq": "Plaza"
+      }
+    ]
+  }
+]

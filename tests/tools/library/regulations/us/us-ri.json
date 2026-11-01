@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ri",
+  "name": "Rhode Island: SBC-2 Rhode Island One & Two Family Dwelling Code",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-RI",
+    "name": "Rhode Island"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2025-12-01",
+  "in_force": "2025-12-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Building Code Standards Committee, RI Building Code Commission; 510-RICR-00-00-2). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (research confidence: high); not yet…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Building Code Standards Committee, RI Building Code Commission, 510-RICR-00-00-2",
+    "url": "https://rules.sos.ri.gov/Regulations/part/510-00-00-2",
+    "date": "2025-09-30",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "R311.7.5.1",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.5.2",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

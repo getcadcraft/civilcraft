@@ -1,0 +1,32 @@
+{
+  "note": "Generators shipped with Engineer (0.8 Track CE, engine-neutral since CE.12). Each is a script with an @generator / @input header (generated.js); a Generated feature copies the text into the part, so a file never depends on this folder. \"lab\": true = left out of a released build (owner decision O3: the nozzle example waits for the export-control check).",
+  "generators": [
+    {
+      "id": "gyroid-block",
+      "file": "gyroid-block.craft",
+      "title": "Gyroid block"
+    },
+    {
+      "id": "heat-exchanger",
+      "file": "heat-exchanger.craft",
+      "title": "Gyroid heat exchanger"
+    },
+    {
+      "id": "manifold",
+      "file": "manifold.craft",
+      "title": "Distribution manifold"
+    },
+    {
+      "id": "lattice-beam",
+      "file": "lattice-beam.craft",
+      "title": "Graded lattice beam (half MBB)"
+    },
+    {
+      "id": "nozzle",
+      "file": "nozzle.craft",
+      "title": "Nozzle with cooling channels (cold gas, textbook)",
+      "lab": true,
+      "exportNotice": true
+    }
+  ]
+}

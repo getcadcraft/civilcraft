@@ -38,6 +38,7 @@
  *   combine(prep, results, factors, meta) → R of a linear combination of computed sets
  */
 import { nodeIndex, axesOf, G_ACC } from './frame-model.js';
+import { hasShell, prepareShell, runShellSet, combineShell } from './plate-solve.js';   // 0.8 SU.1056: plates + rigid floors
 
 const GAUSS4 = [[-0.8611363115940526, 0.3478548451374538], [-0.3399810435848563, 0.6521451548625461], [0.3399810435848563, 0.6521451548625461], [0.8611363115940526, 0.3478548451374538]];
 const PIVOT_TOL = 1e-11;
@@ -172,6 +173,7 @@ function rcm(nn, adj) {
 
 /** Prepares members, numbering and the factorised stiffness. */
 export function prepare(model) {
+  if (hasShell(model)) return prepareShell(model, INTERNALS);     // plates or diaphragms: plate-solve.js (frame-only models never)
   const warnings = [];
   const nn = model.nodes.length, M = model.members.length;
   if (!M) return { error: { code: 'empty' }, warnings };
@@ -342,6 +344,7 @@ function loadSet(prep, entries) {
 }
 
 function runSet(prep, set) {
+  if (prep.shell) return runShellSet(prep, set, INTERNALS);
   const { mem, nn, eq, n } = prep;
   const { nodeF, memLoads } = loadSet(prep, set.entries);
   const F = new Float64Array(n);
@@ -367,27 +370,48 @@ function runSet(prep, set) {
     const m = v[0] * Fg[6 * nd + 3] + v[1] * Fg[6 * nd + 4] + v[2] * Fg[6 * nd + 5];
     if (Math.abs(m) > 1e-6) return { error: { code: 'mechanism', node: prep.model.nodes[nd].id, dof: 3 + [0, 1, 2].reduce((b, a) => (Math.abs(v[a]) > Math.abs(v[b]) ? a : b), 0) } };
   }
-  const x = solveBand(prep, F);
-  const u = new Float64Array(6 * nn);
-  for (let q = 0; q < 6 * nn; q++) if (eq[q] >= 0) u[q] = x[eq[q]];
-  const ends = new Float64Array(12 * mem.length);
-  const reactions = new Float64Array(6 * nn);
-  mem.forEach((e, k) => {
-    const ul = new Float64Array(12);
-    for (let blk = 0; blk < 4; blk++) {
-      const base = 6 * (blk < 2 ? e.i : e.j) + (blk % 2) * 3;
-      for (let a = 0; a < 3; a++) ul[blk * 3 + a] = e.T[a * 3] * u[base] + e.T[a * 3 + 1] * u[base + 1] + e.T[a * 3 + 2] * u[base + 2];
+  // displacements → member end forces and the reactions; one step of iterative refinement (0.8 IND.11): the unpivoted banded
+  // Cholesky of a stiff, badly scaled system leaves an out-of-balance that grows with size (4e-11 at 216 nodes, 2e-8 at 4,913),
+  // so the residual of the free dofs (loads − element end forces) is solved once more with the same factor and added.
+  const back = (x) => {
+    const u = new Float64Array(6 * nn);
+    for (let q = 0; q < 6 * nn; q++) if (eq[q] >= 0) u[q] = x[eq[q]];
+    const ends = new Float64Array(12 * mem.length);
+    const reactions = new Float64Array(6 * nn);
+    mem.forEach((e, k) => {
+      const ul = new Float64Array(12);
+      for (let blk = 0; blk < 4; blk++) {
+        const base = 6 * (blk < 2 ? e.i : e.j) + (blk % 2) * 3;
+        for (let a = 0; a < 3; a++) ul[blk * 3 + a] = e.T[a * 3] * u[base] + e.T[a * 3 + 1] * u[base + 1] + e.T[a * 3 + 2] * u[base + 2];
+      }
+      const kc = e.c.k, cp = pc[k].cp;
+      for (let r = 0; r < 12; r++) { let s = -cp[r]; for (let q = 0; q < 12; q++) s += kc[r * 12 + q] * ul[q]; ends[12 * k + r] = s; }
+      for (const r of e.c.rel) ends[12 * k + r] = 0;
+      for (let blk = 0; blk < 4; blk++) for (let r = 0; r < 3; r++) {
+        let s = 0;
+        for (let a = 0; a < 3; a++) s += e.T[a * 3 + r] * ends[12 * k + blk * 3 + a];
+        reactions[6 * (blk < 2 ? e.i : e.j) + (blk % 2) * 3 + r] += s;
+      }
+    });
+    for (let q = 0; q < 6 * nn; q++) reactions[q] -= nodeF[q];
+    return { u, ends, reactions };
+  };
+  const spr = new Uint8Array(6 * nn);   // dofs with a support spring: their residual also holds the spring force, not refined
+  for (const s of prep.model.supports) { const nd = prep.idx.get(s.node); for (let d = 0; d < 6; d++) if (s.k && s.k[d]) spr[6 * nd + d] = 1; }
+  let x = solveBand(prep, F);
+  let { u, ends, reactions } = back(x);
+  if (!prep.rotSprings.length) {
+    const r = new Float64Array(n); let big = 0, ref = 0;
+    for (let q = 0; q < 6 * nn; q++) if (eq[q] >= 0 && !prep.idle[q] && !spr[q]) { r[eq[q]] = -reactions[q]; big = Math.max(big, Math.abs(r[eq[q]])); }
+    for (let i = 0; i < n; i++) ref = Math.max(ref, Math.abs(F[i]));
+    if (big > 1e-13 * (ref || 1)) {
+      const dx = solveBand(prep, r), x2 = new Float64Array(n);
+      for (let i = 0; i < n; i++) x2[i] = x[i] + dx[i];
+      const t = back(x2); let big2 = 0;
+      for (let q = 0; q < 6 * nn; q++) if (eq[q] >= 0 && !prep.idle[q] && !spr[q]) big2 = Math.max(big2, Math.abs(t.reactions[q]));
+      if (big2 < big) { x = x2; ({ u, ends, reactions } = t); }   // kept only when it reduced the out-of-balance
     }
-    const kc = e.c.k, cp = pc[k].cp;
-    for (let r = 0; r < 12; r++) { let s = -cp[r]; for (let q = 0; q < 12; q++) s += kc[r * 12 + q] * ul[q]; ends[12 * k + r] = s; }
-    for (const r of e.c.rel) ends[12 * k + r] = 0;
-    for (let blk = 0; blk < 4; blk++) for (let r = 0; r < 3; r++) {
-      let s = 0;
-      for (let a = 0; a < 3; a++) s += e.T[a * 3 + r] * ends[12 * k + blk * 3 + a];
-      reactions[6 * (blk < 2 ? e.i : e.j) + (blk % 2) * 3 + r] += s;
-    }
-  });
-  for (let q = 0; q < 6 * nn; q++) reactions[q] -= nodeF[q];
+  }
   // only supported dofs carry a reaction; elsewhere the sum is the (round-off) out-of-balance
   const supported = new Uint8Array(6 * nn);
   for (const s of prep.model.supports) { const nd = prep.idx.get(s.node); for (let d = 0; d < 6; d++) if (s.fix[d] || (s.k && s.k[d])) supported[6 * nd + d] = 1; }
@@ -526,5 +550,10 @@ export function combine(prep, list, meta = {}) {
     for (let k = 0; k < 6; k++) { out.applied[k] += f * R.applied[k]; out.reacted[k] += f * R.reacted[k]; }
     R.loads.forEach((ls, m) => { for (const pz of ls) out.loads[m].push(pz.kind === 'point' ? { ...pz, P: pz.P * f } : { ...pz, w1: pz.w1 * f, w2: pz.w2 * f }); });
   }
+  if (prep.shell) combineShell(prep, list, out);
   return out;
 }
+
+/** What plate-solve.js reuses, so members there are exactly the members here. */
+export { loadSet };      // 0.8 SU.1056: frame-concrete.js reads the vertical loads of a case set (storey weights)
+const INTERNALS = { localK, condense, condenseLoads, rcm, eigSym3, loadSet, totals, equivalentLoads, PIVOT_TOL };

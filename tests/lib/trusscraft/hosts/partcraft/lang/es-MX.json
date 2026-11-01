@@ -1,0 +1,10 @@
+{
+  "h.partcraft.place": "Colocar como cuerpos en la vista",
+  "h.partcraft.undo": "Colocar cerchas",
+  "h.partcraft.none": "No hay miembros que colocar: primero distribuya un techo.",
+  "h.partcraft.pick": "Tomar el contorno del croquis seleccionado",
+  "h.partcraft.nosketch": "Seleccione primero una operación de croquis con un contorno cerrado (la planta del techo) en el árbol.",
+  "h.partcraft.noloop": "El croquis seleccionado no tiene un lazo cerrado de tres o más esquinas.",
+  "h.partcraft.limit.bodies": "PartCraft: las cerchas son cuerpos de visualización en la vista, guardados en el archivo de la pieza pero fuera del sólido de la pieza: sin booleanas, masa, STEP ni selección. El conjunto sale por las exportaciones STL, OBJ, CSV y de plantilla de este complemento.",
+  "h.partcraft.limit.roofs": "PartCraft no tiene techos que leer: escriba el contorno del techo o tómelo de un croquis. Las limatesas y limahoyas salen del esqueleto recto de ese contorno con una sola pendiente; las pendientes por borde y los hastiales requieren la herramienta de techo de BimCraft."
+}

@@ -15,6 +15,7 @@ export const LS_LAYERS = [
   { name: 'L-PLNT-TEXT', token: 'green', aci: 3, key: 'ptext' },
   { name: 'L-GRAD-SPOT', token: 'magenta', aci: 6, key: 'spot' },
   { name: 'L-GRAD-SLOP', token: 'red', aci: 1, key: 'slop' },
+  { name: 'L-GRAD-EXST', token: 'ink2', aci: 8, key: 'exst' },   // 0.8 LA.4: existing-ground level labels
   { name: 'L-GRAD-FLOW', token: 'cyan', aci: 4, key: 'flow' },
   { name: 'L-HARD-PAVE', token: 'ink2', aci: 8, key: 'pave' },
   { name: 'L-HARD-WALL', token: 'major', aci: 7, key: 'wall' },
@@ -25,6 +26,7 @@ export const LS_LAYERS = [
   { name: 'L-IRRG-PIPE', token: 'blue', aci: 5, key: 'pipe' },
   { name: 'L-IRRG-VALV', token: 'blue', aci: 5, key: 'valv' },
   { name: 'L-IRRG-TEXT', token: 'blue', aci: 5, key: 'itext' },
+  { name: 'L-SECT-MARK', token: 'major', aci: 7, key: 'smark' },   // 0.8 LA.9: section lines on the plan (the section drawings use L-SECT-* in their own DWG)
 ];
 for (const l of LS_LAYERS) {
   if (LAYERS.some((x) => x.name === l.name)) continue;

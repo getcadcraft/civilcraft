@@ -18,11 +18,15 @@
  *   featureMarks(lines, line) → [{ code, o, z }]   where 3D feature lines (corridor CL, EOP, SH, DL) cross the sample line
  *   regionSpans(line, regions) → [[o0, o1]]   where the sample line is inside the graded regions (daylight outlines)
  *   clipRuns(runs, spans) → runs cut to those spans
- *   buildSections({ alignment, ground, design, regions, corridor, sampling, from, to }) → { sections: [{ sta, a, b, ground,
- *       design, cut, fill, parts, marks }], rows: [{ sta, cut, fill, cutVol, fillVol, cumCut, cumFill }], totals: { cut, fill } }
+ *   buildSections({ alignment, ground, design, regions, corridor, courses, sampling, from, to }) → { sections: [{ sta, a, b, ground,
+ *       design, cut, fill, parts, marks, layers }],
+ *       layers (0.7.1 71.24): the pavement courses' bottoms across the section, [{ side, code, k, name, a: {o, z}, b: {o, z} }], from the
+ *       corridor's `courses` (corridor.js): each course's bottom runs under its part's top, its depth measured straight down rows: [{ sta, cut, fill, cutVol, fillVol, cumCut, cumFill }], totals: { cut, fill } }
  *       The design counts only inside `regions` (as the grid method's volumes do): rebuilding the graded surface
  *       re-triangulates the ground near the grading, so outside it the two surfaces may differ by a hair — never cut or fill.
  *       volumes by the average end area method between neighbouring sections: V = (A1 + A2) / 2 × (sta2 − sta1)
+ *       track (0.7.1 71.26): the corridor's info.rail — each section's layers also get the track's sleepers, rails, ballast and
+ *       sub-ballast bottoms (trackMarks)
  *   sectionsCsv(set, units) → CSV text (CRLF): station, cut area, fill area, cut volume, fill volume, cumulative
  */
 
@@ -216,7 +220,41 @@ export function clipRuns(runs, spans) {
   return out;
 }
 
-export function buildSections({ alignment, ground, design, regions = null, corridor = null, sampling, from, to }) {
+/** 0.7.1 71.24: where each course bottom of each part crosses the sample line (its inner and outer edge lines lowered by the depth). */
+export function layerMarks(courses, line) {
+  const out = [];
+  for (const c of courses || []) {
+    let D = 0;
+    c.layers.forEach((L, k) => {
+      D += L.t;
+      const low = (key) => c.edges.map((e) => ({ x: e[key].x, y: e[key].y, z: e[key].z - D }));
+      const m = featureMarks({ i: low('i'), o: low('o') }, line);
+      const a = m.find((x) => x.code === 'i'), b = m.find((x) => x.code === 'o');
+      if (a && b && Number.isFinite(a.z) && Number.isFinite(b.z)) out.push({ side: c.side, code: c.code, k, name: L.name, a: { o: a.o, z: a.z }, b: { o: b.o, z: b.z } });
+    });
+  }
+  return out;
+}
+
+/** 0.7.1 71.26: a track's parts across the section (corridor info.rail.at): each sleeper's outline, each rail (foot to head), the
+ *  ballast's bottom (the sub-ballast's top between the toes) and the sub-ballast's bottom, as lines in the `layers` shape. */
+export function trackMarks(track, sta) {
+  const s = track?.at?.(sta);
+  if (!s) return [];
+  const out = [], z = (q) => ({ o: q.o, z: s.z0 + q.z }), seg = (code, k, a, b) => out.push({ side: a.o + b.o < 0 ? 'L' : 'R', code, k, name: '', a: z(a), b: z(b) });
+  s.shape.tracks.forEach((tk, k) => {
+    const S = tk.sleeper;
+    for (let i = 0; i < 4; i++) seg('SLEEPER', k, S[i], S[(i + 1) % 4]);
+    for (const r of tk.rails) seg('RAIL', k, { o: r.o, z: r.z - tk.below }, r);   // from the sleeper's top (rail + pad) to the head
+  });
+  const B = s.shape.ballast, iT = B.length - 1;   // the last point is the crown under the ballast; its neighbours the toes
+  seg('BALLAST', 0, B[iT - 1], B[iT]); seg('BALLAST', 0, B[iT], B[0]);
+  const U = s.shape.sub;
+  seg('SUBBALLAST', 0, U[5], U[4]); seg('SUBBALLAST', 0, U[4], U[3]);
+  return out;
+}
+
+export function buildSections({ alignment, ground, design, regions = null, corridor = null, courses = null, track = null, sampling, from, to }) {
   const smp = sampling || SAMPLE_DEFAULTS();
   const stations = sampleStations(alignment, { step: smp.step, extra: smp.extra, from, to });
   const sections = stations.map((sta) => {
@@ -225,7 +263,7 @@ export function buildSections({ alignment, ground, design, regions = null, corri
     let d = design && design !== ground ? surfaceSection(design, line.a, line.b, -smp.left, smp.right) : g;
     if (d !== g && regions) d = clipRuns(d, regionSpans(line, regions));
     const cf = cutFill(g, d);
-    return { sta, a: line.a, b: line.b, c: line.c, left: smp.left, right: smp.right, ground: g, design: d, cut: cf.cut, fill: cf.fill, parts: cf.parts, marks: corridor ? featureMarks(corridor, line) : [] };
+    return { sta, a: line.a, b: line.b, c: line.c, left: smp.left, right: smp.right, ground: g, design: d, cut: cf.cut, fill: cf.fill, parts: cf.parts, marks: corridor ? featureMarks(corridor, line) : [], layers: [...(courses?.length ? layerMarks(courses, line) : []), ...(track ? trackMarks(track, sta) : [])] };   // track: 0.7.1 71.26
   });
   const rows = [];
   let cumCut = 0, cumFill = 0;

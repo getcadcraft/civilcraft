@@ -4,10 +4,13 @@
  * (site-view3d.js) hands these arrays to three.js, the exporters (site3d-export.js) write them as
  * GLB/OBJ, and the Node test checks them.
  *
- *   siteInput(project)                     → the plain input below, gathered from a Project
+ *   siteInput(project, {species})          → the plain input below, gathered from a Project (species: the Landscape
+ *                                            workspace's plant list, a Map key → species; 0.7.1 71.19)
  *   buildSite3D(input, opts)               → scene
  *   pickSite(scene, cam, sx, sy, {tol})    → { kind: 'point'|'alignment'|'pad'|'feature'|'breakline'|'pipe'|'structure'|'surface', id, name,
  *                                             at:{x,y,z} } | null   (0.4 V5: owned lines within tol px, not behind the ground)
+ *                                             (0.7.1 71.19: also 'ls-plant'|'ls-bed'|'ls-hedge' (a plant's box), 'ls-hard', and a
+ *                                             corridor's road body as its 'alignment')
  *   bandLevels(stats, n) / bandColor(t, dark)   the plan's elevation bands (same levels and ramp)
  *
  * input = { units, eg, fg (Surface | null), contours: {eg, fg}, interval, major, breaklines:[{name, pts:[{x,y,z}]}],
@@ -27,6 +30,10 @@
  *           lines:[{ key, name, color, positions (Float32, segment pairs), owners?:[{kind, id, name}], segOwner? (Uint32 per segment) }],
  *           points: { positions, ids:[point numbers], color } | null, counts,
  *           labels:[{ text, at:[x,y,z] (local), kind, pri, color }] }   (0.5 WL.22, show.labels: drawn facing the camera)
+ * 0.7.1 71.19 (site3d-landscape.js): meshes 'road' (each corridor's lanes, shoulders, gutters, curbs, strips and walks from its
+ * sections, in their own colours) and 'hardscape' (paving, paths, walls, kerbs, ramps, steps), both `onGround`; scene.instances =
+ * the plants, one instanced set per shape { key, shape, proto, at, size, colors, owners, instOwner, count }. Without an existing
+ * ground the corridors come from project.standInCorridors() (flat stand-in ground) and their `warnings` go into `notes`.
  * Labels (0.5 WL.22): each alignment's name at its start and its station at every major tick, each major contour's
  * elevation once (at its middle vertex), pads, feature lines and structures by name, and — with Show › Points — each
  * survey point's number and elevation (≤ MAX_LABELS in all). `pri` orders them when they crowd (0 first): alignments,
@@ -45,15 +52,27 @@ import { formatStation, fixed } from './units.js';   // 0.5 WL.22 labels
 import { flatten as flattenFeature } from './featureline.js';   // 0.6 WL.24: feature lines with arcs
 import { structGeom } from './structs.js';   // 0.6 WL.27: structure types (outside size, rectangles)
 import { measureMass, massMesh, massHeight, centroid as massCentroid } from './massing.js';   // 0.7 LC.1 M2: building masses
+import { landscapeInput, roadMesh, hardMesh, wallMesh, plantInstances, pickInstances, LANDSCAPE_COLORS, MAX_PLANTS_3D } from './site3d-landscape.js';   // 0.7.1 71.19
+import { solarMesh } from './site3d-solar.js';   // 0.8 EG.15 (civil_PART_3)
+import { planArray } from './solar-run.js';
+import { pitMesh, pitLines, PIT_COLORS } from './site3d-pit.js';   // 0.8 EG.27 (civil_PART_4)
+import { pitScene } from './pit-view.js';
+import { railInput, railMesh, ballastMesh, sleeperInstances, RAIL_COLORS } from './site3d-rail.js';   // 0.7.1 71.26: tracks
 
 export const SHOW_DEFAULTS = {
   eg: true, fg: true, triangles: false, contours: true, breaklines: true, boundary: true,
   alignments: true, corridors: true, pads: true, pipes: true, points: false, gis: true,   // gis: 0.4 V4
   labels: true,   // 0.5 WL.22
   masses: true,   // 0.7 LC.1
+  roads: true, plants: true, hardscape: true, walls: true,   // walls: 0.7.1 71.22 retaining walls of pads and platforms
+  track: true,   // 0.7.1 71.26: rails, sleepers and the ballast bed of a railway track
+  solar: true,   // 0.8 EG.15 (civil_PART_3): ground PV tables
+  pit: true,   // 0.8 EG.27 (civil_PART_4): open pits cut into the ground, their bench rims and haul ramp
+  spots: true,   // 0.8 SU.914 rest: spot levels (cut and fill depth) over the platforms
+    // 0.7.1 71.19: the corridor's road body, the Landscape workspace's plants and hardscape
 };
 export const MAX_LABELS = 6000;
-export const LABEL_PRI = { alignment: 0, structure: 1, mass: 1, pad: 2, feature: 3, station: 4, contour: 5, point: 6 };
+export const LABEL_PRI = { alignment: 0, structure: 1, mass: 1, pad: 2, feature: 3, station: 4, spot: 5, contour: 5, point: 6 };
 export const MAX_GIS_SEGMENTS = 300000;
 export const EXAGGERATIONS = [1, 2, 3, 5, 10];
 
@@ -63,26 +82,38 @@ export const DEFAULT_COLORS = {
   alignment: '#b3122e', corridor: '#8a6200', pad: '#1e48c8', mass: '#b8a98a', massLine: '#5a4f3a', daylight: '#9a1f86', pipe: '#1e48c8', structure: '#1e48c8', problem: '#b3122e', point: '#17703a',
   // 0.4 V4: GIS layer colours by their token (gis-state.js LAYER_TOKENS)
   'gis:blue': '#1e48c8', 'gis:orange': '#a84a00', 'gis:magenta': '#9a1f86', 'gis:cyan': '#00707e', 'gis:ochre': '#8a6200', 'gis:green': '#17703a', 'gis:red': '#b3122e',
+  ifcRef: '#9aa3ad',   // 0.7.1 71.24: IFC reference elements
+  ...LANDSCAPE_COLORS,   // 0.7.1 71.19: road parts, plants, hardscape (physical colours, the same in both themes)
+  ...RAIL_COLORS,   // 0.7.1 71.26: rails, ballast, sleepers by material
 };
 
 // ---------------------------------------------------------------------------- input
 
-export function siteInput(project) {
+/** 0.8 EG.15: the saved ground PV arrays as tables on the terrain. */
+function solarInput(project) {
+  return (project.state.solar?.arrays || []).map((a) => ({ id: a.id, name: a.name, plan: planArray(project, a) })).filter((x) => x.plan.ok && x.plan.count);
+}
+
+export function siteInput(project, { species = null } = {}) {
   const s = project.state, d = s.display;
-  const eg = project.eg().surface || null;
+  const eg0 = project.eg().surface || null;
+  const ps = pitScene(project);   // 0.8 EG.27: the ground with the pits dug out of it
+  const eg = ps.ground || eg0;
   const g = project.graded();
   const fg = g.surface || null;
   const items = g.items || [];
   return {
     units: s.units,
     eg, fg,
-    contours: { eg: eg ? project.contours(eg, 'eg') : [], fg: fg ? project.contours(fg, 'fg') : [] },
+    contours: { eg: eg ? (ps.ground ? ps.ground.contours(Number(d.interval) || 1) || [] : project.contours(eg, 'eg')) : [], fg: fg ? project.contours(fg, 'fg') : [] },
     interval: Number(d.interval) || 1, major: Number(d.major) || 5, bandCount: Number(d.bandCount) || 8,
     // 0.4 V5: each breakline knows what it is (picking in 3D): a drawn one (its index), a point group's, or a feature line's
     breaklines: project.egBreaklines().filter((b) => !b.feature).map((b) => ({ ...b, owner: b.fromGroup ? { kind: 'breakline', id: 'group:' + b.name, name: b.name } : { kind: 'breakline', id: 'drawn:' + s.surface.breaklines.indexOf(b), name: b.name } })),
     features: (s.features || []).map((f) => ({ id: f.id, name: f.name, pts: flattenFeature(f) })),   // 0.4 V5; 0.6 WL.24: arcs in pieces
     alignments: s.alignments.map((a) => ({ id: a.id, name: a.name, alignment: project.alignment(a), profile: project.designProfile(a) })),
-    corridors: items.filter((x) => x.kind === 'corridor' && x.lines).map((x) => ({ id: x.id, name: x.name, lines: x.lines })),
+    // sections: 0.7.1 71.19. With no existing ground, the corridors built on a flat stand-in ground (project.standInCorridors),
+    // each with its warning (owner 2026-10-26: drawn, but plainly provisional)
+    corridors: (eg ? items.filter((x) => x.kind === 'corridor' && x.lines) : project.standInCorridors?.() || []).map((x) => ({ id: x.id, name: x.name, lines: x.lines || {}, sections: x.sections || [], warnings: x.warnings || [] })),
     pads: s.pads.map((p) => ({ id: p.id, name: p.name, pts: p.pts, z: Number(p.z), daylight: items.find((x) => x.id === p.id)?.daylight || [] })),
     // 0.7 LC.1 M2: each mass on the ground it was set on (existing, or the graded one by choice; no graded surface: existing)
     masses: (s.masses || []).map((m) => {
@@ -94,6 +125,14 @@ export function siteInput(project) {
     points: project.points,
     // 0.4 V4: the visible GIS layers with their features (gis-layers.js)
     gis: (s.gis?.layers || []).filter((l) => l.visible).map((l) => ({ id: l.id, name: l.name, color: l.color, features: project.gisFeatures?.get(l.id) || [] })),
+    // 0.7.1 71.19: the Landscape workspace's plants and hardscape, standing on the graded surface (else the existing ground)
+    // 0.7.1 71.22: retaining walls (sides.js) of pads and Landscape platforms / berms, owned as the plan selects them
+    walls: items.filter((x) => x.walls?.length).map((x) => ({ walls: x.walls, owner: x.kind === 'pad' ? { kind: 'pad', id: x.id, name: x.name } : { kind: 'ls-grade', id: x.id, name: x.name } })),
+    pits: ps.pits, pitNotes: ps.notes, pitCut: !!ps.ground,   // 0.8 EG.27
+    solar: solarInput(project),   // 0.8 EG.15: ground PV tables on the terrain
+    tracks: railInput(eg ? items : project.standInCorridors?.() || []),   // 0.7.1 71.26: corridors built as railway tracks
+    landscape: landscapeInput(project, { species, zAt: fg || eg ? (x, y) => { const z = (fg || eg).elevationAt(x, y, 1e-6); return Number.isFinite(z) ? z : null; } : null }),
+    ifcRefs: project.ifcRefs || [],   // 0.7.1 71.24: an opened IFC's other surfaces and elements (ifc-civil-read.js applyIfcImport), as reference
   };
 }
 
@@ -254,6 +293,60 @@ export function buildSite3D(input, opts = {}) {
     if (day.seg.length) scene.lines.push(day.done({ key: 'daylight', name: t('scene.layer.dayl'), color: C.daylight }));
   }
 
+  // 0.7.1 71.19: the road body of every corridor (lanes, shoulders, gutters, curbs, strips, walks) over the graded surface it
+  // shaped, and the Landscape workspace's hardscape. `onGround`: drawn just in front of the ground and picked only when in front
+  if (show.roads && input.corridors?.length) {
+    const rb = meshBuilder();
+    if (roadMesh(rb, input.corridors, L, exag, C)) scene.meshes.push({ key: 'road', name: t('s3.roads'), onGround: true, ...rb.done() });
+  }
+  for (const c of input.corridors || []) for (const w of c.warnings || []) notes.push(t('s3.warning', { name: c.name, text: w.text }));   // 0.7.1 71.19
+  if (show.walls && input.walls?.length) {   // 0.7.1 71.22
+    const wb = meshBuilder();
+    if (wallMesh(wb, input.walls, L, C)) scene.meshes.push({ key: 'walls', name: t('s3.walls'), onGround: true, ...wb.done() });
+  }
+  if (show.track && input.tracks?.length) {   // 0.7.1 71.26: rails and the ballast bed (sleepers are instances, below)
+    const rb = meshBuilder(), bb = meshBuilder();
+    if (railMesh(rb, input.tracks, L, C)) scene.meshes.push({ key: 'rails', name: t('s3.rails'), ...rb.done() });
+    if (ballastMesh(bb, input.tracks, L, C)) scene.meshes.push({ key: 'ballast', name: t('s3.ballast'), onGround: true, ...bb.done() });
+  }
+  if (show.spots && input.spots?.length) {   // 0.8 SU.914 rest: each spot's level change on the designed surface, the deepest cut and fill marked
+    for (const sp of input.spots) {
+      const txt = sp.kind === 'level' ? '0' : (sp.dz > 0 ? '+' : '−') + fixed(Math.abs(sp.dz), Math.abs(sp.dz) < 10 ? 2 : 1);
+      label('spot', sp.extreme ? txt + ' ◆' : txt, sp.x, sp.y, sp.zd, sp.kind === 'cut' ? C.problem : sp.kind === 'fill' ? C.pad : C.alignment);
+    }
+  }
+  if (show.solar && input.solar?.length) {   // 0.8 EG.15
+    const sb = meshBuilder(), gAt = input.fg || input.eg ? (x, y) => { const z = (input.fg || input.eg).elevationAt(x, y, 1e-6); return Number.isFinite(z) ? z : null; } : null;
+    if (solarMesh(sb, input.solar, L, gAt)) scene.meshes.push({ key: 'solar', name: t('solar.title'), ...sb.done() });
+  }
+  if (show.pit && input.pits?.length) {   // 0.8 EG.27: haul ramps as ribbons, bench rims as lines
+    const pb = meshBuilder();
+    if (pitMesh(pb, input.pits, L)) scene.meshes.push({ key: 'pit-ramp', name: t('geo.pit.show3d'), ...pb.done() });
+    const rim = pitLines(input.pits, L);
+    if (rim.length) scene.lines.push({ key: 'pit-bench', name: t('geo.pit.benchlines'), color: PIT_COLORS.bench, positions: rim });
+  }
+  if (show.hardscape && input.landscape?.hard?.length) {
+    const hb = meshBuilder();
+    if (hardMesh(hb, input.landscape.hard, L, exag, C)) scene.meshes.push({ key: 'hardscape', name: t('s3.hardscape'), onGround: true, ...hb.done() });
+  }
+  // 0.7.1 71.24: reference elements from an opened IFC (project coordinates, flat-shaded, one grey; not picked: no owners)
+  if (input.ifcRefs?.length) {
+    const pos = [], nor = [], col = [], idx = [], c = rgb(C.ifcRef);
+    for (const r of input.ifcRefs) {
+      const P = r.positions, I = r.indices;
+      for (let i = 0; i < I.length; i += 3) {
+        const a = L(P[I[i] * 3], P[I[i] * 3 + 1], P[I[i] * 3 + 2]), b = L(P[I[i + 1] * 3], P[I[i + 1] * 3 + 1], P[I[i + 1] * 3 + 2]), d = L(P[I[i + 2] * 3], P[I[i + 2] * 3 + 1], P[I[i + 2] * 3 + 2]);
+        const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = d[0] - a[0], vy = d[1] - a[1], vz = d[2] - a[2];
+        let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+        const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
+        const k = pos.length / 3;
+        for (const q of [a, b, d]) { pos.push(q[0], q[1], q[2]); nor.push(nx, ny, nz); col.push(c[0], c[1], c[2]); }
+        idx.push(k, k + 1, k + 2);
+      }
+    }
+    if (idx.length) { scene.meshes.push({ key: 'ifc-refs', name: t('s3.ifcrefs'), positions: new Float32Array(pos), normals: new Float32Array(nor), colors: new Float32Array(col), indices: new Uint32Array(idx) }); scene.counts.triangles += idx.length / 3; }
+  }
+
   // pipe network
   if (show.pipes && input.network) {
     const net = input.network, chk = input.check;
@@ -369,6 +462,21 @@ export function buildSite3D(input, opts = {}) {
     if (flatOff) notes.push(t('v3d.gis.off', { n: flatOff }));
   }
 
+  // 0.7.1 71.19: plants — simple forms by type and size from the plant list, one instanced set per shape (thousands of plants
+  // stay a few draw calls); exports write them out as meshes (site3d-landscape.js expandInstances)
+  scene.instances = [];
+  if (show.plants && input.landscape?.plants?.length) {
+    const r = plantInstances(input.landscape.plants, L, exag, C, { groundZ: origin.z });
+    scene.instances = r.sets;
+    scene.counts.plants = r.count;
+    if (r.cut) notes.push(t('s3.plants.cut', { n: MAX_PLANTS_3D.toLocaleString('en-US') }));
+  }
+  if (show.track && input.tracks?.length) {   // 0.7.1 71.26: one box per sleeper, turned with the track and tilted with the cant
+    const sl = sleeperInstances(input.tracks, L, C, { name: t('s3.sleepers') });
+    if (sl) { scene.instances.push(sl); scene.counts.sleepers = sl.count; }
+  }
+  if (show.plants && input.landscape?.unknown) notes.push(t('s3.plants.unknown', { n: input.landscape.unknown }));
+
   // survey points
   if (show.points && input.points?.length) {
     const pos = [], ids = [];
@@ -434,6 +542,9 @@ function bboxOf(scene) {
   for (const m of scene.meshes) add(m.positions);
   for (const l of scene.lines) add(l.positions);
   if (scene.points) add(scene.points.positions);
+  for (const s of scene.instances || []) for (let i = 0; i < s.count; i++) {   // 0.7.1 71.19: each plant's box
+    add([s.at[3 * i] - s.size[3 * i] / 2, s.at[3 * i + 1] - s.size[3 * i + 1] / 2, s.at[3 * i + 2], s.at[3 * i] + s.size[3 * i] / 2, s.at[3 * i + 1] + s.size[3 * i + 1] / 2, s.at[3 * i + 2] + s.size[3 * i + 2]]);
+  }
   if (min[0] === Infinity) return null;
   return { min, max };
 }
@@ -541,7 +652,7 @@ function surfaceEdges(s, O, exag, outerOnly) {
 
 // ---------------------------------------------------------------------------- pipes and structures
 
-function meshBuilder() {
+export function meshBuilder() {
   const pos = [], nor = [], col = [], idx = [], triOwner = [], owners = [];
   return {
     pos, nor, col, idx,
@@ -631,14 +742,19 @@ export function pickSite(scene, cam, sx, sy, { tol = 8 } = {}) {
   const toProject = (p) => ({ x: p[0] + scene.origin.x, y: p[1] + scene.origin.y, z: p[2] / scene.exag + scene.origin.z });
   // pipes and structures are mostly buried: they are found through the ground, so they are tested first and win
   let best = null;
-  const meshes = [...scene.meshes].sort((a, b) => (b.owners ? 1 : 0) - (a.owners ? 1 : 0));
+  // 0.7.1 71.19: a road or hardscape (onGround) lies on the ground: it is tested before the ground and wins a tie with it, but
+  // is not found through a hill in front of it the way buried pipes are
+  const rank = (m) => (m.owners ? (m.onGround ? 1 : 2) : 0);
+  const meshes = [...scene.meshes].sort((a, b) => rank(b) - rank(a));
   for (const m of meshes) {
-    if (best?.m.owners && !m.owners) break;
+    if (best && rank(best.m) === 2 && rank(m) < 2) break;
     const P = m.positions, I = m.indices;
+    if (best && rank(best.m) === 1 && m.key === 'eg' && scene.meshes.some((q) => q.key === 'fg')) continue;   // the see-through ground over it
+    const tie = best && rank(best.m) === 1 && !m.owners ? 1 - 1e-6 : 1;
     for (let t = 0; t < I.length; t += 3) {
       const a = [P[3 * I[t]], P[3 * I[t] + 1], P[3 * I[t] + 2]], b = [P[3 * I[t + 1]], P[3 * I[t + 1] + 1], P[3 * I[t + 1] + 2]], c = [P[3 * I[t + 2]], P[3 * I[t + 2] + 1], P[3 * I[t + 2] + 2]];
       const hit = rayTri(o, d, a, b, c);
-      if (hit !== null && (!best || hit < best.t)) best = { t: hit, m, tri: t / 3 };
+      if (hit !== null && (!best || hit < best.t * tie)) best = { t: hit, m, tri: t / 3 };
     }
   }
   if (scene.points) {
@@ -677,8 +793,14 @@ export function pickSite(scene, cam, sx, sy, { tol = 8 } = {}) {
       }
     }
     // a pipe or structure right under the cursor wins over a line a few pixels away (a line within 3 px still wins)
-    const solidUnder = best && best.m.owners;
+    const solidUnder = best && best.m.owners && !best.m.onGround;
     if (lb && (!solidUnder || lb.dd <= 3)) { const ow = lb.l.owners[lb.l.segOwner[lb.k]]; return { kind: ow.kind, id: ow.id, name: ow.name, at: toProject(lb.p) }; }
+  }
+  // 0.7.1 71.19: a plant (its box) nearer than whatever else was hit, unless that is a buried pipe or structure
+  const plant = scene.instances?.length ? pickInstances(scene, o, d) : null;
+  if (plant && (!best || rank(best.m) < 2) && (!best || plant.t < best.t)) {
+    const ow = plant.set.owners[plant.set.instOwner[plant.i]];
+    return { kind: ow.kind, id: ow.id, name: ow.name, at: toProject([o[0] + d[0] * plant.t, o[1] + d[1] * plant.t, o[2] + d[2] * plant.t]) };
   }
   if (!best) return null;
   const at = toProject([o[0] + d[0] * best.t, o[1] + d[1] * best.t, o[2] + d[2] * best.t]);

@@ -1,0 +1,21 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-sample-maker-stairs",
+  "name": "Sample maker: comfortable stairs (test pack)",
+  "jurisdiction": { "country": "US", "level": "country", "name": "United States" },
+  "base": "us-irc-2021",
+  "edition": "Test 1",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "A test pack from a made-up maker. It shows how a pack from another maker, and a paid pack, appear. It is a design preference built on the IRC, not a regulation: its price and its shop link (example.com) are not real."
+  },
+  "source": { "name": "Example Maker (made up for testing)", "url": "https://example.com/" },
+  "maker": { "name": "Example Maker (test)" },
+  "price": { "amount": 5, "currency": "USD", "url": "https://example.com/" },
+  "rules": [
+    { "id": "stair.riser.max", "applies": "stair", "op": "<=", "value": 180, "unit": "mm", "clause": "Comfort 1", "label": "Riser height", "note": "A gentler stair than the IRC asks for." },
+    { "id": "stair.tread.min", "applies": "stair", "op": ">=", "value": 280, "unit": "mm", "clause": "Comfort 2", "label": "Tread depth", "note": "A deeper tread than the IRC asks for." }
+  ]
+}

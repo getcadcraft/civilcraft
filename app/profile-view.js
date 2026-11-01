@@ -16,6 +16,7 @@
 import { t } from "./i18n.js";
 import { formatStation, fixed, pct } from './units.js';
 import { LABEL_FONT, mix } from './view.js';
+import { cantAt } from './rail.js';   // 0.7.1 71.26: the cant band
 
 export class ProfileView {
   constructor(canvas) {
@@ -44,7 +45,9 @@ export class ProfileView {
     const span = Math.max(hi - lo, 2), m = span * 0.15;
     this.z0 = lo - m; this.z1 = hi + m;
   }
-  get plot() { const p = this.pad; return { x0: p.l, x1: this.w - p.r, y0: this.h - p.b, y1: p.t }; }
+  get plot() { const p = this.pad; return { x0: p.l, x1: this.w - p.r, y0: this.h - p.b - this.cantH(), y1: p.t }; }
+  /** 0.7.1 71.26: the cant band's height under the stations (a railway alignment with cant), else 0. */
+  cantH() { return this.data?.cant?.curves?.some((c) => c.cant) && this.h > 220 ? 58 : 0; }
   toScreen(sta, z) {
     const d = this.data, P = this.plot;
     const sx = P.x0 + (sta - d.start) / Math.max(d.end - d.start, 1e-9) * (P.x1 - P.x0);
@@ -181,8 +184,30 @@ export class ProfileView {
       const s = this.toScreen(d.cursor.sta, this.z0);
       ctx.strokeStyle = C.action; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(s.x, P.y1); ctx.lineTo(s.x, P.y0); ctx.stroke();
     }
+    if (this.cantH()) this.drawCant(C);   // 0.7.1 71.26
   }
 }
+
+/** 0.7.1 71.26: the cant band under the profile — each rail's height over the profile (left solid, right dashed, mm), the curves'
+ *  applied cant written at the full-cant stretch, at the same stations as the profile above. */
+ProfileView.prototype.drawCant = function drawCant(C) {
+  const ctx = this.ctx, d = this.data, P = this.plot, plan = d.cant, y0 = P.y0 + 24, y1 = this.h - this.pad.b + 22 - 4;
+  const top = Math.max(10, ...plan.curves.map((c) => Math.abs(c.cant))), X = (s) => this.toScreen(s, this.z0).x, Y = (v) => y1 - (Math.max(0, v) / top) * (y1 - y0 - 12);
+  ctx.save();
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.strokeRect(P.x0, y0, P.x1 - P.x0, y1 - y0);
+  ctx.fillStyle = C.ink2; ctx.font = '11px ' + LABEL_FONT; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(t('pv.cant'), P.x0 - 6, (y0 + y1) / 2);
+  ctx.beginPath(); ctx.rect(P.x0, y0, P.x1 - P.x0, y1 - y0); ctx.clip();
+  const n = 400;
+  for (const [k, dash, col] of [['L', [], C.fg], ['R', [5, 3], C.action]]) {
+    ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash(dash); ctx.beginPath();
+    for (let i = 0; i <= n; i++) { const s = d.start + ((d.end - d.start) * i) / n, v = cantAt(plan, s)[k]; i ? ctx.lineTo(X(s), Y(v)) : ctx.moveTo(X(s), Y(v)); }
+    ctx.stroke();
+  }
+  ctx.setLineDash([]); ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const c of plan.curves) if (c.cant) ctx.fillText(t('pv.cant.curve', { cant: fixed(c.cant, 0) }), X((c.sc + c.cs) / 2), y0 + 2);
+  ctx.restore();
+};
 
 /** Feature line crossings (diamonds + upright labels) and run names (0.5 WL.20). Labels follow every edit: drawn from data. */
 ProfileView.prototype.drawFeatures = function drawFeatures(C) {

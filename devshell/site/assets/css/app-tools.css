@@ -1,0 +1,123 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* app-tools.css — the shell's calc sheets, design reasons, running totals and lessons (assets/js/app-{calc,reasons,totals,lessons}.js; round 2,
+   session shell_PART_2). Loaded by AppBuilds::headTags only for builds whose manifest turns one of them on. Tokens only; rem sizes. */
+.app-bar-calc[aria-expanded="true"], .app-bar-reasons[aria-expanded="true"], .app-bar-lessons[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+.app-bar-calc[data-has="1"] .bi, .app-bar-reasons[data-has="1"] .bi { color: var(--layer-blue); }
+.app-bar-lessons[data-running="1"] .bi { color: var(--layer-green); }
+
+.cct {
+  position: fixed; z-index: 1040; top: var(--cct-top, 3.25rem); right: 0; width: min(34rem, calc(100vw - 1rem)); max-height: calc(100vh - var(--cct-top, 3.25rem));
+  display: flex; flex-direction: column; background: var(--ws-panel-bg, var(--sheet)); color: var(--ws-ink, var(--ink));
+  border: var(--pen-1) solid var(--ws-line, var(--line)); font-size: .8125rem; line-height: 1.4;
+}
+.cct[hidden], .cct-totals[hidden] { display: none; }
+body.app-shell.shell-zoomed .cct { zoom: var(--shell-panel-zoom, 1); }
+.cct-head { display: flex; align-items: center; gap: .5rem; padding: .4rem .6rem; border-bottom: var(--pen-1) solid var(--ws-line, var(--line)); }
+.cct-title { margin: 0; font-size: .875rem; font-weight: 700; }
+.cct-sum { flex: 1; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.cct-x { background: none; border: 0; color: inherit; padding: .25rem; min-width: 1.75rem; min-height: 1.75rem; }
+.cct-body { overflow: auto; padding: .6rem; display: flex; flex-direction: column; gap: .5rem; }
+.cct-note, .cct-help, .cct-empty { margin: 0; color: var(--ink-2); }
+.cct-err { color: var(--layer-red); margin: 0; }
+.cct-val { margin: 0; color: var(--layer-green); font-variant-numeric: tabular-nums; }
+.cct-sub { margin: .5rem 0 0; font-size: .8125rem; font-weight: 700; }
+.cct-bar, .cct-apply { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.cct-btn { font: inherit; padding: .25rem .6rem; background: transparent; color: inherit; border: var(--pen-1) solid var(--ink); border-radius: var(--radius); }
+.cct-btn:hover:not(:disabled) { background: var(--grid); }
+.cct-btn:disabled { opacity: .5; }
+.cct-primary { background: var(--action); color: var(--on-action); border-color: var(--action); }
+.cct-primary:hover:not(:disabled) { background: var(--action); filter: brightness(1.1); }
+.cct-in { font: inherit; width: 100%; min-width: 0; padding: .2rem .35rem; background: var(--sheet-2); color: inherit; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.cct-in:focus-visible, .cct-btn:focus-visible, .cct-ib:focus-visible, .cct-link:focus-visible, .cct-chip:focus-visible, .cct-x:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: 1px; }
+.cct-ib { background: none; border: 0; color: inherit; padding: .15rem .3rem; border-radius: var(--radius); }
+.cct-ib:hover { background: var(--grid); }
+.cct-check { display: inline-flex; align-items: center; gap: .3rem; }
+
+.cct-rows { display: flex; flex-direction: column; gap: .25rem; }
+.cct-r { display: grid; grid-template-columns: minmax(4rem, 1fr) minmax(7rem, 2.2fr) minmax(3rem, .8fr) minmax(5rem, 1.4fr) auto; gap: .3rem; align-items: center; }
+.cct-rh { color: var(--ink-2); font-size: .75rem; }
+.cct-r.is-bad .cct-in[data-k$="e"] { border-color: var(--layer-red); }
+.cct-ans { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.cct-kind { color: var(--ink-2); }
+.cct-act { display: inline-flex; }
+.cct-drv { margin-left: .5rem; color: var(--ink-2); display: flex; align-items: center; gap: .25rem; }
+
+.cct-f { display: flex; flex-direction: column; gap: .15rem; }
+.cct-f label { color: var(--ink-2); font-size: .75rem; }
+.cct-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+.cct-el { margin: 0; }
+.cct-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.cct-link { background: none; border: 0; color: inherit; text-align: left; padding: .15rem 0; }
+.cct-link:hover { text-decoration: underline; }
+.cct-snip { color: var(--ink-2); }
+
+.cct-step { border: var(--pen-2) solid var(--layer-green); padding: .5rem; display: flex; flex-direction: column; gap: .4rem; }
+.cct-step-n { margin: 0; color: var(--ink-2); font-size: .75rem; }
+.cct-step-t { margin: 0; font-weight: 700; }
+.cct-hint { margin: 0; padding: .3rem .5rem; border-left: var(--pen-3) solid var(--layer-ochre); background: var(--sheet-2); }
+.cct-win { margin: 0; padding: .3rem .5rem; border-left: var(--pen-3) solid var(--layer-green); background: var(--sheet-2); font-weight: 700; }
+.cct-lesson { display: flex; align-items: baseline; gap: .3rem; }
+/* Field packs: a light line between packs, room between the card link and Install */
+.cct-packs { gap: 0; }
+.cct-packs > li { display: flex; flex-direction: column; gap: .35rem; padding: .75rem 0; border-top: var(--pen-1) solid var(--line); }
+.cct-packs > li:first-child { border-top: 0; padding-top: .25rem; }
+.cct-pack-act { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; }
+.cct-list progress { width: 100%; height: .5rem; accent-color: var(--layer-green); }
+.cct-badges { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+.cct-badge { border: var(--pen-1) solid var(--layer-ochre); padding: .15rem .5rem; border-radius: var(--radius); }
+.cct-badge .bi { color: var(--layer-ochre); }
+.app-bar-more-tool[hidden] { display: none; }
+.cct-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* running totals: chips in the app's status bar (mount) or a thin strip along the bottom edge */
+.cct-totals { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; font-size: .75rem; font-variant-numeric: tabular-nums; }
+.cct-totals-own { position: fixed; z-index: 1030; left: .5rem; bottom: .5rem; padding: .2rem .5rem; background: var(--ws-panel-bg, var(--sheet)); color: var(--ink); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.cct-chip { display: inline-flex; align-items: center; gap: .25rem; padding: .05rem .35rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); background: transparent; color: inherit; font: inherit; }
+.cct-chip.is-partial { border-style: dashed; }
+.cct-chip-n { color: var(--ink-2); }
+.cct-chip-d { margin-left: .25rem; color: var(--ink-2); }
+.cct-chip-cost .bi { color: var(--layer-green); } .cct-chip-carbon .bi { color: var(--layer-ochre); } .cct-chip-weight .bi { color: var(--layer-blue); } .cct-chip-time .bi { color: var(--layer-violet); }
+.cct-dlg { color: var(--ink); background: var(--sheet); border: var(--pen-2) solid var(--ink); padding: 1rem; }
+.cct-dlg h2 { font-size: 1rem; margin: 0 0 .5rem; }
+.cct-dlg label { display: flex; margin-bottom: .25rem; }
+
+@media (max-width: 47.5rem) {
+  .app-bar > .app-bar-calc, .app-bar > .app-bar-reasons, .app-bar > .app-bar-lessons,
+  .app-bar > .app-bar-suggest, .app-bar > .app-bar-activity, .app-bar > .app-bar-ask,
+  .app-bar > .app-bar-fields, .app-bar > .app-bar-engines { display: none; }   /* they are in "More" (app-tools-ui.js) */
+}
+@media (max-width: 760px) {
+  .cct { top: auto; bottom: 0; width: 100vw; max-height: 70vh; }
+  .cct-r { grid-template-columns: 1fr 1fr; }
+  .cct-rh { display: none; }
+  .cct-totals-own { left: 0; right: 0; bottom: 0; border-radius: 0; }
+}
+html.cc-phone .cct-totals-own { bottom: var(--shell-bar-h, 3.5rem); }   /* above the phone panel bar (File / Properties), never over its buttons */
+@media (prefers-reduced-motion: no-preference) { .cct-win { animation: cct-pop .3s ease-out; } @keyframes cct-pop { from { opacity: 0; } to { opacity: 1; } } }
+/* Engines panel (0.8 XE.1–13, app-engines.js) */
+.cct-engines { width: min(36rem, 100vw); }
+.cct-scroll { overflow: auto; max-width: 100%; }
+.cct-tbl { display: flex; flex-direction: column; gap: .2rem; }
+.cct-table { border-collapse: collapse; font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.cct-table th, .cct-table td { padding: .15rem .45rem; border-bottom: var(--pen-1) solid var(--line); text-align: left; white-space: nowrap; }
+.cct-table th { color: var(--ink-2); font-weight: 600; }
+.cct-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .75rem; resize: vertical; white-space: pre; }
+/* Team comments panel (0.8 LC.2, app-teamwork.js) */
+.cct-teamwork { width: min(30rem, 100vw); }
+.cct-tw-form { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .75rem; }
+.cct-tw-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+.cct-tw-bcf { margin-bottom: .75rem; }
+.cct-tw-model { margin-bottom: .75rem; }
+.cct-tw-model > summary { cursor: pointer; font-weight: 600; margin-bottom: .35rem; }
+.cct-tw-model select { max-width: 11rem; }
+.cct-tw-file { cursor: pointer; }
+.cct-tw-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.cct-tw-thread { border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem; display: flex; flex-direction: column; gap: .3rem; }
+.cct-tw-thread.is-resolved { opacity: .7; border-style: dashed; }
+.cct-tw-meta { font-size: .8125rem; color: var(--ink-2); }
+.cct-tw-tag { margin-left: .35rem; padding: 0 .3rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); font-size: .75rem; }
+.cct-tw-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cct-tw-reply { font-size: .875rem; padding-left: .6rem; border-left: var(--pen-2) solid var(--line); overflow-wrap: anywhere; }
+.cct-tw-replyform { display: flex; gap: .35rem; }
+.cct-tw-msg { color: var(--layer-red); margin: 0 0 .5rem; }
+@media (max-width: 47.5rem) { .app-bar > .app-bar-teamwork { display: none; } }

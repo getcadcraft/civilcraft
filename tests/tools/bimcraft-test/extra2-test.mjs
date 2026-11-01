@@ -121,6 +121,19 @@ async function glbPart({ APP, ROOT, ok, near }) {
   ok(glassM && glassM.extensions.KHR_materials_transmission.transmissionFactor === 0.82 && near(glassM.pbrMetallicRoughness.baseColorFactor[3], 0.18), 'a colour whose own look is glass: BLEND + KHR_materials_transmission 0.82');
   const satin = J.materials.find((m) => m.name === '#aeaaa3 (satin)');
   ok(satin && satin.pbrMetallicRoughness.roughnessFactor === 0.5 && near(satin.pbrMetallicRoughness.baseColorFactor[0], G.hexLinear('#aeaaa3')[0]), 'a colour\'s chosen look (satin) and its colour in linear light');
+  // 0.8 DC.22: the same scene as one self-contained .gltf (Enscape's asset library lists .gltf, .obj, .fbx)
+  {
+    const gt = G.glbToGltf(bytes);
+    const GJ = JSON.parse(new TextDecoder().decode(gt));
+    const bin = (() => { const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); const jl = dv.getUint32(12, true); const o = 20 + jl; return bytes.subarray(o + 8, o + 8 + dv.getUint32(o, true)); })();
+    const uri = GJ.buffers[0].uri || '';
+    const back = Buffer.from(uri.replace(/^data:application\/octet-stream;base64,/, ''), 'base64');
+    ok(/^data:application\/octet-stream;base64,/.test(uri) && back.length === bin.length && Buffer.compare(back, Buffer.from(bin)) === 0, '.gltf: the buffer is the GLB binary chunk, byte for byte, inside the file');
+    ok(GJ.buffers[0].byteLength === bin.length && GJ.asset.version === '2.0', '.gltf: byteLength and version 2.0');
+    ok(!(GJ.images || []).some((im) => im.bufferView !== undefined) && (GJ.images || []).every((im) => /^data:image\//.test(im.uri || '')), '.gltf: every image is a data URI (none points into the binary chunk)');
+    ok(GJ.extensions.KHR_lights_punctual.lights.length === 2 && GJ.nodes.length === J.nodes.length, '.gltf: the same nodes and the same two lights');
+    ok(G.glbToGltf(new Uint8Array(30)) === null, 'not a GLB gives null');
+  }
   const lights = J.extensions.KHR_lights_punctual.lights;
   ok(lights.length === 2 && lights[0].type === 'spot' && near(lights[0].intensity, 1257 / (4 * Math.PI), 1e-3) && near(lights[0].spot.outerConeAngle, Math.PI / 6, 1e-4), 'lamps: a spot of 1257 lm = 100 cd, beam 60° → outer cone 30°', JSON.stringify(lights[0]));
   const pend = J.nodes.find((n) => n.name === 'Pendant');

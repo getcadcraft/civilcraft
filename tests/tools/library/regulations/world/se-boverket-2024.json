@@ -1,0 +1,42 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "se-boverket-2024",
+  "name": "Sweden: Boverket's building regulations (BFS 2024:8 hygiene and health, BFS 2024:9 safety in use)",
+  "jurisdiction": {
+    "country": "SE",
+    "level": "country",
+    "region": "",
+    "name": "Sweden"
+  },
+  "base": null,
+  "edition": "Boverket's building regulations (BFS 20…",
+  "in_force": "2025-07-01",
+  "review": {
+    "state": "draft",
+    "note": "Sweden's new rules are functional: they set no riser, going, stair width, handrail height, ceiling height, window or openable ratio (daylight is a daylight factor of 1.0 %, ventilation 0.35 l/s per m²), so only stair headroom is checked. Not checked by this pack: riser height, tread depth (going), stair width, handrail height, ceiling height, glazing, share of floor area, openable area, share of…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Boverket, Boverket's building regulations (BFS 2024:8 hygiene and health, BFS 2024:9 safety in use)",
+    "url": "https://rinfo.boverket.se/BFS2024-9/pdf/BFS2024-9.pdf",
+    "date": "2024-11-19",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "BFS 2024:9 ch. 2 § 25",
+      "label": "Stair headroom",
+      "note": "Clear height in stairs and circulation spaces.",
+      "value": 2000
+    }
+  ]
+}

@@ -101,7 +101,7 @@ try {
     await page.click('[data-item-form] button[type="submit"]');
     await page.waitForTimeout(100);
   };
-  const setHeight = async (text) => { await page.fill('#tc-i-height', text); await page.press('#tc-i-height', 'Enter'); await page.waitForTimeout(150); };
+  const setHeight = async (text) => { await page.fill('[data-pg-row="height"]', text); await page.press('[data-pg-row="height"]', 'Enter'); await page.waitForTimeout(150); };
 
   await addItem('Walk-in panel', 'linear');
   await setHeight('9\'-0"');
@@ -329,7 +329,7 @@ try {
   await page.fill('[data-item-form] [name="name"]', 'Block wall');
   await page.selectOption('[data-item-form] [name="type"]', 'linear');
   await page.click('[data-item-form] button[type="submit"]');
-  await page.fill('#tc-i-height', '10'); await page.press('#tc-i-height', 'Enter');
+  await page.fill('[data-pg-row="height"]', '10'); await page.press('[data-pg-row="height"]', 'Enter');
   await page.fill('#tc-i-thick', '8"'); await page.press('#tc-i-thick', 'Enter');
   await page.fill('#tc-i-base', '1'); await page.press('#tc-i-base', 'Enter');
   ok(await T(() => { const it = window.takeoffcraft.model.state.items.find((i) => i.name === 'Block wall'); return it.thickFt === 2 / 3 && it.baseFt === 1; }), 'the item editor sets the wall thickness (8") and base (1\')');

@@ -1,0 +1,10 @@
+{
+  "h.modelcraft.place": "Place as mesh objects in the model",
+  "h.modelcraft.undo": "Place trusses",
+  "h.modelcraft.nomodel": "The ModelCraft model is not ready.",
+  "h.modelcraft.none": "There are no members to place: lay a roof out first.",
+  "h.modelcraft.pick": "Take outline from the selected face",
+  "h.modelcraft.noface": "Select a flat face (the roof's plan, such as a floor or a slab top) first.",
+  "h.modelcraft.limit.meshes": "ModelCraft: each truss is one mesh object (its timber pieces as closed boxes), painted in the species colour; not editable as faces, and not tied to any roof you drew. Re-laying out and placing again replaces the group.",
+  "h.modelcraft.limit.roofs": "ModelCraft has no roof model to read: type the roof outline, or take it from a selected face. Hips and valleys come from the straight skeleton of that outline at one pitch; per-edge pitches and gables need BimCraft's roof tool."
+}

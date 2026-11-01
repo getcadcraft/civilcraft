@@ -1,0 +1,22 @@
+% isentropic — the isentropic flow ratios of a perfect gas at a Mach number
+%
+% Usage:      r = isentropic(M, gamma)       the fields of r are quantities: r.T0_T.value, .unit, .ref
+% Computes:   T0/T = 1 + (gamma-1)/2 M^2
+%             p0/p = (T0/T)^(gamma/(gamma-1))        rho0/rho = (T0/T)^(1/(gamma-1))
+%             A/A* = (1/M) [ 2/(gamma+1) (T0/T) ]^((gamma+1)/(2(gamma-1)))        (the area needed at that Mach number, over the throat's)
+% Method:     one-dimensional steady adiabatic reversible flow of a calorically perfect gas.
+% Units:      none (all ratios).
+% Limits:     no friction, no heat, no shocks, constant gamma. A real engine has all of them: this is the textbook ideal.
+% References: Anderson, Modern Compressible Flow, 3rd ed., eqs. 3.28, 3.30, 3.31 and 4.80.
+% Check:      M 2, gamma 1.4: T0/T 1.8, p0/p 7.824, rho0/rho 4.347, A/A* 1.6875 (tools/field-test/eng.mjs).
+function r = isentropic(M, gamma)
+if ~(M > 0) || ~(gamma > 1)
+  error('isentropic: the Mach number must be greater than zero and gamma greater than 1');
+end
+tr = 1 + (gamma - 1) / 2 * M ^ 2;
+r = struct();
+r.T0_T = q(tr, '-', 'Anderson Modern Compressible Flow 3e eq. 3.28');
+r.p0_p = q(tr ^ (gamma / (gamma - 1)), '-', 'Anderson 3e eq. 3.30');
+r.rho0_rho = q(tr ^ (1 / (gamma - 1)), '-', 'Anderson 3e eq. 3.31');
+r.A_Astar = q((1 / M) * (2 / (gamma + 1) * tr) ^ ((gamma + 1) / (2 * (gamma - 1))), '-', 'Anderson 3e eq. 4.80');
+end

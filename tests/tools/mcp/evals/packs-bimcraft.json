@@ -1,0 +1,317 @@
+[
+ {
+  "id": "bimcraft-residential.describe-house",
+  "title": "Describe the house",
+  "pack": "bimcraft-residential",
+  "prompt": "What levels, walls, doors and windows does house.ifc have?",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "model_describe",
+    "args": {
+     "doc": "$o.doc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 13
+   },
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCDOOR",
+    "eq": 7
+   }
+  ]
+ },
+ {
+  "id": "bimcraft-residential.list-doors",
+  "title": "List the doors",
+  "pack": "bimcraft-residential",
+  "prompt": "List every door in house.ifc.",
+  "fixtures": {
+   "house.ifc": "fixtures/showcase/bimcraft-house.ifc"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_open",
+    "args": {
+     "path": "house.ifc"
+    },
+    "as": "o"
+   },
+   {
+    "tool": "ifc_query",
+    "args": {
+     "doc": "$o.doc",
+     "class": "IfcDoor",
+     "limit": 50
+    },
+    "as": "q"
+   }
+  ],
+  "check": [
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCDOOR",
+    "eq": 7
+   },
+   {
+    "file": "house.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWINDOW",
+    "eq": 9
+   }
+  ]
+ },
+ {
+  "id": "bimcraft-residential.new-room",
+  "title": "Make a room",
+  "pack": "bimcraft-residential",
+  "prompt": "Make a new model with a 6000 x 4000 mm room and save it as room.ifc.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 4
+   },
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "header",
+    "includes": "ISO-10303-21"
+   }
+  ]
+ },
+ {
+  "id": "bimcraft-residential.room-with-window",
+  "title": "A room with a window",
+  "pack": "bimcraft-residential",
+  "prompt": "Make a 6000 x 4000 mm room, put a window in its first wall and save it as room.ifc.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "opening_add",
+    "args": {
+     "doc": "$n.doc",
+     "wall": "$w.walls.0",
+     "kind": "window"
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWINDOW",
+    "eq": 1
+   },
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCOPENINGELEMENT",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "bimcraft-residential.room-with-floor",
+  "title": "A room with a floor",
+  "pack": "bimcraft-residential",
+  "prompt": "Make a 6000 x 4000 mm room with a floor and save it as room.ifc.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "walls_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ],
+     "closed": true
+    },
+    "as": "w"
+   },
+   {
+    "tool": "floor_add",
+    "args": {
+     "doc": "$n.doc",
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       6000,
+       0
+      ],
+      [
+       6000,
+       4000
+      ],
+      [
+       0,
+       4000
+      ]
+     ]
+    }
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "room.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCSLAB",
+    "eq": 1
+   },
+   {
+    "file": "room.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 4
+   }
+  ]
+ }
+]

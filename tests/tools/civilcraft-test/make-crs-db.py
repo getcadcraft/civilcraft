@@ -10,11 +10,11 @@ Kept: geographic 2D systems and projected systems in metres / international feet
 proj4 definition proj4js can run without grid files (no +nadgrids). Datums whose good shifts need a grid file (NAD27,
 OSGB36, …) get PROJ's first grid-free shift instead, with its EPSG accuracy (NAD27: ~20 m) — or none, accuracy unknown. Deprecated codes are left out. Each entry:
     [code, name, proj4, unit ('m'|'ft'|'ftUS'|'deg'), [west, south, east, north] area of use in degrees,
-     shift accuracy in metres (how well the datum shift to WGS 84 is known, from EPSG) | null]
+     shift accuracy in metres (how well the datum shift to WGS 84 is known, from EPSG) | null, 'ws' (only west/south systems)]
 and crs-wkt.json { "<code>": "<ESRI WKT1>" } for shapefile .prj files (written only on export, so loaded lazily).
 The datum shift to WGS 84 is the first transformation PROJ offers that needs no grid file, written as +towgs84
 (position vector; coordinate-frame rotations are negated). NAD83 → a null shift (EPSG says good to about 4 m; the help says
-so). Systems whose datum has no grid-free shift, or whose axes run west/south, or whose projection proj4js lacks are left out,
+so). West/south systems (the South African Lo zones) are kept with axes 'ws' (7th field, only on those rows). Systems whose datum has no grid-free shift, or whose axes run in another order, or whose projection proj4js lacks are left out,
 and so is any system where proj4js (tools/civilcraft-test/crs-proj4js.mjs, the vendored copy) and PROJ, given the same
 definition, differ by more than 1 cm at five points inside its area of use.
 """
@@ -96,7 +96,10 @@ for kind in (PJType.GEOGRAPHIC_2D_CRS, PJType.PROJECTED_CRS):
         if '+proj=mod_krovak' in p4 or '+proj=col_urban' in p4:
             skip('projection proj4js lacks'); continue
         axis_tok = [t for t in p4.split() if t.startswith('+axis=')]
-        if axis_tok and axis_tok[0] not in ('+axis=enu', '+axis=neu'):
+        # west/south (South Africa's Lo zones, 0.8 ZA.1): kept as an ordinary east/north definition with axes 'ws' — the app's Frame turns
+        # the grid Y (westing) / X (southing) the surveyors write into the east/north the maths wants and back
+        axes = 'ws' if axis_tok and axis_tok[0] == '+axis=wsu' else None
+        if axis_tok and not axes and axis_tok[0] not in ('+axis=enu', '+axis=neu'):
             skip('axis order'); continue
         toks = [t for t in p4.split() if t not in ('+no_defs', '+type=crs') and not t.startswith('+axis=')]
         sh = shift_for(crs)
@@ -112,7 +115,7 @@ for kind in (PJType.GEOGRAPHIC_2D_CRS, PJType.PROJECTED_CRS):
         p4 = ' '.join(toks)
         a = info.area_of_use
         area = [round(a.west, 3), round(a.south, 3), round(a.east, 3), round(a.north, 3)] if a else None
-        rows.append([int(info.code), info.name, p4, unit, area, round(acc, 2) if acc else None])
+        rows.append([int(info.code), info.name, p4, unit, area, round(acc, 2) if acc else None] + ([axes] if axes else []))
         try:
             w = crs.to_wkt('WKT1_ESRI')
             if w: wkts[int(info.code)] = w
@@ -161,7 +164,7 @@ wkts = {k: v for k, v in wkts.items() if any(r[0] == k for r in rows)}
 
 rows.sort(key=lambda r: r[0])
 with open(OUT, 'w') as f:
-    f.write('{"source":"EPSG registry via PROJ ' + __import__('pyproj').proj_version_str + '","fields":["code","name","proj4","unit","area","shiftAccuracy"],"crs":[\n')
+    f.write('{"source":"EPSG registry via PROJ ' + __import__('pyproj').proj_version_str + '","fields":["code","name","proj4","unit","area","shiftAccuracy","axes"],"crs":[\n')
     f.write(',\n'.join(json.dumps(r, ensure_ascii=False, separators=(',', ':')) for r in rows))
     f.write('\n]}\n')
 with open(WKT_OUT, 'w') as f:

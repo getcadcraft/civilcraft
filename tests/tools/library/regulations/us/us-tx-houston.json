@@ -1,0 +1,54 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-tx-houston",
+  "name": "Houston: 2021 IRC with City of Houston amendments",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-TX",
+    "name": "Houston"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 — Houston amendments to the checked rules were not researched (City of Houston Permitting Center; Form CE-1110 (design criteria)). Design criteria from www.houstonpermittingcenter.org (2026-09). Entered from the cited source on 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "City of Houston Permitting Center, Form CE-1110 (design criteria)",
+    "url": "https://www.houstonpermittingcenter.org/media/2121/download",
+    "date": "2026-09",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "0 (may vary by location)",
+      "value": 0,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "Site specific: ASCE 7-22 hazard tool"
+    },
+    "seismic_category": {
+      "text": "A"
+    },
+    "weathering": {
+      "text": "Negligible"
+    },
+    "frost_depth": {
+      "text": "6 in",
+      "value": 152.4,
+      "unit": "mm"
+    },
+    "climate_zone": {
+      "text": "2A"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

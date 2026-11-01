@@ -1,0 +1,87 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-sample-zoning",
+  "name": "Sample zoning limits (made-up numbers, for trying the check)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "country",
+    "name": "Sample"
+  },
+  "base": null,
+  "edition": "sample",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "MADE-UP numbers so the zoning check can be tried. They are not any city's rules. Type or upload your own place's limits."
+  },
+  "authority": "community",
+  "source": {
+    "name": "Sample, not a real code"
+  },
+  "rules": [
+    {
+      "id": "zone.setback.front.min",
+      "applies": "zone",
+      "op": ">=",
+      "value": 6000,
+      "unit": "mm",
+      "clause": "sample",
+      "label": "Front setback",
+      "note": ""
+    },
+    {
+      "id": "zone.setback.side.min",
+      "applies": "zone",
+      "op": ">=",
+      "value": 1500,
+      "unit": "mm",
+      "clause": "sample",
+      "label": "Side setback",
+      "note": ""
+    },
+    {
+      "id": "zone.setback.rear.min",
+      "applies": "zone",
+      "op": ">=",
+      "value": 4500,
+      "unit": "mm",
+      "clause": "sample",
+      "label": "Rear setback",
+      "note": ""
+    },
+    {
+      "id": "zone.height.max",
+      "applies": "zone",
+      "op": "<=",
+      "value": 10500,
+      "unit": "mm",
+      "clause": "sample",
+      "label": "Building height",
+      "note": ""
+    },
+    {
+      "id": "zone.far.max",
+      "applies": "zone",
+      "op": "<=",
+      "value": 0.8,
+      "unit": "ratio",
+      "clause": "sample",
+      "label": "Floor area ratio",
+      "note": ""
+    },
+    {
+      "id": "zone.coverage.max",
+      "applies": "zone",
+      "op": "<=",
+      "value": 40,
+      "unit": "pct",
+      "clause": "sample",
+      "label": "Lot coverage",
+      "note": ""
+    }
+  ],
+  "maker": {
+    "name": "Sample (made up)"
+  }
+}

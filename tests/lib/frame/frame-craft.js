@@ -50,6 +50,7 @@ const mat = (rows, cols) => (rows.length ? '[' + rows.map((r) => r.map(num).join
 const str = (s) => "'" + String(s).replace(/[\r\n]+/g, ' ').replace(/'/g, "''") + "'";
 
 export function toCraftScript(model, { title = '', note = '' } = {}) {
+  if (model.plates?.length || model.diaphragms?.length) throw { code: 'no-plates' };      // frame3d has no plates or floors (0.8 SU.1056): a file without them would mislead
   /* i18n-ignore-start: CraftScript code written into the file */
   const a = frameArrays(model);
   const L = [];

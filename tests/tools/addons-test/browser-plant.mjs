@@ -46,6 +46,7 @@ try {
   await page.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('cc-addon:bimcraft:plant:')) localStorage.removeItem(k); const k = 'cc-addons:bimcraft'; const s = JSON.parse(localStorage.getItem(k) || '{}'); if (s.on) delete s.on.plant; localStorage.setItem(k, JSON.stringify(s)); });
   await page.goto(BASE + '/lab/bimcraft', { waitUntil: 'load' });
   await page.waitForFunction(() => window.ccAddons && window.ccAddons.loader && window.ccAddons.loader.started, null, { timeout: 60000 });
+  await page.waitForFunction(() => window.ccAddons.list().some((a) => a.id === 'plant'), null, { timeout: 15000 }).catch(() => {});   // the list fills one add-on at a time (chem-mount_PART_5: waits for it)
   let me = await page.evaluate(() => window.ccAddons.list().find((a) => a.id === 'plant'));
   ok(me && me.state === 'off' && me.source === 'bundled', 'Plant is bundled and starts off', JSON.stringify(me && { state: me.state, source: me.source, reason: me.reason, detail: me.detail }));
   await page.setInputFiles('[data-file]', { name: 'fixture.ifc', mimeType: 'application/octet-stream', buffer: Buffer.from(fixtureIfc()) });
@@ -124,6 +125,27 @@ try {
   const rt = await page.textContent(pane + ' .plant-out');
   ok(/A route of \d+ mm with \d+ bends/.test(rt), 'Find a route between a pump\'s discharge and the other pump\'s suction', rt.slice(0, 160));
   await shot('plant-03-route');
+  // 0.8 (mep-08): the ports are CadCraft_Port (addPorts), and the route can be drawn as a run: one undo step, ends joined to the nozzles
+  const portSets = () => page.evaluate(() => {
+    const e = window.bimcraftLive.editor, api = e.api, mid = e.mid, f = api.file(mid), n = {};
+    const owner = new Map();
+    for (const rid of f.ids()) if (f.type(rid) === 'IFCRELDEFINESBYPROPERTIES') { const r = api.GetLine(mid, rid, false), nm = api.GetLine(mid, r.RelatingPropertyDefinition.value, false).Name?.value; for (const h of r.RelatedObjects || []) owner.set(h.value, [...(owner.get(h.value) || []), nm]); }
+    for (const id of f.ids()) if (f.type(id) === 'IFCDISTRIBUTIONPORT') for (const nm of owner.get(id) || []) n[nm] = (n[nm] || 0) + 1;
+    return n;
+  });
+  const ps0 = await portSets();
+  ok(ps0.CadCraft_Port === 8 && !ps0.CadCraft_Nozzle, 'the eight nozzles are written as CadCraft_Port (as BimCraft\'s own equipment ports), not CadCraft_Nozzle', JSON.stringify(ps0));
+  ok(await page.$(pane + ' [data-plant-draw]') !== null, 'Draw this run is offered after a route is found');
+  const seg0 = (await classes0()).IFCPIPESEGMENT || 0, ch0 = await page.evaluate(() => window.bimcraftLive.editor.changes.length);
+  await page.selectOption(pane + ' select[name="system"]', 'chw');
+  await page.click(pane + ' [data-plant-draw]');
+  await page.waitForFunction((n) => window.bimcraftLive.editor.changes.length > n, ch0, { timeout: 15000 }).catch(() => {});
+  const c5 = await classes0(), ch1 = await page.evaluate(() => window.bimcraftLive.editor.changes.length);
+  ok((c5.IFCPIPESEGMENT || 0) > seg0 && ch1 === ch0 + 1, 'Draw this run: pipe segments appear as ONE change', JSON.stringify([seg0, c5.IFCPIPESEGMENT, ch0, ch1]));
+  const joined = await page.evaluate(() => { const e = window.bimcraftLive.editor, f = e.api.file(e.mid); let n = 0; for (const id of f.ids()) if (f.type(id) === 'IFCRELCONNECTSPORTS') n++; return n; });
+  ok(joined >= 2, 'the run\'s two ends are connected to the nozzles they touch', String(joined));
+  await page.evaluate(() => window.bimcraftLive.editor.undo());
+  ok(((await classes0()).IFCPIPESEGMENT || 0) === seg0, 'one Undo takes the run out');
   const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 20000 }), page.click(pane + ' button:has-text("Save as IFC file")')]);
   const saved = path.join(SHOTS, dl.suggestedFilename());
   await dl.saveAs(saved);

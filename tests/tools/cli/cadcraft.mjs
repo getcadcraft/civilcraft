@@ -14,7 +14,9 @@
  *   cadcraft convert <manual.partcraft-manual.json> <out.pdf|.svg|.html> [--instructions] [--view <name>] [--paper a4] [--layout sheet]
  *   cadcraft count <drawing> (--block <name> | --text <text> | --layer <layer> [--type CIRCLE]) [--sheet <name>] [--drawing]
  *                                                (0.7 AS.6: a PartCraft manual exported; TakeoffCraft's exact counts on a DWG / DXF)
- *   cadcraft tools                               the tools the MCP server offers (cadcraft-mcp)
+ *   cadcraft merge <base> <ours> <theirs> [-o <out>]   three-way merge for git, Fossil or Mercurial: a CadCraft drawing (.dwg .dxf) object by object,
+                                             or a project .json file; writes over <ours> unless -o. Exit 0 clean, 1 conflicts (ours kept), 2 cannot run
+  cadcraft tools                               the tools the MCP server offers (cadcraft-mcp)
  *
  * Every command takes --json (one JSON object on stdout). Exit codes: 0 ok · 1 problems (unreadable file, a script or
  * command error, check findings) · 2 bad usage.
@@ -40,6 +42,8 @@ const USAGE = `cadcraft ${PACKAGE_VERSION} — the CadCraft apps from the comman
   cadcraft check <drawing…> --rules <rules.json>
 
   Several files: cadcraft convert <in…> <folder> --to dwg|dxf · cadcraft plot <in…> <folder> [--to pdf|svg]
+  cadcraft merge <base> <ours> <theirs> [-o <out>]   three-way merge for git, Fossil or Mercurial: a CadCraft drawing (.dwg .dxf) object by
+                                             object, or a project .json file; writes over <ours> unless -o. Exit 0 clean, 1 conflicts (ours kept)
   cadcraft tools                             the tools the MCP server (cadcraft-mcp) offers
 
   --json    one JSON object on stdout          Exit codes: 0 ok, 1 problems, 2 bad usage.
@@ -61,7 +65,7 @@ function parse(argv) {
   return { pos, f };
 }
 
-const KNOWN = { info: [], run: ['-o', '--in-place', '--version', '--format'], convert: ['--version', '--format', '--to', '--instructions', '--view', '--paper', '--layout'], count: ['--block', '--text', '--layer', '--type', '--sheet', '--drawing', '--include-hidden'], plot: ['--layout', '--all', '--paper', '--portrait', '--scale', '--color', '--pen', '--to'], check: ['--rules'], tools: [] };
+const KNOWN = { info: [], run: ['-o', '--in-place', '--version', '--format'], convert: ['--version', '--format', '--to', '--instructions', '--view', '--paper', '--layout'], count: ['--block', '--text', '--layer', '--type', '--sheet', '--drawing', '--include-hidden'], plot: ['--layout', '--all', '--paper', '--portrait', '--scale', '--color', '--pen', '--to'], check: ['--rules'], tools: [], merge: ['-o'] };
 
 function readIn(p) {
   if (!fs.existsSync(p)) throw new Problem('There is no file ' + p + '.');
@@ -90,6 +94,15 @@ function targetFormat(out, f) {
 const kb = (n) => (n < 1024 ? n + ' bytes' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
 
 const commands = {
+  async merge([base, ours, theirs], f, out) {   // 0.8 DC.27: tools/cli/merge.mjs is the same code with git's argument order
+    if (!base || !ours || !theirs) throw new Usage('cadcraft merge <base> <ours> <theirs> [-o <out>]');
+    const { spawnSync } = await import('node:child_process');
+    const r = spawnSync(process.execPath, [new URL('./merge.mjs', import.meta.url).pathname, base, ours, theirs, ...(f['-o'] || f['--out'] ? ['--out', f['-o'] || f['--out']] : [])], { encoding: 'utf8' });
+    if (r.stdout) out.text.push(r.stdout.trimEnd());
+    if (r.status === 2) throw new Problem((r.stderr || 'The files could not be merged.').trim());
+    out.json = { ok: r.status === 0, conflicts: r.status === 1 };
+    return r.status === 0 ? 0 : 1;
+  },
   async info([file], f, out) {
     if (!file) throw new Usage('cadcraft info <file>');
     const ext = extOf(file), lower = file.toLowerCase();

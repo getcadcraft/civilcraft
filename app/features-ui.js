@@ -20,6 +20,7 @@
 import { t } from './i18n.js';
 import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel, gradeOverlay, flatten, setArc, arcText, parseArc, pointOnSeg, cadPolyline } from './featureline.js';
 import { fixed, unitOf } from './units.js';
+import { createTeamLines } from './team-lines.js';   // 0.8 WL.26
 
 const okB = (b) => Number.isFinite(b) && b !== 0 && Math.abs(b) < 100;
 
@@ -56,6 +57,99 @@ export function createFeatures(ctx) {
     ctx.select({ kind: 'feature', id });
     ctx.say(t('fl.drawn', { name, n: out.length }) + (guessed ? ' ' + t('fl.drawn.guessed', { n: guessed }) : ''));
     return id;
+  }
+
+
+  // ---- 0.8 WL.26: feature lines shared between the drawings of a team (team-lines.js; the site's /api/v1/team/lines) ----
+  // Needs a drawing opened from the cloud files (?cloud=<uuid>) and the shell's request to the site (Studio: cadcraftDesktop.cloud.request; a test sets
+  // globalThis.ccTeamRequest). Nothing is fetched until a button is pressed.
+  const cloudId = () => { try { return new URLSearchParams(globalThis.location?.search || '').get('cloud') || ''; } catch { return ''; } };
+  const teamReq = () => globalThis.ccTeamRequest || globalThis.cadcraftDesktop?.cloud?.request || null;
+  let tl = null;
+  const teamLines = () => {
+    const id = cloudId();
+    if (!tl || tl.drawing !== id.toLowerCase()) tl = createTeamLines({ request: (a) => teamReq()(a), drawing: id, units: () => U() });
+    return tl;
+  };
+  const teamWords = (r) => {
+    const k = 'fl.team.err.' + r.code;
+    const w = t(k, { why: r.message || '' });
+    return w === k ? t('fl.team.err.other', { why: r.message || r.code || '' }) : w;
+  };
+  const sharedOf = (f) => (f && f.shared && typeof f.shared.uuid === 'string' ? f.shared : null);
+
+  const teamListShow = (list, btn, say) => async () => {
+    list.replaceChildren(el('p', { className: 'cv-note' }, t('fl.team.loading')));
+    const r = await teamLines().list();
+    if (!r.ok) { list.replaceChildren(el('p', { className: 'cv-note' }, teamWords(r))); return; }
+    if (!r.lines.length) { list.replaceChildren(el('p', { className: 'cv-note' }, t('fl.team.none'))); return; }
+    const here = new Set((P().state.features || []).map((x) => x.shared?.uuid).filter(Boolean));
+    list.replaceChildren(...r.lines.map((l) => el('div', { className: 'cv-row', 'data-fl-team-row': l.uuid },
+      el('span', { className: 'cv-grow' }, l.name + ' · ' + t('fl.team.rev', { rev: l.revision, n: l.points }) + (l.behind ? ' · ' + t('fl.team.behind') : '')),
+      here.has(l.uuid) ? el('span', { className: 'cv-unit' }, t('fl.team.here')) : btn('data-fl-place', t('fl.team.place'), async () => {
+        const q = await teamLines().place(l.uuid);
+        if (!q.ok) { say(teamWords(q)); return; }
+        const p = P(), nid = p.nextId('f'), d = FEATURE_DEFAULTS(U());
+        p.change(t('fl.undo.place'), (s) => { (s.features ||= []).push({ id: nid, name: q.feature.name || l.name, pts: q.feature.pts, closed: q.feature.closed, use: d.use, daylight: false, cut: d.cut, fill: d.fill, shared: q.shared }); });
+        ctx.select({ kind: 'feature', id: nid });
+        say(t('fl.team.placed', { name: q.feature.name || l.name }));
+      }))));
+  };
+  /** The "Team" section of a feature line's Properties: share, send, get the team's version, stop, and the team's lines to place. */
+  function teamBlock(f) {
+    const id = f.id, out = [el('h3', { className: 'cv-h3' }, t('fl.team.head'))];
+    const live = !!teamReq() && !!cloudId();
+    if (!live) { out.push(el('p', { className: 'cv-note', 'data-fl-team-off': '' }, t('fl.team.off'))); return out; }
+    const sh = sharedOf(f);
+    const status = el('p', { className: 'cv-note', 'data-fl-team-status': '' }, sh ? t('fl.team.is', { rev: sh.revision }) : t('fl.team.not'));
+    const list = el('div', { className: 'cv-team-list', 'data-fl-team-list': '' });
+    const say = (m) => ctx.say(m);
+    const run = async (fn) => { try { await fn(); } catch (e) { say(t('fl.team.err.offline')); } };
+    const setShared = (label, shared, extra = {}) => edit(id, label, (x) => ({ ...x, ...extra, shared }));
+    const btn = (attr, label, fn) => el('button', { type: 'button', className: 'btn-line btn-sm-cc', [attr]: '', onclick: () => run(fn) }, label);
+    const buttons = [];
+    if (!sh) {
+      buttons.push(btn('data-fl-share', t('fl.team.share'), async () => {
+        const r = await teamLines().share(find(id));
+        if (!r.ok) { say(teamWords(r)); return; }
+        setShared(t('fl.undo.share'), r.shared);
+        say(t('fl.team.shared', { name: f.name }) + (r.chords ? ' ' + t('fl.team.chords') : ''));
+      }));
+    } else {
+      buttons.push(btn('data-fl-push', t('fl.team.push'), async () => {
+        const r = await teamLines().push(find(id));
+        if (!r.ok) { say(teamWords(r)); return; }
+        setShared(t('fl.undo.push'), r.shared);
+        say(t('fl.team.pushed', { rev: r.shared.revision, n: r.notified || 0 }) + (r.chords ? ' ' + t('fl.team.chords') : ''));
+      }));
+      buttons.push(btn('data-fl-pull', t('fl.team.pull'), async () => {
+        const r = await teamLines().pull(find(id));
+        if (!r.ok) { say(teamWords(r)); return; }
+        setShared(t('fl.undo.pull'), r.shared, { name: r.feature.name || f.name, pts: r.feature.pts, closed: r.feature.closed });
+        say(t('fl.team.pulled', { rev: r.shared.revision }));
+      }));
+      buttons.push(btn('data-fl-stop', t('fl.team.stop'), async () => {
+        const r = await teamLines().stop(find(id));
+        if (!r.ok) { say(teamWords(r)); return; }
+        edit(id, t('fl.undo.unshare'), (x) => { const { shared, ...rest } = x; return rest; });
+        say(t('fl.team.stopped', { name: f.name }));
+      }));
+    }
+    const show = teamListShow(list, btn, say);
+    buttons.push(btn('data-fl-team-show', t('fl.team.show'), show));
+    out.push(status, el('div', { className: 'cv-actions' }, ...buttons), list);
+    return out;
+  }
+
+  /** The project-level entry (0.8 WL.26): the team's lines without a feature line selected, shown under the project's Properties. */
+  function teamProject() {
+    const out = [el('h3', { className: 'cv-h3' }, t('fl.team.head'))];
+    if (!(!!teamReq() && !!cloudId())) { out.push(el('p', { className: 'cv-note', 'data-fl-team-off': '' }, t('fl.team.off'))); return out; }
+    const say = (m) => ctx.say(m);
+    const btn = (attr, label, fn) => el('button', { type: 'button', className: 'btn-line btn-sm-cc', [attr]: '', onclick: async () => { try { await fn(); } catch (e) { say(t('fl.team.err.offline')); } } }, label);
+    const list = el('div', { className: 'cv-team-list', 'data-fl-team-list': '' });
+    out.push(el('div', { className: 'cv-actions' }, btn('data-fl-team-show', t('fl.team.show'), teamListShow(list, btn, say))), list);
+    return out;
   }
 
   function props(f) {
@@ -136,6 +230,7 @@ export function createFeatures(ctx) {
       ctx.select({ kind: 'feature', id: nid });
       ctx.say(t('fl.offset.done', { name }));
     } }, t('fl.offset.go')));
+    out.push(...teamBlock(f));   // 0.8 WL.26
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => ctx.command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     return out;
   }
@@ -223,5 +318,5 @@ export function createFeatures(ctx) {
     c2d.restore();
     return items.length;
   }
-  return { finish, props, sceneItems, pick, grip, overlay, remove, find, gradeLayer };
+  return { finish, props, teamBlock, teamProject, sceneItems, pick, grip, overlay, remove, find, gradeLayer };
 }

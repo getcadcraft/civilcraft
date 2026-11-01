@@ -81,6 +81,10 @@ On a Mac keyboard, the key labeled **delete** is {{key:Backspace}} to the browse
 ## Next
 
 - [Design a vertical profile](topic:profile).
+## Design speed and class
+
+Under the alignment's Properties, **Design speed** (km/h or mph) and **Design class** are kept with the alignment, saved in the project and written to IFC (Pset_RoadDesignCriteriaCommon). CivilCraft has no table that ties a speed to a minimum radius, so nothing is checked from them: set **Minimum radius** from your own design standard.
+
 ## Spirals
 
 A curve can have a clothoid spiral at either end: tangent, spiral, curve, spiral, tangent. In the PI table, type a length in **Spiral in** and **Spiral out** for a PI that has a radius. The PI stays where it is; the curve moves in to make room, so the tangent distance grows by the spiral's offset. The two lengths can differ, and a PI with only one length gets a spiral at that end only.

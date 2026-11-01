@@ -1,0 +1,14 @@
+% reynolds — the Reynolds number of a flow in a duct
+%
+% Usage:      Re = reynolds(rho, v, D, mu)
+% Computes:   Re = rho v D / mu, the ratio of inertial to viscous forces.
+% Method:     the definition. D is the hydraulic diameter for a duct that is not round (hydraulic_diameter).
+% Units:      SI: rho kg/m3, v m/s, D m, mu Pa s. Re has no unit.
+% References: Incropera, DeWitt, Bergman, Lavine, Fundamentals of Heat and Mass Transfer, 7th ed., eq. 8.1.
+% Check:      water at 20 C (rho 998, mu 1.002e-3) at 1 m/s in a 25 mm pipe: Re = 24 900 (tools/field-test/eng.mjs).
+function Re = reynolds(rho, v, D, mu)
+if ~(mu > 0) || ~(D > 0)
+  error('reynolds: the viscosity and the diameter must be greater than zero');
+end
+Re = rho * v * D / mu;
+end

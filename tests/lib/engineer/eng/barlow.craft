@@ -1,0 +1,15 @@
+% barlow — the wall of a pipe from its outside diameter (Barlow's formula)
+%
+% Usage:      t = barlow(p, Do, s_allow)
+% Computes:   t = p Do / (2 s_allow)
+% Method:     Barlow's formula, thin-wall theory on the outside diameter.
+% Units:      SI: p Pa (gauge), Do m, s_allow Pa, t m.
+% Limits:     as wall_thin_cylinder: no allowances, not a code calculation.
+% References: Barlow's formula as given in ASME B31.3 / B31.4 and in Shigley, 11th ed., Problem 3-xx; the textbook form is used here.
+% Check:      p 2 MPa, Do 100 mm, s_allow 100 MPa: t = 1.000 mm (tools/field-test/eng.mjs).
+function t = barlow(p, Do, s_allow)
+if ~(p > 0) || ~(Do > 0) || ~(s_allow > 0)
+  error('barlow: the pressure, the diameter and the allowable stress must be greater than zero');
+end
+t = p * Do / (2 * s_allow);
+end

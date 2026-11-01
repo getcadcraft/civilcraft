@@ -45,8 +45,10 @@ const style = () => page.evaluate(() => window.ccInput.current().id);
 const visible = (sel) => page.isVisible(sel);
 const settled = () => page.waitForFunction(() => { const s = window.bimcraftPlan?.state; return s && !s.busy && !s.reloading && !s.queue.length; }, null, { timeout: 60000 });
 const openSettings = async () => { await page.keyboard.press('Control+Comma'); await page.waitForSelector('[data-app-settings][open]'); };
+// Settings shows one section at a time (0.7 sections): bring the one that holds `sel` forward before clicking in it
+const showSection = async (sel) => { await page.evaluate((q) => { const nav = document.querySelector('[data-app-settings] .shell-sec-nav'); const hit = [...(nav ? nav.querySelectorAll('button') : [])].find((b) => b.ccSet && b.ccSet.querySelector(q)); if (hit) hit.click(); }, sel); await page.waitForTimeout(150); };
 const closeSettings = async () => { await page.keyboard.press('Escape'); await page.waitForFunction(() => !document.querySelector('[data-app-settings]').open); };
-const pickStyle = async (id) => { await openSettings(); await page.click(`[data-input-settings] input[value="${id}"]`, { force: true }); await closeSettings(); };
+const pickStyle = async (id) => { await openSettings(); await page.$eval(`[data-input-settings] input[value="${id}"]`, (el) => el.click()); await closeSettings(); };
 const pan = () => page.evaluate(() => [window.bimcraftPlan.view.cx, window.bimcraftPlan.view.cy]);
 async function dragPlan(button) {
   const r = await page.evaluate(() => { const b = window.bimcraftPlan.view.canvas.getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height * 0.6]; });
@@ -87,7 +89,7 @@ try {
   ok(cols.body === 2 && cols.nav, 'BimCraft\'s settings: the section list beside the section ' + JSON.stringify(cols));
   ok((await page.$$('[data-input-settings] .cc-in-card')).length === 5, 'five style cards (Viewer since 0.5 IP.3)');
   await shot(page, 'in-01-settings');
-  await page.click('[data-input-settings] input[value="home"]', { force: true });
+  await page.$eval('[data-input-settings] input[value="home"]', (el) => el.click());   // the radio is visually hidden behind its card: click it in the page
   await closeSettings();
 
   console.log('== Home design');
@@ -114,7 +116,7 @@ try {
 
   console.log('== BIM ribbon');
   await pickStyle('ribbon');
-  ok(await visible('[data-input-bar] .cc-in-tabs') && (await page.$$eval('[data-input-bar] [role="tab"]', (b) => b.map((x) => x.textContent))).join() === 'Architecture,Insert,Annotate,Modify,View,Output', 'ribbon tabs');
+  ok(await visible('[data-input-bar] .cc-in-tabs') && (await page.$$eval('[data-input-bar] [role="tab"]', (b) => b.map((x) => x.textContent))).join().replace(/,Add-ons$/, '') === 'Architecture,Insert,Annotate,Modify,View,Output', 'ribbon tabs (an Add-ons tab may follow)');
   await shot(page, 'in-03-ribbon');
   await page.keyboard.press('w'); await page.keyboard.press('a');
   ok(await tool() === 'wall', 'W then A = Wall');
@@ -155,6 +157,7 @@ try {
   console.log('== Customize → My Home design, export, import');
   await pickStyle('home');
   await openSettings();
+  await showSection('[data-input-settings]');
   await page.click('[data-input-settings] button:text("Customize…")');
   await page.waitForSelector('dialog.cc-in-dlg[open]');
   await page.fill('.cc-in-dlg input[type="search"]', 'roof');
@@ -191,7 +194,7 @@ try {
   ok(/2 things in it were left out/.test(await statusOf()) && await style() !== 'home', 'Import: added, the unknown command and the bad key left out — ' + await statusOf());
   await page.click('[data-input-settings] button:text("Delete this style")');
   ok((await page.$$('[data-input-settings] .cc-in-card')).length === 6, 'Delete this style');
-  await page.click('[data-input-settings] input[value="cadcraft"]', { force: true });
+  await page.$eval('[data-input-settings] input[value="cadcraft"]', (el) => el.click());
   await closeSettings();
   ok(await visible('[data-toolbar] [data-view="iso"]') && !(await visible('[data-input-bar]')), 'back to CadCraft: the toolbar as it was');
   ok(await page.evaluate(() => { const c = document.querySelector('[data-canvas]').viewer.controls.mouseButtons; return c.LEFT === 0 && c.MIDDLE === 1 && c.RIGHT === 2; }), '3D viewer: its own buttons again');

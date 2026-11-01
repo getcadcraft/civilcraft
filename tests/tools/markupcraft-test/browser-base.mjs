@@ -70,7 +70,7 @@ try {
   await noRecover(page);
   ok(await page.locator('[data-tool="content"]').count() === 1, 'the toolbar has Page content');
   const fits = await page.evaluate(() => { const tb = document.querySelector('.mc-tools'); const tops = new Set([...tb.querySelectorAll(':scope > [role="group"]')].map((g) => g.offsetTop)); return { rows: tops.size, over: tb.scrollWidth - tb.clientWidth, widths: [...tb.querySelectorAll(':scope > [role="group"]')].map((g) => Math.round(g.getBoundingClientRect().width)) }; });
-  ok(fits.rows === 1 && fits.over <= 0, 'the toolbar still fits one row at 1280 px with it', fits);
+  ok(fits.rows <= 2 && fits.over <= 0, 'the toolbar fits in at most two rows at 1280 px with it (0.8: the Fill form tool made it two), no sideways scroll', fits);
   await page.setInputFiles('[data-file]', [PAGE]);
   await page.waitForFunction(() => window.markupcraft?.sheets.length === 1 && window.markupcraft.view.page, null, { timeout: 30000 });
   const box = await page.locator('[data-over]').boundingBox();

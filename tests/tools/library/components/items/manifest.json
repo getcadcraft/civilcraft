@@ -1,0 +1,112 @@
+{
+  "format": "cadcraft-component-seed",
+  "version": 1,
+  "source": "lib/process/data.js",
+  "items": [
+    {
+      "file": "methane.item.json",
+      "name": "Methane",
+      "sha256": "e329412d957ed1f18b9acc1e3e43e947ef932ae8da4019851fd9b6e5d49fa6e0"
+    },
+    {
+      "file": "ethane.item.json",
+      "name": "Ethane",
+      "sha256": "6fe98d4228a880f0ee06c8db5a9eb1964f02e36b0bfc406cb0490dc69c5c6f92"
+    },
+    {
+      "file": "propane.item.json",
+      "name": "Propane",
+      "sha256": "f0c16d6879428438ddc234b559bc1c860659b1e8b52b12faf6fd837cd6ad6ae6"
+    },
+    {
+      "file": "nbutane.item.json",
+      "name": "n-Butane",
+      "sha256": "c0c2f21c26f14607d966e69d170b175d2ca7acef4c0faacaedc1adcf62e8d440"
+    },
+    {
+      "file": "npentane.item.json",
+      "name": "n-Pentane",
+      "sha256": "2b09d05b9fc9d60ad8e5e302c352de75351708130d069d0c3944f316f167b450"
+    },
+    {
+      "file": "nhexane.item.json",
+      "name": "n-Hexane",
+      "sha256": "fdaa18066001e688af3ee580305fa469107f3a8c3a45fcbd4c8b447dbbfd3e09"
+    },
+    {
+      "file": "ethylene.item.json",
+      "name": "Ethylene",
+      "sha256": "c1b4b46ea0c64eb04907346b2bd85895c8edfc500d125fd12535cc90d6ac8bf1"
+    },
+    {
+      "file": "propylene.item.json",
+      "name": "Propylene",
+      "sha256": "f3b9982ca72e691fb15df95dd0c18f535b244f75a0834509170afd4da114c316"
+    },
+    {
+      "file": "benzene.item.json",
+      "name": "Benzene",
+      "sha256": "e1af436bd2ccde477bb2f189a0b78e725b75054842353bf9212d8df1e2f0ead4"
+    },
+    {
+      "file": "toluene.item.json",
+      "name": "Toluene",
+      "sha256": "71853bf73021def0989825a0b29596b53a3d9042b9c7175acdcb5674262f3fdd"
+    },
+    {
+      "file": "water.item.json",
+      "name": "Water",
+      "sha256": "976147a87bcf3cc6616bde5de0dd56a04f314b1e04c35bf4cc8c50bacf85a806"
+    },
+    {
+      "file": "methanol.item.json",
+      "name": "Methanol",
+      "sha256": "cc1fb0f3f88325704f90630becd6acf431a59ca2b5650854dd4005484be0770d"
+    },
+    {
+      "file": "ethanol.item.json",
+      "name": "Ethanol",
+      "sha256": "8fbeb5f696304c4afc90fdc5a48d8831344290e4b57986ec2b4806f79773a0c7"
+    },
+    {
+      "file": "acetone.item.json",
+      "name": "Acetone",
+      "sha256": "aab85fa49ff0bdf69c0c81e47d523453be3ac50c6dc93519d16a4bf3c52543c1"
+    },
+    {
+      "file": "ammonia.item.json",
+      "name": "Ammonia",
+      "sha256": "9d528bcae9c1466566c27332979f4eee5e1b5a3e2aa5773951f1c3a3c09433a1"
+    },
+    {
+      "file": "nitrogen.item.json",
+      "name": "Nitrogen",
+      "sha256": "036644549ffef44a7d3de33a9121d530c982d763aa72a5ef01a47ccb48453cce"
+    },
+    {
+      "file": "oxygen.item.json",
+      "name": "Oxygen",
+      "sha256": "a64290517e1c8a47c8d6191b745f85d595c447be3888fd207e8f10b9915d152f"
+    },
+    {
+      "file": "hydrogen.item.json",
+      "name": "Hydrogen",
+      "sha256": "5154004b9cbfee0a2da2ff861726dad3d21b0f3a4c0147a9841ddf4b04a827e2"
+    },
+    {
+      "file": "co.item.json",
+      "name": "Carbon monoxide",
+      "sha256": "dbce3ffa13ab752332d45d287e654acf42e9673327e0aff18a878730c0fa12d8"
+    },
+    {
+      "file": "co2.item.json",
+      "name": "Carbon dioxide",
+      "sha256": "7cb0ceae27a76d4bb2a3e5441698f7aef0efefb247c12c1a919fb0391f746bf0"
+    },
+    {
+      "file": "h2s.item.json",
+      "name": "Hydrogen sulfide",
+      "sha256": "8f735dfbc1b0655ec80cd384fdcd545bf7e8b55bb37f3c9d1d018a474be513d0"
+    }
+  ]
+}

@@ -27,6 +27,8 @@
  *                       { type: 'point', member, dir, P, a }           N at a mm from the i end
  *                dir: 'X' 'Y' 'Z' global, 'x' 'y' 'z' the member's local axes
  *     combos:    [{ id, name, factors: [{ case, f }] }] }    results add up linearly (no second-order effects)
+ *     plates?, diaphragms?                                     0.8 SU.1056: shells (slabs, walls) and rigid floors — see
+ *                                                             plate-model.js; a model without them is exactly as before
  *
  * Local axes (the same frame DetailCraft draws members in, geom.js frame()): x from i to j; for a member that is not
  * vertical, z = the part of global Z square to x ("up"), for a vertical member z = global +X; y = z × x; then y and z are
@@ -42,6 +44,8 @@
  *   sectionOf(p, name) → { name, A, Iy, Iz, J, roll } for a section drawn in (u, v) with v = depth (DetailCraft's
  *                         profiles): Iy about u, Iz about v; an angle uses its principal axes (roll = their turn)
  */
+
+import { cleanPlates, cleanDiaphragms, cleanAreaLoad } from './plate-model.js';   // 0.8 SU.1056: slabs, walls, floors
 
 export const FORMAT = 'cadcraft-frame';
 export const VERSION = 1;
@@ -139,11 +143,16 @@ export function cleanFrame(obj) {
     supports.push(out);
   }
 
+  // 0.8 SU.1056 (plate-model.js): plates and rigid floors, only when the file has them, so a frame-only model is unchanged
+  const plates = Array.isArray(j.plates) && j.plates.length ? cleanPlates(j.plates, { nodeIds, matIds, at }, warn) : [];
+  const plateIds = plates.length ? new Set(plates.map((p) => p.id)) : null;
+  const diaphragms = Array.isArray(j.diaphragms) && j.diaphragms.length ? cleanDiaphragms(j.diaphragms, { nodeIds, at }, warn) : [];
+
   const cases = uniq(arr(j.cases, LIMITS.cases).map((c) => {
     if (!id(c?.id)) { warn('bad-case'); return null; }
     const loads = [];
     for (const l of arr(c.loads, LIMITS.loads)) {
-      const L = cleanLoad(l, nodeIds, memIds);
+      const L = cleanLoad(l, nodeIds, memIds) || cleanAreaLoad(l, plateIds);
       if (L) loads.push(L); else warn('bad-load', { case: id(c.id) });
     }
     return { id: id(c.id), name: text(c.name) || id(c.id), kind: CASE_KINDS.includes(c.kind) ? c.kind : 'other', selfWeight: fin(c.selfWeight ?? 0, -100, 100) ?? 0, loads };
@@ -158,7 +167,10 @@ export function cleanFrame(obj) {
     return out;
   }).filter(Boolean), 'combo');
 
-  return { model: { format: FORMAT, version: VERSION, name: text(j.name) || '', nodes, materials, sections, members, supports, cases, combos }, warnings };
+  const model = { format: FORMAT, version: VERSION, name: text(j.name) || '', nodes, materials, sections, members, supports, cases, combos };
+  if (plates.length) model.plates = plates;
+  if (diaphragms.length) model.diaphragms = diaphragms;
+  return { model, warnings };
 }
 
 /** The drawn shape a design check reads (0.7 SU.878): an I-shape's d, bf, tw, tf, r in mm, or null. */

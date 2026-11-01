@@ -91,6 +91,7 @@ export function readHeads(list) {
     if (!h || typeof h !== 'object' || !/^[a-z0-9-]{1,40}$/.test(h.key)) { notes.push('shape'); continue; }
     const src = h.source && typeof h.source === 'object' ? h.source : { kind: 'own' };
     if (src.kind === 'maker' && !(typeof src.grant === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(src.grant) && src.maker && src.licence)) { notes.push('no-grant'); continue; }   // no grant, no row
+    if (src.kind === 'open' && !(typeof src.basis === 'string' && src.basis && typeof src.licence === 'string' && src.licence)) { notes.push('no-source'); continue; }   // an open row names its basis and licence
     const p = h.pressure || {};
     const pressure = { min: fin(p.min) && p.min > 0 ? p.min : 100, nominal: fin(p.nominal) && p.nominal > 0 ? p.nominal : 200, max: fin(p.max) && p.max > 0 ? p.max : 400 };
     if (!(pressure.min <= pressure.nominal && pressure.nominal <= pressure.max)) { notes.push('pressure'); continue; }
@@ -99,11 +100,37 @@ export function readHeads(list) {
     if (!radius || (!flow && !pr)) { notes.push('size'); continue; }
     out.push({ key: h.key, kind: ['spray', 'rotary', 'rotor', 'bubbler', 'microspray', 'emitter'].includes(h.kind) ? h.kind : 'spray', name: str(h.name) || h.key, radius, ...(flow ? { flow } : {}), ...(pr ? { pr } : {}), pressure,
       arcs: Array.isArray(h.arcs) ? h.arcs.filter((a) => fin(a) && a > 0 && a <= 360).slice(0, 12) : [360], adjustable: h.adjustable === true,
-      source: src.kind === 'maker' ? { kind: 'maker', maker: str(src.maker), grant: src.grant, licence: str(src.licence, 40), url: str(src.url, 300), attribution: str(src.attribution, 300) } : { kind: 'own', note: str(src.note, 200) } });
+      ...(src.kind === 'open' && fin(h.nozzleMm) && h.nozzleMm > 0 && h.nozzleMm < 100 ? { nozzleMm: h.nozzleMm } : {}),
+      source: src.kind === 'maker' ? { kind: 'maker', maker: str(src.maker), grant: src.grant, licence: str(src.licence, 40), url: str(src.url, 300), attribution: str(src.attribution, 300) }
+        // i18n-ignore-start: file data label
+        : src.kind === 'open' ? { kind: 'open', basis: str(src.basis, 600), licence: str(src.licence, 40), holder: str(src.holder, 80), label: 'typical values', refs: (Array.isArray(src.refs) ? src.refs : []).slice(0, 6).map((x) => str(x, 200)) }
+        // i18n-ignore-end
+        : { kind: 'own', note: str(src.note, 200) } });
   }
   return { heads: out, notes };
 }
 export const catalogOf = (irr) => new Map([...GENERIC_HEADS, ...(irr?.catalog || [])].map((h) => [h.key, h]));
+
+/** 0.8 LD.10: the typical heads (lib/landscape/heads-typical.json, open sources only, every row labelled "typical values"). The Library data the workspace
+ *  reads; loaded by the page (`loadTypicalHeads`), kept apart from GENERIC_HEADS. A project that uses one copies the row into its own catalog
+ *  (`adoptTypical`), so a saved file never depends on this list being loaded. */
+const TYPICAL = new Map();
+export function loadTypicalHeads(file) {
+  if (!file || typeof file !== 'object' || file.format !== 'cadcraft-irrigation-heads') return { heads: [], notes: ['format'] };
+  const r = readHeads(file.heads);
+  TYPICAL.clear();
+  for (const h of r.heads) if (h.source.kind === 'open') TYPICAL.set(h.key, h);
+  return { heads: [...TYPICAL.values()], notes: r.notes };
+}
+export const typicalHeads = () => [...TYPICAL.values()];
+/** Copies the typical row `key` into irr.catalog (once). Returns true when `key` is usable afterwards. */
+export function adoptTypical(irr, key) {
+  if (catalogOf(irr).has(key)) return true;
+  const h = TYPICAL.get(key);
+  if (!h) return false;
+  irr.catalog.push(h);
+  return true;
+}
 export const headRadius = (h, type) => h.radius ?? type?.radius ?? 0;
 /** A head's flow (L/min): the type's own, else from its design precipitation rate — quoted, as catalogs do, at head-to-head
  *  square spacing (spacing = radius): flow = pr × r² × arc/360 (matched precipitation: a half circle gives half the flow). */

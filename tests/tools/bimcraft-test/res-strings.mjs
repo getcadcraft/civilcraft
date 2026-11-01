@@ -232,8 +232,8 @@ export default {
   'res.fr.dir.auto': 'Across short span',
   'res.fr.dir.x': 'Along plan X',
   'res.fr.dir.y': 'Along plan Y',
-  'res.err.tji.span': 'No TJI size in the supported span table reaches this clear span. Reduce the span or use an engineered design.',
-  'res.fr.note.tji': 'Preliminary TJI size from Weyerhaeuser TJ-4000 (July 2025): 40 psf live + 10 psf dead, L/480, glue-nailed subfloor. Verify bearings, openings, loads and connections with the manufacturer or engineer.',
+  'res.err.tji.span': 'No joist size in the supported span table reaches this clear span. Reduce the span or use an engineered design.',
+  'res.fr.note.tji': "This TJI layout was made with a built-in table that is no longer included. The joists stay as they are. Load a TJI table: the manufacturer's tables are theirs and are not built in.",
   // RC.10 terrain
   'res.tool.terrain': 'Terrain',
   'res.tool.terrain.title': 'The site\'s ground: from survey points, contours, a LAS / LAZ scan, a GeoTIFF, or spot elevations',

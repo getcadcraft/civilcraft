@@ -24,6 +24,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -174,9 +175,9 @@ try {
     await E(dp, () => window.civilcraft.project.change('Rename project', (s) => { s.name = 'Renamed site'; }));
     await E(dp, () => { window.__desk.calls.length = 0; });
     await E(dp, () => window.civilcraft.command('save'));
-    await dp.waitForFunction(() => /^Saved Site\.civilcraft\.json\.$/.test(document.querySelector('[data-status]').textContent), null, { timeout: 15000 });
+    await dp.waitForFunction(() => /^Saved Site\.civilcraft\.json and Site\.ifc side by side\.$/.test(document.querySelector('[data-status]').textContent), null, { timeout: 15000 });   // 0.7.1 71.27: the pair
     const c1 = await calls();
-    ok(!c1.some((c) => c[0] === 'save') && c1.some((c) => c[0] === 'write' && c[1] === '/home/u/Site/Site.civilcraft.json'), 'Save writes that same file in place, with no dialog');
+    ok(!c1.some((c) => c[0] === 'save') && c1.some((c) => c[0] === 'write' && c[1] === '/home/u/Site/Site.civilcraft.json') && c1.some((c) => c[0] === 'write' && c[1] === '/home/u/Site/Site.ifc'), 'Save writes that same file in place, with no dialog, and its IFC beside it (0.7.1 71.27)');
     const back = await E(dp, () => JSON.parse(new TextDecoder().decode(window.__desk.files.get('/home/u/Site/Site.civilcraft.json'))).name || null);
     ok(back === 'Renamed site', 'the file on disk now holds the change (' + back + ')');
     ok(await E(dp, () => !window.civilcraft.project.dirty), 'and the project counts as saved');
@@ -304,6 +305,7 @@ try {
     await xp.click('[data-settings-open]');
     await xp.waitForSelector('dialog[data-app-settings][open]', { timeout: 10000 });
     await xp.click('[data-settings-tab="app"]');
+    await showSetting(xp, '[name="cvAssist"]');   // 0.7: one Settings section at a time
     const form = await xp.evaluate(() => { const q = (n) => document.querySelector('[name="' + n + '"]'); return { on: q('cvAssist')?.checked, edit: q('cvAssistEdit')?.checked, rows: document.querySelectorAll('[data-cv-assist-log] li').length }; });
     ok(form.on && form.edit && form.rows >= 2, 'Settings › CivilCraft › Assistants: on, select allowed, the activity lists the 2 calls (' + form.rows + ' rows)');
     await xp.uncheck('[name="cvAssist"]');

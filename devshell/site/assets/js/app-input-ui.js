@@ -20,7 +20,8 @@
  * path for every style. Keys: one listener on window in the capture phase (before the app's): the profile's keys run
  * their commands, keys the profile keeps as the app's own pass through untouched, and the app's own keys for commands the
  * profile moved are swallowed with a word on where they went. Typing in fields, dialogs, the help panel and Settings is
- * never touched; neither are Esc, Enter, Tab, Delete, Backspace, Space and the arrows.
+ * never touched; neither are Esc, Enter, Tab, Delete, Backspace, Space and the arrows — except (0.7.1) Esc and arrows the
+ * registry gives to `keep` commands (IP.rebindable: ModelCraft's cancel and axis lock), outside menus, tabs and buttons.
  * Settings › <App> › Menus, keys and mouse ([data-input-settings], printed by app-settings.inc): style cards, "Use this
  * style in every app", Customize…, Export, Import, Delete.
  * Stored: localStorage <registry STORE or '<slug>.input'> (app-input.js readState); the family for every app in
@@ -39,7 +40,9 @@ import * as IP from './app-input.js';
 const T = (k, v) => (window.ccShellT ? window.ccShellT(k, v) : k);
 const has = (k) => !!(window.ccShellT && window.ccShellT.has && window.ccShellT.has(k));
 const tx = (k) => (k && has(k) ? T(k) : String(k || ''));
-const PASS = new Set(['Escape', 'Enter', 'Tab', 'Delete', 'Backspace', 'Space', 'Shift+Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+const PASS = new Set(IP.PASS_KEYS);
+// 0.7.1: where Esc and the arrows keep their own meaning even when a registry lets a style take them (menus, tabs, buttons, lists)
+const NAV = 'button, a[href], summary, details, [role="menu"], [role="menuitem"], [role="menubar"], [role="tab"], [role="tablist"], [role="toolbar"], [role="tree"], [role="treeitem"], [role="listbox"], [role="option"], [role="slider"], [role="radiogroup"]';
 const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
 const UI06 = () => !!document.querySelector('[data-app-settings][data-shell-ui]');   // 0.6 layout tools (DF.27)
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* this tab keeps it */ } } };
@@ -75,8 +78,9 @@ function mount(cfg, reg) {
   const COMMANDS = reg.COMMANDS, STYLES = reg.STYLES, GROUPS = reg.GROUPS || [...new Set(COMMANDS.map((c) => c.group))];
   const OWN = reg.STYLE_ORDER[0];
   const STORE = typeof reg.STORE === 'string' ? reg.STORE : cfg.app + '.input';
-  const OPTS = { macros: !!reg.MACROS };
+  const OPTS = { macros: !!reg.MACROS, menu: !!reg.MOUSE_MENU };
   const byId = new Map(COMMANDS.map((c) => [c.id, c]));
+  const OWNPASS = IP.rebindable(COMMANDS);   // 0.7.1: the pass-through keys this app lets a style take (ModelCraft's Esc and arrows)
   const H = typeof reg.hooks === 'function' ? (reg.hooks({ root, t: T }) || {}) : {};
   const appHooks = () => window.ccInputHooks || {};
   const status = (text, bad) => { const f = appHooks().status; if (f) f(text, bad); else if (window.ccShellScreen && text) window.ccShellScreen.say(text); };
@@ -428,10 +432,14 @@ function mount(cfg, reg) {
     if (e.target === cmdInput || (inField(e.target) && !(H.keysIn && H.keysIn(e.target))) || document.querySelector('dialog[open]')) return;
     const combo = IP.eventCombo(e);
     if (!combo) return;
-    if (PASS.has(combo)) { matcher.reset(); return; }
-    // a running tool keeps its own keys (the app says which: placing, walking, typed lengths …)
+    if (PASS.has(combo) && (!OWNPASS.has(combo) || e.target?.closest?.(NAV))) { matcher.reset(); return; }
+    // a running tool keeps its own keys (the app says which: placing, walking, typed lengths …), except the keys of commands
+    // made for a running tool (0.7.1 `whileBusy`: axis lock, cancel)
     const plain = !/^(Ctrl|Alt)\+/.test(combo) && !/^F\d/.test(combo);
-    if (plain && appHooks().busy && appHooks().busy()) return;
+    if (plain && appHooks().busy && appHooks().busy()) {
+      const bid = matcher.buf.length ? null : (matcher.map.get(combo) || matcher.def.get(combo));
+      if (!(bid && byId.get(bid)?.whileBusy)) return;
+    }
     if (H.keepKey && H.keepKey(combo, plain)) return;
     if (prof.commandLine && H.commandLine !== 'own' && plain && IP.isTyping(combo) && !matcher.buf.length) {
       e.preventDefault(); e.stopImmediatePropagation();
@@ -644,6 +652,13 @@ function mount(cfg, reg) {
               add.addEventListener('click', () => record(add, (seq) => { draft = IP.setKeys(draft, c.id, [...keys, seq]); rows(); checks(); }));
               kcell.append(add);
             }
+            // 0.7.1: a key every style needs a way back to (Esc, the arrows): its style's default keys back
+            const dk = (c.keep || c.essential) ? IP.defaultKeysOf(draft, STYLES, c) : [];
+            if (dk.length && dk.join('|') !== keys.map(IP.normSeq).join('|')) {
+              const back = el('button', { type: 'button', className: 'cc-in-link', 'data-input-default': c.id, title: T('shell.input.dlg.default.title', { keys: dk.map(IP.showSeq).join(', ') }) }, T('shell.input.dlg.default'));
+              back.addEventListener('click', () => { draft = IP.setKeys(draft, c.id, dk); rows(); checks(); });
+              kcell.append(' ', back);
+            }
           }
           let pcell = el('td', {}, el('span', { className: 'cc-in-sub' }, draft.layout === 'toolbar' ? T('shell.input.dlg.toolbar') : '—'));
           if (draft.layout !== 'toolbar' && !c.keyOnly) {
@@ -664,7 +679,10 @@ function mount(cfg, reg) {
         ...cs.slice(0, 6).map((c) => el('p', { className: 'cc-in-bad' }, el('i', { className: 'bi bi-exclamation-triangle', 'aria-hidden': 'true' }), ' ',
           c.kind === 'prefix' ? T('shell.input.dlg.prefix', { keys: IP.showSeq(c.seq), longer: IP.showSeq(c.longer) })
             : T('shell.input.dlg.clash', { keys: IP.showSeq(c.seq), cmds: c.ids.map(lab).join(', ') }))),
-        un.length ? el('p', { className: 'cc-in-sub' }, T('shell.input.dlg.unplaced', { n: un.length, cmds: un.slice(0, 5).map(label).join(', ') })) : null);
+        un.length ? el('p', { className: 'cc-in-sub' }, T('shell.input.dlg.unplaced', { n: un.length, cmds: un.slice(0, 5).map(label).join(', ') })) : null,
+        // 0.7.1: no key left for cancel (Esc): its default still works only while no other command takes it
+        ...IP.missingEssential(draft, COMMANDS).map((id) => el('p', { className: 'cc-in-bad', 'data-input-essential': id }, el('i', { className: 'bi bi-exclamation-triangle', 'aria-hidden': 'true' }), ' ',
+          T('shell.input.dlg.essential', { cmd: label(id), keys: (byId.get(id).defKeys || []).map(IP.showSeq).join(', ') }))));
       saveBtn.disabled = cs.length > 0;
     }
     // keys are recorded by pressing them: one combination, or two in a row for a sequence ("W" then "A")
@@ -682,7 +700,7 @@ function mount(cfg, reg) {
         if (e.key === 'Escape' && !got.length) { finish(false); return; }
         const c = IP.eventCombo(e);
         if (!c) return;
-        if (PASS.has(c) && c !== 'Delete' && c !== 'Backspace' && !got.length && c !== 'Space') { finish(false); return; }
+        if (PASS.has(c) && c !== 'Delete' && c !== 'Backspace' && !got.length && c !== 'Space' && !OWNPASS.has(c)) { finish(false); return; }
         got.push(c);
         btn.textContent = got.map(IP.showSeq).join(' ') + '…';
         clearTimeout(recording);
@@ -708,7 +726,8 @@ function mount(cfg, reg) {
     });
     const ownBtns = el('input', { type: 'checkbox', checked: !mo().orbit3d });
     const sel3 = IP.BUTTONS.map((b) => {
-      const s = el('select', { className: 'select-cc', 'aria-label': T('shell.input.mouse.3d.of', { button: T('shell.input.mouse.' + b) }) }, IP.ACTIONS_3D.map((a) => el('option', { value: a }, T('shell.input.mouse.act.' + a))));
+      const acts = OPTS.menu && b !== 'left' ? [...IP.ACTIONS_3D, IP.MENU_ACTION] : IP.ACTIONS_3D;   // 0.7.1: the context menu, where the app has one
+      const s = el('select', { className: 'select-cc', 'aria-label': T('shell.input.mouse.3d.of', { button: T('shell.input.mouse.' + b) }) }, acts.map((a) => el('option', { value: a }, T('shell.input.mouse.act.' + a))));
       s.value = (mo().orbit3d || IP.MOUSE_DEFAULT.orbit3d)[b];
       s.disabled = !mo().orbit3d;
       s.addEventListener('change', () => { draft.mouse = { ...mo(), orbit3d: { ...(mo().orbit3d || IP.MOUSE_DEFAULT.orbit3d), [b]: s.value } }; });

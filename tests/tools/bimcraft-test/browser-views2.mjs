@@ -15,6 +15,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -211,6 +212,41 @@ try {
     await page.click(`[data-sh-add="rcp:${L[0].guid}"]`);
     await page.waitForSelector('[data-sh-view="0"]');
     ok(/ceiling plan/.test(await page.textContent('[data-sh-stage]')), 'the ceiling plan placed on the sheet with its title');
+    await page.click(`[data-sh-add="plan:${L[0].guid}"]`);
+    await page.waitForSelector('[data-sh-view="1"]');
+    await page.click('[data-sh-arrange]');
+    await page.waitForFunction(() => /Arranged 2 views at /.test(document.querySelector('[data-status]')?.textContent || ''), null, { timeout: 8000 });
+    const arr = await page.$$eval('[data-sh-view]', (r) => r.map((x) => [Number(x.getAttribute('x')), Number(x.getAttribute('y')), Number(x.getAttribute('width')), Number(x.getAttribute('height'))]));
+    const clash = arr.some((p, i) => arr.some((q, k) => i !== k && p[0] < q[0] + q[2] && q[0] < p[0] + p[2] && p[1] < q[1] + q[3] && q[1] < p[1] + p[3]));
+    ok(arr.length === 2 && !clash, 'Arrange for me: the two views are laid out side by side without overlapping', JSON.stringify(arr));
+    await shot(page, 'b-04-arranged');
+    // EG.56 (decided 2026-10-29): the keynote legend — numbered from classifications and layers, edited as text, words from the person's own keynote file
+    await page.click('[data-sh-keynotes]');
+    ok(/no classifications or layers/.test(await page.textContent('[data-status]')), 'Keynotes: a model with nothing to number says so');
+    await page.evaluate(() => { window.bimcraftLegendSource = () => [{ kind: 'layer', key: 'A-WALL', count: 4 }, { kind: 'classification', key: 'Uniclass Ss_25', text: 'Wall systems', count: 2 }]; });
+    await page.click('[data-sh-keynotes]');
+    await page.waitForSelector('[data-sh-legend]:not([hidden])');
+    ok((await page.inputValue('[data-sh-legend]')).split('\n').length === 2 && /Wall systems/.test(await page.inputValue('[data-sh-legend]')), 'Keynotes: a numbered line for each classification and layer, editable');
+    ok(/Keynotes/.test(await page.textContent('[data-sh-stage]')) && /A-WALL/.test(await page.textContent('[data-sh-stage]')), 'the legend is drawn on the sheet');
+    await page.fill('[data-sh-legend]', '1\tMy wall note\n2\tA-WALL');
+    ok(/My wall note/.test(await page.textContent('[data-sh-stage]')), 'editing a line changes the sheet');
+    const kf = path.join(os.tmpdir(), 'keynotes-test.csv'); fs.writeFileSync(kf, 'number,text\nA-WALL,Brick wall\n');
+    await page.setInputFiles('[data-sh-keyfile]', kf);
+    await page.waitForFunction(() => /Brick wall/.test(document.querySelector('[data-sh-stage]')?.textContent || ''), null, { timeout: 8000 });
+    ok(true, 'a keynote file gives the matching layer its words');
+    await page.click('[data-sh-arrange]');
+    const arr2 = await page.$$eval('[data-sh-view]', (r) => r.map((x) => Number(x.getAttribute('x')) + Number(x.getAttribute('width'))));
+    ok(arr2.length === 2, 'Arrange keeps the views out of the legend column', JSON.stringify(arr2));
+    await page.click('[data-sh-keynotes]');
+    ok(await page.isHidden('[data-sh-legend]'), 'a second click takes the legend off');
+    await page.click('[data-sh-keynotes]');   // on again, then saved in the IFC and read back when the sheet is reopened
+    await page.waitForSelector('[data-sh-legend]:not([hidden])');
+    await page.click('[data-sh-save]');
+    await page.waitForSelector('[data-pb-sheet]', { timeout: 8000 });
+    await page.click('[data-pb-sheet]');
+    await page.waitForSelector('[data-sh-dialog][open]');
+    await page.waitForTimeout(600);
+    ok(/Wall systems/.test(await page.inputValue('[data-sh-legend]')) && /Brick wall/.test(await page.inputValue('[data-sh-legend]')), 'the legend is saved with the sheet in the IFC and comes back when it is reopened');
     await shot(page, 'b-03-sheet');
     await page.click('[data-sh-dialog] button[value="cancel"]');
   }

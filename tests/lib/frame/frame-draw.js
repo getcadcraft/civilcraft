@@ -12,8 +12,11 @@
  *     toward −z, Mz toward −y), along z for N, Vz and T, along y for Vy; filled, coloured by size (RAMP), outlined, and
  *     each member's largest value labelled at its place.
  *   RAMP(t) → [r, g, b]: blue (small) → green → ochre → red (the largest)
+ *   Plates (0.8 SU.1056, plate-draw.js): modes plateMx / plateMy / plateMxy / plateW colour each plate by its corner values (labels carry `text`);
+ *     'deflected' also moves the plates' outlines. A model with no plates draws exactly as before.
  */
 import { diagram } from './frame-solve.js';
+import { plateGeometry, plateEdgesDeflected, PLATE_MODES } from './plate-draw.js';
 
 const STOPS = [[0.12, 0.28, 0.78], [0.09, 0.44, 0.23], [0.54, 0.38, 0], [0.70, 0.07, 0.18]];
 export function RAMP(t) {
@@ -26,6 +29,7 @@ export function resultGeometry(sol, key, { mode = 'deflected', scale = 0, n = 16
   const out = { mode, max: 0, scale: 0, lines: [], lineColors: [], tris: [], triColors: [], labels: [] };
   const R = sol?.results?.[key];
   if (!R || mode === 'off') return out;
+  if (PLATE_MODES.includes(mode)) { const g = plateGeometry(sol, key, mode, RAMP); return { ...out, ...g, mode }; }
   const prep = sol.prep;
   const diags = prep.mem.map((_, k) => diagram(prep, R, k, n));
   let lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
@@ -35,6 +39,8 @@ export function resultGeometry(sol, key, { mode = 'deflected', scale = 0, n = 16
   if (mode === 'deflected') {
     let umax = 0;
     for (const d of diags) for (let k = 0; k < d.x.length; k++) umax = Math.max(umax, Math.hypot(d.dx[k], d.dy[k], d.dz[k]));
+    const plated = !!prep.shell?.pl?.length;
+    if (plated) for (let k = 0; k < prep.P.length; k++) umax = Math.max(umax, Math.hypot(R.u[6 * k], R.u[6 * k + 1], R.u[6 * k + 2]));
     const s = scale > 0 ? scale : umax > 0 ? 0.015 * size / umax : 1;
     prep.mem.forEach((e, k) => {
       const d = diags[k], o = prep.P[e.i], { ex, ey, ez } = e.ax;
@@ -44,6 +50,7 @@ export function resultGeometry(sol, key, { mode = 'deflected', scale = 0, n = 16
         out.lineColors.push(...DEFL);
       }
     });
+    if (plated) { const e = plateEdgesDeflected(sol, key, s, DEFL); out.lines.push(...e.lines); out.lineColors.push(...e.lineColors); }
     out.max = umax; out.scale = s;
     return out;
   }

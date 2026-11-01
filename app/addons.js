@@ -32,6 +32,10 @@
  *   entry        "./main.js" — inside the folder (no "..", no URL)
  *   permissions  ["commands", "objects", …] — shown in Settings (JS add-ons have the page's access; reviewed + signed)
  *   description, author, homepage, lang ("./lang/"), help ("./help/help.js") — optional
+ *   kind         "lang" = a language add-on: no entry, no code; only langFor (docs/guides/addons/language-files.md)
+ *   langFor      [{addon: "<id>", lang: "./pid/"}] — language files laid over ANOTHER add-on's strings (adds a language, fixes
+ *                words): only keys that add-on's en.json has, with the same {fills}. Any add-on may carry it; kind "lang" must.
+ *                An add-on's strings = its own lang/, then the published pack layer (ccLangPacks), then these (loadStrings).
  *   default      "on" (the default) or "off": a BUNDLED add-on that starts off until the person switches it on (0.5,
  *                api.default-off; Apparel). Ignored for installed packages: installing one is already the person's choice.
  * The entry exports activate(api) (sync or async; may return a deactivate function) and optionally deactivate(api).
@@ -57,13 +61,16 @@
  *   api.onDeactivate(fn)   cleanup to run when it is switched off
  *   api.log(...)           console.info with the add-on's id
  *   api.help(topics)       add compiled help topics to the help panel (done for you when addon.json has "help")
+ *   api.renderEngines.register(def) / .remove(id)   (1.4, 0.8 RE.7, needs engine.run) a render engine; see ADDONS-SPEC § 16
+ *   api.ui.panelTab · api.rules · api.model   (1.4, 0.8 REG.1 step 4) the host APIs every app shares — see sharedApi below and hostApi()
  */
 
 export const LOADER_VERSION = 1;
+const NO_LICENSE = Object.freeze({ ready: Promise.resolve({ ok: false, reason: 'none' }), active: () => false, has: () => false, state: () => ({ ok: false, reason: 'none', expires: null, days_left: 0, major: null, source: null }) });
 export const ACTIVATE_TIMEOUT = 10000;
 export const ID_RE = /^[a-z][a-z0-9.-]{1,63}$/;
 export const SEMVER_RE = /^(\d{1,4})\.(\d{1,4})\.(\d{1,6})(?:-[0-9A-Za-z.-]{1,40})?$/;
-export const PERM_RE = /^[a-z][a-z0-9-]{0,31}$/;
+export const PERM_RE = /^[a-z][a-z0-9.-]{0,31}$/;   // a dot is allowed for the dotted names (engine.run, 0.8 RE.7)
 const SPDX_RE = /^[A-Za-z0-9.+-]{2,40}(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]{2,40})*$/;
 
 const g = globalThis;
@@ -114,8 +121,25 @@ export function checkManifest(raw, { app, apiVersion }) {
   m.api = String(raw.api);
   if (typeof raw.license !== 'string' || !SPDX_RE.test(raw.license)) return bad('manifest', 'license');
   m.license = raw.license;
-  if (typeof raw.entry !== 'string' || !/^(\.\/)?[A-Za-z0-9_][A-Za-z0-9_./-]*\.m?js$/.test(raw.entry) || raw.entry.includes('..') || raw.entry.includes('//')) return bad('manifest', 'entry');
-  m.entry = raw.entry.replace(/^\.\//, '');
+  // A language add-on (kind "lang", docs/guides/addons/language-files.md) carries no code: no entry, only lang files for others (langFor).
+  if (raw.kind !== undefined && raw.kind !== 'lang') return bad('manifest', 'kind');
+  if (raw.kind === 'lang') {
+    if (raw.entry !== undefined) return bad('manifest', 'entry');
+    m.kind = 'lang';
+  } else {
+    if (typeof raw.entry !== 'string' || !/^(\.\/)?[A-Za-z0-9_][A-Za-z0-9_./-]*\.m?js$/.test(raw.entry) || raw.entry.includes('..') || raw.entry.includes('//')) return bad('manifest', 'entry');
+    m.entry = raw.entry.replace(/^\.\//, '');
+  }
+  // langFor: [{addon: "<id>", lang: "./pid/"}] — language files this add-on lays over ANOTHER add-on's strings (adds a language, fixes words).
+  if (raw.langFor !== undefined) {
+    const lf = raw.langFor;
+    if (!Array.isArray(lf) || !lf.length || lf.length > 50) return bad('manifest', 'langFor');
+    m.langFor = [];
+    for (const x of lf) {
+      if (!x || typeof x !== 'object' || typeof x.addon !== 'string' || !ID_RE.test(x.addon) || typeof x.lang !== 'string' || x.lang.includes('..') || /^[a-z]+:|^\//i.test(x.lang)) return bad('manifest', 'langFor');
+      m.langFor.push({ addon: x.addon, lang: x.lang.replace(/^\.\//, '') });
+    }
+  } else if (m.kind === 'lang') return bad('manifest', 'langFor');
   const perms = raw.permissions === undefined ? [] : raw.permissions;
   if (!Array.isArray(perms) || perms.length > 20 || !perms.every((p) => typeof p === 'string' && PERM_RE.test(p))) return bad('manifest', 'permissions');
   m.permissions = [...new Set(perms)];
@@ -133,6 +157,20 @@ export function checkManifest(raw, { app, apiVersion }) {
     if (raw[k] === undefined) continue;
     if (typeof raw[k] !== 'string' || raw[k].includes('..') || /^[a-z]+:|^\//i.test(raw[k])) return bad('manifest', k);
     m[k] = raw[k].replace(/^\.\//, '');
+  }
+  // 0.8 AL.5: what it reaches outside its own files, and what it needs. imports = { engine: ["process"], host: ["doc.js"] }; signed with the package, checked again at every import.
+  if (raw.imports !== undefined) {
+    const im = raw.imports;
+    if (!im || typeof im !== 'object' || Array.isArray(im)) return bad('manifest', 'imports');
+    const out = {};
+    if (im.engine !== undefined) { if (!Array.isArray(im.engine) || im.engine.length > 50 || !im.engine.every((x) => typeof x === 'string' && /^[a-z][a-z0-9-]{0,40}$/.test(x))) return bad('manifest', 'imports'); out.engine = [...new Set(im.engine)]; }
+    if (im.host !== undefined) { if (!Array.isArray(im.host) || im.host.length > 200 || !im.host.every((x) => typeof x === 'string' && cleanSub(x))) return bad('manifest', 'imports'); out.host = [...new Set(im.host)]; }
+    m.imports = out;
+  }
+  if (raw.needs !== undefined) {
+    if (!Array.isArray(raw.needs) || raw.needs.length > 30) return bad('manifest', 'needs');
+    m.needs = raw.needs.map((x) => (typeof x === 'string' ? { id: x, range: '*' } : x && typeof x.id === 'string' ? { id: x.id, range: typeof x.range === 'string' ? x.range : '*' } : null));
+    if (m.needs.includes(null)) return bad('manifest', 'needs');
   }
   // Fit for this app, last: a well-formed add-on for another app or API is "not for this app", not "broken".
   if (!m.apps.includes(app)) return { ok: false, reason: 'app', detail: m.apps.join(', '), manifest: m };
@@ -178,7 +216,12 @@ export function packageStore(factory = g.indexedDB) {
 
 // ------------------------------------------------------------------ module linking for installed packages
 
-const IMPORT_RE = /(\bimport\s*\(\s*|\bimport\s+(?:[\w*{}\s,]+\s+from\s+)?|\bexport\s+(?:[\w*{}\s,]+\s+)?from\s+)(['"])(\.{1,2}\/[^'"\n]+)\2/g;
+const IMPORT_RE = /(\bimport\s*\(\s*|\bimport\s+(?:[\w*{}\s,]+\s+from\s+)?|\bexport\s+(?:[\w*{}\s,]+\s+)?from\s+)(['"])((?:\.{1,2}\/|(?:engine|host):)[^'"\n]+)\2/g;
+/** 0.8 AL.5: the two ways a package reaches outside its own files. engine:<name>/<path> = a module of an engine (lib/<name>), host:<path> = a module the app itself carries. Both must be declared in the manifest's `imports`. */
+export const EXTERNAL_RE = /^(engine|host):/;
+export const ENGINE_SPEC_RE = /^engine:([a-z][a-z0-9-]{0,40})\/([A-Za-z0-9_][A-Za-z0-9_./-]{0,200})$/;
+export const HOST_SPEC_RE = /^host:([A-Za-z0-9_][A-Za-z0-9_./-]{0,200})$/;
+const cleanSub = (p) => /^[A-Za-z0-9_][A-Za-z0-9_./-]{0,200}$/.test(p) && !p.split('/').some((x) => x === '..' || x === '.' || x === '');
 
 /** Resolve "./a/../b.js" against a folder path inside a package ("lib/x.js" + "../y.js" → "y.js"). null = leaves it. */
 export function joinPath(fromFile, rel) {
@@ -195,18 +238,26 @@ export function joinPath(fromFile, rel) {
  * must form a tree or DAG (a circle cannot be linked through blob: URLs) → {urls: {path: url}, revoke()} or throws.
  * @param {Object<string, Blob|string|ArrayBuffer|Uint8Array>} files  path inside the package → contents
  */
-export async function linkPackage(files, { createURL = (b) => URL.createObjectURL(b), revokeURL = (u) => URL.revokeObjectURL(u) } = {}) {
+export async function linkPackage(files, { createURL = (b) => URL.createObjectURL(b), revokeURL = (u) => URL.revokeObjectURL(u), external = null } = {}) {
   const isJs = (p) => /\.m?js$/.test(p);
   const text = {};
   for (const [p, v] of Object.entries(files)) if (isJs(p)) text[p] = typeof v === 'string' ? v : await new Blob([v]).text();
   const deps = {};
+  const ext = new Map();   // engine:/host: specifiers found → URL (resolved by `external`, which also enforces what the manifest declared)
   for (const [p, src] of Object.entries(text)) {
     deps[p] = [];
     for (const m of src.matchAll(IMPORT_RE)) {
+      if (EXTERNAL_RE.test(m[3])) { ext.set(m[3], null); continue; }
       const target = joinPath(p, m[3]);
       if (target === null || !(target in files)) throw Object.assign(new Error(p + ' imports ' + m[3] + ', which is not in the add-on'), { code: 'link' });
       deps[p].push(target);
     }
+  }
+  for (const spec of ext.keys()) {
+    if (typeof external !== 'function') throw Object.assign(new Error('imports ' + spec + ', which a package may not do here'), { code: 'link' });
+    const u = await external(spec);
+    if (!u) throw Object.assign(new Error('imports ' + spec + ', which is not available'), { code: 'link' });
+    ext.set(spec, u);
   }
   const urls = {}, state = {};
   const made = [];
@@ -216,7 +267,7 @@ export async function linkPackage(files, { createURL = (b) => URL.createObjectUR
     state[p] = 1;
     for (const d of deps[p] || []) if (isJs(d)) visit(d, [...stack, p]);
     let src = text[p];
-    src = src.replace(IMPORT_RE, (all, head, q, rel) => head + q + urls[joinPath(p, rel)] + q);
+    src = src.replace(IMPORT_RE, (all, head, q, rel) => head + q + (EXTERNAL_RE.test(rel) ? ext.get(rel) : urls[joinPath(p, rel)]) + q);
     urls[p] = createURL(new Blob([src], { type: 'text/javascript' }));
     made.push(urls[p]);
     state[p] = 2;
@@ -236,6 +287,12 @@ export async function linkPackage(files, { createURL = (b) => URL.createObjectUR
 function fillText(text, vars) {
   return String(text).replace(/\{\{|\}\}|\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (m, k) => (m === '{{' ? '{' : m === '}}' ? '}' : vars && vars[k] !== undefined && vars[k] !== null ? String(vars[k]) : m));
 }
+/** Two values (text or plural object) carry the same {fills}. */
+function sameFills(a, b) {
+  const f = (v) => [...new Set((typeof v === 'string' ? [v] : Object.values(v)).join('\u0000').match(/\{[A-Za-z_][A-Za-z0-9_]*\}/g) || [])].sort().join();
+  return f(a) === f(b);
+}
+
 function makeT(strings, locale) {
   let pr = null;
   return (key, vars = {}) => {
@@ -273,10 +330,15 @@ export class AddonLoader {
     this.appName = o.appName || this.app;
     this.apiVersion = String(o.apiVersion);
     this.makeApi = o.makeApi || ((base) => base);
+    this.licenseFor = typeof o.licenseFor === 'function' ? o.licenseFor : (typeof g.ccAddonLicense === 'function' ? (id) => g.ccAddonLicense(id) : null);   // api.license (0.8 AL.15): app-addon-license.js
     this.base = String(o.base || new URL('./addons/', import.meta.url));
     if (!this.base.endsWith('/')) this.base += '/';
     this.packages = o.packages || packageStore();
     this.storage = o.storage !== undefined ? o.storage : (() => { try { return g.localStorage || null; } catch { return null; } })();
+    this.hostBase = String(o.hostBase || new URL('../', this.base));   // where the app's own modules (host:) and its bundled engines (engine:) live: the build folder
+    if (!this.hostBase.endsWith('/')) this.hostBase += '/';
+    this.engineResolver = typeof o.engineResolver === 'function' ? o.engineResolver : null;   // (name, range) → {version, files} | null: a downloaded engine package (AL.5); null = use the app's own copy
+    this.engineLinks = new Map();   // 'name@version' → linked engine files, one copy per page however many add-ons use it
     this.importer = o.importer || ((u) => import(/* @vite-ignore */ u));
     this.fetchJson = o.fetchJson || (async (u) => { try { const r = await fetch(u, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } });
     this.locale = o.locale || (typeof window !== 'undefined' && window.ccShellT && window.ccShellT.locale && window.ccShellT.locale()) || 'en';
@@ -368,14 +430,45 @@ export class AddonLoader {
     return new URL(clean, e.root).href;
   }
 
+  /**
+   * An add-on's strings, later sources winning (docs/LANG-PACKS.md § Add-ons):
+   *   1. its own lang/ folder (en, its language, the exact locale)
+   *   2. the published language pack layer addon.<id> (globalThis.ccLangPacks, app-lang-packs.js): translations made after the add-on
+   *      shipped, taken only where the add-on's own English hashes the same as the English they were made from
+   *   3. language add-ons (kind "lang" or any add-on with langFor naming this id) that are switched on, in load order: only keys this
+   *      add-on's en.json has, with the same {fills}
+   */
   async loadStrings(e) {
-    if (!e.manifest.lang) return {};
-    const want = [...new Set([this.locale, this.locale.split('-')[0], 'en'])];
-    const out = {};
-    for (const l of want.reverse()) {
+    const want = [...new Set([this.locale, this.locale.split('-')[0], 'en'])].reverse();
+    const out = {}, en = {};
+    const take = (j, into, onlyKeys) => {
+      if (!j || typeof j !== 'object') return;
+      for (const [k, v] of Object.entries(j)) {
+        if (k[0] === '@' || !(typeof v === 'string' || (v && typeof v === 'object' && typeof v.other === 'string'))) continue;
+        if (onlyKeys && (!(k in en) || !sameFills(en[k], v))) continue;
+        into[k] = v;
+      }
+    };
+    if (e.manifest.lang) for (const l of want) {
       const u = this.urlOf(e, e.manifest.lang.replace(/\/?$/, '/') + l + '.json');
       const j = u ? await this.fetchJson(u) : null;
-      if (j && typeof j === 'object') for (const [k, v] of Object.entries(j)) if (k[0] !== '@' && (typeof v === 'string' || (v && typeof v === 'object' && typeof v.other === 'string'))) out[k] = v;
+      if (l === 'en') take(j, en);
+      take(j, out);
+    }
+    const lp = g.ccLangPacks;
+    if (this.locale !== 'en' && lp && typeof lp.addon === 'function' && Object.keys(en).length) {
+      try { Object.assign(out, await lp.addon(e.id, this.locale, en)); } catch { /* the pack is an extra */ }
+    }
+    for (const s of this.entries.values()) {
+      if (s === e || s.state === 'off' || s.state === 'refused' || s.state === 'failed' || !s.manifest || !s.manifest.langFor) continue;
+      for (const x of s.manifest.langFor) {
+        if (x.addon !== e.id) continue;
+        for (const l of want) {
+          if (l === 'en') continue;
+          const u = this.urlOf(s, x.lang.replace(/\/?$/, '/') + l + '.json');
+          take(u ? await this.fetchJson(u) : null, out, true);
+        }
+      }
     }
     return out;
   }
@@ -395,8 +488,43 @@ export class AddonLoader {
         remove(k) { try { st && st.removeItem(prefix + k); } catch { /* blocked */ } },
       },
       onDeactivate: (fn) => { if (typeof fn === 'function') e.cleanups.push(fn); },
+      license: (this.licenseFor && this.licenseFor(e.id)) || NO_LICENSE,   // a free add-on never calls it; a paid one asks has()/active() (addon-license.js)
       log: (...a) => { try { console.info('[' + e.id + ']', ...a); } catch { /* no console */ } },
       help: (topics) => { try { if (typeof window !== 'undefined' && window.cadcraftHelp && window.cadcraftHelp.addTopics) window.cadcraftHelp.addTopics(e.id, topics); } catch { /* help panel */ } },
+    };
+  }
+
+  /**
+   * AL.5 / AL.8: where an `engine:<name>/<path>` or `host:<path>` import of an add-on's package goes. The manifest must declare it
+   * (imports.engine / imports.host: signed with the package). An engine is taken from a downloaded engine package when the add-on needs
+   * one and the resolver has it, otherwise from the app's own copy of lib/<name> in the build folder. → (spec) → URL, or throws.
+   */
+  externalFor(manifest) {
+    const imp = (manifest && manifest.imports) || {};
+    return async (spec) => {
+      let m = ENGINE_SPEC_RE.exec(spec);
+      if (m) {
+        const [, name, path] = m;
+        if (!cleanSub(path) || !(imp.engine || []).includes(name)) throw Object.assign(new Error(spec + ' is not declared in the add-on’s imports'), { code: 'link' });
+        const need = (manifest.needs || []).find((n) => n.id === 'engine.' + name);
+        if (need && this.engineResolver) {
+          const r = await this.engineResolver(name, need.range || '*');
+          if (r && r.files) {
+            const key = name + '@' + r.version;
+            if (!this.engineLinks.has(key)) this.engineLinks.set(key, await linkPackage(r.files));
+            const u = this.engineLinks.get(key).urls[path];
+            if (!u) throw Object.assign(new Error(spec + ' is not in the engine ' + key), { code: 'link' });
+            return u;
+          }
+        }
+        return new URL(name + '/' + path, this.hostBase).href;
+      }
+      m = HOST_SPEC_RE.exec(spec);
+      if (m) {
+        if (!cleanSub(m[1]) || !(imp.host || []).includes(m[1])) throw Object.assign(new Error(spec + ' is not declared in the add-on’s imports'), { code: 'link' });
+        return new URL(m[1], this.hostBase).href;
+      }
+      throw Object.assign(new Error(spec + ' is not a form an add-on may import'), { code: 'link' });
     };
   }
 
@@ -419,14 +547,21 @@ export class AddonLoader {
       return false;
     };
     try {
-      if (e.source === 'installed' && !e.linked) e.linked = await linkPackage(e.pkg.files || {});
+      if (e.source === 'installed' && !e.linked) e.linked = await linkPackage(e.pkg.files || {}, { external: this.externalFor(e.manifest) });
+      if (typeof g.ccAddonLicenseGate === 'function') { const why = await g.ccAddonLicenseGate(e.id); if (why) return fail('license', new Error(why)); }   // a paid item's code does not load without a live entitlement (AL.15)
+      if (e.manifest.kind === 'lang') {   // nothing to run: its files are read by loadStrings() of the add-ons it names
+        e.state = 'active'; e.reason = e.unsigned ? 'unsigned-dev' : ''; e.detail = '';
+        if ([...this.entries.values()].some((t) => t.state === 'active' && e.manifest.langFor.some((x) => x.addon === t.id))) e.reloadNeeded = true;
+        this.changed();
+        return true;
+      }
       const entryUrl = this.urlOf(e, e.manifest.entry);
       if (!entryUrl) return fail('entry', new Error(e.manifest.entry));
       e.mod = await this.importer(entryUrl);
       if (!e.mod || typeof e.mod.activate !== 'function') return fail('entry', new Error('no activate()'));
       const strings = await this.loadStrings(e);
       const base = this.baseApi(e, strings);
-      const api = this.makeApi(base, { id: e.id, manifest: e.manifest, source: e.source }) || base;
+      const api = this.makeApi(base, { id: e.id, manifest: e.manifest, source: e.source, files: e.source === 'installed' && e.pkg ? e.pkg.files : null }) || base;
       e.api = api;
       let timer;
       const r = await Promise.race([
@@ -487,7 +622,7 @@ export class AddonLoader {
     if (!r.ok) return { ok: false, reason: r.reason, detail: r.detail };
     if (!pkg.files || typeof pkg.files !== 'object' || !(r.manifest.entry in pkg.files)) return { ok: false, reason: 'entry' };
     for (const p of Object.keys(pkg.files)) if (p.includes('..') || p.startsWith('/') || /^[a-z]+:/i.test(p)) return { ok: false, reason: 'files', detail: p };
-    try { await linkPackage(pkg.files, { createURL: () => 'blob:check', revokeURL: () => {} }); } catch (e) { return { ok: false, reason: 'link', detail: e.message }; }
+    try { const ext = this.externalFor(r.manifest); await linkPackage(pkg.files, { createURL: () => 'blob:check', revokeURL: () => {}, external: async (s) => { await ext(s); return 'blob:check'; } }); } catch (e) { return { ok: false, reason: 'link', detail: e.message }; }
     await this.packages.put({ id: r.manifest.id, manifest: pkg.manifest, files: pkg.files, signature: pkg.signature || null, source: pkg.source || null, installedAt: Date.now() });
     return { ok: true, id: r.manifest.id, reloadNeeded: true };
   }
@@ -804,11 +939,13 @@ export function sharedApi(base, addon, registry) {
       track(() => { sec.remove(); refreshGrips(p); });
       return body;
     },
-    settingsSection({ id, title, render, reset } = {}) {
+    settingsSection({ id, title, render, reset, scope } = {}) {
       if (!SAFE_ID.test(String(id))) throw new Error('settingsSection: id');
       const dlg = document.querySelector('[data-app-settings]');
       if (!dlg) return null;
-      const pane = dlg.querySelector('[data-settings-pane="app"]') || dlg.querySelector('[data-settings-pane="general"]');
+      // scope 'global' (0.8 REG.1, owner 2026-10-26): a setting that holds for every app (Settings › Global); else the app's own tab
+      const general = dlg.querySelector('[data-settings-pane="general"]');
+      const pane = (scope === 'global' && general) || dlg.querySelector('[data-settings-pane="app"]') || general;
       const fs = document.createElement('fieldset');
       fs.className = 'shell-set shell-addon-set';
       fs.setAttribute('data-addon-settings', key(id));
@@ -844,7 +981,141 @@ export function sharedApi(base, addon, registry) {
       return entry;
     },
   };
-  return { ...base, ui, files };
+  // Add-on API 1.3 (0.8 P.4b, session problems-08): api.problems.source(def) puts an add-on's checks into the shell's Problems
+  // (docs/0.8-PROBLEMS-SPEC.md § 2). The store (window.ccProblems, assets/js/app-problems.js) cleans everything the add-on hands it;
+  // here the source id is made the add-on's own ("addon.<id>.<source>") and the source goes when the add-on is switched off.
+  // A build without Problems (no manifest "problems": true, every frozen release) has no ccProblems: the call returns an inert handle.
+  const problems = {
+    source(def = {}) {
+      if (!SAFE_ID.test(String(def.id))) throw new Error('problems.source: id');
+      const id = ('addon.' + addon.id + '.' + def.id).slice(0, 60);
+      let real = null, gone = false, pending = null;
+      const open = () => {
+        if (real || gone || !window.ccProblems) return;
+        real = window.ccProblems.source({ ...def, id, kind: def.kind || 'check', label: def.label || addon.manifest.name,
+          run: typeof def.run === 'function' ? (ctx) => def.run(ctx) : undefined,
+          fix: typeof def.fix === 'function' ? (p, f) => def.fix(p, f) : undefined });
+        if (pending) { const [list, opts] = pending; pending = null; real.set(list, opts); }
+      };
+      if (window.ccProblems) open(); else document.addEventListener('cc-problems-ready', () => { try { open(); } catch (err) { base.log('problems source failed', err); } }, { once: true });
+      const handle = {
+        id,
+        // before the shell module is ready the latest full result is kept and pushed once it is
+        set: (list, opts) => { if (real) return real.set(list, opts); pending = [list, opts]; return { added: [], removed: [], changed: [] }; },
+        invalidate: (keys) => { if (real) real.invalidate(keys); },
+        recheck: () => (real ? real.recheck() : Promise.resolve({ added: [], removed: [], changed: [] })),
+        clear: () => { pending = null; if (real) real.clear(); },
+        dispose: () => { gone = true; pending = null; if (real) { real.dispose(); real = null; } },
+      };
+      track(() => handle.dispose());
+      return handle;
+    },
+    /** True when this page has the Problems panel (a dev build with "problems": true). */
+    available: () => !!window.ccProblems,
+  };
+  // Add-on API 1.4 (0.8 REG.1 step 4, session regs_PART_3; rule 39: one shape for every app). The host APIs an add-on uses to see the app's
+  // model and to say which rules are in force; each app attaches its end through the object window.ccAddons carries (hostApi below):
+  //   api.ui.panelTab({ id, title, render(el) })   a tab in the app's right panel; an app without panel tabs gets a panel section instead
+  //   api.rules.provide(provider) / .changed()     one add-on at a time says which rules are in force; the app asks window.ccAddons.rules()
+  //   api.model.current() → { name } | null · .read(fn) → fn(reader)'s value · .onChange(fn) → off     the app's open document: what the
+  //                                                reader is (a Doc, a Project, a frame model) is the app's to define, by app
+  const hostState = (registry.host ||= { rules: null, rulesBy: null, rulesOn: new Set(), model: null, modelOn: new Set() });
+  const fire = (set, ...a) => { for (const fn of [...set]) { try { fn(...a); } catch (err) { base.log('listener threw', err); } } };
+  const rules = {
+    provide(provider) {
+      if (!provider || typeof provider !== 'object') throw new Error('rules.provide: (provider)');
+      hostState.rules = provider; hostState.rulesBy = addon.id;
+      fire(hostState.rulesOn, provider);
+      track(() => { if (hostState.rulesBy === addon.id) { hostState.rules = null; hostState.rulesBy = null; fire(hostState.rulesOn, null); } });
+    },
+    changed() { fire(hostState.rulesOn, hostState.rules); },
+  };
+  // An app that starts before the add-on loader (the shell boots it after the page) leaves its end on window.ccAddonModel =
+  // { current(), read(fn) } and fires 'cc-addon-model-changed' on window after each change; one that owns its loader uses hostApi().
+  const mh = () => hostState.model || (typeof window !== 'undefined' && window.ccAddonModel) || null;
+  const model = {
+    current: () => { try { return mh()?.current?.() ?? null; } catch { return null; } },
+    read(fn) {
+      if (typeof fn !== 'function') throw new Error('model.read: (fn)');
+      const h = mh();
+      if (!h?.read) throw new Error('this app has no model host');
+      return h.read(fn);
+    },
+    onChange(fn) {
+      if (typeof fn !== 'function') throw new Error('model.onChange: (fn)');
+      hostState.modelOn.add(fn);
+      const ev = (e) => { try { fn(e?.detail?.why || 'change'); } catch (err) { base.log('onChange threw', err); } };
+      if (typeof window !== 'undefined') window.addEventListener('cc-addon-model-changed', ev);
+      const off = () => { hostState.modelOn.delete(fn); if (typeof window !== 'undefined') window.removeEventListener('cc-addon-model-changed', ev); };
+      track(off);
+      return off;
+    },
+  };
+  // Add-on API 1.4, 0.8 DC.117 (session cabinetcraft_hosts): what the app's model host can DO beyond reading, each only when the host says it can (the app puts the functions on the
+  // same object as read()): model.capabilities() → ['read', 'bodies', 'rooms']; model.addBodies(group, bodies, { name, label, at }) → n · removeBodies(group, { label }) → boolean ·
+  // bodies() → [{ group, name, count }] (display bodies in the app's own model, ONE undo step each, kept in the file; an add-on touches only its own groups: the owner is this add-on's id) ·
+  // addBodies / removeBodies / rooms may return a Promise (an app that loads that code on first use): await them.
+  // model.rooms() → [{ name, poly [[x, y]…] mm, holes, z mm, area mm2, doors [{ x, y, w }], windows [{ x, y, w, sill }] }] (the rooms the user can pick: ModelCraft's selected floor face).
+  // bodies = [{ name, color '#rrggbb', prism: { pts: [[x, y]…] counter-clockwise, z0, z1 } | box: [x0, y0, z0, x1, y1, z1] | mesh: { positions, indices }, opacity?, in? (a name: bodies with
+  // the same `in` become one sub-group) }] in millimetres, in the room's axes (x, y plan, z up). PartCraft's own api.model.addBodies (API 1.1) keeps its Y-up world axes.
+  const need = (cap, fn) => { const h = mh(); if (!h || typeof h[fn] !== 'function') throw new Error('this app has no ' + cap + ' in its model host'); return h; };
+  model.capabilities = () => { const h = mh(); return h ? ['read', ...(typeof h.addBodies === 'function' ? ['bodies'] : []), ...(typeof h.rooms === 'function' ? ['rooms'] : [])] : []; };
+  model.addBodies = (group, bodies, opts = {}) => {
+    if (!/^[a-z0-9][a-z0-9-]{0,40}$/.test(String(group))) throw new Error('model.addBodies: group id (lower case letters, digits, hyphens)');
+    if (!Array.isArray(bodies)) throw new Error('model.addBodies: (group, bodies)');
+    return need('bodies', 'addBodies').addBodies(addon.id, String(group), bodies, { ...opts, owner: addon.id, ownerName: addon.manifest.name });
+  };
+  model.removeBodies = (group, opts = {}) => need('bodies', 'removeBodies').removeBodies(addon.id, String(group), { ...opts, ownerName: addon.manifest.name });
+  model.bodies = () => { const h = mh(); return h && typeof h.bodies === 'function' ? h.bodies(addon.id) : []; };
+  model.rooms = () => { const h = mh(); return h && typeof h.rooms === 'function' ? h.rooms() : []; };
+  if (!ui.panelTab) {
+    ui.panelTab = ({ id, title, render } = {}) => ui.panelSection({ id, title, side: 'right', render: (body) => { if (typeof render === 'function') render(body); } });
+  }
+  // Add-on API 1.4, 0.8 RE.7: a render engine. Needs the manifest permission "engine.run"; the script a `run` engine names is read from the add-on's own
+  // package (installed files, else its own folder), never from anywhere else. Only apps with render/ (ModelCraft, BimCraft) have the registry.
+  const bytesOf = async (path) => {
+    const f = addon.files && addon.files[path];
+    if (f) return f instanceof Uint8Array ? f : new Uint8Array(typeof f === 'string' ? new TextEncoder().encode(f) : await new Blob([f]).arrayBuffer());
+    const r = await fetch(base.url(path));
+    if (!r.ok) throw new Error('renderEngines: ' + path);
+    return new Uint8Array(await r.arrayBuffer());
+  };
+  const placeNow = () => (typeof window !== 'undefined' && window.cadcraftDesktop ? 'studio' : 'web');
+  const renderEngines = {
+    async register(def) {
+      if (!(addon.manifest.permissions || []).includes('engine.run')) throw new Error('renderEngines.register: needs the engine.run permission');
+      const [E, A] = await Promise.all([import('./render/engines.js'), import('./render/engine-addon.js')]);
+      const reg = E.sharedRegistry(placeNow());
+      const files = {};
+      if (def && def.run && typeof def.run.script === 'string') files[def.run.script] = await bytesOf(def.run.script);
+      const r = A.registerAddonEngine(reg, { id: addon.id, name: addon.manifest.name, version: addon.manifest.version, files }, def);
+      if (r && r.ok !== false) track(() => A.removeAddonEngines(reg, addon.id));
+      return r;
+    },
+    async remove(id) {
+      const E = await import('./render/engines.js');
+      const reg = E.sharedRegistry(placeNow());
+      const e = reg.get(String(id));
+      return e && e.source === 'addon' && e.addon === addon.id ? (reg.unregister(e.id), true) : false;
+    },
+  };
+  return { ...base, ui, files, problems, rules, model, renderEngines };
+}
+
+/**
+ * What an app attaches to its window.ccAddons so the host APIs above reach its model (add-on API 1.4). `registry` is the one the app
+ * made for its loader; the shell's boot (app-addons.js) and CadCraft's own loader spread this into the object they publish.
+ *   rules() → the provider the active add-on gave, or null · onRules(fn) → off
+ *   setModelHost({ current() → { name } | null, read(fn) → fn(reader), addBodies?, removeBodies?, bodies?, rooms? }) · modelChanged(why)  the app tells its add-ons the document changed
+ */
+export function hostApi(registry) {
+  const st = (registry.host ||= { rules: null, rulesBy: null, rulesOn: new Set(), model: null, modelOn: new Set() });
+  return {
+    rules: () => st.rules,
+    onRules: (fn) => { st.rulesOn.add(fn); return () => st.rulesOn.delete(fn); },
+    setModelHost: (h) => { st.model = h && typeof h === 'object' ? h : null; for (const fn of [...st.modelOn]) { try { fn('host'); } catch { /* add-on */ } } },
+    modelChanged: (why) => { for (const fn of [...st.modelOn]) { try { fn(why); } catch { /* add-on */ } } },
+  };
 }
 
 

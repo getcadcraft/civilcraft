@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ok",
+  "name": "Oklahoma: Oklahoma Uniform Building Code Commission adoption of IRC 2024",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-OK",
+    "name": "Oklahoma"
+  },
+  "base": "us-irc-2024",
+  "edition": "IRC 2024 as adopted, 2026-09-14",
+  "in_force": "2026-09-14",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2024 (Oklahoma Uniform Building Code Commission (OUBCC); OAC 748:20-6). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (res…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Oklahoma Uniform Building Code Commission (OUBCC), OAC 748:20-6",
+    "url": "https://oklahoma.gov/content/dam/ok/en/oubcc/documents/rules/2026%2009%2014%20IRC%202024%20Permanent%20Rule.pdf",
+    "date": "",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

@@ -28,6 +28,22 @@
  * sec.det = { L, R } - every point of the side with its `code` - and info.lines has a line for every code (GUTTER: FL_L …).
  * Without parts the corridor is exactly what it was.
  *
+ * Pavement courses (0.7.1 71.24, owner 2026-10-26): a part with a width (lane, shoulder, gutter, strip, walk) may carry
+ * layers: [{ name, material, t (thickness, project units), course ('surface'|'binder'|'base'|'subbase'|'capping'|'other') }],
+ * top down. They do not change the corridor's surfaces (the top is the design surface); each course lies under its part, its
+ * depth measured straight down. The section points of such a part carry `layers`; info.courses = [{ side, code, part, layers,
+ * edges: [{ sta, i (inner top point), o (outer top point) }] }] (one per part with layers), read by sections.js (layer lines),
+ * courseQuantities (area and volume per course) and the IFC export (IfcCourse).
+ *   COURSE_KINDS · MAX_LAYERS · cleanLayers(list, units) (untrusted) · defaultLayer(units) · courseQuantities(info) →
+ *   [{ side, code, part, k, name, material, course, t, area (plan, sq units), volume (cubic units), length }]
+ *
+ * Track (0.7.1 71.26, rail.js): asm.rail = { …rail settings (on), speed, minSpeed (km/h), id, name } builds a TRACK instead of the road:
+ * every section is rail.js trackShape at that station's cant (cantPlan / cantAt; the ramp ends become sections), its ballast top the
+ * design surface (codes CL, SLP…, BSH, BTOE, CESS, then DL), daylight from the cess edge at the corridor's own cut / fill. The road
+ * parts, superelevation and targets are not used. Each section carries sec.track = { E, hL, hR (mm), shape (offsets / z from the
+ * profile), p (the station's point), r (the unit vector to the right), z0 (the profile) }; info.rail = { plan, rail, units,
+ * quantities (trackQuantities), at(sta) → that station's shape in absolute z (sections.js draws it) }. sec[side] = [CL, BSH, CESS, DL].
+ *
  * Targets (0.6 WL.25): corridorPatch(…, { targets }) — each target belongs to ONE side and moves one point of that side's
  * section to a line, where the section (square to the alignment, outward from the centreline on that side only) first
  * crosses it:
@@ -47,6 +63,7 @@
 import { t } from "./i18n.js";
 import { castSlope, selfCrosses } from './grading.js';
 import { superPlan, slopesAt, keyStations as superStations } from './superelev.js';   // 0.4 V18
+import { cantPlan, cantAt, trackShape, trackQuantities } from './rail.js';   // 0.7.1 71.26: a track instead of a road
 
 export function defaultAssembly(units = 'ft') {
   return units === 'm'
@@ -79,6 +96,19 @@ export function presetParts(name, units = 'ft') {
   if (name === 'urban') return [P('lane'), P('lane'), P('gutter'), P('curb'), P('strip'), P('walk'), P('daylight')];
   return [P('lane'), P('shoulder'), P('daylight')];
 }
+/** 0.7.1 71.24: pavement courses under a part (top down). Kinds map to IFC 4.3 IfcCourse (ifc-civil.js). */
+export const COURSE_KINDS = ['surface', 'binder', 'base', 'subbase', 'capping', 'other'];
+export const MAX_LAYERS = 8;
+const clip = (v, n) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, n);
+export function cleanLayers(list, units = 'ft') {
+  if (!Array.isArray(list)) return [];
+  const max = units === 'm' ? 5 : 16;
+  return list.slice(0, MAX_LAYERS).filter((q) => q && typeof q === 'object' && typeof q.t === 'number' && Number.isFinite(q.t) && q.t > 0 && q.t <= max)
+    .map((q) => ({ name: clip(q.name, 60), material: clip(q.material, 60), t: q.t, course: COURSE_KINDS.includes(q.course) ? q.course : 'other' }));
+}
+/** A new course to edit (a placeholder thickness, not a standard). */
+export function defaultLayer(units = 'ft') { return { name: '', material: '', t: units === 'm' ? 0.1 : 0.33, course: 'base' }; }
+
 /** An untrusted list of parts (the project file): known types, finite numbers within sane limits, one daylight and it last. */
 export function cleanParts(list, units = 'ft') {
   if (!Array.isArray(list)) return null;
@@ -88,7 +118,7 @@ export function cleanParts(list, units = 'ft') {
     const d = defaultPart(q.type, units), type = q.type;
     if (type === 'daylight') { if (!out.some((x) => x.type === 'daylight')) out.push({ type, cut: num(q.cut, d.cut, 0.05, 1000) || d.cut, fill: num(q.fill, d.fill, 0.05, 1000) || d.fill }); continue; }
     if (type === 'curb') out.push({ type, h: num(q.h, d.h, 0, 5), w: num(q.w, d.w, 0, 10), drop: num(q.drop, 0, 0, 5) });
-    else out.push({ type, w: num(q.w, d.w, 0, 100), slope: num(q.slope, d.slope, -0.5, 0.5) });
+    else { const ly = cleanLayers(q.layers, units); out.push({ type, w: num(q.w, d.w, 0, 100), slope: num(q.slope, d.slope, -0.5, 0.5), ...(ly.length ? { layers: ly } : {}) }); }   // layers: 0.7.1 71.24
     if (out.length >= MAX_PARTS) break;
   }
   const di = out.findIndex((x) => x.type === 'daylight');
@@ -192,6 +222,7 @@ function walkSide(parts, c) {
     }
     t += w; z -= w * slope;
     const pt = push(q.type === 'lane' ? (i === run - 1 ? 'EOP' : code('LANE')) : code(PART_CODES[q.type]));
+    if (q.layers?.length) { pt.part = q.type; pt.layers = q.layers; }   // 0.7.1 71.24: the courses under the stretch that ends here
     if (q.type === 'lane') { prev = slope; if (i === run - 1) eop = pt; }
     if (hSE && i === lw) { z = hSE.z; pt.z = z; }
   });
@@ -217,9 +248,12 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   for (let s = Math.ceil(from / step) * step; s < to; s += step) st.add(Number(s.toFixed(6)));
   for (const k of alignment.keyStations()) if (k.sta > from && k.sta < to) st.add(k.sta);
   for (const c of profile.curves) for (const s of [c.bvc, c.evc]) if (s > from && s < to) st.add(s);
-  const custom = !!(A.parts && (A.parts.L?.length || A.parts.R?.length));   // 0.7 D7.35
+  const railOn = !!A.rail?.on;   // 0.7.1 71.26
+  const rp = railOn ? cantPlan(alignment, A.rail, { speed: A.rail.speed, minSpeed: A.rail.minSpeed, units, id: A.rail.id, name: A.rail.name }) : null;
+  if (rp) for (const s of rp.stations) if (s > from && s < to) st.add(Number(s.toFixed(6)));
+  const custom = !railOn && !!(A.parts && (A.parts.L?.length || A.parts.R?.length));   // 0.7 D7.35
   const nc = custom ? ncOf(A) : A.laneSlope;
-  const sp = A.super?.on ? superPlan(alignment, { super: A.super, nc, lane: custom ? laneRunWidth(A) : A.lane }) : null;   // 0.4 V18
+  const sp = !railOn && A.super?.on ? superPlan(alignment, { super: A.super, nc, lane: custom ? laneRunWidth(A) : A.lane }) : null;   // 0.4 V18
   if (sp) { for (const s of superStations(sp)) if (s > from && s < to) st.add(Number(s.toFixed(6))); problems.push(...sp.problems); }
   const stations = [...st].sort((a, b) => a - b).filter((s, i, a) => !i || s - a[i - 1] > 1e-6);
 
@@ -239,9 +273,23 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
     const sec = { sta };
     const sl = sp ? slopesAt(sp, sta, nc) : { L: nc, R: nc };
     if (sp) sec.slopes = sl;
+    const tk = rp ? (() => { const h = cantAt(rp, sta); return { E: h.E, hL: h.L, hR: h.R, shape: trackShape(A.rail, { hL: h.L, hR: h.R }, units), p: { x: p.x, y: p.y }, r: { x: rx, y: ry }, z0 }; })() : null;
+    if (tk) sec.track = tk;   // 0.7.1 71.26
     for (const [side, sx] of [['L', -1], ['R', 1]]) {
       const ux = rx * sx, uy = ry * sx;
       const cl = { x: p.x, y: p.y, z: z0 };
+      if (tk) {
+        // 0.7.1 71.26: the track's ballast top, then the daylight from the cess edge
+        const det = tk.shape.top[side].map((q) => ({ x: p.x + rx * q.o, y: p.y + ry * q.o, z: z0 + q.z, code: q.code }));
+        const sh = det[det.length - 1];
+        const r = castSlope(surface, sh, ux, uy, sh.z, A.cut, A.fill, { step: Math.max(0.1, step / 20), far });
+        if (r.kind === 'off') off++;
+        const dl = { x: r.x, y: r.y, z: r.z, kind: r.kind, code: 'DL' };
+        det.push(dl);
+        sec[side] = [det[0], det.find((q) => q.code === 'BSH'), sh, dl];
+        (sec.det ||= {})[side] = det;
+        continue;
+      }
       if (custom) {
         cl.code = 'CL';
         // 0.7 D7.35: the parts of this side
@@ -272,7 +320,7 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   const tgInfo = tgs.map(({ line, ...g }) => g);
   const line = (side, k) => sections.map((s) => s[side][k]);
   const lines = { CL: line('L', 0), EOP_L: line('L', 1), SH_L: line('L', 2), DL_L: line('L', 3), EOP_R: line('R', 1), SH_R: line('R', 2), DL_R: line('R', 3) };
-  if (custom) {   // 0.7 D7.35: a line for every other code (FL_L, TOC_R, WALK_L …)
+  if (custom || railOn) {   // 0.7 D7.35: a line for every other code (FL_L, TOC_R, WALK_L …; 0.7.1 71.26: SLP_L, BSH_R, BTOE_L, CESS_R …)
     for (const side of ['L', 'R']) {
       const codes = (sections[0].det?.[side] || []).map((q) => q.code).filter((cd) => cd && cd !== 'DL' && cd !== 'EOP');
       for (const cd of new Set(codes)) { const key = cd + '_' + side; if (!lines[key]) lines[key] = sections.map((s) => s.det[side].find((q) => q.code === cd)).filter(Boolean); }
@@ -292,11 +340,39 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   const breaklines = Object.entries(lines).map(([name, pts]) => ({ name, pts: pts.map((q) => ({ x: q.x, y: q.y, z: q.z })) }));
   // every section across (so the triangles follow the sections, and the ends close the corridor)
   for (const s of sections) breaklines.push({ name: 'section', pts: [...detOf(s, 'L').slice().reverse(), ...detOf(s, 'R').slice(1)].map((q) => ({ x: q.x, y: q.y, z: q.z })) });
-  return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo } };
+  // 0.7.1 71.24: each part with courses, its inner and outer top edge at every section
+  const courses = [];
+  if (custom) for (const side of ['L', 'R']) {
+    const det0 = sections[0].det?.[side] || [];
+    det0.forEach((q, k) => {
+      if (!q.layers || k === 0) return;
+      const inner = det0[k - 1].code, edges = [];
+      for (const sc of sections) { const D = sc.det?.[side] || [], o = D.find((x) => x.code === q.code), i = D.find((x) => x.code === inner); if (o && i) edges.push({ sta: sc.sta, i: { x: i.x, y: i.y, z: i.z }, o: { x: o.x, y: o.y, z: o.z } }); }
+      if (edges.length >= 2) courses.push({ side, code: q.code, part: q.part, layers: q.layers, edges });
+    });
+  }
+  // 0.7.1 71.26: the track's plan, quantities and any station's shape (absolute z) for the sections
+  const rail = rp ? { plan: rp, rail: A.rail, units, quantities: trackQuantities(sections, A.rail, units), at: (sta) => { const z0 = profile.elevationAt(sta); if (z0 === null) return null; const h = cantAt(rp, sta); return { z0, E: h.E, shape: trackShape(A.rail, { hL: h.L, hR: h.R }, units) }; } } : null;
+  return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo, courses, ...(rail ? { rail } : {}) } };
 }
 
 function cross(a, b, c, d) {
   const o = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
   const d1 = o(a, b, c), d2 = o(a, b, d), d3 = o(c, d, a), d4 = o(c, d, b);
   return ((d1 > 1e-12 && d2 < -1e-12) || (d1 < -1e-12 && d2 > 1e-12)) && ((d3 > 1e-12 && d4 < -1e-12) || (d3 < -1e-12 && d4 > 1e-12));
+}
+
+/** 0.7.1 71.24: area (plan) and volume of every course: the part's plan width between neighbouring sections, averaged × the
+ *  station step (as the sections' average end areas), × the course thickness. */
+export function courseQuantities(info) {
+  const out = [];
+  for (const c of info?.courses || []) {
+    let area = 0;
+    for (let k = 1; k < c.edges.length; k++) {
+      const a = c.edges[k - 1], b = c.edges[k], w = (e) => Math.hypot(e.o.x - e.i.x, e.o.y - e.i.y);
+      area += ((w(a) + w(b)) / 2) * (b.sta - a.sta);
+    }
+    c.layers.forEach((L, k) => out.push({ side: c.side, code: c.code, part: c.part, k, name: L.name, material: L.material, course: L.course, t: L.t, area, volume: area * L.t, length: c.edges[c.edges.length - 1].sta - c.edges[0].sta }));
+  }
+  return out;
 }

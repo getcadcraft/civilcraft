@@ -1,0 +1,3 @@
+mode,rate,unit,basis,source
+seal leak,-1,per_hour,negative,USER-1
+seal leak,1,per_week,bad unit,USER-1

@@ -1,0 +1,609 @@
+[
+ {
+  "id": "quantities",
+  "title": "Read the quantities",
+  "prompt": "What quantities are in the job, by item?",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_quantities",
+    "args": {
+     "doc": "$t.doc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 3
+   },
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "marks.length",
+    "eq": 6
+   }
+  ]
+ },
+ {
+  "id": "quantities-by-sheet",
+  "title": "Quantities by sheet",
+  "prompt": "Give me the quantities by sheet.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_quantities",
+    "args": {
+     "doc": "$t.doc",
+     "by": "sheet"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "name",
+    "eq": "Fixture job"
+   }
+  ]
+ },
+ {
+  "id": "estimate",
+  "title": "Price the job",
+  "prompt": "Price the job with materials and labor.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_estimate",
+    "args": {
+     "doc": "$t.doc"
+    },
+    "as": "e"
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Partition wall].mat",
+    "eq": 125000
+   }
+  ]
+ },
+ {
+  "id": "add-item-save",
+  "title": "Add an item and save",
+  "prompt": "Add a slab (area, SF) to the job and save a copy.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Slab",
+       "type": "area",
+       "unit": "SF",
+       "material": 5
+      }
+     ]
+    }
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "job2.takeoff.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job2.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 4
+   },
+   {
+    "file": "job2.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Slab].type",
+    "eq": "area"
+   },
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 3
+   }
+  ]
+ },
+ {
+  "id": "add-several-items",
+  "title": "Add several items at once",
+  "prompt": "Add three items: conduit (linear), junction box (count), permit (fixed).",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Conduit",
+       "type": "linear",
+       "unit": "LF"
+      },
+      {
+       "name": "Junction box",
+       "type": "count",
+       "unit": "EA"
+      },
+      {
+       "name": "Permit",
+       "type": "fixed"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "job2.takeoff.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job2.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 6
+   },
+   {
+    "file": "job2.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Junction box].type",
+    "eq": "count"
+   }
+  ]
+ },
+ {
+  "id": "catalog",
+  "title": "Block catalog of a drawing in the job",
+  "prompt": "Which blocks are in the kitchen drawing?",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json",
+   "k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json",
+     "drawings": [
+      "k.dwg"
+     ]
+    },
+    "as": "t"
+   },
+   {
+    "tool": "cad_catalog",
+    "args": {
+     "doc": "$t.doc",
+     "sheet": "Model"
+    },
+    "as": "c"
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "files.length",
+    "eq": 2
+   }
+  ]
+ },
+ {
+  "id": "count-blocks",
+  "title": "Count a block in a DWG",
+  "prompt": "How many TABLE-30X48 tables are on the Model sheet?",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json",
+   "k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json",
+     "drawings": [
+      "k.dwg"
+     ]
+    },
+    "as": "t"
+   },
+   {
+    "tool": "cad_count",
+    "args": {
+     "doc": "$t.doc",
+     "block": "TABLE-30X48",
+     "sheet": "Model"
+    },
+    "as": "c"
+   }
+  ],
+  "check": [
+   {
+    "file": "k.dwg",
+    "kind": "cad",
+    "path": "objects",
+    "eq": 254
+   }
+  ]
+ },
+ {
+  "id": "count-into-takeoff",
+  "title": "Count a block into an item",
+  "prompt": "Count TABLE-30X48 into a new item 'Prep tables' and save.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json",
+   "k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json",
+     "drawings": [
+      "k.dwg"
+     ]
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Prep tables",
+       "type": "count",
+       "unit": "EA"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "cad_count_add",
+    "args": {
+     "doc": "$t.doc",
+     "block": "TABLE-30X48",
+     "sheet": "Model",
+     "item": "Prep tables"
+    }
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "counted.takeoff.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "counted.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Prep tables].type",
+    "eq": "count"
+   },
+   {
+    "file": "counted.takeoff.json",
+    "kind": "json",
+    "path": "marks.length",
+    "gte": 7
+   }
+  ]
+ },
+ {
+  "id": "measure-into-takeoff",
+  "title": "Measure a layer into an item",
+  "prompt": "Measure the A-WALL layer into an item 'Walls' and save.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json",
+   "k.dwg": "fixtures/dwg/kitchen-equipment.dwg"
+  },
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json",
+     "drawings": [
+      "k.dwg"
+     ]
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Walls",
+       "type": "linear",
+       "unit": "LF"
+      }
+     ]
+    }
+   },
+   {
+    "tool": "cad_measure",
+    "args": {
+     "doc": "$t.doc",
+     "sheet": "Model",
+     "item": "Walls",
+     "layers": [
+      "A-WALL"
+     ]
+    }
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "measured.takeoff.json"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "measured.takeoff.json",
+    "kind": "json",
+    "path": "marks.length",
+    "gte": 7
+   },
+   {
+    "file": "measured.takeoff.json",
+    "kind": "json",
+    "path": "items[name=Walls].type",
+    "eq": "linear"
+   }
+  ]
+ },
+ {
+  "id": "export-xlsx",
+  "title": "Export the estimate to Excel",
+  "prompt": "Export the estimate as a spreadsheet.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read",
+   "export"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_export",
+    "args": {
+     "doc": "$t.doc",
+     "out": "job.xlsx"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "job.xlsx",
+    "kind": "bytes",
+    "path": "head",
+    "matches": "^PK"
+   },
+   {
+    "file": "job.xlsx",
+    "kind": "bytes",
+    "path": "size",
+    "gte": 2000
+   }
+  ]
+ },
+ {
+  "id": "refuses-edit",
+  "title": "Edit is refused until the person allows it",
+  "prompt": "Add an item to the job (Edit is not allowed).",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "items_add",
+    "args": {
+     "doc": "$t.doc",
+     "items": [
+      {
+       "name": "Slab",
+       "type": "area"
+      }
+     ]
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 3
+   }
+  ]
+ },
+ {
+  "id": "refuses-save",
+  "title": "Save is refused until the person allows it",
+  "prompt": "Save the job (Save is not allowed).",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "job.takeoff.json"
+    },
+    "as": "t"
+   },
+   {
+    "tool": "takeoff_save",
+    "args": {
+     "doc": "$t.doc",
+     "path": "x.takeoff.json"
+    },
+    "fail": "not allowed"
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 3
+   }
+  ]
+ },
+ {
+  "id": "outside-folder-refused",
+  "title": "A file outside the granted folder is refused",
+  "prompt": "Open /etc/passwd as a takeoff.",
+  "fixtures": {
+   "job.takeoff.json": "tools/mcp/test/fixtures/job.takeoff.json"
+  },
+  "allow": [
+   "read"
+  ],
+  "steps": [
+   {
+    "tool": "takeoff_open",
+    "args": {
+     "path": "/etc/passwd"
+    },
+    "fail": "outside"
+   }
+  ],
+  "check": [
+   {
+    "file": "job.takeoff.json",
+    "kind": "json",
+    "path": "items.length",
+    "eq": 3
+   }
+  ]
+ }
+]

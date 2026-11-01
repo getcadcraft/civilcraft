@@ -1,0 +1,16 @@
+% nusselt_gnielinski — the Nusselt number of turbulent and late-transition flow in a tube
+%
+% Usage:      Nu = nusselt_gnielinski(Re, Pr, f)
+%             f is the Darcy friction factor of the same flow (friction_factor).
+% Computes:   Nu = (f/8) (Re - 1000) Pr / ( 1 + 12.7 sqrt(f/8) (Pr^(2/3) - 1) )
+% Method:     the Gnielinski correlation; it carries the roughness through f.
+% Units:      none.
+% Limits:     3000 <= Re <= 5e6 and 0.5 <= Pr <= 2000, fully developed flow. Outside them the function stops with an error.
+% References: Gnielinski, Int. Chem. Eng. 16 (1976) 359; Incropera et al., 7th ed., eq. 8.62.
+% Check:      Re 50 000, Pr 5, f 0.0209: Nu = 284.6 (tools/field-test/eng.mjs).
+function Nu = nusselt_gnielinski(Re, Pr, f)
+if Re < 3000 || Re > 5e6 || Pr < 0.5 || Pr > 2000
+  error('nusselt_gnielinski: only for Re from 3000 to 5e6 and Pr from 0.5 to 2000');
+end
+Nu = (f / 8) * (Re - 1000) * Pr / (1 + 12.7 * sqrt(f / 8) * (Pr ^ (2 / 3) - 1));
+end

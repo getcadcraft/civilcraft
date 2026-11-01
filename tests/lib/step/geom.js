@@ -154,10 +154,14 @@ export function bsplineSurface(pu, pv, P, U, Vk, W = null, closedU = false, clos
     }
     return W ? [x / w, y / w, z / w] : [x, y, z];
   };
-  // a closed direction is periodic only when its first and last rows of control points coincide
-  const rowsMeet = (a, b) => a.every((q, k) => len(sub(q, b[k])) < 1e-7 * Math.max(1, len(q)));
-  const periodU = closedU && rowsMeet(P[0], P[nu]) ? ru[1] - ru[0] : 0;
-  const periodV = closedV && rowsMeet(P.map((r) => r[0]), P.map((r) => r[nv])) ? rv[1] - rv[0] : 0;
+  // a direction is periodic when its first and last rows of control points coincide — flagged closed or not (a revolved surface
+  // written with U_CLOSED .F. still meets itself along its seam); a row whose points are all one point is a pole, not a seam
+  const same = (a, b) => len(sub(a, b)) < 1e-7 * Math.max(1, len(a));
+  const rowsMeet = (a, b) => a.every((q, k) => same(q, b[k]));
+  const collapsed = (row) => row.every((q) => same(q, row[0]));
+  const colU0 = collapsed(P[0]), colU1 = collapsed(P[nu]), colV0 = collapsed(P.map((r) => r[0])), colV1 = collapsed(P.map((r) => r[nv]));
+  const periodU = rowsMeet(P[0], P[nu]) && !colU0 ? ru[1] - ru[0] : 0;
+  const periodV = rowsMeet(P.map((r) => r[0]), P.map((r) => r[nv])) && !colV0 ? rv[1] - rv[0] : 0;
   // parameter scales from the control net (length per unit of parameter)
   let lu = 0, lv = 0;
   for (let a = 0; a < nu; a++) for (let b = 0; b <= nv; b++) lu += len(sub(P[a + 1][b], P[a][b]));
@@ -169,7 +173,11 @@ export function bsplineSurface(pu, pv, P, U, Vk, W = null, closedU = false, clos
   const samples = () => {
     if (grid) return grid;
     grid = [];
-    for (let a = 0; a <= G; a++) for (let b = 0; b <= G; b++) { const u = ru[0] + (ru[1] - ru[0]) * a / G, v = rv[0] + (rv[1] - rv[0]) * b / G; grid.push([u, v, at(u, v)]); }
+    // a collapsed row (a pole) is one point for every value along it: no use as a first guess, so it is left out
+    for (let a = 0; a <= G; a++) for (let b = 0; b <= G; b++) {
+      if ((a === 0 && colU0) || (a === G && colU1) || (b === 0 && colV0) || (b === G && colV1)) continue;
+      const u = ru[0] + (ru[1] - ru[0]) * a / G, v = rv[0] + (rv[1] - rv[0]) * b / G; grid.push([u, v, at(u, v)]);
+    }
     return grid;
   };
   const project = (q, hint) => {
@@ -184,8 +192,12 @@ export function bsplineSurface(pu, pv, P, U, Vk, W = null, closedU = false, clos
       // Gauss–Newton on |S − q|²: [Su·Su Su·Sv; Su·Sv Sv·Sv] d = −[r·Su; r·Sv]
       const a11 = dot(Su, Su), a12 = dot(Su, Sv), a22 = dot(Sv, Sv), b1 = -dot(r, Su), b2 = -dot(r, Sv);
       const det = a11 * a22 - a12 * a12;
-      if (!(Math.abs(det) > 1e-30)) break;
-      let du = (b1 * a22 - b2 * a12) / det, dv = (a11 * b2 - a12 * b1) / det;
+      let du, dv;
+      if (Math.abs(det) > 1e-12 * Math.max(1e-30, a11 * a22)) { du = (b1 * a22 - b2 * a12) / det; dv = (a11 * b2 - a12 * b1) / det; }
+      // at a pole one derivative vanishes (the row collapses to a point): step along the other direction alone
+      else if (a22 > 1e-30 && a22 >= a11) { du = 0; dv = b2 / a22; }
+      else if (a11 > 1e-30) { du = b1 / a11; dv = 0; }
+      else break;
       const nu2 = periodU ? u + du : Math.max(ru[0], Math.min(ru[1], u + du)), nv2 = periodV ? v + dv : Math.max(rv[0], Math.min(rv[1], v + dv));
       du = nu2 - u; dv = nv2 - v; u = nu2; v = nv2;
       if (Math.abs(du) < 1e-13 * ((ru[1] - ru[0]) || 1) && Math.abs(dv) < 1e-13 * ((rv[1] - rv[0]) || 1)) break;
@@ -194,8 +206,22 @@ export function bsplineSurface(pu, pv, P, U, Vk, W = null, closedU = false, clos
     if (periodV) v = rv[0] + ((((v - rv[0]) % periodV) + periodV) % periodV);
     return [u, v];
   };
-  return { kind: 'bspline', at: (u, v) => at(periodU ? ru[0] + ((((u - ru[0]) % periodU) + periodU) % periodU) : u, periodV ? rv[0] + ((((v - rv[0]) % periodV) + periodV) % periodV) : v),
-    project, periodU, periodV, scale: [su, sv], ru, rv, singular: () => null, flat: false, P };
+  const atP = (u, v) => at(periodU ? ru[0] + ((((u - ru[0]) % periodU) + periodU) % periodU) : u, periodV ? rv[0] + ((((v - rv[0]) % periodV) + periodV) % periodV) : v);
+  // poles: the points of collapsed boundary rows (a revolved profile that meets the axis). The tessellator expects a pole across
+  // v with u free along it (a sphere's convention), so a surface whose poles are rows of constant u is shown to it with u and v
+  // swapped; nothing outside this object sees the difference (it works from 3D points and project()).
+  const poles = [];
+  if (colU0) poles.push(P[0][0]); if (colU1) poles.push(P[nu][0]);
+  const polesAcrossU = (colU0 || colU1) && !(colV0 || colV1);
+  if (colV0) poles.push(P[0][0]); if (colV1) poles.push(P[0][nv]);
+  const ptol = 1e-6 * Math.max(1, ...P.flat().map((q) => len(q)));
+  const singular = poles.length ? (q) => (poles.some((p) => len(sub(p, q)) <= ptol) ? 'pole' : null) : () => null;
+  if (polesAcrossU) {
+    const PT = P[0].map((_, b) => P.map((row) => row[b]));
+    return { kind: 'bspline', at: (u, v) => atP(v, u), project: (q, hint) => { const r = project(q, hint ? [hint[1], hint[0]] : null); return [r[1], r[0]]; },
+      periodU: periodV, periodV: periodU, scale: [sv, su], ru: rv, rv: ru, singular, flat: false, P: PT, swapped: true };
+  }
+  return { kind: 'bspline', at: atP, project, periodU, periodV, scale: [su, sv], ru, rv, singular, flat: false, P };
 }
 
 // ---- elementary and swept surfaces ----------------------------------------------------------------------------------------

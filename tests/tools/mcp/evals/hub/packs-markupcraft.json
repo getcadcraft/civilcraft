@@ -1,0 +1,208 @@
+[
+ {
+  "id": "markupcraft-actions.mark-a-wall",
+  "title": "Mark a wall",
+  "pack": "markupcraft-actions",
+  "prompt": "Put a revision cloud round the wall at the top left and write: Check this wall",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   }
+  ],
+  "check": [
+   {
+    "tool": "markups_list",
+    "path": "total",
+    "eq": 1
+   },
+   {
+    "tool": "markups_list",
+    "path": "markups.0.comment",
+    "eq": "Check this wall"
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-actions.accept-with-a-note",
+  "title": "Accept it with a note",
+  "pack": "markupcraft-actions",
+  "prompt": "Accept the markup and add this note to its thread: Matches the detail.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   },
+   {
+    "tool": "markup_status",
+    "args": {
+     "id": "$m.id",
+     "status": "Accepted",
+     "comment": "Matches the detail."
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "markups_list",
+    "path": "markups.0.status",
+    "eq": "Accepted"
+   },
+   {
+    "tool": "markups_list",
+    "path": "markups.0.replies.length",
+    "gte": 1
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-actions.make-it-a-task",
+  "title": "Turn a markup into a task",
+  "pack": "markupcraft-actions",
+  "prompt": "Make the markup a task for Ana.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "markup_add",
+    "args": {
+     "type": "cloudrect",
+     "rect": [
+      0.1,
+      0.1,
+      0.4,
+      0.3
+     ],
+     "comment": "Check this wall"
+    },
+    "as": "m"
+   },
+   {
+    "tool": "task_set",
+    "args": {
+     "id": "$m.id",
+     "title": "Verify the wall",
+     "assigneeKind": "person",
+     "assignee": "Ana"
+    }
+   }
+  ],
+  "check": [
+   {
+    "tool": "tasks_list",
+    "path": "total",
+    "eq": 1
+   },
+   {
+    "tool": "tasks_list",
+    "path": "tasks",
+    "includes": "Ana"
+   }
+  ]
+ },
+ {
+  "id": "markupcraft-actions.record-a-decision",
+  "title": "Record a decision",
+  "pack": "markupcraft-actions",
+  "prompt": "Record this decision on the sheet: Use the 2x6 wall",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {
+   "files": [
+    {
+     "fixture": "fixtures/pdf/kitchen-plan-sheet.pdf",
+     "via": "window.markupcraft.openFiles",
+     "type": "application/pdf"
+    }
+   ],
+   "wait": "window.markupcraft && window.markupcraft.sheets.length === 1"
+  },
+  "steps": [
+   {
+    "tool": "decision_add",
+    "args": {
+     "at": [
+      0.5,
+      0.5
+     ],
+     "text": "Use the 2x6 wall"
+    },
+    "expect": [
+     {
+      "path": "id",
+      "exists": true
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "pins_list",
+    "path": "pins.0.decision.text",
+    "eq": "Use the 2x6 wall"
+   }
+  ]
+ }
+]

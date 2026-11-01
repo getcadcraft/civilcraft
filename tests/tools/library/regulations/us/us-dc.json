@@ -1,0 +1,75 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-dc",
+  "name": "District of Columbia: 2017 District of Columbia Construction Codes: Residential Code (IRC 2015 + DC Residential Code Su…",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-DC",
+    "name": "District of Columbia"
+  },
+  "base": "us-irc-2015",
+  "edition": "IRC 2015 as adopted, 2020-05-29",
+  "in_force": "2020-05-29",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2015 (DC Department of Buildings; 12 DCMR (Construction Codes Supplement of 2017)). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Design crit…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "DC Department of Buildings, 12 DCMR (Construction Codes Supplement of 2017)",
+    "url": "https://dob.dc.gov/release/dc-department-buildings-quicken-pace-dc-construction-code-development-under-organizational",
+    "date": "2026",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "30 psf",
+      "value": 30,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "115 mph (ultimate)",
+      "value": 115,
+      "unit": "mph"
+    },
+    "wind_topographic": {
+      "text": "N/A"
+    },
+    "seismic_category": {
+      "text": "A"
+    },
+    "weathering": {
+      "text": "Severe"
+    },
+    "frost_depth": {
+      "text": "30 in (not confirmed against the official table)"
+    },
+    "termite": {
+      "text": "Moderate to heavy"
+    },
+    "winter_design_temp": {
+      "text": "17 °F"
+    },
+    "ice_barrier": {
+      "text": "Yes"
+    },
+    "flood_hazards": {
+      "text": "FIRM panels 2010-09-27; FIS 1985-11-15 and 2010-09-27"
+    },
+    "air_freezing_index": {
+      "text": "500"
+    },
+    "mean_annual_temp": {
+      "text": "55 °F"
+    },
+    "climate_zone": {
+      "text": "4A (IECC county list)"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

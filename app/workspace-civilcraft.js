@@ -32,11 +32,12 @@ const LAYOUT = {
   views: { large: ['design.profile'], small: ['surface.sections', 'design.pvi-add'] },
   clipboard: { large: ['edit.paste'], small: ['edit.cut', 'edit.copy', 'edit.paste-in-place', 'edit.duplicate', 'edit.delete'] },
   selection: { large: ['view.select'], small: ['edit.select-all', 'edit.select-none'] },
-  export: { large: ['export.landxml'], small: ['export.dxf', 'export.dwg'] },
+  export: { large: ['export.landxml'], small: ['export.dxf', 'export.dwg', 'export.ifc'] },
 };
 const SKIP = new Set(['surface.landscape', 'surface.powerlines']);   // the Workspace group switches workspaces on the ribbon
+const WS_TAB_LABELS = new Set(['input.m.landscape', 'input.m.powerlines']);   // 0.7.1: the style's workspace tabs (context tabs here)
 const TOOLBOX = [   // [label key, [ids]] — the drawing tools; workspaces follow
-  ['input.grp.surface', ['surface.breakline', 'surface.boundary', 'surface.feature', 'surface.mass', 'surface.sections', 'surface.grades']],
+  ['input.grp.surface', ['surface.breakline', 'surface.boundary', 'surface.feature', 'surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.sections', 'surface.free-section', 'surface.grades']],
   ['input.grp.design', ['design.alignment', 'design.pad', 'design.pipe', 'design.profile']],
   ['input.grp.view', ['view.select', 'view.fit', 'view.view3d']],
 ];
@@ -93,7 +94,8 @@ export function mountCivilWorkspace({ root }) {
   // ---- the ribbon ----
   const stack = (ids) => { const out = []; for (let i = 0; i < ids.length; i += 3) out.push(ids.slice(i, i + 3)); return out; };
   function civilTabs() {
-    return style.tabs.map((tab, ti) => {
+    // 0.7.1: the style's Landscape and Power lines tabs are left out: workspaceTab() below makes them context tabs
+    return style.tabs.filter((tab) => !WS_TAB_LABELS.has(tab.label)).map((tab, ti) => {
       const groups = tab.panels.map((pn, pi) => {
         const key = pn.label.replace('input.m.', ''), ids = pn.items.filter((id) => byId.has(id) && !SKIP.has(id));
         const lay = LAYOUT[key] || { large: ids, small: [] };

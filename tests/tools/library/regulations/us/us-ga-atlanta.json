@@ -1,0 +1,72 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ga-atlanta",
+  "name": "Atlanta: City of Atlanta (Georgia state minimum codes)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "US-GA",
+    "name": "Atlanta"
+  },
+  "base": "us-ga",
+  "edition": "City of Atlanta (Georgia state minimum…",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "The Georgia state pack for this city — design criteria only; the city enforces the Georgia state code (its checklist still cites the 2018 IRC) (City of Atlanta Office of Buildings; Residential Code Compliance Review Checklist RCCRC Rev. 05/20). Design criteria from www.atlantaga.gov (2020-12). Entered from the cited source on 2026-10-27 (research confidence: medium); not yet reviewed by a profess…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "City of Atlanta Office of Buildings, Residential Code Compliance Review Checklist RCCRC Rev. 05/20",
+    "url": "https://www.atlantaga.gov/home/showpublisheddocument/27371/637443212415300000",
+    "date": "2020-12-23",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {
+    "ground_snow_load": {
+      "text": "5 psf",
+      "value": 5,
+      "unit": "psf"
+    },
+    "wind_speed": {
+      "text": "90 mph in the table; 115 mph ultimate in the same checklist's text (conflicting)"
+    },
+    "wind_topographic": {
+      "text": "No"
+    },
+    "seismic_category": {
+      "text": "B"
+    },
+    "weathering": {
+      "text": "Moderate"
+    },
+    "frost_depth": {
+      "text": "12 in",
+      "value": 304.8,
+      "unit": "mm"
+    },
+    "termite": {
+      "text": "Very heavy"
+    },
+    "winter_design_temp": {
+      "text": "22 °F"
+    },
+    "ice_barrier": {
+      "text": "No"
+    },
+    "flood_hazards": {
+      "text": "2001-05-07"
+    },
+    "air_freezing_index": {
+      "text": "33"
+    },
+    "mean_annual_temp": {
+      "text": "66.2 °F"
+    }
+  },
+  "tables": {},
+  "rules": []
+}

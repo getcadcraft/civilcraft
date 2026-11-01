@@ -1,0 +1,407 @@
+{
+ "format": "partcraft",
+ "version": 3,
+ "name": "Two bars",
+ "units": "mm",
+ "resolution": 64,
+ "seq": 3,
+ "rollback": null,
+ "features": [
+  {
+   "id": "f1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "plane": {
+    "kind": "base",
+    "name": "top"
+   },
+   "sketch": {
+    "seq": 41,
+    "entities": [
+     {
+      "id": "p1",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "p2",
+      "type": "point",
+      "x": 50,
+      "y": 0
+     },
+     {
+      "id": "p4",
+      "type": "point",
+      "x": 50,
+      "y": 0
+     },
+     {
+      "id": "p5",
+      "type": "point",
+      "x": 50,
+      "y": 10
+     },
+     {
+      "id": "p7",
+      "type": "point",
+      "x": 50,
+      "y": 10
+     },
+     {
+      "id": "p8",
+      "type": "point",
+      "x": 0,
+      "y": 10
+     },
+     {
+      "id": "p10",
+      "type": "point",
+      "x": 0,
+      "y": 10
+     },
+     {
+      "id": "p11",
+      "type": "point",
+      "x": 0,
+      "y": 0
+     },
+     {
+      "id": "p21",
+      "type": "point",
+      "x": 50.01,
+      "y": 0
+     },
+     {
+      "id": "p22",
+      "type": "point",
+      "x": 100.01,
+      "y": 0
+     },
+     {
+      "id": "p24",
+      "type": "point",
+      "x": 100.01,
+      "y": 0
+     },
+     {
+      "id": "p25",
+      "type": "point",
+      "x": 100.01,
+      "y": 10
+     },
+     {
+      "id": "p27",
+      "type": "point",
+      "x": 100.01,
+      "y": 10
+     },
+     {
+      "id": "p28",
+      "type": "point",
+      "x": 50.01,
+      "y": 10
+     },
+     {
+      "id": "p30",
+      "type": "point",
+      "x": 50.01,
+      "y": 10
+     },
+     {
+      "id": "p31",
+      "type": "point",
+      "x": 50.01,
+      "y": 0
+     },
+     {
+      "id": "l3",
+      "type": "line",
+      "p1": "p1",
+      "p2": "p2"
+     },
+     {
+      "id": "l6",
+      "type": "line",
+      "p1": "p4",
+      "p2": "p5"
+     },
+     {
+      "id": "l9",
+      "type": "line",
+      "p1": "p7",
+      "p2": "p8"
+     },
+     {
+      "id": "l12",
+      "type": "line",
+      "p1": "p10",
+      "p2": "p11"
+     },
+     {
+      "id": "l23",
+      "type": "line",
+      "p1": "p21",
+      "p2": "p22"
+     },
+     {
+      "id": "l26",
+      "type": "line",
+      "p1": "p24",
+      "p2": "p25"
+     },
+     {
+      "id": "l29",
+      "type": "line",
+      "p1": "p27",
+      "p2": "p28"
+     },
+     {
+      "id": "l32",
+      "type": "line",
+      "p1": "p30",
+      "p2": "p31"
+     }
+    ],
+    "constraints": [
+     {
+      "id": "k13",
+      "type": "coincident",
+      "refs": [
+       "p2",
+       "p4"
+      ]
+     },
+     {
+      "id": "k14",
+      "type": "coincident",
+      "refs": [
+       "p5",
+       "p7"
+      ]
+     },
+     {
+      "id": "k15",
+      "type": "coincident",
+      "refs": [
+       "p8",
+       "p10"
+      ]
+     },
+     {
+      "id": "k16",
+      "type": "coincident",
+      "refs": [
+       "p11",
+       "p1"
+      ]
+     },
+     {
+      "id": "k17",
+      "type": "horizontal",
+      "refs": [
+       "l3"
+      ]
+     },
+     {
+      "id": "k18",
+      "type": "horizontal",
+      "refs": [
+       "l9"
+      ]
+     },
+     {
+      "id": "k19",
+      "type": "vertical",
+      "refs": [
+       "l6"
+      ]
+     },
+     {
+      "id": "k20",
+      "type": "vertical",
+      "refs": [
+       "l12"
+      ]
+     },
+     {
+      "id": "k33",
+      "type": "coincident",
+      "refs": [
+       "p22",
+       "p24"
+      ]
+     },
+     {
+      "id": "k34",
+      "type": "coincident",
+      "refs": [
+       "p25",
+       "p27"
+      ]
+     },
+     {
+      "id": "k35",
+      "type": "coincident",
+      "refs": [
+       "p28",
+       "p30"
+      ]
+     },
+     {
+      "id": "k36",
+      "type": "coincident",
+      "refs": [
+       "p31",
+       "p21"
+      ]
+     },
+     {
+      "id": "k37",
+      "type": "horizontal",
+      "refs": [
+       "l23"
+      ]
+     },
+     {
+      "id": "k38",
+      "type": "horizontal",
+      "refs": [
+       "l29"
+      ]
+     },
+     {
+      "id": "k39",
+      "type": "vertical",
+      "refs": [
+       "l26"
+      ]
+     },
+     {
+      "id": "k40",
+      "type": "vertical",
+      "refs": [
+       "l32"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Extrude1",
+   "sketch": "f1",
+   "op": "add",
+   "end": "blind",
+   "depth": 10,
+   "reverse": false
+  }
+ ],
+ "studies": {
+  "simulation": {
+   "v": 1,
+   "kind": "static",
+   "material": "steel",
+   "h": 5,
+   "elem": "h8i",
+   "mesher": "tet",
+   "modes": 4,
+   "seq": 0,
+   "constraints": [
+    {
+     "id": "c1",
+     "type": "frictionless",
+     "faces": [
+      {
+       "name": "f2.side:l12",
+       "at": [
+        0,
+        5,
+        -5
+       ]
+      }
+     ]
+    },
+    {
+     "id": "c2",
+     "type": "frictionless",
+     "faces": [
+      {
+       "name": "f2.start",
+       "at": [
+        25,
+        0,
+        -5
+       ]
+      }
+     ]
+    },
+    {
+     "id": "c3",
+     "type": "frictionless",
+     "faces": [
+      {
+       "name": "f2.start",
+       "at": [
+        75.01,
+        0,
+        -5
+       ]
+      }
+     ]
+    },
+    {
+     "id": "c4",
+     "type": "frictionless",
+     "faces": [
+      {
+       "name": "f2.side:l9",
+       "at": [
+        25,
+        5,
+        -10
+       ]
+      }
+     ]
+    },
+    {
+     "id": "c5",
+     "type": "frictionless",
+     "faces": [
+      {
+       "name": "f2.side:l29",
+       "at": [
+        75.01,
+        5,
+        -10
+       ]
+      }
+     ]
+    }
+   ],
+   "loads": [
+    {
+     "id": "l1",
+     "type": "force",
+     "faces": [
+      {
+       "name": "f2.side:l26",
+       "at": [
+        100.010002,
+        5,
+        -5
+       ]
+      }
+     ],
+     "total": 27500,
+     "dir": [
+      -1,
+      0,
+      0
+     ]
+    }
+   ]
+  }
+ }
+}

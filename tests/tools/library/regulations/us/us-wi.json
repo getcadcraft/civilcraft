@@ -1,0 +1,113 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-wi",
+  "name": "Wisconsin: Wisconsin Uniform Dwelling Code (UDC)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-WI",
+    "name": "Wisconsin"
+  },
+  "base": null,
+  "edition": "Wisconsin Uniform Dwelling Code (UDC)",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "The state's own code, not based on the IRC: every number is its own (Wisconsin Dept. of Safety and Professional Services (DSPS); Wis. Admin. Code chs. SPS 320-325). Entered 2026-10-27 (research confidence: high); not yet reviewed by a professional."
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Wisconsin Dept. of Safety and Professional Services (DSPS), Wis. Admin. Code chs. SPS 320-325",
+    "url": "https://docs.legis.wisconsin.gov/code/admin_code/sps/safety_and_buildings_and_environment/320_325/321",
+    "date": "2024-11",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "SPS 321.04(2)(b)1.",
+      "label": "Riser height",
+      "note": "Spiral stairs 9.5 in.",
+      "value": 203.2
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "SPS 321.04(2)(c)1.",
+      "label": "Tread depth",
+      "note": "Rectangular treads.",
+      "value": 228.6
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "SPS 321.04(2)(a)",
+      "label": "Stair width",
+      "note": "Spiral stairs 26 in.",
+      "value": 914.4
+    },
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "SPS 321.04(2)(d)1.",
+      "label": "Stair headroom",
+      "note": "6 ft 4 in.",
+      "value": 1930.4
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "SPS 321.04(3)(b)1.a.",
+      "label": "Handrail height",
+      "note": "Above the tread nosing.",
+      "min": 762,
+      "max": 965.2
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "SPS 321.06",
+      "label": "Ceiling height",
+      "note": "A room may be lower if at least half its floor area is 7 ft or more; beams may project 8 in below.",
+      "value": 2133.6
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "SPS 321.05(1)",
+      "label": "Glazing, share of floor area",
+      "note": "Exception for some basement, ground-floor and above-garage rooms other than bedrooms.",
+      "value": 8
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "SPS 321.05(2)(a)1.",
+      "label": "Openable area, share of floor area",
+      "note": "Or balanced mechanical ventilation of at least 1 air change an hour.",
+      "value": 3.5
+    }
+  ]
+}

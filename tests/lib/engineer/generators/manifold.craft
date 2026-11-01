@@ -1,0 +1,88 @@
+% Distribution manifold: a header that feeds n outlets, every tube sized from the flow it carries, the wall from the pressure.
+%
+% What it makes: a straight header along x with a branch tube leaving it sideways (y) at each outlet. The header gets narrower after
+% every outlet because it carries less: the diameter of each stretch is the smallest round tube that keeps the speed at or under the
+% target, rounded up to half a millimetre. The wall of each tube is a thin cylinder at the allowable stress of the material, but never
+% under the process's thinnest wall. The inlet is open at the near end of the header; each branch is open at its far end.
+% Method: continuity (D = sqrt(4 mdot / (pi rho v))), the thin-wall cylinder (wall_thin_cylinder), Darcy-Weisbach per stretch (pipe_flow).
+% Not modelled: the pressure lost at each tee (use minor_loss with the coefficient of your fitting) and how evenly the outlets share the
+% flow (a network calculation); fittings, flanges and mounting feet.
+% @generator Distribution manifold
+% @input mdot: kg/s = 1.2 [0.05 .. 20] "Total flow"
+% @input n: = 6 [2 .. 12] "Outlets"
+% @input pitch: mm = 40 [20 .. 120] "Outlet pitch"
+% @input blen: mm = 50 [20 .. 200] "Branch length"
+% @input vmax: m/s = 2 [0.5 .. 6] "Speed at most"
+% @input T: C = 20 [1 .. 95] "Water temperature"
+% @input p_max: bar = 8 [1 .. 60] "Working pressure"
+% @input alloy: = ss304 {steel, ss304, al6061, ti64} "Material"
+% @input SF: = 3 [1.5 .. 8] "Safety factor on yield"
+% @input process: = metal {fdm, sla, sls, metal} "Process"
+% @input h: mm = 0.5 [0.25 .. 1.5] "Voxel size"
+
+n = round(n);
+fl = fluid('water', temp_k(T, 'C'));
+rho = fl.rho.value;
+mu = fl.mu.value;
+pmax = to_si(p_max, 'bar', 'Pa');
+prof = process_profile(process);
+mat = material(alloy);
+sig = allowable_stress(mat.yield.value, SF);
+tmin = max(prof.min_wall.value, 3 * h);          % mm: the process's thinnest wall, and three voxels so the surface is sound
+
+% the header stretches: stretch j (1..n) runs from x(j) to x(j+1) and still has n - j + 1 outlets to feed
+x = (0:n) * pitch;
+Dh = zeros(1, n);
+th = zeros(1, n);
+dpH = 0;
+for j = 1:n
+  md = mdot * (n - j + 1) / n;
+  D = ceil(1000 * sqrt(4 * md / (pi * rho * vmax)) / 0.5) * 0.5;          % mm, rounded up to 0.5
+  Dh(j) = D;
+  th(j) = max(tmin, 1000 * wall_thin_cylinder(pmax, D / 2000, sig));
+  r = pipe_flow(md, D / 1000, pitch / 1000, rho, mu, 0);
+  dpH = dpH + r.dp.value;
+end
+% the branches
+mb = mdot / n;
+Db = ceil(1000 * sqrt(4 * mb / (pi * rho * vmax)) / 0.5) * 0.5;
+tb = max(tmin, 1000 * wall_thin_cylinder(pmax, Db / 2000, sig));
+rb = pipe_flow(mb, Db / 1000, blen / 1000, rho, mu, 0);
+
+% the shape: outer tubes minus the bores
+outer = {};
+inner = {};
+for j = 1:n
+  P = [x(j) 0 0; x(j+1) 0 0];
+  outer{end + 1} = along(P, Dh(j) / 2 + th(j));
+  inner{end + 1} = along(P, Dh(j) / 2);
+end
+for j = 1:n
+  Q = [x(j+1) 0 0; x(j+1) blen 0];
+  outer{end + 1} = along(Q, Db / 2 + tb);
+  inner{end + 1} = field_cylinder([x(j+1) 0 0], [x(j+1) blen + Db / 2 + tb + 5 0], Db / 2);   % through the rounded end
+end
+inner{end + 1} = field_cylinder([-Dh(1) / 2 - th(1) - 5 0 0], [0 0 0], Dh(1) / 2);        % the inlet
+f = field_subtract(field_union(outer), field_union(inner));
+fb = field_bake(f, h);
+[body, info] = to_body(fb, h);
+chk = mfg_check(fb, process, struct(), h);
+problems = chk.problems;
+
+sheet = struct();
+sheet.inlet_diameter = q(Dh(1), 'mm', 'continuity: D = sqrt(4 mdot / (pi rho v)), rounded up to 0.5 mm');
+sheet.last_stretch_diameter = q(Dh(n), 'mm', 'the same, for the flow left after the last-but-one outlet');
+sheet.branch_diameter = q(Db, 'mm', 'the same, for mdot / n');
+sheet.inlet_wall = q(th(1), 'mm', 'thin cylinder at yield / SF (wall_thin_cylinder), not under the process minimum or 3 voxels');
+sheet.branch_wall = q(tb, 'mm', 'the same');
+sheet.header_pressure_drop = q(dpH, 'Pa', 'Darcy-Weisbach summed over the stretches (pipe_flow)');
+sheet.branch_pressure_drop = rb.dp;
+sheet.branch_velocity = rb.v;
+sheet.branch_Re = rb.Re;
+sheet.water_density = fl.rho;
+sheet.metal_mass = q(info.volume * 1e-9 * mat.density.value, 'kg', mat.density.ref);
+sheet.allowable_stress = q(sig, 'Pa', 'yield / safety factor, Shigley 11e eq. 1-3');
+sheet.process = struct('value', prof.label, 'ref', prof.ref);
+sheet.watertight = info.watertight;
+sheet.checks_passed = chk.ok;
+sheet.note = 'tee losses and the sharing of flow between outlets are not included';

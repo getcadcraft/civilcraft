@@ -1,0 +1,14 @@
+% darcy_weisbach — the pressure drop of flow along a duct
+%
+% Usage:      dp = darcy_weisbach(f, L, D, rho, v)
+% Computes:   dp = f (L / D) rho v^2 / 2
+% Method:     the Darcy-Weisbach equation, with f the Darcy friction factor (friction_factor).
+% Units:      SI: L m, D m, rho kg/m3, v m/s, dp Pa.
+% References: Incropera et al., Fundamentals of Heat and Mass Transfer, 7th ed., eq. 8.22a.
+% Check:      f 0.02, L 10 m, D 0.05 m, rho 1000, v 2 m/s: dp = 8000 Pa (tools/field-test/eng.mjs).
+function dp = darcy_weisbach(f, L, D, rho, v)
+if ~(D > 0)
+  error('darcy_weisbach: the diameter must be greater than zero');
+end
+dp = f * (L / D) * rho * v ^ 2 / 2;
+end

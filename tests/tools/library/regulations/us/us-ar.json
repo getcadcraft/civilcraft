@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ar",
+  "name": "Arkansas: Arkansas Fire Prevention Code, 2021 Edition, Volume III (Residential)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-AR",
+    "name": "Arkansas"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-01-01",
+  "in_force": "2023-01-01",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Arkansas State Fire Marshal / Arkansas State Police (Dept. of Public Safety); 015.01.22 Ark. Code R. § 005; authority Act 254 of 1955, A.C.A. §§ 12-13-101 to 12-13-116). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other r…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Arkansas State Fire Marshal / Arkansas State Police (Dept. of Public Safety), 015.01.22 Ark. Code R. § 005; authority A…",
+    "url": "https://dps.arkansas.gov/wp-content/uploads/ASP-Foreword-Fire-Code-Rules-Clean_10-2024.pdf",
+    "date": "2023-01-01",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

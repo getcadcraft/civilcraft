@@ -40,14 +40,14 @@ try { TAKEOFF_AGENTS = await load('takeoffcraft', 'agents.js'); } catch { TAKEOF
  * headless twin. `same` = live name → the headless tool that does it.
  */
 export const WINDOW_ONLY = {
-  cadcraft: { same: {}, only: ['app_info', 'selection_get', 'selection_set', 'view_describe', 'view_screenshot'], why: 'they work on what is on screen' },
-  bimcraft: { same: { model_save: 'ifc_save' }, only: ['app_info', 'selection_get', 'selection_set', 'usd_export', 'render_still', 'render_queue'], why: 'they work on what is on screen (USD is written from the 3D view\'s triangles; renders need the window\'s graphics card)' },
-  takeoffcraft: { same: { sheets_list: 'takeoff_open', items_list: 'takeoff_open', cad_sheets: 'takeoff_open' }, only: ['app_info', 'marks_add', 'usd_export'], why: 'marks by points need the PDF page the window shows, and the 3D check model needs the open sheet (on a DWG / DXF: cad_count_add and cad_measure work here too)' },
-  markupcraft: { same: { sheets_list: 'markups_list' }, only: ['app_info', 'markup_add', 'markup_status', 'markup_reply', 'markups_export'], why: 'markups are changed and exported in the window (saving a PDF with markups headless is not built)' },
+  cadcraft: { same: {}, only: ['app_info', 'selection_get', 'selection_set', 'view_describe', 'view_screenshot', 'autocomplete_list', 'autocomplete_run', 'sketch_clean', 'details_find', 'details_list', 'details_add', 'details_place', 'sheets_plan', 'sheets_make', 'autodim_run', 'grid_list', 'grid_move', 'photo_to_drawing', 'redline_read', 'redline_list', 'redline_decide', 'redline_apply', 'redline_answers'], why: 'they work on what is on screen or need the window (diagram_from_text has its headless twin since 0.8 round 3, cad_PART_3)' },
+  bimcraft: { same: { model_save: 'ifc_save' }, only: ['app_info', 'selection_get', 'selection_set', 'usd_export', 'render_still', 'render_queue', 'frame_break'], why: 'they work on what is on screen (USD is written from the 3D view\'s triangles; renders need the window\'s graphics card)' },
+  takeoffcraft: { same: { sheets_list: 'takeoff_open', items_list: 'takeoff_open', cad_sheets: 'takeoff_open' }, only: ['app_info', 'marks_add', 'usd_export', 'legend_open', 'legend_count_start', 'legend_count_status', 'legend_count_result', 'legend_count_add', 'prices_list', 'prices_apply', 'supply_check', 'carbon_check'], why: 'marks by points need the PDF page the window shows, and the 3D check model needs the open sheet (on a DWG / DXF: cad_count_add and cad_measure work here too)' },
+  markupcraft: { same: { sheets_list: 'markups_list' }, only: ['app_info', 'markup_add', 'markup_status', 'markup_reply', 'markups_export', 'tasks_list', 'task_set', 'task_clear', 'tasks_check', 'revisions_changes', 'pins_list', 'decision_add', 'redline_answer', 'redline_export'], why: 'markups are changed and exported in the window (saving a PDF with markups headless is not built)' },
   modelcraft: { same: {}, only: '*', why: 'ModelCraft has no headless tools yet (render_still and render_queue need the window\'s graphics card)' },
   detailcraft: { same: {}, only: '*', why: 'DetailCraft has no headless tools yet' },
   civilcraft: { same: {}, only: ['points_select', 'project_save', 'dwg_export'], why: 'selecting is on screen; the window\'s Save and its DWG drawing (made from its panels) need the window — headless: site_save; LandXML is also opened only in the window' },
-  partcraft: { same: {}, only: ['app_info'], why: 'it describes the window' },
+  partcraft: { same: {}, only: ['app_info', 'break_run'], why: 'it describes the window' },
 };
 
 /**
@@ -67,6 +67,22 @@ export function manualSources() {
   };
   const licence = three && fs.existsSync(path.join(three, 'LICENSE')) ? fs.readFileSync(path.join(three, 'LICENSE'), 'utf8') : '';
   return { loadSource, licence };
+}
+
+/**
+ * Previews for the edit tools on a drawing (AI-CONNECT-SPEC § 2.3; ai_PART_3 closes ai-trust_PART_2's seam 6): the server hands this to
+ * its dispatcher as `rollback`. A tool flagged rollbackPreview runs for real inside begin()/rollback(): the drawing's undo stack is
+ * remembered, the steps the preview added are undone and the person's Redo entries put back. Other kinds of open file say so (a ToolError
+ * "unsupported"), which is honest: no tool lists a preview it cannot do.
+ */
+export function headlessRollback(env) {
+  const unsupported = (what) => Object.assign(new Error(what + ' cannot preview on this kind of file here.'), { name: 'ToolError', code: 'unsupported', next: ['Run it without preview if the person asked for the change, or use the drawing tools (drawing_open) for a preview.'] });
+  const docOf = (ctx) => { const d = env.docs.get(ctx && ctx.args && ctx.args.doc); if (!d || d.kind !== 'cad') throw unsupported(ctx && ctx.tool || 'This tool'); return d.s.doc; };
+  return {
+    available: () => true,
+    begin: (ctx) => { const o = docOf(ctx); return { depth: o.undoStack.length, redo: o.redoStack.slice() }; },
+    rollback: (tok, ctx) => { const o = docOf(ctx); let n = 0; while (o.undoStack.length > tok.depth && n++ < 50) { if (o.undo() === null) break; } o.redoStack.length = 0; o.redoStack.push(...tok.redo); },
+  };
 }
 
 export const MAX_OPEN = 16;
@@ -182,6 +198,11 @@ export function headlessTools(env) {
     inputSchema: obj({ doc: S.doc, id: { type: 'integer', minimum: 1 } }, ['doc', 'id']),
     run: async (a) => { const o = get(env, a.doc, 'cad').s.object(a.id); if (!o) throw new Error('There is no object ' + a.id + '.'); return o; } });
 
+  T({ name: 'element_state', group: 'read', title: 'Read objects by key, for tasks',
+    description: 'The state of objects named by their key (the "key" field of objects_list and object_get, which never changes while the drawing lives) or id, as flat values: pass the result to MarkupCraft\'s tasks_check (elements) to start a task\'s baseline or to close it when the object changed. An object that is no longer there comes back with gone true.',
+    inputSchema: obj({ doc: S.doc, keys: { type: 'array', maxItems: 100, items: { type: 'string', maxLength: 40 } }, ids: { type: 'array', maxItems: 100, items: { type: 'integer', minimum: 1 } } }, ['doc']),
+    run: async (a) => { if (!(a.keys?.length || a.ids?.length)) throw new Error('Give keys or ids.'); return { elements: get(env, a.doc, 'cad').s.elementStates(a) }; } });
+
   T({ name: 'drawing_check', group: 'read', title: 'Check against standards',
     description: 'Check a drawing against layer and drafting rules: layers.allowed (names or /regex/), layers.required, layers.noObjectsOn, objects.colorByLayer / linetypeByLayer / lineweightByLayer, objects.textHeights, objects.textStyles, blocks.noUnused, units.lunits / units.insunits. Returns each finding with the ids it concerns.',
     inputSchema: obj({ doc: S.doc, rules: { type: 'object', properties: {
@@ -192,7 +213,7 @@ export function headlessTools(env) {
     }, additionalProperties: false } }, ['doc', 'rules']),
     run: async (a) => get(env, a.doc, 'cad').s.check(a.rules) });
 
-  T({ name: 'command_run', group: 'edit', title: 'Run a CadCraft command',
+  T({ name: 'command_run', group: 'edit', rollbackPreview: true, title: 'Run a CadCraft command',
     description: 'Type at CadCraft\'s command line: one string, or a list where each item answers the next prompt ("" = Enter). Items may also be {pick: [x, y]}, {window: [x1, y1, x2, y2], crossing}, {entity: id} or {escape: true}. Example: ["LINE", "0,0", "@100,0", "@0,50", ""]. A command still waiting at the end is ended with Esc unless keepOpen. One string is read as typed at the command line: each line and each space ends an answer, as Space does there (two spaces = an empty answer; a text prompt takes the rest of the line), e.g. "LINE 0,0 @100,0 @0,50 " (the last space ends LINE). A list gives one answer per item instead. The whole call is one undo step labelled "Assistant: …". Commands that need a dialog on screen are refused.',
     inputSchema: obj({ doc: S.doc, input: { anyOf: [{ type: 'string', maxLength: 100000 }, { type: 'array', items: inputItem, minItems: 1, maxItems: 5000 }] }, select: { type: 'array', items: { type: 'integer', minimum: 1 }, maxItems: 100000, description: 'Object ids selected before the command (noun-verb).' }, openFiles: { type: 'array', items: S.path, minItems: 1, maxItems: 20, description: 'Files (inside the allowed folders) that answer the file questions the commands ask, in order: INSERT F, XATTACH, ASBUILT\'s point file.' }, keepOpen: { type: 'boolean', default: false, description: 'Leave a command that still waits after the last answer open (the result says what it waits for); the next command_run with continue: true answers it. Each call is still one undo step.' }, continue: { type: 'boolean', default: false, description: 'Answer the command a keepOpen call left waiting, instead of starting at the command prompt.' } }, ['doc', 'input']),
     run: async (a) => {
@@ -204,7 +225,7 @@ export function headlessTools(env) {
       return { ...r, added: r.added.slice(0, 2000), changed: r.changed.slice(0, 2000), removed: r.removed.slice(0, 2000), counts: { added: r.added.length, changed: r.changed.length, removed: r.removed.length } };
     } });
 
-  T({ name: 'script_run', group: 'edit', title: 'Run a script',
+  T({ name: 'script_run', group: 'edit', rollbackPreview: true, title: 'Run a script',
     description: 'On a drawing: run a script as one undo step, language "scr" (command-line lines, as a .scr file) or "lisp" (AutoLISP-style, run by CadCraft\'s own interpreter; (command …) drives CadCraft\'s commands). On a part (part_open): a CraftScript ("craft", the default there), Lua or Python script, sealed (no files, no network), with `part` = the built solid and param()/params() its parameters; it prints and displays, the part does not change. Lua and Python need their runtimes beside these tools (the repository), CraftScript runs everywhere.',
     inputSchema: obj({ doc: S.doc, script: { type: 'string', minLength: 1, maxLength: 1000000 }, language: { type: 'string', enum: ['scr', 'lisp', 'craft', 'lua', 'python'] }, budget: { type: 'number', minimum: 1e3, maximum: 1e11, default: 2e9 } }, ['doc', 'script']),
     run: async (a) => {
@@ -220,12 +241,31 @@ export function headlessTools(env) {
       return { ...r, added: r.added.slice(0, 2000), changed: r.changed.slice(0, 2000), removed: r.removed.slice(0, 2000), counts: { added: r.added.length, changed: r.changed.length, removed: r.removed.length } };
     } });
 
-  T({ name: 'block_insert', group: 'edit', title: 'Insert a block',
+  T({ name: 'block_insert', group: 'edit', rollbackPreview: true, title: 'Insert a block',
     description: 'Place a block of the drawing at a point with its attribute values in one call (as INSERT does, its questions answered), optionally on a layer; one undo step. A block from another drawing: command_run with ["INSERT", "F", …] and openFiles.',
     inputSchema: (() => { const sc = BLOCK_SCHEMA(); return { ...sc, properties: { doc: S.doc, ...sc.properties }, required: ['doc', ...sc.required] }; })(),
     run: async (a) => { const { doc, ...o } = a; const r = await get(env, doc, 'cad').s.insert(o); if (!r.id) throw new Error(r.error || 'The block was not placed.'); return r; } });
 
+  T({ name: 'diagram_from_text', group: 'edit', rollbackPreview: true, title: 'Draw a diagram from text',
+    description: 'Draw a diagram as ordinary, editable objects from text: a Mermaid flowchart or graph (TD, TB, BT, LR, RL; [text], (text), {text}, labels, chains, A & B), a PlantUML component or deployment subset (@startuml … @enduml), D2 basics (a -> b: label), or a from-to list (CSV with from, to, label columns). Blocks are closed polylines with centred text, connectors open polylines with arrow heads, on layer "Diagram"; layered layout, the diagram\'s top-left corner at (x, y). One undo step. The same engine as the live window\'s tool.',
+    inputSchema: obj({ doc: S.doc, text: { description: 'The diagram source in the chosen format.', type: 'string', minLength: 1, maxLength: 400000 }, format: { description: 'auto (detect it), mermaid, plantuml, d2 or csv (default auto).', type: 'string', enum: ['auto', 'mermaid', 'plantuml', 'd2', 'csv'], default: 'auto' }, x: { description: 'Where the diagram starts: x in drawing units (default 0).', type: 'number', default: 0 }, y: { description: 'Where the diagram starts: y in drawing units (default 0).', type: 'number', default: 0 }, textHeight: { description: 'Text height in drawing units (default: sized to the diagram).', type: 'number', exclusiveMinimum: 0 }, layer: { description: 'Layer for the new objects.', type: 'string', minLength: 1, maxLength: 255 } }, ['doc', 'text']),
+    run: async (a) => {
+      const { doc, text, ...o } = a;
+      const r = await get(env, doc, 'cad').s.diagram(text, o);
+      if (!r.ok) throw new Error(({ empty: 'There is no text to draw.', big: 'That text is too long for a diagram.', too_many: 'Too many blocks or connectors (the limit is 400 and 1200).', nothing: 'No blocks were found: check the text is a Mermaid flowchart, PlantUML, D2 or a from-to list.' })[r.error] || r.error);
+      return { format: r.format, blocks: r.blocks, connectors: r.connectors, textHeight: r.th, skippedLines: r.skipped, ids: r.ids.slice(0, 2000) };
+    } });
+
   T({ name: 'undo', group: 'edit', title: 'Undo',
+    preview: (a) => {   // which steps would be taken: the top of the file's undo stack while labelled by the assistant (or all, with any)
+      const d = env.docs.get(a.doc);
+      if (!d) throw new Error('No open file ' + a.doc + '. Open one first (drawing_open).');
+      const stack = d.kind === 'cad' ? d.s.doc.undoStack : d.kind === 'civil' ? d.s.project.undoStack : d.kind === 'takeoff' ? d.s.model.undoStack : null;
+      if (!stack) return { wouldUndo: null, note: 'This kind of file does not list its undo steps; undo takes up to ' + a.steps + ' of the assistant\'s own.' };
+      const out = [];
+      for (let i = stack.length - 1; i >= 0 && out.length < a.steps; i--) { const l = String((stack[i] && (stack[i].label || stack[i].kind)) || ''); if (!a.any && !l.startsWith(env.undoPrefix)) break; out.push(l); }
+      return { wouldUndo: out };
+    },
     description: 'Undo the assistant\'s last steps on a drawing, an IFC model, a civil site, a part or a takeoff (only steps labelled "Assistant:" unless any is true).',
     inputSchema: obj({ doc: S.doc, steps: { type: 'integer', minimum: 1, maximum: 100, default: 1 }, any: { type: 'boolean', default: false } }, ['doc']),
     run: async (a) => {
@@ -389,7 +429,7 @@ export function headlessTools(env) {
       app.tools = tools;
       return app;
     };
-    const CIVIL_TOOLS = (app) => M_CIVIL.civilTools(app);
+    const CIVIL_TOOLS = (app) => M_CIVIL.allTools(app);   // civil + Landscape (0.8 LD.8) + Power lines (PL.8) tools
     civilUsdRun = async (a) => { const d = get(env, a.doc, 'civil'); const { doc, ...rest } = a; return civilApp(d.s).tools.find((x) => x.name === 'usd_export').run(rest); };
     for (const def of CIVIL_TOOLS({ project: () => null, files: { available: true } })) {
       if (def.name === 'usd_export') continue;   // one usd_export for CadCraft drawings and CivilCraft sites, below
@@ -445,6 +485,31 @@ export function headlessTools(env) {
         const dsc = X.describePart(d.s.part, d.s.regen());
         return { ...r, undo: label, failing: dsc.failing, solid: dsc.solid };
       });
+    partTool('cost_estimate', 'read', 'Estimate the making cost', 'Estimate what it costs to make the part, machined from a block of stock or 3D printed: stock or filament, cutting or machine time, holes, handling and the setup shared by the quantity. Returns each row, the total for one part at that quantity, the biggest drivers and what is not counted. Uses the rates saved with the part, else placeholders: an estimate, not a quote.',
+      obj({ process: { type: 'string', enum: ['cnc', 'printed'], description: 'How it is made: cnc (cut from a block of stock) or printed (3D printed). Default: the part\'s saved choice, else cnc.' },
+        qty: { type: 'integer', minimum: 1, maximum: 1000000, description: 'How many parts the job makes (the setup is shared by them).' },
+        machine_rate: { type: 'number', minimum: 0, maximum: 100000, description: 'Machine cost per hour, in the cost currency.' },
+        setup: { type: 'number', minimum: 0, maximum: 1000000, description: 'Setup cost per job, in the cost currency.' },
+        price_per_kg: { type: 'number', minimum: 0, maximum: 100000, description: 'Price of the part\'s material per kilogram, in the cost currency.' } }),
+      (d, a, X) => { try { return X.cost.estimate(d.s.part, d.s.regen(), X.cost.optionsFor(d.s.part, a)); } catch (e) { if (e.code) { const x = new Error(e.message + (e.next && e.next.length ? ' Try: ' + e.next.join(' ') : '')); x.code = e.code; throw x; } throw e; } });
+    partTool('photo_import', 'edit', 'Sketch from a photo', 'Turn a picture of a flat part (its silhouette on a plain ground, holes included) or of a pen drawing into a sketch of lines, arcs and circles at the scale you give, and optionally extrude it: one undo step. Classic image processing on this computer, no trained model. Returns what it found and what it could not tell.',
+      obj({ ...PART_AGENTS.PHOTO_PROPS }, ['path']), async (d, a, X) => {
+        if (!a.known_mm && !a.mm_per_px) throw new Error('Say the scale: one real length (known_mm, with known_of) or mm_per_px.');
+        const { bytes } = readFile(env, a.path);
+        const PH = await X.photo();
+        let img; try { img = await PH.decodePhoto(bytes); } catch (e) { throw new Error(e.message + (e.next ? ' Try: ' + e.next.join(' ') : '')); }
+        const r = PH.photoToSketch(img, { mode: a.mode, tolPx: a.tolerance_px, ...(a.mm_per_px ? { mmPerPx: a.mm_per_px } : { known: { of: a.known_of || 'width', mm: a.known_mm } }) });
+        if (!r.found) throw new Error(r.problems.join(' ') || 'No shape was found in the picture.');
+        const label = env.undoPrefix + 'photo to sketch';
+        d.s.hist.push(d.s.part, label);
+        const sk = d.s.m.P.addFeature(d.s.part, 'sketch', { plane: { kind: 'base', name: a.plane || 'front' }, sketch: PH.sketchFromEntities(r.entities, r.loops) });
+        if (a.extrude > 0) d.s.m.P.addFeature(d.s.part, 'extrude', { sketch: sk.id, depth: a.extrude });
+        const dsc = X.describePart(d.s.part, d.s.regen());
+        return { undo: label, entities: { lines: r.report.lines || 0, arcs: r.report.arcs || 0, circles: r.report.circles || 0 }, outlines: r.loops.length, size_mm: { width: Math.round(r.size.w * 100) / 100, height: Math.round(r.size.h * 100) / 100 }, notes: r.problems, failing: dsc.failing, solid: dsc.solid };
+      });
+    partTool('hydrostatics_describe', 'read', 'Hydrostatics of the hull', 'Float the part as a hull at a draft: displacement, centre of buoyancy, waterplane, wetted surface, metacentre heights, block and waterplane coefficients, tonnes per cm; with kg also the metacentric height and the righting-arm curve (GZ against heel). Textbook hydrostatics from the solid; no trim, no free surface.',
+      obj((() => { const P = PART_AGENTS.hydro.HYDRO_PROPS; return { draft: P.draft, length_unit: P.length_unit, water: P.water, kg: P.kg, heel_to: P.heel_to, up: P.up, length_axis: P.length_axis, across_axis: P.across_axis }; })(), ['draft']),
+      (d, a, X) => { try { return X.hydro.describe(d.s.regen(), a); } catch (e) { if (e.code) { const x = new Error(e.message + (e.next && e.next.length ? ' Try: ' + e.next.join(' ') : '')); x.code = e.code; throw x; } throw e; } });
     partTool('part_export', 'export', 'Export the part', 'The built solid as STL, 3MF, STEP (faceted: the mesh kernel has no exact surfaces) or OpenUSD (.usdz, .usda, .usdc, with its material and mass), as PartCraft\'s File › Export writes them, to a file in the allowed folders.',
       obj({ format: { type: 'string', enum: ['stl', '3mf', 'step', 'usdz', 'usda', 'usdc'] }, out: S.path, overwrite: S.overwrite }, ['out']), async (d, a, X) => {
         const fmt = a.format || ({ stl: 'stl', '3mf': '3mf', step: 'step', stp: 'step', usdz: 'usdz', usda: 'usda', usdc: 'usdc' }[extOf(a.out)]);
@@ -461,6 +526,35 @@ export function headlessTools(env) {
         const real = write(env, target, bytes, { overwrite: a.overwrite });
         return { path: real, bytes: bytes.length };
       });
+  }
+
+  // ---- describe it, get it (0.8 EG.75): the same sizing code as the window's tools (partcraft agents.js, design-it.js) ----
+  if (PART && PART_AGENTS?.design) {
+    const DI = PART_AGENTS.design;
+    const wrap = (fn) => async (a) => { try { return await fn(a); } catch (e) { if (e instanceof DI.DesignError) { const x = new Error(e.message + (e.next.length ? ' Try: ' + e.next.join(' ') : '')); x.code = e.code; throw x; } throw e; } };
+    T({ name: 'generators_list', group: 'read', title: 'List generators', description: 'The generators that can make a part from a need: the ones sized here by hand formulas (bracket, shaft) and the Engineer workspace scripts (heat exchanger, manifold, lattice beam, gyroid block). Returns each id, what it needs and what it makes. Use generators_find to pick one from words.',
+      inputSchema: obj({}), run: async () => ({ generators: DI.listGenerators() }) });
+    T({ name: 'generators_find', group: 'read', title: 'Find a generator', description: 'Rank the generators for a need written in words ("bracket holding 20 pounds at 6 inches"). Matches words, not meaning: no trained model. Returns the candidates with the words that matched; an empty list means none fits.',
+      inputSchema: obj({ text: { type: 'string', maxLength: 500, description: 'The need in plain words.' }, load: { type: 'string', maxLength: 60, description: 'Optional load kind: point-force-at-distance, torque, bending-and-torque, heat-duty.' } }),
+      run: async (a) => ({ picks: DI.findGenerators(a) }) });
+    T({ name: 'design_estimate', group: 'read', title: 'Size a part from its loads', description: 'Size a generator from the loads and the material by textbook formulas and check it: returns the dimensions, every check (stress, shear, deflection, bolts) with its limit and safety factor, the mass and the working. Builds nothing; design_make builds it. States what is not checked.',
+      inputSchema: obj({ ...DI.DESIGN_PROPS }, ['generator', 'material']), outputSchema: DI.ESTIMATE_SCHEMA, run: wrap((a) => DI.publicEstimate(DI.estimate(DI.specFromArgs(a)))) });
+    T({ name: 'design_check', group: 'read', title: 'Check a bracket\'s thickness', description: 'Check a bracket you chose the thickness of, for the same loads: returns the stress, shear, deflection and bolt checks against the limits. Use design_estimate to let the thickness be sized.',
+      inputSchema: obj({ ...DI.DESIGN_PROPS, thickness: { type: 'number', minimum: 0.1, maximum: 200, description: 'The shelf and flange thickness, in length_unit.' } }, ['generator', 'material', 'thickness']), outputSchema: DI.ESTIMATE_SCHEMA,
+      run: wrap((a) => { if (a.generator !== 'bracket') throw new DI.DesignError('unsupported', 'Only a bracket is checked at a chosen thickness.', ['Use design_estimate for a shaft.']); return DI.publicEstimate(DI.estimate(DI.specFromArgs(a))); }) });
+    T({ name: 'design_make', group: 'save', title: 'Make the checked part', description: 'Size the generator (as design_estimate), build the part (sketches, extrudes and the bolt holes, material set), check that it builds, and write it as a .partcraft.json in the allowed folders. Returns the estimate, the built solid and the file.',
+      inputSchema: obj({ ...DI.DESIGN_PROPS, name: { type: 'string', maxLength: 60, description: 'The part\'s name (default Bracket or Shaft).' }, out: { ...S.path, description: 'The .partcraft.json file to write.' }, overwrite: S.overwrite }, ['generator', 'material', 'out']), outputSchema: DI.MAKE_SCHEMA,
+      run: wrap(async (a) => {
+        if (!/\.partcraft\.json$/i.test(a.out)) throw new Error('A PartCraft part is a .partcraft.json file.');
+        const est = DI.estimate(DI.specFromArgs(a));
+        const built = DI.buildPart(est, a.name);
+        const m = await PART.partModules();
+        const s = new PART.PartSession(built, m);
+        const dsc = m.A.describePart(s.part, s.regen());
+        const bytes = s.save();
+        const out = write(env, a.out, bytes, { overwrite: a.overwrite });
+        return { out, bytes: bytes.length, estimate: DI.publicEstimate(est), failing: dsc.failing, solid: dsc.solid };
+      }) });
   }
 
   // ---- PartCraft manuals (0.7 AS.6, session assistants-gaps): the Illustrate workspace's writers on a .partcraft-manual.json ----

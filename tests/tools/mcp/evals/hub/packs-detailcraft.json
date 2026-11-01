@@ -1,0 +1,344 @@
+[
+ {
+  "id": "detailcraft-steel.column-and-beam",
+  "title": "A column and a beam",
+  "pack": "detailcraft-steel",
+  "prompt": "Draw a column 4000 mm high with a beam on top of it.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "parts_list",
+    "path": "total",
+    "eq": 2
+   }
+  ]
+ },
+ {
+  "id": "detailcraft-steel.weigh-a-column",
+  "title": "Weigh a column",
+  "pack": "detailcraft-steel",
+  "prompt": "How much does a 4 m W10x33 column weigh?",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "parts_list",
+    "path": "parts.0.weightEachKg",
+    "approx": 196.4,
+    "tol": 0.1
+   }
+  ]
+ },
+ {
+  "id": "detailcraft-steel.connect-with-end-plate",
+  "title": "Connect with an end plate",
+  "pack": "detailcraft-steel",
+  "prompt": "Connect the beam to the column with an endplate connection.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "connection_add",
+    "args": {
+     "type": "endplate",
+     "members": [
+      "$c.id",
+      "$b.id"
+     ]
+    },
+    "expect": [
+     {
+      "path": "added.length",
+      "eq": 1
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "model_describe",
+    "path": "connections.0.count",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "detailcraft-steel.base-plates",
+  "title": "Base plates under the columns",
+  "pack": "detailcraft-steel",
+  "prompt": "Put a baseplate under every column.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "connection_autopilot",
+    "args": {},
+    "expect": [
+     {
+      "path": "counts.baseplate",
+      "eq": 1
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "model_describe",
+    "path": "connections.0.type",
+    "eq": "baseplate"
+   }
+  ]
+ },
+ {
+  "id": "detailcraft-steel.check-the-frame",
+  "title": "Check the frame",
+  "pack": "detailcraft-steel",
+  "prompt": "Check the frame for clashes between members, ignoring overlaps under 2 mm, and for anything that cannot be built.",
+  "allow": [
+   "read",
+   "edit"
+  ],
+  "setup": {},
+  "steps": [
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "column",
+     "start": [
+      0,
+      0,
+      0
+     ],
+     "end": [
+      0,
+      0,
+      4000
+     ],
+     "profile": "W10x33"
+    },
+    "as": "c",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "c1"
+     }
+    ]
+   },
+   {
+    "tool": "member_add",
+    "args": {
+     "type": "beam",
+     "start": [
+      0,
+      0,
+      4000
+     ],
+     "end": [
+      6000,
+      0,
+      4000
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "mark",
+      "eq": "b1"
+     }
+    ]
+   },
+   {
+    "tool": "clash_check",
+    "args": {
+     "tolerance": 2
+    },
+    "expect": [
+     {
+      "path": "checked",
+      "eq": 2
+     },
+     {
+      "path": "total",
+      "eq": 1
+     }
+    ]
+   },
+   {
+    "tool": "constructability_check",
+    "args": {},
+    "expect": [
+     {
+      "path": "problems.length",
+      "eq": 0
+     }
+    ]
+   }
+  ],
+  "check": [
+   {
+    "tool": "app_info",
+    "path": "members",
+    "eq": 2
+   }
+  ]
+ }
+]

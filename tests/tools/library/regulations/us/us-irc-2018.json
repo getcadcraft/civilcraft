@@ -1,0 +1,203 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-irc-2018",
+  "name": "United States: International Residential Code 2018",
+  "jurisdiction": {
+    "country": "US",
+    "level": "country",
+    "region": "",
+    "name": "United States"
+  },
+  "base": null,
+  "edition": "IRC 2018",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "The model code: numbers and section numbers entered from the IRC 2018 text in ICC's free viewer, checked 2026-10-27. A model code is not law until a state or city adopts it; pick your state's pack to check against what applies there."
+  },
+  "authority": "model-code",
+  "source": {
+    "name": "International Code Council, International Residential Code 2018",
+    "url": "https://codes.iccsafe.org/content/IRC2018/chapter-3-building-planning",
+    "date": "2017-08",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "R311.7.5.1",
+      "label": "Riser height",
+      "note": "",
+      "value": 196.85
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.5.2",
+      "label": "Tread depth",
+      "note": "",
+      "value": 254
+    },
+    {
+      "id": "stair.width.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.1",
+      "label": "Stair width",
+      "note": "",
+      "value": 914.4
+    },
+    {
+      "id": "stair.headroom.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.7.2",
+      "label": "Stair headroom",
+      "note": "",
+      "value": 2032
+    },
+    {
+      "id": "stair.rail.height",
+      "applies": "stair",
+      "op": "between",
+      "unit": "mm",
+      "clause": "R311.7.8.1",
+      "label": "Handrail height",
+      "note": "",
+      "min": 863.6,
+      "max": 965.2
+    },
+    {
+      "id": "room.ceiling.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R305.1",
+      "label": "Ceiling height",
+      "note": "Simplified: the code has exceptions for beams, sloped ceilings and basements.",
+      "value": 2133.6
+    },
+    {
+      "id": "room.light.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "R303.1",
+      "label": "Glazing, share of floor area",
+      "note": "Simplified: lighting by artificial means is allowed in some rooms.",
+      "value": 8
+    },
+    {
+      "id": "room.vent.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "R303.1",
+      "label": "Openable area, share of floor area",
+      "note": "Simplified: mechanical ventilation is allowed instead.",
+      "value": 4
+    },
+    {
+      "id": "room.area.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "m2",
+      "clause": "R304.1",
+      "label": "Habitable room floor area",
+      "note": "Every habitable room; kitchens are exempt. Floor under ceilings lower than 5 ft (sloped) or 7 ft (furred) does not count.",
+      "value": 6.5032
+    },
+    {
+      "id": "room.dim.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R304.2",
+      "label": "Habitable room least dimension",
+      "note": "In any horizontal direction; kitchens are exempt.",
+      "value": 2133.6
+    },
+    {
+      "id": "hall.width.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.6",
+      "label": "Hallway width",
+      "note": "",
+      "value": 914.4
+    },
+    {
+      "id": "door.egress.width.min",
+      "applies": "door",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.2",
+      "label": "Egress door clear width",
+      "note": "One side-hinged egress door per dwelling unit; clear width with the door open 90 degrees (the checker estimates it as the leaf width less 2 in).",
+      "value": 812.8
+    },
+    {
+      "id": "door.egress.height.min",
+      "applies": "door",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R311.2",
+      "label": "Egress door clear height",
+      "note": "Clear height from the top of the threshold to the bottom of the stop.",
+      "value": 1981.2
+    },
+    {
+      "id": "escape.area.min",
+      "applies": "window",
+      "op": ">=",
+      "unit": "m2",
+      "clause": "R310.2.1",
+      "label": "Escape opening net clear area",
+      "note": "Every sleeping room (and basements, habitable attics). Grade-floor openings may be 5.0 sq ft. The checker estimates the clear opening from the window type.",
+      "value": 0.5295
+    },
+    {
+      "id": "escape.width.min",
+      "applies": "window",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R310.2.1",
+      "label": "Escape opening clear width",
+      "note": "Net clear opening width.",
+      "value": 508
+    },
+    {
+      "id": "escape.height.min",
+      "applies": "window",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "R310.2.1",
+      "label": "Escape opening clear height",
+      "note": "Net clear opening height.",
+      "value": 609.6
+    },
+    {
+      "id": "escape.sill.max",
+      "applies": "window",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "R310.2.2",
+      "label": "Escape opening sill height",
+      "note": "Measured from the floor to the bottom of the clear opening.",
+      "value": 1117.6
+    }
+  ]
+}

@@ -16,6 +16,19 @@
  * M = R(1 − cos(Δ/2)), chord = 2R·sin(Δ/2). With spirals (Ls, R, θs = Ls / 2R): Xc = Ls(1 − θs²/10 + θs⁴/216 − …),
  * Yc = Ls(θs/3 − θs³/42 + θs⁵/1320 − …), p = Yc − R(1 − cos θs), k = Xc − R sin θs, Ts = (R + p)·tan(Δ/2) + k,
  * Es = (R + p)·sec(Δ/2) − R, Lc = R(Δ − 2θs).
+ *
+ * 0.7.1 71.26 (rail transitions): a PI may carry `tr` = one of TRANSITIONS (default 'clothoid'); both ends of the curve use it.
+ *   clothoid   κ = l / (R·Ls)                                   (linear curvature; the series above)
+ *   cubic      cubic parabola y = x³ / (6·R·Ls), x along the tangent: here Ls is the length ALONG THE TANGENT (the formula's L),
+ *              the element's `len` is its true length along the curve (a little longer); θ = atan(Ls / 2R) at the end
+ *   bloss      κ = (3u² − 2u³) / R                              (u = l / Ls)
+ *   helmert    κ = 2u² / R for u ≤ ½, (1 − 2(1 − u)²) / R after  (Schramm's two parabolas, "biquadratic")
+ *   sinehalf   κ = (1 − cos πu) / (2R)                          (the sine half-wave / cosine transition)
+ *   sine       κ = (u − sin(2πu) / 2π) / R                      (Klein's sine transition)
+ * All but the cubic turn by θ = Ls / 2R; their x, y are the integrals of cos θ, sin θ (Gauss–Legendre, exact to ~1e-12 of Ls).
+ *   transitionAt(kind, l, R, Ls) → { x, y, th }   transitionLength(kind, R, Ls)   cubicParamFor(R, len) (the cubic's Ls from a length)
+ *   spiral elements carry `tr` (the kind), `Lp` (the PI's Ls as typed) and `len` (the true length); a.curves records carry
+ *   tr, ls1 / ls2 = the true lengths, lp1 / lp2 = as typed.
  */
 
 import { t } from "./i18n.js";
@@ -34,11 +47,58 @@ export function clothoid(l, R, Ls) {
   }
   return { x: l * x, y: l * y, th };
 }
-/** The spiral's constants for radius R and length Ls: θs, Xc, Yc (the end's offsets), the shift p and the offset k. */
-export function spiralConstants(R, Ls) {
-  if (!(Ls > 0) || !(R > 0)) return { th: 0, Xc: 0, Yc: 0, p: 0, k: 0 };
-  const c = clothoid(Ls, R, Ls);
-  return { th: c.th, Xc: c.x, Yc: c.y, p: c.y - R * (1 - Math.cos(c.th)), k: c.x - R * Math.sin(c.th) };
+/** The spiral's constants for radius R and length Ls: θs, Xc, Yc (the end's offsets), the shift p and the offset k (and `len`,
+ *  its true length: Ls except for the cubic parabola). */
+export function spiralConstants(R, Ls, kind = 'clothoid') {
+  if (!(Ls > 0) || !(R > 0)) return { th: 0, Xc: 0, Yc: 0, p: 0, k: 0, len: 0 };
+  const len = transitionLength(kind, R, Ls), c = transitionAt(kind, len, R, Ls);
+  return { th: c.th, Xc: c.x, Yc: c.y, p: c.y - R * (1 - Math.cos(c.th)), k: c.x - R * Math.sin(c.th), len };
+}
+
+// ---- 0.7.1 71.26: rail transitions
+export const TRANSITIONS = ['clothoid', 'cubic', 'bloss', 'helmert', 'sinehalf', 'sine'];
+export const trOf = (v) => (TRANSITIONS.includes(v) ? v : 'clothoid');
+/** Curvature shape f(u) (κ = f / R) and its integral F(u) (θ = Ls·F / R) of each integrated kind. */
+const SHAPES = {
+  bloss: { f: (u) => u * u * (3 - 2 * u), F: (u) => u ** 3 - u ** 4 / 2 },
+  helmert: { f: (u) => (u <= 0.5 ? 2 * u * u : 1 - 2 * (1 - u) ** 2), F: (u) => (u <= 0.5 ? (2 * u ** 3) / 3 : u - 0.5 + (2 / 3) * (1 - u) ** 3) },
+  sinehalf: { f: (u) => (1 - Math.cos(Math.PI * u)) / 2, F: (u) => u / 2 - Math.sin(Math.PI * u) / (2 * Math.PI) },
+  sine: { f: (u) => u - Math.sin(2 * Math.PI * u) / (2 * Math.PI), F: (u) => (u * u) / 2 + (Math.cos(2 * Math.PI * u) - 1) / (4 * Math.PI * Math.PI) },
+};
+export const transitionShape = (kind) => SHAPES[kind] || { f: (u) => u, F: (u) => (u * u) / 2 };
+// 8-point Gauss–Legendre nodes and weights on [−1, 1]
+const GX = [-0.9602898564975363, -0.7966664774136267, -0.5255324099163290, -0.1834346424956498, 0.1834346424956498, 0.5255324099163290, 0.7966664774136267, 0.9602898564975363];
+const GW = [0.1012285362903763, 0.2223810344533745, 0.3137066458778873, 0.3626837833783620, 0.3626837833783620, 0.3137066458778873, 0.2223810344533745, 0.1012285362903763];
+function gauss(f, a, b, panels = 8) {
+  let s = 0;
+  const h = (b - a) / panels;
+  for (let p = 0; p < panels; p++) { const m = a + h * (p + 0.5); for (let k = 0; k < 8; k++) s += GW[k] * f(m + (h / 2) * GX[k]); }
+  return (s * h) / 2;
+}
+/** The cubic parabola's length along the curve from x = 0 to x (y' = x² / 2RLs). */
+const cubicArc = (x, R, Ls) => gauss((v) => Math.hypot(1, (v * v) / (2 * R * Ls)), 0, x, 4);
+/** The true length of a transition of kind with parameter Ls (the cubic's is longer than its Ls; the rest are Ls). */
+export function transitionLength(kind, R, Ls) { return kind === 'cubic' && R > 0 && Ls > 0 ? cubicArc(Ls, R, Ls) : Ls; }
+/** The cubic parabola's Ls (length along the tangent) whose curve is `len` long. */
+export function cubicParamFor(R, len) {
+  let L = len;
+  for (let i = 0; i < 30; i++) { const d = cubicArc(L, R, L) - len; if (Math.abs(d) < 1e-12 * Math.max(1, len)) break; L -= d / Math.hypot(1, L / (2 * R)); }
+  return L;
+}
+/** A transition of `kind` from zero curvature: at distance l along it (its true length), the point (x along the starting tangent,
+ *  y toward the turn) and the turn so far th. Clothoid: the exact series; cubic: on y = x³ / 6RLs; the rest by integration. */
+export function transitionAt(kind, l, R, Ls) {
+  if (kind === 'cubic') {
+    // the x whose arc length is l (Newton on s(x) − l, ds/dx = √(1 + y'²))
+    let x = l;
+    for (let i = 0; i < 30; i++) { const d = cubicArc(x, R, Ls) - l; if (Math.abs(d) < 1e-13 * Math.max(1, l)) break; x -= d / Math.hypot(1, (x * x) / (2 * R * Ls)); }
+    return { x, y: (x ** 3) / (6 * R * Ls), th: Math.atan((x * x) / (2 * R * Ls)) };
+  }
+  if (!SHAPES[kind]) return clothoid(l, R, Ls);
+  const F = SHAPES[kind].F, th = (s) => (Ls * F(Math.min(1, Math.max(0, s / Ls)))) / R;
+  if (!(l > 0)) return { x: 0, y: 0, th: 0 };
+  const n = Math.max(4, Math.ceil(16 * (l / Ls)));
+  return { x: gauss((s) => Math.cos(th(s)), 0, l, n), y: gauss((s) => Math.sin(th(s)), 0, l, n), th: th(l) };
 }
 const finPos = (v) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0);
 
@@ -60,14 +120,14 @@ export function buildAlignment({ pis, start = 0 }) {
     const ls1 = finPos(Q[i].ls1) || finPos(Q[i].ls), ls2 = finPos(Q[i].ls2) || finPos(Q[i].ls);
     if (!ls1 && !ls2) { const T = r * Math.tan(Math.abs(d) / 2); curves[i] = { r, d, T, T1: T, T2: T, a1, a2, ls1: 0, ls2: 0 }; continue; }
     // 0.7 D7.35: spirals. The circle's centre sits (r + p) from each tangent, on the inside; the spiral's end is k along the tangent from the foot.
-    const S1 = spiralConstants(r, ls1), S2 = spiralConstants(r, ls2);
+    const tr = trOf(Q[i].tr), S1 = spiralConstants(r, ls1, tr), S2 = spiralConstants(r, ls2, tr);   // tr: 0.7.1 71.26
     if (S1.th + S2.th > Math.abs(d) + 1e-12) { errors.push(t('al.err.spiral', { pi: i + 1, ls: +(ls1 + ls2).toFixed(2) })); curves[i] = { r: 0, d, T: 0, T1: 0, T2: 0, a1, a2 }; continue; }
     const sg = d > 0 ? 1 : -1, u1 = { x: Math.cos(a1), y: Math.sin(a1) }, u2 = { x: Math.cos(a2), y: Math.sin(a2) };
     const n1 = { x: -sg * u1.y, y: sg * u1.x }, n2 = { x: -sg * u2.y, y: sg * u2.x };
     const det = n1.x * n2.y - n1.y * n2.x, b1 = r + S1.p, b2 = r + S2.p;
     const cx = (b1 * n2.y - n1.y * b2) / det, cy = (n1.x * b2 - b1 * n2.x) / det;   // the centre, relative to the PI
     const T1 = S1.k - (u1.x * cx + u1.y * cy), T2 = u2.x * cx + u2.y * cy + S2.k;
-    curves[i] = { r, d, T: Math.max(T1, T2), T1, T2, a1, a2, ls1, ls2, S1, S2, cx, cy };
+    curves[i] = { r, d, T: Math.max(T1, T2), T1, T2, a1, a2, ls1, ls2, S1, S2, cx, cy, tr };
   }
   // tangents must fit
   for (let i = 0; i < n - 1; i++) {
@@ -105,11 +165,11 @@ export function buildAlignment({ pis, start = 0 }) {
       // 0.7 D7.35: tangent - spiral - curve - spiral - tangent
       const ccw = c.d > 0, sg = ccw ? 1 : -1, r = c.r, ts = sta;
       const st = { x: Q[i].x + Math.cos(c.a2) * c.T2, y: Q[i].y + Math.sin(c.a2) * c.T2 };
-      const rec = { piIndex: i, r, ccw, d: c.d, ls1: c.ls1, ls2: c.ls2, theta1: c.S1.th, theta2: c.S2.th, T1: c.T1, T2: c.T2, Es: Math.hypot(c.cx, c.cy) - r, ts };
+      const rec = { piIndex: i, r, ccw, d: c.d, ls1: c.S1.len, ls2: c.S2.len, lp1: c.ls1, lp2: c.ls2, tr: c.tr, theta1: c.S1.th, theta2: c.S2.th, T1: c.T1, T2: c.T2, Es: Math.hypot(c.cx, c.cy) - r, ts };
       let p = end, dirNow = dir;
       if (c.ls1 > 0) {
-        const sp = spiralElement('in', { p0: end, dir0: dir, r, Ls: c.ls1, ccw, sta, piIndex: i });
-        elements.push(sp); sta += c.ls1; p = sp.p1; dirNow = sp.dir1;
+        const sp = spiralElement('in', { p0: end, dir0: dir, r, Ls: c.ls1, ccw, sta, piIndex: i, tr: c.tr });
+        elements.push(sp); sta += sp.len; p = sp.p1; dirNow = sp.dir1;
       }
       const delta = Math.abs(c.d) - c.S1.th - c.S2.th, sc = { sta, x: p.x, y: p.y };
       rec.sc = sta;
@@ -127,8 +187,8 @@ export function buildAlignment({ pis, start = 0 }) {
       }
       rec.Lc = Math.max(0, delta) * r; rec.cs = sta;
       if (c.ls2 > 0) {
-        elements.push(spiralElement('out', { p1: st, dir1: c.a2, r, Ls: c.ls2, ccw, sta, piIndex: i }));
-        sta += c.ls2;
+        const so = spiralElement('out', { p1: st, dir1: c.a2, r, Ls: c.ls2, ccw, sta, piIndex: i, tr: c.tr });
+        elements.push(so); sta += so.len;
       }
       rec.st = sta;
       records.push(rec);
@@ -142,12 +202,12 @@ export function buildAlignment({ pis, start = 0 }) {
 }
 
 /** A spiral element. 'in': from p0 (tangent dir0) curvature 0 → 1/r; 'out': ends at p1 (tangent dir1), curvature 1/r → 0. */
-function spiralElement(io, { p0, dir0, p1, dir1, r, Ls, ccw, sta, piIndex }) {
-  const sg = ccw ? 1 : -1, K = spiralConstants(r, Ls), e = { type: 'spiral', io, ccw, r, Ls, len: Ls, sta, piIndex, theta: K.th, delta: K.th, Xc: K.Xc, Yc: K.Yc, p: K.p, k: K.k };
+function spiralElement(io, { p0, dir0, p1, dir1, r, Ls, ccw, sta, piIndex, tr = 'clothoid' }) {
+  const sg = ccw ? 1 : -1, K = spiralConstants(r, Ls, tr), e = { type: 'spiral', io, ccw, r, Ls, Lp: Ls, tr, len: K.len, sta, piIndex, theta: K.th, delta: K.th, Xc: K.Xc, Yc: K.Yc, p: K.p, k: K.k };
   if (io === 'in') { e.p0 = p0; e.dir0 = dir0; e.dirIn = dir0; e.dir1 = dir0 + sg * K.th; }
   else { e.p1 = p1; e.dir1 = dir1; e.dir0 = dir1 - sg * K.th; e.dirIn = e.dir0; }
   const at = (s) => spiralAt(e, s);
-  if (io === 'in') e.p1 = at(Ls); else e.p0 = at(0);
+  if (io === 'in') e.p1 = at(e.len); else e.p0 = at(0);
   // the spiral's own PI: where its two end tangents meet (tanLong from the tangent point, tanShort to the curve end)
   const tl = K.Xc - K.Yc / Math.tan(K.th), ts = K.Yc / Math.sin(K.th);
   e.tanLong = tl; e.tanShort = ts;
@@ -158,11 +218,11 @@ function spiralElement(io, { p0, dir0, p1, dir1, r, Ls, ccw, sta, piIndex }) {
 export function spiralAt(e, s) {
   const sg = e.ccw ? 1 : -1;
   if (e.io === 'in') {
-    const c = clothoid(s, e.r, e.Ls), co = Math.cos(e.dir0), si = Math.sin(e.dir0);
+    const c = transitionAt(e.tr, s, e.r, e.Lp ?? e.Ls), co = Math.cos(e.dir0), si = Math.sin(e.dir0);
     return { x: e.p0.x + c.x * co - sg * c.y * si, y: e.p0.y + c.x * si + sg * c.y * co, dir: e.dir0 + sg * c.th };
   }
   // 'out': walked backwards from its end it is an 'in' spiral turning the other way
-  const l = Math.max(0, e.Ls - s), c = clothoid(l, e.r, e.Ls), db = e.dir1 + Math.PI, co = Math.cos(db), si = Math.sin(db);
+  const l = Math.max(0, e.len - s), c = transitionAt(e.tr, l, e.r, e.Lp ?? e.Ls), db = e.dir1 + Math.PI, co = Math.cos(db), si = Math.sin(db);
   return { x: e.p1.x + c.x * co + sg * c.y * si, y: e.p1.y + c.x * si - sg * c.y * co, dir: e.dir1 - sg * c.th };
 }
 /** Nearest point on a spiral element to (x, y): { s, x, y, dir }. */

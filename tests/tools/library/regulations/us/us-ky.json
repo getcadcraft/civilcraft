@@ -1,0 +1,52 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-ky",
+  "name": "Kentucky: 2018 Kentucky Residential Code, Third Edition (August 2024)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-KY",
+    "name": "Kentucky"
+  },
+  "base": "us-irc-2015",
+  "edition": "IRC 2015 as adopted, 2024-12-03",
+  "in_force": "2024-12-03",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2015 (Kentucky Department of Housing, Buildings and Construction; 815 KAR 7:125). State amendments to the checked rules: riser height, tread depth. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (research confidence: high); not yet reviewe…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Kentucky Department of Housing, Buildings and Construction, 815 KAR 7:125",
+    "url": "https://apps.legislature.ky.gov/law/kar/titles/815/007/125",
+    "date": "2024-08-13",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "stair.riser.max",
+      "applies": "stair",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "KRC R311.7.5.1",
+      "label": "Riser height",
+      "note": "State amendment.",
+      "value": 209.55
+    },
+    {
+      "id": "stair.tread.min",
+      "applies": "stair",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "KRC R311.7.5.2",
+      "label": "Tread depth",
+      "note": "State amendment.",
+      "value": 228.6
+    }
+  ]
+}

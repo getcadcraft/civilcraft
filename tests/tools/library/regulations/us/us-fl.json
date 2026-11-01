@@ -1,0 +1,31 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-fl",
+  "name": "Florida: Florida Building Code – Residential, 8th Edition (2023)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-FL",
+    "name": "Florida"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2023-12-31",
+  "in_force": "2023-12-31",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Florida Building Commission; s. 553.73, F.S.; Rule 61G20-1.001, F.A.C.). No state amendment to the eight checked rules was found in the sources read (the full state text was not reviewed). Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Florida Building Commission, s. 553.73, F.S.; Rule 61G20-1.001, F.A.C.",
+    "url": "https://www.floridabuilding.org/fbc/commission/FBC_1026/Commission/Workplan_October_2026.pdf",
+    "date": "2026-10",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": []
+}

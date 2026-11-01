@@ -7,7 +7,7 @@
  *   node bin/test-civilcraft-structs.mjs [--build dev|x.y] [--verbose] [--keep]
  *
  * By hand: a 48" round manhole with a 5" wall (outside 58" = 736.6 mm radius), a 36" × 48" rectangular inlet; untrusted
- * types; the plan symbol in mm; the library item checked by LibraryCraft's own rules three ways — BimCraft's libitem.js
+ * types; the plan symbol in mm; the library item checked by Library's own rules three ways — BimCraft's libitem.js
  * validateItem (the canonical JS), the site's PHP LibraryItemFormat::validate, and the server's converter
  * (tools/library/convert.mjs, kind "item", with its preview) — its 3D body a closed solid facing out with the volume of
  * the outside shape × (depth + slab); read back exactly in feet, and in a metre project (48" → 1219.2 mm); items that are
@@ -120,7 +120,7 @@ const items = {};
   // the server's converter, kind "item"
   for (const id of fs.existsSync(path.join(REPO, 'tools/library/convert.mjs')) ? Object.keys(items) : []) {
     const o = JSON.parse(execFileSync('node', [path.join(REPO, 'tools/library/convert.mjs'), path.join(OUT, id + '.item.json'), path.join(OUT, 'conv-' + id)], { encoding: 'utf8' }));
-    ok(o.ok && o.items?.length === 1 && fs.existsSync(o.items[0].preview || path.join(path.dirname(o.items[0].path), 'preview.svg')), id + ': LibraryCraft\'s converter takes it as an item and draws its preview', o);
+    ok(o.ok && o.items?.length === 1 && fs.existsSync(o.items[0].preview || path.join(path.dirname(o.items[0].path), 'preview.svg')), id + ': Library\'s converter takes it as an item and draws its preview', o);
   }
 }
 

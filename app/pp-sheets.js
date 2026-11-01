@@ -18,12 +18,14 @@
  *       → { sheets (plot.js sheets with views), vex (used), notes, plan }
  *       eg = [{ sta, z | null }] (project.egProfile), profile = profile.js Profile or null; vex = wanted exaggeration
  *       (10 by default): lowered to the largest of 10 5 4 2 1 at which every sheet's elevations fit (said)
+ *       cant (0.7.1 71.26) = rail.js cantPlan: a band under the profile's stations with each rail's height and the curves' cant
  *   rotation(alignment, a, b) → θ (the plan turns by −θ)
  */
 
 import { t } from './i18n.js';
 import { MARGIN, TITLE_H, orient, paperBy, WIDTH, RGB } from './plot.js';
 import { formatStation, fixed, pct } from './units.js';
+import { cantAt } from './rail.js';   // 0.7.1 71.26: the cant band
 
 /** The design profile across [a, b]: its own breakpoints (PVIs, vertical curves) inside, plus both ends. */
 function designIn(profile, a, b) {
@@ -62,9 +64,12 @@ export function rotation(al, a, b) {
   return Math.atan2(q.y - p.y, q.x - p.x);
 }
 
-export function planProfileSheets(scene, { alignment: al, eg = [], profile = null, paper = 'tabloid', landscape = true, scale, vex = 10, units = 'ft', title = '', name = '', from, to }) {
+export function planProfileSheets(scene, { alignment: al, eg = [], profile = null, paper = 'tabloid', landscape = true, scale, vex = 10, units = 'ft', title = '', name = '', from, to, cant = null }) {
   const plan = sheetPlan(al, { paper, landscape, scale, from, to, units });
-  const { P, plan: PW, profile: VW } = plan.window;
+  const { P, plan: PW, profile: VW0 } = plan.window;
+  // 0.7.1 71.26: a railway alignment with cant gets a cant band under the profile's stations (rail.js cantPlan)
+  const band = cant?.curves?.some((c) => c.cant) ? { y0: VW0.y0, y1: VW0.y0 + 10 } : null;
+  const VW = band ? { ...VW0, y0: VW0.y0 + 16 } : VW0;
   const s = scale.mmPerUnit, notes = [];
   const N = plan.stations.length;
   // the exaggeration: the largest standard one ≤ the wanted one at which every sheet's elevations fit
@@ -157,6 +162,17 @@ export function planProfileSheets(scene, { alignment: al, eg = [], profile = nul
         if (cv.pvi < a || cv.pvi > b) continue;
         pv.texts.push({ color: INK, x: X(cv.pvi), y: Y(cv.zPvi) + (cv.kind === 'crest' ? 5 : -6), h: 1.8, rot: 0, align: 'center', text: t('pp.vc', { sta: formatStation(cv.pvi, units), z: fixed(cv.zPvi, 2), L: fixed(cv.L, 2), K: fixed(cv.K, 1) }) });
       }
+    }
+    if (band) {   // 0.7.1 71.26: each rail's height over the profile (left solid, right dashed), the curves' cant written
+      const top = Math.max(10, ...cant.curves.map((c) => Math.abs(c.cant))), BY = (v) => band.y0 + 1 + (Math.max(0, v) / top) * (band.y1 - band.y0 - 4.5);
+      pv.strokes.push({ color: INK, width: 0.25, pts: [{ x: VW.x0, y: band.y0 }, { x: xEnd, y: band.y0 }, { x: xEnd, y: band.y1 }, { x: VW.x0, y: band.y1 }], closed: true });
+      pv.texts.push({ color: INK, x: VW.x0 - 1.5, y: (band.y0 + band.y1) / 2, h: 1.8, rot: 0, align: 'right', middle: true, text: t('pp.cant') });
+      for (const [k, dash, color] of [['L', null, FG], ['R', [1.5, 1], INK]]) {
+        const pts = [];
+        for (let i = 0; i <= 200; i++) { const st = a + ((b - a) * i) / 200; pts.push({ x: X(st), y: BY(cantAt(cant, st)[k]) }); }
+        pv.strokes.push({ color, width: 0.35, ...(dash ? { dash } : {}), pts });
+      }
+      for (const c of cant.curves) { const m = (c.sc + c.cs) / 2; if (c.cant && m >= a && m <= b) pv.texts.push({ color: INK, x: X(m), y: band.y1 - 3, h: 1.6, rot: 0, align: 'center', text: t('pv.cant.curve', { cant: fixed(c.cant, 0) }) }); }
     }
     // ---------------------------------------------------------------- frame and title strip
     const chrome = [], tt = [];

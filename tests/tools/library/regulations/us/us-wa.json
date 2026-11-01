@@ -1,0 +1,37 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-wa",
+  "name": "Washington: Washington State Residential Code (chapter 51-51 WAC)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "state",
+    "region": "US-WA",
+    "name": "Washington"
+  },
+  "base": "us-irc-2021",
+  "edition": "IRC 2021 as adopted, 2024-03-15",
+  "in_force": "2024-03-15",
+  "review": {
+    "state": "draft",
+    "note": "Adopts IRC 2021 (Washington State Building Code Council; Chapter 51-51 WAC). State amendments to the checked rules: openable area, share of floor area. Amendments were researched for stairs, ceiling height, light and ventilation only; every other rule (room size, egress, escape openings, electrical, alarms) is the base code's. Entered 2026-10-27 (research confidence: high); not yet reviewed by a…"
+  },
+  "authority": "adopted-law",
+  "source": {
+    "name": "Washington State Building Code Council, Chapter 51-51 WAC",
+    "url": "https://app.leg.wa.gov/wac/default.aspx?cite=51-51",
+    "date": "2023-11-15",
+    "checked": "2026-10-27"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [
+    {
+      "id": "room.vent.min",
+      "remove": true,
+      "note": "Washington deletes the 4% openable-area requirement and requires whole-house and local exhaust mechanical ventilation instead (WAC 51-51-0303)."
+    }
+  ]
+}

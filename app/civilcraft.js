@@ -33,10 +33,10 @@
  * page only as text nodes (el() in ui-util.js). `window.civilcraft` exposes the state for tests.
  */
 
-import { Project } from './project.js';
+import { Project, cleanDesign, SPEED_UNITS } from './project.js';
 import { parsePoints, lassoPoints } from './points.js';
 import { lassoMode, nextMode, thin } from './lasso-core.js';
-import { civilTools } from './civil-agent.js';
+import { civilTools, civilRollback } from './civil-agent.js';
 import { readLandXml, writeLandXml } from './landxml.js';
 import { planScene, toDxfEntities, LAYERS } from './scene.js';
 import { writeDxf } from './dxf.js';
@@ -49,7 +49,11 @@ import { buildProfile } from './profile.js';
 import { polyArea, pointInPoly } from './tin.js';
 import { normAng } from './alignment.js';
 import { curveWhy, verticalWhy } from './solve-why.js';   // 0.5 WL.23
+import { railProps } from './rail-ui.js';   // 0.7.1 71.26: railway alignments and tracks
+import { railSceneItems } from './rail.js';
+import { civilProblems, civilMarkers } from './problems-civilcraft.js';   // 0.7.1 → 0.8: the shell's Problems (docs/0.8-PROBLEMS-SPEC.md)
 import { el, fillDl, num } from './ui-util.js';
+import { mountIds } from './ids-ui.js';   // 0.7.1 71.25: Check against IDS… in Export › IFC (cc-ids in ./ids/)
 import { mountViewCube, mountAxisIcon } from './viewcube.js';
 import { defaultNetwork, defaultPipeDia, defaultStructDia, autoInverts, DIA_UNIT } from './pipes.js';
 import { defaultAssembly } from './corridor.js';
@@ -69,7 +73,31 @@ import { createStructs } from './structs-ui.js';   // 0.6 WL.27
 import { createSwept } from './swept-ui.js';   // 0.6 WL.28
 import { createLandscape } from './landscape/landscape-ui.js';   // 0.7 LD (session landscape): the Landscape workspace
 import { landscapeTools } from './landscape/ls-agent.js';   // 0.7 LD.8: its assistant tools
+import { sidesBlock, slopeInput } from './sides-ui.js';   // 0.7.1 71.22: slopes per side, retaining walls
+import { cleanSides, wallSceneItems } from './sides.js';
 import { createPowerlines } from './powerline/powerline-ui.js';   // 0.7 PL: the Power lines workspace (docs/0.7-PART8.md)
+import { riverProblems } from './problems-river.js';   // 0.8 SU.957: river warnings as Problems
+import { createPlatform } from './platform-ui.js';   // 0.8 SU.914: cut and fill map, free sections, ramps
+import { createGround } from './ground-ui.js';   // 0.8 SU.911/935: ground from contours / a point cloud (session civil-08)
+import { waterProblems } from './problems-water.js';   // 0.8 LC.16: the water mains' warnings as shared Problems
+import { waterTools } from './water-agent.js';
+import { createGeo } from './geo-ui.js';   // 0.8 round 2 (civil-geo_PART_2): soils and slopes, junctions, survey adjustment, pits, links, rail
+import { geoTools } from './geo-agent.js';   // 0.8 round 2 (civil-geo_PART_2): its assistant tools
+import { PadDetector } from './wheel-pad.js';   // 0.7 D7.56 (CadCraft's copy, byte-identical): a trackpad's two-finger swipe pans
+import { mountCivilAccess } from './access-mount.js';   // 0.8 round 3 (access_PART_3): EG.52, the plan without sight
+import { mountShell } from './shell-mount.js';   // 0.8 round 3 (civil_PART_3): calc sheets, reasons, totals, lessons, Suggest, activity, Ask box
+import { createMassOptions } from './massing-options-ui.js';   // 0.8 EG.58 (civil_PART_3): BimCraft's massing options on a parcel
+import { createSolar } from './solar-ui.js';   // 0.8 EG.15 (civil_PART_3): ground PV arrays on terrain
+import { landscapeProblems } from './landscape/problems-landscape.js';   // 0.8 LA.4 + LA.2 (landscape-arch_PART_4): junctions, overlaps, links
+import { groundProblems } from './problems-ground.js';   // 0.8 SU.911/914 rest (civil_PART_3): the ground and platform steps in Problems
+import { massOptTools } from './massopt-agent.js';   // 0.8 EG.58 (civil_PART_3): its assistant tools
+import { solarTools } from './solar-agent.js';   // 0.8 EG.15 (civil_PART_3): its assistant tools
+import { egTools } from './eg-agent.js';   // 0.8 round 2: its assistant tools (rain, earthwork, route, ponds, site, progress)   // 0.8 LC.16: its assistant tools
+import { createEg } from './eg-ui.js';   // 0.8 round 2 (civil_PART_2): Make it rain, earthwork balancer, best route, address to site, detention ponds, progress
+import { waterNetwork, waterFromNetwork } from './water-objects.js';   // 0.8 LC.16 rest + CV.2 (civil_PART_3): LandXML water networks, hydrants, fittings
+import { cleanWater } from './water.js';
+import { createWater } from './water-ui.js';   // 0.8 LC.16 W1/W2: water mains (pressure networks)
+import { createRivers } from './river-ui.js';   // 0.8 SU.957: rivers, 1D steady flow (session sx-river)
 import { powerlineTools } from './powerline/pl-agent.js';   // 0.7 PL.8: its assistant tools
 import { createDrainage } from './drainage-ui.js';   // 0.4 V19/V20
 import { createParcels } from './parcels-ui.js';   // 0.4 V21
@@ -81,6 +109,7 @@ import { Autosave } from "./app-autosave.js";   // 0.4 1.2
 import { panButton, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: the menu style's wheel and pan buttons (input-civilcraft.js)
 import { earthworkFile, QTY_EXT } from './qtyout.js';   // 0.6 TK.5+: cut and fill for TakeoffCraft
 import { createSewer } from './sewer-ui.js';   // 0.6 LC.16 S1: sanitary design flows
+import { mountUndoHook } from './undo-hook.js';   // 0.8 EG.77: tells Studio each finished step
 import { measure } from './measure.js';   // 0.7 PL.10: the Measure tool
 
 const root = document.querySelector('[data-civilcraft]');
@@ -102,6 +131,7 @@ function init(root) {
     imp: $('[data-import]'), plot: $('[data-plot]'), dwg: $('[data-dwg]'),
     gisLayers: $('[data-gis-layers]'),   // GIS: the GIS layers section (gis-vector-ui.js fills it)
   };
+  let hintClosed = false;   // the start card closed with its X
   const unitLabels = [...root.querySelectorAll('[data-unit]')];   // kept: a panel moved to the panels window leaves root
 
   let project = new Project();
@@ -147,12 +177,27 @@ function init(root) {
     select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); }, command: (c) => command(c), setTool: (x) => setTool(x), tool: () => tool,
     redraw: () => { view.invalidateScene(); view.invalidate(); }, refresh: () => refresh(), download: (...x) => download(...x), fileStem: () => fileStem(),
     numInput: (...x) => numInput(...x), row: (...x) => row(...x), cursor: () => cursor, surface: () => graded().surface || eg().surface, buildScene: (mm) => buildScene(mm), extents: () => extentsAll(),
-    groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } });
+    groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; },
+    existing: () => eg().surface, tol: () => 8 / view.zoom });   // 0.8 LA.4 (landscape-arch_PART_4): existing-ground level labels and cut/fill per modifier
   const plUi = createPowerlines({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(),   // 0.7 PL: Power lines (powerline/)
     select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); }, selection: () => sel, command: (c) => command(c), setTool: (x) => setTool(x), tool: () => tool,
     redraw: () => { view.invalidateScene(); view.invalidate(); }, refresh: () => refresh(), download: (...x) => download(...x), fileStem: () => fileStem(),
     numInput: (...x) => numInput(...x), row: (...x) => row(...x), cursor: () => cursor, surface: () => graded().surface || eg().surface, buildScene: (mm) => buildScene(mm), extents: () => extentsAll(),
     network: () => project.state.network, landscape: () => lsUi, groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } });
+  const rvUi = createRivers({ root, el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m), select: (x) => { picked.clear(); sel = x; selPvi = -1; refresh(); }, selection: () => sel,   // 0.8 SU.957
+    setTool: (x) => setTool(x), refresh: () => refresh(), redraw: () => view.invalidate(), scene: () => view.invalidateScene(), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), surface: () => eg().surface });
+  const pfUi = createPlatform({ root, el, project: () => project, units: () => units(), say: (m) => say(m), setTool: (x) => setTool(x), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), legend: ui.legend, refresh: () => refresh(), redraw: () => view.invalidate() });   // 0.8 SU.914
+  const wmUi = createWater({ root, el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m), select: (x) => { picked.clear(); sel = x; selPvi = -1; refresh(); }, selection: () => sel,   // 0.8 LC.16
+    setTool: (x) => setTool(x), redraw: () => { view.invalidate(); wmUi.refreshWindow(); }, download: (name, blob) => download(blob, name), fileStem: () => fileStem(), tol: () => 8 / view.zoom, groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } });
+  let gnSrc = null;   // the ground and platform steps' Problems source
+  let egSrc = null;   // the Problems source for the round-2 tools (set where the sources are made)
+  let lsSrcRef = null;   // 0.8 LA.4 (landscape-arch_PART_4): the Landscape junctions source (re-checked after a link regenerates)
+  const egUi = createEg({ root, el, project: () => project, units: () => units(), say: (m) => say(m), download: (name, blob) => download(blob, name), fileStem: () => fileStem(),   // 0.8 round 2
+    ground: () => eg().surface, graded: () => graded(), setTool: (x) => setTool(x), refresh: () => refresh(), redraw: () => { view.invalidate(); }, problemsChanged: () => egSrc?.invalidate() });
+  const geoUi = createGeo({ root, el, project: () => project, units: () => units(), say: (m) => say(m), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), ground: () => eg().surface, redraw: () => view.invalidate(), problemsChanged: () => egSrc?.invalidate() });   // 0.8 round 2 (civil-geo_PART_2)
+  const moUi = createMassOptions({ root, el, project: () => project, units: () => units(), say: (m) => say(m), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); view.invalidate(); }, refresh: () => { refresh(); view.invalidateScene(); }, redraw: () => view.invalidate() });   // 0.8 EG.58
+  const solarUi = createSolar({ root, el, project: () => project, units: () => units(), say: (m) => say(m), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), redraw: () => view.invalidate(), refresh: () => { refresh(); view.invalidateScene(); egSrc?.invalidate(); } });   // 0.8 EG.15
+  const gdUi = createGround({ root, el, project: () => project, say: (m) => say(m) });   // 0.8 SU.911
   let draftClosed = false;   // 0.4 V14: the Feature line tool closed its line on the first vertex
   // 0.6 WL.24: arcs in the Feature line tool — C (or the touch bar's Arc) turns arc mode on/off; in it, after a vertex the
   // next click is a point on the curve (flMid), the click after that ends the arc (the earlier vertex gets its bulge)
@@ -178,6 +223,7 @@ function init(root) {
     get sections() { return secUi; },   // 0.4 V13
     get landscape() { return lsUi; },   // 0.7 LD
     get powerlines() { return plUi; },   // 0.7 PL
+    get rivers() { return rvUi; }, get platform() { return pfUi; }, get water() { return wmUi; },   // 0.8 SU.957 / SU.914 / LC.16 (tests)
     get sheets() { return ppUi; },   // 0.4 V15
     say: (m) => say(m),   // Studio Live (0.5 LV.22, live.js): its messages
   };
@@ -196,8 +242,8 @@ function init(root) {
     // props: [(sel, box, head) => bool] (Properties for a GIS selection) · overlay: [(ctx, view, sel) => void] ·
     // exportExtra: [(container, host) => void] (sections in GIS › Export) · pointsLatLon / landxmlCrs (gis-vector-ui.js)
     pick: [], props: [], overlay: [], exportExtra: [], pointsLatLon: null, landxmlCrs: null };
-  const GIS_CMDS = new Set(['crs', 'gis-import', 'gis-export', 'basemap', 'cad-open']);   // cad-open: 0.4 V1 (gis-cad-ui.js)
-  const GIS_EXT = /\.(shp|shx|dbf|prj|cpg|zip|geojson|gpkg|kml|kmz|tif|tiff|asc|las|laz|jgw|pgw|tfw|wld|pngw|jpgw|png|jpe?g|dwg|dxf)$/i;   // 0.4 V1: dwg|dxf → gis-cad-ui.js   // GIS: pictures + world files (map layers)
+  const GIS_CMDS = new Set(['crs', 'gis-import', 'gis-export', 'basemap', 'cad-open', 'scan-start']);   // cad-open: 0.4 V1 (gis-cad-ui.js); scan-start: Super 0.1 (scan-start-ui.js)
+  const GIS_EXT = /\.(shp|shx|dbf|prj|cpg|zip|geojson|gpkg|kml|kmz|tif|tiff|asc|las|laz|jgw|pgw|tfw|wld|pngw|jpgw|png|jpe?g|dwg|dxf|pdf)$/i;   // pdf: Super 0.1, a scanned sheet (scan-start-ui.js)   // 0.4 V1: dwg|dxf → gis-cad-ui.js   // GIS: pictures + world files (map layers)
   let gisReady = null;
   function gisLoad() {
     return (gisReady ||= import('./gis-ui.js').then((m) => m.install(gisHost)).catch((err) => { gisReady = null; say(t('cv.gis.noload', { why: err.message })); throw err; }));
@@ -215,6 +261,7 @@ function init(root) {
   };
   /** A GIS file (or a set: .shp + .dbf + .prj …) opened or dropped. true when a GIS opener took it. */
   async function gisOpen(files) {
+    if (files.some((f) => /\.ccbundle$|ccbundle\.zip$/i.test(f.name))) return false;   // 0.8 BIM-BUNDLE-OPEN: a project bundle is a .zip, but not GIS data: openFile reads it
     const heads = await Promise.all(files.map((f) => (/\.(geojson|json)$/i.test(f.name) ? f.slice(0, 4096).text().catch(() => '') : Promise.resolve(''))));
     const geojson = heads.some((h) => /"type"\s*:\s*"(FeatureCollection|Feature)"/.test(h));
     if (!files.some((f) => GIS_EXT.test(f.name)) && !geojson) return false;
@@ -326,7 +373,7 @@ function init(root) {
   function buildScene(mm) {
     const s = project.state, d = s.display, sh = shown();
     const gr = graded();
-    const padsOut = s.pads.map((p) => { const g = gr.items?.find((x) => x.id === p.id); return { name: p.name, pts: p.pts, z: Number(p.z), daylight: g?.daylight || [], rays: g?.rays || [] }; });
+    const padsOut = s.pads.map((p) => { const g = gr.items?.find((x) => x.id === p.id); return { name: p.name, pts: p.pts, z: Number(p.z), daylight: g?.daylight || [], rays: (g?.rays || []).filter((r) => r.kind !== 'wall'), walls: g?.walls || [] }; });   // walls: 0.7.1 71.22
     const breaklines = sh.tag === 'eg' ? project.egBreaklines() : [];
     const bnd = s.surface.boundary;
     const scene = planScene({
@@ -340,6 +387,9 @@ function init(root) {
     }, { mmPerUnit: mm, show: { ...d, pointLabelText: settings.labels } });
     if (d.alignments !== false) scene.items.push(...secUi.sceneItems(s.alignments));   // 0.4 V13 sample lines
     scene.items.push(...flUi.sceneItems());   // 0.4 V14 feature lines
+    scene.items.push(...wmUi.sceneItems(mm));   // 0.8 LC.16 rest + CV.2: water mains on C-WATR-MAIN, hydrants, valves and fittings
+    scene.items.push(...rvUi.sceneItems());   // 0.8 SU.957: river centreline, cut lines with stations, the flood extent (C-WATR-*)
+    scene.items.push(...pfUi.sceneItems(1 / mm));   // 0.8 SU.914: spot levels of the cut and fill map
     scene.items.push(...swUi.sceneItems(1 / mm));   // 0.6 WL.28 swept paths
     scene.items.push(...lsUi.sceneItems(1 / mm));   // 0.7 LD: plants, beds, hedges (L-* layers)
     scene.items.push(...plUi.sceneItems(1 / mm));   // 0.7 PL: lines, supports, routes, equipment (C-POWR-* layers)
@@ -351,12 +401,17 @@ function init(root) {
       scene.items.push({ layer: 'C-GRAD-DAYL', kind: 'poly', pts: it.daylight, closed: true, z: true });
       for (const r of it.rays || []) if (r.d > 1e-6) scene.items.push({ layer: 'C-GRAD-SLOP', kind: 'poly', pts: [{ x: r.x0, y: r.y0 }, { x: r.x, y: r.y }] });
     }
+    // 0.7.1 71.22: retaining walls (pads here; Landscape platforms in grade-ui.js): outer face, ticks, heights
+    if (d.pads !== false) for (const p of padsOut) scene.items.push(...wallSceneItems(p.walls, { layer: 'C-GRAD-WALL', unitPerMm: 1 / mm, fixed: (v) => fixed(v, 2) }));
+    // 0.7.1 71.26: each track's rails (and track centres) from its corridor sections (flat stand-in ground too)
+    if (d.pads !== false) scene.items.push(...railSceneItems(eg().surface ? (gr.items || []).filter((x) => x.kind === 'corridor') : project.standInCorridors()));
     for (const f of gisReg.scene) f(scene, mm);
     return scene;
   }
 
   let bandCache = null;
   function bands() {
+    { const cf = pfUi.bands(); if (cf) return cf; }   // 0.8 SU.914: the cut and fill map instead of the elevation bands
     const d = project.state.display, sh = shown();
     if (!d.bands || !sh.s) { ui.legend.hidden = true; return null; }
     const key = project.version + '|' + sh.tag + '|' + d.bandCount + '|' + view.dark;
@@ -379,13 +434,18 @@ function init(root) {
     view.invalidateScene();
     renderLeft();
     renderProps();
+    shellM?.changed();
     renderProfile();
     secUi.render();   // 0.4 V13
     updateTools();
     if (kind !== 'display') bandCache = null;
     view3d?.refresh();
+    window.dispatchEvent(new CustomEvent('cc-addon-model-changed'));   // the add-ons' model host (below)
   }
   project.on(refresh);
+  // The add-on host (add-on API 1.4, addons.js): the open project, for the Building regulations add-on's checks. `project` is replaced when a project is
+  // opened, so the host reads the variable each time.
+  window.ccAddonModel = { current: () => ({ name: project.state.name || '' }), read: (fn) => fn(project) };
   // Autosave (0.4 1.2; app-autosave.js): the project is the document; its copy is the project file's JSON, written ~2 s
   // after changes stop while it has unsaved work. A new or opened project replaces it (the old copy goes: the person kept
   // or discarded that work on purpose).
@@ -398,12 +458,131 @@ function init(root) {
     p.on(() => { if (p !== project) return; asDoc.rename(fileStem() + '.civilcraft.json'); if (unsaved()) asDoc.changed(); else asDoc.clean(); });
   }
   bindAutosave();
+  const undoHook = mountUndoHook({ getProject: () => project });   // 0.8 EG.77 undo across apps (follows the project when a file opens: rebind)
+  // 0.8 AL.6 "This file uses …": before a save the shell records which add-ons the file's data came from ({ id: version } under `usesAddons`); after an
+  // open it offers the ones this computer lacks, in a bar above the plan. Regulation ticks come from `regs`; each Address-to-site source from its add-on.
+  const SITE_ADDON = { 'county-parcels': 'site-county-parcels', 'fema-nfhl': 'site-fema-flood', 'geocode-osm': 'site-geocode-osm', 'osm-buildings': 'site-osm-buildings', 'ssurgo-sda': 'site-ssurgo-soil', 'usgs-epqs': 'site-usgs-elevation' };
+  Project.stamp = (p) => {
+    const f = window.ccAddonsFile;
+    if (!f) return null;
+    const ids = [];
+    if (p.shell && p.shell.regs) ids.push('regs');
+    for (const s of p.state.site?.sources || []) if (s.via === 'fetch' && SITE_ADDON[s.id]) ids.push(SITE_ADDON[s.id]);
+    const tmp = { addons: { ...(p.usesAddons || {}) } };
+    try { f.stamp(tmp, ids); } catch (e) { console.warn('add-on record not stamped', e); }
+    return Object.keys(tmp.addons).length ? tmp.addons : null;
+  };
+  function offerAddons() {
+    const st = root.querySelector('[data-stage]');
+    if (!st) return;
+    let el = st.querySelector('[data-addons-banner]');
+    if (!el) { el = document.createElement('div'); el.dataset.addonsBanner = ''; el.className = 'cv-note'; el.hidden = true; el.setAttribute('role', 'status'); st.insertBefore(el, st.firstChild); }
+    el.hidden = true; el.textContent = '';
+    try { window.ccAddonsFile?.offer({ addons: project.usesAddons || {} }, el); el.hidden = !el.childNodes.length; } catch (e) { console.warn('add-on offer failed', e); }
+  }
+  var shellM = null;   // eslint-disable-line no-var
   function rebind() {
     bindAutosave();
-    project.on(refresh); picked.clear(); pasteJob = null; if (tool === 'paste') tool = 'select';
+    undoHook.attach(); offerAddons();
+    project.on(refresh); window.dispatchEvent(new CustomEvent('cc-addon-model-changed')); shellM?.opened(); picked.clear(); pasteJob = null; if (tool === 'paste') tool = 'select';
     for (const f of gisReg.onProject) f(project);
     if (project.state.crs || project.state.gis?.layers?.length) gisLoad().catch(() => {});
   }
+
+  let idsUi = null;   // 0.7.1 71.25: the IDS check of the IFC export (ids-ui.js), mounted after the Problems below
+  /** An IDS problem names the exported element by GlobalId (0.7.1 71.25): back to the project object the writer made it from. */
+  const aboutRef = (p) => {
+    const r = p.about[0];
+    if (r?.kind !== 'element') return r;
+    const [k, id] = String(idsUi?.refOf(r.id)?.tag || '').split('|');
+    if (k === 'road') { const c = (project.state.corridors || []).find((x) => String(x.id) === id); return c ? { kind: 'alignment', id: c.alignment } : null; }
+    const kind = { al: 'alignment', pad: 'pad', pipe: 'pipe', struct: 'structure', mass: 'mass' }[k];
+    return kind ? { kind, id } : null;
+  };
+  // ---- Problems (0.7.1 → 0.8; docs/0.8-PROBLEMS-SPEC.md): curves and vertical curves that have no solution (solve-why.js) and roads
+  // built on flat stand-in ground (project.standInCorridors, 71.19) in the shell's ⚠ panel (manifest "problems"), re-checked a moment after
+  // each change; their fixes are the Properties panel's (one undo step); accepted problems are saved in the project file.
+  if (document.getElementById('cc-problems')) {
+    const go = () => {
+      const P = window.ccProblems;
+      if (!P) return;
+      const src = P.source({
+        id: 'civilcraft.design', kind: 'check', label: t('problems.src.design'),
+        run: () => civilProblems({ alignments: project.state.alignments, standIn: eg().surface ? [] : project.standInCorridors(), graded: eg().surface ? (project.graded().items || []) : [], rail: project.railWarnings(), native: nativeWarnings() }, { t, unit: u().short }),   // native: 71.27 (the IFC pair)   // graded: 71.22 walls and slopes; rail: 71.26
+        fix: (p, f) => {
+          if (f.action === 'ifcSave' || f.action === 'ifcTake') { nativeUi().then((n) => n?.fix(f.action)); return true; }   // 0.7.1 71.27
+          const a = findAl(p.about[0]?.id);
+          if (!a) return false;
+          if (f.action === 'setR' && Array.isArray(f.args)) {
+            const pairs = f.args.filter((x) => Array.isArray(x) && Number.isInteger(x[0]) && a.pis[x[0]] && Number(x[1]) >= 0);
+            if (!pairs.length) return false;
+            const label = pairs.length > 1 ? t('why.undo.both', { a: pairs[0][0] + 1, b: pairs[1][0] + 1 }) : t('why.undo.r', { pi: pairs[0][0] + 1, r: String(pairs[0][1]) });
+            project.change(label, () => { const al = findAl(a.id); for (const [i, r] of pairs) al.pis[i].r = Number(r); });
+            say(label); return true;
+          }
+          if (f.action === 'setL' && f.args && a.pvis?.[f.args.index] && Number(f.args.L) > 0) {
+            const v0 = a.pvis[f.args.index], label = t('why.undo.l', { pvi: f.args.index + 1, l: String(f.args.L) });
+            project.change(label, () => { const v = findAl(a.id).pvis.find((q) => q.sta === v0.sta); if (v) { v.L = Number(f.args.L); delete v.K; } });
+            say(label); return true;
+          }
+          return false;
+        },
+      });
+      const rsrc = P.source({ id: 'civilcraft.river', kind: 'check', label: t('sx.su957.prob.src'), run: () => riverProblems(project.state.rivers || [], { t, resultsOf: (rid) => rvUi.results(rid)?.result || null, unit: units() === 'm' ? 'm' : 'ft' }), fix: () => false });   // 0.8 SU.957
+      const wsrc = P.source({ id: 'civilcraft.water', kind: 'check', label: t('wm.title'), run: () => waterProblems(project.state.water, units() === 'm' ? 'm' : 'ft', { t, result: wmUi.results() }), fix: () => false });   // 0.8 LC.16
+      gnSrc = P.source({ id: 'civilcraft.ground', kind: 'check', label: t('ground.prob.src'), run: () => groundProblems(project, { t, units: units() === 'm' ? 'm' : 'ft', spots: pfUi.map()?.spots || [] }), fix: () => false });   // 0.8 SU.911/914 rest
+      const lsSrc = P.source({ id: 'civilcraft.landscape', kind: 'check', label: t('ls.prob.src'), run: () => { const m = lsUi.stack.modifiers(); return landscapeProblems(project, { t, units: units() === 'm' ? 'm' : 'ft', linkNotes: lsUi.linkNotes(), regions: m.filter((x) => x.region).map((x) => ({ id: String(x.id), kind: x.selKind, name: x.name, pts: x.region })) }); }, fix: () => false });   // 0.8 LA.4
+      lsSrcRef = lsSrc;
+      egSrc = P.source({ id: 'civilcraft.eg', kind: 'check', label: t('eg.prob.src'), run: () => [...egUi.problems(), ...geoUi.problems(), ...solarUi.problems()], fix: () => false });   // 0.8 round 2: ponds, overtopping from Make it rain
+      const loadAcc = () => P.store.loadAccepted(project.state.problems?.accepted || []);
+      const watch = (p) => p.on(() => { if (p !== project) return; loadAcc(); src.invalidate(); rsrc.invalidate(); lsSrc.invalidate(); wsrc.invalidate(); egSrc.invalidate(); gnSrc.invalidate(); });
+      watch(project);
+      gisReg.onProject.push((p) => { watch(p); loadAcc(); src.invalidate(); rsrc.invalidate(); wsrc.invalidate(); egSrc.invalidate(); gnSrc.invalidate(); lsSrc.invalidate(); });   // New / Open / a GIS file opened as a project (rebind)
+      P.adapter({
+        t,
+        file: () => fileStem(),
+        select: (p) => { const r = aboutRef(p); if (!r) return; if (r.kind === 'river') { if (rvUi.find(r.id)) { picked.clear(); sel = { kind: 'river', id: r.id }; selPvi = -1; refresh(); } return; } if (r.kind === 'alignment' && !findAl(r.id)) return; if (r.kind === 'wnode' || r.kind === 'wpipe') { if (wmUi.isMine(r) && (wmUi.model().nodes.some((n) => n.id === r.id) || wmUi.model().pipes.some((q) => q.id === r.id))) { picked.clear(); sel = { kind: r.kind, id: r.id }; selPvi = -1; refresh(); } return; } if (['alignment', 'pad', 'ls-grade', 'ls-hard', 'ls-pa', 'ls-lvl', 'pipe', 'structure', 'mass'].includes(r.kind)) { picked.clear(); sel = { kind: r.kind, id: r.id }; selPvi = -1; refresh(); } },
+        focus: (p) => {
+          const r0 = aboutRef(p), a = r0?.kind === 'alignment' ? findAl(r0.id) : findAl(p.about[0]?.id);
+          if (is3D()) return;
+          const area = r0?.kind === 'pad' ? project.state.pads.find((d) => String(d.id) === r0.id) : r0?.kind === 'ls-grade' ? (project.state.landscape?.grading || []).find((g) => String(g.id) === r0.id) : null;
+          const pts = p.where?.at ? [{ x: p.where.at[0], y: p.where.at[1] }] : a ? a.pis : area?.pts || [];
+          if (!pts.length) return;
+          const pad = pts.length === 1 ? (units() === 'm' ? 60 : 200) : 0;
+          const b = { minX: Math.min(...pts.map((q) => q.x)) - pad, minY: Math.min(...pts.map((q) => q.y)) - pad, maxX: Math.max(...pts.map((q) => q.x)) + pad, maxY: Math.max(...pts.map((q) => q.y)) + pad };
+          view.fit(b);
+        },
+        saveAccepted: (list) => { project.change(t('problems.undo.accept'), (s) => { if (list.length) s.problems = { accepted: list }; else delete s.problems; }); },
+      });
+      P.markers(civilMarkers({ view, stage: ui.plan, project: () => project, is3D }));   // problems-08's mount line (docs/0.8-sessions/problems-08-mounts.md)
+      loadAcc();
+      src.recheck();
+      rsrc.recheck();
+    };
+    if (window.ccProblems) go(); else document.addEventListener('cc-problems-ready', go, { once: true });
+  }
+  // ---- Check against IDS (0.7.1 71.25; ids-ui.js, cc-ids in ./ids/): the IFC Export › IFC would write — the same model, writer and schema
+  // (ifc-civil-model.js, ifc-civil.js; the schema last picked there) — checked against the client's IDS, remembered in the project file
+  // (state.ids, one undo step), its failures in the shell's Problems, re-checked a moment after every change
+  idsUi = mountIds({
+    root, el, t, say, refocus: () => refocus(),
+    ifc: async () => {
+      const [{ civilIfcModel, modelEmpty }, { writeCivilIfc, fileOrigin, SCHEMAS }, { IfcFile }] = await Promise.all([import('./ifc-civil-model.js'), import('./ifc-civil.js'), import('./ifc/model.js')]);
+      const p = project, m = civilIfcModel(p, { species: lsUi.index() });
+      if (modelEmpty(m)) throw new Error(t('cv.export.none'));
+      let schema = 'IFC4X3_ADD2';
+      try { const v = localStorage.getItem('civilcraft.ifcSchema'); if (SCHEMAS.includes(v)) schema = v; } catch { /* storage blocked */ }
+      const origin = fileOrigin(m);
+      if (p.state.crs) { try { const { frame } = await import('./crs.js'); [m.lon, m.lat] = frame(p.state.crs).toLonLat(origin.x, origin.y); } catch { m.lat = m.lon = null; } }
+      const r = writeCivilIfc(m, { schema, origin, seed: p.state.name || 'site' });
+      return { file: IfcFile.open(new TextEncoder().encode(r.text)), tags: r.tags || {} };
+    },
+    readRecord: () => (project.state.ids ? { ...project.state.ids, text: project.idsText() } : null),
+    // the text once in project.idsTexts; the undo step holds only { name, hash } (lead 2026-10-26: no IDS text in the snapshots)
+    writeRecord: (rec) => project.change(t(rec ? 'ids.undo.set' : 'ids.undo.clear'), (s) => { if (rec) s.ids = { name: rec.name, hash: project.idsTexts.put(rec.text) }; else delete s.ids; }),
+  });
+  { const watchIds = (p) => p.on(() => { if (p === project) idsUi.changed(); }); watchIds(project); gisReg.onProject.push((p) => { watchIds(p); idsUi.changed(); }); }
+  window.civilcraftIds = idsUi;   // for tests (tools/ids/browser-civilcraft.mjs)
 
   /** Why an Edit command cannot act right now ('' = it can). Shown in the button's tooltip; the button is grayed out. */
   function editBlock(c) {
@@ -414,7 +593,7 @@ function init(root) {
       case 'redo': return project.redoStack.length ? '' : t('cv.redo.none');
       case 'copy': case 'cut': case 'duplicate': return sp ? '' : pts ? needPts : t('cv.edit.no.pts.open');
       case 'paste': case 'paste-in-place': return clip || storedClip() || navigator.clipboard?.readText ? '' : t('cv.edit.no.paste');
-      case 'delete': return selAl() || selPad() || selStruct() || selPipe() || selPvi >= 0 || sp || ['catchment', 'feature', 'parcel', 'swept', 'mass'].includes(sel?.kind) || lsUi.isMine(sel) || plUi.isMine(sel) ? '' : t('cv.delete.none');
+      case 'delete': return selAl() || selPad() || selStruct() || selPipe() || selPvi >= 0 || sp || ['catchment', 'feature', 'parcel', 'swept', 'mass'].includes(sel?.kind) || lsUi.isMine(sel) || plUi.isMine(sel) || rvUi.isMine(sel) || wmUi.isMine(sel) ? '' : t('cv.delete.none');   // 0.8 SU.957: + a river; 0.8 LC.16: + a water node or pipe
       case 'select-all': return pts ? '' : t('cv.pts.none');
       case 'select-none': return sp || sel || selPvi >= 0 ? '' : t('cv.sel.none');
       default: return '';
@@ -422,7 +601,10 @@ function init(root) {
   }
   function updateTools() {
     const hasData = project.points.length || project.state.surface.tin || project.state.alignments.length || project.state.gis?.layers?.length;   // GIS: layers count as data
-    const hasWork = hasData || project.state.pads.length || (project.state.features || []).length;
+    const ls = project.state.landscape;   // 0.7.1 71.19: plants, hardscape or grading alone are work too (3D, save, fit)
+    const hasWork = hasData || project.state.pads.length || (project.state.features || []).length || (project.state.masses || []).length
+      || !!project.state.water?.nodes.length   // 0.8 LC.16
+      || !!(ls && (ls.plants.length || ls.beds.length || ls.hedges.length || ls.hardscape?.length || ls.grading?.length || ls.freeform?.length));
     for (const b of root.querySelectorAll('[data-cmd]')) {
       const c = b.dataset.cmd;
       // nothing to save, export, fit or clear yet: greyed out (the Edit buttons below say why in their title)
@@ -432,6 +614,8 @@ function init(root) {
       else if (c === 'profile') b.disabled = !project.state.alignments.length;
       if (['select', 'alignment', 'pad', 'breakline', 'boundary', 'pipe'].includes(c)) b.setAttribute('aria-pressed', String(tool === c));
       if (c === 'feature' || c === 'mass' || c === 'measure') b.setAttribute(b.getAttribute('role') === 'menuitemcheckbox' ? 'aria-checked' : 'aria-pressed', String(tool === c));   // 0.4 V14
+      if (c === 'free-section' || c === 'ramp') b.setAttribute(b.getAttribute('role') === 'menuitemcheckbox' ? 'aria-checked' : 'aria-pressed', String(tool === c));   // 0.8 SU.914
+      if (c === 'river') b.setAttribute(b.getAttribute('role') === 'menuitemcheckbox' ? 'aria-checked' : 'aria-pressed', String(tool === 'river' || tool === 'river-xs'));   // 0.8 SU.957
       if (c === 'profile') b.setAttribute('aria-pressed', String(!ui.profPanel.hidden));
       if (c === 'sections') b.setAttribute(b.getAttribute('role') === 'menuitemcheckbox' ? 'aria-checked' : 'aria-pressed', String(!!secUi?.isOpen()));
       if (c === 'view3d') b.setAttribute('aria-pressed', String(is3D()));
@@ -443,10 +627,13 @@ function init(root) {
       }
     }
     lsUi.updateTools();   // 0.7 LD: Plant, Bed, Hedge pressed; Landscape checked
-    plUi.updateTools(); plUi.refreshAfterChange();   // 0.7 PL: tools pressed; the Power lines section and the line profile follow the project
+    plUi.updateTools(); plUi.refreshAfterChange();   wmUi.refreshWindow();   // 0.8 LC.16: the Water mains window follows the project   // 0.7 PL: tools pressed; the Power lines section and the line profile follow the project
     ui.over.classList.toggle('is-select', tool === 'select');
-    ui.hint.hidden = !!hasData || tool !== 'select';
+    ui.hint.hidden = hintClosed || !!hasData || tool !== 'select';
   }
+
+  // the start card's X, as CadCraft's and ModelCraft's: closed stays closed until the page loads again
+  ui.hint.querySelector('[data-hint-close]')?.addEventListener('click', () => { hintClosed = true; ui.hint.hidden = true; ui.over.focus({ preventScroll: true }); });
 
   function renderLeft() {
     const s = project.state, U = u();
@@ -470,7 +657,7 @@ function init(root) {
     }));
     // surface
     const r = eg(), sf = r.surface;
-    ui.surfaceH.textContent = s.surface.tin ? (s.surface.tin.from === 'grid' ? t('cv.surface.grid') : t('cv.surface.landxml')) : t('cv.surface');   // GIS: grid TINs (gis-terrain-ui.js)
+    ui.surfaceH.textContent = s.surface.tin ? (s.surface.tin.from === 'grid' ? t('cv.surface.grid') : s.surface.tin.from === 'ifc' ? t('cv.surface.ifc') : t('cv.surface.landxml')) : t('cv.surface');   // 'ifc': 0.7.1 71.24   // GIS: grid TINs (gis-terrain-ui.js)
     if (sf) {
       const st = sf.stats();
       fillDl(ui.surfaceInfo, [
@@ -515,7 +702,9 @@ function init(root) {
     if (sel?.kind === 'gis') { for (const f of gisReg.props) if (f(sel, ui.props, ui.propsH)) return; sel = null; }   // GIS: a picked feature
     if (lsUi.isMine(sel)) { if (lsUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.7 LD: a plant, bed or hedge
     if (plUi.isMine(sel)) { if (plUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.7 PL: a line, support, route, equipment, obstacle
-    if (sel?.kind === 'feature') { const f = flUi.find(sel.id); if (f) { ui.propsH.textContent = t('fl.props.head'); ui.props.replaceChildren(...flUi.props(f), el('div', { className: 'cv-actions' }, swUi.button('feature', f.id))); return; } sel = null; }   // 0.4 V14; 0.6 WL.28
+    if (rvUi.isMine(sel)) { if (rvUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.8 SU.957: a river
+    if (wmUi.isMine(sel)) { if (wmUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.8 LC.16: a water node or pipe
+    if (sel?.kind === 'feature') { const f = flUi.find(sel.id); if (f) { ui.propsH.textContent = t('fl.props.head'); ui.props.replaceChildren(...flUi.props(f), el('div', { className: 'cv-actions' }, swUi.button('feature', f.id))); const lb = lsUi.linkBlock(sel); if (lb) ui.props.append(lb); return; } sel = null; }   // 0.8 LA.2 outputs: a feature line made from a line says what it follows   // 0.4 V14; 0.6 WL.28
     if (sel?.kind === 'swept') { const w = swUi.find(sel.id); if (w) { ui.propsH.textContent = t('sw.head'); ui.props.replaceChildren(...swUi.props(w)); return; } sel = null; }   // 0.6 WL.28
     if (sel?.kind === 'parcel') { const pc = pcUi.find(sel.id); if (pc) { ui.propsH.textContent = t('pc.props.head'); ui.props.replaceChildren(...pcUi.props(pc), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.4 V21
     if (sel?.kind === 'mass') { const ms = msUi.find(sel.id); if (ms) { ui.propsH.textContent = t('ms.props.head'); ui.props.replaceChildren(...msUi.props(ms), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.7 LC.1
@@ -560,6 +749,28 @@ function init(root) {
   }
   const row = (k, v, id) => [el(id ? 'label' : 'span', { className: 'k', for: id }, k), typeof v === 'string' ? el('span', { className: 'v' }, v) : v];
 
+  // 0.8 PANEL-COMPACT: the shared property grid (window.ccPropGrid) where the shell has it; a build or edition without it keeps the forms.
+  // Rows are text rows read the way numInput reads its box: lengths and sums through readLength (calc), stations as stations, the handler's
+  // `false` marks the box invalid. `handlers[rowId] = { fn(text) → false|undefined, calc, station }`; a row without a handler is read-only data.
+  const gridRow = (id, category, label, value, extra = {}) => ({ id, category, label, type: 'text', value: value == null ? '' : String(value), ...extra });
+  const roRow = (id, category, label, value) => ({ id, category, label, type: 'readonly', value: value == null ? '' : String(value) });
+  function propGrid(key, label, rows, handlers, attrs = {}) {
+    const host = el('div', { className: 'cv-grid', ...attrs });
+    ccPropGrid.create(host, { label, key, rows, onChange: (id, text) => {
+      const h = handlers[id]; if (!h) return;
+      const node = host.querySelector('[data-pg-row="' + id + '"]');
+      let v = String(text);
+      if (h.calc && !h.station && v.trim() !== '' && !isNum(v)) {
+        const r = readLength(v, units());
+        if (!r.ok) { node?.setAttribute('aria-invalid', 'true'); say(r.error); return; }
+        v = String(Number(r.value.toFixed(9)));
+        if (node) node.value = v;
+      }
+      if (h.fn(v) === false) node?.setAttribute('aria-invalid', 'true'); else node?.removeAttribute('aria-invalid');
+    } });
+    return host;
+  }
+
   function projectProps() {
     ui.propsH.textContent = t('cv.props.project');
     const s = project.state, out = [];
@@ -575,6 +786,9 @@ function init(root) {
     if (s.pads.length || s.alignments.some((a) => a.corridor?.on)) out.push(volumeBlock());
     out.push(...pcUi.block());   // 0.4 V21
     out.push(...msUi.block());   // 0.7 LC.1
+    out.push(...rvUi.block());   // 0.8 SU.957
+    out.push(...wmUi.block());   // 0.8 LC.16
+    out.push(...flUi.teamProject());   // 0.8 WL.26 the team's lines without a selected feature line
     out.push(...tvUi.block());   // 0.4 V22
     if (s.network) out.push(...networkBlock());
     if (!s.alignments.length && !s.pads.length && !s.network) out.push(el('p', { className: 'cv-note' }, t('cv.props.empty')));
@@ -606,18 +820,45 @@ function init(root) {
     say(t('cv.qty.saved', { name, cut: grouped(r.cut, 2), fill: grouped(r.fill, 2), unit: r.unit }));
   }
 
+  /** 0.7.1 71.24 (owner): the alignment's design speed (with its unit) and design class, one undo step each; stored and written to
+   *  IFC (Pset_RoadDesignCriteriaCommon), not checked: CivilCraft has no table that ties a speed to a radius (al.speed.note). */
+  function designRows(a) {
+    const d = a.design || {}, unitDefault = units() === 'm' ? 'km/h' : 'mph';
+    const setD = (label, fn) => project.change(label, () => { const x = findAl(a.id); const nd = { ...(x.design || { unit: unitDefault }) }; fn(nd); x.design = cleanDesign(nd) || undefined; if (!x.design) delete x.design; });
+    const sp = numInput(Number.isFinite(d.speed) ? String(d.speed) : '', (v) => { const x = v.trim() === '' ? null : Number(v); if (x !== null && !(x > 0 && x < 1000)) return false; setD(t('al.speed.undo'), (nd) => { if (x === null) delete nd.speed; else nd.speed = x; }); }, { text: true, id: 'cv-al-speed', width: '5rem' });
+    sp.placeholder = t('al.speed.none');
+    const un = el('select', { className: 'cv-select', 'aria-label': t('al.speed.unit'), 'data-al-speed-unit': '' }, ...SPEED_UNITS.map((x) => el('option', { value: x, selected: x === (d.unit || unitDefault) }, x)));
+    un.addEventListener('change', () => setD(t('al.speed.undo'), (nd) => { nd.unit = un.value; }));
+    const cl = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-class', value: d.cls || '', maxLength: 60, placeholder: t('al.class.none') });
+    cl.addEventListener('change', () => setD(t('al.class.undo'), (nd) => { nd.cls = cl.value; }));
+    return [...row(t('al.speed'), el('div', { className: 'cv-row' }, sp, un), 'cv-al-speed'), ...row(t('al.class'), cl, 'cv-al-class'),
+      el('p', { className: 'cv-note cv-span', 'data-al-speed-note': '' }, t('al.speed.note'))];
+  }
+
   function alignmentProps(a) {
     ui.propsH.textContent = t('sec.alignment');
     const al = project.alignment(a), U = u(), out = [];
-    const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-name', value: a.name, maxLength: 120 });
-    nm.addEventListener('change', () => project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = nm.value.trim().slice(0, 120) || t('sec.alignment'); }));
-    const st = numInput(formatStation(Number(a.start) || 0, units()), (v) => { const x = parseStation(v, units()); if (x === null) return false; project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); }, { text: true, station: true, id: 'cv-al-start' });
+    const alName = (v) => { project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = v.trim().slice(0, 120) || t('sec.alignment'); }); };
+    const alStart = (v) => { const x = parseStation(v, units()); if (x === null) return false; project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); };
     // 0.5 WL.23: a design minimum radius (empty = none): curves under it are said, with the smallest radius that fits
-    const minR = numInput(a.minR > 0 ? String(a.minR) : '', (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }); }, { text: true, id: 'cv-al-minr', width: '7rem' });
-    minR.placeholder = t('why.minr.none');
-    out.push(el('div', { className: 'cv-props' }, ...row(t('fl.props.name'), nm, 'cv-al-name'), ...row(t('cv.al.start'), st, 'cv-al-start'),
-      ...row(t('why.minr'), el('div', { className: 'cv-row' }, minR, el('span', { className: 'cv-unit' }, U.short)), 'cv-al-minr'),
-      ...(al.ok ? [...row(t('fl.props.length'), fixed(al.length, 2) + ' ' + U.short), ...row(t('cv.al.end'), formatStation(al.end, units()))] : [])));
+    const alMinR = (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }); };
+    if (window.ccPropGrid) {   // 0.8 PANEL-COMPACT: name, start station, minimum radius and the read-only length/end in the shared grid; design speed/class rows stay below
+      const C = t('sec.alignment');
+      const rows = [gridRow('name', C, t('fl.props.name'), a.name, { maxLength: 120 }), gridRow('start', C, t('cv.al.start'), formatStation(Number(a.start) || 0, units())),
+        gridRow('minR', C, t('why.minr') + ' (' + U.short + ')', a.minR > 0 ? String(a.minR) : '', { hint: t('why.minr.none') })];
+      if (al.ok) rows.push(roRow('length', C, t('fl.props.length'), fixed(al.length, 2) + ' ' + U.short), roRow('end', C, t('cv.al.end'), formatStation(al.end, units())));
+      out.push(propGrid('alignment', C, rows, { name: { fn: alName }, start: { fn: alStart, station: true }, minR: { fn: alMinR } }), el('div', { className: 'cv-props' }, ...designRows(a)));   // 0.7.1 71.24
+    } else {
+      const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-name', value: a.name, maxLength: 120 });
+      nm.addEventListener('change', () => alName(nm.value));
+      const st = numInput(formatStation(Number(a.start) || 0, units()), alStart, { text: true, station: true, id: 'cv-al-start' });
+      const minR = numInput(a.minR > 0 ? String(a.minR) : '', alMinR, { text: true, id: 'cv-al-minr', width: '7rem' });
+      minR.placeholder = t('why.minr.none');
+      out.push(el('div', { className: 'cv-props' }, ...row(t('fl.props.name'), nm, 'cv-al-name'), ...row(t('cv.al.start'), st, 'cv-al-start'),
+        ...row(t('why.minr'), el('div', { className: 'cv-row' }, minR, el('span', { className: 'cv-unit' }, U.short)), 'cv-al-minr'),
+        ...designRows(a),   // 0.7.1 71.24: design speed and class
+        ...(al.ok ? [...row(t('fl.props.length'), fixed(al.length, 2) + ' ' + U.short), ...row(t('cv.al.end'), formatStation(al.end, units()))] : [])));
+    }
     const why = curveWhy(a.pis, { minR: a.minR || 0 });
     if (why.length) out.push(whyBlock(a, why));
     else if (al.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...al.errors.map((e) => el('li', {}, e)))));
@@ -653,6 +894,8 @@ function init(root) {
       out.push(el('p', { className: 'cv-note' }, t('cv.al.curves.note')));
     }
     if (al.ok) out.push(el('p', { className: 'cv-note' }, t('cv.al.tangent', { b: bearing(al.elements[0].dir ?? al.elements[0].dirIn) })));
+    // 0.7.1 71.26: railway — track, gauge, transitions, cant per curve, limits, warnings, the cant diagram, quantities
+    if (al.ok) out.push(...railProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, project.railPlan(a), (eg().surface ? graded().items?.find((x) => x.id === a.id && x.kind === 'corridor') : project.standInCorridors().find((x) => x.id === a.id)) || null));
     // profile
     out.push(el('h3', { className: 'cv-h3' }, t('cv.prof.head')));
     if (al.ok) out.push(...profileProps(a, al));
@@ -750,15 +993,21 @@ function init(root) {
     out.push(el('label', { className: 'cv-check', for: 'cv-co-on' }, on, ' ', t('cv.co.on')));
     if (!a.corridor?.on) { out.push(el('p', { className: 'cv-note' }, t('cv.co.off.note'))); return out; }
     const field = (k, label, undo, scale, unit, id) => [el('label', { for: id }, label), el('div', { className: 'cv-row' }, numInput(fixed(c[k] * scale, 2), (v) => { const x = Number(v); if (!(x >= 0) || v === '' || ((k === 'cut' || k === 'fill' || k === 'step') && !(x > 0))) return false; project.change(undo, () => { findAl(a.id).corridor[k] = x / scale; }); }, { id, min: 0 }), el('span', { className: 'cv-unit' }, unit))];
-    const custom = !!a.corridor?.parts;   // 0.7 D7.35: built from parts, left and right
+    const railTrack = !!a.rail?.on;   // 0.7.1 71.26: a track (Railway block above): only the side slopes and the section step here
+    const custom = !!a.corridor?.parts || railTrack;   // 0.7 D7.35: built from parts, left and right
     out.push(el('div', { className: 'cv-props' },
+      ...(railTrack ? [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')] : []),
       ...(custom ? [] : [...field('lane', t('cv.co.lane'), t('cv.undo.co.lane'), 1, U.short, 'cv-co-lane'), ...field('laneSlope', t('cv.co.ls'), t('cv.undo.co.ls'), 100, '%', 'cv-co-ls'),
         ...field('shoulder', t('cv.co.sh'), t('cv.undo.co.sh'), 1, U.short, 'cv-co-sh'), ...field('shoulderSlope', t('cv.co.ss'), t('cv.undo.co.ss'), 100, '%', 'cv-co-ss')]),
       ...(custom ? [] : [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')]),
       ...field('step', t('cv.co.step'), t('cv.undo.co.step'), 1, U.short, 'cv-co-step')));
-    out.push(...assemblyProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), say: (m) => say(m) }, a));   // 0.7 D7.35
-    out.push(el('p', { className: 'cv-note' }, t('co.note')));   // 0.4 V18: superelevation is available now
-    const it = graded().items?.find((x) => x.id === a.id && x.kind === 'corridor');
+    if (railTrack) out.push(el('p', { className: 'cv-note', 'data-rail-co-note': '' }, t('rail.co.note')));
+    else out.push(...assemblyProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), say: (m) => say(m) }, a));   // 0.7 D7.35
+    if (!railTrack) out.push(el('p', { className: 'cv-note' }, t('co.note')));   // 0.4 V18: superelevation is available now
+    // 0.7.1 71.19: no existing ground → the corridor built on flat stand-in ground, with its warning (project.standInCorridors)
+    const standIn = eg().surface ? null : project.standInCorridors().find((x) => x.id === a.id);
+    for (const w of standIn?.warnings || []) out.push(el('div', { className: 'cv-report', 'data-corridor-warning': w.code }, el('p', {}, w.text)));
+    const it = standIn || graded().items?.find((x) => x.id === a.id && x.kind === 'corridor');
     const seProblems = new Set(it?.super?.problems || []);   // 0.4 V18: said in the Superelevation block instead
     const others = (it?.problems || []).filter((p) => !seProblems.has(p));
     if (others.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...others.map((p) => el('li', {}, p)))));
@@ -766,6 +1015,7 @@ function init(root) {
       const vi = project.volumes()?.items?.find((x) => x.id === a.id);
       out.push(el('p', { className: 'cv-note', 'data-corridor-facts': '' }, vi ? t('cv.co.facts.vol', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()), cut: volumeText(vi.cut, units()), fill: volumeText(vi.fill, units()) }) : t('cv.co.facts', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()) })));
     }
+    if (railTrack) return out;   // 0.7.1 71.26: no targets or superelevation on a track (its cant is in the Railway block)
     out.push(...targetProps({ el, project: () => project, say: (m) => say(m) }, a, it));   // 0.6 WL.25
     out.push(...superProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, it));   // 0.4 V18
     return out;
@@ -784,23 +1034,39 @@ function init(root) {
   function padProps(d) {
     ui.propsH.textContent = t('cv.pad');
     const out = [], U = u();
-    const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-pad-name', value: d.name, maxLength: 120 });
-    nm.addEventListener('change', () => project.change(t('cv.undo.pad.rename'), () => { findPad(d.id).name = nm.value.trim().slice(0, 120) || t('cv.pad'); }));
-    const z = numInput(fixed(Number(d.z), 2), (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; project.change(t('cv.undo.pad.z'), () => { findPad(d.id).z = x; }); }, { id: 'cv-pad-z' });
-    const cut = numInput(d.cut, (v) => { const x = Number(v); if (!(x > 0)) return false; project.change(t('fl.props.cut'), () => { findPad(d.id).cut = x; }); }, { id: 'cv-pad-cut', min: 0.1 });
-    const fill = numInput(d.fill, (v) => { const x = Number(v); if (!(x > 0)) return false; project.change(t('fl.props.fill'), () => { findPad(d.id).fill = x; }); }, { id: 'cv-pad-fill', min: 0.1 });
-    out.push(el('div', { className: 'cv-props' },
-      ...row(t('fl.props.name'), nm, 'cv-pad-name'),
-      ...row(t('pt.props.elev'), el('div', { className: 'cv-row' }, z, el('span', { className: 'cv-unit' }, U.short)), 'cv-pad-z'),
-      ...row(t('fl.props.cut'), el('div', { className: 'cv-row' }, cut, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-cut'),
-      ...row(t('fl.props.fill'), el('div', { className: 'cv-row' }, fill, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-fill'),
-      ...row(t('cv.pad.area'), areaText(Math.abs(polyArea(d.pts)), units())),
-      ...row(t('dr.c.corners'), String(d.pts.length))));
+    const padName = (v) => { project.change(t('cv.undo.pad.rename'), () => { findPad(d.id).name = v.trim().slice(0, 120) || t('cv.pad'); }); };
+    const padZ = (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; project.change(t('cv.undo.pad.z'), () => { findPad(d.id).z = x; }); };
+    // 0.7.1 71.22: slopes typed as 3, 3:1, 33% or 18.4° (sides-ui.js slopeInput)
+    const cut = slopeInput(numInput, d.cut, (x) => { project.change(t('fl.props.cut'), () => { findPad(d.id).cut = x; }); }, { id: 'cv-pad-cut', label: t('fl.props.cut') });
+    const fill = slopeInput(numInput, d.fill, (x) => { project.change(t('fl.props.fill'), () => { findPad(d.id).fill = x; }); }, { id: 'cv-pad-fill', label: t('fl.props.fill') });
+    if (window.ccPropGrid) {
+      const C = t('cv.pad');
+      out.push(propGrid('pad', C, [gridRow('name', C, t('fl.props.name'), d.name, { maxLength: 120 }), gridRow('z', C, t('pt.props.elev') + ' (' + U.short + ')', fixed(Number(d.z), 2)),
+        roRow('area', C, t('cv.pad.area'), areaText(Math.abs(polyArea(d.pts)), units())), roRow('corners', C, t('dr.c.corners'), d.pts.length)],
+      { name: { fn: padName }, z: { fn: padZ, calc: true } }),
+      el('div', { className: 'cv-props' },   // the slopes keep slopeInput's own reader (3, 3:1, 33%, 18.4°)
+        ...row(t('fl.props.cut'), el('div', { className: 'cv-row' }, cut, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-cut'),
+        ...row(t('fl.props.fill'), el('div', { className: 'cv-row' }, fill, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-fill')));
+    } else {
+      const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-pad-name', value: d.name, maxLength: 120 });
+      nm.addEventListener('change', () => padName(nm.value));
+      const z = numInput(fixed(Number(d.z), 2), padZ, { id: 'cv-pad-z' });
+      out.push(el('div', { className: 'cv-props' },
+        ...row(t('fl.props.name'), nm, 'cv-pad-name'),
+        ...row(t('pt.props.elev'), el('div', { className: 'cv-row' }, z, el('span', { className: 'cv-unit' }, U.short)), 'cv-pad-z'),
+        ...row(t('fl.props.cut'), el('div', { className: 'cv-row' }, cut, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-cut'),
+        ...row(t('fl.props.fill'), el('div', { className: 'cv-row' }, fill, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-fill'),
+        ...row(t('cv.pad.area'), areaText(Math.abs(polyArea(d.pts)), units())),
+        ...row(t('dr.c.corners'), String(d.pts.length))));
+    }
     const gp = graded().items?.find((x) => x.id === d.id);
     if (gp && !gp.problems.length) {
       const cutN = gp.rays.filter((r) => r.kind === 'cut').length, fillN = gp.rays.filter((r) => r.kind === 'fill').length;
       out.push(el('p', { className: 'cv-note' }, t('cv.pad.daylight', { n: gp.rays.length, cut: cutN, fill: fillN, d: fixed(Math.max(...gp.rays.map((r) => r.d)), 2), u: U.short })));
     }
+    // 0.7.1 71.22: each side its own slopes or a retaining wall, the walls' quantities and warnings
+    out.push(...sidesBlock({ el, numInput: (...x) => numInput(...x), units: units(), n: d.pts.length, sides: d.sides, cut: Number(d.cut), fill: Number(d.fill), info: gp,
+      change: (label, sides) => project.change(label, () => { const p = findPad(d.id); const c = cleanSides(sides, units(), p.pts.length); if (c) p.sides = c; else delete p.sides; }), idp: 'cv-pad-sd' }));
     out.push(volumeBlock());
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
@@ -837,19 +1103,31 @@ function init(root) {
   function structureProps(x) {
     ui.propsH.textContent = t('cv.st');
     const chk = project.networkCheck(), info = chk?.structs.get(x.id), U = u(), out = [];
-    const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-st-name', value: x.name, maxLength: 60 });
-    nm.addEventListener('change', () => project.change(t('cv.undo.st.rename'), () => { findStruct(x.id).name = nm.value.trim().slice(0, 60) || t('cv.st'); }));
-    const rim = numInput(Number.isFinite(x.rim) ? fixed(x.rim, 2) : '', (v) => { if (v === '') { project.change(t('cv.undo.st.rim.surface'), () => { findStruct(x.id).rim = null; }); return; } const z = Number(v); if (!Number.isFinite(z)) return false; project.change(t('cv.undo.st.rim'), () => { findStruct(x.id).rim = z; }); }, { id: 'cv-st-rim' });
-    rim.placeholder = info?.rim !== null && info?.rim !== undefined ? t('cv.st.rim.ph', { z: fixed(info.rim, 2) }) : t('cv.st.rim.off');
-    const sump = numInput(x.sumpDepth || 0, (v) => { const z = Number(v); if (!(z >= 0)) return false; project.change(t('cv.st.sump'), () => { findStruct(x.id).sumpDepth = z; }); }, { id: 'cv-st-sump', min: 0 });
-    const dia = numInput(x.dia, (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.st.size'), () => { findStruct(x.id).dia = z; }); }, { id: 'cv-st-dia', min: 1 });
-    if (x.type) { dia.disabled = true; dia.title = t('st.dia.typed'); }   // 0.6 WL.27: a type sets the size
-    out.push(el('div', { className: 'cv-props' },
-      ...row(t('fl.props.name'), nm, 'cv-st-name'),
-      ...row(t('cv.st.rim'), el('div', { className: 'cv-row' }, rim, el('span', { className: 'cv-unit' }, U.short)), 'cv-st-rim'),
-      ...row(t('cv.st.sump'), el('div', { className: 'cv-row' }, sump, el('span', { className: 'cv-unit' }, U.short)), 'cv-st-sump'),
-      ...row(t('cv.diameter'), el('div', { className: 'cv-row' }, dia, el('span', { className: 'cv-unit' }, diaU().name)), 'cv-st-dia'),
-      ...row(t('cv.st.rim.used'), info?.rim !== null && info?.rim !== undefined ? (info.rimFrom === 'surface' ? t('cv.st.rim.from', { z: fixed(info.rim, 2) }) : fixed(info.rim, 2)) : '—'),
+    const stNameBox = () => { const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-st-name', value: x.name, maxLength: 60 }); nm.addEventListener('change', () => stName(nm.value)); return nm; };
+    const stRimBox = () => { const rim = numInput(Number.isFinite(x.rim) ? fixed(x.rim, 2) : '', stRim, { id: 'cv-st-rim' }); rim.placeholder = rimHint; return rim; };
+    const stSumpBox = () => numInput(x.sumpDepth || 0, stSump, { id: 'cv-st-sump', min: 0 });
+    const stDiaBox = () => { const dia = numInput(x.dia, stDia, { id: 'cv-st-dia', min: 1 }); if (x.type) { dia.disabled = true; dia.title = t('st.dia.typed'); } return dia; };
+    const stName = (v) => { project.change(t('cv.undo.st.rename'), () => { findStruct(x.id).name = v.trim().slice(0, 60) || t('cv.st'); }); };
+    const stRim = (v) => { if (v === '') { project.change(t('cv.undo.st.rim.surface'), () => { findStruct(x.id).rim = null; }); return; } const z = Number(v); if (!Number.isFinite(z)) return false; project.change(t('cv.undo.st.rim'), () => { findStruct(x.id).rim = z; }); };
+    const stSump = (v) => { const z = Number(v); if (!(z >= 0)) return false; project.change(t('cv.st.sump'), () => { findStruct(x.id).sumpDepth = z; }); };
+    const stDia = (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.st.size'), () => { findStruct(x.id).dia = z; }); };
+    const rimHint = info?.rim !== null && info?.rim !== undefined ? t('cv.st.rim.ph', { z: fixed(info.rim, 2) }) : t('cv.st.rim.off');
+    const rimUsed = info?.rim !== null && info?.rim !== undefined ? (info.rimFrom === 'surface' ? t('cv.st.rim.from', { z: fixed(info.rim, 2) }) : fixed(info.rim, 2)) : '—';
+    if (window.ccPropGrid) {
+      const C = t('cv.st');
+      out.push(propGrid('structure', C, [gridRow('name', C, t('fl.props.name'), x.name, { maxLength: 60 }),
+        gridRow('rim', C, t('cv.st.rim') + ' (' + U.short + ')', Number.isFinite(x.rim) ? fixed(x.rim, 2) : '', { hint: rimHint }),
+        gridRow('sumpDepth', C, t('cv.st.sump') + ' (' + U.short + ')', x.sumpDepth || 0),
+        gridRow('dia', C, t('cv.diameter') + ' (' + diaU().name + ')', x.dia, { readonly: !!x.type, hint: x.type ? t('st.dia.typed') : '' }),   // 0.6 WL.27: a type sets the size
+        roRow('rimUsed', C, t('cv.st.rim.used'), rimUsed), roRow('sumpZ', C, t('cv.st.sump.z'), info?.sump !== null && info?.sump !== undefined ? fixed(info.sump, 2) : '—'),
+        roRow('easting', C, t('pt.props.easting'), fixed(x.x, 2)), roRow('northing', C, t('pt.props.northing'), fixed(x.y, 2))],
+      { name: { fn: stName }, rim: { fn: stRim, calc: true }, sumpDepth: { fn: stSump, calc: true }, dia: { fn: stDia, calc: true } }));
+    } else out.push(el('div', { className: 'cv-props' },
+      ...row(t('fl.props.name'), stNameBox(), 'cv-st-name'),
+      ...row(t('cv.st.rim'), el('div', { className: 'cv-row' }, stRimBox(), el('span', { className: 'cv-unit' }, U.short)), 'cv-st-rim'),
+      ...row(t('cv.st.sump'), el('div', { className: 'cv-row' }, stSumpBox(), el('span', { className: 'cv-unit' }, U.short)), 'cv-st-sump'),
+      ...row(t('cv.diameter'), el('div', { className: 'cv-row' }, stDiaBox(), el('span', { className: 'cv-unit' }, diaU().name)), 'cv-st-dia'),
+      ...row(t('cv.st.rim.used'), rimUsed),
       ...row(t('cv.st.sump.z'), info?.sump !== null && info?.sump !== undefined ? fixed(info.sump, 2) : '—'),
       ...row(t('pt.props.easting'), fixed(x.x, 2)), ...row(t('pt.props.northing'), fixed(x.y, 2))));
     out.push(el('p', { className: 'cv-note' }, t('cv.st.rim.note')));
@@ -867,20 +1145,31 @@ function init(root) {
   function pipeProps(p) {
     ui.propsH.textContent = t('dr.r.pipe');
     const chk = project.networkCheck(), info = chk?.pipes.get(p.id), U = u(), out = [];
-    const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-pp-name', value: p.name, maxLength: 60 });
-    nm.addEventListener('change', () => project.change(t('cv.undo.pp.rename'), () => { findPipe(p.id).name = nm.value.trim().slice(0, 60) || t('dr.r.pipe'); }));
-    const dia = numInput(p.dia, (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.pp.size'), () => { findPipe(p.id).dia = z; }); }, { id: 'cv-pp-dia', min: 1 });
-    const inv = (k, label, id) => numInput(Number.isFinite(p[k]) ? fixed(p[k], 2) : '', (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; project.change(label, () => { findPipe(p.id)[k] = z; }); }, { id });
+    const ppName = (v) => { project.change(t('cv.undo.pp.rename'), () => { findPipe(p.id).name = v.trim().slice(0, 60) || t('dr.r.pipe'); }); };
+    const ppDia = (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.pp.size'), () => { findPipe(p.id).dia = z; }); };
+    const ppInv = (k, label) => (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; project.change(label, () => { findPipe(p.id)[k] = z; }); };
     const a = findStruct(p.from), b = findStruct(p.to);
-    out.push(el('div', { className: 'cv-props' },
-      ...row(t('fl.props.name'), nm, 'cv-pp-name'),
-      ...row(t('cv.pp.fromto'), (a?.name || '?') + ' → ' + (b?.name || '?')),
-      ...row(t('cv.diameter'), el('div', { className: 'cv-row' }, dia, el('span', { className: 'cv-unit' }, diaU().name)), 'cv-pp-dia'),
-      ...row(t('cv.pp.up'), el('div', { className: 'cv-row' }, inv('invUp', t('cv.pp.up'), 'cv-pp-up'), el('span', { className: 'cv-unit' }, U.short)), 'cv-pp-up'),
-      ...row(t('cv.pp.dn'), el('div', { className: 'cv-row' }, inv('invDn', t('cv.pp.dn'), 'cv-pp-dn'), el('span', { className: 'cv-unit' }, U.short)), 'cv-pp-dn'),
-      ...row(t('fl.props.length'), info ? fixed(info.len, 2) + ' ' + U.short : '—'),
-      ...row(t('cv.pp.slope'), info?.slope !== null && info?.slope !== undefined ? pct(info.slope) : '—'),
-      ...row(t('cv.net.mincover'), info?.cover !== null && info?.cover !== undefined ? fixed(info.cover, 2) + ' ' + U.short : '—')));
+    const fromTo = (a?.name || '?') + ' → ' + (b?.name || '?'), lenT = info ? fixed(info.len, 2) + ' ' + U.short : '—';
+    const slopeT = info?.slope !== null && info?.slope !== undefined ? pct(info.slope) : '—', coverT = info?.cover !== null && info?.cover !== undefined ? fixed(info.cover, 2) + ' ' + U.short : '—';
+    if (window.ccPropGrid) {
+      const C = t('dr.r.pipe');
+      out.push(propGrid('pipe', C, [gridRow('name', C, t('fl.props.name'), p.name, { maxLength: 60 }), roRow('fromto', C, t('cv.pp.fromto'), fromTo),
+        gridRow('dia', C, t('cv.diameter') + ' (' + diaU().name + ')', p.dia),
+        gridRow('invUp', C, t('cv.pp.up') + ' (' + U.short + ')', Number.isFinite(p.invUp) ? fixed(p.invUp, 2) : ''), gridRow('invDn', C, t('cv.pp.dn') + ' (' + U.short + ')', Number.isFinite(p.invDn) ? fixed(p.invDn, 2) : ''),
+        roRow('length', C, t('fl.props.length'), lenT), roRow('slope', C, t('cv.pp.slope'), slopeT), roRow('cover', C, t('cv.net.mincover'), coverT)],
+      { name: { fn: ppName }, dia: { fn: ppDia, calc: true }, invUp: { fn: ppInv('invUp', t('cv.pp.up')), calc: true }, invDn: { fn: ppInv('invDn', t('cv.pp.dn')), calc: true } }));
+    } else {
+      const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-pp-name', value: p.name, maxLength: 60 });
+      nm.addEventListener('change', () => ppName(nm.value));
+      const inv = (k, label, id) => numInput(Number.isFinite(p[k]) ? fixed(p[k], 2) : '', ppInv(k, label), { id });
+      out.push(el('div', { className: 'cv-props' },
+        ...row(t('fl.props.name'), nm, 'cv-pp-name'),
+        ...row(t('cv.pp.fromto'), fromTo),
+        ...row(t('cv.diameter'), el('div', { className: 'cv-row' }, numInput(p.dia, ppDia, { id: 'cv-pp-dia', min: 1 }), el('span', { className: 'cv-unit' }, diaU().name)), 'cv-pp-dia'),
+        ...row(t('cv.pp.up'), el('div', { className: 'cv-row' }, inv('invUp', t('cv.pp.up'), 'cv-pp-up'), el('span', { className: 'cv-unit' }, U.short)), 'cv-pp-up'),
+        ...row(t('cv.pp.dn'), el('div', { className: 'cv-row' }, inv('invDn', t('cv.pp.dn'), 'cv-pp-dn'), el('span', { className: 'cv-unit' }, U.short)), 'cv-pp-dn'),
+        ...row(t('fl.props.length'), lenT), ...row(t('cv.pp.slope'), slopeT), ...row(t('cv.net.mincover'), coverT)));
+    }
     const probs = (chk?.problems || []).filter((x) => x.id === p.id);
     out.push(probs.length ? el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((x) => el('li', {}, x.msg)))) : el('p', { className: 'cv-note' }, t('cv.pp.ok')));
     out.push(...(net().type === 'sanitary' ? seUi.pipeRows(p) : drUi.pipeRows(p)));   // 0.4 V19/V20; 0.6 LC.16 S1
@@ -900,6 +1189,19 @@ function init(root) {
       say(r.message);
       return true;
     };
+    if (window.ccPropGrid) {   // 0.8 PANEL-COMPACT: the same fields in the shared grid; each box still goes through editPoint (one undo step)
+      const C = t('cv.pt.head', { n: p.n }), calc = { calc: true };
+      const hs = { n: { fn: commit('n') }, x: { fn: commit('x'), ...calc }, y: { fn: commit('y'), ...calc }, z: { fn: commit('z'), ...calc }, d: { fn: commit('d') } };
+      const rows = [gridRow('n', C, t('pt.props.number'), p.n), gridRow('x', C, t('pt.props.easting'), fixed(p.x, 3).replace(/,/g, '')), gridRow('y', C, t('pt.props.northing'), fixed(p.y, 3).replace(/,/g, '')),
+        gridRow('z', C, t('pt.props.elev'), p.z === null ? '' : fixed(p.z, 3).replace(/,/g, ''), { hint: t('pt.props.elev.none') }), gridRow('d', C, t('pt.props.desc'), p.d || ''),
+        roRow('group', C, t('pt.props.group'), project.keyOf()(p))];
+      if (codesUi.keyFor(p)?.label) rows.push(roRow('key', C, t('pt.props.key'), codesUi.keyFor(p).label));
+      if (p.blk) rows.push(roRow('block', C, t('pt.props.block'), t('pt.props.block.v', { block: p.blk.name, layer: p.blk.layer, handle: p.blk.handle })));
+      const host = propGrid('point', C, rows, hs, { 'data-point-edit': '' });
+      if (p.blk) host.setAttribute('data-has-block', '');
+      ui.props.replaceChildren(host, el('p', { className: 'cv-note' }, t('pt.props.note')), pickNote());
+      return;
+    }
     const f = (field, value, opts) => numInput(value, commit(field), { ...opts, id: 'cv-pt-' + field, label: t('pt.props.' + opts.key), text: true, calc: ['x', 'y', 'z'].includes(field) });   // 0.6 DF.3: the number and description are words
     const grid = el('div', { className: 'cv-props', 'data-point-edit': '' },
       ...row(t('pt.props.number'), f('n', p.n, { key: 'number', width: '8rem' }), 'cv-pt-n'),
@@ -963,7 +1265,7 @@ function init(root) {
     if (document.activeElement !== ui.profWithin) ui.profWithin.value = ds.profWithin ? String(ds.profWithin) : '';
     ui.profWithin.disabled = !ds.profFeatures;
     pview.set({ key: a.id + '|' + project.version, eg: project.egProfile(a), profile: prof, pvis, start: al.start, end: al.end, units: units(), sel: selPvi, hover: pvHover, cursor: profCursor,
-      features, featSel: sel?.kind === 'feature' ? sel.id : null });
+      features, featSel: sel?.kind === 'feature' ? sel.id : null, cant: project.railPlan(a) });   // cant: 0.7.1 71.26
   }
   ui.profFl.addEventListener('click', () => { project.setDisplay('profFeatures', !project.state.display.profFeatures); renderProfile(); });
   ui.profWithin.addEventListener('change', () => {
@@ -1058,8 +1360,13 @@ function init(root) {
   };
   Object.assign(TOOL_HINT, lsUi.hints);   // 0.7 LD: Plant, Bed, Hedge
   Object.assign(TOOL_HINT, plUi.hints);   // 0.7 PL
+  Object.assign(TOOL_HINT, wmUi.hints);   // 0.8 LC.16
+  Object.assign(TOOL_HINT, rvUi.hints);   // 0.8 SU.957
+  Object.assign(TOOL_HINT, pfUi.hints);   // 0.8 SU.914
+  Object.assign(TOOL_HINT, egUi.hints);   // 0.8 EG.71
   function setTool(tl) {
     if (tl !== tool) { draft = []; flMid = null; measClosed = false; if (tl !== 'feature') flArc = false; }
+    if (tl !== tool) wmUi.cancel();   // 0.8 LC.16: a pipe half drawn is dropped
     if (tl !== 'paste') pasteJob = null;
     tool = tl;
     ui.toolhint.hidden = !TOOL_HINT[tl];
@@ -1078,6 +1385,7 @@ function init(root) {
       case 'dxf': exportDxf(); break;
       case 'dwg': dwgDialog(); break;
       case 'pdf': plotDialog(); break;
+      case 'ifc': (await ifcUi())?.exportDialog(); break;   // 0.7.1 71.24
       case 'select': setTool('select'); break;
       case 'measure': setTool(tool === 'measure' ? 'select' : 'measure'); break;   // 0.7 PL.10
       case 'alignment': case 'pad': case 'breakline': case 'boundary': case 'pipe': case 'feature': case 'mass': if (is3D()) await show3D(false); setTool(tool === c ? 'select' : c); break;
@@ -1104,6 +1412,14 @@ function init(root) {
       default:
         if (lsUi.command(c)) { refresh(); break; }   // 0.7 LD: landscape, ls-*
         if (plUi.command(c)) { refresh(); break; }   // 0.7 PL: powerlines, pl-*
+        if (wmUi.command(c)) break;   // 0.8 LC.16: water
+        if (geoUi.command(c)) break;   // 0.8 round 2 (civil-geo_PART_2): geo-soil, geo-road, geo-survey, geo-mine, geo-link, geo-rail
+        if (moUi.command(c)) break;   // 0.8 EG.58 (civil_PART_3): mass-options
+        if (solarUi.command(c)) break;   // 0.8 EG.15 (civil_PART_3): solar
+        if (egUi.command(c)) break;   // 0.8 round 2: eg-rain, eg-earthwork, eg-route, eg-site, eg-pond, eg-progress
+        if (rvUi.command(c)) { refresh(); break; }   // 0.8 SU.957: river, river-xs, river-results
+        if (pfUi.command(c)) { refresh(); break; }   // 0.8 SU.914: free-section, ramp
+        if (gdUi.command(c)) break;   // 0.8 SU.911: ground-contours
         if (msUi.command(c)) break;   // 0.7 LC.1: mass
         if (GIS_CMDS.has(c) || gisReg.commands.has(c)) { try { await gisLoad(); } catch { break; } await gisReg.commands.get(c)?.(); }
         break;
@@ -1129,6 +1445,8 @@ function init(root) {
     if (sel?.kind === 'swept' && swUi.remove(sel.id)) { sel = null; refresh(); return; }   // 0.6 WL.28
     if (lsUi.remove(sel)) { sel = null; refresh(); return; }   // 0.7 LD
     if (plUi.remove(sel)) { sel = null; refresh(); return; }   // 0.7 PL
+    if (rvUi.remove(sel)) { sel = null; refresh(); return; }   // 0.8 SU.957
+    if (wmUi.remove(sel)) { sel = null; refresh(); return; }   // 0.8 LC.16
     const pp = selPipe();
     if (pp) { project.change(t('cv.undo.pp.delete'), (s) => { s.network.pipes = s.network.pipes.filter((p) => p.id !== pp.id); }); sel = null; refresh(); say(t('fl.deleted', { name: pp.name })); return; }
     if (picked.size) { const n = picked.size; removePoints(t('cv.undo.pts.delete', { n, count: num(n) })); say(t('cv.pts.deleted', { n, count: num(n), surface: rebuilt() })); return; }
@@ -1291,6 +1609,15 @@ function init(root) {
     } else if (lsUi.ownsTool(tool)) {   // 0.7 LD: a planting bed or a hedge
       if (lsUi.finish(tool, pts)) setTool('select');
       else draft = pts;
+    } else if (egUi.ownsTool(tool)) {   // 0.8 EG.71: the start and end of a best route
+      if (egUi.finish(tool, pts)) setTool('select');
+      else draft = pts;
+    } else if (pfUi.ownsTool(tool)) {   // 0.8 SU.914: a free section line, a ramp
+      if (pfUi.finish(tool, pts)) setTool('select');
+      else draft = pts;
+    } else if (rvUi.ownsTool(tool)) {   // 0.8 SU.957: a river centreline, a section cut line
+      if (rvUi.finish(tool, pts)) setTool('select');
+      else draft = pts;
     } else if (plUi.ownsTool(tool)) {   // 0.7 PL: an overhead line, an underground route, an obstacle
       if (plUi.finish(tool, pts)) setTool('select');
       else draft = pts;
@@ -1448,14 +1775,24 @@ function init(root) {
   ui.over.addEventListener('pointercancel', endPointer);
   ui.over.addEventListener('pointerleave', () => { cursor = null; updateStatus(); view.invalidate(); });
   ui.over.addEventListener('dblclick', (e) => { if (tool !== 'select' && draft.length) { e.preventDefault(); draft.pop(); finishDraft(); } });
+  const padDetector = new PadDetector();
   ui.over.addEventListener('wheel', (e) => {
     e.preventDefault();
+    if (padDetector.isSwipe(e)) { view.panBy(-e.deltaX, -e.deltaY); return; }   // D7.56: two fingers pan (the plan follows them); a pinch and a mouse wheel zoom
     const s = local(e);
     view.zoomAt(s.x, s.y, Math.pow(1.0015, -e.deltaY * (e.deltaMode === 1 ? 16 : 1) * (e.ctrlKey ? 1 : wheelFactor())));   // IP.3: the style's wheel (a pinch stays as it is)
   }, { passive: false });
+  // 0.8 Track ID: hand the view to the input-device layer (assets/js/app-devices-ui.js) — the plan as the wheel and a pan drag move
+  // it (zoomAt, panBy), fit = Fit (F). The 3D stage opens over the plan canvas and the layer takes the first view under the pointer,
+  // so while 3D is open the plan hands over a hidden stand-in (still in the page, so the layer keeps the plan for later)
+  const planAway = el('span', { hidden: true, 'data-plan-away': '' });
+  ui.plan.append(planAway);
+  (window.ccViews ||= []).push({ get el() { return is3D() ? planAway : ui.over; }, kind: '2d',
+    pan: (dx, dy) => view.panBy(dx, dy), zoom: (f, x = view.w / 2, y = view.h / 2) => view.zoomAt(x, y, f), fit: () => fitAll() });
 
   function click(w, s, d = {}) {
     if (lsUi.ownsTool(tool) && lsUi.click(tool, w, s)) { view.invalidateScene(); view.invalidate(); return; }   // 0.7 LD: Plant places at once
+    if (wmUi.ownsTool(tool) && wmUi.click(tool, w)) { view.invalidateScene(); view.invalidate(); return; }   // 0.8 LC.16: a node places at once; a link takes two clicks
     if (plUi.ownsTool(tool) && plUi.click(tool, w, s)) { view.invalidateScene(); view.invalidate(); return; }   // 0.7 PL: equipment and an added support place at once
     if (tool === 'paste' && pasteJob) {
       const j = pasteJob;
@@ -1627,6 +1964,8 @@ function init(root) {
     const pt = nearestPoint(s, 6, false);
     if (pt) return { kind: 'point', p: pt };
     for (const f of gisReg.pick) { const h = f(w, tol); if (h) return h; }   // GIS: a feature of a GIS layer
+    { const wm = wmUi.pick(w, tol); if (wm) return wm; }   // 0.8 LC.16: a water node or pipe
+    { const rv = rvUi.pick(w, tol); if (rv) return rv; }   // 0.8 SU.957: a river's centreline or cut lines
     const area = msUi.pick(w) || drUi.pick(w) || pcUi.pick(w) || swUi.pick(w) || lsUi.pick(w, tol) || plUi.pick(w, tol);   // 0.7 LD: plants, hedges, beds last in the Civil workspace   // 0.4 V19/V21: inside a catchment, else a parcel (anything nearer wins); 0.6 WL.28 a swept path
     if (area) return area;
     return null;
@@ -1658,6 +1997,11 @@ function init(root) {
     swUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.6 WL.28: the selected swept path, its vehicle where the slider is
     lsUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.7 LD: the selected plant, bed or hedge; the plant under the pointer
     plUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.7 PL: the selection, its grips, and what fails (red)
+    pfUi.overlay(ctx, (x, y) => v.toScreen(x, y), C);   // 0.8 SU.914 rest: the saved free-section lines
+    solarUi.overlay(ctx, (x, y) => v.toScreen(x, y), C);   // 0.8 EG.15: ground PV tables
+    geoUi.overlay(ctx, (x, y) => v.toScreen(x, y), C);   // 0.8 EG.10/CV.1 (civil-geo_PART_3): junctions, striping, signs, crossings, turnouts
+    wmUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.8 LC.16: water nodes, pipes, pressures
+    rvUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel);   // 0.8 SU.957: rivers, cut lines, the flood extent when shown
     flUi.overlay(ctx, (x, y) => v.toScreen(x, y), C, sel, LABEL_FONT);   // 0.4 V14: the selected feature line, its elevations and grades
     const a = selAl();
     if (a) {
@@ -1874,7 +2218,7 @@ function init(root) {
   // launch or while running, and Save writes the project file it was opened from (else asks where); in the browser Open
   // is the same input as before and Save a download.
   const fileHost = getHost({ app: 'civilcraft' });
-  const OPEN_TYPES = [{ description: 'CivilCraft, LandXML, points, GIS, DWG, DXF', extensions: ['.json', '.xml', '.landxml', '.csv', '.txt', '.pnezd', '.geojson', '.kml', '.kmz', '.shp', '.dbf', '.prj', '.gpkg', '.las', '.laz', '.tif', '.tiff', '.asc', '.dwg', '.dxf'] }];   // i18n-ignore: OS file types
+  const OPEN_TYPES = [{ description: 'CivilCraft, LandXML, points, GIS, DWG, DXF, IFC', extensions: ['.ifc', '.ccbundle', '.json', '.xml', '.landxml', '.csv', '.txt', '.pnezd', '.geojson', '.kml', '.kmz', '.shp', '.dbf', '.prj', '.gpkg', '.las', '.laz', '.tif', '.tiff', '.asc', '.dwg', '.dxf'] }];   // i18n-ignore: OS file types
   const PROJECT_TYPES = [{ description: 'CivilCraft project', extensions: ['.json'] }];   // i18n-ignore: an OS file type
   let projectTarget = null;   // the HostFile a project was opened from (desktop: Save writes it in place)
   let openingFrom = null;     // the HostFile being opened right now (openProject keeps it as projectTarget)
@@ -1883,6 +2227,7 @@ function init(root) {
     const fs = [];
     for (const hf of hfs) { const b = await hf.file(); fs.push(typeof File !== 'undefined' && b instanceof File ? b : new File([b], hf.name, { lastModified: hf.lastModified || Date.now() })); }
     if (await gisOpen(fs)) return;
+    if (await openPairFiles(fs, hfs)) return;   // 0.7.1 71.27
     openingFrom = hfs[0];
     try { await openFile(fs[0]); } finally { openingFrom = null; }
   }
@@ -1915,7 +2260,13 @@ function init(root) {
     saveProject: () => saveProject(), exportDwg: (version) => exportDwg(version), changed: () => { refresh(); view.invalidateScene(); view.invalidate(); },
     files: fileHost.control.files, download: (bytes, name, mime) => download(bytes, name, mime),
   })) fileHost.control.tool(def);
+  { const reg = () => window.ccProblems?.registerTools?.(fileHost.control); if (window.ccProblems) reg(); else document.addEventListener('cc-problems-ready', reg, { once: true }); }   // problems-08's mount line: the Problems tools for assistants
   for (const def of landscapeTools({ project: () => project, seed: () => lsUi.seedSpecies(), changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.7 LD.8
+  for (const def of waterTools({ project: () => project, groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; }, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 LC.16
+  for (const def of egTools({ project: () => project, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 round 2: civil_PART_2
+  for (const def of massOptTools({ project: () => project, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 EG.58: civil_PART_3
+  for (const def of solarTools({ project: () => project, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 EG.15: civil_PART_3
+  for (const def of geoTools({ project: () => project, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 round 2: civil-geo_PART_2
   for (const def of powerlineTools({ project: () => project, lib: () => plUi.lib(), groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; }, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.7 PL.8
   function applyAssist() {
     fileHost.control.configure({ enabled: settings.assistants.enabled, groups: settings.assistants.groups });
@@ -1939,17 +2290,24 @@ function init(root) {
   fileHost.control.on('change', () => renderAssist());
   fileHost.control.configure({
     title: 'CivilCraft', enabled: settings.assistants.enabled, groups: settings.assistants.groups,   // i18n-ignore: the product name
+    rollback: civilRollback({ project: () => project }),   // AI-CONNECT-SPEC § 2.3: previews of the edit tools
     info: () => ({ site: project.state.name, points: project.points.length, unsaved: unsaved() }),
     busy: () => (draft.length ? 'drawing on the plan' : tool === 'paste' ? 'pasting points' : null),   // i18n-ignore: read by the assistant
   });
   window.civilcraftControl = fileHost.control;   // for tests and the console
+  shellM = mountShell({ project: () => project, host: fileHost, selection: () => sel, select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); view.invalidate(); }, undoDepth: () => project.undoStack.length,
+    undoTo: (n) => { while (project.undoStack.length > n && project.undo()); } });   // the shell's modules attach here (shell-mount.js)
+  mountCivilAccess({ project: () => project, view, stage: ui.over, status: ui.status, selection: () => sel,
+    select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); view.invalidate(); },
+    groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; },
+    setCursor: (p) => { cursor = p; updateStatus(); view.invalidate(); } });   // EG.52: spoken results, the keyboard cursor, station walk
   renderAssist();
-  ui.file.addEventListener('change', async () => { const fs = [...ui.file.files]; ui.file.value = ''; if (fs.length && !(await gisOpen(fs))) openFile(fs[0]); });
+  ui.file.addEventListener('change', async () => { const fs = [...ui.file.files]; ui.file.value = ''; if (fs.length && !(await gisOpen(fs))) openAny(fs); });   // openAny: 0.7.1 71.27 (the pair)
   let dragDepth = 0;
   ui.plan.addEventListener('dragenter', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); dragDepth++; ui.drop.hidden = false; } });
   ui.plan.addEventListener('dragover', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
   ui.plan.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; ui.drop.hidden = true; } });
-  ui.plan.addEventListener('drop', (e) => { e.preventDefault(); dragDepth = 0; ui.drop.hidden = true; const fs = [...e.dataTransfer.files]; if (fs.length) gisOpen(fs).then((done) => { if (!done) openFile(fs[0]); }); });
+  ui.plan.addEventListener('drop', (e) => { e.preventDefault(); dragDepth = 0; ui.drop.hidden = true; const fs = [...e.dataTransfer.files]; if (fs.length) gisOpen(fs).then((done) => { if (!done) openAny(fs); }); });   // openAny: 0.7.1 71.27 (the pair)
   $('[data-sample]').addEventListener('click', async () => {
     try {
       const r = await fetch(new URL('./sample-site.csv', import.meta.url));
@@ -1960,6 +2318,15 @@ function init(root) {
 
   async function openFile(f) {
     if (f.size > 200 * 1024 * 1024) { say(t('cv.file.toobig')); return; }
+    if (/\.ccbundle$|ccbundle\.zip$/i.test(f.name)) {   // 0.8 BIM-BUNDLE-OPEN: a project bundle opens as its IFC model (shared reader and plan, ./bundle/plan.js)
+      const r = await (await import('./bundle/plan.js')).expandBundles([f], 'civilcraft', { prefer: ['model'], limit: 1 });
+      const n = r.notes[0];
+      if (!n || n.code === 'failed') { say(t('bundle.failed', { file: f.name, why: n ? n.why : '' })); return; }
+      if (n.code === 'empty' || !r.files.length) { say(t('bundle.nomodel', { file: f.name })); return; }
+      say(t('bundle.model', { file: f.name }));
+      (await ifcUi())?.importFile(r.files[0]); return;
+    }
+    if (/\.ifc$/i.test(f.name)) { (await ifcUi())?.importFile(f); return; }   // 0.7.1 71.24: through cc-ifc (ifc-civil-read.js)
     busy(t('cad.ui.reading', { file: f.name }));
     try { openText(await f.text(), f.name); } catch (err) { say(t('cad.ui.read.failed', { file: f.name, why: err.message })); } finally { busy(null); }
   }
@@ -2005,7 +2372,8 @@ function init(root) {
       p.state.alignments.push({ id: p.nextId('a'), name: a.name.slice(0, 120), start: a.start, pis: a.pis, pvis: prof ? prof.pvis : [] });
       if (a.profiles.length > 1) notes.push(t('cv.lx.profiles.more', { name: a.name }));
     }
-    const n0 = d.networks?.[0];
+    const n0 = d.networks?.find((x) => x.type !== 'water'), nw0 = d.networks?.find((x) => x.type === 'water');   // 0.8 LC.16 rest: a water network opens as water mains
+    if (nw0) { const w = cleanWater(waterFromNetwork(nw0, p.state.units), p.state.units); if (w.nodes.length) { p.state.water = w; notes.push(t('cv.lx.water', { n: w.pipes.length })); } }
     if (n0) {
       p.state.network = { ...defaultNetwork(p.state.units), name: n0.name.slice(0, 60), type: n0.type, structures: n0.structures.map((x) => ({ ...x, id: p.nextId('s'), _old: x.id, name: x.name.slice(0, 60), dia: x.dia || defaultStructDia(p.state.units) })), pipes: [] };
       const map = new Map(p.state.network.structures.map((x) => [x._old, x.id]));
@@ -2024,7 +2392,7 @@ function init(root) {
       if (types.size) p.state.network.types = [...types.values()];
       p.state.network.pipes = n0.pipes.map((q) => ({ ...q, id: p.nextId('q'), name: q.name.slice(0, 60), from: map.get(q.from), to: map.get(q.to), dia: q.dia || defaultPipeDia(p.state.units) }));
       notes.push(t('cv.lx.net.rules'));
-      if (d.networks.length > 1) notes.push(t('cv.lx.nets.more', { n: d.networks.length - 1 }));
+      if (d.networks.filter((x) => x.type !== 'water').length > 1) notes.push(t('cv.lx.nets.more', { n: d.networks.filter((x) => x.type !== 'water').length - 1 }));
     }
     // 0.6 WL.24: feature lines (with their arcs); a line from another program is drawn only until its use is chosen
     let flOff = 0;
@@ -2104,16 +2472,34 @@ function init(root) {
   /** Save the project: in place when it was opened from a project file on the desktop, else a new file (browser: a
    *  download, as before). → true when saved. */
   async function saveProject() {
-    const name = projectTarget?.name || fileStem() + '.civilcraft.json';
-    const data = new Blob([JSON.stringify(project.toJSON())], { type: 'application/json' });
-    const r = await fileHost.save({ target: projectTarget, data, name, types: PROJECT_TYPES });
-    if (!r.ok) { say(r.cancelled ? t('save.cancelled') : t('save.failed', { error: r.error?.message || String(r.error) })); return false; }
-    if (r.how === 'written') projectTarget = r.target || projectTarget;
-    project.saved = project.version;
-    asDoc?.clean();
-    say(r.how === 'written' ? t('save.written', { name: r.name || name }) : t('cv.saved.dl', { name: r.name || name }));
-    return true;
+    // 0.7.1 71.27 (owner): the pair — <name>.civilcraft.json + <name>.ifc (IFC 4.3) side by side (ifc-native-ui.js)
+    const n = await nativeUi();
+    if (!n) return false;
+    const ok = await n.save();
+    if (ok) asDoc?.clean();
+    return ok;
   }
+  /** 0.7.1 71.27: the open pair's warnings for the Problems panel (none until the pair module is loaded). */
+  function nativeWarnings() {
+    return (project.nativeWarnings || []).map((w) => ({ ...w, text: t(w.msg.key, w.msg.vars), fixes: w.fixes.map((a) => ({ id: a, action: a, msg: { key: 'ifc.native.fix.' + (a === 'ifcSave' ? 'save' : 'take'), vars: {} }, text: t('ifc.native.fix.' + (a === 'ifcSave' ? 'save' : 'take')) })) }));
+  }
+  /** 0.7.1 71.27: the native pair (ifc-native-ui.js, loaded on first use). */
+  let nativeReady = null;
+  function nativeUi() {
+    return (nativeReady ||= import('./ifc-native-ui.js').then((m) => m.createNative({
+      host: fileHost, root, say, busy, refocus, fileStem, project: () => project, species: () => lsUi.index(), confirmDiscard: () => confirmDiscard(),
+      target: () => projectTarget, setTarget: (f) => { projectTarget = f; },
+      openProjectText: async (text, name, from) => { const was = project; openingFrom = from; try { await openProject(text, name); } finally { openingFrom = null; } return project !== was; },
+      importIfc: async (f) => (await ifcUi())?.importFile(f),
+    })).catch((err) => { nativeReady = null; say(t('ifc.noload', { why: err.message })); return null; }));
+  }
+  /** 0.7.1 71.27: files opened or dropped: a CivilCraft IFC and / or a project file with its pair go to the pair; true = handled. */
+  async function openPairFiles(fs, hfs = []) {
+    if (!fs.some((f) => /\.(ifc|json)$/i.test(f.name))) return false;
+    const n = await nativeUi();
+    return n ? n.openFiles(fs, hfs) : false;
+  }
+  async function openAny(fs, hfs = []) { if (!(await openPairFiles(fs, hfs))) await openFile(fs[0]); }
 
   function exportLandXml() {
     const s = project.state, r = eg();
@@ -2126,7 +2512,7 @@ function init(root) {
       name: s.name, units: s.units, points: project.points, surfaces, crs: s.crs,   // GIS: <CoordinateSystem> when the project has one
       alignments: s.alignments.map((a) => ({ name: a.name, alignment: project.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: project.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: project.designProfile(a) } : null })),
       features: s.features || [],   // 0.6 WL.24
-      networks: s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = project.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [],
+      networks: [...(s.water?.pipes?.length ? [waterNetwork(cleanWater(s.water, s.units), s.units, { zAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } })] : []), ...(s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = project.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [])],
     });
     download(xml, fileStem() + '.xml', 'application/xml');
     const skipped = s.alignments.filter((a) => !project.alignment(a).ok).length;
@@ -2165,6 +2551,15 @@ function init(root) {
     say(t('cv.dxf.done', { n: sc.items.length, count: num(sc.items.length), scale: scale.label }) + (report.notes.length ? ' ' + report.notes.join(' ') : '') + ' ' + t('cv.bands.no'));
   }
 
+  /** 0.7.1 71.24: Export › IFC and opening .ifc files (ifc-civil-ui.js and cc-ifc, loaded on first use). */
+  let ifcReady = null;
+  function ifcUi() {
+    return (ifcReady ||= import('./ifc-civil-ui.js').then((m) => m.installIfc({
+      root, say, busy, download, fileStem, refocus, fitAll: () => fitAll(), refresh: () => { refresh(); view.invalidateScene(); view.invalidate(); },
+      project: () => project, setProject(p) { project = p; projectTarget = null; rebind(); sel = null; selPvi = -1; lastReport = null; },
+      species: () => lsUi.index(), confirmDiscard: () => confirmDiscard(), openPicker: () => command('open'),
+    })).catch((err) => { ifcReady = null; say(t('ifc.noload', { why: err.message })); return null; }));
+  }
   /**
    * Same drawing as the DXF, written as a DWG by dwg-write.js (our own cc-dwg library, loaded on first use), in the
    * format picked in the dialog: 2000 (the default), 2004, 2007, 2010, 2013 or 2018 — remembered in this browser.
@@ -2175,8 +2570,8 @@ function init(root) {
     const sel = ui.dwg.querySelector('[data-dwg-format]');
     let saved = null;
     try { saved = localStorage.getItem('civilcraft.dwgFormat'); } catch { /* storage blocked */ }
-    if (saved && DWG_YEAR[saved]) sel.value = saved;
-    ui.dwg.querySelector('[data-dwg-map-row]').hidden = !visibleMaps();   // 0.4 V8
+    if (saved && (DWG_YEAR[saved] || saved === 'DXF')) sel.value = saved;   // 0.7.1 71.24: DXF is a choice of the one DWG / DXF button
+    ui.dwg.querySelector('[data-dwg-map-row]').hidden = !visibleMaps() || sel.value === 'DXF';   // 0.4 V8
     ui.dwg.showModal();
     sel.focus();
   }
@@ -2210,9 +2605,10 @@ function init(root) {
       const v = ui.dwg.querySelector('[data-dwg-format]').value;
       try { localStorage.setItem('civilcraft.dwgFormat', v); } catch { /* storage blocked */ }
       ui.dwg.close();
-      exportDwg(v);
+      if (v === 'DXF') exportDxf(); else exportDwg(v);
     }
   });
+  ui.dwg.querySelector('[data-dwg-format]').addEventListener('change', (e) => { ui.dwg.querySelector('[data-dwg-map-row]').hidden = !visibleMaps() || e.target.value === 'DXF'; });
   ui.dwg.addEventListener('close', () => refocus());
 
   // ------------------------------------------------------------------ map layers in the PDF and the DWG (0.4 V8)
@@ -2343,10 +2739,12 @@ function init(root) {
       view3dLoad ||= import('./site-view3d.js');
       try {
         const m = await view3dLoad;
-        view3d = m.mountSite3D(host3d, { project: () => project, say, onPick: pick3D, exag: settings.exag, corner: settings.corner, onExag: (x) => { settings.exag = x; persistSettings(); },
+        view3d = m.mountSite3D(host3d, { project: () => project, say, cutfill: (box, size) => pfUi.canvasFor(box, size), onPick: pick3D, exag: settings.exag, corner: settings.corner, onExag: (x) => { settings.exag = x; persistSettings(); },
           drape: async () => { await gisLoad(); return gisReg.drape || null; },   // 0.4 V3: map layers draped on the surface
-          selection: () => (sel && ['alignment', 'pad', 'feature', 'pipe', 'structure', 'mass'].includes(sel.kind) ? { kind: sel.kind, id: sel.id } : null),   // 0.4 V5
-          onPushPull: pushPullMass });   // 0.7 LC.1 M2: drag a mass's roof in 3D, or PageUp / PageDown
+          selection: () => (sel && ['alignment', 'pad', 'feature', 'pipe', 'structure', 'mass', 'ls-hard', 'ls-grade'].includes(sel.kind) ? { kind: sel.kind, id: sel.id } : null),   // 0.4 V5; ls-hard 0.7.1
+          onPushPull: pushPullMass,   // 0.7 LC.1 M2: drag a mass's roof in 3D, or PageUp / PageDown
+          spots: () => pfUi.map()?.spots || [],   // 0.8 SU.914 rest: spot levels (cut and fill depth) as labels on the surface
+          species: () => lsUi.index() });   // 0.7.1 71.19: the plant list, so plants stand in 3D at their size
       } catch (err) { view3dLoad = null; say(t('cv.v3d.fail', { why: err?.message || err })); return; }
       say(t('v3d.hint'));   // 0.4 V5
     }
@@ -2405,6 +2803,8 @@ function init(root) {
     // 0.4 V5: alignments, pads and feature lines picked in 3D select as on the plan; a breakline is named in the tip only
     if (hit.kind === 'alignment' || hit.kind === 'pad' || hit.kind === 'feature') { picked.clear(); sel = { kind: hit.kind, id: hit.id }; selPvi = -1; refresh(); return true; }
     if (hit.kind === 'breakline') { say(t('v3d.pick.breakline', { name: hit.name })); return false; }
+    // 0.7.1 71.19: a plant (or a bed's or hedge's plant) and hardscape picked in 3D select as on the plan (Properties)
+    if (/^ls-(plant|bed|hedge|hard|grade)$/.test(hit.kind) && lsUi.isMine({ kind: hit.kind, id: hit.id })) { picked.clear(); sel = { kind: hit.kind, id: hit.id }; selPvi = -1; refresh(); return true; }
     return false;
   }
 

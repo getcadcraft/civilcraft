@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { showSetting } from '../shell-test/show-setting.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../..');
@@ -146,7 +147,7 @@ try {
   ok(threeReq.some((u) => /three\.module\.js/.test(u)) && threeReq.some((u) => /site-view3d\.js/.test(u)), 'three.js and site-view3d.js load on first use');
   ok(await page.getAttribute('[data-cmd="view3d"]', 'aria-pressed') === 'true', 'the 3D button is pressed');
   ok(await page.evaluate(() => { const t = document.querySelector('main > [role="toolbar"]'); const g = [...t.querySelectorAll(':scope > [role="group"]')]; return g.length >= 6 && t.querySelector('[data-cmd="view3d"]').closest('[role="group"]').getAttribute('aria-label') === 'View' && !!t.querySelector('[data-cmd="view3d"]').closest('[class$="-tool-row"]'); }), 'toolbar shape kept: role=toolbar child of <main>, 3D in the View group\'s tool row');
-  ok(await page.evaluate(() => { const t = document.querySelector('.cv-tools'); const tops = new Set([...t.querySelectorAll('.cv-tool-group')].map((g) => Math.round(g.getBoundingClientRect().top))); return tops.size === 1; }), 'the toolbar is still one row at 1440 px');
+  ok(await page.evaluate(() => { const t = document.querySelector('.cv-tools'); const tops = new Set([...t.querySelectorAll('.cv-tool-group')].filter((g) => g.getBoundingClientRect().height > 0).map((g) => Math.round(g.getBoundingClientRect().top)));   /* 0.7.1: hidden workspace groups left out */ return tops.size === 1; }), 'the toolbar is still one row at 1440 px');
   const sc0 = await page.evaluate(() => { const s = window.civilcraft.view3d.scene; return { keys: s.meshes.map((m) => m.key), lines: s.lines.map((l) => l.key), tris: s.counts.triangles, pipes: s.counts.pipes, structs: s.counts.structures, origin: s.origin, egOx: window.civilcraft.project.eg().surface.ox }; });
   ok(['eg', 'fg', 'pipes', 'structures'].every((k) => sc0.keys.includes(k)) && ['alignments', 'stations', 'corridors', 'breaklines', 'pads', 'daylight', 'eg-major'].every((k) => sc0.lines.includes(k)), `scene: ${sc0.keys.join(', ')} + ${sc0.lines.length} line sets`);
   ok(sc0.pipes === 2 && sc0.structs === 3 && sc0.origin.x === sc0.egOx, `2 pipes, 3 structures, local origin at E ${sc0.origin.x}`);
@@ -227,7 +228,7 @@ try {
   let s = await at(E0 + 170, N0 + 110, rim2 - 1);
   await page.mouse.click(s.x, s.y); await wait(150);
   ok(await page.evaluate(() => window.civilcraft.sel?.kind === 'structure' && window.civilcraft.sel.id === 's93'), 'a click on structure S2 selects it');
-  ok((await page.textContent('[data-props-h]')) === 'Structure' && (await page.inputValue('#cv-st-name')) === 'S2' && /S2[\s\S]*E 61501[67]\d\.\d\d +N 20801[01]\d\.\d\d +EL 2\d\d\.\d\d ft/.test(await page.textContent('[data-3d-tip]')) && !(await page.$eval('[data-3d-tip]', (e) => e.hidden)), 'Properties shows S2 and a tip names it with its coordinates');
+  ok((await page.textContent('[data-props-h]')) === 'Structure' && (await page.inputValue('[data-pg-row="name"]')) === 'S2' && /S2[\s\S]*E 61501[67]\d\.\d\d +N 20801[01]\d\.\d\d +EL 2\d\d\.\d\d ft/.test(await page.textContent('[data-3d-tip]')) && !(await page.$eval('[data-3d-tip]', (e) => e.hidden)), 'Properties shows S2 and a tip names it with its coordinates');
   const q = await page.evaluate(() => { const n = window.civilcraft.project.state.network; const p = n.pipes[0], a = n.structures[0], b = n.structures[1]; return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (p.invUp + p.invDn) / 2 + 0.5 }; });
   s = await at(q.x, q.y, q.z);
   await page.mouse.click(s.x, s.y); await wait(150);
@@ -313,18 +314,24 @@ try {
   await page.keyboard.press('Control+,');
   await page.waitForSelector('[data-app-settings][open]');
   ok((await page.isChecked('input[name="cvCorner"][value="cube"]')) && (await page.isChecked('input[name="cvExag"][value="3"]')), 'the settings show View cube and 3×');
+  await showSetting(page, 'input[name="cvExag"]');
   await page.check('input[name="cvExag"][value="10"]');
   ok(await page.evaluate(() => window.civilcraft.view3d.state.exag === 10 && document.querySelector('[data-3d-exag]').value === '10'), 'choosing 10× in Settings changes the 3D view and its bar');
+  await showSetting(page, 'input[name="cvCorner"]');
   await page.check('input[name="cvCorner"][value="axes"]');
   ok(await page.evaluate(() => { const vis = (e) => !!e && !e.hidden && getComputedStyle(e).display !== 'none'; return !vis(document.querySelector('[data-view3d] [data-viewcube]')) && vis(document.querySelector('[data-view3d] [data-axis-icon]')); }), 'Axis icon: the 3D view swaps the cube for the X/Y/Z icon at once');
   await page.keyboard.press('Escape');
   await page.reload({ waitUntil: 'networkidle' });
   ok(await page.evaluate(() => { const vis = (e) => !!e && !e.hidden && getComputedStyle(e).display !== 'none'; return !vis(document.querySelector('[data-plan] > [data-viewcube]')) && vis(document.querySelector('[data-plan] > [data-axis-icon]')); }), 'after a reload the plan shows the axis icon (the setting persists)');
+  await page.click('[data-sample]');   // the reload discarded the unsaved site (recover offer declined above): 3D needs a site again
+  await page.waitForSelector('[data-import][open]'); await page.click('[data-imp-ok]');
+  await page.waitForFunction(() => window.civilcraft.project.points.length === 276 && !document.querySelector('[data-cmd="view3d"]').disabled);
   await page.click('[data-cmd="view3d"]');
   await page.waitForFunction(() => window.civilcraft.view3d?.state);
   ok(await page.evaluate(() => window.civilcraft.view3d.state.exag === 10 && document.querySelector('[data-3d-exag]').value === '10'), 'and 3D opens at 10× (persisted)');
   await page.keyboard.press('Control+,');
   await page.waitForSelector('[data-app-settings][open]');
+  await showSetting(page, 'input[name="cvCorner"]');
   await page.check('input[name="cvCorner"][value="none"]');
   ok(await page.evaluate(() => { const vis = (e) => !!e && !e.hidden && getComputedStyle(e).display !== 'none'; return !vis(document.querySelector('[data-view3d] [data-viewcube]')) && !vis(document.querySelector('[data-view3d] [data-axis-icon]')); }), 'None: no corner indicator');
   await page.click('[data-settings-reset]'); await wait(200);
