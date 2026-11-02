@@ -82,7 +82,7 @@ final class Help
      */
     public static function compileApp(string $slug, string $helpDir): array
     {
-        $app = Catalog::app($slug);
+        $app = Catalog::anyApp($slug);
         $errors = $warnings = [];
         if (!$app) return ['data' => [], 'errors' => ["Unknown app $slug."], 'warnings' => []];
 

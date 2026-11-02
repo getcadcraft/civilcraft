@@ -1025,7 +1025,7 @@ export function encodeClasses(classes, ctx) {
     w.BS(c.num); w.BS(c.proxy | 0);
     w.TV(c.app); w.TV(c.cpp); w.TV(c.dxf);
     w.B(0); w.BS(c.entity ? 0x1F2 : 0x1F3);
-    if (w.r2004) { w.BL(c.count | 0); w.BS(ctx.dwgVersion); w.BS(ctx.maint); w.BL(0); w.BL(0); }
+    if (w.r2004) { w.BL(c.count | 0); w.BL(ctx.dwgVersion); w.BL(ctx.maint); w.BL(0); w.BL(0); }
   }
   const endbit = w.endData();
   if (w.r2007) w.patchRL(w.sizeAt, endbit);

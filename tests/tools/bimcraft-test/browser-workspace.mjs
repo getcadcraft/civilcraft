@@ -59,6 +59,47 @@ ok(tabsNow.includes('architecture') && tabsNow.includes('systems') && !tabsNow.i
 const on = await page.$$eval('.ws-ribbon [data-ws-command][aria-disabled="false"]', (b) => b.map((x) => x.dataset.wsCommand));
 ok(['door', 'window', 'column', 'roof', 'ceiling', 'floor', 'stair', 'railing', 'grid'].every((k) => on.includes(k)), 'Architecture: our tools are live in the ribbon', on.join(' '));
 ok(await page.$eval('.ws-ribbon [data-ws-command="curtain"]', (b) => b.getAttribute('aria-disabled') === 'true' && /Not built/.test(b.title)), 'a tool BimCraft lacks is greyed and says so');
+// 0.8.1 (BIMBro, Discord 2026-11-02): Insert › Image / Import CAD and Manage › Project Units run what 0.8 has; Material Takeoff stays not built
+await page.click('[data-ws-tab="insert"]'); await page.waitForTimeout(300);
+ok(await page.$$eval('.ws-ribbon [data-ws-command="image"], .ws-ribbon [data-ws-command="cad"]', (b) => b.length === 2 && b.every((x) => x.getAttribute('aria-disabled') === 'false')), 'Insert: Image and Import CAD are live');
+await page.click('.ws-ribbon [data-ws-command="image"]'); await page.waitForTimeout(1000);
+ok((await page.evaluate(() => window.bimcraftPlan.state.tool)) === 'picture', 'Image from the ribbon: the Picture tool (pictures as backgrounds)');
+await shot('3a-image');
+await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('.ws-ribbon [data-ws-command="cad"]'); await page.waitForTimeout(800);
+ok(await page.evaluate(() => !!document.querySelector('dialog[data-trace-dialog][open]') && !!document.querySelector('[data-trace-file]')?.accept.includes('.dwg')), 'Import CAD from the ribbon: the From a drawing dialog (DWG / DXF / PDF / scan)');
+await shot('3b-import-cad');
+await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('[data-ws-tab="manage"]'); await page.waitForTimeout(300);
+await page.click('.ws-ribbon [data-ws-command="units"]'); await page.waitForTimeout(800);
+ok(await page.evaluate(() => { const d = document.querySelector('dialog[data-app-settings][open]'), u = d?.querySelector('[data-units-set]'); return !!u && !u.closest('[data-settings-pane]').hidden && u.getBoundingClientRect().height > 0 && /Units/.test(d.querySelector('.shell-sec-nav [aria-current="true"]')?.textContent || ''); }), 'Project Units from the ribbon: Settings open on Units');
+await shot('3c-units');
+await page.evaluate(() => [...document.querySelectorAll('dialog[data-app-settings] .shell-sec-nav button')].find((b) => b.ccSet?.querySelector('input[name="workspace"]'))?.click());   // Settings remember the section: back to Layout for the checks below
+await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('[data-ws-tab="quantification"]'); await page.waitForTimeout(300);
+ok(await page.$eval('.ws-ribbon [data-ws-command="materialqty"]', (b) => b.getAttribute('aria-disabled') === 'true' && /Not built/.test(b.title)), 'Material Takeoff is still greyed and says not built');
+// the sweep: Move / Align (Modify), Level (Architecture), Phases + Materials (Manage) run BimCraft's own tools
+await page.click('[data-ws-tab="modify"]'); await page.waitForTimeout(300);
+await page.click('.ws-ribbon [data-ws-command="move"]'); await page.waitForTimeout(1000);
+ok((await page.evaluate(() => window.bimcraftPlan.state.tool)) === 'move', 'Move from the ribbon: the Move tool');
+await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('.ws-ribbon [data-ws-command="align"]'); await page.waitForTimeout(800);
+ok((await page.evaluate(() => window.bimcraftPlan.state.tool)) === 'align', 'Align from the ribbon: the Align tool');
+await page.keyboard.press('Escape'); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('[data-ws-tab="architecture"]'); await page.waitForTimeout(300);
+await page.click('.ws-ribbon [data-ws-command="level"]'); await page.waitForTimeout(800);
+ok(await page.evaluate(() => !!document.querySelector('dialog[data-lv-dialog][open]')), 'Level from the ribbon: the Add levels dialog');
+await shot('3d-levels');
+await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('[data-ws-tab="manage"]'); await page.waitForTimeout(300);
+await page.click('.ws-ribbon [data-ws-command="phases"]'); await page.waitForTimeout(800);
+ok(await page.evaluate(() => { const d = document.querySelector('[data-eg59-details]'); return !!d && d.open && d.getBoundingClientRect().height > 0; }), 'Phases from the ribbon: the Phases section, open');
+await shot('3e-phases');
+await page.click('.ws-ribbon [data-ws-command="materials"]'); await page.waitForTimeout(800);
+ok(await page.evaluate(() => !![...document.querySelectorAll('dialog[open]')].length), 'Materials from the ribbon: the material library');
+await shot('3f-materials');
+await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+await page.click('[data-ws-tab="architecture"]'); await page.waitForTimeout(300);
 // open the floor plan, then the Roof tool from the ribbon
 await page.click('.ws-ribbon [data-ws-command="roof"]'); await page.waitForTimeout(1200);
 ok((await page.evaluate(() => window.bimcraftPlan.state.tool)) === 'roof' && await page.evaluate(() => !!document.querySelector('[data-ws-tool-options] [data-mopts="roof"]:not([hidden])')), 'Roof from the ribbon: our Roof tool, with its pitch / overhang / ends row in the options bar');

@@ -23,6 +23,8 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
   border-bottom: var(--pen-2) solid var(--ink);
 }
 .app-bar-mark { display: inline-flex; color: var(--ink); }
+.app-bar-home { color: inherit; text-decoration: none; }   /* the app name links home in every bar mode (owner 2026-11-01) */
+.app-bar-home:hover, .app-bar-home:focus-visible { text-decoration: underline; }
 .app-bar-name { display: flex; align-items: center; gap: .55rem; margin: 0; font-weight: 700; font-stretch: 112%; }
 .app-bar-area {
   font-size: var(--fs-sm);
@@ -35,6 +37,7 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
   text-decoration: none;
 }
 .app-bar-area:hover { text-decoration: underline; }
+.app-bar-ver[hidden] { display: none !important; }
 .app-bar-ver { position: relative; font-size: var(--fs-sm); font-weight: 600; font-stretch: 100%; }
 .app-bar-ver summary { list-style: none; cursor: pointer; white-space: nowrap; padding: .05rem .45rem; border: var(--pen-1) solid var(--ink); border-radius: var(--radius); font-variant-numeric: tabular-nums; }
 .app-bar-ver summary::-webkit-details-marker { display: none; }
@@ -898,6 +901,13 @@ html.cc-sheets body.app-shell > main > aside.cc-sheet.cc-left { left: 0 !importa
 html.cc-sheets body.app-shell > main > aside.cc-sheet.cc-right { right: 0 !important; left: auto !important; border-left-width: var(--pen-2); transform: translateX(102%); }
 html.cc-sheets body.app-shell > main > aside.cc-sheet.cc-open { visibility: visible; transform: none; }
 @media (prefers-reduced-motion: no-preference) { html.cc-sheets body.app-shell > main > aside.cc-sheet { transition: transform .18s ease, visibility .18s; } }
+/* Tablet held upright and narrow (600-760 px: the apps' one-column stacked grid, `auto 60vh auto ...`): the side panels are
+   fixed sheets, so the grid is taller than its content and the browser spread the spare height over every `auto` row (a ribbon
+   40 px too tall, a status bar with an empty band, an empty strip at the bottom). Rows keep their own size; the view takes the
+   spare height instead (never less than the app's own 60vh). */
+@media (max-width: 760px) {
+  html.cc-sheets body.app-shell > main { align-content: start; grid-template-rows: auto minmax(60vh, 1fr) auto auto auto auto auto; }
+}
 .app-bar-sheet[hidden] { display: none !important; }
 .app-bar-sheet[aria-pressed="true"] { color: var(--sheet); background: var(--ink); }
 /* upright, the app bar keeps one row with the panel buttons: the About links and the version chip step aside */
@@ -991,7 +1001,7 @@ html.cc-fold-h .shell-phone-whole { margin-left: var(--cc-seg-x) !important; wid
 :is(html.cc-phone, html.cc-bar-narrow) .app-bar-links { display: none; }
 html.cc-compact .app-bar { min-height: 0; padding-block: .15rem; }   /* every pixel goes to the drawing */
 :is(html.cc-phone, html.cc-bar-narrow) .app-bar { gap: .35rem; padding-inline: .5rem; }
-:is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-mark, :is(html.cc-phone, html.cc-bar-narrow) .app-bar-name > .app-bar-ver, :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-older,
+html.cc-phone .app-bar > .app-bar-mark, :is(html.cc-phone, html.cc-bar-narrow) .app-bar-name > .app-bar-ver, :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-older,
 :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .space-toggle, :is(html.cc-phone, html.cc-bar-narrow) .app-bar > .app-bar-palette { display: none; }
 :is(html.cc-phone, html.cc-bar-narrow) .app-bar-name { flex: 1 1 auto; min-width: 0; gap: .4rem; }
 :is(html.cc-phone, html.cc-bar-narrow) .app-bar-name > span:not(.layer-swatch) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

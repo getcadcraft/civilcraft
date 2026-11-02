@@ -61,7 +61,7 @@ final class HelpLocales
     {
         $errors = [];
         if (!preg_match('/^[a-z0-9]+(-[a-z0-9]+)*$/', $id)) return ['data' => [], 'errors' => ["Add-on id \"$id\" is not lowercase words joined by hyphens."], 'warnings' => []];
-        if ($app !== null && !Catalog::app($app)) return ['data' => [], 'errors' => ["Unknown app $app."], 'warnings' => []];
+        if ($app !== null && !Catalog::anyApp($app)) return ['data' => [], 'errors' => ["Unknown app $app."], 'warnings' => []];
         $scope = 'addon:' . $id;
         $own = self::read($helpDir, $scope, $errors);
         $index = [$scope => array_keys($own), Help::COMMON => array_keys(self::read(Help::commonDir(), Help::COMMON, $errors))];
@@ -159,7 +159,7 @@ final class HelpLocales
     public static function compile(string $slug, string $helpDir, ?string $locale, ?string $commonDir = null): array
     {
         $commonDir ??= Help::commonDir();
-        $app = Catalog::app($slug);
+        $app = Catalog::anyApp($slug);
         $errors = $warnings = [];
         if (!$app) return ['data' => [], 'errors' => ["Unknown app $slug."], 'warnings' => [], 'translated' => 0, 'total' => 0];
         if ($locale !== null && !preg_match(self::LOCALE_RE, $locale)) {

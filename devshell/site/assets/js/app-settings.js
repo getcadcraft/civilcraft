@@ -1043,6 +1043,10 @@
     var ok = !v || /^[a-z]{2,3}(-([A-Z]{2}|[0-9]{3}|[A-Z][a-z]{3}))?$/.test(v);
     if (!ok) return;
     document.cookie = 'cc_lang=' + (v ? encodeURIComponent(v) : '') + '; path=/; SameSite=Lax; max-age=' + (v ? 31536000 : 0);
+    // A packed page (browser edition, Studio) reads the choice in the browser (app-lang-boot.js); Studio's hub keeps the same choice here.
+    if (document.documentElement.getAttribute('data-edition')) {
+      try { if (v) localStorage.setItem('cadcraft.studio.lang', v); else localStorage.removeItem('cadcraft.studio.lang'); } catch (e) { /* private mode */ }
+    }
     var row = form.querySelector('[data-lang-reload-row]');
     if (row) row.hidden = false;
   }

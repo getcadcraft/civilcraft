@@ -709,3 +709,41 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .layer-ring { display: inline-block; flex-shrink: 0; width: .9rem; height: .9rem; border-radius: 50%;
   background: conic-gradient(var(--layer-red) 0 12.5%, var(--layer-blue) 0 25%, var(--layer-orange) 0 37.5%, var(--layer-magenta) 0 50%, var(--layer-ochre) 0 62.5%, var(--layer-green) 0 75%, var(--layer-violet) 0 87.5%, var(--layer-cyan) 0 100%); }
 .layer-ring.sm { width: 1.05rem; height: 1.05rem; margin-left: -.15rem; }
+
+/* SuperCad Studio downloads (/account/supercad): one tidy block per file */
+.scd-ver { margin-block: 1.25rem .75rem; }
+.scd-file { display: grid; gap: .5rem; justify-items: start; padding: 1rem 1.25rem; margin-block: .75rem; border: var(--pen-1, 1px) solid var(--ink-2, currentColor); }
+.scd-file > p, .scd-note { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
+.scd-sha code { overflow-wrap: anywhere; font-size: .85em; }
+
+/* SuperCad Studio: the company-name edit form opens from the header link (:target, no JS) */
+.scd-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.scd-rename { display: none; }
+.scd-rename:target { display: block; }
+
+/* SuperCad Studio account: the seat editor is folded away; "Get more licences / seats" is a real button */
+.scd-seat-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.scd-seat-head h3 { margin: 0; }
+.scd-edit-body { display: none; margin-top: 1rem; }
+.scd-edit-body:target, .scd-edit-body.is-open { display: block; }
+.set-sec .form-cc.scd-seat, .set-sec .form-cc.scd-rename { max-width: none; }
+.scd-edit-body, .scd-rename > * { max-width: 36rem; }
+.scd-rename:target, .scd-rename.is-open { display: block; }
+.scd-form [data-scd-save][disabled] { opacity: .45; cursor: not-allowed; }
+.scd-more { min-height: 3.25rem; padding: .7rem 1.6rem; font-size: var(--fs-md); font-weight: 700; }
+.scd-more { margin-bottom: 1.5rem; }
+.scd-seat { margin-top: 2rem; padding-top: 1.5rem; border-top: var(--pen-1) solid var(--line, var(--ink-2)); }
+
+/* SuperCad Studio downloads: one tab per system, the visitor's own preselected (radio buttons, no JS needed) */
+.scd-os { margin-block: 1rem; }
+.scd-os .scd-detect { margin-bottom: .75rem; }
+.scd-os-radio { position: absolute; opacity: 0; pointer-events: none; }
+.scd-os-tab { display: inline-flex; align-items: center; gap: .35rem; cursor: pointer; margin: 0 .35rem .5rem 0; }
+.scd-os-radio:checked + .scd-os-tab { background: var(--action); color: var(--on-action); border-color: var(--action); }
+.scd-os-radio:focus-visible + .scd-os-tab { outline: var(--pen-2, 2px) solid var(--ink); outline-offset: 2px; }
+.scd-os-you { font-weight: 400; font-size: .85em; }
+.scd-panel { display: none; }
+.scd-os-radio[value="windows"]:checked ~ .scd-panels [data-p="windows"],
+.scd-os-radio[value="macos"]:checked ~ .scd-panels [data-p="macos"],
+.scd-os-radio[value="linux"]:checked ~ .scd-panels [data-p="linux"],
+.scd-os-radio[value="web"]:checked ~ .scd-panels [data-p="web"] { display: block; }

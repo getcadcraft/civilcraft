@@ -37,6 +37,7 @@ const admin = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', adminPhp
 
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, serviceWorkers: 'block' });
+await ctx.addInitScript(() => { try { localStorage.setItem('cadcraft.tour', 'skipped'); } catch {} });   // 0.7 D7.06: the first-drawing tour would sit over the drawing and take the clicks
 const problems = [];
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -148,15 +149,15 @@ try {
   console.log('\n== units: feet and inches');
   await fresh();
   await page.keyboard.press('Escape');
-  ok(await page.$('#cc-cur-lunits') !== null, 'Current settings has a Length format select');
-  await page.selectOption('#cc-cur-lunits', '4'); await page.waitForTimeout(120);
+  ok(await page.$('[data-props] [data-pg-id="cur-lunits"] select') !== null, 'Current settings has a Length format select');
+  await page.selectOption('[data-props] [data-pg-id="cur-lunits"] select', 'k:4'); await page.waitForTimeout(120);
   ok(await page.evaluate(() => window.cadcraft.doc.meta.lunits) === 4, 'choosing Architectural sets the drawing\'s format');
   await typeCmd('L'); await typeCmd('0,0'); await typeCmd('@12\'6",0'); await typeCmd('');
   await typeCmd('ZOOM'); await typeCmd('E');
   await clickAt(75, 0);
-  const lenVal = await page.inputValue('#cc-p-len');
+  const lenVal = await page.inputValue('[data-props] [data-pg-id="len"] input');
   ok(lenVal === '12\'-6"', 'a line typed as @12\'6",0 shows Length 12\'-6" in Properties', lenVal);
-  await page.fill('#cc-p-len', '13\'-1/2"'); await page.press('#cc-p-len', 'Enter'); await page.waitForTimeout(120);
+  await page.fill('[data-props] [data-pg-id="len"] input', '13\'-1/2"'); await page.press('[data-props] [data-pg-id="len"] input', 'Enter'); await page.waitForTimeout(120);
   const ln = (await all())[0];
   ok(near(ln.x2, 156.5), 'typing 13\'-1/2" in Length makes it 156.5 inches', ln.x2);
   const at2 = await screen(24, 0); await page.mouse.move(at2.x, at2.y); await page.waitForTimeout(60);
@@ -392,7 +393,7 @@ try {
   ok(ml && ml.s === 'SEE DETAIL 3' && ml.dir === 1 && ml.pts.length === 2, 'MLEADER: two clicks, then the words typed in place', JSON.stringify(ml));
   if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-14-mleader.png') });
   const items2 = await page.$$eval('[data-group-menu="Annotate"] [role="menuitem"]', (bs) => bs.map((b) => b.firstChild.textContent.trim()));
-  ok(JSON.stringify(items2) === JSON.stringify(['Continue dimension', 'Baseline dimension', 'Revision cloud']), 'Annotate › More holds Continue, Baseline and Revision cloud', JSON.stringify(items2));
+  ok(JSON.stringify(items2) === JSON.stringify(['Continue dimension', 'Baseline dimension', 'Revision cloud', 'Redline to revision']), 'Annotate › More holds Continue, Baseline and Revision cloud', JSON.stringify(items2));
 
   console.log('\n== revision cloud');
   await fresh();
@@ -413,12 +414,12 @@ try {
   await typeCmd('ZOOM'); await typeCmd('E');
   await page.click('[data-group-menu="Blocks"] summary'); await page.click('[data-group-menu="Blocks"] [data-cmd="BEDIT"]'); await page.waitForTimeout(80);
   await typeCmd('DESK');
-  const banner = await page.evaluate(() => { const b = document.querySelector('.cc-bedit'); return b && !b.hidden ? b.textContent : null; });
+  const banner = await page.evaluate(() => { const b = document.querySelector('.cc-bedit:not(.cc-refedit)'); return b && !b.hidden ? b.textContent : null; });
   ok(banner && banner.includes('Editing block "DESK"'), 'BEDIT shows which block is being edited', banner);
   await typeCmd('C'); await typeCmd('20,10'); await typeCmd('5');
-  await page.click('.cc-bedit .cc-te-btn.is-primary'); await page.waitForTimeout(100);
+  await page.click('.cc-bedit:not(.cc-refedit) .cc-te-btn.is-primary'); await page.waitForTimeout(100);
   const desk = await page.evaluate(() => window.cadcraft.doc.blocks.get('DESK').entities.map((e) => e.type));
-  ok(desk.length === 2 && desk.includes('circle') && await page.evaluate(() => window.cadcraft.doc.inModel && document.querySelector('.cc-bedit').hidden), 'Save block on the banner: the circle is in the block, back on the model', JSON.stringify(desk));
+  ok(desk.length === 2 && desk.includes('circle') && await page.evaluate(() => window.cadcraft.doc.inModel && document.querySelector('.cc-bedit:not(.cc-refedit)').hidden), 'Save block on the banner: the circle is in the block, back on the model', JSON.stringify(desk));
 
   console.log('\n== lineweight display (LWT)');
   await fresh();
@@ -476,9 +477,10 @@ try {
   await panZoom('in VPVIEW');
   await page.keyboard.press('Escape'); await page.waitForTimeout(150);
   ok(await page.evaluate(() => window.cadcraft.doc.layout?.name === 'Layout1'), 'Esc in VPVIEW goes back to the sheet');
-  await page.click('.app-bar button[name="space"][value="model"]'); await page.waitForTimeout(150);
+  const clickSpace = async (v) => { const b = page.locator('.app-bar button[name="space"][value="' + v + '"]'); if (!(await b.first().isVisible())) { if (!(await page.locator('.app-bar-more').evaluate((d) => d.open))) await page.click('.app-bar-more > summary'); await page.locator('.app-bar-more-menu button[name="space"][value="' + v + '"]').click(); } else await b.first().click(); };   // the space toggle moves into the bar's More menu on a narrower window
+  await clickSpace('model'); await page.waitForTimeout(150);
   await panZoom('sheet with the Model (dark) theme');
-  await page.click('.app-bar button[name="space"][value="paper"]'); await page.waitForTimeout(150);
+  await clickSpace('paper'); await page.waitForTimeout(150);
   await page.click('.cc-tab:text-is("Model")'); await page.waitForTimeout(150);
 
   console.log('\n== TRIM by dragging, Shift to extend, lasso selection (T.1–T.4)');
@@ -807,6 +809,7 @@ try {
     ok(cir && Math.abs(cir.r - 25) < 1e-9 && Math.abs(cir.cx - 150) < 2 && Math.abs(cir.cy - 80) < 2 && !(await page.evaluate(() => window.cadcraft.engine.running)), 'after your click it carries on: radius 25 there', JSON.stringify(cir));
     // Settings › CadCraft › My tools: add a button, refuse a taken key
     await page.keyboard.press('Control+,'); await page.waitForTimeout(300);
+    await page.click('.shell-sec-nav button:has-text("My tools")'); await page.waitForTimeout(100);   // Settings shows one section at a time
     await page.click('[data-mytools-settings] [data-mt-add]'); await page.waitForTimeout(150);
     await page.fill('#cc-mt-group', 'Mine'); await page.fill('#cc-mt-label', 'Origin line'); await page.fill('#cc-mt-macro', '^C^C_line;0,0;@0,60;;');
     await page.click('#cc-mt-key'); await page.keyboard.press('Control+s');
@@ -859,10 +862,10 @@ try {
       await page.waitForFunction(() => [...window.cadcraft.doc.model.values()].some((e) => e.type === 'insert' && e.dyn), null, { timeout: 60000 });
       await page.waitForTimeout(300);
       const id = await page.evaluate(() => { const c = window.cadcraft; c.doc.setSpace(null); const r = [...c.doc.model.values()].find((e) => e.type === 'insert' && e.block === 'Receptacle' && e.dyn?.state === 'Duplex'); c.host.setSelection(new Set([r.id])); return r.id; });
-      await page.waitForSelector('#cc-p-dyn-vis', { timeout: 5000 }).catch(() => {});
-      const opts = await page.$$eval('#cc-p-dyn-vis option', (os) => os.map((o) => o.value)).catch(() => []);
+      await page.waitForSelector('[data-props] [data-pg-id="dyn.vis"] select', { timeout: 5000 }).catch(() => {});
+      const opts = await page.$$eval('[data-props] [data-pg-id="dyn.vis"] select option', (os) => os.map((o) => o.value.replace(/^k:/, ''))).catch(() => []);
       ok(opts.join('|') === 'Duplex|GFI', 'Properties › Custom: a Visibility list with the block\'s states', opts.join('|'));
-      await page.selectOption('#cc-p-dyn-vis', 'GFI'); await page.waitForTimeout(300);
+      await page.selectOption('[data-props] [data-pg-id="dyn.vis"] select', 'k:GFI'); await page.waitForTimeout(300);
       ok(await page.evaluate((i) => window.cadcraft.doc.model.get(i).dyn.state === 'GFI', id), 'choosing GFI switches the reference to its GFI state');
       if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-28-dynamic-block.png') });
       await page.click('[data-cmd-input]'); await page.keyboard.press('Control+z'); await page.waitForTimeout(200);
@@ -895,14 +898,14 @@ try {
       return out.join(' ');
     }, id);
     const propRows = () => page.$$eval('label[htmlfor^="cc-p-att"], label[for^="cc-p-att"]', (ls) => ls.map((l) => l.textContent.trim())).catch(() => []);
-    await page.waitForSelector('#cc-p-dyn-vis', { timeout: 5000 }).catch(() => {});
+    await page.waitForSelector('[data-props] [data-pg-id="dyn.vis"] select', { timeout: 5000 }).catch(() => {});
     ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka RATING=16A', 'Single: CIRCUIT, ROOM and RATING show', await shows());
-    await page.selectOption('#cc-p-dyn-vis', 'Outdoor'); await page.waitForTimeout(300);
+    await page.selectOption('[data-props] [data-pg-id="dyn.vis"] select', 'k:Outdoor'); await page.waitForTimeout(300);
     ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka IP=IP44', 'Properties › Custom → Outdoor: RATING goes, IP shows its value (it came out empty before)', await shows());
     const rows = await propRows();
     ok(rows.length === 5 && rows.filter((x) => /hidden/.test(x)).length === 2, 'Properties lists all five attributes, the two this state hides marked hidden', JSON.stringify(rows));
     if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'draw-28b-dynamic-attributes.png') });
-    await page.selectOption('#cc-p-dyn-vis', 'Double'); await page.waitForTimeout(300);
+    await page.selectOption('[data-props] [data-pg-id="dyn.vis"] select', 'k:Double'); await page.waitForTimeout(300);
     ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka RATING=16A GANG=2', 'Double: RATING and GANG with their values', await shows());
     await page.click('[data-cmd-input]'); await page.keyboard.press('Control+z'); await page.waitForTimeout(200);
     ok((await shows()) === 'CIRCUIT=L1-03 ROOM=Łazienka IP=IP44', 'one Ctrl+Z: back in Outdoor');

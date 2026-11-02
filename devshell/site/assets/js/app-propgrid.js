@@ -65,6 +65,7 @@
       type: TYPES.indexOf(r.type) !== -1 ? r.type : 'text', hint: r.hint ? String(r.hint).slice(0, 400) : '', readonly: !!r.readonly, mixed: !!r.mixed };
     if (r.mixed) o.value = null;
     else if (o.type === 'checkbox') o.value = !!r.value;
+    else if (o.type === 'number' && typeof r.parse === 'function' && typeof r.value === 'string' && r.value !== '') o.value = r.value.slice(0, 200);   // a field the app reads itself shows the app's own text (12'-6", 1/2")
     else if (o.type === 'number' || o.type === 'slider') o.value = r.value == null || r.value === '' ? null : num(r.value, null);
     else if (o.type === 'color') o.value = /^#[0-9a-f]{6}$/i.test(String(r.value)) ? String(r.value).toLowerCase() : '#000000';
     else o.value = r.value == null ? '' : String(r.value).slice(0, 4000);

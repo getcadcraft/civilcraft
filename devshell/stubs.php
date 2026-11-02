@@ -55,6 +55,7 @@ if (!class_exists('Catalog')) {
         {
             $d = devshell_app();
             if ($slug === $d['app']['slug']) return $d['app'];
+            if (isset($d['mount_rows'][$slug])) return $d['mount_rows'][$slug];   // an app SuperCad Studio hosts (edition-super.php)
             return isset($d['others'][$slug]) ? ['slug' => $slug, 'name' => $d['others'][$slug], 'open_in' => []] : null;
         }
         /** Only this app runs here; links to other apps are never shown. */
@@ -153,7 +154,15 @@ if (!class_exists('AppBuilds')) {
         /** Another app's build is never here (an "Edit in <app>" handoff stays hidden). */
         public static function resolve(string $slug, string $area, ?string $version = null): ?array
         {
-            return null;
+            // SuperCad Studio's browser edition stages the apps it hosts in <stage>/mounts/<slug> (devshell/edition-super.php)
+            $ver = devshell_app()['mounts'][$slug] ?? null;
+            $dir = __DIR__ . '/../mounts/' . $slug;
+            if ($ver === null || !is_dir($dir) || !preg_match('/^[a-z0-9-]+$/', $slug)) return null;
+            $m = json_decode((string)@file_get_contents("$dir/manifest.json"), true);
+            return [
+                'slug' => $slug, 'version' => $ver, 'label' => $ver, 'dir' => (string)realpath($dir), 'url' => '/assets/apps/' . $slug . '/' . $ver . '/',
+                'is_dev' => false, 'is_current' => true, 'current' => $ver, 'manifest' => is_array($m) ? $m : [], 'release' => null,
+            ];
         }
         public static function versions(string $slug): array { return []; }
         public static function hasDev(string $slug): bool { return false; }

@@ -195,6 +195,7 @@ ob_start();
 <?php if ($__editionData !== null): ?>
 <script type="application/json" id="cc-edition"><?= json_embed($__editionData) ?></script>
 <script type="application/json" id="cc-offline"><?= json_embed($__offlineData) ?></script>
+<script src="<?= $R ?>assets/js/app-lang-boot.js"></script>
 <?php endif; ?>
 <?php foreach (devshell_shell_js($__panels, $__offlineData !== null) as $__s): ?>
 <script src="<?= e($__s) ?>" defer></script>

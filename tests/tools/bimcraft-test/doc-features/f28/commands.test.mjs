@@ -51,3 +51,13 @@ test('a tool BimCraft lacks says so; a tool it has runs its own button, with the
   button.disabled = false; s.document = null; assert.match(availability('roof', c, s, ctx).reason, /Open an IFC/);
   s.document = {}; assert.equal(availability('roof', c, s, { root: { querySelector: () => null }, t }).enabled, false);
 });
+// 0.8.1 (BIMBro, Discord 2026-11-02): Image, Import CAD and Project Units run what 0.8 already has; Material Takeoff stays not built
+test('Image, Import CAD and Project Units are live; Material Takeoff still says not built; Units need no open IFC', () => {
+  const s = valid(), c = createCommands({ t, state: () => s, actions: {} });
+  const button = { disabled: false, getAttribute: () => null }, ctx = { root: { querySelector: () => button }, t };
+  for (const id of ['image', 'cad', 'units', 'move', 'align', 'level', 'phases', 'materials']) assert.equal(availability(id, c, s, ctx).enabled, true, id);
+  assert.match(availability('materialqty', c, s, ctx).reason, /Not built in BimCraft yet/);
+  s.document = null;
+  assert.equal(availability('units', c, s, ctx).enabled, true);
+  assert.match(availability('cad', c, s, ctx).reason, /Open an IFC/);
+});

@@ -226,7 +226,8 @@ function readClassesSection(sec, ctx) {
     const k = { num: r.BS(), proxyFlags: r.BS(), appName: r.TV(), cppName: r.TV(), dxfName: r.TV(), wasZombie: !!r.B() };
     const itemClass = r.BS();
     k.isEntity = itemClass === 0x1F2;
-    if (ver >= 18) { k.instanceCount = r.BL(); k.dwgVersion = r.BS(); k.maintVersion = r.BS(); r.BL(); r.BL(); }
+    // Both versions are BITLONG (ODA spec 5.4.1 ch. 10): the same as BITSHORT up to 255, but a maintenance version of 256+ (R2018 files: 329) is 32 bits.
+    if (ver >= 18) { k.instanceCount = r.BL(); k.dwgVersion = r.BL(); k.maintVersion = r.BL(); r.BL(); r.BL(); }
     if (k.num < 500 || k.num > 5000) { ctx.notes.push(msg('ccdwg.read.class_number', { num: k.num })); break; }
     out.push(k);
     if (k.num >= maxNum) break;
