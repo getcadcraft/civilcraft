@@ -49,7 +49,7 @@ in a browser. The server needs no PHP and no Node, and the app never contacts ge
 
 ```sh
 node devshell/edition.mjs                       # → dist/civilcraft-browser-edition-vdev/
-node devshell/edition.mjs --version 0.7 --zip   # → dist/civilcraft-browser-edition-v0.7.0/, its .zip and SHA256SUMS
+node devshell/edition.mjs --version 0.9 --zip   # → dist/civilcraft-browser-edition-v0.9.0/, its .zip and SHA256SUMS
 ```
 
 - It needs Node.js and PHP (above). Libraries it does not have yet are downloaded by exact version and checked against
@@ -64,7 +64,7 @@ node devshell/edition.mjs --version 0.7 --zip   # → dist/civilcraft-browser-ed
 - `devshell/edition/` holds what the packer needs from getcadcraft.com: the service worker for "Save for offline", the
   INSTALL.md template, and the libraries' names, sources and license texts (`kit.json`). It is written with every sync
   from development; do not edit it.
-- For a release, check out its tag first (`git checkout v0.7.0`). Tags made before `devshell/edition.mjs` was added
+- For a release, check out its tag first (`git checkout v0.9.0`). Tags made before `devshell/edition.mjs` was added
   (v0.6.0 and older) do not have it: use that release's zip.
 
 ## Layout
