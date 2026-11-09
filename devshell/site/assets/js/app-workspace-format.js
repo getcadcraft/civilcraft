@@ -66,14 +66,24 @@ export const BLOCKS = Object.freeze({
     collapse: bool, tearOff: bool, mine: bool } },   // mine: a "My tools" group of empty slots a person fills (WS.21)
   petpalette: { places: ['float'], needs: [], opts: {} },   // the app's edit commands by the pointer when something is picked (WS.22)
   palettes: { places: ['left-panel', 'right-panel'], needs: [], opts: {   // two palettes stacked inside an app panel; "panel" = that panel's own content
-    upper: (v) => (typeof v === 'string' && isSlot(v) ? v : undefined), lower: (v) => list(v, isSlot, 4) } },
+    upper: (v) => (typeof v === 'string' && isSlot(v) ? v : undefined), lower: (v) => list(v, isSlot, 4),
+    rail: bool } },   // rail: a column of icons on the panel's left that shows one palette at a time (Duncan)
   viewtabs: { places: ['view-top', 'view-bottom'], needs: ['views'], opts: {   // open = a tab per opened view (closable); all = a tab for every view
     mode: (v) => (v === 'open' || v === 'all' ? v : undefined) } },
   viewbar: { places: ['view-bottom', 'view-top'], needs: [], opts: {   // the current view's name and the app's view slots
     slots: (v) => list(v, isSlot, LIMITS.slots) } },
   quickbar: { places: ['stage-bottom', 'stage-top', 'bottom'], needs: [], opts: {   // a strip of the app's slots
     slots: (v) => list(v, isSlot, LIMITS.slots) } },
-  statusbar: { places: ['bottom'], needs: [], opts: {} },   // the app's status line, the selection count, the layout's name
+  toolrows: { places: ['top', 'stage-top'], needs: ['toolbox'], opts: {   // the toolbox's groups laid out as two rows over the drawing (Duncan, 0.9 DU.1); each group shows its first tools and keeps the whole set under ▾
+    split: (v) => (Number.isInteger(v) && v >= 1 && v <= 12 ? v : undefined), visible: (v) => (Number.isInteger(v) && v >= 2 && v <= 12 ? v : undefined), tearOff: bool,
+    icons: (v) => (v === 'set' || v === 'app' ? v : undefined) } },   // icons: "set" = one icon family for the tools it knows, "app" (default) = the app's own   // split: groups in row one (default: half)
+  menubar: { places: ['top'], needs: [], opts: {   // the classic menu bar (Vector, 0.9 VEC.1): every command of the app's input registry under one menu, by its group; shell: Help + Settings at the right (default on)
+    shell: (v) => (typeof v === 'boolean' ? v : undefined),
+    set: (v) => (v === 'vector' || v === 'sketch' ? v : undefined) } },   // set: which menus (vector = File Edit View Modify Model AEC Tools Text Window Cloud Help; sketch = File Edit View Camera Draw Tools Window Extensions Help)
+  toolpalette: { places: ['stage-left', 'stage-right'], needs: ['toolbox'], opts: {   // Basic (a fixed-order icon grid) over Tool Sets (a row of set icons, the chosen set's tools as rows); the toolbox's groups, all of them
+    columns: (v) => (Number.isInteger(v) && v >= 1 && v <= 6 ? v : undefined), sets: (v) => (typeof v === 'boolean' ? v : undefined), basic: (v) => (v === 'sketch' ? v : undefined), icons: (v) => (v === 'set' || v === 'app' ? v : undefined), attributes: bool } },   // attributes: an Attributes palette between Basic and Tool Sets (the selection's fill / pen / layer controls)
+  statusbar: { places: ['bottom'], needs: [], opts: {   // the app's status line, the selection count, the layout's name; command: a command line docked in it
+    command: bool, tearOff: bool } },
 });
 export const LOOK = Object.freeze({ density: ['regular', 'compact'], outline: ['faint', 'box', 'none'], tabs: ['filled', 'underline'] });
 const TOP_KEYS = ['format', 'version', 'id', 'name', 'nameKey', 'description', 'hintKey', 'author', 'license', 'look', 'blocks'];

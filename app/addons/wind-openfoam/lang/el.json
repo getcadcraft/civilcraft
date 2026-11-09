@@ -1,0 +1,14 @@
+{
+  "@locale": "el",
+  "@name": "Ελληνικά",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (πρόσθετο)",
+  "wind.of.note": "Εκτελεί τη δική σας εγκατάσταση OpenFOAM μέσω ενός μικρού βοηθητικού προγράμματος σε αυτόν τον υπολογιστή: μία σταθερή περίπτωση RANS (k-epsilon) για κάθε διεύθυνση ανέμου, με είσοδο ατμοσφαιρικού οριακού στρώματος. Τίποτα δεν φεύγει από αυτόν τον υπολογιστή. Το CadCraft δεν περιλαμβάνει το OpenFOAM.",
+  "wind.of.url": "Διεύθυνση βοηθού",
+  "wind.of.token": "Διακριτικό βοηθού (token)",
+  "wind.of.check": "Έλεγχος βοηθού",
+  "wind.of.ok": "Ο βοηθός απάντησε. OpenFOAM: {foam}",
+  "wind.of.down": "Ο βοηθός δεν απάντησε ({why}). Εκκινήστε τον σε αυτόν τον υπολογιστή: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Ο βοηθός απάντησε, αλλά δεν μπόρεσε να εκκινήσει το OpenFOAM: {why}",
+  "wind.of.install": "Εγκαταστήστε το OpenFOAM (τη σειρά ESI v, openfoam.com) και τον βοηθό από τον φάκελο του πρόσθετου· το θέμα βοήθειας εξηγεί και τα δύο."
+}

@@ -1,0 +1,14 @@
+{
+  "@locale": "my",
+  "@name": "မြန်မာ",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ထပ်ဆောင်း)",
+  "wind.of.note": "ဤကွန်ပျူတာပေါ်ရှိ သင့်ကိုယ်ပိုင် OpenFOAM တပ်ဆင်မှုကို အကူအညီပေးပရိုဂရမ်ငယ်တစ်ခုမှတစ်ဆင့် လည်ပတ်စေသည်။ လေတိုက်ရာ ဦးတည်ချက်တစ်ခုလျှင် steady RANS (k-epsilon) အမှုတစ်ခု၊ လေထုနယ်နိမိတ်အလွှာ inlet ဖြင့်။ အရာအားလုံး ဤကွန်ပျူတာမှ မထွက်ပါ။ CadCraft တွင် OpenFOAM မပါဝင်ပါ။",
+  "wind.of.url": "အကူအညီပေးသူ လိပ်စာ",
+  "wind.of.token": "အကူအညီပေးသူ တိုကင်",
+  "wind.of.check": "အကူအညီပေးသူကို စစ်ဆေးရန်",
+  "wind.of.ok": "အကူအညီပေးသူ တုံ့ပြန်ပြီးပါပြီ။ OpenFOAM: {foam}",
+  "wind.of.down": "အကူအညီပေးသူ တုံ့ပြန်မှု မရှိပါ ({why})။ ဤကွန်ပျူတာပေါ်တွင် စတင်ရန်- node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "အကူအညီပေးသူ တုံ့ပြန်ပြီးသော်လည်း OpenFOAM ကို စတင်၍ မရပါ- {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) နှင့် အကူအညီပေးသူကို ထပ်ဆောင်း၏ ဖိုင်တွဲမှ တပ်ဆင်ပါ။ အကူအညီ အပိုင်းတွင် နှစ်ခုလုံးကို ရှင်းပြထားပါသည်။"
+}

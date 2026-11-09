@@ -10,6 +10,8 @@
  *     walls: [{ id, ref?, from: [x, y], to: [x, y], z0, z1, t, openings?: [{ u0, v0, u1, v1 }], points? }]   u along the wall, v up from z0
  *     size   the target plate size in mm (0 = the mesher's own choice); points are nodes to keep (columns under a slab)
  *   A concrete material (E = 4700 √f'c, ν = 0.2, 2400 kg/m³) is added to raw.materials unless `material` names one already there.
+ *   floorLoadCases(raw, cases) (0.9 SU.1056): each `{ type: 'floor', p }` load of a settings case (p in N/mm², negative = down) becomes an area load
+ *     `{ type: 'area', plate, dir: 'Z', p }` on every slab plate of raw (plate ids made here start with 'slab-'); returns how many plates were loaded
  *   An element the mesher cannot do (a self-crossing outline, too many plates) is skipped with its reason, never half-added.
  */
 import { slabPlates, wallPlates, MESH_LIMIT } from './plate-mesh.js';
@@ -52,4 +54,16 @@ export function addPlates(raw, { slabs = [], walls = [] } = {}, { fc = 28, size 
     take(id, w.ref ?? w.id, () => wallPlates(raw, { id, from: w.from, to: w.to, z0: w.z0, z1: w.z1, t: w.t, material: mat, size: size || w.size, openings: w.openings || [], points: w.points || [] }));
   }
   return { plates: added, nodes, skipped, warnings, quality: worst, material: mat };
+}
+
+/** Floor pressures of the analysis settings (0.9 SU.1056): `cases` are the settings' cases, raw.cases the model's (same order). */
+export function floorLoadCases(raw, cases) {
+  const slabs = (raw.plates || []).filter((p) => String(p.id).startsWith('slab-'));
+  let n = 0;
+  cases.forEach((c, k) => {
+    const target = raw.cases?.[k];
+    if (!target || target.id !== c.id) return;
+    for (const l of c.loads || []) if (l.type === 'floor' && Number.isFinite(l.p)) { for (const pl of slabs) target.loads.push({ type: 'area', plate: pl.id, dir: 'Z', p: l.p }); n = slabs.length; }
+  });
+  return n;
 }

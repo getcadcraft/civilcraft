@@ -1,0 +1,14 @@
+{
+  "@locale": "mr",
+  "@name": "मराठी",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ॲड-ऑन)",
+  "wind.of.note": "हे या संगणकावरील एका छोट्या सहाय्यक प्रोग्रामद्वारे तुमची स्वतःची OpenFOAM स्थापना चालवते: प्रत्येक वाऱ्याच्या दिशेसाठी एक स्थिर RANS (k-epsilon) केस, वातावरणीय सीमा थर इनलेट. काहीही या संगणकाबाहेर जात नाही. CadCraft मध्ये OpenFOAM समाविष्ट नाही.",
+  "wind.of.url": "सहाय्यकाचा पत्ता",
+  "wind.of.token": "सहाय्यक टोकन",
+  "wind.of.check": "सहाय्यक तपासा",
+  "wind.of.ok": "सहाय्यकाने उत्तर दिले. OpenFOAM: {foam}",
+  "wind.of.down": "सहाय्यकाने उत्तर दिले नाही ({why}). तो या संगणकावर सुरू करा: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "सहाय्यकाने उत्तर दिले, पण OpenFOAM सुरू करता आले नाही: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) आणि सहाय्यक, दोन्ही ॲड-ऑनच्या फोल्डरमधून इन्स्टॉल करा; मदत विषय दोन्ही कसे करायचे ते स्पष्ट करतो."
+}

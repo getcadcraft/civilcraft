@@ -1,0 +1,14 @@
+{
+  "@locale": "ja",
+  "@name": "日本語",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (アドオン)",
+  "wind.of.note": "このコンピューター上の小さなヘルパープログラムを通じて、お使いのOpenFOAMを実行します。風向ごとに1つの定常RANS (k-epsilon) ケースを実行し、入口には大気境界層を使用します。データはこのコンピューターの外に送信されません。CadCraftにはOpenFOAMは含まれていません。",
+  "wind.of.url": "ヘルパーのアドレス",
+  "wind.of.token": "ヘルパーのトークン",
+  "wind.of.check": "ヘルパーを確認",
+  "wind.of.ok": "ヘルパーが応答しました。OpenFOAM: {foam}",
+  "wind.of.down": "ヘルパーが応答しませんでした ({why})。このコンピューターで次のコマンドを実行して起動してください: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "ヘルパーは応答しましたが、OpenFOAMを起動できませんでした: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series、openfoam.com) とヘルパーを、アドオンのフォルダーからインストールしてください。手順はヘルプのトピックで説明しています。"
+}

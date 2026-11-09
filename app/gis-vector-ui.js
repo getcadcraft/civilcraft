@@ -146,6 +146,8 @@ export async function install(host) {
           el('button', { type: 'button', role: 'menuitem', disabled: !useChoices(l, fs).length, onclick: () => { menu.open = false; useDialog(l.id); } }, t('vec.use.open')),
           el('button', { type: 'button', role: 'menuitem', onclick: () => { menu.open = false; renameLayer(l); } }, t('vec.layer.rename')),
           labelPick(l),   // 0.4 V7
+          el('button', { type: 'button', role: 'menuitem', 'data-gis-table': l.id, onclick: () => { menu.open = false; host.table?.open(l.id); } }, t('gist.menu')),   // 0.9 SU.1080 round 2
+          el('button', { type: 'button', role: 'menuitem', 'data-gis-style': l.id, onclick: () => { menu.open = false; host.symbology?.open(l.id); } }, t('gis.sym.menu')),
           el('hr'),
           el('button', { type: 'button', role: 'menuitem', onclick: () => { menu.open = false; removeLayer(P(), l.id); host.select(null); host.say(t('vec.layer.removed', { layer: l.name })); } }, t('vec.layer.remove'))));
       return el('li', { className: 'cv-gis-row', dataset: { gisLayer: l.id } },

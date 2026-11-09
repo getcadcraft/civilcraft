@@ -1,0 +1,7 @@
+{"cases": [
+  {"id": "wn-demand", "name": "Allocation conserves the total and matches hand arithmetic", "result": "100 homes at 300 gpd is 20.83 gpm, 2 acres at 1,500 gpd per acre is 2.08 gpm, every flow is accounted for, a shared load adds back to its flow, every day pattern has a mean of exactly 1 (bin/test-waternet.mjs)"},
+  {"id": "wn-fire", "name": "Fire flow against an independent bisection on the Hazen-Williams loss", "result": "Available flow within 0.3 % of the independent answer for a 1,000 ft, 12 in main, and within 1 % of the Water mains window's own one-hydrant answer; a node already under the residual gives 0 (bin/test-waternet.mjs)"},
+  {"id": "wn-crit", "name": "Outages in a dead-end line, a loop and a valved line", "result": "Closing the pipe to a dead end cuts off exactly that junction's demand; in a loop one outage cuts off nothing; one valve in the middle of a line makes two sections and shutting the far one cuts off exactly its two junctions (bin/test-waternet.mjs)"},
+  {"id": "wn-quality", "name": "Water age, chlorine and trace in one pipe, two feeds and a filling tank", "result": "Age equals pipe volume over flow within 1.5 %; chlorine equals c0 times exp(-k t) within 1 %; two equal feeds trace 50 percent each within 0.5; a filling tank matches (L - L0)/L within 3 % (bin/test-waternet.mjs)"},
+  {"id": "wn-csv", "name": "CSV quoting and formula guard", "result": "Commas, quotes and a leading = or + are handled so a spreadsheet does not run a name as a formula (bin/test-waternet.mjs)"}
+]}

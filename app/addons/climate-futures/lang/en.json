@@ -1,0 +1,5 @@
+{
+  "data.sources": "Data and sources",
+  "data.nex": "NASA NEX-GDDP-CMIP6, downscaled CMIP6 model output (CC BY 4.0 per model); global sea level: IPCC AR6",
+  "data.sample": "Sample pack: three places, one model, five years per period. Not for design."
+}

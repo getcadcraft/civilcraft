@@ -15,7 +15,7 @@
 export class NodeError extends Error { constructor(code, vars = {}) { super(code); this.code = code; this.vars = vars; } }
 export const fail = (code, vars) => { throw new NodeError(code, vars); };
 
-export const TYPES = Object.freeze(['number', 'bool', 'text', 'point', 'vector', 'curve', 'surface', 'mesh', 'geometry', 'any']);
+export const TYPES = Object.freeze(['number', 'bool', 'text', 'point', 'vector', 'curve', 'surface', 'mesh', 'solid', 'geometry', 'any']);
 export const UNITS = Object.freeze(['', 'length', 'angle', '*']);
 const GEOM = new Set(['point', 'vector', 'curve', 'surface', 'mesh']);
 
@@ -24,6 +24,8 @@ export const isVec = (v) => v instanceof Float64Array && v.length === 3;
 export const isCurve = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && Array.isArray(v.knots) && Array.isArray(v.cvs) && typeof v.deg === 'number';
 export const isSurface = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && Array.isArray(v.knotsU) && typeof v.degU === 'number';
 export const isMesh = (v) => !!v && typeof v === 'object' && v.positions instanceof Float64Array && v.indices instanceof Uint32Array;
+/** A solid (0.9 SU.747c): a cc-nurbs patch set holding exactly one solid (lib/nurbs/nodes-solid.js). */
+export const isSolid = (v) => !!v && typeof v === 'object' && !Array.isArray(v) && v.format === 'cadcraft-nurbs' && Array.isArray(v.items) && Array.isArray(v.solids) && v.solids.length === 1;
 
 /** The type name of a run-time value ('list' for an Array). */
 export function typeOf(v) {
@@ -35,6 +37,7 @@ export function typeOf(v) {
   if (isCurve(v)) return 'curve';
   if (isSurface(v)) return 'surface';
   if (isMesh(v)) return 'mesh';
+  if (isSolid(v)) return 'solid';
   return 'unknown';
 }
 
@@ -99,6 +102,7 @@ export function brief(v) {
   if (t === 'curve') return 'curve ' + v.cvs.length + ' cv, degree ' + v.deg;
   if (t === 'surface') return 'surface ' + v.cvs.length + '×' + v.cvs[0].length + ' cv';
   if (t === 'mesh') return 'mesh ' + (v.indices.length / 3) + ' triangles';
+  if (t === 'solid') return 'solid ' + v.items.length + ' faces';
   if (t === 'list') return 'list of ' + v.length;
   return '?';
 }

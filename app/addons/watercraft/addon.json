@@ -1,0 +1,14 @@
+{
+  "id": "watercraft",
+  "name": "WaterCraft (water distribution)",
+  "version": "0.9.0",
+  "apps": ["civilcraft"],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["panel", "files", "objects"],
+  "description": "Design and check a drinking-water distribution network on top of CivilCraft's water mains: turn parcels and customers into demands, run fire flow at every hydrant, see which main outage hurts most, and follow water age and chlorine through a 24-hour run. A calculation aid: an engineer checks every result.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

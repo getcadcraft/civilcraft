@@ -1,0 +1,4 @@
+- Switch the add-on on in Settings, Add-ons, then open the Lighting design tab.
+- Pick a room (CadCraft: select a closed shape and press Read again; BimCraft: choose one of the model's rooms) or type the outline, then set the ceiling and workplane height.
+- Choose a luminaire, plan for a target lux, press Calculate, and read the numbers; add windows, boxes or an escape route when the room needs them.
+- Press Draw in the drawing to put the result in the drawing or model, or Report for a printable page.

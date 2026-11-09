@@ -13,7 +13,11 @@
  */
 
 import { t } from './i18n.js';
-import { gisOf, featuresOf, layerOf } from './gis-layers.js';
+// the three one-line readers of gis-layers.js, kept here so this start-up file does not pull the whole GIS layer module in at start
+// (0.9 SU.1080 round 2: browser-gis-vector.mjs "nothing GIS is fetched at start"); same shapes as gis-layers.js
+const gisOf = (project) => (project.state.gis ||= { layers: [], maps: [] });
+const layerOf = (project, id) => gisOf(project).layers.find((l) => l.id === id) || null;
+const featuresOf = (project, id) => project.gisFeatures.get(id) || [];
 import { levelOf, checkContours, groundFromContours, placeByTwoPoints } from './ground-surface.js';
 
 const MAX_SHOWN = 12;

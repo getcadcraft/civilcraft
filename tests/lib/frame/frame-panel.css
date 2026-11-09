@@ -29,3 +29,11 @@
 
 /* utilisation chip of the design table (0.7 SU.878): the colour comes from frame-design.js utilRamp */
 .fa-util { border-left: 0.6rem solid var(--fa-util, currentColor); padding-left: 0.35rem; }
+
+/* Response spectrum, Time history and Pushover blocks (0.9 SU.1056): one accent for the single series, ink and grid follow the page's text colour (so light and dark both read) */
+.fa-dyn { --fa-chart-series: #2f6fed; --fa-chart-ink: currentColor; --fa-chart-grid: color-mix(in srgb, currentColor 16%, transparent); --fa-chart-bg: Canvas; }
+@media (prefers-color-scheme: dark) { .fa-dyn { --fa-chart-series: #7aa8ff; } }
+.fa-chartbox { max-width: 40rem; margin: 0.5rem 0; }
+.fa-chart { width: 100%; height: auto; display: block; }
+.fa-dyn textarea { width: 100%; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+.fa-wide { flex: 1 1 100%; }

@@ -2,7 +2,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /**
  * print3d-sync.mjs — print3d.js (is a mesh ready for a 3D printer; STL and 3MF; 0.5 SG.4) lives in modelcraft/dev;
- * PartCraft carries a byte-identical copy (owner `sg-model-part`, rule 3). Copies it, or with --check reports copies
+ * PartCraft and BimCraft carry a byte-identical copy (owner `sg-model-part`, rule 3). Copies it, or with --check reports copies
  * that differ (exit 1).
  *
  *   node tools/modelcraft-test/print3d-sync.mjs [--check]
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const APPS = path.join(ROOT, 'public_html/assets/apps');
 const SRC = path.join(APPS, 'modelcraft/dev/print3d.js');
-const COPIES = ['partcraft/dev'].map((d) => path.join(APPS, d, 'print3d.js'));
+const COPIES = ['partcraft/dev', 'bimcraft/dev'].map((d) => path.join(APPS, d, 'print3d.js'));
 const check = process.argv.includes('--check');
 const want = fs.readFileSync(SRC);
 let bad = 0;

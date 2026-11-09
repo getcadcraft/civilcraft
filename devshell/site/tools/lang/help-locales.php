@@ -57,7 +57,7 @@ final class HelpLocales
      * No required topics. Lives here (not in Help, which is the owner's) for bin/build-help.php --addon.
      * @return array{data: array, errors: string[], warnings: string[]}
      */
-    public static function compileAddon(string $helpDir, string $id, string $name, ?string $app = null): array
+    public static function compileAddon(string $helpDir, string $id, string $name, ?string $app = null, ?string $locale = null): array
     {
         $errors = [];
         if (!preg_match('/^[a-z0-9]+(-[a-z0-9]+)*$/', $id)) return ['data' => [], 'errors' => ["Add-on id \"$id\" is not lowercase words joined by hyphens."], 'warnings' => []];
@@ -66,13 +66,57 @@ final class HelpLocales
         $own = self::read($helpDir, $scope, $errors);
         $index = [$scope => array_keys($own), Help::COMMON => array_keys(self::read(Help::commonDir(), Help::COMMON, $errors))];
         if ($app !== null && ($d = Help::sourceDir($app)) && is_dir($d)) $index[$app] = array_keys(self::read($d, $app, $errors));
+        $warnings = [];
+        $translated = 0;
+        if ($locale !== null) {
+            if (!preg_match(self::LOCALE_RE, $locale)) return ['data' => [], 'errors' => ["$locale is not a locale."], 'warnings' => []];
+            $own = self::overlay($own, $scope, $helpDir, $locale, $errors, $warnings, $translated);
+        }
         $topics = [];
-        foreach ($own as $raw) $topics[] = self::call('compileTopic', [$raw, $scope, $app, $index, &$errors]);
+        foreach ($own as $raw) {
+            $t = self::call('compileTopic', [$raw, $scope, $app, $index, &$errors]);
+            if ($locale !== null) $t['lang'] = $raw['lang'] ?? 'en';
+            $topics[] = $t;
+        }
         self::sortTopics($topics);
         $data = ['format' => 'cadcraft-help', 'version' => 1];
         if ($app !== null) $data['app'] = $app;
         $data += ['addon' => $id, 'name' => $name, 'sections' => Help::SECTIONS, 'topics' => $topics];
-        return ['data' => $data, 'errors' => $errors, 'warnings' => []];
+        if ($locale !== null) { $data['locale'] = $locale; $data['chain'] = array_merge(self::chain($locale), ['en']); }
+        return ['data' => $data, 'errors' => $errors, 'warnings' => $warnings, 'translated' => $translated];
+    }
+
+    /**
+     * help/help.<locale>.js for every locale folder under an add-on's help/ (the host, assets/js/addons.js, loads the one for the
+     * page's locale beside help.js, else English). Nothing is written for a locale with errors; files of removed locales go.
+     * @return array<string, array{errors: string[], warnings: string[], translated: int, total: int, file: string, written: bool}>
+     */
+    public static function buildAddonLocales(string $helpDir, string $id, string $name, ?string $app = null, bool $write = true): array
+    {
+        $out = [];
+        $locales = self::localesIn($helpDir);
+        foreach ($locales as $loc) {
+            $r = self::compileAddon($helpDir, $id, $name, $app, $loc);
+            $file = "$helpDir/help.$loc.js";
+            $written = false;
+            if ($write && !$r['errors']) {
+                $text = self::addonModuleText($r['data']);
+                if (@file_get_contents($file) !== $text) {
+                    $tmp = "$file.tmp";
+                    if (file_put_contents($tmp, $text) === false || !rename($tmp, $file)) $r['errors'][] = "cannot write $file";
+                    else $written = true;
+                }
+            }
+            $out[$loc] = ['errors' => $r['errors'], 'warnings' => $r['warnings'], 'translated' => $r['translated'] ?? 0,
+                'total' => count($r['data']['topics'] ?? []), 'file' => $file, 'written' => $written];
+        }
+        if ($write) {
+            foreach (glob("$helpDir/help.*.js") ?: [] as $f) {
+                $loc = substr(basename($f, '.js'), 5);
+                if (preg_match(self::LOCALE_RE, $loc) && !in_array($loc, $locales, true)) @unlink($f);
+            }
+        }
+        return $out;
     }
 
     /** help/help.js text for an add-on (Help::moduleText with the add-on's header line). */

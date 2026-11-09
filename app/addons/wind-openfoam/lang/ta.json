@@ -1,0 +1,14 @@
+{
+  "@locale": "ta",
+  "@name": "தமிழ்",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (துணை நிரல்)",
+  "wind.of.note": "இந்தக் கணினியில் உள்ள உங்கள் சொந்த OpenFOAM நிறுவலை ஒரு சிறிய உதவி நிரல் வழியாக இயக்குகிறது: ஒவ்வொரு காற்றுத் திசைக்கும் ஒரு நிலையான RANS (k-epsilon) நிகழ்வு, வளிமண்டல எல்லை அடுக்கு உள்ளீடு. எதுவும் இந்தக் கணினியை விட்டு வெளியே செல்லாது. CadCraft இல் OpenFOAM சேர்க்கப்படவில்லை.",
+  "wind.of.url": "உதவி முகவரி",
+  "wind.of.token": "உதவி டோக்கன்",
+  "wind.of.check": "உதவியைச் சரிபார்",
+  "wind.of.ok": "உதவி பதிலளித்தது. OpenFOAM: {foam}",
+  "wind.of.down": "உதவி பதிலளிக்கவில்லை ({why}). இந்தக் கணினியில் அதைத் தொடங்கவும்: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "உதவி பதிலளித்தது, ஆனால் OpenFOAM ஐத் தொடங்க முடியவில்லை: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) மற்றும் உதவி நிரலை துணை நிரலின் கோப்புறையிலிருந்து நிறுவவும்; உதவித் தலைப்பு இரண்டையும் விளக்கும்."
+}

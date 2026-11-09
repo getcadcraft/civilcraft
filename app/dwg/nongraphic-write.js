@@ -475,6 +475,14 @@ export function extendWriter(env) {
     // the writer's own dictionaries
     const nod = recs.find((r) => r.h === H.nod && r.t === 'DICTIONARY');
     if (nod) {
+      // the source's own page setups dictionary replaces the writer's empty one (write.js makes that so the header's
+      // DICTIONARY_PLOTSETTINGS is never null)
+      const srcPs = nodAdd.find(([name, k, direct]) => name === 'ACAD_PLOTSETTINGS' && (direct || written(k)));
+      if (srcPs) {
+        nod.items = nod.items.filter((x) => x[0] !== 'ACAD_PLOTSETTINGS');
+        const i = recs.findIndex((r) => r.h === H.plotSettingsDict && r.t === 'DICTIONARY');
+        if (i >= 0) recs.splice(i, 1);
+      }
       const have = new Set(nod.items.map((x) => x[0]));
       for (const [name, k, direct] of nodAdd) { const h = direct || written(k); if (h && !have.has(name)) nod.items.push([name, h]); }
       nod.items.sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));

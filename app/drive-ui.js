@@ -122,9 +122,13 @@ export function mountDrive({ bar, stage, view, project, getData, rebuild, say })
     el('summary', { className: 'cv-toggle', title: t('sun.title') }, t('sun.btn')),
     el('div', { className: 'cv-menu-list cv3-sun' },
       el('label', {}, sunOn, ' ', t('sun.on')), el('label', {}, shadows, ' ', t('sun.shadows')),
-      lbl(date, t('sun.date')), el('div', { className: 'cv-row' }, lbl(time, t('sun.time')), utc),
+      lbl(date, t('sun.date')), el('div', { className: 'cv-row' }, lbl(time, t('sun.time')), lbl(utc, t('sun.utc'))),
       el('div', { className: 'cv-row' }, lbl(lat, t('sun.lat')), lbl(lon, t('sun.lon'))),
-      readout, el('p', { className: 'cv-note' }, t('sun.note'))));
+      readout, el('p', { className: 'cv-note' }, t('sun.note')),
+      // the boxes apply as they change; Apply also takes a latitude still being typed, then closes. Close just closes.
+      el('div', { className: 'cv-row cv3-sun-actions' },
+        el('button', { type: 'button', className: 'cv-toggle', 'data-sun-close': '', onclick: () => { sunMenu.open = false; } }, t('sun.close')),
+        el('button', { type: 'button', className: 'cv-toggle cv3-sun-apply', 'data-sun-apply': '', onclick: () => { applySun(); sunMenu.open = false; } }, t('sun.apply')))));
   const sep = bar.querySelector('.cv3-sep');
   if (sep) sep.before(driveBtn, sunMenu); else bar.append(driveBtn, sunMenu);
   document.addEventListener('click', (e) => { if (sunMenu.open && !sunMenu.contains(e.target)) sunMenu.open = false; });

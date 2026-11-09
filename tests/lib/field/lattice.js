@@ -20,7 +20,7 @@ unit.octet = () => {
   for (let ax = 0; ax < 3; ax++) for (const s of [0, 1]) { const c = [0.5, 0.5, 0.5]; c[ax] = s; faces.push(c); }
   const out = [];
   for (const f of faces) for (const c of CORNERS) { const d = Math.abs(f[0] - c[0]) + Math.abs(f[1] - c[1]) + Math.abs(f[2] - c[2]); if (d === 1) out.push([f, c]); }          // corner to face centre: 24
-  for (let i = 0; i < 6; i++) for (let j = i + 1; j < 6; j++) { const d2 = (faces[i][0] - faces[j][0]) ** 2 + (faces[i][1] - faces[j][1]) ** 2 + (faces[i][2] - faces[j][2]) ** 2; if (d2 === 0.5) out.push([faces[i], faces[j]]); }   // adjacent face centres: 12
+  for (let i = 0; i < 6; i++) for (let j = i + 1; j < 6; j++) { const d2 = (faces[i][0] - faces[j][0]) ** 2 + (faces[i][1] - faces[j][1]) ** 2 + (faces[i][2] - faces[j][2]) ** 2; if (Math.abs(d2 - 0.5) < 1e-12) out.push([faces[i], faces[j]]); }   // adjacent face centres: 12
   return out;
 };
 unit.diamond = () => {

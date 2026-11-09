@@ -1,0 +1,1 @@
+It ships no data. It works on the Water mains in the open project. The use per home or per acre in the demand table, and the hourly day patterns, are generic starting values that you replace with your utility's own design figures; they are not a standard. Pipe, pump and tank data come from the project.

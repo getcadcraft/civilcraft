@@ -230,10 +230,10 @@ export async function run(h) {
   await page.click('.pc-tools [data-cmd="illustrate-new"]');
   await page.click('.pc-dialog [data-key="asm"]');
   await page.waitForFunction(() => window.partcraft.WS.getWorkspace('illustrate')._state.doc?.m.instances.length === 2);
-  const asmSt = await S((s) => ({ kind: s.doc.m.source.kind, rows: s.doc.m.parts.p1?.number, drawn: s.scene3d.count, hidden: (window.partcraft.view.instances || []).every((o) => !o.mesh.visible) }));
+  const asmSt = await S((s) => ({ kind: s.doc.m.source.kind, rows: s.doc.m.parts.p1?.number, drawn: s.scene3d.count, hidden: (window.partcraft.view.batches || []).every((b) => !b.mesh.visible) }));
   ok(asmSt.kind === 'partcraft-assembly' && asmSt.rows === 'FL-1' && asmSt.drawn === 2 && asmSt.hidden, 'Illustrate opens with an assembly open: a manual of its two flanges; the assembly\'s own parts are hidden meanwhile');
   await choose('design');
-  ok(await page.evaluate(() => (window.partcraft.view.instances || []).every((o) => o.mesh.visible)), 'back in Design the assembly shows again');
+  ok(await page.evaluate(() => (window.partcraft.view.batches || []).every((b) => b.mesh.visible)), 'back in Design the assembly shows again');
 
   ok(h.problems.length === 0, 'illustrate: no console errors' + (h.problems.length ? ':\n    ' + h.problems.join('\n    ') : ''));
 }

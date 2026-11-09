@@ -8,12 +8,16 @@
  *   new Session(N, { doc, onChange }) — N = the host's copy of cc-nurbs (`import * as N from './nurbs/index.js'`)
  *     .doc                          the patch set now (cc-nurbs doc.js shape)
  *     .start(cmdId) / .cancel()     a command collects picks; .cmd, .picks, .need() → { kind, n, have } of what is still missing (null = ready)
- *     .pick(ref)                    ref = { id, sub? } (sub: an edge u0|u1|v0|v1 of a surface, start|end of a curve); false when it does not fit
+ *     .pick(ref)                    ref = { id, sub? } (sub: an edge u0|u1|v0|v1 of a surface, start|end of a curve); false when it does not fit;
+ *                                   a solid is picked by its own id or by any of its faces (0.9 DC.54)
+ *     .env                          what the commands run with: env.manifold = the mesh engine for solid Booleans (the host loads it)
+ *     .extra()                      the kind a command takes any number of (solid.make: surfaces; none picked = all of them) or null
  *     .setPoints(pts)               the points a curve.points / curve.cvs command is made from ([[x, y, z] mm, …])
  *     .fields() → [{ name, kind: number|int|continuity|vec3|bool|frame|dir, value }]   the command's options as form fields
  *     .setOption(name, text)        → null | { key, vars } (a key for the host's t(): the field's error)
  *     .run(label) → { ok, ids, report, error? { key, vars } }   one history step per run (the doc is replaced, never changed)
- *     .remove(id) · .rename(id, name) · .setHidden(id, on) · .importDoc(doc) (merge another patch set's items, new ids)
+ *     .remove(id) · .rename(id, name) · .setHidden(id, on) · .importDoc(doc) (merge another patch set's items, new ids, with their
+ *     trims and solids) · .removeSolid(id, { faces }) (the group, or the group and its faces)
  *     .undo() / .redo() → label | null · .canUndo / .canRedo · .load(doc) (a file opened: history cleared) · .clear()
  *   argsFor(cmdId, picks, opts) → the tools.run arguments (exported for tests)
  *   needsOf(N, cmdId, picks) → the first unmet need, or null
@@ -30,7 +34,7 @@ function slots(N, cmdId) {
   const out = [];
   for (const need of cmd.needs) {
     if (need.kind === 'points') continue;
-    const kind = need.kind === 'edge' ? 'surface' : need.kind === 'end' ? 'curve' : need.kind;
+    const kind = need.kind === 'edge' ? 'surface' : need.kind === 'end' ? 'curve' : need.kind;   // curve | surface | solid
     for (let i = 0; i < need.n; i++) out.push({ kind, sub: need.kind === 'edge' ? 'edge' : need.kind === 'end' ? 'end' : null });
   }
   return out;
@@ -66,6 +70,14 @@ export function argsFor(cmdId, picks, opts = {}) {
     case 'surface.trimRect': case 'surface.trimCircle': case 'surface.untrim': a.surface = id(0); break;
     case 'surface.extend': Object.assign(a, { surface: id(0), edge: sub(0) }); break;
     case 'surface.offset': case 'surface.rebuild': case 'surface.insertKnot': case 'surface.elevate': a.surface = id(0); break;
+    case 'solid.box': case 'solid.cylinder': case 'solid.sphere': break;
+    case 'solid.make': a.surfaces = picks.map((p) => p.id); break;
+    case 'solid.union': case 'solid.subtract': case 'solid.intersect': Object.assign(a, { a: id(0), b: id(1) }); break;
+    case 'solid.fillet': Object.assign(a, { a: id(0), b: id(1) }); break;
+    case 'solid.fillet_edges': a.faces = picks.map((p) => p.id); break;
+    case 'solid.thicken': a.surface = id(0); break;
+    case 'solid.ungroup': a.solid = id(0); break;
+    case 'scan.fit': case 'scan.solid': break;
     default: a.curves = picks.map((p) => p.id);
   }
   return a;
@@ -79,10 +91,10 @@ function fieldKind(name, v) {
   if (typeof v === 'boolean') return 'bool';
   if (Array.isArray(v) && v.length === 3) return 'vec3';
   if (Array.isArray(v) && v.length === 2) return 'pair';
-  if (['degree', 'times', 'by', 'count', 'nu', 'nv', 'du', 'dv'].includes(name)) return 'int';
+  if (['degree', 'times', 'by', 'count', 'nu', 'nv', 'du', 'dv', 'maxPatches'].includes(name)) return 'int';
   return 'number';
 }
-const LIMITS = { u0: [0, 1], u1: [0, 1], v0: [0, 1], v1: [0, 1], u: [0, 1], v: [0, 1], r: [0.001, 0.5], degree: [1, 15], times: [1, 15], by: [1, 10], count: [2, 1000], nu: [2, 1000], nv: [2, 1000], du: [1, 15], dv: [1, 15], at: [0, 1], tol: [1e-6, 1000], angle: [-360, 360] };
+const LIMITS = { radius: [0.001, 1e6], radius2: [0, 1e6], thickness: [0.001, 1e6], height: [0.001, 1e6], u0: [0, 1], u1: [0, 1], v0: [0, 1], v1: [0, 1], u: [0, 1], v: [0, 1], r: [0.001, 0.5], degree: [1, 15], times: [1, 15], by: [1, 10], count: [2, 1000], nu: [2, 1000], nv: [2, 1000], du: [1, 15], dv: [1, 15], at: [0, 1], tol: [1e-6, 1000], minShare: [0.0005, 0.5], maxPatches: [1, 200], gap: [1e-4, 1000], angle: [-360, 360] };
 
 export class Session {
   constructor(N, { doc = null, onChange = () => {} } = {}) {
@@ -90,7 +102,9 @@ export class Session {
     this.doc = doc ? N.doc.cleanDoc(doc) : N.doc.newDoc();
     this.past = []; this.future = [];
     this.cmd = null; this.picks = []; this.points = null; this.opts = {};
+    this.env = {};
   }
+  extra() { return this.cmd ? this.N.tools.COMMANDS[this.cmd].more || null : null; }
   get canUndo() { return this.past.length > 0; }
   get canRedo() { return this.future.length > 0; }
   /** A file opened (or a new one): its patch set, history cleared. */
@@ -108,15 +122,23 @@ export class Session {
   /** Add a pick; a surface command that wants an edge needs ref.sub = u0|u1|v0|v1, a curve end command start|end. */
   pick(ref) {
     if (!this.cmd || !ref || typeof ref.id !== 'string') return false;
-    const it = this.N.doc.item(this.doc, ref.id);
-    if (!it) return false;
     const sl = slots(this.N, this.cmd);
-    const net = this.cmd === 'surface.network';
-    const s = sl[this.picks.length] || (net ? { kind: 'curve', sub: null } : null);   // a network takes more than four curves
-    if (!s || it.kind !== s.kind) return false;
+    const net = this.cmd === 'surface.network', more = this.extra();
+    const s = sl[this.picks.length] || (net ? { kind: 'curve', sub: null } : more ? { kind: more, sub: null } : null);   // a network takes more than four curves
+    if (!s) return false;
+    if (s.kind === 'solid') {   // by the solid's own id, or by one of its faces (a click in the view)
+      const SO = this.N.solid, b = SO.solid(this.doc, ref.id) || SO.solidOf(this.doc, ref.id);
+      if (!b || this.picks.some((p) => p.id === b.id)) return false;
+      this.picks.push({ id: b.id });
+      this.onChange('pick');
+      return true;
+    }
+    const it = this.N.doc.item(this.doc, ref.id);
+    if (!it || it.kind !== s.kind) return false;
     if (s.sub === 'edge' && !EDGE.test(ref.sub || '')) return false;
     if (s.sub === 'end' && !END.test(ref.sub || '')) return false;
-    if (!s.sub && this.picks.some((p) => p.id === ref.id)) return false;   // the same curve twice is never meant
+    if (this.cmd === 'solid.fillet_edges') { if (this.picks.length % 2 === 1 && this.picks.at(-1).id === ref.id) return false; }   // pairs of faces, one pair per edge: a face may be in several pairs, never twice in one
+    else if (!s.sub && this.picks.some((p) => p.id === ref.id)) return false;   // the same curve twice is never meant
     this.picks.push(s.sub ? { id: ref.id, sub: ref.sub } : { id: ref.id });
     this.onChange('pick');
     return true;
@@ -172,7 +194,7 @@ export class Session {
     const args = argsFor(this.cmd, this.picks, this.opts);
     if (this.points) args.points = this.points;
     let r;
-    try { r = this.N.tools.run(this.doc, this.cmd, args); } catch (e) {
+    try { r = this.N.tools.run(this.doc, this.cmd, args, this.env); } catch (e) {
       if (e && typeof e.code === 'string') return { ok: false, error: { key: e.code, vars: e.vars || {} } };
       return { ok: false, error: { key: 'nurbs.ui.err.failed', vars: { error: String(e && e.message || e) } } };
     }
@@ -207,11 +229,25 @@ export class Session {
     const src = this.N.doc.cleanDoc(other);
     let d = this.doc;
     const ids = new Map();
-    for (const it of src.items) { const r = this.N.doc.add(d, it.kind, it[it.kind], { name: it.name }); d = r.doc; ids.set(it.id, r.id); }
+    for (const it of src.items) {
+      const r = this.N.doc.add(d, it.kind, it[it.kind], { name: it.name }); d = r.doc; ids.set(it.id, r.id);
+      if (it.trim) d = this.N.doc.setTrim(d, r.id, it.trim);   // a trimmed face stays trimmed
+    }
     for (const l of src.links) if (ids.has(l.a) && ids.has(l.b)) d = this.N.doc.link(d, ids.get(l.a), l.edgeA, ids.get(l.b), l.edgeB, l.want);
+    const sols = this.N.solid.solids(src).map((b) => ({ name: b.name, faces: b.faces.map((f) => ids.get(f)).filter(Boolean) })).filter((b) => b.faces.length);
+    if (sols.length) {   // the solids come along as groups of the new faces (checked again by cleanDoc)
+      let n = this.N.solid.solids(d).length;
+      const used = new Set([...d.items.map((i) => i.id), ...this.N.solid.solids(d).map((b) => b.id)]);
+      const add = sols.map((b) => { do n++; while (used.has('b' + n)); used.add('b' + n); return { id: 'b' + n, name: b.name, faces: b.faces }; });
+      d = this.N.doc.cleanDoc({ ...d, solids: [...this.N.solid.solids(d), ...add] });
+    }
     if (!src.items.length) return { ok: false, error: { key: 'nurbs.ui.err.import_empty' } };
     this.push(d, label);
     return { ok: true, n: src.items.length, ids: [...ids.values()] };
+  }
+  removeSolid(id, { faces = false } = {}, label = 'remove') {
+    if (!this.N.solid.solid(this.doc, id)) return false;
+    this.push(this.N.solid.removeSolid(this.doc, id, { faces }), label); return true;
   }
   undo() { const s = this.past.pop(); if (!s) return null; this.future.push({ doc: this.doc, label: s.label }); this.doc = s.doc; this.cancel(); this.onChange('doc', s.label); return s.label; }
   redo() { const s = this.future.pop(); if (!s) return null; this.past.push({ doc: this.doc, label: s.label }); this.doc = s.doc; this.cancel(); this.onChange('doc', s.label); return s.label; }

@@ -42,6 +42,7 @@ try {
   await page.waitForFunction(() => window.modelcraft?.model && window.ccProblems, null, { timeout: 60000 });
 
   console.log('== The Nodes section and window');
+  for (const h of await page.$$('[data-af="closed"]')) { if (await page.isVisible('[data-nodes-open]')) break; await h.click().catch(() => {}); }   // the right panel folds its sections: open the one with Nodes
   ok(await page.isVisible('[data-nodes-open]'), 'the sidebar has a Nodes section with an Open button');
   ok(!(await page.$('[data-nodes-window]')), 'the editor is not loaded until it is opened');
   await page.click('[data-nodes-open]');

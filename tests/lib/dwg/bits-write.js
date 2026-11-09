@@ -183,12 +183,17 @@ export function handleBytes(value) {
   return bytes;
 }
 
-/** { index } | { rgb, index? , name?, book? } | number (ACI) | null → normalised colour. */
+/**
+ * { index } | { rgb, index? , name?, book? } | number (ACI) | null → normalised colour. An ACI outside 0–257 (or not a
+ * whole number) is not a colour AutoCAD can read back: the writer used to pass a negative or > 257 index (a "layer off"
+ * -5, a 300 from a DXF) straight into the entity, which libdxfrw refuses to read; it becomes ByLayer (256).
+ */
+const aci = (i) => (Number.isInteger(i) && i >= 0 && i <= 257 ? i : 256);
 export function normColor(c) {
   if (c === null || c === undefined) return { index: 256 };
-  if (typeof c === 'number') return { index: c };
-  if (c.rgb !== undefined && c.rgb !== null) return { rgb: c.rgb >>> 0, index: c.index, name: c.name, book: c.book };
-  return { index: Number.isInteger(c.index) ? c.index : 256, name: c.name, book: c.book };
+  if (typeof c === 'number') return { index: aci(c) };
+  if (c.rgb !== undefined && c.rgb !== null) return { rgb: c.rgb >>> 0, index: c.index === undefined ? undefined : aci(c.index), name: c.name, book: c.book };
+  return { index: aci(c.index), name: c.name, book: c.book };
 }
 function cmcLong(c) {
   if (c.rgb !== undefined) return 0xC2000000 | (c.rgb & 0xFFFFFF);

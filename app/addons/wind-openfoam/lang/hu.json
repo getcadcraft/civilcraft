@@ -1,0 +1,14 @@
+{
+  "@locale": "hu",
+  "@name": "Magyar",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (bővítmény)",
+  "wind.of.note": "Saját OpenFOAM-telepítés futtatása egy kis segédprogramon keresztül ezen a számítógépen: szélirányonként egy-egy állandósult RANS (k-epsilon) számítás, légköri határréteg-bemenettel. Semmi nem hagyja el ezt a számítógépet. A CadCraft nem tartalmazza az OpenFOAM-et.",
+  "wind.of.url": "Segédprogram címe",
+  "wind.of.token": "Segédprogram token",
+  "wind.of.check": "Segédprogram ellenőrzése",
+  "wind.of.ok": "A segédprogram válaszolt. OpenFOAM: {foam}",
+  "wind.of.down": "A segédprogram nem válaszolt ({why}). Indítsa el ezen a számítógépen: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "A segédprogram válaszolt, de nem tudta elindítani az OpenFOAM-et: {why}",
+  "wind.of.install": "Telepítse az OpenFOAM-et (ESI v-sorozat, openfoam.com) és a segédprogramot a bővítmény mappájából; a súgó témaköre mindkettőt leírja."
+}

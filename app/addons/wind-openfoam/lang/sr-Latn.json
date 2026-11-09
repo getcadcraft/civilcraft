@@ -1,0 +1,14 @@
+{
+  "@locale": "sr-Latn",
+  "@name": "Srpski (latinica)",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (dodatak)",
+  "wind.of.note": "Pokreće vašu sopstvenu instalaciju OpenFOAM-a preko malog pomoćnog programa na ovom računaru: jedan stacionarni RANS (k-epsilon) slučaj po pravcu vetra, ulaz atmosferskog graničnog sloja. Ništa ne napušta ovaj računar. CadCraft ne sadrži OpenFOAM.",
+  "wind.of.url": "Adresa pomoćnog programa",
+  "wind.of.token": "Token pomoćnog programa",
+  "wind.of.check": "Proveri pomoćni program",
+  "wind.of.ok": "Pomoćni program je odgovorio. OpenFOAM: {foam}",
+  "wind.of.down": "Pomoćni program nije odgovorio ({why}). Pokrenite ga na ovom računaru: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Pomoćni program je odgovorio, ali nije mogao da pokrene OpenFOAM: {why}",
+  "wind.of.install": "Instalirajte OpenFOAM (ESI v-serija, openfoam.com) i pomoćni program iz fascikle dodatka; tema pomoći objašnjava oba."
+}

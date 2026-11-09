@@ -888,6 +888,7 @@ g = GProp_GProps(); BRepGProp.VolumeProperties_s(s, g); print(g.Mass(), BRepChec
   await (await import('./browser-workspaces.mjs')).run(areaHelpers);
   await (await import('./browser-illustrate.mjs')).run(areaHelpers);   // 0.7 Track TP (session illustrate)
   await (await import('./browser-sketch-tools.mjs')).run(areaHelpers);
+  await (await import('./browser-sketch-arcs.mjs')).run(areaHelpers);   // 0.9 FX.136
   await (await import('./browser-design-features.mjs')).run(areaHelpers);
   await (await import('./browser-assembly-tools.mjs')).run(areaHelpers);
   await (await import('./browser-manufacture.mjs')).run(areaHelpers);

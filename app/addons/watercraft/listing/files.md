@@ -1,0 +1,1 @@
+Reads the Water mains already in the project (drawn with the tools, or opened from LandXML or EPANET-format text). Reads pasted lines of customer loads (id, x, y, kind, amount). Writes CSV tables of demands, fire flow, outages and water quality. The demands it makes are written into the Water mains as one step that Undo takes back.

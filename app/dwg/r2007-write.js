@@ -346,10 +346,11 @@ export function layoutR2007(parts, helpers) {
   const smId1 = pid + 1, smId2 = pid + 2, pmId1 = pid + 3, pmId2 = pid + 4;
   // section map (5.2): one entry per section, then an empty one ("number of sections + 1")
   const sm = new ByteWriter(4096);
-  // Spec gap: AutoCAD ends the map with an empty section of no pages and counts it ("number of sections + 1").
-  // Found by experiment with our files and the test-only black boxes (see PROVENANCE.md): LibreDWG's dwgread reported
-  // that entry as an error ("Invalid num_pages 0"), libdxfrw's dwg2dxf failed without the count; so the entry is
-  // left out and the header still says sections + 1, which all of them (and the ODA File Converter) accept.
+  // Spec gap: AutoCAD ends the map with an empty section (size 0, max size 0xF800, encoding 4, no name, no pages) and counts it:
+  // the header's "number of sections + 1" is the number of entries in the map, this one included (example_2007.dwg: 13 entries,
+  // 13 in the header). Leaving the entry out while the header still said +1 (to quiet LibreDWG's dwgread and libdxfrw)
+  // sent a strict reader past the end of the section map. Written as AutoCAD does; the readers here take it
+  // (the entry has no name, so none of them looks for pages).
   const entries = descs;
   for (const d of entries) {
     const nameLen = d.name ? (d.name.length + 1) * 2 : 0;
@@ -357,6 +358,7 @@ export function layoutR2007(parts, helpers) {
     if (d.name) { for (let i = 0; i < d.name.length; i++) sm.RS(d.name.charCodeAt(i)); sm.RS(0); }
     for (const p of d.pages) { sm.RLL(p.offset); sm.RLL(p.size); sm.RLL(p.id); sm.RLL(p.uncomp); sm.RLL(p.comp); sm.RLL(p.checksum); sm.RLL(p.crc); }
   }
+  sm.RLL(0); sm.RLL(0xF800); sm.RLL(0); sm.RLL(0); sm.RLL(0); sm.RLL(0); sm.RLL(4); sm.RLL(0);   // the empty closing entry
   const smData = sm.bytes();
   const smPage1 = systemPage(smData, rnd), smPage2 = systemPage(smData, rnd);
   // page map: (size, id) pairs in file order — page map 1, page map 2, data pages, section maps
@@ -406,7 +408,7 @@ export function layoutR2007(parts, helpers) {
   fh.RLL(0x20); fh.RLL(0x40);
   fh.RLL(pmPage1.crcUncompressed);
   fh.RLL(0xF800); fh.RLL(4); fh.RLL(1);
-  fh.RLL(entries.length + 1);                      // "number of sections + 1" (libdxfrw's dwg2dxf failed on our file without it)
+  fh.RLL(entries.length + 1);                      // the number of entries in the section map, the empty closing one included
   fh.RLL(smPage1.crcUncompressed); fh.RLL(smPage1.compSize);
   fh.RLL(smId2); fh.RLL(smId1);
   fh.RLL(smData.length); fh.RLL(smPage1.crcCompressed); fh.RLL(smPage1.factor); fh.RLL(sectionsMapCrcSeed);

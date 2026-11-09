@@ -57,6 +57,19 @@ export const CLASSES = {
   'C8C66EFA-B3CB-4E00-9440-2AD66203379E': 'detail',
   '4ED7D4E5-E947-11D3-BFE5-0010830122F0': 'pointGrid',
   'D379E6D8-7C31-4407-A913-E3B7040D034A': 'morphControl',
+  // Rhino's own class ids for the same records (a file saved by Rhino 3 to 8 carries these, not the toolkit's: openNURBS maps them to the same
+  // classes, ON_BinaryArchive's legacy rtti table in opennurbs_object.cpp). Found with real Rhino files (0.9 DC.54): every polysurface of a Rhino-saved v4
+  // file was one "unknown" record before this.
+  'F06FC243-A32A-4608-9DD8-A7D2C4CE2A36': 'brep',            // TL_Brep
+  '2D4CFEDB-3E2A-11D4-800E-0010830122F0': 'brep',            // old b-rep (version 2 layout: read as old, counted)
+  '0705FDEF-3E2A-11D4-800E-0010830122F0': 'brep',            // old trimmed surface
+  '5EAF1119-0B51-11D4-BFFE-0010830122F0': 'nurbsCurve',      // TL_NurbsCurve
+  '76A709D5-1550-11D4-8000-0010830122F0': 'nurbsCurve',      // old nurbs curve
+  '4760C817-0BE3-11D4-BFFE-0010830122F0': 'nurbsSurface',    // TL_NurbsSurface
+  'FA4FD4B5-1613-11D4-8000-0010830122F0': 'nurbsSurface',    // old nurbs surface
+  'EF638317-154B-11D4-8000-0010830122F0': 'polyCurve',       // old poly curve
+  '0A8401B6-4D34-4B99-8615-1B4E723DC4E5': 'revSurface',      // TL_RevSurface
+  '665F6331-2A66-4CCE-81D0-B5EEBD9B5417': 'sumSurface',      // TL_SumSurface
 };
 const NIL = '00000000-0000-0000-0000-000000000000';
 const RENDER_MESH = 'F5E3BAA9-A7A2-49FD-B8A1-66EB274A5F91';

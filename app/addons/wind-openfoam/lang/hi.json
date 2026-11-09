@@ -1,0 +1,14 @@
+{
+  "@locale": "hi",
+  "@name": "हिन्दी",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ऐड-ऑन)",
+  "wind.of.note": "इस कंप्यूटर पर एक छोटे हेल्पर प्रोग्राम के ज़रिए आपका अपना OpenFOAM इंस्टॉलेशन चलाता है: हर हवा की दिशा के लिए एक स्टेडी RANS (k-epsilon) केस, वायुमंडलीय सीमा परत इनलेट के साथ। कुछ भी इस कंप्यूटर से बाहर नहीं जाता। CadCraft में OpenFOAM शामिल नहीं है.",
+  "wind.of.url": "हेल्पर का पता",
+  "wind.of.token": "हेल्पर टोकन",
+  "wind.of.check": "हेल्पर जाँचें",
+  "wind.of.ok": "हेल्पर ने जवाब दिया। OpenFOAM: {foam}",
+  "wind.of.down": "हेल्पर ने जवाब नहीं दिया ({why})। इसे इस कंप्यूटर पर शुरू करें: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "हेल्पर ने जवाब दिया, पर OpenFOAM शुरू नहीं हो सका: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) और हेल्पर को ऐड-ऑन के फ़ोल्डर से इंस्टॉल करें; सहायता विषय में दोनों की जानकारी दी गई है।"
+}

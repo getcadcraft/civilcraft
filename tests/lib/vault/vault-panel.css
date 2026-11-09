@@ -1,14 +1,15 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* The Documents panel (0.8 SU.1058; lib/vault/vault-panel.js, the same in every app). Tokens only; sizes in rem, pens for lines.
    Self-contained: it does not rely on any app's button or input classes. Canonical in lib/vault; written to dev/vault/ by tools/vault/sync.mjs. */
-.cc-vaultpanel { position: absolute; top: .5rem; right: .5rem; z-index: 6; width: min(40rem, calc(100% - 1rem)); max-height: calc(100% - 1rem); overflow: auto;
-  background: var(--sheet); color: var(--ink); border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem .65rem .6rem; }
+.cc-vaultpanel { position: fixed; inset: 0; margin: auto; z-index: 6; width: min(48rem, calc(100vw - 2rem)); max-width: none; height: fit-content; max-height: min(85vh, 60rem); overflow: auto;
+  background: var(--sheet); color: var(--ink); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); padding: 1rem 1.25rem 1.25rem; box-shadow: 0 1rem 3rem rgb(0 0 0 / .35); }
+.cc-vaultpanel::backdrop { background: rgb(0 0 0 / .45); }
 .cc-vaultpanel[hidden] { display: none; }
 .cc-vault-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.cc-vault-h { margin: 0; font-size: 1rem; font-weight: 700; }
+.cc-vault-h { margin: 0; font-size: 1.25rem; font-weight: 700; }
 .cc-vault-x { background: none; border: 0; color: inherit; cursor: pointer; padding: .25rem; line-height: 1; }
 .cc-vault-x:focus-visible, .cc-vbtn:focus-visible, .cc-vlink:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: 1px; }
-.cc-vault-body .cc-note { font-size: .8125rem; margin: .25rem 0; }
+.cc-vault-body .cc-note { font-size: .875rem; margin: .4rem 0; }
 .cc-vault-error { color: var(--layer-red); }
 .cc-vault-list, .cc-vault-events, .cc-vault-untracked ul { list-style: none; margin: .4rem 0 0; padding: 0; }
 .cc-vault-row { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; padding: .35rem 0; border-top: var(--pen-1) solid var(--grid); }
@@ -31,7 +32,7 @@
 .cc-vault-prompt .cc-vinput { min-width: 12rem; }
 .cc-vault-untracked { margin-top: .5rem; font-size: .8125rem; }
 .cc-vault-untracked li { padding: .15rem 0; }
-html.cc-phone .cc-vaultpanel { top: auto; bottom: .5rem; max-height: 70%; }
+html.cc-phone .cc-vaultpanel { width: calc(100vw - 1rem); margin: auto .5rem .5rem; max-height: 85vh; padding: .75rem; }
 .cc-vbtn { padding: .2rem .55rem; font: inherit; font-size: .8125rem; line-height: 1.3; color: var(--ink); background: transparent; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
 .cc-vbtn:hover:not(:disabled) { background: var(--sheet-2); border-color: var(--ink); }
 .cc-vbtn.is-primary { background: var(--action); color: var(--on-action); border-color: var(--action); }

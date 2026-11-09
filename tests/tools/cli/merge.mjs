@@ -14,6 +14,9 @@
  * CadCraft drawings (.dwg, .dxf) merge too, object by object (tools/cli/merge/cad-merge.mjs; objects are matched by the stable key each one carries):
  *   *.dwg merge=cadcraft    *.dxf merge=cadcraft
  *
+ * BimCraft models (.ifc) merge too, object by object (tools/cli/merge/ifc-merge.mjs; objects are matched by GlobalId):
+ *   *.ifc merge=cadcraft
+ *
  * git:  .gitattributes   *.takeoff.json merge=cadcraft     git config merge.cadcraft.driver "node /path/to/tools/cli/merge.mjs %O %A %B"
  */
 import fs from 'node:fs';
@@ -22,6 +25,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { mergeJson } from './merge/json-merge.mjs';
 import { mergeCad } from './merge/cad-merge.mjs';
 import { mergePdf } from './merge/pdf-merge.mjs';
+import { mergeIfc, isIfc } from './merge/ifc-merge.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const APPS = path.join(ROOT, 'public_html/assets/apps');
@@ -68,7 +72,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (!isJson(of)) {   // a PDF (MarkupCraft's markups), else a drawing: DWG or DXF
     const bytes = (f) => new Uint8Array(fs.readFileSync(f));
     const isPdf = fs.readFileSync(of).subarray(0, 5).toString('latin1') === '%PDF-';
-    const r = isPdf ? await mergePdf(fs.existsSync(bf) ? bytes(bf) : new Uint8Array(), bytes(of), bytes(tf)) : await mergeCad(fs.existsSync(bf) ? bytes(bf) : new Uint8Array(), bytes(of), bytes(tf));
+    const isIfcFile = !isPdf && isIfc(bytes(of));
+    const r = isIfcFile ? await mergeIfc(fs.existsSync(bf) ? bytes(bf) : new Uint8Array(), bytes(of), bytes(tf)) : isPdf ? await mergePdf(fs.existsSync(bf) ? bytes(bf) : new Uint8Array(), bytes(of), bytes(tf)) : await mergeCad(fs.existsSync(bf) ? bytes(bf) : new Uint8Array(), bytes(of), bytes(tf));
     if (r.code === 2) { console.error(r.error); process.exit(2); }
     fs.writeFileSync(flag('--out') || of, r.bytes);
     const lines = [`${r.format}: ${r.conflicts.length ? r.conflicts.length + ' conflict(s)' : 'merged cleanly'}`, ...r.notes];

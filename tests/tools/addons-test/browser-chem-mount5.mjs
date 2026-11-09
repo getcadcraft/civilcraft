@@ -140,6 +140,17 @@ try {
 } catch (err) {
   fail++; console.log('  FAIL ' + (err?.stack || err)); console.log(problems.slice(0, 6).join('\n')); await shot('fail').catch(() => {});
 } finally {
+  // ---- CH.26 (0.9): Connect your lab system
+  const LM = '[data-addon-section="pid:pid-lims"]';
+  await page.waitForSelector(LM + ' [data-lims-field="kind"]', { state: 'attached', timeout: 10000 });
+  await page.selectOption(LM + ' [data-lims-field="kind"]', 'rest');
+  await page.fill(LM + ' [data-lims-field="name"]', 'Lab'); await page.fill(LM + ' [data-lims-field="baseUrl"]', 'https://lims.example.com/api');
+  await page.fill(LM + ' [data-lims-field="authHeader"]', 'Authorization'); await page.fill(LM + ' [data-lims-field="secretRef"]', 'lab-key');
+  await page.click(LM + ' button:has-text("Test the connection")'); await page.waitForTimeout(300);
+  ok(/needs CadCraft Studio/.test(await page.textContent(LM + ' [data-lims-out]')), 'Connect your lab system: the test in a browser tab says it needs Studio and sends nothing');
+  await page.click(LM + ' button:has-text("Save")'); await page.waitForTimeout(200);
+  const lstored = await page.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('cc-addon:cadcraft:pid:') && /limsprofile/.test(k)) return localStorage.getItem(k); return ''; });
+  ok(/lab-key/.test(lstored) && !/Bearer/.test(lstored), 'Save keeps the key name in the add-on storage', lstored.slice(0, 120));
   await browser.close();
   try { admin('down'); } catch { /* fine */ }
 }

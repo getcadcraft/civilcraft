@@ -1,0 +1,14 @@
+{
+  "@locale": "fr",
+  "@name": "Français",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (module)",
+  "wind.of.note": "Exécute votre propre installation d'OpenFOAM via un petit programme d'assistance sur cet ordinateur : un cas RANS stationnaire (k-epsilon) par direction du vent, avec entrée de couche limite atmosphérique. Rien ne quitte cet ordinateur. CadCraft n'inclut pas OpenFOAM.",
+  "wind.of.url": "Adresse de l'assistant",
+  "wind.of.token": "Jeton de l'assistant",
+  "wind.of.check": "Vérifier l'assistant",
+  "wind.of.ok": "L'assistant a répondu. OpenFOAM : {foam}",
+  "wind.of.down": "L'assistant n'a pas répondu ({why}). Démarrez-le sur cet ordinateur : node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "L'assistant a répondu, mais n'a pas pu démarrer OpenFOAM : {why}",
+  "wind.of.install": "Installez OpenFOAM (série ESI v, openfoam.com) et l'assistant depuis le dossier du module ; la rubrique d'aide explique les deux."
+}

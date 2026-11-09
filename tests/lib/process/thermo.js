@@ -255,10 +255,19 @@ export class Thermo {
   // ---- saturation ------------------------------------------------------------------------------------------------------------
   /** r > 0 means the mixture is "more vapour" than saturated (T above / P below the saturation point). */
   _satResidual(kind, T, P, z, st) {
-    const n = this.n;
+    // FX.10 (2026-11-05): the carried incipient phase is a warm start only. Once it collapsed onto the feed (the trivial solution,
+    // reached e.g. at 30 K on the first grid point) every later call stayed trivial and returned the flag as a residual, so the
+    // scan bracketed the point where the flag flipped (269.8 K for SRK methane/propane 40/60 at 30 bar) instead of the real
+    // crossing. A trivial warm start is now thrown away and the Wilson seed tried; the trivial flag is kept only if that is trivial too.
+    const warm = (kind === 'bubble' ? st.y : st.x) && !st.trivial ? this._satRun(kind, T, P, z, st) : null;
+    const pick = warm && !warm.trivial ? warm : this._satRun(kind, T, P, z, null);
+    st.x = pick.x; st.y = pick.y; st.trivial = pick.trivial;
+    return pick.r;
+  }
+  _satRun(kind, T, P, z, seed) {
     let x, y;
-    if (kind === 'bubble') { x = z; y = st.y || normed(this.wilsonK(T, P).map((k, i) => k * z[i])); }
-    else { y = z; x = st.x || normed(this.wilsonK(T, P).map((k, i) => z[i] / k)); }
+    if (kind === 'bubble') { x = z; y = (seed && seed.y) || normed(this.wilsonK(T, P).map((k, i) => k * z[i])); }
+    else { y = z; x = (seed && seed.x) || normed(this.wilsonK(T, P).map((k, i) => z[i] / k)); }
     let s = 0, tr = 0;
     for (let it = 0; it < 300; it++) {
       const { lnK, trivial } = this.lnK(T, P, x, y); tr = trivial;
@@ -266,37 +275,59 @@ export class Thermo {
       if (kind === 'bubble') { const t = z.map((v, i) => K[i] * v); s = sum(t); const yn = normed(t); const e = maxAbs(yn, y); y = yn; if (e < 1e-13) break; }
       else { const t = z.map((v, i) => v / K[i]); s = sum(t); const xn = normed(t); const e = maxAbs(xn, x); x = xn; if (e < 1e-13) break; }
     }
-    st.x = x; st.y = y;
-    if (tr !== 0 && (kind === 'bubble' || kind === 'dew')) { st.trivial = true; return tr; }
-    st.trivial = false;
-    return kind === 'bubble' ? s - 1 : 1 - s;
+    if (tr !== 0) return { x, y, trivial: true, r: tr };
+    if (maxAbs(kind === 'bubble' ? y : x, z) < 1e-7) return { x, y, trivial: true, r: kind === 'bubble' ? -1 : 1 };
+    return { x, y, trivial: false, r: kind === 'bubble' ? s - 1 : 1 - s };
+  }
+  /** EOS check of a saturation point by the stability condition (Michelsen's tangent-plane test): just on the single-phase side the
+   *  feed must be stable, just on the other side unstable. Activity/ideal models always pass. */
+  _satStable(kind, isT, T, P, z) {
+    if (!this.eos || this.n < 2) return true;
+    const d = 2e-3, liqSideT = kind === 'bubble';                // bubble: liquid below in T (above in P); dew: vapour above in T
+    const one = isT ? [liqSideT ? T * (1 - d) : T * (1 + d), P] : [T, liqSideT ? P * (1 + d) : P * (1 - d)];
+    const two = isT ? [liqSideT ? T * (1 + d) : T * (1 - d), P] : [T, liqSideT ? P * (1 - d) : P * (1 + d)];
+    return this.stability(one[0], one[1], z).stable && !this.stability(two[0], two[1], z).stable;
   }
   /** Bubble or dew point. kind 'bubble'|'dew'; fixed 'T' (value K → returns P) or 'P' (value Pa → returns T). → { T, P, x, y } */
   saturation(kind, fixed, value, z, guess = null) {
     z = normed(z); const st = {}, isT = fixed === 'P';       // solving for T when P is fixed
     const res = (v) => { const T = isT ? v : value, P = isT ? value : v; return { r: this._satResidual(kind, T, P, z, st), T, P }; };
     const sgn = isT ? 1 : -1;                                // r increases with T, decreases with P
-    let lo = null, hi = null;                                // lo: r*sgn<0 side, hi: r*sgn>0
-    const grid = [];
-    if (guess) { for (let k = 0; k < 40; k++) { grid.push(guess * Math.pow(1.08, k)); grid.push(guess / Math.pow(1.08, k + 1)); } }
-    else { const a = isT ? 30 : 1, b = isT ? 2500 : 1e10, f = isT ? 1.04 : 1.12; for (let v = a; v < b; v *= f) grid.push(v); }
+    // bisect a bracket in the log of the variable, keeping the side signs; the result is checked by the stability condition
+    const refine = (lo, hi) => {
+      if (lo > hi) [lo, hi] = [hi, lo];
+      res(lo); let a = lo, b = hi;
+      for (let it = 0; it < 200; it++) {
+        const m = Math.sqrt(a * b), sm = res(m).r * sgn;
+        if (sm < 0) a = m; else b = m;
+        if (b / a - 1 < 1e-13) break;
+      }
+      const q = res(Math.sqrt(a * b));
+      return { T: q.T, P: q.P, x: st.x, y: st.y, kind, stable: this._satStable(kind, isT, q.T, q.P, z) };
+    };
     if (guess) {
+      let lo = null, hi = null;                                // lo: r*sgn<0 side, hi: r*sgn>0
+      const grid = []; for (let k = 0; k < 40; k++) { grid.push(guess * Math.pow(1.08, k)); grid.push(guess / Math.pow(1.08, k + 1)); }
       for (const v of grid) { const q = res(v).r * sgn; if (q < 0) { if (lo == null || Math.abs(Math.log(v / guess)) < Math.abs(Math.log(lo / guess))) lo = v; } else if (hi == null || Math.abs(Math.log(v / guess)) < Math.abs(Math.log(hi / guess))) hi = v; if (lo && hi) break; }
-    } else {
-      let prev = null;
-      for (const v of grid) { const q = res(v).r * sgn; if (prev !== null && prev < 0 && q >= 0) { lo = prev_v(grid, v); hi = v; break; } prev = q; }
+      if (lo != null && hi != null) { const r = refine(lo, hi); if (r.stable) return r; }
+      for (const k of Object.keys(st)) delete st[k];         // the guess led to a point that fails the check: scan the whole range
     }
-    if (lo == null || hi == null) return null;
-    if (lo > hi) [lo, hi] = [hi, lo];
-    // bisect in the log of the variable, keeping the side signs
-    const sLo = res(lo).r * sgn; let a = lo, b = hi, sa = sLo;
-    for (let it = 0; it < 200; it++) {
-      const m = Math.sqrt(a * b), sm = res(m).r * sgn;
-      if (sm < 0) { a = m; sa = sm; } else b = m;
-      if (b / a - 1 < 1e-13) break;
+    // FX.10: every sign change on the grid is a candidate; the first one that passes the stability check is the saturation point.
+    // A change that only comes from the trivial-solution flag (one side "no second phase") fails the check and is skipped.
+    const grid = []; { const a = isT ? 30 : 1, b = isT ? 2500 : 1e10, f = isT ? 1.04 : 1.12; for (let v = a; v < b; v *= f) grid.push(v); }
+    let prev = null, first = null;
+    for (let i = 0; i < grid.length; i++) {
+      const q = res(grid[i]).r * sgn;
+      if (prev !== null && prev < 0 && q >= 0) {
+        const keep = { x: st.x, y: st.y, trivial: st.trivial };
+        const r = refine(grid[i - 1], grid[i]);
+        if (r.stable) return r;
+        if (!first) first = r;
+        st.x = keep.x; st.y = keep.y; st.trivial = keep.trivial; // carry on the scan from where it was
+      }
+      prev = q;
     }
-    const v = Math.sqrt(a * b), q = res(v);
-    return { T: q.T, P: q.P, x: st.x, y: st.y, kind };
+    return first;                                            // no candidate passed the check: the first one, marked stable: false
   }
   bubbleT(z, P, guess) { return this.saturation('bubble', 'P', P, z, guess); }
   dewT(z, P, guess) { return this.saturation('dew', 'P', P, z, guess); }
@@ -352,4 +383,3 @@ export class Thermo {
     return this.flashPT(0.5 * (lo + hi), P, z);
   }
 }
-function prev_v(grid, v) { const i = grid.indexOf(v); return grid[i - 1]; }

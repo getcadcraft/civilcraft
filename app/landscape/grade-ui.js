@@ -279,6 +279,7 @@ export function createGradeUi(ctx, { edit, LS, U }) {
       parts.push(el('p', { className: 'cv-note', 'data-ls-ponds': '' }, ps.length ? t('ls.gr.ponds', { n: ps.length, d: fixed(ps[0].depth, 2), u: uLen(), v: fixed(ps.reduce((a, p) => a + p.volume, 0) / volUnit().per, 1), vu: volUnit().u }) : t('ls.gr.ponds.none')));
     }
     section.replaceChildren(...parts);
+    window.dispatchEvent(new CustomEvent('cc-section-drawn', { detail: section }));
   }
 
   // ---- plan and overlay ----

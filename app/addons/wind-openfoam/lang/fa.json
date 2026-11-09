@@ -1,0 +1,14 @@
+{
+  "@locale": "fa",
+  "@name": "فارسی",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (افزونه)",
+  "wind.of.note": "با یک برنامه کمکی کوچک روی همین رایانه، نصب OpenFOAM خودتان را اجرا می‌کند: برای هر جهت باد یک حالت پایای RANS (k-epsilon) با ورودی لایه مرزی جوی. هیچ‌چیز این رایانه را ترک نمی‌کند. CadCraft شامل OpenFOAM نیست.",
+  "wind.of.url": "نشانی برنامه کمکی",
+  "wind.of.token": "توکن برنامه کمکی",
+  "wind.of.check": "بررسی برنامه کمکی",
+  "wind.of.ok": "برنامه کمکی پاسخ داد. OpenFOAM: {foam}",
+  "wind.of.down": "برنامه کمکی پاسخ نداد ({why}). آن را روی همین رایانه شروع کنید: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "برنامه کمکی پاسخ داد، اما نتوانست OpenFOAM را شروع کند: {why}",
+  "wind.of.install": "OpenFOAM (سری ESI v، openfoam.com) و برنامه کمکی را از پوشه افزونه نصب کنید؛ مبحث راهنما هر دو را توضیح می‌دهد."
+}

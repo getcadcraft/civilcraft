@@ -133,6 +133,10 @@ function sniff(b, ext) {
   if (b.length >= 84 && 84 + new DataView(b.buffer, b.byteOffset).getUint32(80, true) * 50 === b.length) return 'stl';
   const text = new TextDecoder('utf-8').decode(b.subarray(0, 4096)).replace(/^﻿/, '');
   if (/^\s*\{/.test(text) && /"format"\s*:\s*"cadcraft-library-item"/.test(text)) return 'item';
+  // Sorted keys (canonical JSON) can put a big "body" before "format": read the whole file for a .json.
+  if (ext === '.json' && /^\s*\{/.test(text)) {
+    try { if (JSON.parse(new TextDecoder('utf-8').decode(b).replace(/^﻿/, '')).format === 'cadcraft-library-item') return 'item'; } catch { /* not JSON */ }
+  }
   if (/^\s*solid\b/.test(text) && /\bfacet\b|\bendsolid\b/.test(text)) return 'stl';
   if (/^\s*\{/.test(text) && /"asset"/.test(text)) return 'gltf';
   if (/^\s*0\s*\r?\n\s*(SECTION|\$)/.test(text) || (ext === '.dxf' && /SECTION/.test(text))) return 'dxf';

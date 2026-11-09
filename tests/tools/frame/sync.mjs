@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const LIB = path.join(ROOT, 'lib/frame');
 const APPS = path.join(ROOT, 'public_html/assets/apps');
-export const FILES = ['frame-model.js', 'frame-solve.js', 'plate.js', 'plate-model.js', 'plate-solve.js', 'plate-mesh.js', 'plate-bim.js', 'plate-draw.js', 'rc-section.js', 'slab-design.js', 'rc-aci318.js', 'rc-design.js', 'loads-asce7.js', 'frame-concrete.js', 'frame-concrete-panel.js', 'frame-report.js', 'frame-pdf.js', 'frame-combos.js', 'frame-design.js', 'frame-design-aisc.js', 'frame-design-en.js', 'frame-breakit.js', 'frame-craft.js', 'frame-panel.js', 'frame-draw.js', 'frame-panel.css'];
+export const FILES = ['frame-model.js', 'frame-solve.js', 'plate.js', 'plate-model.js', 'plate-solve.js', 'plate-mesh.js', 'plate-bim.js', 'plate-draw.js', 'rc-section.js', 'slab-design.js', 'rc-aci318.js', 'rc-design.js', 'loads-asce7.js', 'loads-sources.js', 'wind-asce7.js', 'seismic-asce7.js', 'spectrum-asce7.js', 'combos-asce7.js', 'frame-loads-panel.js', 'frame-concrete.js', 'frame-concrete-panel.js', 'frame-dynamics-panel.js', 'frame-chart.js', 'frame-report.js', 'frame-pdf.js', 'frame-combos.js', 'frame-design.js', 'frame-design-aisc.js', 'frame-design-en.js', 'frame-breakit.js', 'frame-craft.js', 'frame-panel.js', 'frame-draw.js', 'frame-panel.css'];
 export const TARGETS = {
   detailcraft: path.join(APPS, 'detailcraft/dev/frame'),
   bimcraft: path.join(APPS, 'bimcraft/dev/frame'),

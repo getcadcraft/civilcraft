@@ -334,13 +334,25 @@ section('The project file: the optional `learn` section');
   t2.load(json);
   const again = JSON.parse(JSON.stringify(t2.toJSON('2026-10-27T00:00:00Z')));
   ok(again.learn.asm[0].uses === 1, 'open and save again: the same job still counts once');
-  // older builds: the current frozen release (0.7) reads the new file and ignores the section
-  const REL = fs.realpathSync(path.join(APPS, 'current'));
-  const I18N_OLD = await load('i18n.js', REL);
-  I18N_OLD.init({ strings: JSON.parse(fs.readFileSync(path.join(REL, 'lang/en.json'), 'utf8')) });
-  const Mold = await load('model.js', REL);
+  // older builds: the newest frozen release WITHOUT learn.js (0.7; learn shipped in 0.8) reads the new file and ignores the section.
+  // FX (suggestions-followup-09, 2026-11-05): this used to load `current`, which is 0.8.1 since 2026-11-02 and has learn, so it failed.
+  const vnum = (v) => v.split('.').map(Number);
+  const vcmp = (a, b) => { const x = vnum(a), y = vnum(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; } return 0; };
+  const frozen = fs.readdirSync(APPS).filter((d) => /^\d+(\.\d+)+$/.test(d)).sort(vcmp);
+  const before = frozen.filter((d) => !fs.existsSync(path.join(APPS, d, 'learn.js'))).pop();
+  ok(!!before, 'a frozen release from before learn exists (' + before + ')');
+  const OLD = path.join(APPS, before);
+  const I18N_OLD = await load('i18n.js', OLD);
+  I18N_OLD.init({ strings: JSON.parse(fs.readFileSync(path.join(OLD, 'lang/en.json'), 'utf8')) });
+  const Mold = await load('model.js', OLD);
   const ro = Mold.readProject(json);
-  ok(ro.ok && ro.state.items.length === 1 && ro.state.marks.length === 1 && !('learn' in ro.state), 'the frozen release ' + path.basename(REL) + ' opens a file with `learn`: items and marks intact, the section ignored');
+  ok(ro.ok && ro.state.items.length === 1 && ro.state.marks.length === 1 && !('learn' in ro.state), 'the frozen release ' + before + ' (no learn.js) opens a file with `learn`: items and marks intact, the section ignored');
+  // the released build behind /use (`current`) has learn: it reads the section back exactly as this build wrote it
+  const REL = fs.realpathSync(path.join(APPS, 'current'));
+  const Mrel = await load('model.js', REL);
+  const rr = Mrel.readProject(json);
+  ok(fs.existsSync(path.join(REL, 'learn.js')) && rr.ok && rr.warnings.length === 0 && JSON.stringify(rr.state.learn) === JSON.stringify(r.state.learn),
+    'the released build ' + path.basename(REL) + ' (current) reads `learn` back identical to ' + BUILD);
   // a file without the section opens here with nothing learned
   const r0 = M.readProject(plain);
   ok(r0.ok && !r0.state.learn, 'a file without `learn` opens with nothing learned');

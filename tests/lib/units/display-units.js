@@ -11,6 +11,7 @@
  *   fmtPaper(wmm, hmm, u) / paperLabel(name, key, u)   a paper size's dimensions ("297 × 420 mm", "11.69 × 16.54 in"); the paper's name stays
  *   crsUnitNote(u, crsUnit)                    null, or the CRS's own unit id ('ft', 'us-ft', 'm') when it differs from the pick's family
  *   unitMark, coordNumber, fmtCoord, fmtFine, localizeLengths   see below
+ *   smallNumber(mm, u) / smallMark(u) / pointText([x, y, z], u)   a deflection or drift (feet → decimal inches) and a point (0.9 GH.3-A, frame tab)
  * A copy sits in each host's dev/ folder: tools/units/sync-display.mjs <app> (scoped, names its target); nobody edits a copy.
  */
 export const UNITS = ['ftin', 'in', 'ftdec', 'mm', 'cm', 'm'];
@@ -54,6 +55,18 @@ export function coordNumber(mm, units = 'ftin') {
   return (Object.is(rounded, -0) ? 0 : rounded).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: false });
 }
 export const fmtCoord = (mm, units = 'ftin') => (Number.isFinite(mm) ? coordNumber(mm, units) + ' ' + unitMark(units === 'ftin' ? 'ftdec' : units) : '');
+
+/** 0.9 GH.3-A: a small length (a deflection, a drift) as a number alone; its unit is smallMark (feet-inches and decimal feet → decimal inches). */
+export const smallMark = (units) => (units === 'ftin' || units === 'ftdec' ? 'in' : FACTOR[units] ? units : 'mm');
+export function smallNumber(mm, units = 'ftin') {
+  if (!Number.isFinite(mm)) return '';
+  const u = smallMark(units);
+  const v = mm / FACTOR[u];
+  const digits = { mm: 2, cm: 3, m: 5, in: 3 }[u];
+  return (Math.abs(v) < 0.5 * 10 ** -digits ? 0 : v).toFixed(digits);   // no -0.00
+}
+/** A point [x, y, z] in mm as "(x, y, z) unit", each number as coordNumber (feet-inches → decimal feet). */
+export const pointText = (p, units = 'ftin') => '(' + p.map((v) => coordNumber(v, units)).join(', ') + ') ' + unitMark(units === 'ftin' ? 'ftdec' : units);
 
 /** A small length (a scale in length per pixel, a tolerance) with three significant figures and its unit: feet-inches shows decimal inches. */
 export function fmtFine(mm, units = 'ftin') {
@@ -119,7 +132,7 @@ export function fmtPaper(wMm, hMm, units = 'ftin') {
 }
 
 /** The standard papers, portrait, width × height in millimetres (the sheets and PDFs themselves are landscape). */
-export const PAPER_MM = Object.freeze({ letter: [215.9, 279.4], a4: [210, 297], tabloid: [279.4, 431.8], archd: [609.6, 914.4], a3: [297, 420], a1: [594, 841] });
+export const PAPER_MM = Object.freeze({ letter: [215.9, 279.4], a4: [210, 297], tabloid: [279.4, 431.8], archd: [609.6, 914.4], a3: [297, 420], a1: [594, 841], a2: [420, 594], a0: [841, 1189], archc: [457.2, 609.6], arche: [914.4, 1219.2] });   // 0.9 SU.1123: A2, A0, Arch C, Arch E
 /** "Letter · 8.5 × 11 in": the paper's name stays, the dimensions follow the pick. An unknown paper is just its name. */
 export const paperLabel = (name, key, units = 'ftin') => (PAPER_MM[key] ? name + ' · ' + fmtPaper(PAPER_MM[key][0], PAPER_MM[key][1], units) : name);
 

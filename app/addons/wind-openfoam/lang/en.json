@@ -1,0 +1,11 @@
+{
+  "wind.of.label": "OpenFOAM (add-on)",
+  "wind.of.note": "Runs your own OpenFOAM installation through a small helper program on this computer: one steady RANS (k-epsilon) case per wind direction, atmospheric boundary layer inlet. Nothing leaves this computer. CadCraft does not include OpenFOAM.",
+  "wind.of.url": "Helper address",
+  "wind.of.token": "Helper token",
+  "wind.of.check": "Check the helper",
+  "wind.of.ok": "The helper answered. OpenFOAM: {foam}",
+  "wind.of.down": "The helper did not answer ({why}). Start it on this computer: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "The helper answered but could not start OpenFOAM: {why}",
+  "wind.of.install": "Install OpenFOAM (the ESI v-series, openfoam.com) and the helper from the add-on's folder; the help topic explains both."
+}

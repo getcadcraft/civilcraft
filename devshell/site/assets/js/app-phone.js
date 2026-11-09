@@ -381,20 +381,47 @@
 
   // The bar's buttons (Find, Help, Settings, offline, screen mode) un-hide as their scripts start, after the first layout():
   // measure again when one does, or a bar that only overflows at a wide window (DetailCraft at 1920 px) keeps its last buttons off the edge.
+  var barSig = '';
+  // Startup perf (2026-11-05, "the apps start slowly since 0.8.1"): this ran on every un-hide while the bar's scripts started, and each run
+  // took two classes off <html> (restyling the whole page), read the width (a forced layout) and put them back. Now a run whose inputs have
+  // not changed since the last one does nothing, and the observer waits for the bar to go quiet (barSoon) instead of running every frame.
   function barFit() {
     var appBar = document.querySelector('.app-bar');
     if (!appBar) return;
-    root.classList.remove('cc-bar-narrow');
-    if (!root.classList.contains('cc-phone') && appBar.scrollWidth > appBar.clientWidth + 1) root.classList.add('cc-bar-narrow');
+    var sig = appBar.clientWidth + '|' + appBar.querySelectorAll('[hidden]').length + '|' + appBar.children.length + '|' + appBar.textContent.length + '|' + (root.classList.contains('cc-phone') ? 1 : 0) + '|' + (root.getAttribute('data-ui-size') || '') + '|' + (root.style.getPropertyValue('--shell-ui') || '');
+    if (sig === barSig) return;
+    root.classList.remove('cc-bar-narrow', 'cc-bar-tight');
+    // 0.9 FX.89 (owner 2026-11-06, CadCraft at ~1330 px: Help sat on top of the Lab badge): the bar's name block shrinks instead of the bar
+    // overflowing, so scrollWidth alone said "fits". Crowded = the bar overflows, the name block is clipped, or two neighbours overlap.
+    var crowded = function () {
+      if (appBar.scrollWidth > appBar.clientWidth + 1) return true;
+      var nm = appBar.querySelector('.app-bar-name');
+      if (nm && nm.scrollWidth > nm.clientWidth + 1) return true;
+      var prev = null, kids = [].slice.call(appBar.children);
+      for (var i = 0; i < kids.length; i++) {
+        var r = kids[i].getBoundingClientRect();
+        if (!r.width || !r.height || getComputedStyle(kids[i]).position === 'absolute') continue;
+        if (prev && prev.right > r.left + 1) return true;
+        prev = r;
+      }
+      return false;
+    };
+    if (!root.classList.contains('cc-phone') && crowded()) {
+      // stage 1: icons only (the buttons keep their titles); stage 2: fold Find, Paper/Model and the rest into the More menu
+      root.classList.add('cc-bar-tight');
+      if (crowded()) { root.classList.add('cc-bar-narrow'); }
+    }
+    barSig = sig;
   }
-  var barPending = false;
+  var barTimer = 0;
+  function barSoon() { if (barTimer) clearTimeout(barTimer); barTimer = setTimeout(function () { barTimer = 0; barFit(); }, 80); }
   (function () {
     var ab = document.querySelector('.app-bar');
     if (!ab) return;
-    new MutationObserver(function () {
-      if (barPending) return; barPending = true;
-      requestAnimationFrame(function () { barPending = false; barFit(); });
-    }).observe(ab, { attributes: true, attributeFilter: ['hidden'], subtree: true, childList: true });
+    new MutationObserver(barSoon).observe(ab, { attributes: true, attributeFilter: ['hidden'], subtree: true, childList: true, characterData: true });
+    // LANG-35: labels that arrive late (a language file, a web font) change the bar's width without any hidden/child change.
+    window.addEventListener('load', barSoon);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(barSoon);
   })();
 
   function layout() {
@@ -454,7 +481,18 @@
   mo.observe(main, { childList: true, subtree: true });
 
   window.addEventListener('resize', function () { requestAnimationFrame(layout); });
-  window.addEventListener('orientationchange', function () { requestAnimationFrame(layout); });
+  // A turn (FX.37): several browsers and web views (Android WebView, iPad Safari) send `orientationchange` and even the first `resize`
+  // while document.documentElement still has the size from BEFORE the turn, so one layout pass reads the old orientation and the layout
+  // stays one turn behind until the next turn. Measure again once the turn has settled; a pass with an unchanged size does nothing new.
+  var turnTimers = [];
+  function afterTurn() {
+    turnTimers.forEach(clearTimeout);
+    turnTimers = [150, 450, 1000].map(function (ms) { return setTimeout(layout, ms); });
+    requestAnimationFrame(layout);
+  }
+  window.addEventListener('orientationchange', afterTurn);
+  try { if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', afterTurn); } catch (e) { /* no Screen Orientation API */ }
+  try { var portraitMq = matchMedia('(orientation: portrait)'); if (portraitMq.addEventListener) portraitMq.addEventListener('change', afterTurn); } catch (e) { /* old browsers */ }   // i18n-ignore (CSS)
   if (window.visualViewport) window.visualViewport.addEventListener('resize', viewport);
   document.addEventListener('focusin', viewport);
   document.addEventListener('focusout', function () { setTimeout(viewport, 50); });

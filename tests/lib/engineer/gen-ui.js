@@ -127,6 +127,7 @@ export function installGenUI(host) {
     if (kind === 'report-md' || kind === 'report-html') {                                  // IND.5: the clause-traced calculation report (lib/report)
       const r = reportFromSheet({ title: base, generator: { id: f.gen ? f.gen.id : '', title: head.title, hash: f.gen ? f.gen.hash : '' }, inputs: vals, rows: f.sheet || [], date: new Date().toISOString().slice(0, 10) });
       if (!r.ok) { host.status(t('gb.ui.export.failed', { error: r.errors.join('; ') })); return; }
+      if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('cc-calc-report', { detail: { name: base + ' calculation report.md', markdown: r.markdown } }));   // i18n-ignore: a file name. A host with a project keeps a copy
       if (kind === 'report-md') host.download(r.markdown, base + ' calculation report.md', 'text/markdown');            // i18n-ignore: a file name
       else host.download(r.html, base + ' calculation report.html', 'text/html');                                          // i18n-ignore: a file name
       host.status(t('gb.ui.export.saved', { name: f.name }));

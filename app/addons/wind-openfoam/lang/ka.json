@@ -1,0 +1,14 @@
+{
+  "@locale": "ka",
+  "@name": "ქართული",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (დამატება)",
+  "wind.of.note": "მუშაობს თქვენს საკუთარ OpenFOAM-ის ინსტალაციაზე ამ კომპიუტერზე არსებული პატარა დამხმარე პროგრამის მეშვეობით: ქარის თითო მიმართულებაზე ერთი სტაციონარული RANS (k-epsilon) ამოცანა, ატმოსფერული სასაზღვრო ფენის შესასვლელით. არაფერი გადის ამ კომპიუტერიდან. CadCraft არ მოიცავს OpenFOAM-ს.",
+  "wind.of.url": "დამხმარე პროგრამის მისამართი",
+  "wind.of.token": "დამხმარე პროგრამის ტოკენი",
+  "wind.of.check": "დამხმარე პროგრამის შემოწმება",
+  "wind.of.ok": "დამხმარე პროგრამამ უპასუხა. OpenFOAM: {foam}",
+  "wind.of.down": "დამხმარე პროგრამამ არ უპასუხა ({why}). გაუშვით ის ამ კომპიუტერზე: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "დამხმარე პროგრამამ უპასუხა, მაგრამ OpenFOAM-ის გაშვება ვერ მოხერხდა: {why}",
+  "wind.of.install": "დააინსტალირეთ OpenFOAM (ESI v-series, openfoam.com) და დამხმარე პროგრამა დამატების საქაღალდიდან; დახმარების თემაში ორივეა აღწერილი."
+}

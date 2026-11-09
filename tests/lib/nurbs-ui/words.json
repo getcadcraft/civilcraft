@@ -514,9 +514,449 @@
     "Item list: a surface with a trim.",
     "recortada, {holes} agujeros"
   ],
-  "nurbs.ui.iges_untrimmed": [
-    "IGES holds the whole patches: the trims were not written.",
-    "Export note.",
-    "IGES guarda las superficies completas: los recortes no se escribieron."
+  "nurbs.ui.g.solids": [
+    "Solids",
+    "Command group.",
+    "Sólidos"
+  ],
+  "nurbs.ui.solids": [
+    "Solids",
+    "Heading of the list of solids.",
+    "Sólidos"
+  ],
+  "nurbs.ui.need.solid": [
+    "Pick a solid ({have} of {n}): click one of its faces in the view, or Pick in the Solids list.",
+    "What a command still needs.",
+    "Seleccione un sólido ({have} de {n}): haga clic en una de sus caras en la vista, o en Seleccionar en la lista Sólidos."
+  ],
+  "nurbs.ui.need.more_surface": [
+    "Pick the surfaces that close the solid ({have} picked), or press Make to use every shown surface that is not in a solid yet.",
+    "solid.make: picks are optional.",
+    "Seleccione las superficies que cierran el sólido ({have} seleccionadas), o pulse Crear para usar todas las superficies visibles que aún no están en un sólido."
+  ],
+  "nurbs.ui.solid.none": [
+    "No solids yet. Make a box, cylinder or sphere, or group surfaces that close a volume.",
+    "Empty Solids list.",
+    "Aún no hay sólidos. Cree una caja, un cilindro o una esfera, o agrupe superficies que cierren un volumen."
+  ],
+  "nurbs.ui.solid.faces": [
+    "{n} faces",
+    "Solids list: how many faces.",
+    "{n} caras"
+  ],
+  "nurbs.ui.solid.face_of": [
+    "face of {name}",
+    "Item row: the surface is a face of a solid.",
+    "cara de {name}"
+  ],
+  "nurbs.ui.solid.ungroup": [
+    "Ungroup (keep the faces)",
+    "Solids list button.",
+    "Desagrupar (conservar las caras)"
+  ],
+  "nurbs.ui.solid.delete": [
+    "Delete the solid and its faces",
+    "Solids list button.",
+    "Eliminar el sólido y sus caras"
+  ],
+  "nurbs.ui.solid.loading": [
+    "Loading the solid engine…",
+    "Status while manifold-3d loads.",
+    "Cargando el motor de sólidos…"
+  ],
+  "nurbs.ui.solid.made": [
+    "{what}: done. Volume {volume} mm³, area {area} mm² (measured on triangles within {tol} mm of the surfaces).",
+    "After making a solid.",
+    "{what}: hecho. Volumen {volume} mm³, área {area} mm² (medidos en triángulos a menos de {tol} mm de las superficies)."
+  ],
+  "nurbs.ui.solid.bool_done": [
+    "{what}: done, {faces} faces, volume {volume} mm³. The engine's points moved up to {dev} mm to sit on the exact surfaces (tolerance {tol} mm); intersection points lie within {res} mm of both surfaces.",
+    "After a Boolean: measured numbers.",
+    "{what}: hecho, {faces} caras, volumen {volume} mm³. Los puntos del motor se movieron hasta {dev} mm para quedar sobre las superficies exactas (tolerancia {tol} mm); los puntos de intersección están a menos de {res} mm de ambas superficies."
+  ],
+  "nurbs.ui.solid.closes": [
+    "The new faces close again (volume {volume} mm³).",
+    "After a Boolean: the check passed.",
+    "Las caras nuevas vuelven a cerrar (volumen {volume} mm³)."
+  ],
+  "nurbs.ui.solid.open_again": [
+    "Check: sewn again from the exact faces, {n} edges stay open. Undo, or try a smaller tolerance.",
+    "After a Boolean: the check failed.",
+    "Comprobación: cosidas de nuevo a partir de las caras exactas, quedan {n} bordes abiertos. Deshaga, o pruebe una tolerancia menor."
+  ],
+  "nurbs.ui.opt.corner": [
+    "Corner (mm)",
+    "Option: x, y, z of the box corner.",
+    "Esquina (mm)"
+  ],
+  "nurbs.ui.opt.size": [
+    "Size (mm)",
+    "Option: width, depth, height.",
+    "Tamaño (mm)"
+  ],
+  "nurbs.ui.opt.base": [
+    "Base center (mm)",
+    "Option: the middle of the cylinder base.",
+    "Centro de la base (mm)"
+  ],
+  "nurbs.ui.opt.center": [
+    "Center (mm)",
+    "Option: the middle of the sphere.",
+    "Centro (mm)"
+  ],
+  "nurbs.ui.opt.radius": [
+    "Radius (mm)",
+    "Option.",
+    "Radio (mm)"
+  ],
+  "nurbs.ui.opt.height": [
+    "Height (mm)",
+    "Option.",
+    "Altura (mm)"
+  ],
+  "nurbs.ui.opt.keep": [
+    "Keep the two solids",
+    "Option: leave the inputs in place.",
+    "Conservar los dos sólidos"
+  ],
+  "nurbs.ui.solid.bake_mc": [
+    "Add to the model",
+    "Solids list button in ModelCraft: the solid becomes a closed group.",
+    "Añadir al modelo"
+  ],
+  "nurbs.ui.solid.bake_name": [
+    "Solid {id}",
+    "Default name of a baked solid.",
+    "Sólido {id}"
+  ],
+  "nurbs.ui.solid.baked_mc": [
+    "{name} is in the model as a closed group: {n} triangles within 0.05 mm of its surfaces, volume {volume} mm³. The exact solid stays here.",
+    "After Add to the model.",
+    "{name} está en el modelo como un grupo cerrado: {n} triángulos a menos de 0,05 mm de sus superficies, volumen {volume} mm³. El sólido exacto sigue aquí."
+  ],
+  "nurbs.ui.solid.bake_pc": [
+    "Bake into the part",
+    "Solids list button and dialog button in PartCraft.",
+    "Integrar en la pieza"
+  ],
+  "nurbs.ui.solid.bake_title": [
+    "Bake a solid into the part",
+    "Dialog title.",
+    "Integrar un sólido en la pieza"
+  ],
+  "nurbs.ui.solid.bake_intro": [
+    "The solid becomes a body of the part, as an opened STL does: its faces as triangles within the tolerance, added to the part, cut from it or intersected with it. It is one step in the part's undo; the exact solid stays in Surfaces.",
+    "Dialog text.",
+    "El sólido se convierte en un cuerpo de la pieza, como un STL abierto: sus caras como triángulos dentro de la tolerancia, sumado a la pieza, restado de ella o intersecado con ella. Es un paso en el deshacer de la pieza; el sólido exacto sigue en Superficies."
+  ],
+  "nurbs.ui.solid.bake_which": [
+    "Solid",
+    "Dialog field.",
+    "Sólido"
+  ],
+  "nurbs.ui.solid.bake_tol": [
+    "Tolerance (mm)",
+    "Dialog field: how far the triangles may be from the surfaces.",
+    "Tolerancia (mm)"
+  ],
+  "nurbs.ui.solid.bake_bad_tol": [
+    "The tolerance must be from 0.001 to 10 mm.",
+    "Bad tolerance.",
+    "La tolerancia debe estar entre 0,001 y 10 mm."
+  ],
+  "nurbs.ui.solid.bake_big": [
+    "That tolerance gives {n} triangles, too many for one body. Try a larger tolerance.",
+    "Too many triangles.",
+    "Esa tolerancia da {n} triángulos, demasiados para un cuerpo. Pruebe una tolerancia mayor."
+  ],
+  "nurbs.ui.solid.bake_none": [
+    "There is no solid to bake yet: make one in the Solids group of the panel.",
+    "Bake with no solids.",
+    "Todavía no hay ningún sólido que integrar: cree uno en el grupo Sólidos del panel."
+  ],
+  "nurbs.ui.solid.bake_undo": [
+    "Bake a solid",
+    "Undo label.",
+    "Integrar un sólido"
+  ],
+  "nurbs.ui.solid.bake_file": [
+    "Surfaces: {name}",
+    "Where the baked body came from (shown like a file name).",
+    "Superficies: {name}"
+  ],
+  "nurbs.ui.solid.bake_failed": [
+    "The part did not build with the baked solid: {why}. Undo takes it back.",
+    "The kernel refused the body.",
+    "La pieza no se construyó con el sólido integrado: {why}. Deshacer lo retira."
+  ],
+  "nurbs.ui.solid.baked_pc": [
+    "{name} baked into the part ({op}): {n} triangles, volume {volume} mm³. The exact solid stays in Surfaces.",
+    "After a bake.",
+    "{name} integrado en la pieza ({op}): {n} triángulos, volumen {volume} mm³. El sólido exacto sigue en Superficies."
+  ],
+  "nurbs.ui.tb.bake": [
+    "Bake",
+    "Toolbar button.",
+    "Integrar"
+  ],
+  "nurbs.ui.tb.bake.title": [
+    "Bake a NURBS solid into the part (add, cut or intersect)",
+    "Toolbar tooltip.",
+    "Integrar un sólido NURBS en la pieza (sumar, restar o intersecar)"
+  ],
+  "nurbs.ui.g.scan": [
+    "Scan",
+    "Command group: surfaces from a scanned mesh.",
+    "Escaneo"
+  ],
+  "nurbs.ui.scan.none": [
+    "Select a mesh first: the scan to fit surfaces to.",
+    "Fit to scan with no mesh chosen.",
+    "Seleccione primero una malla: el escaneo al que ajustar superficies."
+  ],
+  "nurbs.ui.scan.done": [
+    "Fitted {n} faces to {tris} triangles ({covered} % of the area). Measured from the scan to the faces: rms {rms} mm, largest {max} mm, {within} % of points within {tol} mm.",
+    "Result line of a scan fit.",
+    "Se ajustaron {n} caras a {tris} triángulos ({covered} % del área). Medido del escaneo a las caras: rms {rms} mm, máximo {max} mm, {within} % de los puntos a menos de {tol} mm."
+  ],
+  "nurbs.ui.scan.unfitted": [
+    "{n} pieces could not be fitted (listed below).",
+    "Pieces left out of a scan fit.",
+    "No se pudieron ajustar {n} piezas (abajo)."
+  ],
+  "nurbs.ui.scan.title": [
+    "Scan fit",
+    "Heading of the fit table.",
+    "Ajuste al escaneo"
+  ],
+  "nurbs.ui.scan.face": [
+    "Face",
+    "Column.",
+    "Cara"
+  ],
+  "nurbs.ui.scan.kind": [
+    "Kind",
+    "Column.",
+    "Tipo"
+  ],
+  "nurbs.ui.scan.tris": [
+    "Triangles",
+    "Column.",
+    "Triángulos"
+  ],
+  "nurbs.ui.scan.rms": [
+    "rms (mm)",
+    "Column: root mean square distance.",
+    "rms (mm)"
+  ],
+  "nurbs.ui.scan.max": [
+    "Largest (mm)",
+    "Column: largest distance.",
+    "Máximo (mm)"
+  ],
+  "nurbs.ui.scan.within": [
+    "Within tolerance",
+    "Column: share of points inside the tolerance.",
+    "Dentro de la tolerancia"
+  ],
+  "nurbs.ui.scan.trimmed": [
+    "trimmed",
+    "A face cut to the scan piece outline.",
+    "recortada"
+  ],
+  "nurbs.ui.scan.k.plane": [
+    "Plane",
+    "Kind of face.",
+    "Plano"
+  ],
+  "nurbs.ui.scan.k.cylinder": [
+    "Cylinder",
+    "Kind of face.",
+    "Cilindro"
+  ],
+  "nurbs.ui.scan.k.freeform": [
+    "Free-form",
+    "Kind of face.",
+    "Forma libre"
+  ],
+  "nurbs.ui.scan.k.sphere": [
+    "Sphere",
+    "Kind of face.",
+    "Esfera"
+  ],
+  "nurbs.ui.scan.k.cone": [
+    "Cone",
+    "Kind of face.",
+    "Cono"
+  ],
+  "nurbs.ui.scan.k.torus": [
+    "Torus",
+    "Kind of face: a ring-shaped round face, here the rounded rim where a flat face meets a cylinder or cone.",
+    "Torus"
+  ],
+  "nurbs.ui.scan.k.varfillet": [
+    "Variable fillet",
+    "Kind of face: a rounded edge whose radius changes along it.",
+    "Variable fillet"
+  ],
+  "nurbs.ui.scan.blendvar": [
+    "fillet, radius {a} to {b} mm",
+    "A rounded edge whose radius changes along it: the radius at one end and at the other.",
+    "fillet, radius {a} to {b} mm"
+  ],
+  "nurbs.ui.scan.ring": [
+    "ring radius {R} mm",
+    "Torus face: the radius of the ring (axis to the middle of the round), in the kind column.",
+    "ring radius {R} mm"
+  ],
+  "nurbs.ui.scan.radius": [
+    "radius {r} mm",
+    "Radius of a cylinder or sphere face, in the kind column.",
+    "radio {r} mm"
+  ],
+  "nurbs.ui.scan.halfangle": [
+    "half-angle {a}°",
+    "Half-angle of a cone face, in the kind column.",
+    "semiángulo {a}°"
+  ],
+  "nurbs.ui.scan.blend": [
+    "fillet, radius {r} mm",
+    "A round face that runs tangent into two or more other faces (a rounded edge or corner).",
+    "empalme, radio {r} mm"
+  ],
+  "nurbs.ui.scan.fillets": [
+    "{n} rounded edges or corners (fillets) were found, each with its radius.",
+    "Part of the scan result line.",
+    "Se encontraron {n} aristas o esquinas redondeadas (empalmes), cada una con su radio."
+  ],
+  "nurbs.ui.scan.devmap": [
+    "Show the deviation map",
+    "Checkbox: colour the scan points by their distance to the fitted faces.",
+    "Mostrar el mapa de desviación"
+  ],
+  "nurbs.ui.scan.devlegend": [
+    "Colours show how far each scan point is from its face: blue on the face, green halfway, red at {tol} mm or more. Measured from the scan to the face only.",
+    "Legend of the deviation map.",
+    "Los colores muestran qué tan lejos está cada punto del escaneo de su cara: azul sobre la cara, verde a la mitad, rojo a {tol} mm o más. Se mide solo del escaneo a la cara."
+  ],
+  "nurbs.ui.scan.u.folded": [
+    "{tris} triangles fold back on themselves, so one surface cannot follow them",
+    "Why a piece was not fitted.",
+    "{tris} triángulos se pliegan sobre sí mismos, así que una sola superficie no los puede seguir"
+  ],
+  "nurbs.ui.scan.u.small": [
+    "{tris} triangles are too small a piece",
+    "Why a piece was not fitted.",
+    "{tris} triángulos son una pieza demasiado pequeña"
+  ],
+  "nurbs.ui.scan.u.trim": [
+    "{tris} triangles could not be outlined",
+    "Why a piece was not fitted.",
+    "{tris} triángulos no se pudieron delinear"
+  ],
+  "nurbs.ui.scan.unfitted_list": [
+    "Not fitted: {list}.",
+    "List of pieces left out.",
+    "Sin ajustar: {list}."
+  ],
+  "nurbs.ui.scan.note": [
+    "The error is measured from the scan points to the closest point of each face, not the other way round. {ign} % of the area was too small to fit and is not covered. Review the faces before relying on them.",
+    "Honest note under the fit table.",
+    "El error se mide desde los puntos del escaneo hasta el punto más cercano de cada cara, no al revés. El {ign} % del área era demasiado pequeña para ajustarse y no está cubierta. Revise las caras antes de confiar en ellas."
+  ],
+  "nurbs.ui.opt.min_share": [
+    "Smallest piece (share of the area)",
+    "Option of Fit to scan.",
+    "Pieza más pequeña (parte del área)"
+  ],
+  "nurbs.ui.opt.max_patches": [
+    "Most faces",
+    "Option of Fit to scan.",
+    "Máximo de caras"
+  ],
+  "nurbs.ui.opt.gap": [
+    "Stitch distance (mm)",
+    "Option of Stitch to a solid: how far a loose edge may be from another face and still join.",
+    "Distancia de unión (mm)"
+  ],
+  "nurbs.ui.opt.radius2": [
+    "Radius at the end (mm, 0 = the same)",
+    "Fillet option: the radius at the far end of the edge; 0 keeps one radius.",
+    null
+  ],
+  "nurbs.ui.opt.corners": [
+    "Corners (sphere patch where three meet)",
+    "Several-edge fillet option: round a corner where three flat, square faces meet with a sphere patch; off keeps the fillets creased.",
+    null
+  ],
+  "nurbs.ui.opt.thickness": [
+    "Thickness (mm)",
+    "Thicken option.",
+    null
+  ],
+  "nurbs.ui.opt.flip": [
+    "Other side",
+    "Thicken option: thicken against the surface's normal.",
+    null
+  ],
+  "nurbs.ui.solid.fillet_done": [
+    "Fillet radius {r} mm: {n} sections, the lofted surface within {dev} mm of the rolling ball, meeting both faces within {angle}°.",
+    "After a fillet: what was measured.",
+    null
+  ],
+  "nurbs.ui.solid.fillet_var": [
+    "Fillet radius {r} to {r2} mm: {n} sections, the lofted surface within {dev} mm of the rolling ball, meeting both faces within {angle}°.",
+    "After a variable fillet: what was measured.",
+    null
+  ],
+  "nurbs.ui.solid.thicken_done": [
+    "{what}: {t} mm thick, volume {volume} mm³; the offset face is within {off} mm of the thickness everywhere it was measured (tolerance {tol} mm).",
+    "After thicken: what was measured.",
+    null
+  ],
+  "nurbs.ui.exported_shells": [
+    "{n} solid(s) written as one closed shell each; {open} written as separate faces (their faces did not pair up edge for edge).",
+    "After STEP export with solids.",
+    null
+  ],
+  "nurbs.ui.solid.fillet_edges": [
+    "{n} edges rounded in one step{corners}.",
+    "After a several-edge fillet; {corners} is empty or the corner sentence below.",
+    null
+  ],
+  "nurbs.ui.solid.fillet_corners": [
+    "; {sphere} corner(s) rounded as a sphere patch tangent to the three fillets, {mitre} corner(s) where two fillets run into each other along their intersection",
+    "Part of the several-edge fillet line.",
+    null
+  ],
+  "nurbs.ui.g.cage": [
+    "SubD cage",
+    "Command group: surfaces from a polygon mesh used as a cage.",
+    "Jaula SubD"
+  ],
+  "nurbs.ui.cage.none": [
+    "Select a mesh first: its quads are the cage.",
+    "SubD cage with no mesh chosen.",
+    "Seleccione primero una malla: sus cuadriláteros son la jaula."
+  ],
+  "nurbs.ui.cage.done": [
+    "Made {n} exact surfaces from {quads} cage quads: bicubic B-spline patches, the Catmull–Clark limit, not an approximation.",
+    "Result line of a SubD cage command.",
+    "Se crearon {n} superficies exactas a partir de {quads} cuadriláteros de la jaula: parches B-spline bicúbicos, el límite de Catmull–Clark, no una aproximación."
+  ],
+  "nurbs.ui.cage.boundary": [
+    "{n} quads on the cage's border were left out (the border has no exact patch here).",
+    "Why quads were left out.",
+    "Se omitieron {n} cuadriláteros del borde de la jaula (aquí el borde no tiene un parche exacto)."
+  ],
+  "nurbs.ui.cage.valence": [
+    "{n} quads that touch a vertex with other than four edges were left out: the limit surface there is not a finite set of patches.",
+    "Why quads were left out.",
+    "Se omitieron {n} cuadriláteros que tocan un vértice con un número de aristas distinto de cuatro: allí la superficie límite no es un conjunto finito de parches."
+  ],
+  "nurbs.ui.cage.open": [
+    "{n} quads were left out because their neighbours do not close up (a hole or a flipped face next to them).",
+    "Why quads were left out.",
+    "Se omitieron {n} cuadriláteros porque sus vecinos no se cierran (un agujero o una cara invertida a su lado)."
   ]
 }

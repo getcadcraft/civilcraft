@@ -1,0 +1,4 @@
+- An electrical designer or architect who wants to check that a room reaches its target lux and uniformity before choosing luminaires.
+- An interior designer comparing luminaires or window sizes for a room.
+- A BIM user who wants real light fixtures in the model, scheduled with their wattage, and the calculated lux on the plan.
+- A lighting engineer who wants a quick first pass before a full simulation program.

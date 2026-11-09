@@ -19,6 +19,11 @@ const PARTS = [
   () => import('./gis-cad-ui.js'),
   // Super 0.1: Start from a scan (scan-start-ui.js over lib/scanstart): a PDF, or a picture with no world file; its opener goes first
   () => import('./scan-start-ui.js'),
+  // 0.9 SU.1080 (session civil-gis-09): buffer, overlay, spatial join, attribute queries, measure (gis-analysis-ui.js over lib/gis)
+  () => import('./gis-analysis-ui.js'),
+  // 0.9 SU.1080 round 2: attribute table (gis-table-ui.js) and symbology by attribute (gis-symbology-ui.js)
+  () => import('./gis-table-ui.js'),
+  () => import('./gis-symbology-ui.js'),
   () => import('./gis-map-ui.js'),   // builder C, last: its opener takes pictures (+ world file) after builder B's has looked at a .tif
 ];
 

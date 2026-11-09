@@ -106,5 +106,21 @@ console.log('A frame-only model is untouched');
   ok(typeof FCR.toCraftScript(m, {}) === 'string', 'CraftScript still made for it');
 }
 
+console.log('Floor pressure on every slab (0.9 SU.1056)');
+{
+  const raw = base();
+  PB.addPlates(raw, { slabs: [slab] }, { fc: 28, size: 500 });
+  const settings = [{ id: 'D', name: 'Dead', kind: 'dead', selfWeight: 0, loads: [{ type: 'floor', p: -0.005 }] }];
+  const n = PB.floorLoadCases(raw, settings);
+  ok(n === raw.plates.length && raw.cases[0].loads.length === n && raw.cases[0].loads.every((l) => l.type === 'area' && l.dir === 'Z' && l.p === -0.005), '5 kN/m² on the slab becomes one downward area load per plate (' + n + ')');
+  const m = FM.cleanFrame(raw).model, sol = FS.solveFrame(m), R = sol.results['case:D'];
+  ok(sol.ok && rel(R.reacted[2], 0.005 * 6000 * 5000) < 1e-6, 'the supports carry the whole pressure: 5 kN/m² × 30 m² = 150 kN', (R.reacted[2] / 1000).toFixed(3) + ' kN');
+  const FP = await load('lib/frame/frame-panel.js');
+  const clean = FP.cleanAnalysis({ cases: [{ id: 'D', name: 'D', kind: 'dead', loads: [{ type: 'floor', p: -0.005 }, { type: 'floor', p: 0 }, { type: 'floor', p: 'x' }, { type: 'floor', p: -1e9 }] }] });
+  ok(clean.cases[0].loads.length === 1 && clean.cases[0].loads[0].p === -0.005, 'the settings keep a floor pressure and drop a zero, a non-number and an absurd one');
+  const none = base(); const k = PB.floorLoadCases(none, settings);
+  ok(k === 0 && none.cases[0].loads.length === 0, 'a model with no slabs gets no loads (the panel says so)');
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

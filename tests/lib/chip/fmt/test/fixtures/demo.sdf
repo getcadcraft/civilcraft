@@ -1,0 +1,51 @@
+(DELAYFILE
+  (SDFVERSION "3.0")
+  (DESIGN "cc_demo_top")
+  (DATE "Tue Nov 3 2026")
+  (VENDOR "hand written")
+  (PROGRAM "CadCraft Chip design tests")
+  (VERSION "1")
+  (DIVIDER /)
+  (VOLTAGE 1.8::1.8)
+  (PROCESS "typical")
+  (TEMPERATURE 25::25)
+  (TIMESCALE 1ns)
+  // made-up delays for the demo design
+  (CELL
+    (CELLTYPE "cc_demo_top")
+    (INSTANCE)
+    (DELAY
+      (ABSOLUTE
+        (INTERCONNECT u1/Y u2/A (0.010:0.012:0.015) (0.011:0.013:0.016))
+        (INTERCONNECT din u1/A (0.005))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV_X1")
+    (INSTANCE u1)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.10:0.12:0.15) (0.08:0.09:0.11))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF_X1")
+    (INSTANCE u3)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge CK) Q (0.20:0.25:0.30) (0.22::0.32))
+        (COND D==1'b1 (IOPATH CK Q (0.21) (0.23)))
+      )
+      (INCREMENT
+        (PORT D (0.01))
+      )
+    )
+    (TIMINGCHECK
+      (SETUP D (posedge CK) (0.05:0.05:0.06))
+      (HOLD D (posedge CK) (0.02))
+      (WIDTH (posedge CK) (0.4))
+    )
+  )
+)

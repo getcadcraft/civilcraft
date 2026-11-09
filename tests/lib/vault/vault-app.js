@@ -32,5 +32,7 @@ export function installVaultPanel({ stage, el, t, print, focusCommandLine, fileH
     current: (rec) => currentFile(rec),
     afterCheckin: (rec) => afterCheckin?.(rec),
   };
+  // a cloud folder, through the signed-in transport the host page or Studio hands over (window.ccVaultCloud = { request, available?, base? }; app-teamwork.js sets it from Studio's cloud); absent = no cloud button. Same hook as CadCraft's vault-ui.js.
+  Object.defineProperty(app, 'cloud', { get: () => (typeof window !== 'undefined' && window.ccVaultCloud) || null, configurable: true });
   return createVaultPanel({ stage, el, t, print, focusCommandLine, fileHost, app });
 }

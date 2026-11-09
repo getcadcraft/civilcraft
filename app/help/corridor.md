@@ -6,7 +6,7 @@ order: 60
 keywords: superelevation, super, banking, runoff, runout, rate table, cross slope, rotation, corridor, assembly, subassembly, typical section, road, lane, shoulder, cross slope, side slope, daylight, cut, fill, sections, target, targets, width target, elevation target, offset target, widening, edge of pavement, follow another corridor
 ---
 
-A corridor sweeps one simple typical section (an assembly) along an alignment and its design profile, grades it into the existing ground and adds the result to the proposed surface. In this build each alignment can carry one corridor. The simple assembly below is the same on both sides; to give each side its own parts, see [Build each side from parts](topic:corridor#build-each-side-from-parts).
+A corridor sweeps one simple typical section (an assembly) along an alignment and its design profile, grades it into the existing ground and adds the result to the proposed surface. An alignment can carry several corridors on different station ranges, and a corridor can be built from reusable templates by station ([Corridor templates](topic:corridor-templates)). The simple assembly below is the same on both sides; to give each side its own parts, see [Build each side from parts](topic:corridor#build-each-side-from-parts).
 
 ## The assembly
 
@@ -103,4 +103,4 @@ A lane, shoulder, gutter, planting strip or sidewalk can carry its build-up: und
 
 ## What is not built yet
 
-Assemblies that change along the road, regions, and targets for the daylight slope are not available yet. See [Not built yet](topic:not-built-yet).
+Targets for the daylight slope are not available yet. For a corridor that changes along the road, with left and right set apart, use [Corridor templates](topic:corridor-templates). See [Not built yet](topic:not-built-yet).

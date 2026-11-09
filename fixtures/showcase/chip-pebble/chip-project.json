@@ -1,0 +1,241 @@
+{
+  "format": "cadcraft-chip-project",
+  "version": 1,
+  "name": "Pebble (sample)",
+  "top": "pebble_soc",
+  "testbench": "pebble_tb",
+  "tools": {
+    "folder": "",
+    "pdk": "",
+    "versions": {}
+  },
+  "stages": [
+    {
+      "id": "sim",
+      "kind": "sim",
+      "tool": "icarus",
+      "enabled": true,
+      "options": {}
+    },
+    {
+      "id": "synth",
+      "kind": "synth",
+      "tool": "yosys",
+      "enabled": true,
+      "options": {
+        "liberty": "cc_cells.lib",
+        "period": 20
+      }
+    },
+    {
+      "id": "pnr",
+      "kind": "pnr",
+      "tool": "openroad",
+      "enabled": false,
+      "options": {
+        "lefs": [
+          "cc_cells.lef"
+        ],
+        "libs": [
+          "cc_cells.lib"
+        ],
+        "netlist": "out/synth/netlist.v",
+        "sdc": "pebble.sdc",
+        "site": "core",
+        "utilization": 50,
+        "hLayers": "metal1",
+        "vLayers": "metal2",
+        "route": "global"
+      }
+    },
+    {
+      "id": "drc",
+      "kind": "drc",
+      "tool": "klayout",
+      "enabled": false,
+      "options": {
+        "gds": "out/layout/pebble.gds",
+        "deck": "",
+        "top": "pebble_soc"
+      }
+    },
+    {
+      "id": "lvs",
+      "kind": "lvs",
+      "tool": "netgen",
+      "enabled": false,
+      "options": {
+        "layout": "",
+        "schematic": "",
+        "setup": ""
+      }
+    },
+    {
+      "id": "gls",
+      "kind": "gls",
+      "tool": "icarus",
+      "enabled": true,
+      "options": {
+        "netlist": "out/synth/netlist.v",
+        "cells": [
+          "cc_cells.v"
+        ],
+        "sdf": "out/layout/pebble.sdf",
+        "dut": "pebble_tb.dut"
+      }
+    },
+    {
+      "id": "stil",
+      "kind": "stil",
+      "tool": "icarus",
+      "enabled": true,
+      "options": {
+        "netlist": "out/synth/netlist.v",
+        "cells": [
+          "cc_cells.v"
+        ],
+        "scope": "pebble_tb",
+        "period": 20000,
+        "strobe": 15000,
+        "clock": [
+          "clk"
+        ]
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "mw1193zw",
+      "stage": "sim",
+      "tool": "icarus",
+      "version": "",
+      "at": "2026-11-03T18:40:15.740Z",
+      "ok": true,
+      "ms": 74,
+      "cmd": [
+        [
+          "iverilog",
+          "-g2012",
+          "-Wall",
+          "-o",
+          "out/sim.vvp",
+          "-s",
+          "pebble_tb",
+          "-s",
+          "cc_dump",
+          "pebble_alu.v",
+          "pebble_regs.v",
+          "pebble_dmem.v",
+          "pebble_rom.v",
+          "pebble_core.v",
+          "pebble_soc.v",
+          "pebble_tb.v",
+          "cc_dump.v"
+        ],
+        [
+          "vvp",
+          "-n",
+          "out/sim.vvp"
+        ]
+      ],
+      "inputs": {
+        "pebble_pkg.vh": "97c37419518781c61ec51369a591f49b93630ded3d5f72b8efce56ecd5b6adda",
+        "pebble_alu.v": "56573d74f2ed16fbea2c4122fc6b02253e3902a8a6df854788aba68b895f7fe7",
+        "pebble_regs.v": "9b1f08e95464f4df452c102d02933b9922a14ee7cddb93493eb8d28634d9825f",
+        "pebble_dmem.v": "2500946fea86290bc4cce941aa951d5f9ada0a92e848117beea28c8fec332c61",
+        "pebble_rom.v": "712160626ded5651e8c9b33282d9db9d4ab508fe7e81a4537503c5ee2e7a42f1",
+        "pebble_core.v": "1de06d3d45e23babbcf1d1af89357566fdab903f4d5a61aa4c3ab00d634835ec",
+        "pebble_soc.v": "a7c02d9db9d63bcff572c1e2ed04005725ad0b01361f99cd52fa8e0ad5fbcb5e",
+        "pebble_tb.v": "1297c52a16c781768271ac7ac3f1f89e0e050bc543f00897dc761d9e8d01d37d",
+        "cc_dump.v": "ed8d720121e408372266fa2c1bfbf08c9f988deb71150a290282c728f4872478"
+      },
+      "outputs": {
+        "out/sim.vvp": "57ab5e36eb06d7964e2a82784e5a8dc4bb5084131aebdf7729834eece4455ac4",
+        "out/wave.vcd": "6c97c38fed4e57238704021425a9a119f6a783f5915cade514f705930e080071"
+      }
+    },
+    {
+      "id": "mw1194rv",
+      "stage": "synth",
+      "tool": "yosys",
+      "version": "Yosys 0.9 (git sha1 1979e0b)",
+      "at": "2026-11-03T18:40:16.747Z",
+      "ok": true,
+      "ms": 1002,
+      "cmd": [
+        [
+          "yosys",
+          "-l",
+          "out/yosys.log",
+          "-s",
+          "cc_synth.ys"
+        ]
+      ],
+      "inputs": {
+        "pebble_alu.v": "56573d74f2ed16fbea2c4122fc6b02253e3902a8a6df854788aba68b895f7fe7",
+        "pebble_core.v": "1de06d3d45e23babbcf1d1af89357566fdab903f4d5a61aa4c3ab00d634835ec",
+        "pebble_dmem.v": "2500946fea86290bc4cce941aa951d5f9ada0a92e848117beea28c8fec332c61",
+        "pebble_regs.v": "9b1f08e95464f4df452c102d02933b9922a14ee7cddb93493eb8d28634d9825f",
+        "pebble_rom.v": "712160626ded5651e8c9b33282d9db9d4ab508fe7e81a4537503c5ee2e7a42f1",
+        "pebble_soc.v": "a7c02d9db9d63bcff572c1e2ed04005725ad0b01361f99cd52fa8e0ad5fbcb5e",
+        "pebble_pkg.vh": "97c37419518781c61ec51369a591f49b93630ded3d5f72b8efce56ecd5b6adda",
+        "cc_cells.lib": "7bd1247c5f0c68aa7c5aef1187722bd62af71f6bb5a8dfd58e90d7558d1f32fa",
+        "cc_synth.ys": "320fc19662b76f7f46f75765894c87dec8eb598fea6d4481a309ed13ba005979"
+      },
+      "outputs": {
+        "out/netlist.json": "06948d79687d69b08e242249312dabf3c59cddc8f236d51ebe893bec502702a6",
+        "out/netlist.v": "24c76446bf7e69925b26d10b86c31cf2bbb73d41eed2a40253a9b442c6486b95",
+        "out/stat.txt": "b90dc46f9085cca58b8f026ad0220cc67d47b3a64df76b2fa99f59ebc4ccbdd2",
+        "out/yosys.log": "648616654fdcc40bd497ac3735079c1082aaae01b4d4322605bccefab56ee282"
+      }
+    },
+    {
+      "id": "mw1194yr",
+      "stage": "gls",
+      "tool": "icarus",
+      "version": "",
+      "at": "2026-11-03T18:40:16.995Z",
+      "ok": true,
+      "ms": 212,
+      "cmd": [
+        [
+          "iverilog",
+          "-g2012",
+          "-gspecify",
+          "-o",
+          "out/gls.vvp",
+          "-s",
+          "pebble_tb",
+          "-s",
+          "cc_dump",
+          "-s",
+          "cc_sdf",
+          "-DGLS",
+          "cc_cells.v",
+          "out/synth/netlist.v",
+          "pebble_tb.v",
+          "cc_dump.v",
+          "cc_sdf.v"
+        ],
+        [
+          "vvp",
+          "-n",
+          "out/gls.vvp"
+        ]
+      ],
+      "inputs": {
+        "out/synth/netlist.v": "24c76446bf7e69925b26d10b86c31cf2bbb73d41eed2a40253a9b442c6486b95",
+        "cc_cells.v": "b9996e862e00d830fbe5ae13a2920901f55b3e41e3c5c9d406cee3c4c336d84f",
+        "out/layout/pebble.sdf": "0f42b38774874898f9d54fe96939742cb63b4e4745f1ed0f120f4f8534567aeb",
+        "pebble_pkg.vh": "97c37419518781c61ec51369a591f49b93630ded3d5f72b8efce56ecd5b6adda",
+        "pebble_tb.v": "1297c52a16c781768271ac7ac3f1f89e0e050bc543f00897dc761d9e8d01d37d",
+        "cc_dump.v": "b99d0a2fda6876584851a343b9afd689c15e30ea4a069f7e761eb638c0b02587",
+        "cc_sdf.v": "c79464b91ce20a1c63c0bba6849b22fc94f9c965b6b5a548b2226c08e187f028"
+      },
+      "outputs": {
+        "out/gls.vcd": "cabdbed54249b16c3201e6984c944c89c22660c4bd34d063a2604e2cb554f6b5",
+        "out/gls.vvp": "21e1bb8344184c776e03a166942dc66d88769a60b5ecd19147e794187da60e24"
+      }
+    }
+  ]
+}

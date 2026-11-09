@@ -100,3 +100,30 @@
 .help-toc li { padding: .2rem 0; }
 .help-toc .lvl-3 { padding-left: .9rem; }
 .help-build { font-size: var(--fs-sm); color: var(--ink-2); }
+
+/* Tutorials search bar and results (help-search.inc) */
+.help-search { margin: 0 0 1.5rem; max-width: 46rem; }
+.help-search-results { margin: 0 0 2rem; }
+.help-search-count, .help-search-none { color: var(--ink-2); margin: 0 0 1rem; }
+.help-search-results mark { background: color-mix(in srgb, var(--layer-ochre) 35%, transparent); color: inherit; padding: 0 .1em; border-radius: 2px; }
+.help-search-band { padding-bottom: 0; }
+.help-about .help-link { display: inline-flex; align-items: center; gap: .3rem; }
+
+/* Screenshots in a topic: ![what it shows](file.webp) */
+.hfig { margin: 1.5rem 0; }
+.hfig img { display: block; max-width: 100%; height: auto; border: 1px solid var(--rule, rgba(128,128,128,.35)); border-radius: 4px; }
+.hfig video { display: block; max-width: 100%; height: auto; border: 1px solid var(--rule, rgba(128,128,128,.35)); border-radius: 4px; }
+.hfig figcaption { margin-top: .5rem; font-size: .875rem; color: var(--ink-2, inherit); }
+
+.help-sibs > summary { cursor: pointer; list-style: none; }
+.help-sibs > summary::-webkit-details-marker { display: none; }
+.help-sibs > summary h2 { display: inline; margin: 0; }
+.help-sibs > summary::after { content: "\25B8"; float: right; font-size: 1.6rem; line-height: 1; margin-top: -.15rem; }
+.help-sibs[open] > summary::after { content: "\25BE"; }
+.help-sibs[open] > summary { margin-bottom: .75rem; }
+.help-sibs-n { font-weight: 400; opacity: .7; }
+
+.hfig-n { display: inline-flex; align-items: center; justify-content: center; width: 1.6em; height: 1.6em; margin-right: .5em; border-radius: 50%; background: #e8590c; color: #fff; font-weight: 700; font-size: .9em; vertical-align: middle; }
+.hfig figcaption { display: flex; align-items: center; }
+.hfig-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.hfig-play { font-size: .65em; padding-left: .12em; }

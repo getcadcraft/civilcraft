@@ -22,11 +22,11 @@ const L7 = await load('lib/frame/loads-asce7.js');
 const FM = await load('lib/frame/frame-model.js'), FS = await load('lib/frame/frame-solve.js'), PS = await load('lib/frame/plate-solve.js');
 
 console.log('Period, Cs, k (ASCE 7-22 12.8)');
-// concrete moment frame, hn = 10.5 m: Ta = 0.0466 × 10.5^0.9 = 0.0466 × 8.3001 = 0.38678 s (12.8-8, Table 12.8-2 SI)
-ok(rel(L7.approxPeriod('concrete-mf', 10500), 0.0466 * Math.pow(10.5, 0.9)) < 1e-12 && rel(L7.approxPeriod('concrete-mf', 10500), 0.38678) < 1e-4, 'Ta = Ct hn^x = 0.3868 s (concrete moment frame, 10.5 m)');
+// concrete moment frame, hn = 10.5 m = 34.449 ft: Ta = 0.016 × 34.449^0.9 = 0.38688 s (12.8-8, Table 12.8-2, US Ct 0.016 / x 0.9; 0.9 SU.1056b: the SI Ct typed in 0.8 was printed on no page, now converted from the US value)
+ok(rel(L7.approxPeriod('concrete-mf', 10500), 0.016 * Math.pow(10500 / 304.8, 0.9)) < 1e-12 && rel(L7.approxPeriod('concrete-mf', 10500), 0.38688) < 1e-4, 'Ta = Ct hn^x = 0.3869 s (concrete moment frame, 10.5 m)');
 ok(rel(L7.cuFactor(0.25), 1.45) < 1e-12 && L7.cuFactor(0.6) === 1.4 && L7.cuFactor(0.05) === 1.7, 'Cu (Table 12.8-1): 1.45 at SD1 = 0.25 (between 0.2 → 1.5 and 0.3 → 1.4), 1.4 above 0.4, 1.7 below 0.1');
-ok(rel(L7.periodUsed({ T: 1.0, Ta: 0.38678, SD1: 0.6 }), 1.4 * 0.38678) < 1e-12 && L7.periodUsed({ Ta: 0.4, SD1: 0.6 }) === 0.4, 'an analysed period is capped at Cu Ta; none given → Ta');
-let c = L7.seismicCs({ SDS: 1.0, SD1: 0.6, S1: 0.5, R: 8, Ie: 1, T: 0.38678 });
+ok(rel(L7.periodUsed({ T: 1.0, Ta: 0.38688, SD1: 0.6 }), 1.4 * 0.38688) < 1e-12 && L7.periodUsed({ Ta: 0.4, SD1: 0.6 }) === 0.4, 'an analysed period is capped at Cu Ta; none given → Ta');
+let c = L7.seismicCs({ SDS: 1.0, SD1: 0.6, S1: 0.5, R: 8, Ie: 1, T: 0.38688 });
 ok(c.Cs === 0.125 && c.eq === '12.8-2', 'Cs = SDS / (R/Ie) = 0.125 (12.8-2) when below SD1/(T R/Ie) = 0.194');
 c = L7.seismicCs({ SDS: 1.0, SD1: 0.6, S1: 0.5, R: 8, Ie: 1, T: 1.2 });
 ok(rel(c.Cs, 0.0625) < 1e-12 && c.eq === '12.8-3', 'T = 1.2 s: Cs = SD1 / (T R/Ie) = 0.0625 (12.8-3)');
@@ -41,12 +41,12 @@ console.log('Storey forces (12.8.3)');
   // three floors at 3.5, 7.0, 10.5 m, 5000 kN each, SDS 1.0, SD1 0.6, R 8, Ie 1, concrete moment frame:
   //   Ta = 0.3868 s → Cs = 0.125, W = 15 000 kN, V = 1875 kN, k = 1 → Cvx = 1 : 2 : 3 / 6 → 312.5, 625, 937.5 kN
   const r = L7.elf({ levels: [{ id: 'L2', z: 7000, w: 5e6 }, { id: 'L1', z: 3500, w: 5e6 }, { id: 'L3', z: 10500, w: 5e6 }], base: 0, SDS: 1.0, SD1: 0.6, S1: 0.5, R: 8, Ie: 1, system: 'concrete-mf' });
-  ok(rel(r.V, 1875e3) < 1e-12 && r.k === 1 && rel(r.T, 0.38678) < 1e-4, 'V = Cs W = 0.125 × 15 000 kN = 1875 kN, T = Ta, k = 1');
+  ok(rel(r.V, 1875e3) < 1e-12 && r.k === 1 && rel(r.T, 0.38688) < 1e-4, 'V = Cs W = 0.125 × 15 000 kN = 1875 kN, T = Ta, k = 1');
   ok(r.levels.map((l) => l.id).join() === 'L1,L2,L3' && [312.5e3, 625e3, 937.5e3].every((F, k) => rel(r.levels[k].Fx, F) < 1e-12), 'Fx = 312.5, 625, 937.5 kN (lowest first)');
   ok(rel(r.levels[0].Vx, 1875e3) < 1e-12 && rel(r.levels[2].Vx, 937.5e3) < 1e-12, 'storey shears add down: 1875 kN at the base storey');
   const r2 = L7.elf({ levels: [{ id: 'A', z: 4000, w: 2e6 }, { id: 'B', z: 8000, w: 1e6 }], base: 0, SDS: 1, SD1: 0.6, R: 8, T: 1.5, system: 'other' });
-  // Ta = 0.0488 × 8^0.75 = 0.2321 s; Cu Ta = 1.4 × 0.2321 = 0.325 s < 1.5 → T = 0.325, k = 1
-  ok(rel(r2.T, 1.4 * 0.0488 * Math.pow(8, 0.75)) < 1e-12 && r2.k === 1, 'an analysed 1.5 s is capped at Cu Ta = 0.325 s');
+  // Ta = 0.02 × (8 m = 26.25 ft)^0.75 = 0.2327 s; Cu Ta = 1.4 × 0.2327 = 0.326 s < 1.5 → T = 0.325, k = 1
+  ok(rel(r2.T, 1.4 * 0.02 * Math.pow(8000 / 304.8, 0.75)) < 1e-12 && r2.k === 1, 'an analysed 1.5 s is capped at Cu Ta = 0.326 s');
   const r3 = L7.elf({ levels: [{ id: 'A', z: 4000, w: 2e6 }, { id: 'B', z: 8000, w: 1e6 }], base: 0, SDS: 1, SD1: 0.6, R: 8, T: 1.5, system: 'steel-mf' });
   const T3 = r3.T, k3 = 1 + (T3 - 0.5) / 2;
   ok(rel(r3.levels[1].Cvx, 1e6 * 8 ** k3 / (2e6 * 4 ** k3 + 1e6 * 8 ** k3)) < 1e-12, 'k between 1 and 2 shapes Cvx = wx hx^k / Σ wi hi^k', 'T ' + T3.toFixed(3) + ' s, k ' + k3.toFixed(3));

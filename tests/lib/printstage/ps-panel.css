@@ -1,0 +1,22 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* The print stage card (lib/printstage): colours and type come from the app's tokens. */
+.ps-card { display: flex; flex-direction: column; gap: 12px; max-height: calc(100% - 24px); overflow-y: auto; }
+.ps-block { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line, #ccd3da); }
+.ps-block:first-of-type { border-top: 0; padding-top: 0; }
+.ps-head { margin: 0; font-size: .875rem; font-weight: 600; }
+.ps-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ps-field { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; justify-content: space-between; font-size: .8125rem; }
+.ps-field select, .ps-field input[type=number], .ps-field input[type=text], .ps-field input[type=password] { max-width: 60%; }
+.ps-field textarea { width: 100%; font-family: var(--font-mono, monospace); font-size: .75rem; }
+.ps-note { margin: 0; color: var(--ink-2, #4c5866); font-size: .8125rem; overflow-wrap: anywhere; }
+.ps-error { margin: 0; color: var(--layer-red, #b3122e); font-size: .8125rem; }
+.ps-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; font-size: .8125rem; }
+.ps-list li { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+.ps-list li > :first-child { flex: 1; min-width: 0; text-align: start; overflow-wrap: anywhere; }
+.ps-row .ps-search { flex: 1; min-width: 120px; }
+.ps-check { display: flex; gap: 8px; align-items: center; font-size: .8125rem; }
+.ps-send { position: sticky; bottom: -12px; padding-bottom: 12px; background: var(--sheet-2, #fff); }
+.ps-card-top { display: flex; gap: 8px; align-items: center; }
+.ps-steps { margin: 0 0 6px; padding-inline-start: 1.25rem; font-size: .8125rem; }
+.ps-steps li { margin-bottom: 4px; }
+.ps-preview { width: 100%; height: auto; display: block; color: var(--ink, #223); background: var(--surface, transparent); border: 1px solid var(--line, #ccd3da); border-radius: 6px; }

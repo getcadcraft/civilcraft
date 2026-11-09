@@ -231,11 +231,13 @@ export function petPalette(E) {
 }
 
 // =========================================================== info box: the picked element's fields ===========================================================
-export function infoFields(E) {
+export function infoFields(E, opts = {}) {
+  // opts.scan: read this many controls of the Properties pane (not the adapter's few) · opts.pick(list) → [{label, control, group}] (Attributes: style controls in groups)
   const wrap = E.el('span', { className: 'tbx-fields' });
   const twins = new Map();   // control → its twin
   let ctrls = [];
   const fields = (s) => {
+    if (opts.scan) { const p = E.A.palettes?.properties?.body?.(); return p?.isConnected ? fieldsIn(p, opts.scan) : []; }
     if (E.A.fields) return E.A.fields(s) || [];
     const p = E.A.palettes?.properties?.body?.();
     return p?.isConnected ? fieldsIn(p) : [];
@@ -272,17 +274,57 @@ export function infoFields(E) {
   }
   /** Fills `body` (the info box's selection slot) with the fields, or empties them; returns how many are shown. */
   function render(body, s, before) {
-    const list = (s.selection?.length && s.document && !s.other ? fields(s) : []).filter((f) => f?.control?.isConnected).slice(0, FIELDS_MAX);
-    if (!list.length) { wrap.remove(); return 0; }
-    const same = list.length === ctrls.length && list.every((f, i) => f.control === ctrls[i]);
+    let list = (s.selection?.length && s.document && !s.other ? fields(s) : []).filter((f) => f?.control?.isConnected);
+    list = (opts.pick ? opts.pick(list) : list).slice(0, opts.pick ? 40 : FIELDS_MAX);
+    if (!list.length) { wrap.remove(); ctrls = []; wrap.dataset.sig = ''; return 0; }
+    const sig = list.map((f) => f.group || '').join();
+    const same = list.length === ctrls.length && list.every((f, i) => f.control === ctrls[i]) && wrap.dataset.sig === sig;
     if (!same) {
-      ctrls = list.map((f) => f.control);
+      ctrls = list.map((f) => f.control); wrap.dataset.sig = sig;
       for (const k of [...twins.keys()]) if (!ctrls.includes(k)) twins.delete(k);
-      wrap.replaceChildren(...list.map((f) => { if (!twins.has(f.control)) twins.set(f.control, twin(f)); return twins.get(f.control); }));
+      const kids = []; let group = null;
+      for (const f of list) {
+        if (!twins.has(f.control)) twins.set(f.control, twin(f));
+        if (f.group && f.group !== group) { group = f.group; kids.push(E.el('div', { className: 'tbx-fields-head' }, f.groupLabel || f.group)); }
+        kids.push(twins.get(f.control));
+      }
+      wrap.replaceChildren(...kids);
     }
     for (const c of ctrls) sync(c, twins.get(c).querySelector('select, input'));
     if (wrap.parentNode !== body) body.insertBefore(wrap, before || null);
     return list.length;
   }
   return { render, clear: () => { wrap.remove(); twins.clear(); ctrls = []; } };
+}
+
+
+/**
+ * Duncan's icon set (owner 2026-11-05: "the layout icons are ugly … professionally better"). The apps draw their own tool icons on their own
+ * grids and weights, so a bar mixes a pen nib, an egg and a one-off arc. A layout whose tool block says `icons: "set"` shows Bootstrap Icons (one
+ * family, one grid, one weight) for every tool this table knows, and keeps the app's own drawing for the rest. First matching rule wins;
+ * a rule tests the command id's last part (after "." or ":"), lower-case, then the label.
+ */
+const SET = [
+  [/^(select|modify|pick|cursor)$/, 'bi-cursor'], [/^line$/, 'bi-slash-lg'], [/^dimlinear$/, 'bi-rulers'],
+  [/^(pline|polyline|plinee?|pen|path)$/, 'bi-bezier2'], [/^(arc|arcc|curve)$/, 'bi-bezier'], [/^(circle|ellipse)$/, 'bi-circle'],
+  [/^(rect|rectang|rectangle|cloudrect)$/, 'bi-square'], [/^polygon$/, 'bi-hexagon'], [/^(hatch|fill)$/, 'bi-border-style'],
+  [/^(move|pan)$/, 'bi-arrows-move'], [/^(copy|duplicate)$/, 'bi-copy'], [/^paste$/, 'bi-clipboard-plus'], [/^cut$/, 'bi-scissors'],
+  [/^(rotate)$/, 'bi-arrow-repeat'], [/^(scale|scale-by)$/, 'bi-aspect-ratio'], [/^mirror$/, 'bi-symmetry-vertical'], [/^offset$/, 'bi-distribute-horizontal'],
+  [/^(trim)$/, 'bi-scissors'], [/^extend$/, 'bi-arrows-expand'], [/^(fillet|chamfer)$/, 'bi-bounding-box-circles'], [/^explode$/, 'bi-arrows-angle-expand'],
+  [/^(erase|delete|deduct)$/, 'bi-eraser'], [/^stretch$/, 'bi-arrows-expand'], [/^(align)$/, 'bi-align-start'], [/^(array|cpattern|lpattern)$/, 'bi-grid-3x3'],
+  [/^(undo)$/, 'bi-arrow-counterclockwise'], [/^(redo)$/, 'bi-arrow-clockwise'], [/^new$/, 'bi-file-earmark-plus'], [/^open$/, 'bi-folder2-open'],
+  [/^save$/, 'bi-floppy'], [/^saveas$/, 'bi-download'], [/^(plot|print)$/, 'bi-printer'], [/^(import|import-sketch)$/, 'bi-box-arrow-in-down'],
+  [/^(text|mtext|text3d|note)$/, 'bi-type'], [/^(mleader|leader|callout)$/, 'bi-chat-square-text'], [/^(dim|dimaligned|dimangular|dimradius|dimdiameter|linear|angle|measure|tape|protractor)$/, 'bi-rulers'],
+  [/^(area|boundary)$/, 'bi-bounding-box'], [/^grid$/, 'bi-grid-3x3'], [/^(section|sections|free-section)$/, 'bi-layout-split'],
+  [/^wall$/, 'bi-bricks'], [/^door$/, 'bi-door-closed'], [/^window$/, 'bi-window'], [/^(floor|slab|pad)$/, 'bi-layers-half'], [/^ceiling$/, 'bi-border-top'],
+  [/^(roof|dormer)$/, 'bi-house'], [/^(stair|ramp)$/, 'bi-bar-chart-steps'], [/^(column|framing|foundation)$/, 'bi-box'], [/^(room)$/, 'bi-door-open'],
+  [/^(extents|fit|fit-page|fit-width)$/, 'bi-arrows-fullscreen'], [/^zoom$/, 'bi-zoom-in'], [/^previous$/, 'bi-skip-backward'], [/^(orbit|view3d|3d)$/, 'bi-badge-3d'], [/^(highlight|pen)$/, 'bi-highlighter'],
+  [/^(count|autocount|cad-count|check)$/, 'bi-list-check'], [/^(paint)$/, 'bi-paint-bucket'], [/^(cloud)$/, 'bi-cloud'], [/^(stamp)$/, 'bi-bookmark'],
+  [/^(library|content)$/, 'bi-collection'], [/^(component|group)$/, 'bi-boxes'], [/^make$/, 'bi-box-seam'], [/^insert$/, 'bi-box-arrow-in-down'], [/^layout$/, 'bi-file-earmark-ruled'], [/^mview$/, 'bi-window-split'], [/^(extrude|push|follow)$/, 'bi-box-arrow-up'],
+  [/^(compare)$/, 'bi-intersect'], [/^(calibrate)$/, 'bi-rulers'], [/^(edit)$/, 'bi-pencil'], [/^(close|back)$/, 'bi-x-lg'],
+];
+export function iconFor(id, label = '') {
+  const key = String(id || '').split(/[.:]/).pop().toLowerCase();
+  for (const [re, cls] of SET) if (cls && (re.test(key) || re.test(String(label).toLowerCase().replace(/\s+/g, '')))) return cls;
+  return null;
 }

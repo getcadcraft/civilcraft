@@ -1,0 +1,14 @@
+{
+  "@locale": "fi",
+  "@name": "Suomi",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (lisäosa)",
+  "wind.of.note": "Suorittaa OpenFOAM-laskennat tämän tietokoneen asennetulla OpenFOAMilla pienen apuohjelman kautta: yksi jatkuvan tilan RANS (k-epsilon) -laskenta tuulensuuntaa kohden, ilmakehän rajakerroksen tulo. Mitään ei lähde tältä tietokoneelta. CadCraft ei sisällä OpenFOAM-ohjelmistoa.",
+  "wind.of.url": "Apuohjelman osoite",
+  "wind.of.token": "Apuohjelman tunniste",
+  "wind.of.check": "Tarkista apuohjelma",
+  "wind.of.ok": "Apuohjelma vastasi. OpenFOAM: {foam}",
+  "wind.of.down": "Apuohjelma ei vastannut ({why}). Käynnistä se tällä tietokoneella: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Apuohjelma vastasi, mutta OpenFOAMia ei voitu käynnistää: {why}",
+  "wind.of.install": "Asenna OpenFOAM (ESI v-sarja, openfoam.com) ja apuohjelma lisäosan kansiosta; ohjeaihe selittää molemmat."
+}

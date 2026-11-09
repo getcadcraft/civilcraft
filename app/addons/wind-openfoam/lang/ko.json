@@ -1,0 +1,14 @@
+{
+  "@locale": "ko",
+  "@name": "한국어",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (애드온)",
+  "wind.of.note": "이 컴퓨터의 작은 헬퍼 프로그램을 통해 사용자가 직접 설치한 OpenFOAM을 실행합니다. 풍향마다 정상 상태 RANS(k-epsilon) 케이스 1개를 실행하며, 입구는 대기 경계층입니다. 모든 데이터는 이 컴퓨터를 벗어나지 않습니다. CadCraft에는 OpenFOAM이 포함되어 있지 않습니다.",
+  "wind.of.url": "헬퍼 주소",
+  "wind.of.token": "헬퍼 토큰",
+  "wind.of.check": "헬퍼 확인",
+  "wind.of.ok": "헬퍼가 응답했습니다. OpenFOAM: {foam}",
+  "wind.of.down": "헬퍼가 응답하지 않았습니다 ({why}). 이 컴퓨터에서 실행하십시오: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "헬퍼는 응답했지만 OpenFOAM을 시작하지 못했습니다: {why}",
+  "wind.of.install": "OpenFOAM(ESI v-series, openfoam.com)을 설치하고 애드온 폴더의 헬퍼를 설치하십시오. 도움말 항목에 두 가지 방법이 모두 설명되어 있습니다."
+}

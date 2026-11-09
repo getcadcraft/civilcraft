@@ -1,0 +1,9 @@
+cc-ifcx (lib/ifcx) — CadCraft's own reader and writer for the IFC5 alpha format (IFCX). Apache-2.0, Copyright DDG / the CadCraft authors.
+
+Written from the TypeSpec schema source buildingSMART publishes (github.com/buildingSMART/IFC5-development, /schema: file header,
+imports, schemas, data nodes, value descriptions, quantity kinds), the published schema files (ifcx.dev) and the examples' own
+notes (Examples_FAQ.md), read for what the fields mean. The code is ours. No code from the MIT-licensed viewer in that
+repository was read or used. The alpha schema source and the published JSON files carry no licence text, so nothing of theirs
+is bundled: this library contains the names of fields and attributes only (names.js), and reads the schema files a person's
+file imports from wherever the caller fetches them. The example models are used only to read in tests, are not in this
+repository, and are never edited or saved. "IFC", "IFC5" and "buildingSMART" name the standard and its maker; no trademark is used otherwise.

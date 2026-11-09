@@ -82,10 +82,10 @@ console.log('Seismic cases (ELF) and drift');
   const concrete = { floors, seismic: { SDS: 1, SD1: 0.6, S1: 0.5, R: 5, Ie: 1, Cd: 4.5, TL: 8, system: 'concrete-mf', risk: 'II', dir: 'both' } };
   const base = build({ floors });
   const made = FC.seismicCases({ model: base }, concrete);
-  // hand: hn = 7.0 m, Ta = 0.0466 × 7^0.9 = 0.2674 s; Cs = SDS/(R/Ie) = 0.2 (12.8-2) vs SD1/(T R/Ie) = 0.449 → 0.2; W = 5000 kN, V = 1000 kN
+  // hand: hn = 7.0 m = 22.966 ft, Ta = 0.016 × 22.966^0.9 = 0.2686 s (US Ct, 0.9 SU.1056b); Cs = SDS/(R/Ie) = 0.2 (12.8-2) vs SD1/(T R/Ie) = 0.449 → 0.2; W = 5000 kN, V = 1000 kN
   //       k = 1: Cvx = 3000×3.5 : 2000×7 = 10 500 : 14 000 → F1 = 428.571 kN, F2 = 571.429 kN
   const E = made.elf;
-  ok(made.ok && rel(E.Ta, 0.0466 * Math.pow(7, 0.9)) < 1e-12 && rel(E.Cs, 0.2) < 1e-12 && E.csEq === '12.8-2', 'Ta = 0.2674 s, Cs = 0.2 (12.8-2)');
+  ok(made.ok && rel(E.Ta, 0.016 * Math.pow(7000 / 304.8, 0.9)) < 1e-12 && rel(E.Cs, 0.2) < 1e-12 && E.csEq === '12.8-2', 'Ta = 0.2686 s, Cs = 0.2 (12.8-2)');
   ok(rel(E.V, 1000e3) < 1e-12 && rel(E.levels[0].Fx, 10500 / 24500 * 1000e3) < 1e-12 && rel(E.levels[1].Fx, 14000 / 24500 * 1000e3) < 1e-12, 'V = 1000 kN; F1 = 428.6 kN, F2 = 571.4 kN');
   ok(made.cases.map((c) => c.id).join() === 'EX1,EX2,EY1,EY2' && made.cases.every((c) => c.kind === 'seismic' && c.gen === 'elf' && c.loads.length === 2), 'four cases (X and Y, torsion each way), one node load per floor');
   const one = FC.seismicCases({ model: base }, { ...concrete, seismic: { ...concrete.seismic, dir: 'Y' } });

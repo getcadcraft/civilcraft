@@ -33,6 +33,12 @@
  *   and sampling: null | { step, left, right, extra: [sta] } (0.4 V13 sample lines; p.sections(a), sections.js)
  *   state.crs: null | the project's coordinate system (crs.js; docs/GIS-SPEC.md §1) — an undoable change like any other;
  *   it never moves a coordinate. Older files have none (null); older CivilCraft builds ignore the key.
+ *   0.9 SU.1110 + WB.6 (templates.js): state.templates = [template] (the project's own copies, ids tp<n>); a corridor may carry
+ *   from / to (stations) and regions (templates by station, left and right apart); an alignment may carry corridors =
+ *   [{ id cr<n>, name, …a corridor }] — more corridors on the same alignment (each graded as its own item, `alignment` = the
+ *   alignment's id); state.terrainTemplates = [{ id tt<n>, name, tpl, surface 'eg'|'fg', clip: null | { kind 'parcel'|'pad'|
+ *   'feature', id }, params }] — a template draped on a terrain inside a plan shape (p.terrainResults(), p.materials()).
+ *   All optional keys: a file without them is written as before, so older builds open it (they ignore the keys).
  *   GIS: state.gis = { layers: [{ id, name, geom, fields, visible, color, source }], maps: [] } (gis-layers.js; maps:
  *   builder C). The layers' features are held outside the snapshots like the points: `gisFeatures` Map(layerId →
  *   [{ g, p }]); `editGis(label, (features, s) => features)` is one undo step that keeps the Map it replaced.
@@ -41,12 +47,14 @@
 import { pointGroups } from './points.js';
 import { cleanBlk } from './block-points.js';
 import { buildSurface, surfaceFromFaces } from './tin.js';
+import { gridSurface, METHODS as GRID_METHODS } from './gridding.js';   // 0.9 D9.6: choose the contouring method
 import { buildGround } from './ground-surface.js';   // 0.8 SU.911: contour terrain (flat triangles fixed when surface.flatFix > 0)
 import { buildAlignment, TRANSITIONS } from './alignment.js';
 import { buildProfile, sampleSurface } from './profile.js';
 import { gradedSurface, gridVolume } from './grading.js';
 import { analyzeNetwork } from './pipes.js';
 import { corridorPatch, defaultAssembly, cleanTargets, cleanSides } from './corridor.js';
+import { cleanTemplate, cleanRegions, MAX_TEMPLATES, terrainQuantities } from './templates.js';   // 0.9 SU.1110 + WB.6
 import { readGisState, gisFeaturesJSON } from './gis-state.js';   // GIS: layer data in the project file (docs/GIS-SPEC.md §2)
 import { cleanSampling, buildSections } from './sections.js';   // 0.4 V13: sample lines and sections
 import { cleanSuper } from './superelev.js';   // 0.4 V18
@@ -101,6 +109,25 @@ export function emptyState() {
     alignments: [], pads: [], network: null, seq: 1, crs: null, features: [], parcels: [], masses: [], zoning: [],
     gis: { layers: [], maps: [] },   // GIS: vector layers (builder A) and map layers (builder C)
   };
+}
+
+/** 0.9 D9.6: the existing ground as a surface gridded by the chosen method (gridding.js); notes are words for the surface report. */
+function gridEg(s, points, lines = [], boundary = null) {
+  const report = { notes: [], errors: [] };
+  const r = gridSurface(points, { method: s.method, step: s.gridStep || 0, power: s.gridPower, order: s.gridPower, lines: lines.map((l) => l.pts), boundary: boundary || null });
+  if (r.error) { report.errors.push(t('cv.grid.err.' + r.error)); return { surface: null, report }; }
+  const f = (v, d = 3) => (Number.isFinite(v) ? Number(v.toFixed(d)).toString() : '–');
+  const aMeasure = /^(metric-|krigerr)/.test(s.method);   // a count or an error is not a height: nothing to compare with the points
+  report.notes.push(aMeasure ? t('cv.grid.n.measure', { method: t('cv.grid.m.' + s.method), step: f(r.step, 2) })
+    : t('cv.grid.n.used', { method: t('cv.grid.m.' + s.method), step: f(r.step, 2), n: r.residuals.n, rms: f(r.residuals.rms), max: f(r.residuals.max) }));
+  for (const n of r.notes) {
+    if (n.code === 'mincurv.iter') report.notes.push(t(n.converged ? 'cv.grid.n.mincurv' : 'cv.grid.n.mincurv.no', { n: n.n }));
+    else if (n.code === 'kriging.variogram') report.notes.push(t('cv.grid.n.kriging', { range: f(n.range, 1), sill: f(n.sill) }));
+    else report.notes.push(t('cv.grid.n.' + n.code, { ...n, from: f(n.from, 2), to: f(n.to, 2) }));
+  }
+  const built = surfaceFromFaces({ pts: r.pts, faces: r.faces });
+  report.notes.push(...built.report.notes); report.errors.push(...built.report.errors);
+  return { surface: built.surface, report, grid: r.grid, sigma: r.sigma };
 }
 
 export class Project {
@@ -262,6 +289,7 @@ export class Project {
       const s = this.state.surface;
       if (s.tin) return surfaceFromFaces(s.tin);
       if (!this.points.length && !s.breaklines.length && !(this.state.features || []).some((f) => f.use === 'eg')) return { surface: null, report: { notes: [], errors: [] } };
+      if (s.method && s.method !== 'tin') return gridEg(s, this.egPoints(), this.egBreaklines(), s.boundary);   // 0.9 D9.6
       if (s.flatFix > 0) { const g = buildGround({ points: this.egPoints(), breaklines: this.egBreaklines(), boundary: s.boundary, maxEdge: Number(s.maxEdge) || 0, fixFlat: true, interval: s.flatFix }); return { surface: g.surface, report: g.report }; }   // 0.8 SU.911
       return buildSurface({ points: this.egPoints(), breaklines: this.egBreaklines(), boundary: s.boundary, maxEdge: Number(s.maxEdge) || 0 });
     });
@@ -281,30 +309,43 @@ export class Project {
   padsDeps(tag = 'fg') { return tag === 'eg' ? '' : this.gradeDeps(); }
   /** What the graded surface depends on besides the existing ground: pads, and alignments with a corridor on. */
   gradeDeps() {
-    const on = this.state.alignments.filter((a) => a.corridor?.on);
-    // 0.6 WL.25: a corridor that targets a feature line depends on that line, whatever its use
-    const tf = new Set(on.flatMap((a) => (a.corridor.targets || []).filter((g) => g.from.kind === 'feature').map((g) => g.from.id)));
-    return JSON.stringify([this.state.pads, on, (this.state.features || []).filter((f) => f.use === 'design' || tf.has(f.id))]) + lsGradeDeps(this.state.landscape);   // 0.7 LD.3
+    const on = this.state.alignments.filter((a) => a.corridor?.on || (a.corridors || []).some((c) => c.on));
+    // 0.6 WL.25: a corridor that targets a feature line depends on that line, whatever its use (0.9: template targets too)
+    const tf = new Set(this.corridorEntries().flatMap((e) => allTargets(e.c)).filter((g) => g.from.kind === 'feature').map((g) => g.from.id));
+    const tpl = on.some((a) => [a.corridor, ...(a.corridors || [])].some((c) => c?.regions)) ? this.state.templates || [] : [];   // 0.9 SU.1110
+    return JSON.stringify([this.state.pads, on, (this.state.features || []).filter((f) => f.use === 'design' || tf.has(f.id)), tpl]) + lsGradeDeps(this.state.landscape);   // 0.7 LD.3
   }
+  /** 0.9: every corridor that is on, in alignment order: the alignment's own (id = key = its id) then its other corridors (cr<n>);
+   *  corridorOrder() returns these entries (id as before, so callers reading order[i].id are unchanged). */
+  corridorEntries() {
+    const out = [];
+    for (const a of this.state.alignments) {
+      if (a.corridor?.on) out.push({ id: a.id, key: a.id, a, c: a.corridor, main: true });
+      for (const c of a.corridors || []) if (c.on) out.push({ id: c.id, key: c.id, a, c, main: false });
+    }
+    return out;
+  }
+  /** 0.9 SU.1110: the project's templates by id (the corridor's and the terrain templates' lookup). */
+  templateMap() { return new Map((this.state.templates || []).map((x) => [x.id, x])); }
   /** 0.6 WL.25: the corridors in an order where every corridor comes after the corridors it targets; a target that would
    *  close a loop is marked { loop: true } (index per alignment id). */
   corridorOrder() {
-    const on = this.state.alignments.filter((a) => a.corridor?.on), byId = new Map(on.map((a) => [a.id, a]));
+    const on = this.corridorEntries(), byKey = new Map(on.map((e) => [e.key, e]));
     const order = [], mark = new Map(), loops = new Map();
-    const visit = (a) => {
-      if (mark.get(a.id) === 2) return;
-      mark.set(a.id, 1);
-      (a.corridor.targets || []).forEach((g, i) => {
+    const visit = (e) => {
+      if (mark.get(e.key) === 2) return;
+      mark.set(e.key, 1);
+      allTargets(e.c).forEach((g, i) => {
         if (g.from.kind !== 'corridor') return;
-        const b = byId.get(g.from.id);
+        const b = byKey.get(g.from.id);
         if (!b) return;
-        if (mark.get(b.id) === 1 || b.id === a.id) { if (!loops.has(a.id)) loops.set(a.id, new Set()); loops.get(a.id).add(i); return; }
+        if (mark.get(b.key) === 1 || b.key === e.key) { if (!loops.has(e.key)) loops.set(e.key, new Set()); loops.get(e.key).add(i); return; }
         visit(b);
       });
-      mark.set(a.id, 2);
-      order.push(a);
+      mark.set(e.key, 2);
+      order.push(e);
     };
-    for (const a of on) visit(a);
+    for (const e of on) visit(e);
     return { order, loops };
   }
   /** The items graded into the existing ground, in order: corridors first, then pads. */
@@ -312,22 +353,31 @@ export class Project {
     const items = [];
     // 0.6 WL.25: corridors in target order; each one's lines are kept as it is graded, so a corridor targeting another's
     // edge reads that edge as it is now (it moves when the other corridor changes)
-    const { order, loops } = this.corridorOrder(), done = new Map();
-    for (const a of order) {
-      const al = this.alignment(a), prof = this.designProfile(a), asm = { ...defaultAssembly(this.state.units), ...a.corridor, ...this.railAsm(a) };   // railAsm: 0.7.1 71.26
-      const resolve = () => (a.corridor.targets || []).map((g, i) => {
+    const { order, loops } = this.corridorOrder(), done = new Map(), T = this.templateMap();
+    for (const e of order) {
+      const a = e.a, c = e.c;
+      const al = this.alignment(a), prof = this.designProfile(a), asm = { ...defaultAssembly(this.state.units), ...c, ...this.railAsm(a) };   // railAsm: 0.7.1 71.26
+      const lineOf = (f) => {   // a target's line now: a feature line, or another corridor's line as graded so far
+        if (f.kind === 'feature') { const x = (this.state.features || []).find((y) => y.id === f.id); return x ? flattenFeature(x) : null; }
+        return done.get(f.id)?.lines?.[f.line] || null;
+      };
+      const resolve = () => (c.targets || []).map((g, i) => {
         if (g.from.kind === 'feature') {
           const f = (this.state.features || []).find((x) => x.id === g.from.id);
           return { ...g, line: f ? flattenFeature(f) : null, label: f ? f.name : t('corr.tg.gone') };
         }
         const b = this.state.alignments.find((x) => x.id === g.from.id);
         const label = b ? t('corr.tg.of', { name: b.name, line: t('corr.line.' + g.from.line.toLowerCase()) }) : t('corr.tg.gone');
-        if (loops.get(a.id)?.has(i)) return { ...g, line: null, label, loop: true };
+        if (loops.get(e.key)?.has(i)) return { ...g, line: null, label, loop: true };
         return { ...g, line: done.get(g.from.id)?.lines?.[g.from.line] || null, label };
       });
-      items.push({ id: a.id, kind: 'corridor', name: t('project.corridor', { name: a.name }), patch: (surf) => {
-        const r = corridorPatch(surf, al, prof, asm, { targets: resolve(), units: this.state.units });
-        done.set(a.id, r.info);
+      // 0.9 SU.1110: the regions with each use's target lines resolved, and the templates they name
+      const withLines = (u) => (u?.targets ? { ...u, lines: Object.fromEntries(Object.entries(u.targets).map(([k, f]) => [k, lineOf(f)])) } : u);
+      const regions = c.regions ? c.regions.map((r) => ({ from: r.from, L: { uses: r.L.uses.map(withLines), end: withLines(r.L.end) }, R: { uses: r.R.uses.map(withLines), end: withLines(r.R.end) } })) : null;
+      const name = e.main ? t('project.corridor', { name: a.name }) : t('tpl.corr.name', { name: a.name, corridor: c.name });
+      items.push({ id: e.key, alignment: a.id, kind: 'corridor', name, patch: (surf) => {
+        const r = corridorPatch(surf, al, prof, regions ? { ...asm, regions, templates: T } : asm, { targets: resolve(), units: this.state.units });
+        done.set(e.key, r.info);
         return r;
       } });
     }
@@ -356,7 +406,7 @@ export class Project {
       if (s.tin) { basePts = eg.toFaces().pts; baseBl = []; } else { basePts = this.egPoints(); baseBl = this.egBreaklines(); }
       const build = (input) => buildSurface({ ...input, boundary: s.tin ? null : s.boundary, maxEdge: s.tin ? 0 : Number(s.maxEdge) || 0 });
       const r = gradedSurface(eg, basePts, baseBl, items, build);
-      return { ...r, items: r.items.map((d, i) => ({ id: items[i].id, kind: items[i].kind, name: items[i].name, problems: r.report.items[i].problems, region: r.regions[i], ...d })) };
+      return { ...r, items: r.items.map((d, i) => ({ id: items[i].id, kind: items[i].kind, name: items[i].name, ...(items[i].alignment ? { alignment: items[i].alignment } : {}), problems: r.report.items[i].problems, region: r.regions[i], ...d })) };
     });
   }
   /**
@@ -373,8 +423,8 @@ export class Project {
     return this.memo('standin', this.gradeDeps() + '|' + JSON.stringify(this.state.alignments.map((a) => [a.id, a.pis, a.start, a.pvis])), () => {
       const out = [], m = this.state.units === 'm';
       const byId = new Map(this.gradeItems().filter((x) => x.kind === 'corridor').map((x) => [x.id, x]));
-      for (const { id } of [...byId.values()]) {
-        const a = this.state.alignments.find((x) => x.id === id), al = this.alignment(a);
+      for (const { id, alignment } of [...byId.values()]) {
+        const a = this.state.alignments.find((x) => x.id === (alignment || id)), al = this.alignment(a);
         if (!al?.ok) continue;
         let prof = this.designProfile(a), basis = 'profile', z;
         if (prof.ok && (a.pvis || []).length >= 2) z = Math.round((a.pvis.reduce((v, q) => v + q.z, 0) / a.pvis.length) * 100) / 100;
@@ -387,10 +437,12 @@ export class Project {
         const pts = []; for (const x of [x0, (x0 + x1) / 2, x1]) for (const y of [y0, (y0 + y1) / 2, y1]) pts.push({ x, y, z });
         const flat = buildSurface({ points: pts }).surface;
         if (!flat) continue;
-        const asm = { ...defaultAssembly(this.state.units), ...a.corridor, ...this.railAsm(a) };   // railAsm: 0.7.1 71.26
+        const cc = id === a.id ? a.corridor : (a.corridors || []).find((x) => x.id === id);   // 0.9: another corridor on the alignment
+        const reg = cc?.regions ? { regions: cc.regions, templates: this.templateMap() } : {};
+        const asm = { ...defaultAssembly(this.state.units), ...cc, ...this.railAsm(a), ...reg };   // railAsm: 0.7.1 71.26
         const r = basis === 'profile' ? byId.get(id).patch(flat) : corridorPatch(flat, al, prof, asm, { units: this.state.units });
         const text = t(basis === 'profile' ? 'corr.standin' : 'corr.standin.zero', { z: z.toFixed(2), unit: m ? 'm' : 'ft' });
-        out.push({ id, kind: 'corridor', name: byId.get(id).name, problems: r.problems, ...r.info, standIn: { z, basis }, warnings: [{ code: 'corridor.standin', text, hard: false, ref: id, z, basis }] });
+        out.push({ id, ...(alignment ? { alignment } : {}), kind: 'corridor', name: byId.get(id).name, problems: r.problems, ...r.info, standIn: { z, basis }, warnings: [{ code: 'corridor.standin', text, hard: false, ref: id, z, basis }] });
       }
       return out;
     });
@@ -423,7 +475,16 @@ export class Project {
     return this.memo('sec:' + a.id, this.surfaceDeps() + '|' + this.gradeDeps() + '|' + JSON.stringify([a.pis, a.start, a.sampling]), () => {
       const eg = this.eg().surface, g = this.graded();
       const cor = g.items?.find((x) => x.kind === 'corridor' && x.id === a.id);
-      return buildSections({ alignment: al, ground: eg, design: g.surface || eg, regions: (g.regions || []).filter(Boolean), corridor: cor?.lines || null, courses: cor?.courses || null, track: cor?.rail || null, sampling: a.sampling });   // courses: 0.7.1 71.24; track: 71.26
+      // 0.9 SU.1110: the alignment's other corridors' lines too (each under its own key, the mark's code without it)
+      const more = (g.items || []).filter((x) => x.kind === 'corridor' && x.alignment === a.id && x.id !== a.id && x.lines);
+      let lines = cor?.lines || null;
+      if (more.length) { lines = { ...(lines || {}) }; for (const m of more) for (const [k, v] of Object.entries(m.lines)) lines[k + '#' + m.id] = v; }
+      const r = buildSections({ alignment: al, ground: eg, design: g.surface || eg, regions: (g.regions || []).filter(Boolean), corridor: lines, courses: cor?.courses || null, track: cor?.rail || null, sampling: a.sampling });   // courses: 0.7.1 71.24; track: 71.26
+      if (more.length) for (const sc of r.sections || []) for (const mk of sc.marks || []) mk.code = mk.code.replace(/#cr\d+$/, '');
+      // 0.9: the templates' components in the section at each sample line (the corridor section nearest it, within half a step)
+      const tplItems = [cor, ...more].filter((x) => x?.components);
+      if (tplItems.length) for (const sc of r.sections || []) sc.layers = [...(sc.layers || []), ...componentMarks(tplItems, sc.sta)];
+      return r;
     });
   }
   /** Cut and fill (grid method) inside every daylight line, in total and per item. */
@@ -439,6 +500,62 @@ export class Project {
     });
   }
 
+  /** 0.9 WB.6: a terrain template's plan shape: a parcel's, a pad's or a closed feature line's outline; null = the whole terrain. */
+  clipShape(clip) {
+    if (!clip) return null;
+    const s = this.state;
+    const src = clip.kind === 'parcel' ? (s.parcels || []).find((x) => x.id === clip.id) : clip.kind === 'pad' ? s.pads.find((x) => x.id === clip.id) : clip.kind === 'feature' ? (s.features || []).find((x) => x.id === clip.id && x.closed) : null;
+    return src && src.pts?.length >= 3 ? src.pts.map((q) => ({ x: q.x, y: q.y })) : undefined;   // undefined = the shape is gone
+  }
+  /** 0.9 WB.6: every terrain template's quantities: [{ id, name, tpl, surface, q (terrainQuantities), problem }]. */
+  terrainResults() {
+    const list = this.state.terrainTemplates || [];
+    if (!list.length) return [];
+    return this.memo('terrain-tpl', this.surfaceDeps() + '|' + (list.some((x) => x.surface === 'fg') ? this.gradeDeps() : '') + JSON.stringify([list, this.state.templates, list.map((x) => this.clipShape(x.clip))]), () => {
+      const T = this.templateMap();
+      return list.map((x) => {
+        const tpl = T.get(x.tpl), clip = this.clipShape(x.clip);
+        const surf = x.surface === 'fg' ? this.graded().surface || this.eg().surface : this.eg().surface;
+        if (!tpl) return { ...x, problem: 'notemplate', q: null };
+        if (clip === undefined) return { ...x, problem: 'noshape', q: null };
+        if (!surf) return { ...x, problem: 'noground', q: null };
+        const q = terrainQuantities(surf, clip, tpl, x.params || {});
+        return { ...x, problem: q.ok ? '' : q.why, q };
+      });
+    });
+  }
+  /** 0.9 SU.1110 + WB.6: every material the templates place: corridor components and terrain template layers, one row each,
+   *  [{ source 'corridor'|'terrain', id (item), item (its name), name, material, kind, volume, area? (plan, terrain), wall?, maxH? }]. */
+  materials() {
+    const out = [];
+    // a corridor's components summed per name and material (both sides, every region; the corridor's Properties list them apart)
+    for (const it of this.graded().items || []) if (it.kind === 'corridor' && it.components) {
+      const by = new Map();
+      for (const c of it.components) {
+        const k = [c.name, c.material, c.kind].join('|');
+        const r = by.get(k) || { source: 'corridor', id: it.id, item: it.name, name: c.name, material: c.material, kind: c.kind, volume: 0, ...(c.wall ? { wall: true, maxH: 0 } : {}) };
+        r.volume += c.volume; if (c.wall) r.maxH = Math.max(r.maxH, c.maxH);
+        by.set(k, r);
+      }
+      out.push(...by.values());
+    }
+    for (const r of this.terrainResults()) if (r.q?.ok) for (const L of r.q.layers) out.push({ source: 'terrain', id: r.id, item: r.name, name: L.name, material: L.material, kind: L.kind, volume: L.volume, area: L.planArea, where: L.where, t: L.t });
+    return out;
+  }
+
+  /** 0.9 SU.1110 + WB.6: the templates' problems in the shared Problems shape: a corridor naming a template the project no longer
+   *  has (warning, code tpl.missing), a terrain template whose template or shape is gone, with no terrain or off it (tpl.terrain.<why>). */
+  templateWarnings() {
+    const out = [], have = new Set((this.state.templates || []).map((x) => x.id));
+    for (const e of this.corridorEntries()) {
+      const miss = new Set();
+      for (const r of e.c.regions || []) for (const sd of [r.L, r.R]) for (const u of [...sd.uses, sd.end]) if (u && !have.has(u.tpl)) miss.add(u.tpl);
+      if (miss.size) out.push({ code: 'tpl.missing', severity: 'warning', text: t('tpl.err.missing', { n: miss.size }), msg: { key: 'tpl.err.missing', vars: { n: miss.size } }, about: { kind: 'alignment', id: e.a.id, label: e.a.name } });
+    }
+    for (const r of this.terrainResults()) if (r.problem) out.push({ code: 'tpl.terrain.' + r.problem, severity: 'warning', text: r.name + ': ' + t('tpl.tt.prob.' + r.problem), msg: { key: 'tpl.tt.prob.' + r.problem, vars: {} }, about: { kind: 'terrain-template', id: r.id, label: r.name } });
+    return out;
+  }
+
   pipeSurface() { return this.graded().surface || this.eg().surface; }
   networkCheck() {
     const n = this.state.network;
@@ -448,6 +565,7 @@ export class Project {
 
   // ---- project file ----
   toJSON() {
+    const shellOut = { ...(this.shell || {}) }; { const di = typeof window !== 'undefined' && window.ccDocInfo ? window.ccDocInfo.save() : null; if (di) shellOut.docinfo = di; }   // 0.9 DI.1: the drawing details, stamped with this save
     return {
       format: 'civilcraft-project', version: 1, saved: new Date().toISOString(),
       name: this.state.name, units: this.state.units, pointsFile: this.pointsFile,
@@ -462,8 +580,10 @@ export class Project {
       swept: this.state.swept || [],   // 0.6 WL.28
       ...(this.state.landscape ? { landscape: freezeSpacing(this.state.landscape) } : {}),   // 0.7.1: spacing as filled, the plant list's edition   // 0.7 LD: plants, beds, hedges, the project's own plant list
       ...(this.state.powerlines ? { powerlines: this.state.powerlines } : {}),   // 0.7 PL: lines, routes, equipment, the project's library copy
-      ...(Object.keys(this.shell || {}).length ? { shell: this.shell } : {}),   // 0.8 round 3: calc sheets + design reasons (older builds ignore it)
+      ...(Object.keys(shellOut).length ? { shell: shellOut } : {}),   // 0.8 round 3: calc sheets + design reasons (older builds ignore it)
       ...((this.state.ponds || []).length ? { ponds: this.state.ponds } : {}),   // 0.8 EG.12: detention ponds
+      ...((this.state.templates || []).length ? { templates: this.state.templates } : {}),   // 0.9 SU.1110: the project's corridor templates
+      ...((this.state.terrainTemplates || []).length ? { terrainTemplates: this.state.terrainTemplates } : {}),   // 0.9 WB.6: templates draped on a terrain
       ...(this.state.site ? { site: this.state.site } : {}),   // 0.8 EG.63: address to site (an optional key with its own v: no new file version)
       ...((this.state.progress || []).length ? { progress: this.state.progress } : {}),   // 0.8 EG.39: progress from surveys
       ...((this.state.sectionLines || []).length ? { sectionLines: this.state.sectionLines } : {}),   // 0.8 SU.914 rest: saved free-section lines
@@ -517,6 +637,11 @@ export class Project {
     const bnd = list(sf.boundary, xy, 1e6);
     s.surface.boundary = bnd.length >= 3 ? bnd : null;
     s.surface.maxEdge = fin(sf.maxEdge) && sf.maxEdge >= 0 ? sf.maxEdge : 0;
+    if (typeof sf.method === 'string' && GRID_METHODS.some((m) => m.key === sf.method)) {   // 0.9 D9.6: only written when not the TIN, so older files stay byte-identical
+      s.surface.method = sf.method;
+      if (fin(sf.gridStep) && sf.gridStep > 0) s.surface.gridStep = sf.gridStep;
+      if (fin(sf.gridPower) && sf.gridPower > 0) s.surface.gridPower = Math.min(sf.gridPower, 10);
+    }
     if (fin(sf.flatFix) && sf.flatFix > 0) s.surface.flatFix = sf.flatFix;   // 0.8 SU.911: only written when on, so older files stay byte-identical
     s.surface.descKeys = cleanDescKeys(sf.descKeys);   // 0.4 V16
     s.surface.lineCodes = cleanLineCodes(sf.lineCodes);
@@ -529,6 +654,11 @@ export class Project {
     if (obj.display && typeof obj.display === 'object') for (const k of Object.keys(DISPLAY_DEFAULTS)) { const v = obj.display[k]; if (typeof v === typeof DISPLAY_DEFAULTS[k] && (typeof v !== 'number' || (fin(v) && v > 0)) && (k !== 'surface' || v === 'eg' || v === 'fg')) s.display[k] = v; }
     if (obj.display?.cutfill === true) s.display.cutfill = true;   // 0.8 SU.914: the cut and fill map; not a default key, so files that never turned it on stay byte-identical
     const id = (v, pre) => (/^[a-z]+\d+$/.test(String(v)) ? String(v) : p.nextId(pre));
+    // 0.9 SU.1110: the project's templates first (the corridors' regions name them); untrusted, ids tp<n>
+    { const tl = list(obj.templates, (x) => { const c = cleanTemplate(x, s.units); if (!c) return null; c.id = /^tp\d+$/.test(String(x?.id)) ? x.id : p.nextId('tp'); c.source = 'project'; return c; }, MAX_TEMPLATES).filter((x, i, a) => a.findIndex((y) => y.id === x.id) === i);
+      if (tl.length) s.templates = tl;
+      if (Array.isArray(obj.templates) && tl.length < obj.templates.length) notes.push(t('tpl.bad.dropped', { n: obj.templates.length - tl.length })); }
+    const tplIds = new Set((s.templates || []).map((x) => x.id));
     s.alignments = list(obj.alignments, (a) => {
       const lsOf = (v) => (fin(v) && v > 0 && v < 1e7 ? v : 0);   // 0.7 D7.35: a spiral's length (ls = both ends)
       const pis = list(a?.pis, (q) => {
@@ -539,21 +669,13 @@ export class Project {
       }, 1e4);
       if (pis.length < 2) return null;
       const pvis = list(a.pvis, (v) => (v && fin(v.sta) && fin(v.z) ? { sta: v.sta, z: v.z, L: fin(v.L) && v.L > 0 ? v.L : 0 } : null), 1e4);
-      let corridor = null;
-      if (a.corridor && typeof a.corridor === 'object') {
-        const d = defaultAssembly(s.units), c = a.corridor, pos = (v, k) => (fin(v) && v >= 0 ? v : d[k]);
-        corridor = { on: c.on === true, lane: pos(c.lane, 'lane'), laneSlope: pos(c.laneSlope, 'laneSlope'), shoulder: pos(c.shoulder, 'shoulder'), shoulderSlope: pos(c.shoulderSlope, 'shoulderSlope'), cut: pos(c.cut, 'cut') || d.cut, fill: pos(c.fill, 'fill') || d.fill, step: pos(c.step, 'step') || d.step };
-        const sup = cleanSuper(c.super, s.units);   // 0.4 V18
-        if (sup) corridor.super = sup;
-        const parts = cleanSides(c.parts, s.units);   // 0.7 D7.35: the assembly editor's parts, left and right
-        if (parts) corridor.parts = parts;
-        const tg = cleanTargets(c.targets);   // 0.6 WL.25
-        if (tg.length) corridor.targets = tg;
-      }
+      const corridor = a.corridor && typeof a.corridor === 'object' ? cleanCorridor(a.corridor, s.units, tplIds) : null;
+      // 0.9 SU.1110: more corridors on this alignment (station ranges), each a corridor of its own
+      const more = list(a.corridors, (c) => { if (!c || typeof c !== 'object') return null; const x = cleanCorridor(c, s.units, tplIds); return { id: /^cr\d+$/.test(String(c.id)) ? c.id : p.nextId('cr'), name: str(c.name, 80) || t('tpl.corr.default'), ...x }; }, 20);
       const minR = fin(a.minR) && a.minR > 0 && a.minR < 1e7 ? a.minR : 0;   // 0.5 WL.23: design minimum radius (0 = none)
       const design = cleanDesign(a.design);   // 0.7.1 71.24: design speed and class (older files: none)
       const rail = cleanRail(a.rail, s.units);   // 0.7.1 71.26: a track (older files: none)
-      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(minR ? { minR } : {}), ...(design ? { design } : {}), ...(rail ? { rail } : {}) };
+      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(more.length ? { corridors: more } : {}), ...(minR ? { minR } : {}), ...(design ? { design } : {}), ...(rail ? { rail } : {}) };
     }, 1000);
     s.pads = list(obj.pads, (d) => {
       const q = list(d?.pts, xy, 1e4);
@@ -569,8 +691,10 @@ export class Project {
     s.swept = list(obj.swept, (w) => { const c = cleanSwept(w, s.units); if (c) c.id = id(w?.id, 'w'); return c; }, 200);   // 0.6 WL.28
     if (obj.landscape && typeof obj.landscape === 'object') s.landscape = cleanLandscape(obj.landscape, s.units, (rows) => readPlants({ format: 'cadcraft-plants', version: 1, species: rows }).library.species);   // 0.7 LD (untrusted)
     if (obj.powerlines && typeof obj.powerlines === 'object') s.powerlines = cleanPowerlines(obj.powerlines);
+    s.terrainTemplates = list(obj.terrainTemplates, (x) => cleanTerrainTpl(x, tplIds, id), 200);   // 0.9 WB.6 (untrusted)
+    if (!s.terrainTemplates.length) delete s.terrainTemplates;
     s.ponds = list(obj.ponds, (q) => { const c = cleanPond(q, s.units); if (c) c.id = id(q?.id, 'q'); return c; }, 200);   // 0.8 EG.12 (untrusted)
-    if (obj.shell && typeof obj.shell === 'object') for (const k of ['calcs', 'reasons']) if (obj.shell[k] && typeof obj.shell[k] === 'object' && JSON.stringify(obj.shell[k]).length < 2e6) p.shell[k] = obj.shell[k];   // 0.8 round 3 (untrusted; the shell cleans it again on load)
+    if (obj.shell && typeof obj.shell === 'object') for (const k of ['calcs', 'reasons', 'docinfo']) if (obj.shell[k] && typeof obj.shell[k] === 'object' && JSON.stringify(obj.shell[k]).length < 2e6) p.shell[k] = obj.shell[k];   // 0.8 round 3 (untrusted; the shell cleans it again on load)
     if (obj.shell && typeof obj.shell.regs === 'string' && obj.shell.regs.length < 2e5) p.shell.regs = obj.shell.regs;   // 0.8 REG.1 step 4: the drawing's own regulation ticks (JSON text, add-on regs)
     if (obj.usesAddons && typeof obj.usesAddons === 'object' && !Array.isArray(obj.usesAddons)) {   // 0.8 AL.6 (untrusted: ids and versions are cleaned)
       p.usesAddons = Object.fromEntries(Object.entries(obj.usesAddons).slice(0, 200).filter(([k]) => /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(k)).map(([k, v]) => [k, String(v ?? '').replace(/[^\x20-\x7e]/g, '').slice(0, 40)]));
@@ -612,9 +736,59 @@ export class Project {
     }
     p.gisImages = readGisImages(obj.gisImages, s.gis.maps, notes);   // GIS: map layer pictures (builder C; gis-map-ui.js reads the layers)
     p.points = pts; p.pointsFile = str(obj.pointsFile, 200); p.pointsVersion++;
-    for (const a of [...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.masses || []), ...(s.swept || []), ...(s.ponds || []), ...Object.values(s.geo || {}).flat(), ...(s.landscape ? [...s.landscape.plants, ...s.landscape.beds, ...s.landscape.hedges, ...s.landscape.grading, ...s.landscape.hardscape, ...(s.landscape.areas || []), ...(s.landscape.levels || []), ...(s.landscape.sections || []), ...(s.landscape.irrigation ? ['heads', 'pipes', 'valves', 'drips'].flatMap((w) => s.landscape.irrigation[w]) : []), ...(s.landscape.freeform || [])] : []), ...(s.water ? [...s.water.nodes, ...s.water.pipes] : []), ...(s.powerlines ? [...s.powerlines.lines, ...s.powerlines.lines.flatMap((l) => l.supports), ...s.powerlines.routes, ...s.powerlines.equipment, ...s.powerlines.obstacles] : [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
+    for (const a of [...(s.templates || []), ...(s.terrainTemplates || []), ...s.alignments.flatMap((x) => x.corridors || []), ...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.masses || []), ...(s.swept || []), ...(s.ponds || []), ...Object.values(s.geo || {}).flat(), ...(s.landscape ? [...s.landscape.plants, ...s.landscape.beds, ...s.landscape.hedges, ...s.landscape.grading, ...s.landscape.hardscape, ...(s.landscape.areas || []), ...(s.landscape.levels || []), ...(s.landscape.sections || []), ...(s.landscape.irrigation ? ['heads', 'pipes', 'valves', 'drips'].flatMap((w) => s.landscape.irrigation[w]) : []), ...(s.landscape.freeform || [])] : []), ...(s.water ? [...s.water.nodes, ...s.water.pipes] : []), ...(s.powerlines ? [...s.powerlines.lines, ...s.powerlines.lines.flatMap((l) => l.supports), ...s.powerlines.routes, ...s.powerlines.equipment, ...s.powerlines.obstacles] : [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
     return { project: p, notes };
   }
+}
+
+/** A corridor from the project file (untrusted): the simple assembly, superelevation, parts, targets, and (0.9) its station
+ *  range and templates by station (regions naming templates that exist). */
+export function cleanCorridor(c, units, tplIds = new Set()) {
+  const fin = (v) => typeof v === 'number' && Number.isFinite(v);
+  const d = defaultAssembly(units), pos = (v, k) => (fin(v) && v >= 0 ? v : d[k]);
+  const corridor = { on: c.on === true, lane: pos(c.lane, 'lane'), laneSlope: pos(c.laneSlope, 'laneSlope'), shoulder: pos(c.shoulder, 'shoulder'), shoulderSlope: pos(c.shoulderSlope, 'shoulderSlope'), cut: pos(c.cut, 'cut') || d.cut, fill: pos(c.fill, 'fill') || d.fill, step: pos(c.step, 'step') || d.step };
+  const sup = cleanSuper(c.super, units);   // 0.4 V18
+  if (sup) corridor.super = sup;
+  const parts = cleanSides(c.parts, units);   // 0.7 D7.35: the assembly editor's parts, left and right
+  if (parts) corridor.parts = parts;
+  const tg = cleanTargets(c.targets);   // 0.6 WL.25
+  if (tg.length) corridor.targets = tg;
+  if (fin(c.from)) corridor.from = c.from;   // 0.9 SU.1110: the corridor's own station range (several corridors on an alignment)
+  if (fin(c.to) && !(fin(c.from) && c.to <= c.from)) corridor.to = c.to;
+  const rg = cleanRegions(c.regions, tplIds);   // 0.9 SU.1110: templates by station
+  if (rg) corridor.regions = rg;
+  return corridor;
+}
+/** 0.9: a corridor's WL.25 targets and its templates' point targets, as { from } records (corridorOrder, gradeDeps). */
+function allTargets(c) {
+  const out = [...(c?.targets || [])];
+  for (const r of c?.regions || []) for (const sd of [r.L, r.R]) for (const u of [...sd.uses, sd.end]) for (const f of Object.values(u?.targets || {})) out.push({ from: f });
+  return out;
+}
+/** 0.9 WB.6: a terrain template from the project file (untrusted). */
+export function cleanTerrainTpl(x, tplIds, id) {
+  if (!x || typeof x !== 'object' || !tplIds.has(x.tpl)) return null;
+  const clip = x.clip && ['parcel', 'pad', 'feature'].includes(x.clip.kind) && /^[a-z]+\d+$/.test(String(x.clip.id)) ? { kind: x.clip.kind, id: String(x.clip.id) } : null;
+  const params = {};
+  if (x.params && typeof x.params === 'object') for (const [k, v] of Object.entries(x.params).slice(0, 16)) if (/^[a-z][a-z0-9_]{0,23}$/.test(k) && typeof v === 'number' && Number.isFinite(v) && Math.abs(v) < 1e5) params[k] = v;
+  return { id: id(/^tt\d+$/.test(String(x.id)) ? x.id : '', 'tt'), name: String(x.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 80) || 'Terrain template', tpl: x.tpl, surface: x.surface === 'fg' ? 'fg' : 'eg', clip, ...(Object.keys(params).length ? { params } : {}) };   // i18n-ignore: a fallback name in a file
+}
+/** 0.9 SU.1110: the template components across a sample line at station `sta`, from the corridor section nearest it (within half
+ *  the corridor's step), as section-view layer lines { side, code, k, name, a: {o, z}, b: {o, z} } (left offsets negative). */
+function componentMarks(items, sta) {
+  const out = [];
+  for (const it of items) {
+    const secs = it.sections || [];
+    if (!secs.length || sta < secs[0].sta - 1e-6 || sta > secs[secs.length - 1].sta + 1e-6) continue;
+    let best = secs[0];
+    for (const s of secs) if (Math.abs(s.sta - sta) < Math.abs(best.sta - sta)) best = s;
+    const step = Number(it.assembly?.step) || 10;
+    if (Math.abs(best.sta - sta) > step / 2 + 1e-6 || !best.comps) continue;
+    for (const [side, sx] of [['L', -1], ['R', 1]]) for (const c of best.comps[side] || []) {
+      c.poly.forEach((q, i) => { const r = c.poly[(i + 1) % c.poly.length]; out.push({ side, code: c.key, k: i, name: c.name, a: { o: sx * q.o, z: q.z }, b: { o: sx * r.o, z: r.z } }); });
+    }
+  }
+  return out;
 }
 
 /** The project file's `crs` (untrusted): shape and sizes only — crs.js `crsProblem` judges the definition when used. */

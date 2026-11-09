@@ -31,11 +31,13 @@ import { renumber } from './clip.js';
 import { frame } from './crs.js';
 import { LAYER_TOKENS, MAX_LAYERS, clean, readGisState, gisFeaturesJSON } from './gis-state.js';
 import { t } from './i18n.js';
+import { compile, cleanSymbology } from './gis-symbology.js';
 
 const TOKEN_KEY = { blue: 'layers.color.blue', orange: 'layers.color.orange', magenta: 'layers.color.magenta', cyan: 'layers.color.cyan', ochre: 'layers.color.ochre', green: 'layers.color.green', red: 'layers.color.red' };
 export const tokenLabel = (token) => (Object.hasOwn(TOKEN_KEY, token) ? t(TOKEN_KEY[token]) : token);
 export const MAX_LAYER_FEATURES = 500000;
 export { LAYER_TOKENS, readGisState, gisFeaturesJSON };
+export const MAX_SYM_FEATURES = 200000;   // symbology colours at most this many features of a layer (a note says so)
 
 export const gisOf = (project) => (project.state.gis ||= { layers: [], maps: [] });
 export const layerOf = (project, id) => gisOf(project).layers.find((l) => l.id === id) || null;
@@ -69,13 +71,16 @@ export function setLayer(project, id, patch) {
   const l = layerOf(project, id);
   if (!l) return false;
   if ('label' in patch && patch.label !== null && !l.fields.some((f) => f.name === patch.label)) return false;
-  const what = 'label' in patch ? t('gis.label.undo', { layer: l.name }) : 'name' in patch ? t('layers.undo.rename') : 'visible' in patch ? t(patch.visible ? 'layers.undo.show' : 'layers.undo.hide', { layer: l.name }) : t('layers.undo.color');
+  let sym;
+  if ('symbology' in patch) { sym = patch.symbology === null ? null : cleanSymbology(patch.symbology, l.fields); if (patch.symbology !== null && !sym && patch.symbology.mode && patch.symbology.mode !== 'single') return false; }
+  const what = 'symbology' in patch ? t('gis.sym.undo', { layer: l.name }) : 'label' in patch ? t('gis.label.undo', { layer: l.name }) : 'name' in patch ? t('layers.undo.rename') : 'visible' in patch ? t(patch.visible ? 'layers.undo.show' : 'layers.undo.hide', { layer: l.name }) : t('layers.undo.color');
   return project.change(what, (s) => {
     const x = s.gis.layers.find((q) => q.id === id);
     if ('name' in patch) x.name = clean(patch.name, 120) || x.name;
     if ('visible' in patch) x.visible = !!patch.visible;
     if ('color' in patch && LAYER_TOKENS.includes(patch.color)) x.color = patch.color;
     if ('label' in patch) { if (patch.label === null) delete x.label; else x.label = { field: patch.label }; }   // 0.4 V7
+    if ('symbology' in patch) { if (sym) x.symbology = sym; else delete x.symbology; }   // 0.9 SU.1080 round 2
   });
 }
 export function transformLayers(project, fn, label = t('layers.undo.move')) {
@@ -98,6 +103,7 @@ function boxes(features) {
   BOX.set(features, b);
   return b;
 }
+export const boxesOf = boxes;
 export function layerBounds(features) {
   const b = boxes(features), out = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
   for (let i = 0; i < features.length; i++) {
@@ -156,14 +162,52 @@ export function pickFeature(project, x, y, tol) {
 // ---------------------------------------------------------------- the plan scene
 const XY = new WeakMap();
 const toXY = (r) => r.map((p) => (p.length > 2 ? { x: p[0], y: p[1], z: p[2] } : { x: p[0], y: p[1] }));
+const SYM = new WeakMap();   // features array → { key, value } (the compiled symbology)
+/** The compiled symbology of a layer (classes, per-feature class numbers, point sizes), or null when the layer is drawn plainly. Cached per features array and spec. */
+export function symbologyOf(layer, features) {
+  const sp = layer.symbology;
+  if (!sp || (sp.mode === 'single' && !sp.sizeField && !sp.fill)) return null;
+  if (features.length > MAX_SYM_FEATURES) return null;
+  const key = JSON.stringify(sp) + '|' + layer.fields.map((f) => f.name + f.type).join(',');
+  const hit = SYM.get(features);
+  if (hit?.key === key) return hit.value;
+  const value = compile(layer, features);
+  SYM.set(features, { key, value });
+  return value;
+}
+const HEX = /^#[0-9a-f]{6}$/i;
+const ACI_RGB = [[1, [255, 0, 0]], [2, [255, 255, 0]], [3, [0, 255, 0]], [4, [0, 255, 255]], [5, [0, 0, 255]], [6, [255, 0, 255]], [7, [255, 255, 255]], [8, [128, 128, 128]], [9, [192, 192, 192]]];
+function aciOf(hex) {   // nearest of the nine basic AutoCAD colours (PDF / DXF / DWG layers carry one)
+  const n = parseInt(hex.slice(1), 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  let best = 7, bd = Infinity;
+  for (const [a, r] of ACI_RGB) { const d = (r[0] - c[0]) ** 2 + (r[1] - c[1]) ** 2 + (r[2] - c[2]) ** 2; if (d < bd) { bd = d; best = a; } }
+  return best;
+}
 export function gisScene(project, mmPerUnit) {
   const layers = [], items = [];
   const h = 0.6 / mmPerUnit;   // points: squares 1.2 mm across on paper
   for (const l of gisOf(project).layers) {
     if (!l.visible) continue;
     const name = 'GIS-' + l.id;
-    layers.push({ name, token: l.color, aci: 7, label: l.name });
     const fs = featuresOf(project, l.id);
+    const sym = symbologyOf(l, fs);
+    if (sym && (sym.classes.length || sym.size)) {
+      // one scene layer per class (colour = the class colour, so the plan, PDF, DXF and DWG all show the classes)
+      const names = sym.classes.length ? sym.classes.map((c, j) => name + '-c' + j) : [name];
+      if (sym.classes.length) sym.classes.forEach((c, j) => { if (c.count) layers.push({ name: names[j], token: HEX.test(c.color) ? c.color : l.color, aci: aciOf(c.color), label: t('gis.sym.layername', { layer: l.name, cls: c.kind === 'other' ? t('gis.sym.other') : c.kind === 'none' ? t('gis.sym.none') : c.label }) }); });
+      else layers.push({ name, token: l.color, aci: 7, label: l.name });
+      const at = (i) => (sym.classes.length ? names[sym.classOf[i]] : name);
+      fs.forEach((f, i) => {
+        if (!f.g) return;
+        const layer = at(i);
+        if (f.g.t === 'pt') { const hh = sym.size ? sym.size[i] / mmPerUnit : h; const [x, y] = f.g.c; items.push({ layer, kind: 'poly', pts: [{ x: x - hh, y: y - hh }, { x: x + hh, y: y - hh }, { x: x + hh, y: y + hh }, { x: x - hh, y: y + hh }], closed: true }); }
+        else if (f.g.t === 'ln') for (const part of f.g.c) items.push({ layer, kind: 'poly', pts: toXY(part), z: l.hasZ && part.every((p) => p.length > 2) });
+        else for (const poly of f.g.c) for (const r of poly) items.push({ layer, kind: 'poly', pts: toXY(r.slice(0, -1)), closed: true, z: l.hasZ && r.every((p) => p.length > 2) });
+      });
+      if (l.label?.field) { layers.push({ name, token: l.color, aci: 7, label: l.name }); for (const it of labelItems(l, fs, mmPerUnit)) items.push({ ...it, layer: name }); }
+      continue;
+    }
+    layers.push({ name, token: l.color, aci: 7, label: l.name });
     if (l.geom === 'pt') {
       for (const f of fs) { if (!f.g) continue; const [x, y] = f.g.c; items.push({ layer: name, kind: 'poly', pts: [{ x: x - h, y: y - h }, { x: x + h, y: y - h }, { x: x + h, y: y + h }, { x: x - h, y: y + h }], closed: true }); }
       if (l.label?.field) for (const it of labelItems(l, fs, mmPerUnit)) items.push({ ...it, layer: name });   // 0.4 V7

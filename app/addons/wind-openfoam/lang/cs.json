@@ -1,0 +1,14 @@
+{
+  "@locale": "cs",
+  "@name": "Čeština",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (doplněk)",
+  "wind.of.note": "Spouští vaši vlastní instalaci OpenFOAM prostřednictvím malého pomocného programu na tomto počítači: jeden ustálený případ RANS (k-epsilon) pro každý směr větru, vstup s atmosférickou mezní vrstvou. Nic neopouští tento počítač. CadCraft OpenFOAM neobsahuje.",
+  "wind.of.url": "Adresa pomocného programu",
+  "wind.of.token": "Token pomocného programu",
+  "wind.of.check": "Zkontrolovat pomocný program",
+  "wind.of.ok": "Pomocný program odpověděl. OpenFOAM: {foam}",
+  "wind.of.down": "Pomocný program neodpověděl ({why}). Spusťte ho na tomto počítači: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Pomocný program odpověděl, ale OpenFOAM se nepodařilo spustit: {why}",
+  "wind.of.install": "Nainstalujte OpenFOAM (řada ESI v, openfoam.com) a pomocný program ze složky doplňku; téma nápovědy vysvětluje obojí."
+}

@@ -1,0 +1,14 @@
+{
+  "@locale": "uz",
+  "@name": "Oʻzbekcha",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (qoʻshimcha)",
+  "wind.of.note": "Bu kompyuterdagi kichik yordamchi dastur orqali sizning OpenFOAM oʻrnatmangizni ishga tushiradi: har bir shamol yoʻnalishi uchun bitta barqaror RANS (k-epsilon) hisoblash, atmosfera chegaraviy qatlami kirishi bilan. Hech narsa bu kompyuterdan chiqmaydi. CadCraft OpenFOAM’ni oʻz ichiga olmaydi.",
+  "wind.of.url": "Yordamchi manzili",
+  "wind.of.token": "Yordamchi tokeni",
+  "wind.of.check": "Yordamchini tekshirish",
+  "wind.of.ok": "Yordamchi javob berdi. OpenFOAM: {foam}",
+  "wind.of.down": "Yordamchi javob bermadi ({why}). Uni shu kompyuterda ishga tushiring: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Yordamchi javob berdi, ammo OpenFOAM’ni ishga tushirib boʻlmadi: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-seriya, openfoam.com) va yordamchini qoʻshimcha papkasidan oʻrnating; ikkalasi yordam mavzusida tushuntirilgan."
+}

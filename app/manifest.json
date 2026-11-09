@@ -27,6 +27,7 @@
   "teamwork": true,
   "totals": true,
   "lessons": true,
+  "docinfo": true,
   "ai-suggest": true,
   "ai-activity": true,
   "ai-ask": true,
@@ -45,7 +46,7 @@
     "layouts": [
       "docked",
       "toolbox",
-      "autorev"
+      "autorev", "duncan", "vector", "sketch"
     ],
     "adapter": "workspace-civilcraft.js"
   },

@@ -1,0 +1,14 @@
+{
+  "@locale": "hy",
+  "@name": "Հայերեն",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (հավելում)",
+  "wind.of.note": "Աշխատեցնում է ձեր սեփական OpenFOAM տեղադրումը այս համակարգչի փոքր օգնական ծրագրի միջոցով՝ քամու յուրաքանչյուր ուղղության համար մեկ կայուն RANS (k-epsilon) հաշվարկ, մթնոլորտային եզրային շերտի մուտքով։ Ոչինչ չի դուրս գալիս այս համակարգչից։ CadCraft-ը OpenFOAM-ը չի ներառում։",
+  "wind.of.url": "Օգնականի հասցե",
+  "wind.of.token": "Օգնականի թոքեն",
+  "wind.of.check": "Ստուգել օգնականին",
+  "wind.of.ok": "Օգնականը պատասխանեց։ OpenFOAM՝ {foam}",
+  "wind.of.down": "Օգնականը չպատասխանեց ({why})։ Գործարկեք այն այս համակարգչում՝ node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Օգնականը պատասխանեց, բայց չկարողացավ գործարկել OpenFOAM-ը՝ {why}",
+  "wind.of.install": "Տեղադրեք OpenFOAM-ը (ESI v-series, openfoam.com) և օգնական ծրագիրը հավելման թղթապանակից։ Օգնության թեման բացատրում է երկուսն էլ։"
+}

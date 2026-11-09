@@ -16,3 +16,6 @@ These are staged only. Nothing here is published until `bin/library-seed.php` re
 
 Every name starts with "Generic", every row is CC0 with no maker or model, and the
 remarks say the size is generic and to check the chosen unit's spec sheet.
+
+Round 3 (2026-11-03): `<block>-3.csv` files, 30 commercial objects for each of the ten blocks, plus `other-4.csv` (vertical transport) and `site-4.csv`
+(municipal fixtures). See docs/LIBRARY-BLOCKS-REPORT-2026-11-03.md.

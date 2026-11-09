@@ -1,0 +1,43 @@
+# Hand-written demonstration DEF for CadCraft's Chip design tests (uses demo.lef). Made-up design.
+VERSION 5.8 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+DESIGN cc_demo_top ;
+UNITS DISTANCE MICRONS 1000 ;
+DIEAREA ( 0 0 ) ( 20000 14400 ) ;
+ROW ROW_0 core 2000 2000 N DO 40 BY 1 STEP 400 0 ;
+ROW ROW_1 core 2000 5600 FS DO 40 BY 1 STEP 400 0 ;
+TRACKS Y 200 DO 36 STEP 400 LAYER metal1 ;
+TRACKS X 200 DO 50 STEP 400 LAYER metal2 ;
+GCELLGRID X 0 DO 11 STEP 2000 ;
+COMPONENTS 4 ;
+  - u1 INV_X1 + PLACED ( 2000 2000 ) N ;
+  - u2 NAND2_X1 + PLACED ( 4000 2000 ) N ;
+  - u3 DFF_X1 + FIXED ( 2000 5600 ) FS ;
+  - u4 INV_X1 + SOURCE NETLIST + UNPLACED ;
+END COMPONENTS
+PINS 3 ;
+  - clk + NET clk + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -100 0 ) ( 100 200 ) + PLACED ( 1000 0 ) N ;
+  - din + NET din + DIRECTION INPUT + USE SIGNAL
+    + LAYER metal2 ( -100 0 ) ( 100 200 ) + PLACED ( 3000 0 ) N ;
+  - dout + NET dout + DIRECTION OUTPUT + USE SIGNAL
+    + LAYER metal2 ( -100 0 ) ( 100 200 ) + PLACED ( 6000 14400 ) S ;
+END PINS
+SPECIALNETS 2 ;
+  - VDD ( * VDD ) + USE POWER
+    + ROUTED metal1 400 + SHAPE STRIPE ( 2000 5600 ) ( 18000 * )
+    NEW metal1 400 + SHAPE STRIPE ( 2000 9200 ) ( 18000 * ) ;
+  - VSS ( * VSS ) + USE GROUND
+    + ROUTED metal1 400 + SHAPE STRIPE ( 2000 2000 ) ( 18000 * ) ;
+END SPECIALNETS
+NETS 4 ;
+  - clk ( PIN clk ) ( u3 CK )
+    + ROUTED metal2 ( 1000 0 ) ( * 6800 ) via12 ( 2200 * ) ;
+  - din ( PIN din ) ( u1 A )
+    + ROUTED metal2 ( 3000 0 ) ( * 3500 ) via12
+    NEW metal1 ( 3000 3500 ) ( 2200 * ) ;
+  - n1 ( u1 Y ) ( u2 A ) + ROUTED metal1 ( 2600 3000 ) ( 4200 * ) ;
+  - dout ( u3 Q ) ( PIN dout ) + USE SIGNAL ;
+END NETS
+END DESIGN

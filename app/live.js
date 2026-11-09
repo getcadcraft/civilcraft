@@ -19,6 +19,7 @@
 
 import { pack, unpack } from './live-client.js';
 import { t } from './i18n.js';
+import { attachPresence, pointsBox } from './live-presence.js';
 
 export const SCHEMA = 1;
 export const ID_BLOCK = 1e6;
@@ -343,12 +344,39 @@ export function createLiveAdapter({ host } = {}) {
     let offs = [];
     const say = (m) => { try { app.say && app.say(m); } catch { /* no status line */ } };
     const off = lv.on((c) => {
-      if (c && c.adapter === a) { a.bind(c); offs = messages(c, say); app.live = a; }
+      if (c && c.adapter === a) { a.bind(c); offs = messages(c, say); offs.push(attachPresence(c, a, presenceView(app), { t })); app.live = a; }
       else if (!c && a.client) { offs.forEach((f) => f()); a.unbind(); app.live = null; off(); }
     });
   }
   return a;
 }
+/**
+ * Where CivilCraft's pointer is and where others' go (0.9 SU.1112, live-presence.js): plan coordinates (the project's
+ * units) on the plan view; the selected object and picked points as boxes. Hidden while the 3D view covers the plan.
+ */
+export function presenceView(app) {
+  const v = () => app.view;
+  const find = (st, id) => {
+    for (const k of Object.keys(st || {})) { const list = st[k]; if (Array.isArray(list)) { const x = list.find((o) => o && o.id === id); if (x) return x; } }
+    return null;
+  };
+  return {
+    get el() { return v() && v().over; },
+    toModel(x, y) { const p = v() && v().toWorld(x, y); return p ? [p.x, p.y] : null; },
+    toScreen(p) { const s = v() && v().toScreen(p[0], p[1]); return s ? [s.x, s.y] : null; },
+    selection: () => {
+      const pr = app.project, out = [];
+      if (!pr) return out;
+      const picked = new Set(app.picked || []);
+      if (picked.size) for (const q of pr.points || []) { if (picked.has(String(q.n))) { out.push([q.x, q.y, q.x, q.y]); if (out.length >= 64) break; } }
+      const s = app.sel;
+      if (s && s.id !== undefined) { const o = find(pr.state, s.id); const b = o ? pointsBox(o, 2) : null; if (b) out.push(b); }
+      return out;
+    },
+    hidden: () => { const d = typeof document !== 'undefined' && document.querySelector('[data-view3d]'); return !!(d && !d.hidden); },
+  };
+}
+
 /** A browser opening a link with #live=<code> (a page a host serves on the LAN) or ?live=<ROOM>#<secret> joins. */
 export async function joinFromPage(app, fileHost, w = globalThis) {
   const lv = fileHost && fileHost.live;

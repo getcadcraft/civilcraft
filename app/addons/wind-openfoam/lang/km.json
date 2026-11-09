@@ -1,0 +1,14 @@
+{
+  "@locale": "km",
+  "@name": "ខ្មែរ",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (កម្មវិធីបន្ថែម)",
+  "wind.of.note": "ដំណើរការការដំឡើង OpenFOAM របស់អ្នកតាមរយៈកម្មវិធីជំនួយតូចមួយនៅកុំព្យូទ័រនេះ៖ ករណី RANS (k-epsilon) ថេរមួយសម្រាប់ទិសខ្យល់នីមួយៗ ជាមួយច្រកចូលស្រទាប់ព្រំដែនបរិយាកាស។ គ្មានអ្វីចេញពីកុំព្យូទ័រនេះទេ។ CadCraft មិនរួមបញ្ចូល OpenFOAM ទេ។",
+  "wind.of.url": "អាសយដ្ឋានកម្មវិធីជំនួយ",
+  "wind.of.token": "តូកែនកម្មវិធីជំនួយ",
+  "wind.of.check": "ពិនិត្យកម្មវិធីជំនួយ",
+  "wind.of.ok": "កម្មវិធីជំនួយបានឆ្លើយតប។ OpenFOAM៖ {foam}",
+  "wind.of.down": "កម្មវិធីជំនួយមិនបានឆ្លើយតប ({why})។ សូមចាប់ផ្តើមវានៅកុំព្យូទ័រនេះ៖ node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "កម្មវិធីជំនួយបានឆ្លើយតប ប៉ុន្តែមិនអាចចាប់ផ្តើម OpenFOAM បាន៖ {why}",
+  "wind.of.install": "ដំឡើង OpenFOAM (ជំនាន់ ESI v-series, openfoam.com) និងកម្មវិធីជំនួយពីថតរបស់កម្មវិធីបន្ថែម; ប្រធានបទជំនួយពន្យល់ទាំងពីរ។"
+}

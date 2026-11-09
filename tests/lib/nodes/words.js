@@ -6,7 +6,7 @@
  */
 import { LIBRARY, CATEGORIES } from './library.js';
 
-const ES = { input: 'Entrada', math: 'Matemáticas', list: 'Listas', vector: 'Puntos y vectores', curve: 'Curvas', transform: 'Transformar', surface: 'Superficies' };
+const ES = { input: 'Entrada', math: 'Matemáticas', list: 'Listas', vector: 'Puntos y vectores', curve: 'Curvas', transform: 'Transformar', surface: 'Superficies', solid: 'Sólidos' };
 const UI = {
   'nodes.title': ['Nodes', 'panel title', 'Nodos'],
   'nodes.close': ['Close', 'button: close the node editor window', 'Cerrar'],

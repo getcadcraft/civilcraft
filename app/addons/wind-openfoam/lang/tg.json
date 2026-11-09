@@ -1,0 +1,14 @@
+{
+  "@locale": "tg",
+  "@name": "Тоҷикӣ",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (илова)",
+  "wind.of.note": "Бо воситаи хурди ёрирасон OpenFOAM-и худатонро дар ин компютер меандозад: як ҳолати устувори RANS (k-epsilon) барои ҳар самти шамол, вуруди қабати сарҳадии атмосфера. Ҳеҷ чиз аз ин компютер берун намеравад. CadCraft OpenFOAM-ро дар бар намегирад.",
+  "wind.of.url": "Нишонии ёрирасон",
+  "wind.of.token": "Токени ёрирасон",
+  "wind.of.check": "Ёрирасонро санҷидан",
+  "wind.of.ok": "Ёрирасон ҷавоб дод. OpenFOAM: {foam}",
+  "wind.of.down": "Ёрирасон ҷавоб надод ({why}). Onro дар ин компютер оғоз кунед: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Ёрирасон ҷавоб дод, вале OpenFOAM-ро оғоз карда натавонист: {why}",
+  "wind.of.install": "OpenFOAM (серияи ESI v, openfoam.com) ва ёрирасонро аз ҷузвдони илова насб кунед; мавзӯи роҳнамо ҳардуро шарҳ медиҳад."
+}

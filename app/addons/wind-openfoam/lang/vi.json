@@ -1,0 +1,14 @@
+{
+  "@locale": "vi",
+  "@name": "Tiếng Việt",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (tiện ích bổ sung)",
+  "wind.of.note": "Chạy cài đặt OpenFOAM của bạn thông qua một chương trình trợ giúp nhỏ trên máy tính này: mỗi hướng gió một trường hợp RANS (k-epsilon) ở trạng thái ổn định, với đầu vào lớp biên khí quyển. Không có dữ liệu nào rời khỏi máy tính này. CadCraft không đi kèm OpenFOAM.",
+  "wind.of.url": "Địa chỉ trình trợ giúp",
+  "wind.of.token": "Mã thông báo của trình trợ giúp",
+  "wind.of.check": "Kiểm tra trình trợ giúp",
+  "wind.of.ok": "Trình trợ giúp đã phản hồi. OpenFOAM: {foam}",
+  "wind.of.down": "Trình trợ giúp không phản hồi ({why}). Hãy khởi động trên máy tính này: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Trình trợ giúp đã phản hồi nhưng không thể khởi động OpenFOAM: {why}",
+  "wind.of.install": "Cài đặt OpenFOAM (phiên bản ESI v-series, openfoam.com) và trình trợ giúp từ thư mục của tiện ích bổ sung; chủ đề trợ giúp có giải thích cả hai."
+}

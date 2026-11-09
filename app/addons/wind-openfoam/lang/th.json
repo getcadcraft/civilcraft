@@ -1,0 +1,14 @@
+{
+  "@locale": "th",
+  "@name": "ไทย",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ส่วนเสริม)",
+  "wind.of.note": "รัน OpenFOAM ที่ติดตั้งเองผ่านโปรแกรมตัวช่วยขนาดเล็กบนเครื่องนี้ หนึ่งเคส RANS (k-epsilon) แบบคงที่ต่อทิศทางลม พร้อมอินเลตชั้นขอบบรรยากาศ ไม่มีข้อมูลใดออกจากเครื่องนี้ CadCraft ไม่ได้รวม OpenFOAM มาให้",
+  "wind.of.url": "ที่อยู่ของตัวช่วย",
+  "wind.of.token": "โทเคนของตัวช่วย",
+  "wind.of.check": "ตรวจสอบตัวช่วย",
+  "wind.of.ok": "ตัวช่วยตอบกลับแล้ว OpenFOAM: {foam}",
+  "wind.of.down": "ตัวช่วยไม่ตอบกลับ ({why}) เริ่มตัวช่วยบนเครื่องนี้ด้วยคำสั่ง: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "ตัวช่วยตอบกลับแล้ว แต่เริ่ม OpenFOAM ไม่ได้: {why}",
+  "wind.of.install": "ติดตั้ง OpenFOAM (ESI v-series, openfoam.com) และตัวช่วยจากโฟลเดอร์ของส่วนเสริม หัวข้อช่วยเหลือจะอธิบายทั้งสองอย่าง"
+}

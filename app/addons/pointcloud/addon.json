@@ -1,0 +1,14 @@
+{
+  "id": "pointcloud",
+  "name": "Point clouds (drone and scan)",
+  "version": "0.9.0",
+  "apps": ["civilcraft"],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": ["panel", "files", "storage", "objects"],
+  "description": "Opens a LAS or LAZ point cloud from a drone or scanner, tiles it into this browser's own storage, and lets you look at all of it, clean it, classify it, and build the ground and contours from it. The file and the cloud never leave this computer; nothing is sent anywhere. Results are numbers from your data, not a certificate.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

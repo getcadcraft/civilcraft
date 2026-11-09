@@ -47,11 +47,12 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 
 | Not built yet | Instead, today |
 |---|---|
-| Ditches, medians, barriers and other parts beyond lanes, shoulder, gutter, curb, planting strip, sidewalk and side slope | Build each side from those parts ([Corridors](topic:corridor#build-each-side-from-parts)) |
-| Assemblies that change along the road | Split the work into separate alignments |
+| Medians, barriers and a superelevation that rotates templates | Draw them as templates ([Corridor templates](topic:corridor-templates)); templates by station do not take superelevation yet |
+| A gradual change between two regions' templates (transitions, tapers) | Change the template at a station, or give a point a width target to a line drawn as the taper |
 | Rotation about an edge, superelevation in LandXML | Superelevation rotates about the centerline on circular curves; widen a lane with a width target to a feature line |
-| Regions, targets for the side slopes (daylight to a line or a surface), corridor surfaces of their own | Targets move the edges of pavement and shoulders ([Corridors](topic:corridor)); the corridor is graded into the proposed surface |
-| Corridors exported as LandXML roadways | The proposed surface is exported |
+| Targets for the side slopes (daylight to a line or a surface), corridor surfaces of their own | Targets move the edges of pavement and shoulders ([Corridors](topic:corridor)); the corridor is graded into the proposed surface |
+| Corridors exported as LandXML roadways; a second corridor on an alignment in the IFC export | The proposed surface is exported |
+| Terrain templates that change the proposed surface, in 3D or in the sections | They give areas and volumes of each layer ([Terrain templates](topic:corridor-templates#terrain-templates)) |
 | Swept paths with speed, tyre slip, steering time, steering trailers or body clearance; a library of standard design vehicles; a swept path drawn by dragging the vehicle | Low-speed swept paths along a feature line or an alignment, with your own vehicle sizes ([Vehicle swept paths](topic:swept-paths)) |
 
 ## Grading and volumes
@@ -159,13 +160,14 @@ CivilCraft is early. This page lists what the current build does not do, so you 
 | Not built yet | Instead, today |
 |---|---|
 | File Geodatabase; KML styles, icons, ground overlays and network links | Convert to GeoPackage, shapefile or GeoJSON first; KML placemarks are read without their styles |
-| Editing GIS features or their attributes | Edit them in a GIS program and import again |
+| Editing GIS features or their attributes | Edit them in a GIS program and import again. The Analyze panel makes new layers (buffer, overlay, join, selection) and adds area and length fields, but it does not edit a feature in place |
+| Network and raster analysis, buffers with flat or square ends and one-sided buffers, adding or deleting rows and changing a field's type in the attribute table, manual class colours, a style legend in plots | Use Select to pick features and make a layer from them; flat ends are not offered. Colouring by attribute and the attribute table are built: see [Style a layer by an attribute](topic:gis-symbology) and [Work with a layer's attribute table](topic:gis-table) |
 | Label styles (size, placement) and labels that avoid each other | Labels are one size and may overlap where features are dense |
 | Vertical datums and geoid models | Elevations are used as the file gives them; check the vertical datum yourself |
 | Grid shifts other than to NAD83 from NAD27 suggested by area (OSTN15, NTv2 for other datums work when you add the file), several grids at once, vertical grids | Add the grid file for your datum yourself; one grid a project |
 | Map layers in the DXF or in 3D exports | Map layers go into the PDF plot, and beside the DWG as a picture |
 | Map servers that need a sign-in, key or token | Use public services, or a georeferenced image file |
-| Writing LAS or LAZ files | Export surfaces as a GeoTIFF elevation grid |
+| Writing LAS or LAZ files from a surface, the ground model or the elevation-grid and LiDAR tools | Export surfaces as a GeoTIFF elevation grid. The [Point clouds](topic:point-clouds) add-on writes a cleaned cloud as LAS 1.4 or LAZ |
 | LiDAR intensity, color and returns; elevation grids with several bands; grid or LiDAR files over 200 MB | LiDAR is filtered by class only, grids use their first band; cut large files into tiles first |
 
 ## Input

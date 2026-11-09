@@ -69,6 +69,8 @@ $__tools = [
 $__more = [
     'Surface' => [   // i18n-ignore (the group's key in $__tools, not shown)
         ['cad-open', Lang::t('toolbar.cad'), Lang::t('toolbar.cad.title'), '', 'menuitem'],
+        ['gis-analysis', Lang::t('gisa.tb'), Lang::t('gisa.tb.title'), '', 'menuitem'],   // 0.9 SU.1080: GIS analysis (gis-analysis-ui.js); in this More menu so the GIS group keeps the toolbar at two rows at 1440 px
+        ['gis-table', Lang::t('gist.tb'), Lang::t('gist.tb.title'), '', 'menuitem'],   // 0.9 SU.1080 round 2: attribute table (gis-table-ui.js)
         ['scan-start', Lang::t('scanin.cmd'), Lang::t('scanin.cmd.title'), '', 'menuitem'],   // Super 0.1: Start from a scan (scan-start-ui.js)
         ['feature', Lang::t('toolbar.feature'), Lang::t('toolbar.feature.title'), 'L', 'menuitemcheckbox'],
         ['sections', Lang::t('toolbar.sections'), Lang::t('toolbar.sections.title'), 'X', 'menuitemcheckbox'],
@@ -77,6 +79,8 @@ $__more = [
         ['free-section', Lang::t('sx.su914.tb.section'), Lang::t('sx.su914.tb.section.title'), '', 'menuitemcheckbox'],   // 0.8 SU.914: a section line drawn anywhere (platform-ui.js)
         ['ramp', Lang::t('sx.su914.tb.ramp'), Lang::t('sx.su914.tb.ramp.title'), '', 'menuitemcheckbox'],   // 0.8 SU.914: a ramp or sloped pad
         ['ground-contours', Lang::t('sx.su911.tb'), Lang::t('sx.su911.tb.title'), '', 'menuitem'],   // 0.8 SU.911: terrain from contour lines (ground-ui.js)
+        ['corridor-templates', Lang::t('tpl.tb'), Lang::t('tpl.tb.title'), '', 'menuitem'],   // 0.9 SU.1110: corridor templates (templates-ui.js)
+        ['terrain-templates', Lang::t('tpl.tb.tt'), Lang::t('tpl.tb.tt.title'), '', 'menuitem'],   // 0.9 WB.6: terrain templates (templates-ui.js)
         ['water', Lang::t('wm.tb'), Lang::t('wm.tb.title'), '', 'menuitem'],   // 0.8 LC.16: water mains (water-ui.js)
         ['eg-rain', Lang::t('eg.tb.rain'), Lang::t('eg.tb.rain.title'), '', 'menuitem'],   // 0.8 round 2 (EG.69 Make it rain; eg-ui.js)
         ['eg-earthwork', Lang::t('eg.tb.earthwork'), Lang::t('eg.tb.earthwork.title'), '', 'menuitem'],   // 0.8 round 2 (EG.70 earthwork balancer; eg-ui.js)
@@ -145,7 +149,7 @@ $__more = [
   </div>
 
   <aside class="cv-panel cv-left" aria-label="<?= Lang::e('ui.left') ?>">
-    <section class="cv-sec">
+    <section class="cv-sec" data-af-open>
       <h2 class="cv-h"><?= Lang::e('ui.site') ?></h2>
       <div class="cv-props">
         <label for="cv-name"><?= Lang::e('ui.site.name') ?></label>
@@ -158,7 +162,7 @@ $__more = [
       </div>
       <p class="cv-note"><?= Lang::e('ui.site.units.note') ?></p>
     </section>
-    <section class="cv-sec">
+    <section class="cv-sec" data-af-open>
       <h2 class="cv-h"><?= Lang::e('ui.points') ?></h2>
       <p class="cv-note" data-points-empty><?= $__lx('ui.points.empty', ['open' => '<strong>' . Lang::e('ui.tb.open') . '</strong>']) ?></p>
       <dl class="cv-dl" data-points-info></dl>
@@ -181,7 +185,7 @@ $__more = [
       <ul class="cv-gis-list" data-gis-list></ul>
       <p class="cv-note"><?= Lang::e('ui.gis.note') ?></p>
     </section>
-    <section class="cv-sec">
+    <section class="cv-sec" data-af-open>
       <h2 class="cv-h" data-surface-h><?= Lang::e('ui.surface') ?></h2>
       <dl class="cv-dl" data-surface-info></dl>
       <div data-surface-report></div>
@@ -190,9 +194,18 @@ $__more = [
         <div class="cv-row"><input type="number" id="cv-maxedge" class="cv-input" min="0" step="any" data-maxedge><span class="cv-unit" data-unit></span></div>
       </div>
       <p class="cv-note"><?= Lang::e('ui.maxedge.note') ?></p>
+      <div class="cv-props cv-mt" data-grid-opts>
+        <label for="cv-gridmethod"><?= Lang::e('ui.grid.method') ?></label>
+        <div class="cv-row"><select id="cv-gridmethod" class="cv-input" data-grid-method></select></div>
+        <label for="cv-gridstep"><?= Lang::e('ui.grid.step') ?></label>
+        <div class="cv-row"><input type="number" id="cv-gridstep" class="cv-input" min="0" step="any" data-grid-step><span class="cv-unit" data-unit></span></div>
+        <label for="cv-gridpower"><?= Lang::e('ui.grid.power') ?></label>
+        <div class="cv-row"><input type="number" id="cv-gridpower" class="cv-input" min="1" max="10" step="any" data-grid-power></div>
+      </div>
+      <p class="cv-note"><?= Lang::e('ui.grid.note') ?></p>
       <div class="cv-links" data-surface-actions></div>
     </section>
-    <section class="cv-sec">
+    <section class="cv-sec" data-af-open>
       <h2 class="cv-h"><?= Lang::e('ui.display') ?></h2>
       <div class="cv-props">
         <label for="cv-showsurf"><?= Lang::e('ui.surface') ?></label>

@@ -51,7 +51,7 @@ export class PlanView {
     this.colors = c;
     this.invalidateScene();
   }
-  colorOf(token) { return this.colors[token] || this.colors.ink; }
+  colorOf(token) { return this.colors[token] || (/^#[0-9a-f]{6}$/i.test(token || '') ? token : this.colors.ink); }   // 0.9 SU.1080: a layer may carry its own #rrggbb (GIS symbology by attribute)
 
   resize() {
     const r = this.base.parentElement.getBoundingClientRect();

@@ -1,0 +1,14 @@
+{
+  "@locale": "so",
+  "@name": "Soomaali",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (kordhin)",
+  "wind.of.note": "Wuxuu shaqeeyaa rakibaadda OpenFOAM ee adiga kuu gaar ah iyada oo loo marayo barnaamij caawiye yar oo kombiyuutarkan ku jira: hal case RANS (k-epsilon) oo joogto ah jihada dabayl kasta, geli-socodka lakabka xadka cimilada. Waxba kama bixi kombiyuutarkan. CadCraft ma laha OpenFOAM.",
+  "wind.of.url": "Ciwaanka caawiyaha",
+  "wind.of.token": "Astaanta caawiyaha",
+  "wind.of.check": "Hubi caawiyaha",
+  "wind.of.ok": "Caawiyuhu wuu jawaabay. OpenFOAM: {foam}",
+  "wind.of.down": "Caawiyuhu ma jawaabin ({why}). Ku bilow kombiyuutarkan: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Caawiyuhu wuu jawaabay laakiin ma bilaabi karin OpenFOAM: {why}",
+  "wind.of.install": "Ku rakib OpenFOAM (nooca ESI v-series, openfoam.com) iyo caawiyaha fooldarka kordhinta; mawduuca caawinta ayaa sharxaya labadaba."
+}

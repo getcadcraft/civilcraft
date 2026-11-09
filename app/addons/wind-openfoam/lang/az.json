@@ -1,0 +1,14 @@
+{
+  "@locale": "az",
+  "@name": "Azərbaycanca",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (əlavə)",
+  "wind.of.note": "Bu kompüterdə kiçik köməkçi proqram vasitəsilə sizin öz OpenFOAM quraşdırmanızı işlədir: hər külək istiqaməti üçün bir stasionar RANS (k-epsilon) hal, atmosfer sərhəd qatı girişi ilə. Heç nə bu kompüterdən çıxmır. CadCraft OpenFOAM-u daxil etmir.",
+  "wind.of.url": "Köməkçinin ünvanı",
+  "wind.of.token": "Köməkçinin tokeni",
+  "wind.of.check": "Köməkçini yoxla",
+  "wind.of.ok": "Köməkçi cavab verdi. OpenFOAM: {foam}",
+  "wind.of.down": "Köməkçi cavab vermədi ({why}). Onu bu kompüterdə işə salın: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Köməkçi cavab verdi, amma OpenFOAM-u işə sala bilmədi: {why}",
+  "wind.of.install": "OpenFOAM-u (ESI v-seriyası, openfoam.com) və köməkçini əlavənin qovluğundan quraşdırın; kömək mövzusu hər ikisini izah edir."
+}

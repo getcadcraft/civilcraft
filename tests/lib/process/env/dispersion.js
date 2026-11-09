@@ -97,7 +97,7 @@ export function screen(source, { species, terrain = 'rural', Ta = 293.15, zi = 0
     }
   }
   const averaged = {}; for (const a of averaging) averaged[a] = best.c * (AVERAGING[a] ?? NaN);
-  const notes = ['Stability-class screening on flat ground, one source, no buildings. Ta ' + Ta + ' K' + (Ta === 293.15 ? ' (assumed: give the real ambient temperature)' : '') + '.',
+  const notes = ['Stability-class screening on flat ground, one source, no buildings. Ta ' + Ta + ' K' + (Math.abs(Ta - 293.15) < 1e-9 ? ' (assumed: give the real ambient temperature)' : '') + '.',
     'Averaging multipliers are screening guidance values typed without the document open; the 1-hour maximum is the model\'s number.'];
   return { max: best, byClass, averaged, notes, species };
 }

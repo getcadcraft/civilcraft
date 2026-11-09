@@ -1,0 +1,1804 @@
+{
+ "format": "cadcraft-chain-table",
+ "format_version": 2,
+ "units": "mm",
+ "standard_short": "catalogue dimensions for ISO 606 and ANSI B29.1 roller chain (cross-checked, not copied from the standards)",
+ "standard": "ISO 606 (short-pitch transmission precision roller chain, A and B series) and ANSI/ASME B29.1 (precision power transmission roller chain), as published in manufacturers' catalogues and reference pages; edition not stated by the catalogues",
+ "source": "Dimensions read from the public catalogues listed in `sources` on 2026-11-06 and cross-checked: a value is kept only where at least two catalogues print it. NOT copied from the standard itself; CadCraft does not hold ISO 606 or ASME B29.1. inches converted with 25.4 exactly.",
+ "note": "pitch p, roller diameter d1 (maximum; for chains 25, 35, 04C, 06C the bushing diameter, they have no rollers), inner width b1 (ISO: width between inner plates, minimum; ANSI: nominal roller width), plate = inner (roller-link) plate height h2 (maximum, null when the catalogues disagree). Tolerance for \"the same value\": 0.06 mm (0.10 mm for plate). `checks` names the catalogues that agree on each number and, in `differ`, those that print something else. ANSI and ISO A-series twins (`twin`) are the same chain in two systems; their inner widths are different quantities (nominal vs minimum) and differ by up to 0.3 mm. Tip diameter, seat angle and tooth width are NOT in any source: they stay generator parameters in lib/chain/chain.mjs.",
+ "sources": {
+  "AN1": {
+   "name": "Sprocket Engineering Datasheet, \"Roller Chain Dimensions\" (ANSI chain numbers, inches; maker not named in the file)",
+   "url": "https://electricscooterparts.com/manuals/Sprocket-Engineering-Datasheet.pdf",
+   "fetched": "2026-11-06",
+   "unit": "in",
+   "standard_named": "ANSI B29.1"
+  },
+  "AN2": {
+   "name": "Engineers Edge, \"ASME/ANSI B29.1M roller chain dimensions\" (inches; its note: maximum roller link plate height 0.95 P)",
+   "url": "https://engineersedge.com/power_transmission/roller_chain_dimensions_13610.htm",
+   "fetched": "2026-11-06",
+   "unit": "in",
+   "standard_named": "ASME B29.1M"
+  },
+  "PTI": {
+   "name": "PTI Europa, \"Short pitch precision roller chains (A series)\", simplex table (DIN/ISO chain no. with its ANSI no., mm)",
+   "url": "https://pti.eu/pdf/chains/Rollerchain/ShortpitchprecisionrollerchainsAseries.pdf",
+   "fetched": "2026-11-06",
+   "unit": "mm",
+   "standard_named": "DIN/ISO 606 A series"
+  },
+  "DIAM": {
+   "name": "Diamond Chain (Drives & Drives, India), \"Roller chains & sprockets\" catalogue: tables \"to ISO 606 / DIN 8187 / BS 228\" (B series) and \"to ISO 606 / DIN 8188 / ANSI B29.1\" (A series), mm",
+   "url": "https://www.ddrives.com/pdf/roller-chains-&-sprockets.pdf",
+   "fetched": "2026-11-06",
+   "unit": "mm",
+   "standard_named": "ISO 606 A and B"
+  },
+  "SEDIS": {
+   "name": "Sedis (Timken) Delta range, \"BS Chains - European Series\" (ISO 606 / BS 228 / DIN 8187), RS Components datasheet A700000015002149, mm",
+   "url": "https://docs.rs-online.com/fecf/A700000015002149.pdf",
+   "fetched": "2026-11-06",
+   "unit": "mm",
+   "standard_named": "ISO 606 B series"
+  },
+  "MMI": {
+   "name": "mm-intercom, \"Technical data sheet, short pitch precision roller chain, series B\" (ISO 606 DIN), mm",
+   "url": "https://mmintercom.com/upload/catalog/product/76402/tds%20roller%20chain%20series%20b.pdf",
+   "fetched": "2026-11-06",
+   "unit": "mm",
+   "standard_named": "ISO 606 B series"
+  },
+  "BEP": {
+   "name": "BEP Ltd, \"Stainless steel roller chains - dimensions according to ISO 606\", mm",
+   "url": "https://bepltd.com/cdn/shop/files/SS-ROLLER-CHAIN.pdf",
+   "fetched": "2026-11-06",
+   "unit": "mm",
+   "standard_named": "ISO 606 B series"
+  },
+  "IWB": {
+   "name": "Industrial World, \"Roller Chain - British Standard Chart\" (ISO 606 column, P / W / D, 1 decimal for some sizes; plate heights printed as whole numbers, not used)",
+   "url": "https://d347awuzx0kdse.cloudfront.net/industrialworld/content-file/Roller%20Chain%20-%20British%20Standard%20Chart.pdf",
+   "fetched": "2026-11-06",
+   "unit": "mm",
+   "standard_named": "BS / ISO 606 B series"
+  },
+  "TSU": {
+   "name": "Tsubaki (US) General Catalog, BS/DIN (ISO 606) roller chain table, inches (plate heights h/H not used: two columns, not defined on the page)",
+   "url": "https://catalog.ustsubaki.com/view/303480282/112/",
+   "fetched": "2026-11-06",
+   "unit": "in",
+   "standard_named": "BS/DIN (ISO 606) B series"
+  }
+ },
+ "standard_status": [
+  {
+   "what": "ASME B29.1-2011 (R2022) is listed as the current edition of the American standard",
+   "url": "https://webstore.ansi.org/standards/asme/asmeb292011r2022"
+  },
+  {
+   "what": "ISO 606:2015 is stated as the current (fourth) edition by a sprocket supplier; the catalogues above name ISO 606 / DIN 8187 / DIN 8188 / BS 228 without an edition",
+   "url": "https://chainsprocketchina.com/iso-sprockets/"
+  }
+ ],
+ "tolerance_mm": {
+  "pitch": 0.06,
+  "roller": 0.06,
+  "inner": 0.06,
+  "plate": 0.1
+ },
+ "omitted": [
+  {
+   "chain": "04C",
+   "series": "A",
+   "reason": "no value for inner printed by two catalogues within tolerance (sources that print this chain: PTI)"
+  },
+  {
+   "chain": "06C",
+   "series": "A",
+   "reason": "no value for inner printed by two catalogues within tolerance (sources that print this chain: PTI)"
+  },
+  {
+   "chain": "36A",
+   "series": "A",
+   "reason": "no value for inner printed by two catalogues within tolerance (sources that print this chain: PTI)"
+  }
+ ],
+ "rows": [
+  {
+   "chain": "25",
+   "series": "ANSI B29.1",
+   "pitch": 6.35,
+   "roller": 3.302,
+   "inner": 3.175,
+   "plate": 6.0198,
+   "bushing": true,
+   "twin": "04C",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "PTI"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "35",
+   "series": "ANSI B29.1",
+   "pitch": 9.525,
+   "roller": 5.08,
+   "inner": 4.7625,
+   "plate": 9.0424,
+   "bushing": true,
+   "twin": "06C",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "PTI"
+     ],
+     "differ": [
+      {
+       "src": "DIAM",
+       "v": 8.26
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "40",
+   "series": "ANSI B29.1",
+   "pitch": 12.7,
+   "roller": 7.9248,
+   "inner": 7.9375,
+   "plate": 12.065,
+   "twin": "08A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "41",
+   "series": "ANSI B29.1",
+   "pitch": 12.7,
+   "roller": 7.7724,
+   "inner": 6.35,
+   "plate": 9.7282,
+   "twin": "085",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 9.91
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "50",
+   "series": "ANSI B29.1",
+   "pitch": 15.875,
+   "roller": 10.16,
+   "inner": 9.525,
+   "plate": 15.0876,
+   "twin": "10A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "60",
+   "series": "ANSI B29.1",
+   "pitch": 19.05,
+   "roller": 11.9126,
+   "inner": 12.7,
+   "plate": 18.0848,
+   "twin": "12A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "80",
+   "series": "ANSI B29.1",
+   "pitch": 25.4,
+   "roller": 15.875,
+   "inner": 15.875,
+   "plate": 24.13,
+   "twin": "16A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 24
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "100",
+   "series": "ANSI B29.1",
+   "pitch": 31.75,
+   "roller": 19.05,
+   "inner": 19.05,
+   "plate": 30.1625,
+   "twin": "20A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 30
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "120",
+   "series": "ANSI B29.1",
+   "pitch": 38.1,
+   "roller": 22.225,
+   "inner": 25.4,
+   "plate": 36.195,
+   "twin": "24A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 35.7
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "140",
+   "series": "ANSI B29.1",
+   "pitch": 44.45,
+   "roller": 25.4,
+   "inner": 25.4,
+   "plate": 42.2275,
+   "twin": "28A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 41
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "160",
+   "series": "ANSI B29.1",
+   "pitch": 50.8,
+   "roller": 28.575,
+   "inner": 31.75,
+   "plate": 48.26,
+   "twin": "32A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 47.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "180",
+   "series": "ANSI B29.1",
+   "pitch": 57.15,
+   "roller": 35.7124,
+   "inner": 35.7188,
+   "plate": 54.2798,
+   "twin": "36A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 53.6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "200",
+   "series": "ANSI B29.1",
+   "pitch": 63.5,
+   "roller": 39.6748,
+   "inner": 38.1,
+   "plate": 60.325,
+   "twin": "40A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 60
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "240",
+   "series": "ANSI B29.1",
+   "pitch": 76.2,
+   "roller": 47.625,
+   "inner": 47.625,
+   "plate": 72.39,
+   "twin": "48A",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "AN1",
+      "AN2",
+      "DIAM",
+      "PTI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "AN1",
+      "AN2"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "AN2",
+      "DIAM",
+      "PTI"
+     ],
+     "differ": [
+      {
+       "src": "AN1",
+       "v": 71.4248
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "08A",
+   "series": "ISO 606 A series",
+   "pitch": 12.7,
+   "roller": 7.92,
+   "inner": 7.85,
+   "plate": 12.07,
+   "twin": "40",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "10A",
+   "series": "ISO 606 A series",
+   "pitch": 15.875,
+   "roller": 10.16,
+   "inner": 9.4,
+   "plate": 15.09,
+   "twin": "50",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "12A",
+   "series": "ISO 606 A series",
+   "pitch": 19.05,
+   "roller": 11.91,
+   "inner": 12.57,
+   "plate": 18.08,
+   "twin": "60",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "16A",
+   "series": "ISO 606 A series",
+   "pitch": 25.4,
+   "roller": 15.88,
+   "inner": 15.75,
+   "plate": 24.13,
+   "twin": "80",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 24
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "20A",
+   "series": "ISO 606 A series",
+   "pitch": 31.75,
+   "roller": 19.05,
+   "inner": 18.9,
+   "plate": 30.1625,
+   "twin": "100",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 30
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "24A",
+   "series": "ISO 606 A series",
+   "pitch": 38.1,
+   "roller": 22.23,
+   "inner": 25.22,
+   "plate": 36.2,
+   "twin": "120",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 35.7
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "28A",
+   "series": "ISO 606 A series",
+   "pitch": 44.45,
+   "roller": 25.4,
+   "inner": 25.22,
+   "plate": 42.2275,
+   "twin": "140",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 41
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "32A",
+   "series": "ISO 606 A series",
+   "pitch": 50.8,
+   "roller": 28.58,
+   "inner": 31.55,
+   "plate": 48.26,
+   "twin": "160",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 47.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "40A",
+   "series": "ISO 606 A series",
+   "pitch": 63.5,
+   "roller": 39.68,
+   "inner": 37.85,
+   "plate": 60.33,
+   "twin": "200",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 60
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "48A",
+   "series": "ISO 606 A series",
+   "pitch": 76.2,
+   "roller": 47.63,
+   "inner": 47.35,
+   "plate": 72.39,
+   "twin": "240",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ],
+     "differ": [
+      {
+       "src": "AN1",
+       "v": 71.4248
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "085",
+   "series": "ISO 606 A series",
+   "pitch": 12.7,
+   "roller": 7.77,
+   "inner": 6.25,
+   "plate": 9.68,
+   "twin": "41",
+   "checks": {
+    "pitch": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN2"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "PTI",
+      "DIAM",
+      "AN1",
+      "AN2"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "PTI",
+      "DIAM"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "AN1"
+     ],
+     "differ": [
+      {
+       "src": "PTI",
+       "v": 9.91
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "04B",
+   "series": "ISO 606 B series",
+   "pitch": 6,
+   "roller": 4,
+   "inner": 2.8,
+   "plate": 5,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "MMI",
+      "BEP"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "MMI",
+      "BEP"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "MMI",
+      "BEP"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "MMI",
+      "BEP"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "05B",
+   "series": "ISO 606 B series",
+   "pitch": 8,
+   "roller": 5,
+   "inner": 3,
+   "plate": 7.1,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "MMI",
+      "BEP"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "06B",
+   "series": "ISO 606 B series",
+   "pitch": 9.525,
+   "roller": 6.35,
+   "inner": 5.72,
+   "plate": 8.26,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "08B",
+   "series": "ISO 606 B series",
+   "pitch": 12.7,
+   "roller": 8.51,
+   "inner": 7.75,
+   "plate": 11.8,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "10B",
+   "series": "ISO 606 B series",
+   "pitch": 15.875,
+   "roller": 10.16,
+   "inner": 9.65,
+   "plate": 14.73,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "BEP"
+     ],
+     "differ": [
+      {
+       "src": "SEDIS",
+       "v": 13.7
+      },
+      {
+       "src": "MMI",
+       "v": 14.6
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "12B",
+   "series": "ISO 606 B series",
+   "pitch": 19.05,
+   "roller": 12.07,
+   "inner": 11.68,
+   "plate": 16.13,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "16B",
+   "series": "ISO 606 B series",
+   "pitch": 25.4,
+   "roller": 15.88,
+   "inner": 17.02,
+   "plate": 21,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "TSU",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "MMI",
+      "BEP"
+     ],
+     "differ": [
+      {
+       "src": "SEDIS",
+       "v": 20.8
+      },
+      {
+       "src": "DIAM",
+       "v": 21.8
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "20B",
+   "series": "ISO 606 B series",
+   "pitch": 31.75,
+   "roller": 19.05,
+   "inner": 19.56,
+   "plate": 26.42,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ],
+     "differ": [
+      {
+       "src": "IWB",
+       "v": 19.1
+      }
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "MMI",
+      "BEP"
+     ],
+     "differ": [
+      {
+       "src": "SEDIS",
+       "v": 25.4
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "24B",
+   "series": "ISO 606 B series",
+   "pitch": 38.1,
+   "roller": 25.4,
+   "inner": 25.4,
+   "plate": 33.4,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP",
+      "IWB"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "MMI",
+      "BEP"
+     ],
+     "differ": [
+      {
+       "src": "SEDIS",
+       "v": 32.3
+      }
+     ]
+    }
+   }
+  },
+  {
+   "chain": "28B",
+   "series": "ISO 606 B series",
+   "pitch": 44.45,
+   "roller": 27.94,
+   "inner": 30.99,
+   "plate": 37,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI",
+      "BEP"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "32B",
+   "series": "ISO 606 B series",
+   "pitch": 50.8,
+   "roller": 29.21,
+   "inner": 30.99,
+   "plate": 42.3,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "MMI"
+     ],
+     "differ": [
+      {
+       "src": "DIAM",
+       "v": 38.1
+      }
+     ]
+    },
+    "plate": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "40B",
+   "series": "ISO 606 B series",
+   "pitch": 63.5,
+   "roller": 39.37,
+   "inner": 38.1,
+   "plate": 52.9,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "plate": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    }
+   }
+  },
+  {
+   "chain": "48B",
+   "series": "ISO 606 B series",
+   "pitch": 76.2,
+   "roller": 48.26,
+   "inner": 47.7,
+   "plate": 63.88,
+   "twin": null,
+   "checks": {
+    "pitch": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "roller": {
+     "agree": [
+      "SEDIS",
+      "DIAM",
+      "MMI"
+     ]
+    },
+    "inner": {
+     "agree": [
+      "SEDIS",
+      "DIAM"
+     ],
+     "differ": [
+      {
+       "src": "MMI",
+       "v": 45.72
+      }
+     ]
+    },
+    "plate": {
+     "agree": [
+      "DIAM",
+      "MMI"
+     ],
+     "differ": [
+      {
+       "src": "SEDIS",
+       "v": 64.2
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

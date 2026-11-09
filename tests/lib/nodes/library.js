@@ -12,6 +12,7 @@
 import * as N from '../nurbs/index.js';
 import * as V from '../nurbs/vec.js';
 import { vec, isVec, isCurve, isSurface, isMesh, typeOf, fail } from './types.js';
+import { SOLID_NODES } from '../nurbs/nodes-solid.js';
 
 const RAD = Math.PI / 180;
 const arr = (p) => [p[0], p[1], p[2]];
@@ -170,6 +171,7 @@ one('offset_surface', 'surface', 'Offset surface', [S('surface'), i('distance', 
 one('to_mesh', 'surface', 'Surface to mesh', [S('surface'), i('tolerance', 'number', 0.1, { unit: L, min: 0.001 })], o('out', 'mesh', L),
   (a) => { need(a.tolerance > 0, 'nodes.err.tolerance'); const t = N.surface.tessellate(a.surface, { tol: a.tolerance }); return { positions: Float64Array.from(t.positions), indices: Uint32Array.from(t.indices) }; }, L);
 
+for (const d of SOLID_NODES) LIBRARY.push(d);   // solids and Booleans (0.9 SU.747c): cc-nurbs' own node definitions
 export const BY_ID = Object.freeze(Object.fromEntries(LIBRARY.map((d) => [d.id, d])));
-export const CATEGORIES = Object.freeze(['input', 'math', 'list', 'vector', 'curve', 'transform', 'surface']);
+export const CATEGORIES = Object.freeze(['input', 'math', 'list', 'vector', 'curve', 'transform', 'surface', 'solid']);
 export { typeOf };

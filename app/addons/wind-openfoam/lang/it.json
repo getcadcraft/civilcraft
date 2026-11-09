@@ -1,0 +1,14 @@
+{
+  "@locale": "it",
+  "@name": "Italiano",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (add-on)",
+  "wind.of.note": "Esegue un'installazione di OpenFOAM già presente su questo computer tramite un piccolo programma di supporto: un caso RANS stazionario (k-epsilon) per ogni direzione del vento, con ingresso a strato limite atmosferico. Nulla lascia questo computer. CadCraft non include OpenFOAM.",
+  "wind.of.url": "Indirizzo del programma di supporto",
+  "wind.of.token": "Token del programma di supporto",
+  "wind.of.check": "Verifica il programma di supporto",
+  "wind.of.ok": "Il programma di supporto ha risposto. OpenFOAM: {foam}",
+  "wind.of.down": "Il programma di supporto non ha risposto ({why}). Avviarlo su questo computer con: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Il programma di supporto ha risposto, ma non è stato possibile avviare OpenFOAM: {why}",
+  "wind.of.install": "Installare OpenFOAM (la serie ESI v, openfoam.com) e il programma di supporto dalla cartella dell'add-on; l'argomento della guida spiega entrambi."
+}

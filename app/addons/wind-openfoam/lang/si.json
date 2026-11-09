@@ -1,0 +1,14 @@
+{
+  "@locale": "si",
+  "@name": "සිංහල",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ඇඩෝනය)",
+  "wind.of.note": "මෙම පරිගණකයේ කුඩා සහායක වැඩසටහනක් හරහා ඔබේම OpenFOAM ස්ථාපනය ධාවනය කරයි: සුළං දිශාවකට එක් RANS (k-epsilon) ස්ථාවර නඩුවක්, වායුගෝලීය සීමා ස්ථර ආදානය සමඟ. කිසිවක් මෙම පරිගණකයෙන් පිටව නොයයි. CadCraft හි OpenFOAM ඇතුළත් නොවේ.",
+  "wind.of.url": "සහායක ලිපිනය",
+  "wind.of.token": "සහායක ටෝකනය",
+  "wind.of.check": "සහායක පරීක්ෂා කරන්න",
+  "wind.of.ok": "සහායකයා පිළිතුරු දුන්නේය. OpenFOAM: {foam}",
+  "wind.of.down": "සහායකයා පිළිතුරු නොදුන්නේය ({why}). මෙම පරිගණකයේ එය ආරම්භ කරන්න: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "සහායකයා පිළිතුරු දුන් නමුත් OpenFOAM ආරම්භ කළ නොහැක: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) සහ සහායක වැඩසටහන ඇඩෝනයේ ෆෝල්ඩරයෙන් ස්ථාපනය කරන්න; උදවු මාතෘකාව දෙකම පැහැදිලි කරයි."
+}

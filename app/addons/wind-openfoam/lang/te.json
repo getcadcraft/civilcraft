@@ -1,0 +1,14 @@
+{
+  "@locale": "te",
+  "@name": "తెలుగు",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (యాడ్-ఆన్)",
+  "wind.of.note": "ఈ కంప్యూటర్‌లోని ఒక చిన్న హెల్పర్ ప్రోగ్రామ్ ద్వారా మీ స్వంత OpenFOAM ఇన్‌స్టాలేషన్‌ను నడుపుతుంది: ప్రతి గాలి దిశకు ఒక స్థిరమైన RANS (k-epsilon) కేసు, వాతావరణ సరిహద్దు పొర ఇన్‌లెట్. ఏదీ ఈ కంప్యూటర్ నుండి బయటకు వెళ్ళదు. CadCraft లో OpenFOAM చేర్చబడలేదు.",
+  "wind.of.url": "హెల్పర్ చిరునామా",
+  "wind.of.token": "హెల్పర్ టోకెన్",
+  "wind.of.check": "హెల్పర్‌ను తనిఖీ చేయి",
+  "wind.of.ok": "హెల్పర్ స్పందించింది. OpenFOAM: {foam}",
+  "wind.of.down": "హెల్పర్ స్పందించలేదు ({why}). ఈ కంప్యూటర్‌లో దీనిని ప్రారంభించండి: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "హెల్పర్ స్పందించింది కానీ OpenFOAM ను ప్రారంభించలేకపోయింది: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) మరియు హెల్పర్‌ను యాడ్-ఆన్ ఫోల్డర్ నుండి ఇన్‌స్టాల్ చేయండి; సహాయ అంశం రెండింటినీ వివరిస్తుంది."
+}

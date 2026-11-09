@@ -145,8 +145,9 @@ try {
   const stText = fs.readFileSync(await st.path(), 'utf8');
   ok(/FACE_OUTER_BOUND/.test(stText) && /B_SPLINE_CURVE_WITH_KNOTS/.test(stText), 'STEP out carries the trim bound');
   const [ig] = await Promise.all([page.waitForEvent('download'), page.click('[data-nurbs-export="iges"]')]);
-  void ig;
-  ok(/trims were not written/.test(await page.evaluate(() => document.body.textContent)), 'IGES says the trims are not written');
+  const igText = fs.readFileSync(await ig.path(), 'utf8');
+  // 0.9 DC.54 (nurbs-09): IGES carries the trim too: a 144 (trimmed surface) whose bound is a 142 (curve on the surface)
+  ok(/^ {5}144 /m.test(igText) && /^ {5}142 /m.test(igText), 'IGES out carries the trimmed surface (entities 144 and 142)');
 } catch (e) {
   fail++; console.log('  FAIL threw: ' + (e && e.stack || e));
 } finally {

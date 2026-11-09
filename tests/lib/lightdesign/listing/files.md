@@ -1,0 +1,1 @@
+Reads IES and EULUMDAT (.ies, .ldt) photometry files. Writes an HTML report, a CSV of the grid, drawing entities in CadCraft (layers LD-LUMINAIRE and LD-LUX), and in BimCraft IfcLightFixture elements (CadCraft_Electrical and CadCraft_LightDesign property sets) and drafting lines in the level's plan view.

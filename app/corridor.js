@@ -58,12 +58,24 @@
  *   cleanTargets(list) (untrusted: the project file) → [{ side, what, part, from: { kind 'feature', id } |
  *     { kind 'corridor', id (alignment id), line (CORRIDOR_LINES) } }]
  *   sectionHit(p, ux, uy, line) → { t (distance out along u), z } | null   the first crossing at t > 0
+ *
+ * Templates by station (0.9 SU.1110 + WB.6, templates.js): asm.regions = [{ from (station), L: { uses, end }, R: { uses, end } }]
+ * with asm.templates = Map(id → template) builds every section from templates instead: each side chains its pavement templates
+ * outward from the centreline (each starts at the last top point of the one before), then its END CONDITION (a daylight, a
+ * ditch, a wall … any template whose last top point meets the ground; none = a daylight at the corridor's own cut / fill). A
+ * region runs from its station to the next region's; asm.from / asm.to limit the whole corridor (several corridors on one
+ * alignment). A use's targets ({ CODE: line }, resolved by project.js) move that template point to the line. The surface runs
+ * through every top point (codes kept, a repeated code numbered: FL, FL2 …); sec[side] = [CL, end of pavement, last point
+ * before the daylight, DL] as before; sec.comps[side] = the components' shapes in (o, z), sec.compsBefore at a region's first
+ * station = the region before's (so volumes never mix two templates). info.components = componentQuantities (average end
+ * areas along the centreline, per side, region and component). Superelevation and WL.25 targets are not used in this mode.
  */
 
 import { t } from "./i18n.js";
 import { castSlope, selfCrosses } from './grading.js';
 import { superPlan, slopesAt, keyStations as superStations } from './superelev.js';   // 0.4 V18
 import { cantPlan, cantAt, trackShape, trackQuantities } from './rail.js';   // 0.7.1 71.26: a track instead of a road
+import { evalTemplate, regionAt } from './templates.js';   // 0.9 SU.1110: templates by station
 
 export function defaultAssembly(units = 'ft') {
   return units === 'm'
@@ -233,6 +245,80 @@ function walkSide(parts, c) {
   return { det, eop, sh, dl };
 }
 
+/**
+ * 0.9 SU.1110: one side of one section from its templates: the pavement uses outward, then the end condition. Returns
+ * { det (CL + every top point, coded), eop (where the pavement ends), sh (the point before the daylight), dl, comps }.
+ * A use's `lines` ({ CODE: 3D polyline }) are its resolved targets.
+ */
+function walkTemplates(sideDef, c) {
+  const { p, ux, uy, z0, cl, A, surface, step, far, tplMiss, eps } = c;
+  const W = (o) => ({ x: p.x + ux * o, y: p.y + uy * o });
+  const ground = (o) => { const q = W(o), z = surface.elevationAt(q.x, q.y, 1e-6); return z === null || !Number.isFinite(z) ? null : z; };
+  const cast = (b, cut, fill) => { const q = W(b.o), r = castSlope(surface, q, ux, uy, b.z, cut, fill, { step: Math.max(0.1, step / 20), far }); return { o: b.o + r.d, z: r.z, kind: r.kind }; };
+  const det = [cl], comps = [], seen = {};
+  const code = (base) => { seen[base] = (seen[base] || 0) + 1; return seen[base] > 1 ? base + seen[base] : base; };
+  let base = { o: 0, z: z0 }, eop = cl, dl = null, lastO = 0;
+  const uses = [...(sideDef?.uses || []).map((u) => ({ u, end: false })), ...(sideDef?.end ? [{ u: sideDef.end, end: true }] : [])];
+  uses.forEach(({ u, end }, k) => {
+    if (dl) return;   // an end condition met the ground: nothing attaches after it
+    const tpl = A.templates.get(u.tpl);
+    if (!tpl) { tplMiss.add(u.tpl); return; }
+    const hit = (cd, what) => { const line = u.lines?.[cd]; if (!line || line.length < 2) return null; const h = sectionHit(p, ux, uy, line); return h ? (what === 'width' ? { o: h.t } : { z: h.z }) : null; };
+    const r = evalTemplate(tpl, { params: u.params || {}, origin: base, ground, cast, hit });
+    for (const q of r.top) {
+      // the surface is one height per offset: a point straight above or below the last one (a wall face, a curb face) is
+      // nudged out by eps, a point that would step back inward is kept just outside the last one
+      const o = Math.max(q.o, lastO + eps);
+      lastO = o;
+      const w = W(o);
+      det.push({ x: w.x, y: w.y, z: q.z, code: code(q.code), ...(q.kind === 'off' ? { kind: 'off' } : {}) });
+    }
+    for (const cp of r.comps) comps.push({ key: (end ? 'E' : 'P' + k) + ':' + u.tpl + ':' + cp.k, use: k, end, tpl: u.tpl, name: cp.name, material: cp.material, kind: cp.kind, poly: cp.poly, area: cp.area, ...(cp.wall ? { wall: true, h: cp.h } : {}) });
+    if (r.end) {
+      dl = det[det.length - 1];
+      const lk = r.top[r.top.length - 1]?.kind;
+      dl.code = 'DL'; dl.kind = lk === 'off' ? 'off' : dl.z > base.z + 1e-9 ? 'cut' : dl.z < base.z - 1e-9 ? 'fill' : 'flat';
+      return;
+    }
+    base = { o: r.attach.o, z: r.attach.z };
+    if (!end) eop = det[det.length - 1];
+  });
+  if (!dl) {
+    // no end condition met the ground: a daylight from the last point at the corridor's own slopes
+    const sh0 = det[det.length - 1];
+    const r = castSlope(surface, sh0, ux, uy, sh0.z, A.cut, A.fill, { step: Math.max(0.1, step / 20), far });
+    dl = { x: r.x, y: r.y, z: r.z, kind: r.kind, code: 'DL' };
+    det.push(dl);
+  }
+  const sh = det.length >= 2 ? det[det.length - 2] : cl;
+  return { det, eop, sh, dl, comps };
+}
+
+/** 0.9 SU.1110: each component's volume by average end areas along the centreline: [{ side, region, key, tpl, name, material,
+ *  kind, from, to, length, area0 (first section's area), volume, wall?, maxH? }]. Two neighbouring sections in different
+ *  regions use the later section's areas for the region before (compsBefore), so a template never borrows another's area. */
+export function componentQuantities(sections) {
+  const out = new Map();
+  for (let i = 1; i < sections.length; i++) {
+    const a = sections[i - 1], b = sections[i], L = b.sta - a.sta;
+    if (!(L > 0)) continue;
+    for (const side of ['L', 'R']) {
+      const A = a.comps?.[side] || [], B = (b.compsBefore?.[side]) || b.comps?.[side] || [];
+      const keys = new Set([...A.map((c) => c.key), ...B.map((c) => c.key)]);
+      for (const key of keys) {
+        const ca = A.find((c) => c.key === key), cb = B.find((c) => c.key === key), cc = ca || cb;
+        const id = side + '|' + a.region + '|' + key;
+        let r = out.get(id);
+        if (!r) { r = { side, region: a.region, key, tpl: cc.tpl, name: cc.name, material: cc.material, kind: cc.kind, from: a.sta, to: b.sta, length: 0, volume: 0, ...(cc.wall ? { wall: true, maxH: 0 } : {}) }; out.set(id, r); }
+        r.volume += (((ca?.area || 0) + (cb?.area || 0)) / 2) * L;
+        r.to = b.sta; r.length = r.to - r.from;
+        if (r.wall) r.maxH = Math.max(r.maxH, ca?.h || 0, cb?.h || 0);
+      }
+    }
+  }
+  return [...out.values()];
+}
+
 export function corridorPatch(surface, alignment, profile, asm, { targets = [], units = 'ft' } = {}) {
   const problems = [];
   const empty = (msg) => ({ problems: [msg], region: null, points: [], breaklines: [], info: { sections: [], lines: {} } });
@@ -240,7 +326,11 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   if (!profile?.ok) return empty(t('corr.err.prof'));
   const A = { ...defaultAssembly(), ...asm };
   if (!(A.cut > 0 && A.fill > 0)) return empty(t('corr.err.slopes'));
-  const from = Math.max(alignment.start, profile.start), to = Math.min(alignment.end, profile.end);
+  const tplOn = !A.rail?.on && Array.isArray(A.regions) && A.regions.length > 0 && A.templates instanceof Map;   // 0.9 SU.1110
+  let from = Math.max(alignment.start, profile.start), to = Math.min(alignment.end, profile.end);
+  if (Number.isFinite(A.from)) from = Math.max(from, A.from);   // 0.9: a corridor on part of the alignment
+  if (Number.isFinite(A.to)) to = Math.min(to, A.to);
+  if (tplOn) from = Math.max(from, A.regions[0].from);
   if (!(to - from > 1e-6)) return empty(t('corr.err.overlap'));
   // stations: every step, the ends, the curve ends and the vertical curve ends
   const st = new Set([from, to]);
@@ -248,12 +338,14 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   for (let s = Math.ceil(from / step) * step; s < to; s += step) st.add(Number(s.toFixed(6)));
   for (const k of alignment.keyStations()) if (k.sta > from && k.sta < to) st.add(k.sta);
   for (const c of profile.curves) for (const s of [c.bvc, c.evc]) if (s > from && s < to) st.add(s);
+  // 0.9: every region starts with a section, and the region before ends just short of it (the change of template is abrupt, as built)
+  if (tplOn) for (const r of A.regions) if (r.from > from && r.from < to) { st.add(r.from); const e = Math.min((A.step > 0 ? A.step : 10) * 0.01, units === 'm' ? 0.1 : 0.3); if (r.from - e > from) st.add(Number((r.from - e).toFixed(6))); }
   const railOn = !!A.rail?.on;   // 0.7.1 71.26
   const rp = railOn ? cantPlan(alignment, A.rail, { speed: A.rail.speed, minSpeed: A.rail.minSpeed, units, id: A.rail.id, name: A.rail.name }) : null;
   if (rp) for (const s of rp.stations) if (s > from && s < to) st.add(Number(s.toFixed(6)));
-  const custom = !railOn && !!(A.parts && (A.parts.L?.length || A.parts.R?.length));   // 0.7 D7.35
+  const custom = !railOn && !tplOn && !!(A.parts && (A.parts.L?.length || A.parts.R?.length));   // 0.7 D7.35
   const nc = custom ? ncOf(A) : A.laneSlope;
-  const sp = !railOn && A.super?.on ? superPlan(alignment, { super: A.super, nc, lane: custom ? laneRunWidth(A) : A.lane }) : null;   // 0.4 V18
+  const sp = !railOn && !tplOn && A.super?.on ? superPlan(alignment, { super: A.super, nc, lane: custom ? laneRunWidth(A) : A.lane }) : null;   // 0.4 V18
   if (sp) { for (const s of superStations(sp)) if (s > from && s < to) st.add(Number(s.toFixed(6))); problems.push(...sp.problems); }
   const stations = [...st].sort((a, b) => a - b).filter((s, i, a) => !i || s - a[i - 1] > 1e-6);
 
@@ -266,6 +358,7 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   const tgOf = (side, what, part) => tgs.find((g) => g.side === side && g.what === what && g.part === part && g.line?.length >= 2) || null;
   const hitOf = (g, p, ux, uy) => { if (!g) return null; g.of++; const h = sectionHit(p, ux, uy, g.line); if (h) g.found++; return h; };
   let off = 0;
+  const tplMiss = new Set();   // 0.9: template ids a region names that are not in the project any more
   for (const sta of stations) {
     const p = alignment.pointAt(sta), z0 = profile.elevationAt(sta);
     if (z0 === null) continue;
@@ -288,6 +381,20 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
         det.push(dl);
         sec[side] = [det[0], det.find((q) => q.code === 'BSH'), sh, dl];
         (sec.det ||= {})[side] = det;
+        continue;
+      }
+      if (tplOn) {
+        // 0.9 SU.1110: this station's region, its templates on this side
+        cl.code = 'CL';
+        const ri = Math.max(0, regionAt(A.regions, sta));
+        const side0 = { side, p, ux, uy, z0, cl, A, surface, step, far, tplMiss, eps: units === 'm' ? 0.003 : 0.01 };
+        const r = walkTemplates(A.regions[ri][side], side0);
+        if (r.dl.kind === 'off') off++;
+        sec[side] = [cl, r.eop, r.sh, r.dl];
+        (sec.det ||= {})[side] = r.det;
+        (sec.comps ||= {})[side] = r.comps;
+        sec.region = ri;
+        if (ri > 0 && Math.abs(A.regions[ri].from - sta) < 1e-6) (sec.compsBefore ||= {})[side] = walkTemplates(A.regions[ri - 1][side], side0).comps;
         continue;
       }
       if (custom) {
@@ -317,9 +424,21 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   }
   if (sections.length < 2) return empty(t('corr.err.two'));
   if (off) problems.push(t('corr.off', { n: off }));
+  if (tplMiss.size) problems.push(t('tpl.err.missing', { n: tplMiss.size }));
   const tgInfo = tgs.map(({ line, ...g }) => g);
   const line = (side, k) => sections.map((s) => s[side][k]);
   const lines = { CL: line('L', 0), EOP_L: line('L', 1), SH_L: line('L', 2), DL_L: line('L', 3), EOP_R: line('R', 1), SH_R: line('R', 2), DL_R: line('R', 3) };
+  if (tplOn) {   // 0.9 SU.1110: a line for every code; a code that stops and starts again (another region) gets one line per run
+    for (const side of ['L', 'R']) {
+      const codes = new Set(sections.flatMap((s) => (s.det?.[side] || []).map((q) => q.code)).filter((cd) => cd && cd !== 'DL' && cd !== 'CL'));
+      for (const cd of codes) {
+        let run = [], n = 0;
+        const flush = () => { if (run.length >= 2) { n++; const key = cd + '_' + side + (n > 1 ? '.' + n : ''); if (!lines[key]) lines[key] = run; } run = []; };
+        for (const s of sections) { const q = s.det[side].find((x) => x.code === cd); if (q) run.push(q); else flush(); }
+        flush();
+      }
+    }
+  }
   if (custom || railOn) {   // 0.7 D7.35: a line for every other code (FL_L, TOC_R, WALK_L …; 0.7.1 71.26: SLP_L, BSH_R, BTOE_L, CESS_R …)
     for (const side of ['L', 'R']) {
       const codes = (sections[0].det?.[side] || []).map((q) => q.code).filter((cd) => cd && cd !== 'DL' && cd !== 'EOP');
@@ -353,7 +472,8 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   }
   // 0.7.1 71.26: the track's plan, quantities and any station's shape (absolute z) for the sections
   const rail = rp ? { plan: rp, rail: A.rail, units, quantities: trackQuantities(sections, A.rail, units), at: (sta) => { const z0 = profile.elevationAt(sta); if (z0 === null) return null; const h = cantAt(rp, sta); return { z0, E: h.E, shape: trackShape(A.rail, { hL: h.L, hR: h.R }, units) }; } } : null;
-  return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo, courses, ...(rail ? { rail } : {}) } };
+  const components = tplOn ? componentQuantities(sections) : null;   // 0.9 SU.1110
+  return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo, courses, ...(rail ? { rail } : {}), ...(components ? { components } : {}) } };
 }
 
 function cross(a, b, c, d) {

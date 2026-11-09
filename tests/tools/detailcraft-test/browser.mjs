@@ -325,17 +325,17 @@ try {
   await page.waitForSelector('[data-import-report]', { timeout: 30000 });
   await settle();
   const imp = await dc(() => ({ n: window.detailcraft.model.state.members.length, lv: window.detailcraft.model.state.levels.map((l) => l.name).join(','), g: window.detailcraft.model.state.grids.x.length + window.detailcraft.model.state.grids.y.length, dirty: window.detailcraft.model.dirty, rows: [...document.querySelectorAll('[data-import-report] tbody tr')].map((r) => r.textContent) }));
-  ok(imp.n === 8 && imp.lv === 'Ground,First' && imp.g === 4 && imp.dirty, 'IFC imported: 8 members, levels Ground and First, 4 grid lines, model not saved yet', JSON.stringify(imp));
-  ok(imp.rows.length === 4 && imp.rows.some((r) => r.includes('IfcWall')) && imp.rows.some((r) => r.includes('unequal-leg angle')), 'import report lists what was not brought in, by class (' + imp.rows.length + ' rows)');
+  ok(imp.n === 9 && imp.lv === 'Ground,First' && imp.g === 4 && imp.dirty, 'IFC imported: 9 members (its 150 x 90 angle is the catalog UEA since 0.9), levels Ground and First, 4 grid lines, model not saved yet', JSON.stringify(imp));
+  ok(imp.rows.length === 3 && imp.rows.some((r) => r.includes('IfcWall')), 'import report lists what was not brought in, by class (' + imp.rows.length + ' rows)');
   await page.screenshot({ path: path.join(OUT, '07b-ifc-import-report.png') });
   await page.keyboard.press('Enter');
   await settle();
   ok(await dc(() => !document.querySelector('dialog[open]') && document.activeElement?.closest('.dc-tools') !== null), 'OK closes the report; focus back on the toolbar');
-  ok((await page.textContent('[data-status]')).startsWith('Imported ios-steel-ifc2x3.ifc: 8 members'), 'status line sums the import');
+  ok((await page.textContent('[data-status]')).startsWith('Imported ios-steel-ifc2x3.ifc: 9 members'), 'status line sums the import');
   // 0.4 D11: its two holes and the bolt came in; the bolt is loose, listed in the Model panel with a way to remove it
   const imp2 = await dc(() => { const d = window.detailcraft; return { holes: d.model.state.members.reduce((t, m) => t + m.holes.length, 0), bolts: d.model.state.bolts.length, built: d.built.bolts.length }; });
   ok(imp2.holes === 2 && imp2.bolts === 1 && imp2.built === 1, 'the file\'s 2 holes and its bolt came in (0.4 D11)', JSON.stringify(imp2));
-  ok(await dc(() => window.detailcraft.built.parts.length === 8 && window.detailcraft.built.problems.length === 0), 'imported members build into 8 parts with no problems');
+  ok(await dc(() => window.detailcraft.built.parts.length === 9 && window.detailcraft.built.problems.length === 0), 'imported members build into 9 parts with no problems');
   await page.screenshot({ path: path.join(OUT, '07c-ifc-imported.png') });
   await dc(() => window.detailcraft.setSelection([]));
   await settle();

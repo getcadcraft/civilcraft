@@ -1,0 +1,14 @@
+{
+  "@locale": "ro",
+  "@name": "Română",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (supliment)",
+  "wind.of.note": "Rulează o instalare OpenFOAM proprie printr-un mic program auxiliar de pe acest computer: un caz RANS staționar (k-epsilon) pentru fiecare direcție a vântului, cu intrare de strat-limită atmosferic. Nimic nu părăsește acest computer. CadCraft nu include OpenFOAM.",
+  "wind.of.url": "Adresa programului auxiliar",
+  "wind.of.token": "Token al programului auxiliar",
+  "wind.of.check": "Verificare program auxiliar",
+  "wind.of.ok": "Programul auxiliar a răspuns. OpenFOAM: {foam}",
+  "wind.of.down": "Programul auxiliar nu a răspuns ({why}). Porniți-l pe acest computer: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Programul auxiliar a răspuns, dar nu a putut porni OpenFOAM: {why}",
+  "wind.of.install": "Instalați OpenFOAM (seria ESI v, openfoam.com) și programul auxiliar din dosarul suplimentului; subiectul de ajutor explică ambele."
+}

@@ -28,6 +28,11 @@ export function concretePanel(ui) {
   const edit = (label, fn) => ui.change(label, (x) => { const c = cleanConcrete(x.concrete) || cleanConcrete({}); fn(c); x.concrete = c; });
   const num = (value, onchange, attrs = {}) => el('input', { type: 'text', inputMode: 'decimal', className: C.input + ' fa-factor', value: String(value), onchange: (e) => { const v = Number(String(e.target.value).replace(',', '.')); if (Number.isFinite(v)) onchange(v); else ui.rerender(); }, ...attrs });
   const undo = () => t('frame.rc.undo');
+  // 0.9 GH.3-A: floor heights and drifts in the app's display unit when it passes host.len (frame-panel.js); otherwise mm as before
+  const L = host.len || null;
+  const zHead = () => 'z (' + (L ? L.mark() : 'mm') + ')';   // i18n-ignore: symbol and unit
+  const smallHead = (sym) => sym + ' (' + (L ? L.smallMark() : 'mm') + ')';   // i18n-ignore: symbol and unit
+  const lenIn = (mm, onchange, attrs = {}) => (L ? el('input', { type: 'text', className: C.input + ' fa-factor', value: L.num(mm), onchange: (e) => { const v = L.parse(e.target.value); if (Number.isFinite(v)) onchange(v); else ui.rerender(); }, ...attrs }) : num(mm, onchange, attrs));
 
   // ---- problems for the shell's ⚠ panel (rule 29: failed checks go there, never a panel of their own) ----
   const drawnOf = () => {
@@ -220,10 +225,10 @@ export function concretePanel(ui) {
       el('p', { className: 'fa-aid', 'data-fa-eq-aid': '' }, t('frame.eq.aid'))];
     const floorRows = c.floors.map((f, i) => el('tr', {},
       el('td', {}, el('input', { type: 'text', className: C.input, value: f.name, 'aria-label': t('frame.eq.floor'), onchange: (e) => edit(t('frame.eq.undo-floors'), (q) => { q.floors[i].name = e.target.value; }) })),
-      el('td', {}, num(f.z, (v) => edit(t('frame.eq.undo-floors'), (q) => { q.floors[i].z = v; }), { 'data-fa-eq-floor': f.id + ':z', 'aria-label': 'z (mm)' })),
+      el('td', {}, lenIn(f.z, (v) => edit(t('frame.eq.undo-floors'), (q) => { q.floors[i].z = v; }), { 'data-fa-eq-floor': f.id + ':z', 'aria-label': zHead() })),
       el('td', {}, num(f.w, (v) => edit(t('frame.eq.undo-floors'), (q) => { q.floors[i].w = v; }), { 'data-fa-eq-floor': f.id + ':w', 'aria-label': 'w (kN)' })),
       el('td', {}, ui.link(t('frame.ui.remove'), () => edit(t('frame.eq.undo-floors'), (q) => { q.floors.splice(i, 1); })))));
-    out.push(c.floors.length ? ui.table([t('frame.eq.floor'), 'z (mm)', t('frame.eq.weight'), ''], [1, 2], floorRows, { 'data-fa-eq-floors': '' }) : ui.note(t('frame.eq.no-floors')));
+    out.push(c.floors.length ? ui.table([t('frame.eq.floor'), zHead(), t('frame.eq.weight'), ''], [1, 2], floorRows, { 'data-fa-eq-floors': '' }) : ui.note(t('frame.eq.no-floors')));
     out.push(ui.btn(t('frame.eq.add-floor'), () => edit(t('frame.eq.undo-floors'), (q) => { let k = q.floors.length + 1; while (q.floors.some((f) => f.id === 'F' + k)) k++; q.floors.push({ id: 'F' + k, name: 'F' + k, z: (q.floors.at(-1)?.z || 0) + 3500, w: 0 }); }), { 'data-fa-eq-add': '' }));
     const a0 = ui.current();
     out.push(el('div', { className: 'fa-row', 'data-fa-eq-wcases': '' }, el('span', { className: 'fa-lead' }, t('frame.eq.weights-from')),
@@ -245,13 +250,13 @@ export function concretePanel(ui) {
       if (made.ok) {
         const E = made.elf;
         out.push(ui.note(t('frame.eq.summary', { Ta: f1(E.Ta, 3), T: f1(E.T, 3), Cs: f1(E.Cs, 4), eq: E.csEq, W: f1(E.W / 1000, 0), V: f1(E.V / 1000, 1), k: f1(E.k, 2) }), { 'data-fa-eq-summary': '' }));
-        out.push(ui.table([t('frame.eq.floor'), 'z (mm)', 'w (kN)', 'Fx (kN)', 'Vx (kN)'], [1, 2, 3, 4], E.levels.map((l) => el('tr', {}, ui.td(l.id), ui.td(f1(l.hx, 0), 1), ui.td(f1(l.w / 1000), 1), ui.td(f1(l.Fx / 1000), 1), ui.td(f1(l.Vx / 1000), 1))), { 'data-fa-eq-forces': '' }));
+        out.push(ui.table([t('frame.eq.floor'), zHead(), 'w (kN)', 'Fx (kN)', 'Vx (kN)'], [1, 2, 3, 4], E.levels.map((l) => el('tr', {}, ui.td(l.id), ui.td(L ? L.num(l.hx) : f1(l.hx, 0), 1), ui.td(f1(l.w / 1000), 1), ui.td(f1(l.Fx / 1000), 1), ui.td(f1(l.Vx / 1000), 1))), { 'data-fa-eq-forces': '' }));
       } else if (made.error !== 'no-floors') out.push(ui.note(t('frame.eq.err.' + made.error)));
       const dr = driftNow();
       // i18n-ignore: symbols and units
-      if (dr.length) out.push(ui.table([t('frame.eq.floor'), t('frame.des.set'), 'δxe (mm)', 'Cd δxe/Ie (mm)', t('frame.eq.allowed'), t('frame.des.util')], [2, 3, 4, 5], dr.map((d) => {
+      if (dr.length) out.push(ui.table([t('frame.eq.floor'), t('frame.des.set'), smallHead('δxe'), smallHead('Cd δxe/Ie'), L ? t('frame.eq.allowed-u', { u: L.smallMark() }) : t('frame.eq.allowed'), t('frame.des.util')], [2, 3, 4, 5], dr.map((d) => {
         const rgb = utilRamp(d.ratio).map((v) => Math.round(v * 255)).join(',');
-        return el('tr', { 'data-fa-eq-drift': d.ratio > 1 ? 'fail' : 'ok' }, ui.td(d.name), ui.td(d.setName), ui.td(f1(d.elastic, 2), 1), ui.td(f1(d.design, 2), 1), ui.td(f1(d.allowed, 1), 1), el('td', { className: 'n' }, el('span', { className: 'fa-util', style: '--fa-util:rgb(' + rgb + ')' }, pct(d.ratio))));
+        return el('tr', { 'data-fa-eq-drift': d.ratio > 1 ? 'fail' : 'ok' }, ui.td(d.name), ui.td(d.setName), ui.td(L ? L.small(d.elastic) : f1(d.elastic, 2), 1), ui.td(L ? L.small(d.design) : f1(d.design, 2), 1), ui.td(L ? L.small(d.allowed) : f1(d.allowed, 1), 1), el('td', { className: 'n' }, el('span', { className: 'fa-util', style: '--fa-util:rgb(' + rgb + ')' }, pct(d.ratio))));
       }), { 'data-fa-eq-drift-table': '' }));
     }
     out.push(ui.note(t('frame.eq.assume-note')));

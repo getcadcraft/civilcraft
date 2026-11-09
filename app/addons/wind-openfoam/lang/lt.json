@@ -1,0 +1,14 @@
+{
+  "@locale": "lt",
+  "@name": "Lietuvių",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (priedas)",
+  "wind.of.note": "Paleidžia jūsų pačių OpenFOAM diegimą per nedidelę pagalbinę programą šiame kompiuteryje: vienas stacionarus RANS (k-epsilon) skaičiavimas kiekvienai vėjo krypčiai, atmosferos ribinio sluoksnio įtakos riba. Niekas neišeina iš šio kompiuterio. CadCraft OpenFOAM neįtraukia.",
+  "wind.of.url": "Pagalbinės programos adresas",
+  "wind.of.token": "Pagalbinės programos žetonas",
+  "wind.of.check": "Patikrinti pagalbinę programą",
+  "wind.of.ok": "Pagalbinė programa atsakė. OpenFOAM: {foam}",
+  "wind.of.down": "Pagalbinė programa neatsakė ({why}). Paleiskite ją šiame kompiuteryje: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Pagalbinė programa atsakė, bet nepavyko paleisti OpenFOAM: {why}",
+  "wind.of.install": "Įdiegite OpenFOAM (ESI v serija, openfoam.com) ir pagalbinę programą iš priedo aplanko; pagalbos temoje paaiškinama abi."
+}

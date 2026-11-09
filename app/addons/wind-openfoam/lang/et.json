@@ -1,0 +1,14 @@
+{
+  "@locale": "et",
+  "@name": "Eesti",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (lisandmoodul)",
+  "wind.of.note": "Käivitab teie enda OpenFOAMi paigalduse selles arvutis väikese abiprogrammi kaudu: üks statsionaarne RANS-arvutus (k-epsilon) iga tuulesuuna kohta, atmosfääri piirkihi sisend. Miski ei lahku sellest arvutist. CadCraft ei sisalda OpenFOAMi.",
+  "wind.of.url": "Abiprogrammi aadress",
+  "wind.of.token": "Abiprogrammi žeton",
+  "wind.of.check": "Kontrolli abiprogrammi",
+  "wind.of.ok": "Abiprogramm vastas. OpenFOAM: {foam}",
+  "wind.of.down": "Abiprogramm ei vastanud ({why}). Käivita see selles arvutis: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Abiprogramm vastas, kuid OpenFOAMi ei saanud käivitada: {why}",
+  "wind.of.install": "Installi OpenFOAM (ESI v-seeria, openfoam.com) ja abiprogramm lisandmooduli kaustast; abiteema selgitab mõlemat."
+}

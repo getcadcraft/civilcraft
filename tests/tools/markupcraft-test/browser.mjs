@@ -756,8 +756,10 @@ try {
   // K16 + K9: the callout "3/A-102" on A-101 becomes a link box; Ctrl+click follows it, Alt+← comes back
   await p4.evaluate(() => window.markupcraft.goTo(0));
   await p4.click('[data-act="auto-link"]');
+  await p4.waitForSelector('dialog.mc-dialog .mc-bl-sheets');   // 0.9 SU.1085: the sheet numbers come first (hand fixes)
+  await p4.click('dialog.mc-dialog button[data-key="ok"]');
   await p4.waitForSelector('dialog.mc-dialog .mc-slip-list');
-  ok(await p4.locator('dialog.mc-dialog .mc-slip-row').count() === 1 && /3\/A-102/.test(await p4.locator('dialog.mc-dialog .mc-slip-row').innerText()), 'Link sheet callouts: "3/A-102" on A-101 found for review');
+  ok(await p4.locator('dialog.mc-dialog .mc-bl-row[data-action="new"]').count() === 1 && /3\/A-102/.test(await p4.locator('dialog.mc-dialog .mc-bl-row[data-action="new"]').innerText()), 'Link sheet callouts: "3/A-102" on A-101 found for review');
   await p4.click('dialog.mc-dialog button[data-key="ok"]');
   await p4.waitForSelector('dialog.mc-dialog', { state: 'detached' });
   const lbox = await p4.evaluate(() => { const mc = window.markupcraft; const m = mc.store.all().find((x) => x.link === 'A-102'); return m && { rect: m.rect, sheet: m.sheet === mc.sheets[0].page.key }; });

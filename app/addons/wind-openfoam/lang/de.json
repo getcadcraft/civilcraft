@@ -1,0 +1,14 @@
+{
+  "@locale": "de",
+  "@name": "Deutsch",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (Add-on)",
+  "wind.of.note": "Führt Ihre eigene OpenFOAM-Installation über ein kleines Helferprogramm auf diesem Computer aus: je Windrichtung ein stationärer RANS-Fall (k-epsilon) mit atmosphärischem Grenzschichteinlass. Nichts verlässt diesen Computer. CadCraft enthält kein OpenFOAM.",
+  "wind.of.url": "Adresse des Helferprogramms",
+  "wind.of.token": "Token des Helferprogramms",
+  "wind.of.check": "Helferprogramm prüfen",
+  "wind.of.ok": "Das Helferprogramm hat geantwortet. OpenFOAM: {foam}",
+  "wind.of.down": "Das Helferprogramm hat nicht geantwortet ({why}). Starten Sie es auf diesem Computer: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Das Helferprogramm hat geantwortet, konnte OpenFOAM aber nicht starten: {why}",
+  "wind.of.install": "Installieren Sie OpenFOAM (ESI-v-Reihe, openfoam.com) und das Helferprogramm aus dem Ordner des Add-ons; das Hilfethema erklärt beides."
+}

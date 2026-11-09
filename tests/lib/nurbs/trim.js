@@ -239,6 +239,9 @@ function gridParams(s, tol, maxPerSpan, uParams, vParams) {
 }
 
 export function tessellate(s, trim, { tol = 0.01, maxPerSpan = 64, uParams = null, vParams = null, curvature: withK = false } = {}) {
+  // an outer loop that is the whole patch (a Boolean's face that kept its edges) is no outer loop: the cell edges on the patch
+  // boundary would otherwise be taken a second time beside it (0.9 DC.54, nurbs-09: such a face was covered twice)
+  if (trim && trim.outer && wholePatch(s, trim.outer)) trim = { outer: null, holes: trim.holes };
   if (!trim || (!trim.outer && !trim.holes.length)) return S.tessellate(s, { tol, maxPerSpan, uParams, vParams, curvature: withK });
   const [up, vp] = gridParams(s, tol, maxPerSpan, uParams, vParams);
   const nu = up.length - 1, nv = vp.length - 1;
@@ -286,9 +289,12 @@ export function tessellate(s, trim, { tol = 0.01, maxPerSpan = 64, uParams = nul
   for (const a of uCross) a.sort((x, y) => x - y);
   for (const a of vCross) a.sort((x, y) => x - y);
 
+  // the same moved loops the pieces were cut from: a loop on the patch edge sits a hair inside, and a cell edge on the patch edge
+  // must be judged against that, not the stored loop (0.9 DC.54, nurbs-09: a band trimmed along a seam left open pieces)
+  const fOuter = trim.outer ? fixed[0] : null, fHoles = fixed.slice(trim.outer ? 1 : 0);
   const inside = (x, y) => {
-    if (trim.outer && !inPoly(trim.outer, x, y)) return false;
-    for (const h of trim.holes) if (inPoly(h, x, y)) return false;
+    if (fOuter && !inPoly(fOuter, x, y)) return false;
+    for (const h of fHoles) if (inPoly(h, x, y)) return false;
     return true;
   };
   const tris = [];
@@ -376,6 +382,35 @@ export function tessellate(s, trim, { tol = 0.01, maxPerSpan = 64, uParams = nul
   const res = { positions, normals, uvs, indices: idx, nu: 0, nv: 0, uParams: up, vParams: vp, trimmed: true, openPieces: dropped.open };
   if (withK) { res.K = K; res.H = H; }
   return res;
+}
+
+/**
+ * A loop as points on the surface for a file that writes the bound in space (STEP's edge curve, IGES's model-space copy): each
+ * straight (u, v) step is followed on the surface and split until the polyline stays within `tol` mm of it (an iso-line step of a
+ * cylinder is a whole circle in space). → [{ uv, p }] (0.9 DC.54, nurbs-09)
+ */
+export function onSurface(s, L, { tol = 1e-3, maxPerStep = 512 } = {}) {
+  const out = [];
+  const at = (q) => S.point(s, q[0], q[1]);
+  const seg = (a, b, pa, pb, depth) => {
+    const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], pm = at(m);
+    const q1 = [(a[0] * 3 + b[0]) / 4, (a[1] * 3 + b[1]) / 4], q3 = [(a[0] + b[0] * 3) / 4, (a[1] + b[1] * 3) / 4];
+    const far = V.dist(pm, V.lerp(pa, pb, 0.5)) > tol || V.dist(at(q1), V.lerp(pa, pb, 0.25)) > tol || V.dist(at(q3), V.lerp(pa, pb, 0.75)) > tol;
+    if (far && depth < Math.log2(maxPerStep)) { seg(a, m, pa, pm, depth + 1); out.push({ uv: m, p: pm }); seg(m, b, pm, pb, depth + 1); }
+  };
+  for (let i = 0; i < L.length; i++) {
+    const a = L[i], b = L[(i + 1) % L.length], pa = at(a), pb = at(b);
+    out.push({ uv: a, p: pa });
+    seg(a, b, pa, pb, 0);
+  }
+  return out;
+}
+
+/** Does the loop run round the whole patch (its (u, v) area is the patch's, every point on the patch boundary)? */
+export function wholePatch(s, L) {
+  const [ua, ub] = S.domainU(s), [va, vb] = S.domainV(s), A = (ub - ua) * (vb - va), e = 1e-9;
+  const onEdge = (p) => Math.abs(p[0] - ua) <= e * (ub - ua) || Math.abs(p[0] - ub) <= e * (ub - ua) || Math.abs(p[1] - va) <= e * (vb - va) || Math.abs(p[1] - vb) <= e * (vb - va);
+  return Math.abs(Math.abs(shoelace(L)) - A) <= 1e-9 * A && L.every(onEdge);
 }
 
 /** Area (mm²) of the shown part, from the cut mesh. */

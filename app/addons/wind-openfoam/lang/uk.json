@@ -1,0 +1,14 @@
+{
+  "@locale": "uk",
+  "@name": "Українська",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (додаток)",
+  "wind.of.note": "Запускає вашу власну інсталяцію OpenFOAM через невелику програму-помічника на цьому комп’ютері: один стаціонарний випадок RANS (k-epsilon) для кожного напрямку вітру, вхід — граничний шар атмосфери. Нічого не виходить за межі цього комп’ютера. CadCraft не містить OpenFOAM.",
+  "wind.of.url": "Адреса помічника",
+  "wind.of.token": "Токен помічника",
+  "wind.of.check": "Перевірити помічника",
+  "wind.of.ok": "Помічник відповів. OpenFOAM: {foam}",
+  "wind.of.down": "Помічник не відповів ({why}). Запустіть його на цьому комп’ютері: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Помічник відповів, але не зміг запустити OpenFOAM: {why}",
+  "wind.of.install": "Встановіть OpenFOAM (серія ESI v, openfoam.com) і помічника з папки додатка; у розділі довідки пояснено обидва кроки."
+}

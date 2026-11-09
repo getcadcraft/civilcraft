@@ -36,6 +36,14 @@ function boot() {
 
   function ensureHost() {
     if (host && host.isConnected) return host;
+    // 2026-11-09 (owner: the "0 kg" pill stuck in a corner "should really be in a panel"): the totals are a SECTION of the app's left panel (DetailCraft: the Model panel, the model's summary
+    // sits with the model), drawn with the shell's one fold header (title, lock, caret: window.ccAutoFocus picks the new <section> up). Without a left panel the status bar, then the thin strip.
+    if (!own) { const panel = document.querySelector('main aside[class*="-left"]'); if (panel) {
+      const first = panel.querySelector(':scope > section'), fh = first && first.querySelector(':scope > h1, :scope > h2, :scope > h3');
+      const sec = h('section', { class: ((first && first.className) || 'shell-sec').replace(/\b(hidden|cc-ws-\S*)\b/g, '') + ' shell-totals-sec', 'data-af-id': 'totals', 'data-af-open': '', 'data-totals-sec': '' },
+        h('h2', { class: (fh && fh.className) || 'shell-totals-h' }, T('shell.totals.title')));
+      host = h('span', { class: 'cct-totals', role: 'status', 'aria-live': 'polite', 'aria-label': T('shell.totals.title') }); host.__sec = sec; sec.append(host); panel.append(sec); return host; } }
+    if (!own) { const sb = document.querySelector('footer[class$="-status"], footer[class*="-status "]'); if (sb) { host = h('span', { class: 'cct-totals', role: 'status', 'aria-live': 'polite', 'aria-label': T('shell.totals.title') }); sb.append(host); return host; } }
     if (!own) { own = h('div', { class: 'cct-totals cct-totals-own', role: 'status', 'aria-live': 'polite', 'aria-label': T('shell.totals.title') }); document.body.append(own); }
     return (host = own);
   }
@@ -51,7 +59,7 @@ function boot() {
     const el = ensureHost();
     const shown = list.filter((m) => !prefs.off.includes(m.measure));
     el.dataset.n = String(shown.length);
-    el.hidden = !list.length;
+    el.hidden = !list.length; if (el.__sec) el.__sec.hidden = el.hidden;
     el.replaceChildren(...shown.map((m) => {
       const note = why(m);
       const tip = [T('shell.totals.' + m.measure), m.sinceText ? T('shell.totals.since', { delta: m.sinceText }) : '', ...m.parts.map((p) => p.label + ': ' + totals.format(m.measure, p.value, { currency: p.currency })), note].filter(Boolean).join('\n');
@@ -76,7 +84,7 @@ function boot() {
     invalidate: () => totals.invalidate(),
     markSaved: () => totals.markSaved(),
     reset: () => totals.reset(),
-    mount(el) { if (el && el.nodeType === 1) { host = h('span', { class: 'cct-totals', role: 'status', 'aria-live': 'polite', 'aria-label': T('shell.totals.title') }); el.append(host); if (own) own.hidden = true; render(totals.last() || totals.snapshot()); } },
+    mount(el) { if (host && host.__sec) return; if (document.querySelector('main aside[class*="-left"]')) { host = null; render(totals.last() || totals.snapshot()); return; } if (el && el.nodeType === 1) { host = h('span', { class: 'cct-totals', role: 'status', 'aria-live': 'polite', 'aria-label': T('shell.totals.title') }); el.append(host); if (own) own.hidden = true; render(totals.last() || totals.snapshot()); } },
     snapshot: () => totals.snapshot(),
     measures: () => totals.measures(),
     tools: () => totalsTools({ totals }),

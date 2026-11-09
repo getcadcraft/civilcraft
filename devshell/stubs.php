@@ -46,6 +46,13 @@ if (!function_exists('slugify')) {
         return trim(substr($s, 0, 120), '-');
     }
 }
+// Screenshot mode (helpers.php, 2026-11-08) is a /lab-only staff tool: a packed edition is never in it. header.inc, app-bar.inc, app-settings.inc and app-about.inc call these.
+if (!function_exists('shot_mode')) {
+    function shot_mode(): bool { return false; }
+}
+if (!function_exists('shot_version')) {
+    function shot_version(): string { return '0.9'; }
+}
 
 if (!class_exists('Catalog')) {
     final class Catalog
@@ -57,6 +64,11 @@ if (!class_exists('Catalog')) {
             if ($slug === $d['app']['slug']) return $d['app'];
             if (isset($d['mount_rows'][$slug])) return $d['mount_rows'][$slug];   // an app SuperCad Studio hosts (edition-super.php)
             return isset($d['others'][$slug]) ? ['slug' => $slug, 'name' => $d['others'][$slug], 'open_in' => []] : null;
+        }
+        /** As the site's Catalog::anyApp (Help::compileApp): here the same lookup as app(), the apps not in this repo are name-only rows. */
+        public static function anyApp(string $slug): ?array
+        {
+            return self::app($slug);
         }
         /** Only this app runs here; links to other apps are never shown. */
         public static function openIn(array $app, string $area): bool
@@ -121,7 +133,7 @@ if (!class_exists('AppBuilds')) {
         public static function extraScript(string $key): string { return '/assets/js/app-' . $key . '.js'; }
         /** Workspace layouts (0.7 WS.6), as the site's AppBuilds::workspaces / workspaceAdapter / hasWorkspaces / workspaceConfig. */
         public const WORKSPACE_BUILTINS = ['docked', 'toolbox'];
-        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];
+        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-icons.js', '/assets/js/app-workspace-vector.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];
         public static function workspaces(array $build): array
         {
             $w = $build['manifest']['workspaces'] ?? [];

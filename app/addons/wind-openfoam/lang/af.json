@@ -1,0 +1,14 @@
+{
+  "@locale": "af",
+  "@name": "Afrikaans",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (byvoeging)",
+  "wind.of.note": "Laat jou eie OpenFOAM-installasie loop deur 'n klein hulpprogram op hierdie rekenaar: een bestendige RANS (k-epsilon)-geval per windrigting, atmosferiese grenslaag-invoer. Niks verlaat hierdie rekenaar nie. CadCraft sluit nie OpenFOAM in nie.",
+  "wind.of.url": "Hulpprogram-adres",
+  "wind.of.token": "Hulpprogram-token",
+  "wind.of.check": "Kontroleer die hulpprogram",
+  "wind.of.ok": "Die hulpprogram het geantwoord. OpenFOAM: {foam}",
+  "wind.of.down": "Die hulpprogram het nie geantwoord nie ({why}). Begin dit op hierdie rekenaar: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Die hulpprogram het geantwoord maar kon nie OpenFOAM begin nie: {why}",
+  "wind.of.install": "Installeer OpenFOAM (die ESI v-reeks, openfoam.com) en die hulpprogram uit die byvoeging se gids; die hulponderwerp verduidelik albei."
+}

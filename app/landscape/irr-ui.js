@@ -243,6 +243,7 @@ export function createIrrUi(ctx, { edit, LS, U }) {
       parts.push(el('p', { className: 'cv-note', 'data-ls-coverage': '' }, t('ls.i.cov', { dry: fixed((100 * c.dry) / Math.max(1, c.cells), 1), two: fixed((100 * c.double) / Math.max(1, c.cells), 0), far: c.far.length })));
     }
     section.replaceChildren(...parts);
+    window.dispatchEvent(new CustomEvent('cc-section-drawn', { detail: section }));
   }
 
   function checkDialog() {

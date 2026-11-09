@@ -16,6 +16,7 @@ import { pointInPoly } from './tin.js';
 import { cleanMass, massArea, massGfa, massHeight, measureMass, setHeight, planItems, BASES, GROUNDS, centroid, MAX_MASSES } from './massing.js';
 import { cleanZone, envelope, checkMasses } from './zoning.js';
 import { createSunHours } from './sunhours-ui.js';
+import { createEnvir } from './envir-mount.js';
 import { terrainRaster } from './sunhours.js';
 import { writeMassingIfc, defaultOrigin } from './ifc-massing.js';
 import { sendHandoff } from './handoff.js';
@@ -31,6 +32,7 @@ export function createMassing(ctx) {
   const sunUi = createSunHours({ el, project: ctx.project, units: ctx.units, row: ctx.row, redraw: () => ctx.redraw(), refresh: () => ctx.refresh(), download: (n, b) => ctx.download(n, b),
     masses: () => list().map((m) => { const me = measure(m); return { mass: m, z0: me.z0, zBottom: me.zBottom }; }),
     terrain: (bounds, cell) => { const elev = ctx.ground(list().some((m) => m.ground === 'fg') ? 'fg' : 'eg') || ctx.ground('eg'); return elev ? terrainRaster(elev, bounds, cell) : null; } });
+  const envirUi = createEnvir({ el, project: ctx.project, units: ctx.units, row: ctx.row, refresh: () => ctx.refresh(), redraw: () => ctx.redraw(), download: (n, b) => ctx.download(n, b), masses: () => list().map((m) => { const me = measure(m); return { mass: m, z0: me.z0, zBottom: me.zBottom }; }) });
   const zones = () => P().state.zoning || [];
   const zoneOf = (parcelId) => zones().find((z) => z.parcel === parcelId) || null;
   const parcelOf = (id) => (P().state.parcels || []).find((p) => p.id === id) || null;
@@ -144,7 +146,7 @@ export function createMassing(ctx) {
       sp.addEventListener('change', () => { zoneParcel = sp.value; ctx.refresh(); });
       out.push(el('div', { className: 'cv-props' }, ...ctx.row(t('zn.parcel'), sp, 'cv-zn-parcel')), ...zoningForm(zoneParcel));
     }
-    if (ms.length) out.push(...sunUi.block());
+    if (ms.length) out.push(...sunUi.block(), ...envirUi.block());
     out.push(el('div', { className: 'cv-actions' },
       ...(ms.length ? [el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ms-ifc': '', title: t('ms.ifc.title'), onclick: () => exportIfc() }, el('i', { className: 'bi bi-box-arrow-up', 'aria-hidden': 'true' }), ' ', t('ms.ifc'))] : []),
       ...(ms.length && ctx.bimUrl?.() ? [el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ms-bim': '', title: t('ms.bim.title', { app: ctx.bimApp?.() || 'BimCraft' }), onclick: () => developInBim() }, el('i', { className: 'bi bi-building-up', 'aria-hidden': 'true' }), ' ', t('ms.bim.all'))] : []),
@@ -197,7 +199,7 @@ export function createMassing(ctx) {
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ms-ifc': '', title: t('ms.ifc.title'), onclick: () => exportIfc() }, el('i', { className: 'bi bi-box-arrow-up', 'aria-hidden': 'true' }), ' ', t('ms.ifc'))));
     if (ctx.bimUrl?.()) out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ms-develop': '', title: t('ms.bim.title', { app: ctx.bimApp?.() || 'BimCraft' }), onclick: () => developInBim(m.id) }, el('i', { className: 'bi bi-building-up', 'aria-hidden': 'true' }), ' ', t('ms.bim.this'))));
     if (m.parcel) out.push(...zoningForm(m.parcel));
-    out.push(...sunUi.block());   // sun hours for every mass, from a mass's own Properties too
+    out.push(...sunUi.block(), ...envirUi.block());   // sun hours for every mass, from a mass's own Properties too
     if (!g) out.push(el('p', { className: 'cv-note' }, t('ms.noground')));
     else if (g.missing) out.push(el('p', { className: 'cv-note' }, t('ms.partground', { n: g.missing })));
     return out;

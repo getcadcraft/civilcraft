@@ -5,6 +5,8 @@
  *
  * Kinds and their base unit (every value is held in the base unit):
  *   length  metre        area  square metre        volume  cubic metre        angle  radian        slope  grade (rise / run)
+ *   mass  kilogram        temperature  kelvin (0.9 TK.W: a temperature is absolute, an offset scale: 0 °C = 273.15 K; a difference of
+ *   temperatures is not converted here)
  *
  * Exact factors: each unit's size is a fraction n / d of the base (× π for degrees and gons), written from its legal
  * definition (the source is on each row; bin/test-units.mjs re-derives every fraction from the definitions in exact
@@ -32,8 +34,8 @@
  *   byInsunits(code) · insunitsOf(id)   DWG / DXF $INSUNITS ↔ a length unit
  */
 
-export const KINDS = Object.freeze(['length', 'area', 'volume', 'angle', 'slope']);
-export const BASE = Object.freeze({ length: 'm', area: 'm2', volume: 'm3', angle: 'rad', slope: 'riserun' });
+export const KINDS = Object.freeze(['length', 'area', 'volume', 'mass', 'temperature', 'angle', 'slope']);
+export const BASE = Object.freeze({ length: 'm', area: 'm2', volume: 'm3', mass: 'kg', temperature: 'kelvin', angle: 'rad', slope: 'riserun' });
 
 // Rows: [id, kind, mark (shown), n, d, extra]. extra: on (in the dropdowns until Settings turns it off: every unit an app
 // already listed before 0.7 is on, so nothing went missing from a dropdown, plus the common ones), dec (decimals
@@ -94,6 +96,20 @@ const ROWS = [
   ['impgal', 'volume', 'imp gal', 454609, 1e8, { dec: 2, sys: 'imperial', marks: ['impgal', 'UK gal', 'imperial gallon', 'imperial gallons'], src: '4.54609 L exactly (UK Weights and Measures Act 1985)' }],
   ['bf', 'volume', 'FBM', 294967152, 125e9, { dec: 1, sys: 'us', marks: ['fbm', 'BF', 'bf', 'bd ft', 'bdft', 'board foot', 'board feet'], src: '144 in³ (1 ft × 1 ft × 1 in)' }],
   ['acft', 'volume', 'ac-ft', 15418522969344, 125e8, { dec: 3, sys: 'us', marks: ['ac ft', 'acre-ft', 'acre-foot', 'acre-feet', 'AF', 'af'], src: '43 560 ft³ (an acre one foot deep)' }],
+  // ---- mass (kilogram) ----
+  ['mg', 'mass', 'mg', 1, 1e6, { dec: 1, sys: 'metric', marks: ['milligram', 'milligrams'], src: 'SI prefix milli of the gram, 10^-6 kg' }],
+  ['g', 'mass', 'g', 1, 1e3, { on: true, dec: 1, sys: 'metric', marks: ['gram', 'grams', 'gm'], src: '1/1000 kg (SI)' }],
+  ['kg', 'mass', 'kg', 1, 1, { on: true, dec: 2, sys: 'metric', marks: ['kilogram', 'kilograms', 'kilo', 'kilos', 'kgs'], src: 'SI base unit' }],
+  ['tonne', 'mass', 't', 1000, 1, { on: true, dec: 3, sys: 'metric', marks: ['tonne', 'tonnes', 'metric ton', 'metric tons', 'mt'], src: '1000 kg (SI Brochure, Table 8)' }],
+  ['oz', 'mass', 'oz', 28349523125, 1e12, { on: true, dec: 2, sys: 'imperial', marks: ['ounce', 'ounces'], src: '1/16 lb (avoirdupois)' }],
+  ['lb', 'mass', 'lb', 45359237, 1e8, { on: true, dec: 2, sys: 'imperial', marks: ['lbs', 'pound', 'pounds', '#'], src: '0.45359237 kg exactly (International Yard and Pound Agreement, 1959)' }],
+  ['ton', 'mass', 'ton', 90718474, 1e5, { on: true, dec: 3, sys: 'us', marks: ['tons', 'short ton', 'short tons', 'US ton', 'US tons', 'tn'], src: '2000 lb (US short ton, NIST Handbook 44 App. C)' }],
+  ['lton', 'mass', 'long ton', 10160469088, 1e7, { dec: 3, sys: 'imperial', marks: ['long ton', 'long tons', 'UK ton', 'UK tons', 'imperial ton', 'imperial tons'], src: '2240 lb (UK long ton, NIST Handbook 44 App. C)' }],
+  // ---- temperature (kelvin; pre = what is added to the value before the scale factor) ----
+  ['kelvin', 'temperature', 'K', 1, 1, { dec: 2, sys: 'metric', cs: true, marks: ['kelvin', 'kelvins'], src: 'SI base unit' }],
+  ['degc', 'temperature', '°C', 1, 1, { on: true, dec: 1, sys: 'metric', pre: 27315 / 100, marks: ['C', 'degC', 'deg C', '℃', 'celsius', 'centigrade', 'degrees C', 'degrees celsius'], src: 'K − 273.15 (SI Brochure, 9th ed.)' }],
+  ['degf', 'temperature', '°F', 5, 9, { on: true, dec: 1, sys: 'us', pre: 45967 / 100, marks: ['F', 'degF', 'deg F', '℉', 'fahrenheit', 'degrees F', 'degrees fahrenheit'], src: '(°F + 459.67) × 5/9 K' }],
+  ['degr', 'temperature', '°R', 5, 9, { dec: 1, sys: 'us', marks: ['R', 'degR', 'deg R', 'rankine'], src: '5/9 K, zero at absolute zero' }],
   // ---- angle (radian) ----
   ['deg', 'angle', '°', 1, 180, { on: true, pi: true, dec: 2, sys: 'any', marks: ['deg', 'degree', 'degrees'], src: 'π/180 rad' }],
   ['dms', 'angle', "°'\"", 1, 180, { on: true, pi: true, dec: 0, sys: 'any', bare: 'deg', src: 'degrees, minutes (1/60°) and seconds (1/3600°)' }],
@@ -108,7 +124,7 @@ const ROWS = [
 
 export const UNITS = Object.freeze(ROWS.map(([id, kind, mark, n, d, x]) => Object.freeze({
   id, kind, mark, n, d, pi: !!x.pi, factor: (x.pi ? Math.PI : 1) * n / d, on: !!x.on, dec: x.dec ?? 2, ins: x.ins ?? null,
-  sys: x.sys || 'any', bare: x.bare || null, src: x.src || '', cs: !!x.cs,
+  sys: x.sys || 'any', pre: x.pre || 0, bare: x.bare || null, src: x.src || '', cs: !!x.cs,
   marks: Object.freeze([mark, ...(x.marks || []), ...(x.sq ? [x.sq + '2', x.sq + '^2', 'sq ' + x.sq, 'sq. ' + x.sq, 'square ' + x.sq] : []),
     ...(x.cu ? [x.cu + '3', x.cu + '^3', 'cu ' + x.cu, 'cu. ' + x.cu, 'cubic ' + x.cu] : [])]),
 })));
@@ -123,6 +139,12 @@ export function convert(v, from, to) {
   const a = BY_ID.get(from), b = BY_ID.get(to);
   if (!a || !b || a.kind !== b.kind || !Number.isFinite(v)) return NaN;
   if (a.kind === 'slope') return fromBase(toBase(v, from), to);
+  if (a.kind === 'temperature') {
+    if (a === b) return v;
+    if (from === 'degc' && to === 'degf') return v * 9 / 5 + 32;     // the two everyday scales without the detour through kelvin
+    if (from === 'degf' && to === 'degc') return (v - 32) * 5 / 9;
+    return fromBase(toBase(v, from), to);
+  }
   if (a === b || a.factor === b.factor) return v;
   if (a.pi === b.pi) return v * (a.n * b.d) / (a.d * b.n);   // one rounding: the fraction first
   return v * a.factor / b.factor;
@@ -132,6 +154,7 @@ export function toBase(v, id) {
   const u = BY_ID.get(id);
   if (!u || !Number.isFinite(v)) return NaN;
   if (u.id === 'hv') return v === 0 ? Infinity : 1 / v;
+  if (u.pre) return (v + u.pre) * u.n / u.d;
   return u.pi ? v * Math.PI * u.n / u.d : v * u.n / u.d;
 }
 /** The base → a number in a unit. */
@@ -139,6 +162,7 @@ export function fromBase(v, id) {
   const u = BY_ID.get(id);
   if (!u || Number.isNaN(v)) return NaN;
   if (u.id === 'hv') return v === 0 ? Infinity : 1 / v;
+  if (u.pre) return v * u.d / u.n - u.pre;
   return u.pi ? v / Math.PI * u.d / u.n : v * u.d / u.n;
 }
 /** An angle (radians) ↔ a slope (grade). */
@@ -197,7 +221,7 @@ export function parse(text, kind, { unit: bareUnit = null } = {}) {
   if (s[0] === '-' || s[0] === '+') { if (s[0] === '-') sign = -1; s = s.slice(1).trim(); }
   if (!s) return fail('number');
   const r = parseAbs(s, kind, bareUnit);
-  if (r.ok && sign < 0) { r.value = -r.value; r.amount = -r.amount; }
+  if (r.ok && sign < 0) { r.amount = -r.amount; r.value = BY_ID.get(r.per)?.pre ? toBase(r.amount, r.per) : -r.value; }   // an offset scale (°C, °F) negates the amount, not the kelvin
   return r;
 }
 /** parse(), with the value in unit `to` (same kind) and one rounding: parseTo('3 yd', 'length', 'ft') → value 9 exactly. */
@@ -298,7 +322,7 @@ export function format(value, id, { dec, den = 16, mark = true, trim = true } = 
   if (id === 'riserun') return Math.abs(value) >= 1 || value === 0 ? num(value, d, trim) + ':1' : '1:' + num(1 / value, d, trim);   // 2:1 steep, 1:3 shallow
   const v = fromBase(value, id), s = num(v, d, trim);
   if (!mark) return s;
-  return id === 'pct' || id === 'deg' ? s + u.mark : s + ' ' + u.mark;
+  return id === 'pct' || id === 'deg' || (u.kind === 'temperature' && u.mark[0] === '°') ? s + u.mark : s + ' ' + u.mark;
 }
 
 /** The unit's name in the page's language: tr('shell.units.<id>') when the words are there, else the mark. */

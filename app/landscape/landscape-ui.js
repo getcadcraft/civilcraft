@@ -18,7 +18,9 @@
  */
 
 import { readPlants, plantsFromCsv, plantsToCsv, search, displayName, sizeOf, TYPES, LIGHT, WATER, mergeLists, supplyLabel } from './plants.js';
-import { loadPlants } from './plants-live.js';   // 0.8 LD.1
+import { loadPlants, loadDefaultCollection } from './plants-live.js';   // 0.8 LD.1
+import { splitMenus } from '../split-menu.js';
+import { createToolPanels } from './tool-panels.js';
 import { emptyLandscape, speciesIndex, bedFill, hedgeFill, schedule, supplyWords, scheduleRows, scheduleCsv, scheduleQuantities, sceneItems as plantItems,
   pickPlanting, unitM, bedSpacingM, inside, useSpeciesIndex, spacingStale, listSpacingM, usedSpacingM, dropSpacing } from './planting.js';
 import { writeLandscapeIfc, plantingElements } from './ifc-landscape.js';
@@ -112,6 +114,7 @@ export function createLandscape(ctx) {
   const setVar = (o, cv, sup) => { if (cv) o.cv = cv; else delete o.cv; if (sup) o.sup = sup; else delete o.sup; };
 
   // ---- the seed list (loaded once, beside this module) ----
+  let from = { source: '', collection: null };
   const ready = (async () => {
     try {
       const r = await fetch(new URL('./plants-seed.json', import.meta.url));
@@ -121,8 +124,10 @@ export function createLandscape(ctx) {
     if (on) { renderPlants(); ctx.refresh(); }
     // 0.8 LD.1: then the Library's plants over the bundled list, live; the bundled list stands if the Library is empty or unreachable
     try {
-      const live = await loadPlants({ seed });
-      if (live.source === 'library') { seed = live.species; idxCache.key = ''; if (on) { renderPlants(); ctx.refresh(); } }
+      const live = await loadPlants({ seed, app: 'civilcraft' });
+      if (live.source === 'library') { seed = live.species; idxCache.key = ''; }
+      from = { source: live.source, collection: live.collection ? await loadDefaultCollection('civilcraft') : null };   // where the plants came from, said in the panel
+      if (live.source === 'library' && on) { renderPlants(); ctx.refresh(); } else if (on) renderPlants();
     } catch (e) { /* the bundled list stands */ }
   })();
   useSpeciesIndex(() => (seed.length ? index() : null));   // 0.7.1: project.js toJSON keeps each bed's and hedge's spacing as filled
@@ -195,7 +200,23 @@ export function createLandscape(ctx) {
   // ---- the Plants section (left panel, top) ----
   const left = root.querySelector('.cv-left');
   const plantsSec = el('section', { className: 'cv-sec cv-ls-plants', dataset: { lsPlants: '' }, hidden: true, 'aria-labelledby': 'cv-ls-plants-h' });
-  if (left) left.prepend(plantsSec, gr.section, ir.section);
+  const tp = createToolPanels(ctx, { LS: () => LS() });   // Hardscape, Areas and Levels have a section of their own too
+  if (left) left.prepend(plantsSec, ...tp.sections, gr.section, ir.section);
+  plantsSec.dataset.afId = 'plants'; gr.section.dataset.afId = 'checks'; ir.section.dataset.afId = 'irr';
+  // Auto-focus panel (Settings › Global): while Landscape is on, a command opens the section it works with and the others close
+  // (the engine lives in the shell's app-settings.js, which can load after this module: asked for when first needed, and once the page has loaded)
+  let afMade = null;
+  left?.setAttribute('data-af-skip', '');   // this panel registers itself below (2026-11-09: always, not only with Landscape on)
+  // the toolbox (the layouts' tool list) follows the section in focus, and the section follows the toolbox group: ids by workspace-civilcraft.js
+  const TBX_OF = { plants: 'landscape-tools', hard: 'landscape-hardscape', areas: 'landscape-planted-areas', levels: 'landscape-levels', checks: 'landscape-grade', irr: 'landscape-irrigation' };
+  const LEFT_OF = Object.fromEntries(Object.entries(TBX_OF).map(([k, v]) => [v, k]));
+  let tbxLinked = false;
+  const tbxLink = () => { const tb = window.ccAutoFocus?.get('tbx-civilcraft'); if (tb && !tbxLinked) { tbxLinked = true; tb.setOnOpen((g) => { if (on && LEFT_OF[g]) afMade?.reveal(LEFT_OF[g], true); }); } return tb; };
+  const afGet = () => { tbxLink(); return afMade || (afMade = left && window.ccAutoFocus ? window.ccAutoFocus.register({ id: 'civil-left', panel: left, mode: 'sections', unit: 'section.cv-sec', heading: 'h2.cv-h', defaultId: 'plants', onOpen: (id) => { if (TBX_OF[id]) tbxLink()?.reveal(TBX_OF[id], true); } }) : null); };
+  const af = { refresh: () => afGet()?.refresh(), reveal: (id) => afGet()?.reveal(id) };
+  window.addEventListener('load', () => { af.refresh(); splitMenus(root); });
+  splitMenus(root);   // the tiles that hold several tools: the icon runs the current one, the edge opens the menu
+  window.addEventListener('cc-section-drawn', () => af?.refresh());   // Grading checks and Irrigation draw themselves again
   function renderPlants() {
     const idx = index();
     const all = [...idx.values()];
@@ -256,6 +277,7 @@ export function createLandscape(ctx) {
     plantsSec.replaceChildren(
       el('h2', { className: 'cv-h', id: 'cv-ls-plants-h' }, t('ls.pl.head')),
       el('p', { className: 'cv-note' }, t('ls.pl.lede')),
+      el('p', { className: 'cv-note', 'data-ls-from': '' }, fromText()),
       el('div', { className: 'cv-props' }, el('label', { for: 'cv-ls-q' }, t('ls.pl.search')), q,
         ...sel('cv-ls-type', t('ls.pl.f.type'), TYPES.map((x) => [x, t('ls.type.' + x)]), 'type'),
         ...sel('cv-ls-light', t('ls.pl.f.light'), LIGHT.map((x) => [x, t('ls.light.' + x)]), 'light'),
@@ -268,6 +290,13 @@ export function createLandscape(ctx) {
         el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-ptable': '', onclick: () => pt.open() }, t('ls.tb.ptable'))),
       el('p', { className: 'cv-note' }, t('ls.pl.own.note', { n: (LS().palette || []).length })), fileIn);
     renderList(); renderDetail();
+    af?.refresh();
+  }
+  /** Where the list came from: the Library's default collection when it was reached, else the list that came with the app. */
+  function fromText() {
+    const c = from.collection;
+    if (from.source === 'library') return c ? t('ls.pl.from.collection', { name: c.name, n: c.count || seed.length, rev: c.revision }) : t('ls.pl.from.library');
+    return from.source ? t('ls.pl.from.bundled') : '';
   }
   async function importList(file) {
     if (file.size > 16 * 1024 * 1024) { ctx.say(t('ls.pl.import.big')); return; }
@@ -299,8 +328,9 @@ export function createLandscape(ctx) {
       if (g.dataset.lsGroup !== undefined) g.hidden = !on && !(g.classList.contains('cv-ls-wsgroup') && root.hasAttribute('data-powerlines'));
       else if (HIDE_IN_LS.includes(g.getAttribute('aria-label'))) g.hidden = on;
     }
-    plantsSec.hidden = !on; gr.section.hidden = !on; ir.section.hidden = !on;
-    if (on) { renderPlants(); gr.renderSection(); ir.renderSection(); }
+    plantsSec.hidden = !on; gr.section.hidden = !on; ir.section.hidden = !on; for (const s of tp.sections) s.hidden = !on;
+    if (on) { renderPlants(); gr.renderSection(); ir.renderSection(); tp.render(); }
+    af?.refresh();   // the panel's sections fold or not, by the setting
     if (!on && TOOLS.includes(ctx.tool())) ctx.setTool('select');
     root.toggleAttribute('data-landscape', on);
     updateTools();
@@ -318,11 +348,16 @@ export function createLandscape(ctx) {
       if (c === 'ls-schedule' || c === 'ls-ifc' || c === 'ls-sheets') b.disabled = !hasPlanting();
     }
     gr.updateTools(ctx.tool()); hd.updateTools(ctx.tool()); ir.updateTools(ctx.tool()); pa.updateTools(ctx.tool()); st.updateTools(ctx.tool());
-    if (on) gr.renderSection();
+    if (on) { gr.renderSection(); tp.render(); af.refresh(); }
   }
   const hasPlanting = () => { const l = LS(); return l.plants.length + l.beds.length + l.hedges.length + (l.hardscape || []).length + (l.irrigation?.heads.length || 0) + (l.freeform || []).length + (l.areas || []).length > 0; };
 
+  // a command opens the panel section it works with (the others stay as the person left them)
+  const REVEAL = { 'ls-plant': 'plants', 'ls-bed': 'plants', 'ls-hedge': 'plants', 'ls-plant-table': 'plants', 'ls-slope': 'checks', 'ls-flow': 'checks', 'ls-platform': 'checks', 'ls-berm': 'checks', 'ls-swale': 'checks', 'ls-area': 'checks', 'ls-spot': 'checks', 'ls-contour': 'checks',
+    'ls-head': 'irr', 'ls-paving': 'hard', 'ls-path': 'hard', 'ls-wall': 'hard', 'ls-kerb': 'hard', 'ls-ramp': 'hard', 'ls-steps': 'hard', 'ls-drain': 'hard',
+    'ls-pa-lawn': 'areas', 'ls-pa-bed': 'areas', 'ls-pa-meadow': 'areas', 'ls-pa-groundcover': 'areas', 'ls-spotlevel': 'levels', 'ls-gradearrow': 'levels', 'ls-stack': 'levels', 'ls-lateral': 'irr', 'ls-main': 'irr', 'ls-valve': 'irr', 'ls-drip': 'irr', 'ls-poc': 'irr', 'ls-coverage': 'irr', 'ls-check': 'irr' };
   function command(c) {
+    if (REVEAL[c]) { if (!on) setActive(true); af?.reveal(REVEAL[c]); }
     switch (c) {
       case 'landscape': setActive(!on); ctx.say(t(on ? 'ls.ws.on' : 'ls.ws.off')); return true;
       case 'ls-plant': case 'ls-bed': case 'ls-hedge':

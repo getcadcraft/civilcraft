@@ -1,0 +1,7883 @@
+(DELAYFILE
+  (SDFVERSION "3.0")
+  (DESIGN "pebble_soc")
+  (PROGRAM "CadCraft Chip design")
+  (DIVIDER /)
+  (TIMESCALE 1ns)
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0713_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0714_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0715_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0716_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0717_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0718_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0719_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0720_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0721_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0722_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0723_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0724_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0725_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0726_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0727_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0728_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0729_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0730_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0731_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0732_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0733_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0734_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0735_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0736_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0737_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0738_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0739_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0740_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0741_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0742_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0743_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0744_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0745_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0746_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0747_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0748_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0749_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0750_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0751_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0752_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0753_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0754_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0755_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0756_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0757_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0758_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0759_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0760_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0761_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0762_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0763_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0764_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0765_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0766_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0767_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0768_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0769_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0770_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0771_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0772_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0773_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0774_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0775_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0776_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0777_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0778_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0779_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0780_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0781_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0782_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0783_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0784_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0785_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0786_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0787_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0788_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0789_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0790_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0791_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0792_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0793_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0794_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0795_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0796_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0797_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0798_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0799_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0800_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0801_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0802_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0803_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0804_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0805_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0806_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0807_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0808_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0809_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0810_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0811_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0812_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0813_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0814_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0815_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0816_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0817_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0818_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0819_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0820_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0821_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0822_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0823_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0824_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0825_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0826_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0827_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0828_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0829_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0830_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0831_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0832_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0833_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0834_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0835_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0836_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0837_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0838_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0839_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0840_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0841_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0842_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0843_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0844_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0845_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0846_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0847_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0848_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0849_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0850_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0851_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0852_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0853_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0854_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0855_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0856_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0857_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0858_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0859_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0860_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0861_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0862_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0863_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0864_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0865_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0866_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0867_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0868_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0869_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0870_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0871_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0872_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0873_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0874_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0875_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0876_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0877_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0878_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0879_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0880_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0881_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0882_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0883_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0884_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0885_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0886_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0887_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0888_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0889_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0890_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0891_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0892_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0893_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0894_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0895_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0896_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0897_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0898_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0899_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0900_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0901_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0902_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0903_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0904_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0905_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0906_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0907_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0908_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0909_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0910_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0911_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0912_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0913_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0914_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0915_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0916_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0917_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0918_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0919_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0920_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0921_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0922_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0923_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0924_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0925_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0926_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0927_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0928_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0929_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0930_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0931_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0932_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0933_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0934_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0935_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0936_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0937_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0938_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0939_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0940_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0941_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _0942_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0943_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0944_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0945_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0946_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0947_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0948_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0949_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0950_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0951_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0952_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0953_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0954_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0955_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0956_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0957_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0958_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0959_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0960_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0961_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0962_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0963_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0964_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0965_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0966_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0967_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0968_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0969_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0970_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0971_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0972_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _0973_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0974_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0975_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0976_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0977_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0978_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0979_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0980_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0981_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0982_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0983_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _0984_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0985_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0986_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _0987_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _0988_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0989_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0990_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0991_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _0992_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0993_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0994_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0995_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _0996_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0997_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _0998_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _0999_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1000_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1001_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1002_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1003_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1004_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1005_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1006_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1007_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1008_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1009_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1010_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1011_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1012_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1013_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1014_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1015_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1016_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1017_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1018_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1019_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _1020_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1021_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1022_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1023_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1024_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1025_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1026_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1027_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1028_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1029_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1030_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _1031_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1032_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1033_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1034_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1035_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1036_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1037_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1038_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1039_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _1040_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1041_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1042_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1043_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1044_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1045_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1046_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1047_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1048_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1049_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1050_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1051_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1052_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1053_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1054_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1055_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1056_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1057_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1058_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1059_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1060_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1061_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1062_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1063_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1064_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1065_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1066_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1067_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _1068_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1069_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1070_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1071_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1072_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1073_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1074_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1075_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1076_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1077_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1078_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _1079_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1080_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1081_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _1082_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1083_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1084_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1085_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _1086_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1087_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1088_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1089_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1090_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1091_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1092_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1093_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1094_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1095_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1096_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1097_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1098_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1099_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1100_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1101_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1102_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1103_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1104_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1105_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1106_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1107_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1108_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1109_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1110_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1111_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1112_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1113_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1114_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "INV")
+    (INSTANCE _1115_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1116_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1117_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1118_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1119_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1120_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1121_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1122_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1123_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1124_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1125_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1126_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _1127_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1128_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1129_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XOR2")
+    (INSTANCE _1130_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1131_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1132_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1133_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1134_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1135_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1136_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1137_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1138_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1139_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1140_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1141_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1142_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1143_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1144_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1145_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1146_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1147_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1148_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1149_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1150_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1151_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1152_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1153_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1154_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1155_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1156_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1157_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1158_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1159_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1160_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1161_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1162_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1163_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1164_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1165_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1166_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1167_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1168_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1169_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1170_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1171_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _1172_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1173_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _1174_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1175_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1176_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1177_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "XNOR2")
+    (INSTANCE _1178_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+        (IOPATH B Y (0.12:0.12:0.12) (0.12:0.12:0.12))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1179_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1180_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1181_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1182_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1183_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1184_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1185_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1186_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1187_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1188_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1189_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1190_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1191_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1192_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1193_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1194_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1195_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1196_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1197_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1198_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1199_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1200_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1201_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1202_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1203_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1204_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1205_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1206_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1207_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1208_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1209_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1210_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1211_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1212_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1213_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1214_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1215_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1216_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1217_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1218_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1219_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1220_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1221_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1222_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1223_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1224_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1225_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1226_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1227_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1228_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1229_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1230_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1231_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1232_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1233_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1234_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1235_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1236_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1237_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1238_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1239_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1240_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1241_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1242_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1243_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1244_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1245_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1246_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1247_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1248_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1249_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1250_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1251_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1252_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1253_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1254_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1255_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1256_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1257_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1258_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1259_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1260_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1261_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1262_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1263_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1264_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1265_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1266_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1267_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1268_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1269_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1270_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1271_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1272_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1273_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1274_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1275_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1276_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1277_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1278_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1279_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1280_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1281_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1282_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1283_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1284_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1285_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1286_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1287_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1288_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1289_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1290_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1291_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1292_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1293_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1294_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1295_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1296_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1297_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1298_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1299_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1300_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1301_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1302_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1303_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1304_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1305_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1306_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1307_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1308_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1309_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1310_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1311_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1312_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1313_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1314_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1315_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1316_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1317_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1318_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1319_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1320_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1321_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1322_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1323_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1324_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1325_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1326_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1327_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1328_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1329_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1330_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1331_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1332_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1333_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1334_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1335_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1336_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1337_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1338_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1339_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1340_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1341_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1342_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1343_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1344_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1345_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1346_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1347_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1348_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1349_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1350_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1351_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1352_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1353_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1354_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1355_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1356_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1357_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1358_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1359_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1360_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1361_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1362_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1363_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1364_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1365_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NAND2")
+    (INSTANCE _1366_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1367_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1368_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1369_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1370_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1371_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1372_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1373_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1374_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1375_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1376_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1377_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1378_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1379_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1380_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1381_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1382_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1383_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1384_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1385_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1386_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1387_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1388_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1389_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1390_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1391_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1392_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1393_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1394_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1395_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1396_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1397_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "OR2")
+    (INSTANCE _1398_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1399_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "NOR2")
+    (INSTANCE _1400_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "AND2")
+    (INSTANCE _1401_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+        (IOPATH B Y (0.08:0.08:0.08) (0.08:0.08:0.08))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1402_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1403_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1404_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1405_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1406_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1407_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1408_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1409_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1410_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1411_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1412_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1413_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1414_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1415_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1416_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1417_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1418_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1419_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1420_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1421_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1422_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1423_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1424_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "BUF")
+    (INSTANCE _1425_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH A Y (0.05:0.05:0.05) (0.05:0.05:0.05))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1426_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1427_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1428_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1429_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1430_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1431_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1432_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1433_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1434_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1435_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1436_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1437_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1438_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1439_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1440_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1441_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1442_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1443_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1444_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1445_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1446_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1447_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1448_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1449_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1450_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1451_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1452_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1453_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1454_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1455_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1456_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1457_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1458_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1459_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1460_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1461_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1462_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1463_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1464_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1465_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1466_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1467_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1468_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1469_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1470_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1471_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1472_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1473_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1474_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1475_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1476_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1477_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1478_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1479_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1480_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1481_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1482_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1483_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1484_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1485_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1486_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1487_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1488_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1489_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1490_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1491_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1492_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1493_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1494_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1495_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1496_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1497_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1498_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1499_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1500_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1501_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1502_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1503_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1504_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1505_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1506_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1507_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1508_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1509_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1510_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1511_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1512_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+  (CELL
+    (CELLTYPE "DFF")
+    (INSTANCE _1513_)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH (posedge C) Q (0.15:0.15:0.15) (0.15:0.15:0.15))
+      )
+    )
+  )
+)

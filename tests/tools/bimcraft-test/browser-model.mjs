@@ -95,6 +95,14 @@ try {
     await page.click('[data-act="undo"]');
     await settled();
     ok((await levels()).length === 2, 'Undo takes the new level away');
+    // 0.9 DC.119: Add a level below
+    await page.click('[data-lv-below]');
+    await settled();
+    const Lb = await levels();
+    ok(Lb.length === 3 && Lb[0].e === -3600 && Lb[0].h === 3600 && Lb[0].name === 'Level -1' && Lb[1].e === 0, 'Add a level below: "Level -1" at -3600, as tall as the lowest; nothing else moved');
+    await page.click('[data-act="undo"]');
+    await settled();
+    ok((await levels()).length === 2, 'Undo takes the level below away');
     await page.click('[data-model-layout="plan"]');
     ok(await page.evaluate(() => getComputedStyle(document.querySelector('[data-canvas-wrap]')).visibility) === 'hidden', 'Plan: the plan alone');
     await page.click('[data-model-layout="split"]');
@@ -248,8 +256,8 @@ try {
     await page.waitForSelector('[data-mp-len]');
     await setField('[data-mp-len]', '9000');
     W = await walls();
-    const west = W.find((w) => w.b[0] === 0 && w.b[1] === 0 && w.guid !== south.guid);
-    ok(W.find((w) => w.guid === north.guid).b.join() === '-1000,6000' && west && west.a.join() === '-1000,6000', 'Length 9000: the wall\'s end moves out 1000 and the joined wall comes with it');
+    const west = W.find((w) => w.a.join() === '-1000,6000' && w.guid !== north.guid);
+    ok(W.find((w) => w.guid === north.guid).b.join() === '-1000,6000' && west && west.b.join() === '-1000,0', 'Length 9000: the wall\'s end moves out 1000 and the joined wall comes with it, staying square (0.9 FX.22)');
     await page.click('[data-act="undo"]');
     await settled();
     // a door: width, distance from the start, hinges

@@ -1,0 +1,14 @@
+{
+  "@locale": "zu",
+  "@name": "isiZulu",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (Okwengeziwe)",
+  "wind.of.note": "Isebenzisa ukufakwa kwakho kwe-OpenFOAM ngohlelo oluncane lomsizi kulolu khompyutha: icala elilodwa le-RANS (k-epsilon) ngayinye yendlela yomoya, ukungena kwesendlalelo somoya esiyisimo sezulu. Akukho okuphuma kulolu khompyutha. I-CadCraft ayifaki i-OpenFOAM.",
+  "wind.of.url": "Ikheli lomsizi",
+  "wind.of.token": "Ithokheni lomsizi",
+  "wind.of.check": "Hlola umsizi",
+  "wind.of.ok": "Umsizi uphendule. i-OpenFOAM: {foam}",
+  "wind.of.down": "Umsizi awuphendulanga ({why}). Uqalise kulolu khompyutha: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Umsizi uphendule kodwa awukwazanga ukuqalisa i-OpenFOAM: {why}",
+  "wind.of.install": "Faka i-OpenFOAM (i-ESI v-series, openfoam.com) kanye nomsizi kusukela kufolda yokwengeziwe; isihloko sosizo sichaza kokubili."
+}

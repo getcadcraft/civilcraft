@@ -1,0 +1,8 @@
+- Plan the fewest luminaires, in an even grid, that reach a mean lux and uniformity you type; or place a grid or rows yourself. Layout section.
+- Read mean, lowest and highest lux on the workplane, uniformity, wall and ceiling lux, UGR and watts per square metre, with a colour map. Calculate.
+- Check the result against typical requirements for 15 kinds of room, or your own numbers. Requirements section.
+- Add windows (wall, position, size, glass) and read the daylight factor and its spread. Windows and daylight section; in BimCraft the model's windows fill in when you pick a room.
+- List boxes (furniture, columns, partitions) that block direct light. Furniture and partitions section.
+- Check emergency lighting along an escape route and over the open area. Emergency lighting section.
+- CadCraft: draw the luminaires and the lux values on layers LD-LUMINAIRE and LD-LUX (one undo). BimCraft: place them as IfcLightFixture in the room's level and draw the lux as numbers in the plan view (undo steps).
+- Print a report page (with a map, requirement checks, daylight and emergency results) or save every grid point as CSV.

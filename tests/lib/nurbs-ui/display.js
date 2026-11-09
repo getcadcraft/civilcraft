@@ -12,6 +12,7 @@
  *   d.view(eye)            zebra follows the eye (host units); cheap when the eye barely moved
  *   d.pick(raycaster) → { id, kind, sub } | null      sub = the nearest edge of a surface (u0|u1|v0|v1) or end of a curve (start|end)
  *   d.range() → { min, max } | null   the Gaussian curvature range shown (1/mm²), for the host's legend
+ *   d.setCloud(map, tol)   the deviation map of a scan fit as coloured points (map = Float32Array x, y, z, distance); null clears it
  *   d.dispose()
  */
 const COL = { curve: 0x1f5fa8, picked: 0xd17a22, surface: 0xb8c4cf, cvs: 0x8a5a9c, edge: 0xd17a22 };
@@ -142,6 +143,24 @@ export class NurbsDisplay {
     return true;
   }
   range() { return this.kRange; }
+  /** The scan's deviation map (0.9 round 2): the measured points of a scan fit as a point cloud, blue on the face, green halfway to the tolerance, red at the tolerance or more.
+   *  map = Float32Array of x, y, z (mm), distance (mm) per point; null or empty removes it. */
+  setCloud(map, tol) {
+    if (this.cloud) { this.group.remove(this.cloud); this.disposeObj(this.cloud); this.cloud = null; }
+    if (!map || map.length < 4) return 0;
+    const T = this.T, s = this.scale, n = Math.floor(map.length / 4), pos = new Float32Array(n * 3), col = new Float32Array(n * 3), t = tol > 0 ? tol : 0.1;
+    for (let i = 0; i < n; i++) {
+      pos[i * 3] = map[i * 4] * s; pos[i * 3 + 1] = map[i * 4 + 1] * s; pos[i * 3 + 2] = map[i * 4 + 2] * s;
+      const f = Math.max(0, Math.min(1, map[i * 4 + 3] / t));
+      const [r, g, b] = f < 0.5 ? [0.1 + 0.8 * f, 0.35 + 0.9 * f, 1 - 1.6 * f] : [0.5 + 1.0 * (f - 0.5) * 1, 0.8 - 1.4 * (f - 0.5), 0.2 - 0.2 * (f - 0.5)];
+      col[i * 3] = Math.min(1, r); col[i * 3 + 1] = Math.max(0, Math.min(1, g)); col[i * 3 + 2] = Math.max(0, Math.min(1, b));
+    }
+    const g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(pos, 3)); g.setAttribute('color', new T.BufferAttribute(col, 3));
+    this.cloud = new T.Points(g, new T.PointsMaterial({ size: 4, sizeAttenuation: false, vertexColors: true }));
+    this.cloud.name = 'nurbs-deviation-map'; this.cloud.userData.nurbsCloud = n;
+    this.group.add(this.cloud);
+    return n;
+  }
   /** The item under a THREE.Raycaster: curves by their lines, surfaces by their faces; sub = the nearest edge or end. */
   pick(raycaster) {
     const objs = [...this.cache.values()].map((c) => c.obj).filter((o) => o.visible);
@@ -163,5 +182,5 @@ export class NurbsDisplay {
     }
     return ref;
   }
-  dispose() { for (const c of this.cache.values()) this.disposeObj(c.obj); this.cache.clear(); this.disposeObj(this.extra); this.group.parent?.remove(this.group); }
+  dispose() { this.setCloud(null); for (const c of this.cache.values()) this.disposeObj(c.obj); this.cache.clear(); this.disposeObj(this.extra); this.group.parent?.remove(this.group); }
 }

@@ -1,0 +1,14 @@
+{
+  "@locale": "ky",
+  "@name": "Кыргызча",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (кошумча)",
+  "wind.of.note": "Бул компьютериңиздеги OpenFOAM'ды кичинекей жардамчы программа аркылуу иштетет: ар бир шамал багыты үчүн бир туруктуу RANS (k-epsilon) иш, атмосфералык чек ара катмарынын кирүүсү. Эч нерсе бул компьютерден чыкпайт. CadCraft OpenFOAM'ды камтыбайт.",
+  "wind.of.url": "Жардамчынын дареги",
+  "wind.of.token": "Жардамчынын токени",
+  "wind.of.check": "Жардамчыны текшерүү",
+  "wind.of.ok": "Жардамчы жооп берди. OpenFOAM: {foam}",
+  "wind.of.down": "Жардамчы жооп берген жок ({why}). Аны бул компьютерде иштетиңиз: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Жардамчы жооп берди, бирок OpenFOAM'ды иштете алган жок: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-сериясы, openfoam.com) жана жардамчы программаны кошумчанын папкасынан орнотуңуз; жардам бөлүмүндө экөө тең түшүндүрүлгөн."
+}

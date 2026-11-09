@@ -1,0 +1,3 @@
+- Switch the add-on on in Settings, Add-ons, then open the WaterCraft tab. Draw your reservoir, junctions and pipes with the Water mains tools first.
+- Paste your customer lines under Demands, press Check, then Put into the network.
+- Press Run under Fire flow to see which hydrants fall short, and under Which main matters most to see the weak links. Run water age to find dead ends.

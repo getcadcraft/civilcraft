@@ -27,7 +27,7 @@ export async function run(h) {
   await page.waitForSelector('[data-nurbs-panel]');
   ok(await page.isVisible('[data-nurbs-empty]'), 'the panel says the part has no curves or surfaces yet');
   const tb = await page.$$eval('.pc-tools [data-cmd^="surfaces-"]', (b) => b.filter((x) => x.offsetParent).map((x) => x.dataset.cmd));
-  ok(tb.length === 7, 'the toolbar has the Surfaces group: ' + tb.join(', '));
+  ok(tb.length === 8, 'the toolbar has the Surfaces group: ' + tb.join(', '));   // 0.9 DC.54 added surfaces-bake
   await page.click('.pc-tools [data-cmd="surfaces-loft"]');
   ok(await page.isVisible('[data-nurbs-cmd="surface.loft"]'), 'its Loft button starts a loft in the panel');
   await page.click('.pc-tools [data-cmd="surfaces-loft"]');

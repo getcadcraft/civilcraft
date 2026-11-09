@@ -51,12 +51,13 @@ const SHOW_LABELS = [   // [what, language key]: looked up when the bar is built
 const VIEW_KEYS = { iso: 'v3d.view.iso', top: 'v3d.view.top', bottom: 'v3d.view.bottom', front: 'v3d.view.front', back: 'v3d.view.back', left: 'v3d.view.left', right: 'v3d.view.right' };
 
 export function readState() {
-  const st = { exag: 2, color: 'bands', view: 'iso', persp: true, show: { ...SHOW_DEFAULTS } };
+  const st = { exag: 2, color: 'bands', view: 'iso', persp: true, render: false, show: { ...SHOW_DEFAULTS } };
   try {
     const v = JSON.parse(localStorage.getItem(STORE) || '{}');
     if (EXAGGERATIONS.includes(v.exag)) st.exag = v.exag;
     if (v.color === 'bands' || v.color === 'single' || v.color === 'map' || v.color === 'cutfill') st.color = v.color;   // 0.8 SU.914: 'cutfill'   // 0.4 V3: 'map'
     if (typeof v.persp === 'boolean') st.persp = v.persp;
+    if (typeof v.render === 'boolean') st.render = v.render;
     if (v.show && typeof v.show === 'object') for (const k of Object.keys(SHOW_DEFAULTS)) if (typeof v.show[k] === 'boolean') st.show[k] = v.show[k];
   } catch { /* private window or junk: defaults */ }
   return st;
@@ -171,6 +172,32 @@ function labelMesh(labels, haloHex) {
   return mesh;
 }
 
+
+// FX Render view: the land drawn as land. Grass on the flat, bare earth and rock on the steep, lighter with height; a sky and haze
+// behind it, a warm key light from the north-west with soft shadows, filmic tone mapping. Nothing here changes the model.
+const RENDER_SUN = { dir: [-0.55, 0.55, 0.78], up: true, shadows: true };
+const lerp3 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+function naturalColors(m, zMin, zMax) {
+  const n = m.positions.length / 3, out = new Float32Array(n * 3), span = Math.max(1e-9, zMax - zMin);
+  const low = [0.24, 0.36, 0.17], mid = [0.38, 0.47, 0.22], high = [0.62, 0.56, 0.42], rock = [0.45, 0.41, 0.36];
+  for (let i = 0; i < n; i++) {
+    const h = Math.min(1, Math.max(0, (m.positions[3 * i + 2] - zMin) / span)), nz = Math.min(1, Math.max(0, m.normals[3 * i + 2]));
+    let c = h < 0.5 ? lerp3(low, mid, h * 2) : lerp3(mid, high, (h - 0.5) * 2);
+    c = lerp3(c, rock, Math.min(1, Math.max(0, (0.93 - nz) / 0.25)));   // flatter than ~21 degrees stays green; past ~37 it is rock
+    const grain = 1 + 0.05 * Math.sin(m.positions[3 * i] * 0.9) * Math.cos(m.positions[3 * i + 1] * 1.1);   // a faint grain so a big flat does not look like plastic
+    out[3 * i] = c[0] * grain; out[3 * i + 1] = c[1] * grain; out[3 * i + 2] = c[2] * grain;
+  }
+  return out;
+}
+function skyTexture(dark) {
+  const cv = document.createElement('canvas'); cv.width = 4; cv.height = 256;
+  const g = cv.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 256);
+  if (dark) { gr.addColorStop(0, '#0d1626'); gr.addColorStop(0.7, '#2a3a52'); gr.addColorStop(1, '#4a5a70'); }
+  else { gr.addColorStop(0, '#5b8fc9'); gr.addColorStop(0.65, '#a9c8e6'); gr.addColorStop(1, '#e6eef2'); }
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+  const t = new THREE.CanvasTexture(cv); t.magFilter = THREE.LinearFilter; return t;
+}
+
 export class SiteView3D {
   constructor(canvas) {
     this.canvas = canvas;
@@ -213,14 +240,21 @@ export class SiteView3D {
   /** Replace what is drawn with a site3d.js scene; `drape` (0.4 V3) = a THREE texture for meshes that carry uvs. */
   setData(data, bg, drape = null) {
     this.clear();
-    this.data = data;
-    this.scene.background = new THREE.Color('#' + hex(bg));
+    this.data = data; this._bg = bg; this._drape = drape;
+    const R = !!this.renderOn;
+    this.scene.background = R ? skyTexture(this.darkSky) : new THREE.Color('#' + hex(bg));
+    this.scene.fog = null;
+    if (R && data.bbox) { const r = Math.max(1, this.radius()); this.scene.fog = new THREE.Fog(this.darkSky ? 0x4a5a70 : 0xdfe9ef, r * 2.2, r * 7); }
+    this.renderer.toneMapping = R ? THREE.ACESFilmicToneMapping : THREE.NoToneMapping;
+    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, R ? 2.5 : 2));
     const both = data.meshes.some((m) => m.key === 'eg') && data.meshes.some((m) => m.key === 'fg');
     for (const m of data.meshes) {
       const g = new THREE.BufferGeometry();
       g.setAttribute('position', new THREE.BufferAttribute(m.positions, 3));
       g.setAttribute('normal', new THREE.BufferAttribute(m.normals, 3));
-      g.setAttribute('color', new THREE.BufferAttribute(m.colors, 3));
+      const natural = R && (m.key === 'eg' || m.key === 'fg') && !(m.uvs && drape) && data.bbox;
+      g.setAttribute('color', new THREE.BufferAttribute(natural ? naturalColors(m, data.bbox.min[2], data.bbox.max[2]) : m.colors, 3));
       if (m.uvs && drape) g.setAttribute('uv', new THREE.BufferAttribute(m.uvs, 2));
       g.setIndex(new THREE.BufferAttribute(m.indices, 1));
       g.computeBoundingSphere();
@@ -283,10 +317,17 @@ export class SiteView3D {
     a.needsUpdate = true;
     this.labelsShown = vis.reduce((s, v) => s + v, 0);
   }
+  /** FX Render view on/off: the same scene drawn as land (natural colours, sky, haze, soft shadows). */
+  setRender(on, dark = false) {
+    this.renderOn = !!on; this.darkSky = !!dark;
+    if (this.data) this.setData(this.data, this._bg, this._drape); else this.invalidate();
+    this.setSun(this.sunCfg);
+  }
   /** 0.4 V10: light from the sun. cfg = null (the usual light from the upper left) | { dir: [x, y, z] toward the sun in view
    *  space, up: above the horizon, shadows }. Shadows: one shadow map over the whole site. */
-  setSun(cfg) {
-    this.sunCfg = cfg;
+  setSun(userCfg) {
+    this.sunCfg = userCfg;
+    const cfg = userCfg || (this.renderOn ? RENDER_SUN : null);
     const b = this.data?.bbox, c = b ? [(b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2] : [0, 0, 0], r = Math.max(1, this.radius());
     const shade = !!(cfg?.up && cfg.shadows);
     if (!cfg) { this.hemi.intensity = 1.6; this.sun.intensity = 1.6; this.sun.position.set(-0.45, 0.55, 1); this.sun.target.position.set(0, 0, 0); }
@@ -300,7 +341,7 @@ export class SiteView3D {
       sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.near = 0.1; sc.far = r * 4; sc.updateProjectionMatrix();
     }
     this.sun.target.updateMatrixWorld();
-    if (shade && !this.renderer.shadowMap.enabled) { this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; this.sun.shadow.mapSize.set(2048, 2048); this.sun.shadow.bias = -0.0005; this.sun.shadow.normalBias = 0.02 * r / 50; }
+    if (shade && !this.renderer.shadowMap.enabled) { this.renderer.shadowMap.enabled = true; this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; this.sun.shadow.mapSize.set(this.renderOn ? 4096 : 2048, this.renderOn ? 4096 : 2048); this.sun.shadow.bias = -0.0005; this.sun.shadow.normalBias = 0.02 * r / 50; }
     this.sun.castShadow = shade;
     for (const o of this.root.children) if (o.isMesh) { o.castShadow = shade; o.receiveShadow = shade; o.material.needsUpdate = true; }
     this.invalidate();
@@ -328,10 +369,11 @@ export class SiteView3D {
 export function mountSite3D(host, { project, onPick = () => false, say = () => {}, exag: exag0 = null, onExag = () => {}, corner = 'cube', drape: getDrape = null, selection = () => null, onPushPull = null, species = null, cutfill = null, spots = null }) {   // 0.8 SU.914: cutfill(box, size) → canvas | null
   const state = readState();
   if (EXAGGERATIONS.includes(exag0)) state.exag = exag0;
-  const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ exag: state.exag, color: state.color, persp: state.persp, show: state.show })); } catch { /* storage blocked: this visit only */ } };
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ exag: state.exag, color: state.color, persp: state.persp, render: state.render, show: state.show })); } catch { /* storage blocked: this visit only */ } };
   const opt = (v, label, cur) => el('option', { value: String(v), selected: String(v) === String(cur) }, label);
   const viewSel = el('select', { className: 'cv-select cv3-sel', 'data-3d-view': '', 'aria-label': t('v3d.view'), title: t('v3d.view') }, ...Object.keys(VIEWS).map((k) => opt(k, VIEW_KEYS[k] ? t(VIEW_KEYS[k]) : VIEW_LABELS[k], state.view)));
   const persp = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-persp': '', 'aria-pressed': String(state.persp), title: t('v3d.persp.title') }, t('v3d.persp'));
+  const renderBtn = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-render': '', 'aria-pressed': String(!!state.render), title: t('v3d.render.title') }, t('v3d.render'));
   const extents = el('button', { type: 'button', className: 'cv-toggle', 'data-3d-extents': '', title: t('v3d.extents.title') }, t('v3d.extents'));
   const exag = el('select', { className: 'cv-select cv3-sel', 'data-3d-exag': '', 'aria-label': t('v3d.exag'), title: t('v3d.exag.title') }, ...EXAGGERATIONS.map((x) => opt(x, t('v3d.exag.opt', { x }), state.exag)));
   const color = el('select', { className: 'cv-select cv3-sel', 'data-3d-color': '', 'aria-label': t('v3d.color'), title: t('v3d.color.title') }, opt('bands', t('v3d.color.bands'), state.color), opt('single', t('v3d.color.single'), state.color), opt('map', t('v3d.color.map'), state.color), opt('cutfill', t('sx.su914.color3d'), state.color));
@@ -345,7 +387,7 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
   const usdMenu = el('details', { className: 'cv-menu cv3-menu', 'data-3d-usd-menu': '' },
     el('summary', { className: 'cv-toggle', title: t('usd.export.title') }, t('usd.export.button')),
     el('div', { className: 'cv-menu-list' }, ...['usda', 'usdc', 'usdz'].map((f) => el('button', { type: 'button', className: 'cv-toggle', 'data-3d-usd': f }, t('usd.dialog.format.' + f)))));
-  const bar = el('div', { className: 'cv3-bar', 'data-3d-bar': '' }, viewSel, persp, extents, exag, color, showMenu, el('span', { className: 'cv3-sep' }, t('v3d.export')), glb, obj, usdMenu);
+  const bar = el('div', { className: 'cv3-bar', 'data-3d-bar': '' }, viewSel, persp, renderBtn, extents, exag, color, showMenu, el('span', { className: 'cv3-sep' }, t('v3d.export')), glb, obj, usdMenu);
   const canvas = el('canvas', { className: 'cv-canvas cv3-canvas', 'data-3d-canvas': '', tabindex: '0', 'aria-label': t('v3d.canvas') });   // 0.4 V5: more can be clicked now
   const stage = el('div', { className: 'cv3-stage' }, canvas);
   const tip = el('div', { className: 'cv3-tip', 'data-3d-tip': '', hidden: true });
@@ -408,7 +450,9 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
     const box = drapeFor(input);
     data = buildSite3D(input, { exag: state.exag, color: box ? 'map' : state.color === 'map' || state.color === 'cutfill' ? 'bands' : state.color, drape: box, show: state.show, dark: theme.dark, colors: theme.colors });
     if (drapeNote) data.notes.push(drapeNote);
+    view.renderOn = !!state.render; view.darkSky = theme.dark;
     view.setData(data, theme.bg, box ? drapeTex : null);
+    if (state.render) view.setSun(view.sunCfg);
     hlFor = null;
     highlight();
     // the local origin moves when the first ground or alignment arrives (0.7.1 71.19: a plant first, then a road): look again
@@ -499,6 +543,8 @@ export function mountSite3D(host, { project, onPick = () => false, say = () => {
 
   // ---- bar ----
   viewSel.addEventListener('change', () => { if (dv.driving) dv.end(); state.view = viewSel.value; view.standard(state.view); });
+  const applyRender = () => { view.setRender(state.render, theme.dark); renderBtn.setAttribute('aria-pressed', String(!!state.render)); };
+  renderBtn.addEventListener('click', () => { state.render = !state.render; save(); applyRender(); });
   persp.addEventListener('click', () => { state.persp = !state.persp; view.cam.persp = state.persp; persp.setAttribute('aria-pressed', String(state.persp)); save(); view.invalidate(); });
   extents.addEventListener('click', () => { if (dv.driving) dv.end(); view.fit(); });
   exag.addEventListener('change', () => changeExag(Number(exag.value), true));

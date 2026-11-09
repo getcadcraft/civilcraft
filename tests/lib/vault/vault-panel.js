@@ -6,7 +6,7 @@
  * locks with a reason, history, what a file uses and what uses it, a BOM as CSV, and the project settings. Text through t();
  * names from files only through el() text nodes. What differs per app is the `app` adapter:
  *
- *   createVaultPanel({ stage, el, t, print, focusCommandLine, fileHost, app }) → { open, close, node, state, useFolder, saveBlocked }
+ *   createVaultPanel({ el, t, print, focusCommandLine, fileHost, app }) → { open, close, node, state, useFolder, saveBlocked }
  *     fileHost  host.js getHost() (pickFolder, account); folders: Studio's bridge (window.cadcraftDesktop) or the browser's
  *               File System Access API (Chromium); elsewhere the panel says it needs one of them
  *     app = {
@@ -37,7 +37,7 @@ const CSV_COLS = ['item', 'level', 'number', 'name', 'path', 'rev', 'state', 'qt
 const when = (iso) => { try { return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch { return String(iso || ''); } };
 const base = (p) => String(p).split('/').pop();
 
-export function createVaultPanel({ stage, el: baseEl, t, print, focusCommandLine, fileHost, app }) {
+export function createVaultPanel({ el: baseEl, t, print, focusCommandLine, fileHost, app }) {
   // the apps' el() helpers differ on `dataset` (one assigns it, one sets it); data-* attributes work with all of them
   const kebab = (k) => 'data-' + k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
   const el = (tag, props = {}, ...kids) => {
@@ -120,6 +120,7 @@ export function createVaultPanel({ stage, el: baseEl, t, print, focusCommandLine
       const bytes = await st.fsx.read(rec.path);
       if (!bytes) { st.error = t('sx.vault.err.missing_file'); return; }
       await app.open(rec, bytes, st.folder);
+      api.close();   // it is a modal dialog: the person opened the file to see it
       print(t(rec.lock?.mine ? 'sx.vault.opened.mine' : 'sx.vault.opened.readonly', { name: rec.path, rev: rec.rev }));
     });
     if (name === 'checkout') return run(async () => say(await v.checkOut(rec.id, { note: text }), 'sx.vault.done.checkout', { name: rec.path }));
@@ -276,14 +277,24 @@ export function createVaultPanel({ stage, el: baseEl, t, print, focusCommandLine
     const close = el('button', { type: 'button', className: 'cc-vault-x', 'aria-label': t('sx.vault.close'), title: t('sx.vault.close'), onclick: () => api.close() },
       el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' }));
     body = el('div', { className: 'cc-vault-body' });
-    node = el('section', { className: 'cc-vaultpanel', tabIndex: -1, role: 'region', 'aria-label': t('sx.vault.title'), dataset: { vaultPanel: '' } },
+    // a modal <dialog> (owner 2026-11-06: the box pinned to the stage's corner was easy to miss, worse the larger the screen): centred on the window whatever the
+    // layout, the page dimmed behind it. In <body>, as a layout may hide or move the stage.
+    node = el('dialog', { className: 'cc-vaultpanel', tabIndex: -1, 'aria-label': t('sx.vault.title'), dataset: { vaultPanel: '' } },
       el('div', { className: 'cc-vault-head' }, el('h2', { className: 'cc-vault-h' }, t('sx.vault.title')), close), body);
     node.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Escape') { if (st.prompt) { st.prompt = null; render(); } else api.close(); } });
-    stage.append(node);
+    node.setAttribute('aria-label', t('sx.vault.title'));
+    node.addEventListener('cancel', (e) => e.preventDefault());   // Esc is the keydown above: it backs out of a prompt first
+    node.addEventListener('close', () => { if (!node.hidden) api.close(); });   // a browser may close it by itself on a second Esc
+    node.addEventListener('mousedown', (e) => {   // a press on the dimmed page closes it, unless a question is open
+      if (e.target !== node || st.prompt) return;
+      const r = node.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) api.close();
+    });
+    document.body.append(node);
   }
   const api = {
-    async open() { if (!node) build(); node.hidden = false; await refresh(); node.querySelector('button')?.focus(); },
-    close() { app.onClose?.(); if (node) node.hidden = true; focusCommandLine?.(); },
+    async open() { if (!node) build(); node.hidden = false; if (!node.open) node.showModal(); await refresh(); node.querySelector('button')?.focus(); },
+    close() { app.onClose?.(); if (node) { node.hidden = true; if (node.open) node.close(); } focusCommandLine?.(); },
     get node() { return node; },
     /**
      * SAVE asks this first (cadcraft.js saveFile, in place only): a drawing opened from the vault is saved over only while it is

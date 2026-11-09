@@ -2,14 +2,18 @@
 /**
  * loads-asce7.js — seismic loads by the equivalent lateral force procedure of ASCE/SEI 7-22 chapter 12, applied to the
  * frame's rigid floors, and the storey-drift check (0.8 SU.1056 step 4; owner decision O2 default). DOM-free; imports
- * nothing. An aid until an engineer has reviewed it. Wind (chapter 27, directional procedure) is NOT built yet.
+ * nothing. An aid until an engineer has reviewed it. Wind is wind-asce7.js; site coefficients, systems and the spectrum are
+ * seismic-asce7.js and spectrum-asce7.js. 0.9 SU.1056b checked these constants against public pages (loads-sources.js): Ct and x (US units),
+ * Cu, the Cs equations and k are confirmed by two pages each; the SI Ct numbers typed in 0.8 were printed on no page, so Ta is now
+ * computed from the confirmed US values (Ct 0.028 / 0.016 / 0.03 / 0.02, hn in ft): the answer moves by under 0.1 %. The story drift
+ * ratios of Table 12.12-1 below are NOT confirmed by two pages (loads-sources.js UNCONFIRMED): check the limit.
  *
  * Units: forces N, lengths mm (heights in the period formula in m, as the SI form of Table 12.8-2), accelerations in g.
  *   12.8.1    V = Cs W
  *   12.8.1.1  Cs = SDS / (R/Ie) (12.8-2), at most SD1 / (T (R/Ie)) for T ≤ TL (12.8-3), SD1 TL / (T² (R/Ie)) for T > TL (12.8-4),
  *             at least max(0.044 SDS Ie, 0.01) (12.8-5), and where S1 ≥ 0.6 g at least 0.5 S1 / (R/Ie) (12.8-6)
- *   12.8.2.1  Ta = Ct hn^x (12.8-8), Table 12.8-2 (SI): steel moment frames 0.0724 / 0.8, concrete moment frames 0.0466 / 0.9,
- *             steel eccentrically or buckling-restrained braced frames 0.0731 / 0.75, all other 0.0488 / 0.75
+ *   12.8.2.1  Ta = Ct hn^x (12.8-8), Table 12.8-2 (US, hn in ft): steel moment frames 0.028 / 0.8, concrete moment frames 0.016 / 0.9,
+ *             steel eccentrically or buckling-restrained braced frames 0.03 / 0.75, all other 0.02 / 0.75
  *   12.8.2    a period from analysis may be used up to Cu Ta, Table 12.8-1 (SD1 ≥ 0.4: 1.4; 0.3: 1.4; 0.2: 1.5; 0.15: 1.6;
  *             ≤ 0.1: 1.7; straight lines between)
  *   12.8.3    Fx = Cvx V, Cvx = wx hx^k / Σ wi hi^k; k = 1 for T ≤ 0.5 s, 2 for T ≥ 2.5 s, straight line between
@@ -30,16 +34,16 @@
 
 export const EDITION = 'ASCE/SEI 7-22';
 export const PERIOD_SYSTEMS = Object.freeze({
-  'steel-mf': { Ct: 0.0724, x: 0.8 },
-  'concrete-mf': { Ct: 0.0466, x: 0.9 },
-  'steel-ebf': { Ct: 0.0731, x: 0.75 },
-  other: { Ct: 0.0488, x: 0.75 },
+  'steel-mf': { Ct: 0.028, x: 0.8 },        // Ct for hn in feet (Table 12.8-2, US units)
+  'concrete-mf': { Ct: 0.016, x: 0.9 },
+  'steel-ebf': { Ct: 0.03, x: 0.75 },
+  other: { Ct: 0.02, x: 0.75 },
 });
 export const DRIFT_LIMITS = Object.freeze({ I: 0.020, II: 0.020, III: 0.015, IV: 0.010 });
 
 export function approxPeriod(system, hn) {
   const s = PERIOD_SYSTEMS[system] || PERIOD_SYSTEMS.other;
-  return s.Ct * Math.pow(hn / 1000, s.x);
+  return s.Ct * Math.pow(hn / 304.8, s.x);
 }
 export function cuFactor(SD1) {
   const t = [[0.1, 1.7], [0.15, 1.6], [0.2, 1.5], [0.3, 1.4], [0.4, 1.4]];

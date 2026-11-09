@@ -1,0 +1,898 @@
+{
+ "header": {
+  "id": "cadcraft-tests/house",
+  "ifcxVersion": "ifcx_alpha",
+  "dataVersion": "1.0.0",
+  "author": "CadCraft tests",
+  "timestamp": "2026-11-02"
+ },
+ "imports": [
+  {
+   "uri": "test:ifc"
+  },
+  {
+   "uri": "test:prop"
+  },
+  {
+   "uri": "test:usd"
+  },
+  {
+   "uri": "test:nlsfb"
+  }
+ ],
+ "schemas": {
+  "customdata": {
+   "value": {
+    "dataType": "Object",
+    "objectRestrictions": {
+     "values": {
+      "originalStepInstance": {
+       "dataType": "String"
+      }
+     }
+    }
+   }
+  },
+  "cadcraft::pset::Pset_SlabCommon": {
+   "value": {
+    "dataType": "Object",
+    "objectRestrictions": {
+     "values": {
+      "LoadBearing": {
+       "dataType": "Boolean",
+       "optional": true
+      },
+      "Reference": {
+       "dataType": "String",
+       "optional": true
+      }
+     }
+    }
+   }
+  },
+  "cadcraft::qto::Qto_SlabBaseQuantities": {
+   "value": {
+    "dataType": "Object",
+    "objectRestrictions": {
+     "values": {
+      "GrossArea": {
+       "dataType": "Real",
+       "quantityKind": "Area",
+       "optional": true
+      }
+     }
+    }
+   }
+  }
+ },
+ "data": [
+  {
+   "path": "00000000-0000-4000-8000-000000000000",
+   "children": {
+    "Test Project": "00000000-0000-4000-8000-000000000001"
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000001",
+   "children": {
+    "Test Site": "00000000-0000-4000-8000-000000000002"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcProject",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcProject"
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000002",
+   "children": {
+    "Test House": "00000000-0000-4000-8000-000000000003"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcSite",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSite"
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000003",
+   "children": {
+    "Ground floor": "00000000-0000-4000-8000-000000000005",
+    "First floor": "00000000-0000-4000-8000-000000000006"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcBuilding",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuilding"
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000005",
+   "children": {
+    "North wall": "00000000-0000-4000-8000-000000000010",
+    "Hall": "00000000-0000-4000-8000-000000000011"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcBuildingStorey",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuildingStorey"
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000006",
+   "children": {
+    "Slab": "00000000-0000-4000-8000-000000000012"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcBuildingStorey",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcBuildingStorey"
+    },
+    "usd::xformop": {
+     "transform": [
+      [
+       1,
+       0,
+       0,
+       0
+      ],
+      [
+       0,
+       1,
+       0,
+       0
+      ],
+      [
+       0,
+       0,
+       1,
+       0
+      ],
+      [
+       0,
+       0,
+       3,
+       1
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000010",
+   "children": {
+    "Body": "00000000-0000-4000-8000-000000000020",
+    "Axis": "00000000-0000-4000-8000-000000000021",
+    "Window": "00000000-0000-4000-8000-000000000030",
+    "Window 2": "00000000-0000-4000-8000-000000000031"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcWall",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWall"
+    },
+    "bsi::ifc::prop::IsExternal": true,
+    "bsi::ifc::prop::Height": 3.0,
+    "bsi::ifc::prop::Volume": 2.4,
+    "nlsfb::class": {
+     "code": "21.21",
+     "uri": "https://identifier.buildingsmart.org/uri/nlsfb/nlsfb2005/2.2/class/21.21"
+    },
+    "customdata": {
+     "originalStepInstance": "#1222=IfcWall('x',$,'North wall',$,$,#1,#2,$,$)"
+    },
+    "bsi::ifc::material": {
+     "code": "CONCRETE",
+     "uri": "https://identifier.buildingsmart.org/uri/fish/midas-materials/26/class/CONCRETE"
+    },
+    "bsi::ifc::presentation::diffuseColor": [
+     0.5,
+     0.5,
+     0.5
+    ],
+    "bsi::ifc::presentation::opacity": 1
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000020",
+   "attributes": {
+    "usd::usdgeom::mesh": {
+     "points": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       6,
+       0,
+       0
+      ],
+      [
+       6,
+       0.2,
+       0
+      ],
+      [
+       0,
+       0.2,
+       0
+      ],
+      [
+       0,
+       0,
+       3
+      ],
+      [
+       6,
+       0,
+       3
+      ],
+      [
+       6,
+       0.2,
+       3
+      ],
+      [
+       0,
+       0.2,
+       3
+      ]
+     ],
+     "faceVertexIndices": [
+      0,
+      2,
+      1,
+      0,
+      3,
+      2,
+      4,
+      5,
+      6,
+      4,
+      6,
+      7,
+      0,
+      1,
+      5,
+      0,
+      5,
+      4,
+      1,
+      2,
+      6,
+      1,
+      6,
+      5,
+      2,
+      3,
+      7,
+      2,
+      7,
+      6,
+      3,
+      0,
+      4,
+      3,
+      4,
+      7
+     ]
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000021",
+   "attributes": {
+    "usd::usdgeom::basiscurves": {
+     "points": [
+      [
+       0,
+       0.1,
+       0
+      ],
+      [
+       6,
+       0.1,
+       0
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000030",
+   "inherits": {
+    "windowType": "00000000-0000-4000-8000-000000000040"
+   },
+   "attributes": {
+    "usd::xformop": {
+     "transform": [
+      [
+       1,
+       0,
+       0,
+       0
+      ],
+      [
+       0,
+       1,
+       0,
+       0
+      ],
+      [
+       0,
+       0,
+       1,
+       0
+      ],
+      [
+       1,
+       0,
+       1,
+       1
+      ]
+     ]
+    },
+    "bsi::ifc::prop::IsExternal": true
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000031",
+   "inherits": {
+    "windowType": "00000000-0000-4000-8000-000000000040"
+   },
+   "attributes": {
+    "usd::xformop": {
+     "transform": [
+      [
+       1,
+       0,
+       0,
+       0
+      ],
+      [
+       0,
+       1,
+       0,
+       0
+      ],
+      [
+       0,
+       0,
+       1,
+       0
+      ],
+      [
+       4,
+       0,
+       1,
+       1
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000040",
+   "children": {
+    "Frame": "00000000-0000-4000-8000-000000000041",
+    "Glazing": "00000000-0000-4000-8000-000000000042",
+    "Void": "00000000-0000-4000-8000-000000000043"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcWindow",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcWindow"
+    },
+    "bsi::ifc::prop::Height": 1.2,
+    "bsi::ifc::prop::TypeName": "WT01"
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000041",
+   "attributes": {
+    "usd::usdgeom::mesh": {
+     "points": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       0.9,
+       0,
+       0
+      ],
+      [
+       0.9,
+       0.2,
+       0
+      ],
+      [
+       0,
+       0.2,
+       0
+      ],
+      [
+       0,
+       0,
+       1.2
+      ],
+      [
+       0.9,
+       0,
+       1.2
+      ],
+      [
+       0.9,
+       0.2,
+       1.2
+      ],
+      [
+       0,
+       0.2,
+       1.2
+      ]
+     ],
+     "faceVertexIndices": [
+      0,
+      2,
+      1,
+      0,
+      3,
+      2,
+      4,
+      5,
+      6,
+      4,
+      6,
+      7,
+      0,
+      1,
+      5,
+      0,
+      5,
+      4,
+      1,
+      2,
+      6,
+      1,
+      6,
+      5,
+      2,
+      3,
+      7,
+      2,
+      7,
+      6,
+      3,
+      0,
+      4,
+      3,
+      4,
+      7
+     ]
+    },
+    "bsi::ifc::presentation::diffuseColor": [
+     0.8,
+     0.7,
+     0.6
+    ]
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000042",
+   "attributes": {
+    "usd::usdgeom::mesh": {
+     "points": [
+      [
+       0.05,
+       0.08,
+       0.05
+      ],
+      [
+       0.85,
+       0.08,
+       0.05
+      ],
+      [
+       0.85,
+       0.12,
+       0.05
+      ],
+      [
+       0.05,
+       0.12,
+       0.05
+      ],
+      [
+       0.05,
+       0.08,
+       1.15
+      ],
+      [
+       0.85,
+       0.08,
+       1.15
+      ],
+      [
+       0.85,
+       0.12,
+       1.15
+      ],
+      [
+       0.05,
+       0.12,
+       1.15
+      ]
+     ],
+     "faceVertexIndices": [
+      0,
+      2,
+      1,
+      0,
+      3,
+      2,
+      4,
+      5,
+      6,
+      4,
+      6,
+      7,
+      0,
+      1,
+      5,
+      0,
+      5,
+      4,
+      1,
+      2,
+      6,
+      1,
+      6,
+      5,
+      2,
+      3,
+      7,
+      2,
+      7,
+      6,
+      3,
+      0,
+      4,
+      3,
+      4,
+      7
+     ]
+    },
+    "bsi::ifc::presentation::diffuseColor": [
+     0.5,
+     0.8,
+     0.6
+    ],
+    "bsi::ifc::presentation::opacity": 0.3
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000043",
+   "attributes": {
+    "usd::usdgeom::mesh": {
+     "points": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       0.9,
+       0,
+       0
+      ],
+      [
+       0.9,
+       0.2,
+       0
+      ],
+      [
+       0,
+       0.2,
+       0
+      ],
+      [
+       0,
+       0,
+       1.2
+      ],
+      [
+       0.9,
+       0,
+       1.2
+      ],
+      [
+       0.9,
+       0.2,
+       1.2
+      ],
+      [
+       0,
+       0.2,
+       1.2
+      ]
+     ],
+     "faceVertexIndices": [
+      0,
+      2,
+      1,
+      0,
+      3,
+      2,
+      4,
+      5,
+      6,
+      4,
+      6,
+      7,
+      0,
+      1,
+      5,
+      0,
+      5,
+      4,
+      1,
+      2,
+      6,
+      1,
+      6,
+      5,
+      2,
+      3,
+      7,
+      2,
+      7,
+      6,
+      3,
+      0,
+      4,
+      3,
+      4,
+      7
+     ]
+    },
+    "usd::usdgeom::visibility": {
+     "visibility": "invisible"
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000011",
+   "children": {
+    "Body": "00000000-0000-4000-8000-000000000050",
+    "Boundary": "00000000-0000-4000-8000-000000000051"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcSpace",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSpace"
+    },
+    "bsi::ifc::presentation::opacity": 0.3,
+    "bsi::ifc::presentation::diffuseColor": [
+     0.6,
+     0.7,
+     0.8
+    ],
+    "bsi::ifc::prop::Volume": 72.0
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000050",
+   "attributes": {
+    "usd::usdgeom::mesh": {
+     "points": [
+      [
+       0,
+       0.2,
+       0
+      ],
+      [
+       6,
+       0.2,
+       0
+      ],
+      [
+       6,
+       5,
+       0
+      ],
+      [
+       0,
+       5,
+       0
+      ],
+      [
+       0,
+       0.2,
+       3
+      ],
+      [
+       6,
+       0.2,
+       3
+      ],
+      [
+       6,
+       5,
+       3
+      ],
+      [
+       0,
+       5,
+       3
+      ]
+     ],
+     "faceVertexIndices": [
+      0,
+      2,
+      1,
+      0,
+      3,
+      2,
+      4,
+      5,
+      6,
+      4,
+      6,
+      7,
+      0,
+      1,
+      5,
+      0,
+      5,
+      4,
+      1,
+      2,
+      6,
+      1,
+      6,
+      5,
+      2,
+      3,
+      7,
+      2,
+      7,
+      6,
+      3,
+      0,
+      4,
+      3,
+      4,
+      7
+     ]
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000051",
+   "attributes": {
+    "bsi::ifc::spaceBoundary": {
+     "relatedelement": {
+      "ref": "00000000-0000-4000-8000-000000000010"
+     },
+     "relatingspace": {
+      "ref": "00000000-0000-4000-8000-000000000011"
+     }
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000012",
+   "children": {
+    "Body": "00000000-0000-4000-8000-000000000060"
+   },
+   "attributes": {
+    "bsi::ifc::class": {
+     "code": "IfcSlab",
+     "uri": "https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcSlab"
+    },
+    "bsi::ifc::prop::NetArea": 30.0,
+    "cadcraft::pset::Pset_SlabCommon": {
+     "LoadBearing": true,
+     "Reference": "S1"
+    },
+    "cadcraft::qto::Qto_SlabBaseQuantities": {
+     "GrossArea": 31.5
+    }
+   }
+  },
+  {
+   "path": "00000000-0000-4000-8000-000000000060",
+   "attributes": {
+    "usd::usdgeom::mesh": {
+     "points": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       6,
+       0,
+       0
+      ],
+      [
+       6,
+       5,
+       0
+      ],
+      [
+       0,
+       5,
+       0
+      ],
+      [
+       0,
+       0,
+       0.2
+      ],
+      [
+       6,
+       0,
+       0.2
+      ],
+      [
+       6,
+       5,
+       0.2
+      ],
+      [
+       0,
+       5,
+       0.2
+      ]
+     ],
+     "faceVertexIndices": [
+      0,
+      2,
+      1,
+      0,
+      3,
+      2,
+      4,
+      5,
+      6,
+      4,
+      6,
+      7,
+      0,
+      1,
+      5,
+      0,
+      5,
+      4,
+      1,
+      2,
+      6,
+      1,
+      6,
+      5,
+      2,
+      3,
+      7,
+      2,
+      7,
+      6,
+      3,
+      0,
+      4,
+      3,
+      4,
+      7
+     ]
+    }
+   }
+  }
+ ]
+}

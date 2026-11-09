@@ -1,0 +1,1 @@
+It ships no data. It reads the file you open (LAS 1.0 to 1.4, LAZ) and keeps tiles of it where you choose. The coordinate system and units are those of the file: the cloud is taken to be in the project's system, in metres, and the add-on does not reproject it. Colours, intensity and classes come from the file when it has them.

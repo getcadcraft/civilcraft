@@ -1,0 +1,138 @@
+STIL 1.0;
+
+Header {
+  Title "Pebble";
+  Source "CadCraft Chip design";
+}
+
+Signals {
+  clk In;
+  rst In;
+  out_valid Out;
+  "out_data[7]" Out;
+  "out_data[6]" Out;
+  "out_data[5]" Out;
+  "out_data[4]" Out;
+  "out_data[3]" Out;
+  "out_data[2]" Out;
+  "out_data[1]" Out;
+  "out_data[0]" Out;
+  halted Out;
+}
+
+SignalGroups {
+  all_in = 'rst';
+  all_clk = 'clk';
+  all_out = 'out_valid + "out_data[7]" + "out_data[6]" + "out_data[5]" + "out_data[4]" + "out_data[3]" + "out_data[2]" + "out_data[1]" + "out_data[0]" + halted';
+  all_pins = 'clk + rst + out_valid + "out_data[7]" + "out_data[6]" + "out_data[5]" + "out_data[4]" + "out_data[3]" + "out_data[2]" + "out_data[1]" + "out_data[0]" + halted';
+}
+
+Timing {
+  WaveformTable wft {
+    Period '20ns';
+    Waveforms {
+      all_in { 01 { '0ns' D/U; } }
+      clk { 0P { '0ns' D; '5ns' D/U; '15ns' D; } }
+      all_out { LHXZ { '0ns' Z; '15ns' L/H/X/T; } }
+    }
+  }
+}
+
+PatternBurst burst {
+  PatList { pat; }
+}
+
+PatternExec {
+  PatternBurst burst;
+}
+
+Pattern pat {
+  W wft;
+  V { all_in = 1; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 1; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 1; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLLL; clk = P; }
+  V { all_in = 0; all_out = HLLHHLHHHL; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHL; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHL; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHL; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHL; clk = P; }
+  V { all_in = 0; all_out = HLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = HLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLLHL; clk = P; }
+  V { all_in = 0; all_out = HLLLLLLHLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHLL; clk = P; }
+  V { all_in = 0; all_out = HLLLLLLHHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLLHHL; clk = P; }
+  V { all_in = 0; all_out = HLLLLLHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLLHLHL; clk = P; }
+  V { all_in = 0; all_out = HLLLLHLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHLLLL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHLLLL; clk = P; }
+  V { all_in = 0; all_out = HLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = LLLLLHHLHL; clk = P; }
+  V { all_in = 0; all_out = HLLHHLHHHL; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHH; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHH; clk = P; }
+  V { all_in = 0; all_out = LLLHHLHHHH; clk = P; }
+}

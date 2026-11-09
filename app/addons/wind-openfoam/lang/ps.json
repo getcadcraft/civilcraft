@@ -1,0 +1,14 @@
+{
+  "@locale": "ps",
+  "@name": "پښتو",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ضمیمه)",
+  "wind.of.note": "دا ستاسو په دې کمپیوټر کې د یوې کوچنۍ مرستندوې پروګرام له لارې ستاسو خپل OpenFOAM نصب چلوي: د باد هر لوري لپاره یو ثابت RANS (k-epsilon) حالت، د اتموسفیر د پوله-طبقې ننوتنه. هېڅ شی دې کمپیوټر نه وځي. CadCraft OpenFOAM نه لري.",
+  "wind.of.url": "د مرستندوې پته",
+  "wind.of.token": "د مرستندوې ټوکن",
+  "wind.of.check": "مرستندوی وڅیړل",
+  "wind.of.ok": "مرستندوی ځواب ورکړ. OpenFOAM: {foam}",
+  "wind.of.down": "مرستندوی ځواب ونه ورکړ ({why}). دا په دې کمپیوټر کې پیل کړئ: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "مرستندوی ځواب ورکړ، خو OpenFOAM پیل نشو: {why}",
+  "wind.of.install": "OpenFOAM (د ESI v-series، openfoam.com) او مرستندوی د ضمیمې له فولډر نصب کړئ؛ د مرستې موضوع دواړه تشریح کوي."
+}

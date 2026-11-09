@@ -1,0 +1,14 @@
+{
+  "@locale": "bn",
+  "@name": "বাংলা",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (অ্যাড-অন)",
+  "wind.of.note": "এই কম্পিউটারে একটি ছোট হেল্পার প্রোগ্রামের মাধ্যমে আপনার নিজের OpenFOAM ইনস্টলেশন চালায়: প্রতি বায়ুর দিকের জন্য একটি স্থিতিশীল RANS (k-epsilon) কেস, বায়ুমণ্ডলীয় সীমানা স্তরের ইনলেটসহ। কিছুই এই কম্পিউটার ছেড়ে যায় না। CadCraft-এ OpenFOAM অন্তর্ভুক্ত নেই।",
+  "wind.of.url": "হেল্পারের ঠিকানা",
+  "wind.of.token": "হেল্পারের টোকেন",
+  "wind.of.check": "হেল্পার পরীক্ষা করুন",
+  "wind.of.ok": "হেল্পার সাড়া দিয়েছে। OpenFOAM: {foam}",
+  "wind.of.down": "হেল্পার সাড়া দেয়নি ({why})। এই কম্পিউটারে এটি চালু করুন: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "হেল্পার সাড়া দিয়েছে কিন্তু OpenFOAM চালু করা যায়নি: {why}",
+  "wind.of.install": "অ্যাড-অনের ফোল্ডার থেকে OpenFOAM (ESI v-সিরিজ, openfoam.com) এবং হেল্পার ইনস্টল করুন; সাহায্য বিষয়বস্তুতে দুটোরই ব্যাখ্যা আছে।"
+}

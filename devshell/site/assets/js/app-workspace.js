@@ -33,9 +33,11 @@
  */
 import * as F from './app-workspace-format.js';
 import { popout, menuButton } from './app-workspace-popout.js';
-import { myTools, petPalette, infoFields, fieldsIn, regTool } from './app-workspace-extras.js';
+import { myTools, petPalette, infoFields, fieldsIn, regTool, iconFor } from './app-workspace-extras.js';
+import { iconKey, iconNode, iconStyle, applyIcons } from './app-workspace-icons.js';
 import { showSeq } from './app-input.js';
 import { arrangeDialog } from './app-workspace-arrange.js';
+import { menubar as vectorMenubar, toolpalette as vectorPalette } from './app-workspace-vector.js';
 import { t as i18nT, has as i18nHas } from './i18n.js';
 
 export { F as format, fieldsIn };   // the pop-out helpers stay inside: a page uses them through api.tearable()
@@ -211,20 +213,21 @@ export function mountWorkspaces(A) {
   // the parts in app-workspace-extras.js get the engine's helpers; made once, used by every layout that has them
   const E = { A, app: A.app, T, el, btn, can, tool, runTool: (id, block, b) => runTool(id, block, b), explain, say, soon: () => soon(), state, stage,
     redraw: () => { if (P.toolbox) { P.toolbox.sig = null; renderToolbox(); refreshToolbox(state()); } } };
-  const mine = myTools(E), pet = petPalette(E), fields = infoFields(E);
+  const mine = myTools(E), pet = petPalette(E), fields = infoFields(E), vmenu = vectorMenubar(E), vpal = vectorPalette(E);
 
   // ---- titlebar ----
+  // the app's logo mark and name: EVERY layout shows them (owner rule 2026-11-05), so the title bar and the Vector menu bar both build them here
+  const brandEl = () => { const bar = document.querySelector('.app-bar'); return el('span', { className: 'ws-brand', 'data-ws-brand': '' }, bar?.querySelector('.app-bar-mark')?.cloneNode(true) || null, bar?.querySelector('.app-bar-name > .layer-swatch')?.cloneNode(true) || null, el('span', {}, appName)); };
   function mountTitlebar(o) {
     const fsSrc = document.querySelector('[data-fs-cycle]');
     const shellBtn = (sel, cls, label) => el('button', { type: 'button', className: 'ws-shell-btn', 'data-ws-shell': sel, 'aria-label': label, title: label }, el('i', { className: 'bi ' + cls, 'aria-hidden': 'true' }));
     const fsBtn = el('button', { type: 'button', className: 'ws-shell-btn', 'data-ws-shell': '[data-fs-cycle]', hidden: !fsSrc }, el('i', { className: 'bi bi-fullscreen', 'aria-hidden': 'true' }));
     const fsSync = () => { if (!fsSrc) return; fsBtn.hidden = fsSrc.hidden; fsBtn.title = fsSrc.title; fsBtn.setAttribute('aria-label', fsSrc.getAttribute('aria-label') || fsSrc.title); fsBtn.setAttribute('aria-pressed', fsSrc.getAttribute('aria-pressed') || 'false'); const i = fsSrc.querySelector('i.bi'); if (i) fsBtn.firstChild.className = i.className; };
     let fsObs = null; if (fsSrc) { fsSync(); fsObs = new MutationObserver(fsSync); fsObs.observe(fsSrc, { attributes: true, subtree: true, childList: true }); }
-    const bar = document.querySelector('.app-bar');
-    const brand = el('span', { className: 'ws-brand' }, bar?.querySelector('.app-bar-mark')?.cloneNode(true) || null, bar?.querySelector('.app-bar-name > .layer-swatch')?.cloneNode(true) || null, el('span', {}, appName));
+    const brand = brandEl();
     const title = el('span', { className: 'ws-project' });
     const h = el('header', { className: 'ws-titlebar ws-block', 'data-ws-blk': 'titlebar' }, brand,
-      (o.quick || []).length ? el('div', { className: 'ws-quick', 'aria-label': T('shell.ws.quick') }, o.quick.map((id) => tool(id, 'titlebar', true))) : null, title,
+      quickIds(o).length ? el('div', { className: 'ws-quick', 'aria-label': T('shell.ws.quick') }, quickIds(o).map((id) => tool(id, 'titlebar', true))) : null, title,
       o.inventory ? btn(T('shell.ws.inventory'), { 'data-ws-inventory': '' }) : null,
       fsBtn, shellBtn('[data-help-open]', 'bi-question-circle', T('shell.ws.help')), shellBtn('[data-settings-open]', 'bi-gear', T('shell.ws.settings')));
     region(o.place).append(h);
@@ -468,12 +471,15 @@ export function mountWorkspaces(A) {
   }
 
   // ---- toolbox ----
-  let tbPop = null;
+  let tbPop = null, trPop = null, sbPop = null;
   function mountToolbox(o) {
     const list = el('div', { className: 'tbx-groups' });
     const head = el('div', { className: 'tbx-head' }, el('span', {}, T('shell.ws.tbx')));
     const box = el('nav', { className: 'tbx-toolbox ws-block', 'data-ws-blk': 'toolbox', 'aria-label': T('shell.ws.tbx') }, head, list);
-    if (o.tearOff) head.append(menuButton({ t: T, label: T('shell.ws.toolbox.menu'), backLabel: T('shell.ws.toolbox.back'), isOpen: () => !!tbPop?.isOpen(),
+    // the "…" menu always has Collapse all / Expand all (groups fold as <details>); Move to a window is there when the toolbox can leave
+    const foldAll = (open) => { for (const d of list.querySelectorAll('details.tbx-group')) d.open = open; };
+    const folds = o.collapse ? [[T('shell.ws.tbx.collapse'), 'bi-chevron-double-up', () => foldAll(false)], [T('shell.ws.tbx.expand'), 'bi-chevron-double-down', () => foldAll(true)]] : [];
+    if (o.tearOff || folds.length) head.append(menuButton({ t: T, label: T('shell.ws.toolbox.menu'), backLabel: T('shell.ws.toolbox.back'), isOpen: () => !!tbPop?.isOpen(), extra: folds, noTear: !o.tearOff,
       open: () => { if (!tbOpen()) say(T('shell.ws.tear.blocked'), true); }, back: () => tbPop?.back() }));
     region(o.place).append(box);
     P.toolbox = { el: box, list, o };
@@ -486,6 +492,14 @@ export function mountWorkspaces(A) {
       onChange: (open) => { reg?.classList.toggle('ws-out', open); measure(); soon(); } });
     return tbPop.open();
   }
+  // Auto-focus panel (Settings › Global): the groups close each other, and an app can link a group to a section of another panel (window.ccAutoFocus.get('tbx-<app>'))
+  let tbxAfCtl = null;
+  function tbxAf() {
+    const X = P.toolbox;
+    if (!tbxAfCtl && X && X.o.collapse && window.ccAutoFocus) tbxAfCtl = window.ccAutoFocus.register({ id: 'tbx-' + A.app, panel: X.list, mode: 'details', unit: 'details.tbx-group', idAttr: 'data-tbx-group' });
+    return tbxAfCtl;
+  }
+  window.addEventListener('load', () => tbxAf()?.refresh());
   /** Drawn on mount and again whenever toolbox()'s groups, names or built tools change (an app whose groups follow its own workspace,
    *  a group an add-on adds), as the ribbon redraws on its tab signature; folded groups stay folded and the focused tool keeps the focus. */
   function renderToolbox() {
@@ -509,6 +523,7 @@ export function mountWorkspaces(A) {
     }).filter(Boolean));
     if (X.o.mine) X.list.prepend(mine.group(X.o, shut));
     if (focused) X.list.querySelector('[data-tbx-tool="' + CSS.escape(focused) + '"]')?.focus();
+    tbxAf()?.refresh();
   }
   function refreshToolbox(s) {
     const X = P.toolbox; if (!X) return;
@@ -520,6 +535,72 @@ export function mountWorkspaces(A) {
     }
     if (X.o.mine) mine.refresh(X.list);
   }
+
+  /** The title bar's quick buttons: the layout's list, with Home first for an app that has a home page of its own (it offers the `home` action: SuperCad Studio's welcome page), so the way back to it is always in the bar. */
+  const quickIds = (o) => { const q = o.quick || []; return (A.actions || []).includes('home') && !q.includes('home') ? ['home', ...q] : q; };
+
+  // ---- tool rows (Duncan, 0.9 DU.1): the toolbox's groups as two rows; each group shows its first tools, the rest sit under ▾ ----
+  function mountToolrows(o) {
+    const rows = el('div', { className: 'tr-rows' });
+    const box = el('nav', { className: 'tr-toolrows ws-block', 'data-ws-blk': 'toolrows', 'aria-label': T('shell.ws.toolrows') }, rows);
+    if (o.tearOff) box.append(menuButton({ t: T, label: T('shell.ws.toolrows.menu'), backLabel: T('shell.ws.toolrows.back'), isOpen: () => !!trPop?.isOpen(),
+      open: () => { if (!trOpen()) say(T('shell.ws.tear.blocked'), true); }, back: () => trPop?.back() }));
+    region(o.place).append(box);
+    P.toolrows = { el: box, rows, o };
+    renderToolrows();
+  }
+  function trOpen() {
+    if (!trPop) trPop = popout({ name: 'toolrows-' + A.app, nodes: [P.toolrows.el], cls: 'tr-popout', listeners,
+      title: () => T('shell.ws.toolrows.window', { app: appName }), size: () => ({ w: Math.min(screen.availWidth || 1200, 1100), h: 190 }),
+      onChange: () => { measure(); soon(); } });
+    return trPop.open();
+  }
+  function renderToolrows() {
+    const X = P.toolrows; if (!X) return;
+    const groups = A.toolbox().map((g) => ({ ...g, tools: g.tools.filter((id) => built(id, 'toolrows')) })).filter((g) => g.tools.length);
+    const sig = JSON.stringify(groups.map((g) => [g.id, g.label, g.tools]));
+    if (sig === X.sig) return;
+    X.sig = sig;
+    const split = X.o.split || Math.ceil(groups.length / 2), visible = X.o.visible || 7;
+    // icons: "set" (Duncan) = the CadCraft icon set (app-workspace-icons.js: layered vectors, Full colour or Outline in the person's colour, Settings ›
+    // Icons); a tool it has no drawing for gets Bootstrap Icons, then the app's own. Settings' "Each app's own drawings" keeps the app's for all.
+    const mk = (id, compact) => {
+      const b = tool(id, 'toolrows', compact);
+      if (X.o.icons !== 'set' || iconStyle() === 'app' || !b.firstChild) return b;
+      const label = A.tool(id, 'toolrows').label, key = iconKey(id, label), node = key ? iconNode(key) : null;
+      if (node) b.firstChild.replaceWith(node);
+      else { const c = iconFor(id, label); if (c) b.firstChild.replaceWith(el('i', { className: 'bi ' + c + ' ws-icon-bi ws-set', 'aria-hidden': 'true' })); }
+      return b;
+    };
+    const grp = (g) => {
+      const shown = g.tools.slice(0, visible), more = g.tools.slice(visible);
+      return el('div', { className: 'tr-group', role: 'group', 'data-tr-group': g.id, 'aria-label': g.label },
+        shown.map((id) => mk(id)),
+        more.length ? el('details', { className: 'tr-more' }, el('summary', { 'aria-label': T('shell.ws.toolrows.more', { group: g.label }), title: g.label }, '▾'), el('div', { className: 'tr-more-list' }, more.map((id) => mk(id, true)))) : null);
+    };
+    closeMore(null);
+    X.rows.replaceChildren(el('div', { className: 'tr-row', 'data-tr-row': '1' }, groups.slice(0, split).map(grp)), el('div', { className: 'tr-row', 'data-tr-row': '2' }, groups.slice(split).map(grp)));
+  }
+
+  // the ▾ menu floats over the drawing (position: fixed at the ▾): the rows scroll sideways, so an absolute menu would be clipped to a scroll bar
+  const closeMore = (except) => { for (const d of document.querySelectorAll('details.tr-more[open]')) if (d !== except) d.removeAttribute('open'); for (const w of [trPop?.box?.ownerDocument]) if (w && w !== document) for (const d of w.querySelectorAll('details.tr-more[open]')) if (d !== except) d.removeAttribute('open'); };
+  // Settings › Icons changed: the tool rows are drawn again in the new style
+  window.addEventListener('cc-icons', () => { applyIcons(); if (cur && P.toolrows) { P.toolrows.sig = null; renderToolrows(); refreshTools(); } });
+  function wireMore() { listen('toggle', (e) => {
+    const d = e.target; if (!d.matches?.('details.tr-more') || !d.open) return;
+    closeMore(d);
+    const list = d.querySelector('.tr-more-list'), r = d.getBoundingClientRect(), win = d.ownerDocument.defaultView;
+    list.style.top = Math.round(r.bottom) + 'px';
+    list.style.left = Math.round(Math.max(4, Math.min(r.left, win.innerWidth - list.offsetWidth - 4))) + 'px';
+    list.style.maxHeight = Math.max(120, win.innerHeight - r.bottom - 8) + 'px';
+  }, true); }
+  document.addEventListener('pointerdown', (e) => { if (cur && !e.target.closest?.('details.tr-more')) closeMore(null); }, true);
+  window.addEventListener('resize', () => closeMore(null));
+
+  // ---- Vector (0.9 VEC.1): the menu bar and the left tool palettes (app-workspace-vector.js) ----
+  function mountMenubar(o) { P.menubar = vmenu.mount(o, region(o.place)); P.menubar.el.prepend(brandEl()); }
+  function mountToolpalette(o) { P.toolpalette = vpal.mount(o, region(o.place)); }
+  window.addEventListener('cc-vector-palette', (e) => { if (cur && P.palettes) { if (P.palettes.rail) showRail(e.detail); else showLower(e.detail); } });   // Window menu › a palette
 
   // ---- palettes ----
   function mountPalettes(o) {
@@ -557,8 +638,17 @@ export function mountWorkspaces(A) {
     if (slots.panel) for (const k of kids) move(k, slots.panel); else for (const k of kids) k.classList.add('ws-hide');
     host.append(palettes); host.classList.add('ws-panel-host');
     if (upper) move(pal[o.upper].body(), upper.querySelector('.ws-palette-scroll'));
-    P.palettes = { el: palettes, host, slots, lower, tabs, hints, kids, upper, upperName: o.upper || null, label, dom, name: [o.upper ? label(o.upper) : null, lower[0] ? label(lower[0]) : null].filter(Boolean).join(' · ') };
+    // Duncan's icon rail: one palette at a time, chosen from a column of icons on the panel's left (the heading tabs and the split step aside)
+    let rail = null;
+    if (o.rail) {
+      const names = [o.upper, ...lower].filter(Boolean), ICON = { properties: 'bi-sliders', browser: 'bi-list-nested', panel: 'bi-layers' };
+      rail = el('div', { className: 'ws-rail', role: 'tablist', 'aria-orientation': 'vertical', 'aria-label': T('shell.ws.rail') },
+        names.map((n, i) => el('button', { type: 'button', className: 'ws-rail-btn', role: 'tab', 'data-ws-rail': n, 'aria-selected': String(i === 0), title: label(n), 'aria-label': label(n) }, el('i', { className: 'bi ' + (ICON[n] || 'bi-square'), 'aria-hidden': 'true' }))));
+      palettes.classList.add('ws-railed'); palettes.prepend(rail);
+    }
+    P.palettes = { el: palettes, host, slots, lower, tabs, hints, kids, upper, upperName: o.upper || null, rail, label, dom, name: [o.upper ? label(o.upper) : null, lower[0] ? label(lower[0]) : null].filter(Boolean).join(' · ') };
     showLower(lower[0]);
+    if (rail) showRail(rail.querySelector('[data-ws-rail]').dataset.wsRail);
     if (split) {
       let height = 50;
       const resize = (v) => { height = Math.max(25, Math.min(75, v)); palettes.style.setProperty('--ws-props', height + '%'); split.setAttribute('aria-valuenow', Math.round(height)); };
@@ -575,6 +665,14 @@ export function mountWorkspaces(A) {
     for (const b of Q.tabs.querySelectorAll('[data-ws-lower]')) { const on = b.dataset.wsLower === Q.dom(n); b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; }
     for (const x of Q.lower) { Q.slots[x].hidden = x !== n; if (Q.hints[x]) Q.hints[x].hidden = x !== n; }
     Q.shown = n;
+  }
+  /** The icon rail: only the chosen palette shows (the upper one, or one of the lower ones); the others and the split are hidden by CSS. */
+  function showRail(name) {
+    const Q = P.palettes; if (!Q?.rail) return;
+    for (const b of Q.rail.querySelectorAll('[data-ws-rail]')) { const on = b.dataset.wsRail === name; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; }
+    const isUpper = name === Q.upperName;
+    Q.el.dataset.wsRailShows = isUpper ? 'upper' : 'lower';
+    if (!isUpper) showLower(name);
   }
   function refreshPalettes() {
     const Q = P.palettes; if (!Q) return;
@@ -661,19 +759,33 @@ export function mountWorkspaces(A) {
   }
   function mountStatusbar(o) {
     const slot = el('span', { className: 'ws-status-slot' });
-    const bar = el('footer', { className: 'ws-statusbar ws-block', 'data-ws-blk': 'statusbar' }, el('span', { className: 'ws-layout-label' }, layoutName(cur.layout)), el('span', { 'data-ws-selection': '' }), slot);
+    const cmd = o.command ? el('form', { className: 'ws-cmdline', role: 'search', 'aria-label': T('shell.ws.cmd') }, el('span', { 'aria-hidden': 'true' }, '›'),
+      el('input', { type: 'text', className: 'ws-cmd-input', 'data-ws-cmd': '', autocomplete: 'off', spellcheck: 'false', placeholder: T('shell.ws.cmd.placeholder'), 'aria-label': T('shell.ws.cmd') })) : null;
+    const bar = el('footer', { className: 'ws-statusbar ws-block', 'data-ws-blk': 'statusbar' }, cmd, el('span', { className: 'ws-layout-label' }, layoutName(cur.layout)), el('span', { 'data-ws-selection': '' }), slot);
+    if (o.tearOff) bar.append(menuButton({ t: T, label: T('shell.ws.status.menu'), backLabel: T('shell.ws.status.back'), isOpen: () => !!sbPop?.isOpen(),
+      open: () => { if (!sbOpen()) say(T('shell.ws.tear.blocked'), true); }, back: () => sbPop?.back() }));
+    if (cmd) cmd.addEventListener('submit', (e) => {   // the command line hands what was typed to the command finder, which runs the best match
+      e.preventDefault(); const field = cmd.querySelector('input'), q = field.value.trim(); if (!q || !window.ccPalette?.open) return;
+      field.value = ''; window.ccPalette.open();
+      const box = document.querySelector('.shell-palette-input'); if (box) { box.value = q; box.dispatchEvent(new Event('input', { bubbles: true })); }
+    });
     region(o.place).append(bar);
     if (A.status) move(A.status, slot);
     P.statusbar = { el: bar };
   }
+  function sbOpen() {
+    if (!sbPop) sbPop = popout({ name: 'status-' + A.app, nodes: [P.statusbar.el], cls: 'sb-popout', listeners,
+      title: () => T('shell.ws.status.window', { app: appName }), size: () => ({ w: 760, h: 120 }), onChange: () => { measure(); soon(); } });
+    return sbPop.open();
+  }
 
   // =========================================================== enter / leave ===========================================================
-  const MOUNT = { titlebar: mountTitlebar, ribbon: mountRibbon, options: mountOptions, toolbar: mountToolbar, infobox: mountInfobox, toolbox: mountToolbox,
-    palettes: mountPalettes, viewtabs: mountViewtabs, viewbar: (o) => { P.viewbar = mountSlotsBar(o, 'ws-view-controls', T('shell.ws.viewcontrols')); },
+  const MOUNT = { titlebar: mountTitlebar, ribbon: mountRibbon, options: mountOptions, toolbar: mountToolbar, infobox: mountInfobox, toolbox: mountToolbox, toolrows: mountToolrows,
+    palettes: mountPalettes, menubar: mountMenubar, toolpalette: mountToolpalette, viewtabs: mountViewtabs, viewbar: (o) => { P.viewbar = mountSlotsBar(o, 'ws-view-controls', T('shell.ws.viewcontrols')); },
     quickbar: (o) => { P.quickbar = mountSlotsBar(o, 'tbx-quick', T('shell.ws.quickbar')); }, statusbar: mountStatusbar,
     petpalette: () => { pet.hide(); stage.append(pet.el); P.petpalette = { el: pet.el, float: true }; } };
   const bodyCls = () => ['ws-on', 'ws-layout-' + cur.layout.id, 'ws-look-' + cur.layout.look.outline, 'ws-tabs-' + cur.layout.look.tabs, cur.layout.look.density === 'compact' ? 'ws-dense' : null,
-    ...[...cur.blocks.keys()].map((b) => 'ws-b-' + b), cur.blocks.has('titlebar') ? 'has-live-workspace' : null, cur.blocks.has('toolbox') ? 'has-toolbox' : null,
+    ...[...cur.blocks.keys()].map((b) => 'ws-b-' + b), cur.blocks.has('titlebar') || cur.blocks.has('menubar') ? 'has-live-workspace' : null, cur.blocks.has('toolbox') ? 'has-toolbox' : null,
     top || bottom ? 'ws-chrome-on' : null].filter(Boolean);
   function enter(next) {
     cur = next;
@@ -687,7 +799,7 @@ export function mountWorkspaces(A) {
       items.sort((x, y) => x.b.order - y.b.order); for (const { n } of items) for (const m of [].concat(n)) r.append(m);
     }
     root.classList.add('ws-on'); root.dataset.wsLayout = cur.key;
-    root.classList.toggle('ws-active', cur.blocks.has('titlebar')); root.classList.toggle('tbx-active', cur.blocks.has('toolbox'));
+    root.classList.toggle('ws-active', cur.blocks.has('titlebar') || cur.blocks.has('menubar')); root.classList.toggle('tbx-active', cur.blocks.has('toolbox'));
     cur.cls = bodyCls(); document.body.classList.add(...cur.cls);
     stageObs.observe(stage, { childList: true }); markFill();
     A.entered?.(ctx);
@@ -701,9 +813,11 @@ export function mountWorkspaces(A) {
   }
   function leave() {
     A.leaving?.(ctx);
-    dockRibbon(); closeRibbonMenu(); closeFileMenu(); tbPop?.back(); tbPop = null; toolOptions(true);
+    dockRibbon(); closeRibbonMenu(); closeFileMenu(); tbPop?.back(); tbPop = null; trPop?.back(); trPop = null; sbPop?.back(); sbPop = null; toolOptions(true);
     mine.closeMenu(); fields.clear(); pet.hide(); pet.el.remove();
     if (P.titlebar) P.titlebar.off();
+    if (P.menubar) vmenu.destroy(P.menubar);
+    if (P.toolpalette) vpal.clear();
     if (P.toolbar?.el) P.toolbar.el.classList.remove('ws-toolbar-strip', 'ws-hide');
     if (P.palettes) { for (const k of P.palettes.kids) k.classList.remove('ws-hide'); }
     restoreAll();
@@ -742,9 +856,11 @@ export function mountWorkspaces(A) {
       P.options.el.className = 'ws-options ws-block' + (w.cls ? ' ' + w.cls : '') + (optsRow && optsBlock === 'options' ? ' ws-has-tool-options' : '');
     }
     if (P.statusbar) P.statusbar.el.querySelector('[data-ws-selection]').textContent = s.selection.length ? T('shell.ws.selected', { n: s.selection.length }) : T('shell.ws.selected.none');
+    if (P.menubar) vmenu.refresh(P.menubar, s);
+    if (P.toolpalette) vpal.render(P.toolpalette, s);
     refreshViewtabs(s);
     if (P.viewbar) P.viewbar.el.querySelector('.ws-drawing-title').textContent = openView()?.name || T('shell.ws.noview');
-    refreshPalettes(); refreshInfobox(s); renderToolbox(); refreshToolbox(s);
+    refreshPalettes(); refreshInfobox(s); renderToolbox(); refreshToolbox(s); renderToolrows();
     if (P.petpalette) pet.refresh(s);
     A.refresh?.(ctx);
     refreshTools(); toolOptions(); markFill(); measure();
@@ -764,7 +880,7 @@ export function mountWorkspaces(A) {
   }
 
   // =========================================================== events ===========================================================
-  const scopes = () => [...new Set([top, bottom, root, P.palettes && P.palettes.el.ownerDocument !== document ? P.palettes.el : null, rbox, tbPop?.box].filter(Boolean))];
+  const scopes = () => [...new Set([top, bottom, root, P.palettes && P.palettes.el.ownerDocument !== document ? P.palettes.el : null, rbox, tbPop?.box, trPop?.box, sbPop?.box].filter(Boolean))];
   const all = (sel) => scopes().flatMap((n) => [...n.querySelectorAll(sel)]);
   const listeners = [];
   function listen(type, fn, capture = false) {
@@ -781,6 +897,8 @@ export function mountWorkspaces(A) {
     if (b.hasAttribute('data-ws-ribbon-menu')) { ribbonMenu(b); return; }
     if (b.dataset.wsShell) { document.querySelector(b.dataset.wsShell)?.click(); return; }
     if (b.dataset.wsLower) { showLower(b.dataset.wsLower); return; }
+    if (b.dataset.wsRail) { showRail(b.dataset.wsRail); return; }
+    b.closest('details.tr-more')?.removeAttribute('open');
     if (b.hasAttribute('data-ws-dismiss')) { b.closest('dialog').close(); return; }
     if (b.hasAttribute('data-ws-inventory')) { inventory(); return; }
     if (b.hasAttribute('data-ws-props')) { A.showProperties?.(); return; }
@@ -801,6 +919,7 @@ export function mountWorkspaces(A) {
     if (b.dataset.wsClose) { closeView(b.dataset.wsClose); return; }
     if (b.dataset.wsReason && !b.dataset.wsCommand) explain(T('shell.ws.tool'), b.dataset.wsReason);
   });
+  wireMore();
   // My tools: right-click a tool to add it, drag one onto a slot (the toolbox's own window too: these go through listen())
   for (const type of ['contextmenu', 'dragstart', 'dragover', 'drop']) listen(type, (e) => { if (P.toolbox?.o.mine && P.toolbox.el.contains(e.target)) mine.on[type](e); });
   // the pet palette: a click in the drawing (no drag) with something picked brings it by the pointer; the wheel or another click puts it away

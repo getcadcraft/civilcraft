@@ -7,21 +7,7 @@
  * BimCraft also: the plan's Draw bar. /use (released) has none of it.
  *
  *   node tools/shell-test/browser-toolbar-tear.mjs [--apps cadcraft,bimcraft] [--shots <dir>]
- */
-
-/* SPDX-License-Identifier: Apache-2.0 */
-/**
- * browser-install.mjs — a field pack installed in two apps' lab builds (0.8 FL.0, session fields_PART_3; assets/js/app-fields.js over the shell's own
- * calc sheets and lessons):
- *   - the release gate: /lab has the Field packs panel, /use has none
- *   - the panel lists the packs that name the app (and not the ones that do not)
- *   - Install: the pack's lesson appears in Lessons, its calc templates are offered
- *   - Insert: a template becomes a working sheet in the open file (the beam's deflection is the hand-worked 5.02 mm)
- *   - the choice survives a reload (restore)
- *   - Remove: lesson and templates go; the sheet already inserted stays
- *
- *   node tools/fields-test/browser-install.mjs [--apps detailcraft,partcraft]
- * Run as root (a session minted for the shell's test admin). One app at a time.
+ * Run as root (a session minted for the shell's test admin).
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -34,7 +20,7 @@ const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : null; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let pass = 0, fail = 0;
-const ok = (c, m) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m); } };
+const ok = (c, m, d) => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + (d ? ' (' + d + ')' : '')); } };
 const curl = (url, cookie) => execFileSync('curl', ['-sk', '--resolve', 'getcadcraft.com:443:127.0.0.1', ...(cookie ? ['-b', cookie] : []), url], { encoding: 'utf8', maxBuffer: 64 << 20 });
 const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', path.join(REPO, 'tools/shell-test/admin.php'), 'session'], { encoding: 'utf8' }));
 
@@ -84,8 +70,14 @@ for (const slug of apps) {
     await page.waitForSelector('[data-plan-wrap]:not([hidden])', { timeout: 60000 }); await sleep(1500);
     ok(await wait(() => window.ccToolbarTear.bars().some((b) => b.el.matches('[data-modelbar]') && b.shown)), 'BimCraft: the plan Draw bar has one too');
   }
+  if (slug === 'takeoffcraft') {
+    // every drawing tool is greyed out until a sheet is open: open the showcase sheet (fixtures/showcase, built once)
+    await page.setInputFiles('[data-file-pdf]', path.join(REPO, 'fixtures/showcase/takeoffcraft-count-everything.pdf'));
+    await page.waitForFunction(() => window.takeoffcraft?.files?.length >= 1, null, { timeout: 30000 }); await sleep(700);
+  }
   const tool = pick(slug, '.shell-tb');
-  const toolKey = await page.evaluate((sel) => { const b = document.querySelector('#main ' + sel); if (!b) return null; return [...b.attributes].filter((a) => a.name.startsWith('data-')).map((a) => '[' + a.name + '="' + a.value + '"]').join('') || null; }, tool);
+  // the first SHOWN tool: a bar can hold groups hidden until their workspace is on (CivilCraft's Landscape group, ls-plant first; 2026-11-02)
+  const toolKey = await page.evaluate((sel) => { const b = [...document.querySelectorAll('#main ' + sel)].find((x) => x.getClientRects().length && !x.closest('[hidden]')); if (!b) return null; return [...b.attributes].filter((a) => a.name.startsWith('data-')).map((a) => '[' + a.name + '="' + a.value + '"]').join('') || null; }, tool);
   ok(!!toolKey, 'a tool to try', tool);
   const pop = await tearOut(0);
   ok(await page.evaluate(() => !document.querySelector('#main .shell-tb') && window.ccToolbarTear.bars()[0].out), 'Move to a new window: the bar left the page');
@@ -127,7 +119,8 @@ for (const slug of apps) {
     console.log('  layouts', layouts.join(','), 'page closed?', page.isClosed(), 'pop4 closed?', pop4.isClosed());
     await page.evaluate((v) => { localStorage.setItem('cc-workspace', v); window.dispatchEvent(new CustomEvent('cc-workspace', { detail: { layout: v } })); }, layouts[0]);
     ok(await wait(() => window.ccToolbarTear.bars().every((b) => !b.out && !b.shown)), 'another layout (' + layouts[0] + '): bars home, buttons hidden');
-    ok(pop4.isClosed(), 'its window closed');
+    // the window closes a moment after the bars come home: wait for it rather than reading isClosed() at once
+    ok(pop4.isClosed() || await pop4.waitForEvent('close', { timeout: 4000 }).then(() => true).catch(() => false), 'its window closed');
     await page.evaluate(() => { localStorage.removeItem('cc-workspace'); });
   } else console.log('  (no other layout offered here)');
   ok(problems.length === 0, 'no page errors', problems.join(' | '));

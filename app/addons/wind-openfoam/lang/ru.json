@@ -1,0 +1,14 @@
+{
+  "@locale": "ru",
+  "@name": "Русский",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (дополнение)",
+  "wind.of.note": "Работает с вашей установкой OpenFOAM через небольшую программу-помощник на этом компьютере: один стационарный расчет RANS (k-epsilon) на каждое направление ветра, входная граница с атмосферным пограничным слоем. Ничего не покидает этот компьютер. CadCraft не включает OpenFOAM.",
+  "wind.of.url": "Адрес помощника",
+  "wind.of.token": "Токен помощника",
+  "wind.of.check": "Проверить помощника",
+  "wind.of.ok": "Помощник ответил. OpenFOAM: {foam}",
+  "wind.of.down": "Помощник не ответил ({why}). Запустите его на этом компьютере: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Помощник ответил, но не смог запустить OpenFOAM: {why}",
+  "wind.of.install": "Установите OpenFOAM (серия ESI v, openfoam.com) и помощник из папки дополнения; в разделе справки описано, как сделать и то и другое."
+}

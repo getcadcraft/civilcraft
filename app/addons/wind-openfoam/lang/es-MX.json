@@ -1,0 +1,14 @@
+{
+  "@locale": "es-MX",
+  "@name": "Español (México)",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (complemento)",
+  "wind.of.note": "Ejecuta su propia instalación de OpenFOAM mediante un pequeño programa auxiliar en este equipo: un caso RANS estacionario (k-epsilon) por cada dirección del viento, con entrada de capa límite atmosférica. Nada sale de este equipo. CadCraft no incluye OpenFOAM.",
+  "wind.of.url": "Dirección del auxiliar",
+  "wind.of.token": "Token del auxiliar",
+  "wind.of.check": "Verifique el auxiliar",
+  "wind.of.ok": "El auxiliar respondió. OpenFOAM: {foam}",
+  "wind.of.down": "El auxiliar no respondió ({why}). Inícielo en este equipo: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "El auxiliar respondió, pero no pudo iniciar OpenFOAM: {why}",
+  "wind.of.install": "Instale OpenFOAM (la versión ESI, serie v, openfoam.com) y el auxiliar desde la carpeta del complemento; el tema de ayuda explica ambos pasos."
+}

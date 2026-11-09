@@ -1,0 +1,14 @@
+{
+  "@locale": "zh-Hans",
+  "@name": "简体中文",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM（插件）",
+  "wind.of.note": "通过本机上的小型辅助程序运行已安装的OpenFOAM：每个风向运行一个稳态RANS（k-epsilon）工况，入口为大气边界层。数据不会离开本机。CadCraft不包含OpenFOAM。",
+  "wind.of.url": "辅助程序地址",
+  "wind.of.token": "辅助程序令牌",
+  "wind.of.check": "检查辅助程序",
+  "wind.of.ok": "辅助程序已响应。OpenFOAM：{foam}",
+  "wind.of.down": "辅助程序未响应（{why}）。在本机启动：node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "辅助程序已响应，但无法启动OpenFOAM：{why}",
+  "wind.of.install": "安装OpenFOAM（ESI v系列，openfoam.com）以及插件文件夹中的辅助程序；帮助主题对两者均有说明。"
+}

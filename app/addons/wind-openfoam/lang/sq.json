@@ -1,0 +1,14 @@
+{
+  "@locale": "sq",
+  "@name": "Shqip",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (shtojcë)",
+  "wind.of.note": "Ekzekuton instalimin tuaj të OpenFOAM përmes një programi ndihmës të vogël në këtë kompjuter: një rast RANS (k-epsilon) i qëndrueshëm për çdo drejtim ere, me hyrje të shtresës kufitare atmosferike. Asgjë nuk del nga ky kompjuter. CadCraft nuk e përfshin OpenFOAM.",
+  "wind.of.url": "Adresa e ndihmësit",
+  "wind.of.token": "Token-i i ndihmësit",
+  "wind.of.check": "Kontrollo ndihmësin",
+  "wind.of.ok": "Ndihmësi u përgjigj. OpenFOAM: {foam}",
+  "wind.of.down": "Ndihmësi nuk u përgjigj ({why}). Niseni në këtë kompjuter: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Ndihmësi u përgjigj, por nuk mundi ta nisë OpenFOAM: {why}",
+  "wind.of.install": "Instaloni OpenFOAM (ESI v-series, openfoam.com) dhe ndihmësin nga dosja e shtojcës; tema e ndihmës shpjegon të dyja."
+}

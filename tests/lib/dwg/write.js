@@ -96,7 +96,7 @@ export function writeDwg(model = {}, opts = {}) {
   const push = (r) => { recs.push(r); return r; };
   const H = {};
   for (const k of ['blockCtl', 'layerCtl', 'styleCtl', 'ltypeCtl', 'viewCtl', 'ucsCtl', 'vportCtl', 'appidCtl', 'dimstyleCtl', 'vpentCtl',
-    'nod', 'groupDict', 'mlsDict', 'layoutDict', 'plotStyleDict', 'plotStyleNormal', 'ltByBlock', 'ltByLayer', 'ltContinuous', 'layer0',
+    'nod', 'groupDict', 'mlsDict', 'layoutDict', 'plotStyleDict', 'plotStyleNormal', 'plotSettingsDict', 'ltByBlock', 'ltByLayer', 'ltContinuous', 'layer0',
     'mlstyle', 'vport']) H[k] = next();
   if (!r2004) { /* the viewport entity table exists only up to R2000 */ }
   const srcMap = new Map();                        // model handle → new handle
@@ -685,7 +685,7 @@ export function writeDwg(model = {}, opts = {}) {
   if (!r2004) push({ t: 'VPENT_CONTROL', h: H.vpentCtl, owner: 0, entries: [] });
   // dictionaries
   const layoutItems = layouts.map((L) => [L.name, L.h]).sort((a, b) => (a[0] < b[0] ? -1 : 1));
-  const nodItems = [['ACAD_GROUP', H.groupDict], ['ACAD_LAYOUT', H.layoutDict], ['ACAD_MLINESTYLE', H.mlsDict], ['ACAD_PLOTSTYLENAME', H.plotStyleDict]];
+  const nodItems = [['ACAD_GROUP', H.groupDict], ['ACAD_LAYOUT', H.layoutDict], ['ACAD_MLINESTYLE', H.mlsDict], ['ACAD_PLOTSETTINGS', H.plotSettingsDict], ['ACAD_PLOTSTYLENAME', H.plotStyleDict]];
   const extraObjects = [];
   if (writtenDefs.size) {
     const dictH = next(), varsH = next();
@@ -711,6 +711,8 @@ export function writeDwg(model = {}, opts = {}) {
   for (const o of extraObjects) push(o);
   push({ t: 'DICTIONARY', h: H.groupDict, owner: H.nod, reactors: [H.nod], items: [] });
   push({ t: 'DICTIONARY', h: H.layoutDict, owner: H.nod, reactors: [H.nod], items: layoutItems });
+  // every AutoCAD file has the (empty) page setups dictionary, and the header names it (DICTIONARY_PLOTSETTINGS); it was left 0
+  push({ t: 'DICTIONARY', h: H.plotSettingsDict, owner: H.nod, reactors: [H.nod], items: [] });
   push({ t: 'DICTIONARY', h: H.mlsDict, owner: H.nod, reactors: [H.nod], items: [['Standard', H.mlstyle]] });
   push({ t: 'DICTIONARYWDFLT', h: H.plotStyleDict, owner: H.nod, reactors: [H.nod], items: [['Normal', H.plotStyleNormal]], defaultEntry: H.plotStyleNormal });
   push({ t: 'PLACEHOLDER', h: H.plotStyleNormal, owner: H.plotStyleDict, reactors: [H.plotStyleDict] });

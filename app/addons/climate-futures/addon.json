@@ -1,0 +1,16 @@
+{
+  "id": "climate.futures",
+  "name": "Climate futures",
+  "version": "0.9.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [],
+  "description": "Future climate data (SSP2-4.5 and SSP5-8.5, 2050 and 2080) for Address to site (flood level, wildfire, heat), present beside future. Data: NASA NEX-GDDP-CMIP6 (CMIP6 model output, CC BY 4.0) and IPCC AR6 sea level. The bundled pack is a SAMPLE (three places, one model, five years per period): for trying the tools, not for design.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

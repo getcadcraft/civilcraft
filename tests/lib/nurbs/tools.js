@@ -11,6 +11,11 @@
  *   panel(doc, { tol }) → rows for the Surfaces panel: one per item (kind, degree, control points, knots, rational) and one per
  *     measured edge ({ a, edgeA, b, edgeB, want, got, gap, angle, dk }) — the continuity table — plus the problems for the shell
  *   pick(doc, ref) → the geometry a reference names: 's3', 's3.u1' (an edge), 'c2.end'
+ *   solid.fillet_edges: several edges at once (pairs of faces picked in turn; blend.js filletEdges, spherical corners where three meet)
+ *   solid.fillet / solid.thicken (0.9 SU.747c, blend.js): a rolling-ball fillet between two faces of one solid (radius2 > 0: the radius
+ *     changes linearly along the edge), a surface thickened into a solid (flip: against the surface normal)
+ *   run(doc, id, args, env) — env.manifold = the mesh engine (manifold-3d) the solid Booleans need (0.9 DC.54, solid.js); a command
+ *     that needs one says `engine: 'manifold'`; `more: kind` = it takes any number of extra picks of that kind (none = all of them)
  *
  * Arguments use item ids: { curves: ['c1', 'c2'] }, { surface: 's1', edge: 'u1', target: 's2', targetEdge: 'v0' }, …
  */
@@ -21,6 +26,10 @@ import * as K from './construct.js';
 import * as M from './match.js';
 import * as D from './doc.js';
 import * as TR from './trim.js';
+import * as B from './solid.js';
+import * as RV from './reverse.js';
+import * as BL from './blend.js';
+import * as CG from './cage.js';
 
 const { fail } = C;
 
@@ -56,6 +65,24 @@ export const COMMANDS = Object.freeze({
   'surface.trimRect': { label: 'nurbs.cmd.trim_rect', needs: [{ kind: 'surface', n: 1 }], options: { u0: 0.25, u1: 0.75, v0: 0.25, v1: 0.75, hole: false } },
   'surface.trimCircle': { label: 'nurbs.cmd.trim_circle', needs: [{ kind: 'surface', n: 1 }], options: { u: 0.5, v: 0.5, r: 0.25, hole: true } },
   'surface.untrim': { label: 'nurbs.cmd.untrim', needs: [{ kind: 'surface', n: 1 }], options: {} },
+  // solids bounded by the surfaces, and Booleans on them (0.9 DC.54, solid.js): primitives, a solid from closing faces, union / subtract / intersect
+  'solid.box': { label: 'nurbs.cmd.solid_box', needs: [], options: { corner: [0, 0, 0], size: [100, 60, 40] } },
+  'solid.cylinder': { label: 'nurbs.cmd.solid_cylinder', needs: [], options: { base: [0, 0, 0], axis: [0, 0, 1], radius: 20, height: 50 } },
+  'solid.sphere': { label: 'nurbs.cmd.solid_sphere', needs: [], options: { center: [0, 0, 0], radius: 25 } },
+  'solid.make': { label: 'nurbs.cmd.solid_make', needs: [], more: 'surface', options: { tol: B.TOL } },
+  'solid.union': { label: 'nurbs.cmd.solid_union', needs: [{ kind: 'solid', n: 2 }], engine: 'manifold', options: { tol: B.TOL, keep: false } },
+  'solid.subtract': { label: 'nurbs.cmd.solid_subtract', needs: [{ kind: 'solid', n: 2 }], engine: 'manifold', options: { tol: B.TOL, keep: false } },
+  'solid.intersect': { label: 'nurbs.cmd.solid_intersect', needs: [{ kind: 'solid', n: 2 }], engine: 'manifold', options: { tol: B.TOL, keep: false } },
+  // fillets and thickening (0.9 SU.747c, blend.js)
+  'solid.fillet': { label: 'nurbs.cmd.solid_fillet', needs: [{ kind: 'surface', n: 2 }], engine: 'manifold', options: { radius: 5, radius2: 0, tol: B.TOL } },
+  'solid.fillet_edges': { label: 'nurbs.cmd.solid_fillet_edges', needs: [], more: 'surface', engine: 'manifold', options: { radius: 5, radius2: 0, corners: true, tol: B.TOL } },
+  'solid.thicken': { label: 'nurbs.cmd.solid_thicken', needs: [{ kind: 'surface', n: 1 }], options: { thickness: 2, flip: false, tol: B.TOL } },
+  // reverse engineering (0.9 SU.1082, reverse.js): env.scan = the scan mesh { positions (mm), indices }; scan.solid sews every shown face not in a solid
+  'scan.fit': { label: 'nurbs.cmd.scan_fit', needs: [], scan: true, options: { tol: 0.2, minShare: 0.01, maxPatches: 48 } },
+  'scan.solid': { label: 'nurbs.cmd.scan_solid', needs: [], options: { gap: 0.5 } },
+  // SubD cages that are exact NURBS (0.9 D9.8, cage.js): env.cage = { verts (mm), quads } of the selected mesh; one surface per regular quad
+  'cage.surfaces': { label: 'nurbs.cmd.cage_surfaces', needs: [], cage: true, options: {} },
+  'solid.ungroup': { label: 'nurbs.cmd.solid_ungroup', needs: [{ kind: 'solid', n: 1 }], options: {} },
 });
 
 const geo = (doc, id, kind) => {
@@ -78,7 +105,7 @@ export function pick(doc, ref) {
 const addNew = (doc, kind, g, name) => { const r = D.add(doc, kind, g, { name }); return [r.doc, r.id]; };
 const replaced = (doc, id, g) => D.replace(doc, id, g);
 
-export function run(doc, id, args = {}) {
+export function run(doc, id, args = {}, env = {}) {
   const cmd = COMMANDS[id];
   if (!cmd) fail('nurbs.err.no_command', { id });
   const o = { ...cmd.options, ...args };
@@ -134,6 +161,72 @@ export function run(doc, id, args = {}) {
       report = { area: TR.area(s, D.item(out, o.surface).trim, { tol: 0.05 }) }; break;
     }
     case 'surface.untrim': { geo(doc, o.surface, 'surface'); out = D.setTrim(doc, o.surface, null); break; }
+    case 'solid.box': { const r = B.box(doc, { corner: o.corner, size: o.size, name: o.name }); out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break; }
+    case 'solid.cylinder': { const r = B.cylinder(doc, { base: o.base, axis: o.axis, radius: o.radius, height: o.height, name: o.name }); out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break; }
+    case 'solid.sphere': { const r = B.sphere(doc, { center: o.center, radius: o.radius, name: o.name }); out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break; }
+    case 'solid.make': {
+      // none picked: every shown surface that is not in a solid yet
+      const list = Array.isArray(o.surfaces) && o.surfaces.length ? o.surfaces : D.surfaces(doc).filter((i) => !i.hidden && !B.solidOf(doc, i.id)).map((i) => i.id);
+      const r = B.addSolid(doc, list, { name: o.name, tol: o.tol }); out = r.doc; report = r.report; break;
+    }
+    case 'solid.union': case 'solid.subtract': case 'solid.intersect': {
+      const r = B.boolean(env.manifold, doc, o.a, o.b, id.slice(6), { tol: o.tol, keep: !!o.keep, name: o.name });
+      out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break;
+    }
+    case 'solid.fillet': {
+      const sa = B.solidOf(doc, o.a), sb = B.solidOf(doc, o.b);
+      if (!sa) fail('nurbs.err.fillet_face', { id: o.a, solid: '' });
+      if (!sb || sb.id !== sa.id) fail('nurbs.err.fillet_face', { id: o.b, solid: sa.name || sa.id });
+      const r = BL.fillet(env.manifold, doc, sa.id, o.a, o.b, { radius: o.radius, radius2: o.radius2 > 0 ? o.radius2 : null, tol: o.tol, name: o.name });
+      out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break;
+    }
+    case 'solid.fillet_edges': {
+      const f = Array.isArray(o.faces) ? o.faces : [];
+      if (!f.length || f.length % 2) fail('nurbs.err.fillet_none');
+      const sa = B.solidOf(doc, f[0]);
+      if (!sa) fail('nurbs.err.fillet_face', { id: f[0], solid: '' });
+      const edges = [];
+      for (let i = 0; i < f.length; i += 2) {
+        for (const x of [f[i], f[i + 1]]) { const sx = B.solidOf(doc, x); if (!sx || sx.id !== sa.id) fail('nurbs.err.fillet_face', { id: x, solid: sa.name || sa.id }); }
+        edges.push({ a: f[i], b: f[i + 1] });
+      }
+      const r = BL.filletEdges(env.manifold, doc, sa.id, edges, { radius: o.radius, radius2: o.radius2 > 0 ? o.radius2 : null, tol: o.tol, name: o.name, corners: o.corners !== false });
+      out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break;
+    }
+    case 'solid.thicken': {
+      const r = BL.thicken(doc, o.surface, { thickness: o.thickness, side: o.flip ? -1 : 1, tol: o.tol, name: o.name });
+      out = r.doc; report = r.report; ids = B.solid(out, r.id).faces; break;
+    }
+    case 'scan.fit': {
+      if (!env.scan) fail('nurbs.err.scan_none');
+      const res = RV.fit(env.scan, { tol: o.tol, minShare: o.minShare, maxPatches: o.maxPatches });
+      const r = RV.intoDoc(D, doc, res); out = r.doc; ids = r.ids;
+      report = { scan: { ...res.report, list: res.patches.map((p, i) => ({ id: r.ids[i], name: p.name, kind: p.kind, tris: p.tris, trimmed: !!p.trim, note: p.note || null, radius: p.model && p.model.r !== undefined ? p.model.r : null, halfAngle: p.model && p.model.halfAngle !== undefined ? p.model.halfAngle : null, blend: p.blend || null, ...p.stats })), pieces: res.unfitted } };
+      break;
+    }
+    case 'scan.solid': {
+      const list = D.surfaces(doc).filter((i) => !i.hidden && !B.solidOf(doc, i.id)).map((i) => i.id);
+      // scan faces meet only to within the scan's own error: try the smallest weld distance that closes (a larger one can fold a small
+      // part flat), never more than the stitch distance asked for; the one used is in the report
+      let r = null, err = null;
+      for (const weld of [null, ...Array.from({ length: 20 }, (_, i) => Math.round((i + 1) * 2) / 100)])  {   // 0.02 mm steps up to 0.4: whether a join closes is not monotone in the distance
+        if (weld !== null && weld > o.gap) break;
+        try { const x = B.addSolid(doc, list, { name: o.name || 'Scan solid', tol: B.TOL, weld, gap: o.gap }); if (x.report.volume > 0) { r = x; r.report = { ...x.report, weld: weld ?? B.TOL * 0.25 }; break; } } catch (e) { err = e; if (!e || e.code !== 'nurbs.err.solid_open') throw e; }
+      }
+      if (!r) throw err || C.fail('nurbs.err.solid_open', { name: '', edges: 0, gap: o.gap, tol: B.TOL });
+      out = r.doc; report = r.report; break;
+    }
+    case 'cage.surfaces': {
+      if (!env.cage) fail('nurbs.err.cage_none');
+      const res = CG.quadMeshToSurfaces(env.cage);
+      if (!res.patches.length) fail('nurbs.err.cage_nopatch', { n: res.pending.length });
+      out = doc; ids = [];
+      for (const p of res.patches) { const r = D.add(out, 'surface', p.surface, { name: 'SubD ' + (p.quad + 1) }); out = r.doc; ids.push(r.id); }
+      const why = (k) => res.pending.filter((x) => x.why === k).length;
+      report = { cage: { patches: res.patches.length, quads: env.cage.quads.length, boundary: why('boundary'), valence: why('valence'), open: why('open') } };
+      break;
+    }
+    case 'solid.ungroup': { out = B.removeSolid(doc, o.solid); break; }
     default: fail('nurbs.err.no_command', { id });
   }
   const cont = D.continuity(out);
@@ -150,5 +243,6 @@ export function panel(doc, { tol } = {}) {
   const ids = D.surfaces(doc).map((it) => it.id);
   const { report, problems } = D.continuity(doc, tol ? { tol } : {});
   const edges = report.edges.map((e) => ({ a: ids[e.a], edgeA: e.edgeA, b: ids[e.b], edgeB: e.edgeB, want: e.want, got: e.cls, gap: e.gap, angle: e.angle, dk: e.dk.max, flipped: e.flipped }));
-  return { items, edges, problems, tol: report.tol };
+  const sols = B.solids(doc).map((b) => ({ id: b.id, name: b.name, faces: b.faces.length }));
+  return { items, edges, problems, tol: report.tol, solids: sols };
 }

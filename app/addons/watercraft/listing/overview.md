@@ -1,0 +1,3 @@
+Design and check a drinking-water distribution network inside CivilCraft. WaterCraft adds to the Water mains you already draw: it turns parcels and customers into junction demands with an hourly pattern, tests the fire flow at every hydrant, shows which main outage cuts off the most customers, and follows water age, chlorine and the source of the water through a run of a day or more.
+
+It uses CivilCraft's own pressure-network solver, so a result here is the same number you see in the Water mains window. Your network stays in the project on your computer; nothing is sent anywhere. It is a calculation aid: a water engineer checks every result, and nothing here is a stamped design.

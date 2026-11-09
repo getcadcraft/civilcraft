@@ -17,7 +17,10 @@
  * fromSource: SuperCad Studio hands in a CadCraft member's entity (the person picked it in the drawing) and the same chooser opens.
  */
 import { fingerprint, checkLine, followLinks, cleanLink, LINK_LISTS } from './links.js';
-import { pickFeature, featuresOf } from '../gis-layers.js';
+// gis-layers.js is not imported at start (browser-gis-vector.mjs "nothing GIS is fetched at start"): it loads when the "from line" tool is chosen
+let GL = null;
+const featuresOf = (project, id) => project.gisFeatures.get(id) || [];
+const pickFeature = (...a) => GL?.pickFeature(...a) ?? null;
 import { edgeDist } from './planting.js';
 import { cleanFeature } from '../featureline.js';   // LA.2 outputs: feature lines
 import { t } from '../i18n.js';
@@ -126,7 +129,7 @@ export function createLinkUi(ctx, { edit, LS, U, makers }) {
   function command(c) {
     if (c !== 'ls-fromline') return false;
     ctx.setTool(ctx.tool() === c ? 'select' : c);
-    if (ctx.tool() === c) ctx.say(t('ls.link.hint'));
+    if (ctx.tool() === c) { ctx.say(t('ls.link.hint')); import('../gis-layers.js').then((m) => { GL = m; }).catch(() => {}); }
     return true;
   }
   function pickSource(w, tol) {

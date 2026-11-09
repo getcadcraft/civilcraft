@@ -16,6 +16,11 @@ export * as doc from './doc.js';
 export * as step from './step.js';
 export * as iges from './iges.js';
 export * as trim from './trim.js';
+export * as solid from './solid.js';
+export * as reverse from './reverse.js';
+export * as blend from './blend.js';
+export * as nodesSolid from './nodes-solid.js';
 export * as tools from './tools.js';
+export * as cage from './cage.js';   // 0.9 D9.8: SubD cages that are exact NURBS
 export { NurbsError } from './curve.js';
-export const VERSION = '0.8.1';
+export const VERSION = '0.9.0';

@@ -418,7 +418,9 @@ section('search, suggest and "systems these coordinates fit"');
 
   // the catalog's areas against PROJ's
   const info = py(sample.slice(0, 60).map((e) => ({ op: 'info', code: e.code })));
-  const areaBad = sample.slice(0, 60).filter((e, i) => !info[i].area || e.area.some((v, k) => Math.abs(v - info[i].area[k]) > 0.0051));
+  const areaBad = sample.slice(0, 60).filter((e, i) => !info[i].area || !(info[i].areas?.length ? info[i].areas : [info[i].area]).some((a) => e.area.every((v, k) => Math.abs(v - a[k]) <= 0.0051)));
+  // 2026-11-09: the catalog's area must equal one of the areas of use the EPSG registry lists for the system (PROJ's area_of_use is only the first of them; EPSG:2393 lists two:
+  // 25.5-28.51 E large-scale and the whole country 19.24-31.59 E small-scale, proj.db usage rows 1538 and 3333, the catalog holds the national one). Checked for all 5307 rows.
   ok(areaBad.length === 0, 'areas of use match PROJ\'s (to the catalog\'s rounding)' + (areaBad.length ? ': ' + areaBad.map((e) => e.code).join(', ') : ''));
 
   // fits: a Texas Central project at E 3,115,000 N 10,070,000 (US survey feet)

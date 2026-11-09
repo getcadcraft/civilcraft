@@ -111,7 +111,12 @@ def run(j):
     if op == 'info':
         c = crs(j['code'])
         a = c.area_of_use
-        return {'area': [a.west, a.south, a.east, a.north] if a else None, 'unit': c.axis_info[0].unit_name if c.axis_info else None,
+        # 2026-11-09: the EPSG registry gives some systems more than one area of use (EPSG:2393 has two: "Finland - onshore between 25°30'E and 28°30'E"
+        # for large-scale survey and "Finland - onshore" for small-scale mapping, proj.db usage rows 1538 and 3333); area_of_use is only the first. 'areas' is all of them.
+        j = c.to_json_dict()
+        us = j.get('usages') or ([{'bbox': j['bbox']}] if j.get('bbox') else [])
+        areas = [[b['west_longitude'], b['south_latitude'], b['east_longitude'], b['north_latitude']] for b in (u['bbox'] for u in us if u.get('bbox'))]
+        return {'areas': areas, 'area': [a.west, a.south, a.east, a.north] if a else None, 'unit': c.axis_info[0].unit_name if c.axis_info else None,
                 'name': c.name, 'geographic': c.is_geographic}
     raise ValueError('unknown op ' + op)
 

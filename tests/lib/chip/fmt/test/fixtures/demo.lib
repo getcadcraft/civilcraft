@@ -1,0 +1,121 @@
+/* Hand-written demonstration library for CadCraft's Chip design tests.
+   Made-up numbers; not from any foundry or vendor library. */
+library (cc_demo) {
+  delay_model : table_lookup ;
+  time_unit : "1ns" ;
+  voltage_unit : "1V" ;
+  current_unit : "1mA" ;
+  pulling_resistance_unit : "1kohm" ;
+  leakage_power_unit : "1nW" ;
+  capacitive_load_unit (1, pf) ;
+  nom_process : 1 ;
+  nom_temperature : 25 ;
+  nom_voltage : 1.8 ;
+  lu_table_template (delay_2x2) {
+    variable_1 : input_net_transition ;
+    variable_2 : total_output_net_capacitance ;
+    index_1 ("0.1, 0.5") ;
+    index_2 ("0.01, 0.05") ;
+  }
+  power_lut_template (power_2) {
+    variable_1 : input_transition_time ;
+    index_1 ("0.1, 0.5") ;
+  }
+  cell (INV_X1) {
+    area : 1.2 ;
+    cell_footprint : "inv" ;
+    cell_leakage_power : 0.5 ;
+    leakage_power () {
+      when : "A" ;
+      value : 0.7 ;
+    }
+    pin (A) {
+      direction : input ;
+      capacitance : 0.002 ;
+    }
+    pin (Y) {
+      direction : output ;
+      function : "!A" ;
+      max_capacitance : 0.2 ;
+      internal_power () {
+        related_pin : "A" ;
+        rise_power (power_2) {
+          values ("0.010, 0.012") ;
+        }
+        fall_power (power_2) {
+          values ("0.008, 0.009") ;
+        }
+      }
+      timing () {
+        related_pin : "A" ;
+        timing_sense : negative_unate ;
+        cell_rise (delay_2x2) {
+          index_1 ("0.1, 0.5") ;
+          index_2 ("0.01, 0.05") ;
+          values ("0.10, 0.20", \
+                  "0.30, 0.40") ;
+        }
+        cell_fall (delay_2x2) {
+          values ("0.08, 0.16", \
+                  "0.24, 0.32") ;
+        }
+        rise_transition (delay_2x2) {
+          values ("0.05, 0.15", "0.10, 0.20") ;
+        }
+        fall_transition (scalar) {
+          values ("0.07") ;
+        }
+      }
+    }
+  }
+  cell (NAND2_X1) {
+    area : 1.6 ;
+    pin (A) { direction : input ; capacitance : 0.0021 ; }
+    pin (B) { direction : input ; capacitance : 0.0023 ; }
+    pin (Y) {
+      direction : output ;
+      function : "!(A & B)" ;
+      timing () {
+        related_pin : "A" ;
+        timing_sense : negative_unate ;
+        cell_rise (delay_2x2) { values ("0.12, 0.24", "0.36, 0.48") ; }
+        cell_fall (delay_2x2) { values ("0.10, 0.20", "0.30, 0.40") ; }
+      }
+      timing () {
+        related_pin : "B" ;
+        timing_sense : negative_unate ;
+        cell_rise (delay_2x2) { values ("0.13, 0.25", "0.37, 0.49") ; }
+        cell_fall (delay_2x2) { values ("0.11, 0.21", "0.31, 0.41") ; }
+      }
+    }
+  }
+  cell (DFF_X1) {
+    area : 4.5 ;
+    ff (IQ, IQN) {
+      clocked_on : "CK" ;
+      next_state : "D" ;
+    }
+    pin (CK) { direction : input ; clock : true ; capacitance : 0.003 ; }
+    pin (D) {
+      direction : input ;
+      capacitance : 0.002 ;
+      timing () {
+        related_pin : "CK" ;
+        timing_type : setup_rising ;
+        rise_constraint (scalar) { values ("0.05") ; }
+        fall_constraint (scalar) { values ("0.06") ; }
+      }
+    }
+    pin (Q) {
+      direction : output ;
+      function : "IQ" ;
+      timing () {
+        related_pin : "CK" ;
+        timing_type : rising_edge ;
+        timing_sense : non_unate ;
+        cell_rise (delay_2x2) { values ("0.20, 0.30", "0.25, 0.35") ; }
+        cell_fall (delay_2x2) { values ("0.22, 0.32", "0.27, 0.37") ; }
+      }
+    }
+  }
+}

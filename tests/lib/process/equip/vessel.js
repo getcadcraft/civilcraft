@@ -110,7 +110,7 @@ export function dataSheet(spec) {
 export function flatHead({ P, d, S, E = 1, C = 0.33, ca = 0 }) {
   SC(S, 'S'); SC(E, 'E'); SC(C, 'C');
   const t = d * Math.sqrt(C * P / (S * E));
-  return { t, tMin: t + ca, C, notes: C === 0.33 ? ['C = 0.33 is the plain-plate value; the attachment detail of Figure UG-34 sets the real C (0.17 to 0.33 and others): give it'] : [], source: 'ASME VIII-1 UG-34(c)(2), t = d sqrt(C P / S E)' };
+  return { t, tMin: t + ca, C, notes: Math.abs(C - 0.33) < 1e-12 ? ['C = 0.33 is the plain-plate value; the attachment detail of Figure UG-34 sets the real C (0.17 to 0.33 and others): give it'] : [], source: 'ASME VIII-1 UG-34(c)(2), t = d sqrt(C P / S E)' };
 }
 
 /**

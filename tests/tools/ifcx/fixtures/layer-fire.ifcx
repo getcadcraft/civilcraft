@@ -1,0 +1,36 @@
+{
+ "header": {
+  "id": "cadcraft-tests/fire",
+  "ifcxVersion": "ifcx_alpha",
+  "dataVersion": "1.0.0",
+  "author": "A. Fire Engineer",
+  "timestamp": "2026-11-02"
+ },
+ "imports": [],
+ "schemas": {
+  "acme::FireRating": {
+   "value": {
+    "dataType": "Enum",
+    "enumRestrictions": {
+     "options": [
+      "REI30",
+      "REI60",
+      "REI90"
+     ]
+    }
+   }
+  }
+ },
+ "data": [
+  {
+   "path": "00000000-0000-4000-8000-000000000010",
+   "children": {
+    "Axis": null
+   },
+   "attributes": {
+    "bsi::ifc::prop::Height": 3.2,
+    "acme::FireRating": "REI60"
+   }
+  }
+ ]
+}

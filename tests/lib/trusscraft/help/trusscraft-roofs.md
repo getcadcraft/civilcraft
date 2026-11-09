@@ -19,7 +19,10 @@ TrussCraft reads the roof BimCraft drew (or one made from the corners you type o
 ## Valleys
 
 - **Trusses span across the valley.** A station that crosses a valley is one truss with the valley as a kink in its top chord. Problems notes each one.
-- **Valley set over the main roof.** For a wing roof that meets a main roof square to its ridge (a T), the main trusses stop at the wing's mouth, the wing gets its own trusses, and triangular valley trusses stand on the main roof: each spans between the valley lines at its height, with its apex on the wing ridge. You can also type the wing width and both pitches to get the set alone. TrussCraft does **not** make the girder or wall along the wing's mouth and does **not** add the valley trusses' reactions to the main trusses; Problems says both.
+- **Valley set over the main roof.** For a wing roof that meets a main roof square to its ridge (a T), the main trusses stop at the wing's mouth, the wing gets its own trusses, and triangular valley trusses stand on the main roof: each spans between the valley lines at its height, with its apex on the wing ridge. You can also type the wing width and both pitches to get the set alone. TrussCraft does **not** make the girder or the wall along the wing's mouth, but it gives the forces it carries.
+
+  - **Mouth girder forces.** Each main truss that ends at the mouth is a simple span, so its mouth-end reaction is a point load on the girder (or the bearing wall). Problems lists the span (the mouth's width), how many truss ends it carries, the largest moment and shear over your load combinations, and the two bearing reactions, also for dead and snow alone. Its size, species, bearings and the walls or trusses under them are for the truss designer.
+  - **Valley trusses on the main trusses.** Each valley truss's end reactions are shared between the two main trusses either side of it by plan distance. Problems names the main truss that takes the most and how far along it. They are listed, **not added** to those trusses' designs: check each main truss for them.
 
 ## When something cannot be made
 

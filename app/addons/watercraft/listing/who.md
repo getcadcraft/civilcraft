@@ -1,0 +1,3 @@
+- A civil or water engineer laying out a distribution network or a subdivision's mains who needs pressures, fire flow and a check on dead ends.
+- A utility planner who wants to know which main outages hurt most and where the water is oldest.
+- A student or small consultancy who needs water-network analysis without a per-seat network licence.

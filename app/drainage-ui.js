@@ -80,7 +80,7 @@ export function createDrainage(ctx) {
           const f = r.flows.pipes.get(p.id), g = r.grade.pipes.get(p.id);
           return el('tr', { className: g?.full ? 'is-warn' : '' },
             el('td', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => ctx.select({ kind: 'pipe', id: p.id }) }, p.name)),
-            el('td', { className: 'num' }, f ? fixed(f.Q, 2) : '—'), el('td', { className: 'num' }, f && g ? fixed(capOf(p, f), 2) : '—'),
+            el('td', { className: f ? 'num' : 'num cv-dash' }, f ? fixed(f.Q, 2) : '—'), el('td', { className: f && g ? 'num' : 'num cv-dash' }, f && g ? fixed(capOf(p, f), 2) : '—'),
             el('td', { className: 'num' }, g ? fixed(g.V, 2) : '—'), el('td', { className: 'num' }, g ? fixed(g.hglUp, 2) + ' – ' + fixed(g.hglDn, 2) : '—'),
             el('td', {}, !g ? '—' : g.full ? t('dr.r.full') : t('dr.r.part', { pct: fixed((g.yn / dia(p)) * 100, 0) })));
         })))));

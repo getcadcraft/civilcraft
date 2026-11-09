@@ -1,0 +1,14 @@
+{
+  "@locale": "be",
+  "@name": "Беларуская",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (дапаўненне)",
+  "wind.of.note": "Запускае вашу ўласную ўстаноўку OpenFOAM праз невялікі памочнік на гэтым камп’ютары: адзін стацыянарны выпадак RANS (k-epsilon) на кожны напрамак ветру, уваходны атмасферны пагранічны пласт. Нічога не пакідае гэты камп’ютар. CadCraft не ўключае OpenFOAM.",
+  "wind.of.url": "Адрас памочніка",
+  "wind.of.token": "Токен памочніка",
+  "wind.of.check": "Праверыць памочнік",
+  "wind.of.ok": "Памочнік адказаў. OpenFOAM: {foam}",
+  "wind.of.down": "Памочнік не адказаў ({why}). Запусціце яго на гэтым камп’ютары: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Памочнік адказаў, але не ўдалося запусціць OpenFOAM: {why}",
+  "wind.of.install": "Усталюйце OpenFOAM (v-серыя ESI, openfoam.com) і памочнік з папкі дапаўнення; у тэме даведкі тлумачыцца і тое, і другое."
+}

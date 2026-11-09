@@ -61,6 +61,26 @@ export function localK(E, G, A, Iy, Iz, J, L) {
   return k;
 }
 
+/** Geometric stiffness (0.9 SU.1056, P-delta) of a member carrying the axial force N (tension > 0), added into the local 12×12 k:
+ *  k_G = N ∫₀ᴸ φ'ᵀ φ' dx with φ the same cubic Hermite shape functions as equivalentLoads (v: dofs 1, 5, 7, 11; w: 2, −4, 8, −10),
+ *  integrated here by 3-point Gauss–Legendre (exact for these quadratics squared) — derived, not tabulated. Axial and torsion
+ *  terms (Wagner) are left out: flexural P-delta only. McGuire, Gallagher, Ziemian, Matrix Structural Analysis 2nd ed. ch. 9 (the method). */
+export function addGeometric(k, N, L) {
+  if (!N) return k;
+  const G3 = [[-0.7745966692414834, 5 / 9], [0, 8 / 9], [0.7745966692414834, 5 / 9]];
+  const vIdx = [1, 5, 7, 11], wIdx = [2, 4, 8, 10], wSgn = [1, -1, 1, -1];
+  for (const [g, wt] of G3) {
+    const xi = (g + 1) / 2, dx = wt * L / 2;
+    const d = [(-6 * xi + 6 * xi * xi) / L, 1 - 4 * xi + 3 * xi * xi, (6 * xi - 6 * xi * xi) / L, -2 * xi + 3 * xi * xi];
+    for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) {
+      const v = N * d[a] * d[b] * dx;
+      k[vIdx[a] * 12 + vIdx[b]] += v;
+      k[wIdx[a] * 12 + wIdx[b]] += v * wSgn[a] * wSgn[b];
+    }
+  }
+  return k;
+}
+
 /** Equivalent nodal loads (local, 12) of one load piece on a member of length L. */
 export function equivalentLoads(piece, L, p = new Float64Array(12)) {
   const add = (xi, q) => {      // q = force (per length × weight, or a point force) at ξ along the member
@@ -172,7 +192,7 @@ function rcm(nn, adj) {
 }
 
 /** Prepares members, numbering and the factorised stiffness. */
-export function prepare(model) {
+export function prepare(model, { axial = null } = {}) {
   if (hasShell(model)) return prepareShell(model, INTERNALS);     // plates or diaphragms: plate-solve.js (frame-only models never)
   const warnings = [];
   const nn = model.nodes.length, M = model.members.length;
@@ -187,6 +207,7 @@ export function prepare(model) {
     const i = idx.get(m.i), j = idx.get(m.j), s = secs.get(m.section), mt = mats.get(m.material);
     const ax = axesOf(P[i], P[j], m.roll || 0);
     const k0 = localK(mt.E, mt.G, s.A, s.Iy, s.Iz, s.J, ax.L);
+    if (axial) addGeometric(k0, axial[mem.length] || 0, ax.L);     // second order: K + K_G(N) (0.9 SU.1056)
     const rel = [];
     m.rel.i.forEach((r, d) => r && rel.push(d));
     m.rel.j.forEach((r, d) => r && rel.push(6 + d));
@@ -446,10 +467,77 @@ function totals(prep, nodeF, memLoads) {
   return t;
 }
 
-/** Every case and combination of a model. */
-export function solveFrame(model, { sets = null } = {}) {
+// ---------------------------------------------------------------------------------------------------------- second order (0.9 SU.1056)
+/** The model with every member cut into `seg` collinear pieces (internal nodes `<member>~k`, pieces `<member>~sk`), the original
+ *  nodes first in their order; member loads go to the pieces they fall on; end releases stay at the member's ends. */
+function subdivide(model, seg) {
+  const idx = nodeIndex(model), P = model.nodes.map((n) => [n.x, n.y, n.z]);
+  const nodes = model.nodes.slice(), members = [], chain = [], mLen = new Map();
+  for (const m of model.members) {
+    const a = P[idx.get(m.i)], b = P[idx.get(m.j)], L = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    mLen.set(m.id, L);
+    const ids = [m.i];
+    for (let k = 1; k < seg; k++) { const f = k / seg, id = m.id + '~' + k; nodes.push({ id, x: a[0] + (b[0] - a[0]) * f, y: a[1] + (b[1] - a[1]) * f, z: a[2] + (b[2] - a[2]) * f }); ids.push(id); }
+    ids.push(m.j);
+    const list = [];
+    for (let k = 0; k < seg; k++) {
+      const none = [false, false, false, false, false, false];
+      list.push(members.length);
+      members.push({ ...m, id: m.id + '~s' + k, i: ids[k], j: ids[k + 1], rel: { i: k === 0 ? m.rel.i : none, j: k === seg - 1 ? m.rel.j : none } });
+    }
+    chain.push(list);
+  }
+  const mPos = new Map(model.members.map((m, k) => [m.id, k]));
+  const cases = model.cases.map((c) => {
+    const loads = [];
+    for (const l of c.loads) {
+      if (l.type === 'node') { loads.push(l); continue; }
+      const k = mPos.get(l.member); if (k === undefined) continue;
+      const L = mLen.get(l.member), Ls = L / seg, base = model.members[k].id + '~s';
+      if (l.type === 'point') { const q = Math.min(seg - 1, Math.max(0, Math.floor(l.a / Ls))); loads.push({ ...l, member: base + q, a: Math.max(0, l.a - q * Ls) }); continue; }
+      const a = Math.max(0, l.a ?? 0), b = Math.min(L, l.b ?? L), w2 = l.w2 ?? l.w, span = (l.b ?? L) - (l.a ?? 0);
+      const wAt = (x) => (span > 0 ? l.w + (w2 - l.w) * (x - (l.a ?? 0)) / span : l.w);
+      for (let q = 0; q < seg; q++) {
+        const s0 = q * Ls, s1 = (q + 1) * Ls, lo = Math.max(a, s0), hi = Math.min(b, s1);
+        if (hi - lo < 1e-9) continue;
+        loads.push({ type: 'udl', member: base + q, dir: l.dir, w: wAt(lo), w2: wAt(hi), a: lo - s0, b: hi - s0 });
+      }
+    }
+    return { ...c, loads };
+  });
+  return { model: { ...model, nodes, members, cases }, chain };
+}
+
+/** One set solved to second order: K + K_G(N) with N from the previous pass, until the axial forces settle. */
+function secondOrderSet(fine, nMem, entriesOf, opts) {
+  const { maxIter = 30, tol = 1e-6 } = opts;
+  let axial = null, R = null, first = null, it = 0, change = Infinity;
+  for (it = 0; it < maxIter; it++) {
+    const pr = prepare(fine.model, { axial });
+    if (pr.error) return { error: pr.error.code === 'mechanism' && axial ? { code: 'second-order-unstable', node: pr.error.node, dof: pr.error.dof } : pr.error };
+    R = runSet(pr, { entries: entriesOf(fine.model) });
+    if (R.error) return { error: R.error };
+    if (!first) first = R;
+    const next = new Float64Array(nMem);
+    let big = 0; for (let k = 0; k < nMem; k++) { next[k] = (R.ends[12 * k + 6] - R.ends[12 * k]) / 2; big = Math.max(big, Math.abs(next[k])); }   // N, tension > 0 (mean of the two ends)
+    change = 0; if (axial) for (let k = 0; k < nMem; k++) change = Math.max(change, Math.abs(next[k] - axial[k]));
+    const done = !!axial && change <= tol * Math.max(big, 1e-9);
+    axial = next; R.prep = pr;
+    if (done) return { R, first, iterations: it + 1, converged: true };
+  }
+  return { R, first, iterations: maxIter, converged: false };
+}
+
+/** Every case and combination of a model. secondOrder: true | { segments (pieces per member, default 4), maxIter, tol } — a
+ *  second-order elastic analysis (P-Delta of the frame, P-delta of each member through the pieces): each set is solved with its own
+ *  axial forces (sets are never added up), results keep the shape of the first-order ones (per member, original nodes), plus
+ *  R.second = { iterations, converged, segments, amplification (largest node translation over the first-order one), sub }. */
+export function solveFrame(model, { sets = null, secondOrder = null } = {}) {
   const prep = prepare(model);
   if (prep.error) return { ok: false, error: prep.error, warnings: prep.warnings };
+  if (secondOrder && prep.shell) prep.warnings.push({ code: 'second-order-plates' });       // plates and floors: first order only (said)
+  const so = secondOrder && !prep.shell ? { segments: 4, ...(secondOrder === true ? {} : secondOrder) } : null;
+  const fine = so ? subdivide(model, Math.max(1, Math.min(16, so.segments | 0))) : null;
   const cases = new Map(model.cases.map((c) => [c.id, c]));
   const want = sets || [...model.cases.map((c) => ({ id: c.id, kind: 'case' })), ...model.combos.map((c) => ({ id: c.id, kind: 'combo' }))];
   const results = {};
@@ -465,11 +553,53 @@ export function solveFrame(model, { sets = null } = {}) {
       if (!c) continue;
       entries = [{ c, f: 1 }]; name = c.name;
     }
-    const r = runSet(prep, { entries });
+    const r = so ? secondOrderMapped(prep, fine, so, entries) : runSet(prep, { entries });
     if (r.error) return { ok: false, error: r.error, warnings: prep.warnings };
     results[(s.kind === 'combo' ? 'combo:' : 'case:') + s.id] = { id: s.id, kind: s.kind, name, ...r };
   }
-  return { ok: true, warnings: prep.warnings, dofs: prep.n, band: prep.band, results, prep };
+  return { ok: true, warnings: prep.warnings, dofs: prep.n, band: prep.band, results, prep, ...(so ? { secondOrder: { segments: fine.chain[0]?.length || 1 } } : {}) };
+}
+
+/** A second-order set mapped back onto the model's own nodes and members (R.ends per member; R.second.sub = local displacements at
+ *  the piece ends, for the P-delta moment along the member in diagram()). */
+function secondOrderMapped(prep, fine, so, entries) {
+  const caseOf = (fm) => new Map(fm.cases.map((c) => [c.id, c]));
+  const out = secondOrderSet(fine, fine.model.members.length, (fm) => { const cs = caseOf(fm); return entries.map((x) => ({ c: cs.get(x.c.id), f: x.f })); }, so);
+  if (out.error) return out;
+  const { R, first } = out, nn = prep.nn, M = prep.mem.length;
+  const u = R.u.slice(0, 6 * nn), reactions = R.reactions.slice(0, 6 * nn), ends = new Float64Array(12 * M);
+  const sub = [];
+  fine.chain.forEach((list, m) => {
+    const a = list[0], b = list[list.length - 1];
+    for (let r = 0; r < 6; r++) { ends[12 * m + r] = R.ends[12 * a + r]; ends[12 * m + 6 + r] = R.ends[12 * b + 6 + r]; }
+    // local displacements (member axes) at the piece ends: the pieces share the member's axes
+    const e = prep.mem[m], st = [];
+    const loc = (q) => { const g = R.u.subarray(6 * q, 6 * q + 6), T = e.T; return [0, 1, 2].map((x) => T[x * 3] * g[0] + T[x * 3 + 1] * g[1] + T[x * 3 + 2] * g[2]).concat([0, 1, 2].map((x) => T[x * 3] * g[3] + T[x * 3 + 1] * g[4] + T[x * 3 + 2] * g[5])); };
+    const fp = R.prep;
+    st.push(loc(fp.mem[a].i)); for (const k of list) st.push(loc(fp.mem[k].j));
+    // v and w at the stations are exact; at a released end the node's rotation is not the member's, so subDisp() takes that slope from the stations
+    sub.push({ L: e.ax.L, st, rel: [prep.model.members[m].rel.i, prep.model.members[m].rel.j] });
+  });
+  const { memLoads } = loadSet(prep, entries);
+  let a1 = 0, a2 = 0; for (let q = 0; q < nn; q++) { const t1 = Math.hypot(first.u[6 * q], first.u[6 * q + 1], first.u[6 * q + 2]), t2 = Math.hypot(u[6 * q], u[6 * q + 1], u[6 * q + 2]); if (t1 > a1) { a1 = t1; a2 = t2; } }
+  return { u, ends, reactions, loads: memLoads, applied: R.applied, reacted: R.reacted,
+    second: { iterations: out.iterations, converged: out.converged, segments: fine.chain[0]?.length || 1, amplification: a1 > 0 ? a2 / a1 : 1, sub } };
+}
+
+/** Local transverse displacement [v, w] at x along a member of a second-order result (cubic Hermite between the piece ends; at a
+ *  released end the slope comes from the first three stations, as the node's rotation is not the member's there). */
+function subDisp(sub, x) {
+  const st = sub.st, seg = st.length - 1, Ls = sub.L / seg;
+  const q = Math.min(seg - 1, Math.max(0, Math.floor(x / Ls))), xi = Math.max(0, Math.min(1, x / Ls - q));
+  const slope = (k, c, rot, sgn) => {
+    const relEnd = (k === 0 && sub.rel[0][rot]) || (k === seg && sub.rel[1][rot]);
+    if (!relEnd || seg < 2) return sgn * st[k][rot];
+    return k === 0 ? (-3 * st[0][c] + 4 * st[1][c] - st[2][c]) / (2 * Ls) : (3 * st[seg][c] - 4 * st[seg - 1][c] + st[seg - 2][c]) / (2 * Ls);
+  };
+  const H1 = 1 - 3 * xi * xi + 2 * xi ** 3, H2 = Ls * (xi - 2 * xi * xi + xi ** 3), H3 = 3 * xi * xi - 2 * xi ** 3, H4 = Ls * (-xi * xi + xi ** 3);
+  const v = H1 * st[q][1] + H2 * slope(q, 1, 5, 1) + H3 * st[q + 1][1] + H4 * slope(q + 1, 1, 5, 1);
+  const w = H1 * st[q][2] + H2 * slope(q, 2, 4, -1) + H3 * st[q + 1][2] + H4 * slope(q + 1, 2, 4, -1);
+  return [v, w];
 }
 
 /** Internal actions and displacements along member m of a result. */
@@ -477,16 +607,21 @@ export function diagram(prep, R, m, n = 20) {
   const e = prep.mem[m], L = e.ax.L;
   const end = R.ends.subarray(12 * m, 12 * m + 12);
   const loads = R.loads[m];
+  const sub = R.second ? R.second.sub[m] : null;      // second order: the moments include the axial forces times the deflection (P-delta)
+  const d0 = sub ? subDisp(sub, 0) : null;
   // the cut x: S = −(F_i + ∫₀ˣ q), M_S = −(M_i + r_i × F_i + Σ r × q), r from the cut to the force
   const at = (x) => {
     const S = [-end[0], -end[1], -end[2]];
     const Ms = [-end[3], -(end[4] + x * end[2]), -(end[5] - x * end[1])];
+    const dx = sub ? subDisp(sub, x) : null;
+    if (sub) { Ms[1] -= (d0[1] - dx[1]) * end[0]; Ms[2] += (d0[0] - dx[0]) * end[0]; }   // r = (−x, v₀ − v, w₀ − w) for the i-end force
     for (const pz of loads) {
       const c = pz.comp;
-      const force = (s, q) => {   // q along local axis c at s ≤ x; r = (s − x, 0, 0)
+      const force = (s, q) => {   // q along local axis c at s ≤ x; r = (s − x, 0, 0) (second order: + the deflection for an axial load)
         S[c] -= q;
         if (c === 1) Ms[2] -= (s - x) * q;
         else if (c === 2) Ms[1] += (s - x) * q;
+        else if (sub) { const ds = subDisp(sub, s); Ms[1] -= (ds[1] - dx[1]) * q; Ms[2] += (ds[0] - dx[0]) * q; }
       };
       if (pz.kind === 'point') { if (pz.a < x - 1e-9 || (pz.a <= x + 1e-9 && x >= L - 1e-9)) force(pz.a, pz.P); continue; }
       const a = pz.a, b = Math.min(pz.b, x);

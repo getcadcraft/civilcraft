@@ -565,6 +565,15 @@ a.status-chip:hover, a.status-chip:focus-visible { background: var(--ink); color
 .select-cc option.select-placeholder { color: var(--placeholder); }
 .form-cc .is-invalid { border-color: var(--layer-red) !important; }
 .field-error { display: block; color: var(--layer-red); font-weight: 600; font-size: var(--fs-sm); margin-top: .35rem; }
+/* Password show/hide eye (account/password-eye.inc + site.js). The input keeps room for it in both states. */
+.pw-field { position: relative; }
+.form-cc .pw-field input { padding-right: 3.25rem; }
+.pw-field input::-ms-reveal, .pw-field input::-ms-clear { display: none; } /* Edge's own eye would sit beside ours */
+.pw-eye { position: absolute; top: 0; right: 0; bottom: 0; width: 3rem; display: flex; align-items: center; justify-content: center;
+  background: none; border: 0; padding: 0; color: var(--ink-2); font-size: 1.15rem; cursor: pointer; border-radius: var(--radius); }
+.pw-eye[hidden] { display: none; }
+.pw-eye:hover { color: var(--ink); }
+.pw-eye:focus-visible { outline: 2px solid var(--action); outline-offset: -3px; color: var(--ink); }
 .form-cc fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .check-grid { display: grid; gap: .5rem; grid-template-columns: 1fr; }
 @media (min-width: 560px) { .check-grid { grid-template-columns: 1fr 1fr; } }
@@ -632,6 +641,9 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .tb-col a { color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: .45rem; padding: .3rem 0; min-height: 2rem; }
 .tb-col a:hover { text-decoration: underline; color: var(--ink); }
 .tb-col p { margin: 0; color: var(--ink-2); font-size: var(--fs-sm); }
+/* Two links on one line ("Press kit / Educator kit"): slightly narrower letters where the column is tight, same text height as the list. */
+.tb-pair > span { margin-inline: .25rem; }
+@media (max-width: 26.875rem), (min-width: 768px) and (max-width: 58.75rem) { .tb-col .tb-pair { font-stretch: 78%; } }
 @media (min-width: 768px) {
   .tb-links { grid-template-columns: repeat(4, 1fr); }
   .tb-col { border-right: var(--pen-1) solid var(--ink); }
@@ -641,6 +653,20 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .tb-notes p { margin: 0; }
 .tb-notes .tb-legal { display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
 .tb-notes .tb-legal a { color: var(--ink); }
+/* site-lang.inc: the language picker (lab only for now), in the Community column under a rule like SuperCad Studio's (owner 2026-11-07). */
+.tb-lang { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .5rem; margin-top: .6rem; padding-top: .7rem; border-top: var(--pen-1) solid var(--ink); }
+.tb-lang label { flex-basis: 100%; display: flex; align-items: center; gap: .45rem; font-weight: 600; color: var(--ink); font-size: var(--fs-sm); }
+.tb-lang select { flex: 1 1 9rem; width: auto; min-width: 0; font-size: .8125rem; }
+.tb-lang .tb-lang-save { min-height: 0; padding: .15rem .55rem; font-size: .6875rem; line-height: 1.4; border-width: var(--pen-1); }
+.js .tb-lang:not(.is-changed) .tb-lang-save { display: none; }
+.tb-lang-tag { font-weight: 400; font-size: .625rem; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--ink-2); }
+.tb-col .tb-lang p { flex-basis: 100%; font-size: .6875rem; line-height: 1.45; }
+/* Community column: the picker sits at the bottom of the column (owner 2026-11-07). */
+.tb-community { display: flex; flex-direction: column; }
+.tb-community .tb-lang { margin-top: auto; }
+.tb-community > ul, .tb-community > p { margin-bottom: 1rem; }
+/* From 1100px Product's short links need the least room; the spare width goes to Community (owner 2026-11-07). Below that the four columns stay equal. */
+@media (min-width: 1100px) { .tb-links { grid-template-columns: minmax(0, .75fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.25fr); } }
 
 /* ---------- Generic list of meta items (never middle-dot strings) ---------- */
 .meta-items { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin: 0; padding: 0; list-style: none; color: var(--ink-2); font-size: var(--fs-sm); }

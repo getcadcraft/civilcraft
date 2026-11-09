@@ -12,6 +12,21 @@
 
 import { t } from "./i18n.js";
 
+// 0.9 SU.1080 round 2: symbology by attribute is an optional key on the layer (older builds ignore it). Its checker is small and local
+// here so this file, loaded at start, imports nothing more; gis-symbology.js (loaded with the GIS tools) draws from the same shape.
+const SYM_MODES = ['single', 'categorized', 'graduated'], SYM_METHODS = ['equal', 'quantile', 'natural'], SYM_RAMPS = ['viridis', 'cividis', 'blues', 'rdbu', 'okabe'];
+const symNum = (v, lo, hi, d) => (typeof v === 'number' && Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : d);
+export function cleanSymbology(raw, fields) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const find = (n) => (typeof n === 'string' ? fields.find((f) => f.name === n) : null);
+  const mode = SYM_MODES.includes(raw.mode) ? raw.mode : 'single', f = find(raw.field);
+  const m = mode === 'categorized' && f ? mode : mode === 'graduated' && f?.type === 'number' ? mode : 'single';
+  const sz = find(raw.sizeField);
+  const o = { mode: m, field: m === 'single' ? '' : f.name, ramp: SYM_RAMPS.includes(raw.ramp) ? raw.ramp : m === 'categorized' ? 'okabe' : 'viridis', method: SYM_METHODS.includes(raw.method) ? raw.method : 'quantile', classes: Math.trunc(symNum(raw.classes, 2, 9, 5)), reverse: raw.reverse === true, sizeField: sz?.type === 'number' ? sz.name : '', sizeMin: symNum(raw.sizeMin, 0.2, 6, 0.6), sizeMax: symNum(raw.sizeMax, 0.2, 10, 3), fill: raw.fill === true, legend: raw.legend !== false };
+  if (o.sizeMax < o.sizeMin) o.sizeMax = o.sizeMin;
+  return o.mode === 'single' && !o.sizeField && !o.fill ? null : o;
+}
+
 export const LAYER_TOKENS = ['blue', 'orange', 'magenta', 'cyan', 'ochre', 'green', 'red'];
 export const MAX_LAYERS = 200;
 export const clean = (v, n) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, n);
@@ -49,6 +64,7 @@ export function readGisState(gis, gisFeatures, notes = []) {
     const fields = (Array.isArray(l.fields) ? l.fields.slice(0, 500) : []).map((f) => ({ name: clean(f?.name, 64), type: ['text', 'number', 'date', 'bool'].includes(f?.type) ? f.type : 'text' })).filter((f) => f.name && !fieldNames.has(f.name) && fieldNames.add(f.name));
     const layer = { id: l.id, name: clean(l.name, 120) || t('layers.default'), geom: l.geom, hasZ: l.hasZ === true, fields, visible: l.visible !== false, color: LAYER_TOKENS.includes(l.color) ? l.color : 'blue', source: { file: clean(l.source?.file, 200), format: clean(l.source?.format, 40), crs: l.source?.crs ? clean(l.source.crs, 200) : null } };
     if (l.label && typeof l.label === 'object' && fieldNames.has(clean(l.label.field, 64))) layer.label = { field: clean(l.label.field, 64) };   // 0.4 V7: label field
+    { const sym = cleanSymbology(l.symbology, fields); if (sym) layer.symbology = sym; }   // 0.9 SU.1080 round 2
     const rows = Object.prototype.hasOwnProperty.call(src, l.id) && Array.isArray(src[l.id]) ? src[l.id] : [];
     const fs = [];
     let bad = 0;

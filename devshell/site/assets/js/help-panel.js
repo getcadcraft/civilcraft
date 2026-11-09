@@ -132,6 +132,7 @@ function build() {
       el('p', { class: 'help-title', id: 'help-title' }, el('i', { class: 'bi bi-question-circle', 'aria-hidden': 'true' }), ' ' + T('shell.help.title')),
       ui.back, ui.home, ui.close),
     el('div', { class: 'help-tools' }, ui.search),
+    el('div', { class: 'help-about' }, document.querySelector('[data-newhere]') ? el('button', { type: 'button', class: 'help-link', 'data-newhere-open': '' }, el('i', { class: 'bi bi-signpost-split', 'aria-hidden': 'true' }), ' ' + T('shell.newhere.title')) : null, ' ', el('button', { type: 'button', class: 'help-link', 'data-about-open': '' }, el('i', { class: 'bi bi-info-circle', 'aria-hidden': 'true' }), ' ' + T('shell.about.title', { app: document.querySelector('[data-about]')?.dataset.name || '' }))),
     ui.ctxLine,
     ui.body,
   );

@@ -1,0 +1,25 @@
+
+14. Printing statistics.
+
+=== pebble_soc ===
+
+   Number of wires:                749
+   Number of wire bits:            899
+   Number of public wires:          36
+   Number of public wire bits:     186
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                801
+     AND2                          172
+     BUF                            24
+     DFF                            88
+     INV                            22
+     NAND2                         284
+     NOR2                           98
+     OR2                            93
+     XNOR2                          11
+     XOR2                            9
+
+   Chip area for module '\pebble_soc': 1928.000000
+

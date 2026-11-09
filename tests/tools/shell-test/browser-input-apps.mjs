@@ -62,6 +62,7 @@ function uncoveredInPage() {
   const known = new Set(ci.commands.map(target).filter(Boolean).map(dataKey).filter(Boolean));
   const bar = document.querySelector('[data-input-bar]');
   const extra = [...tb.querySelectorAll('button, [role="menuitem"]')].filter((b) => !(bar && bar.contains(b)) && !b.closest('summary')
+    && !b.hasAttribute('data-addon-tool')   // 0.9 mounts-09: an add-on's button (data-addon-tool) is the add-on's own, not a registry command (print-09)
     && !known.has(dataKey(b)) && (b.textContent || b.title || '').trim()).map((b) => (dataKey(b) || '') + ' "' + (b.textContent || b.title).trim().slice(0, 30) + '"');
   const missing = ci.commands.filter((c) => !c.optional && !target(c)).map((c) => c.id);
   return { extra, missing };

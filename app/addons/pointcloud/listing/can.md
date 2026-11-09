@@ -1,0 +1,10 @@
+- Open a LAS or LAZ file and see what it holds and how much room a build needs before it starts. Find it in the Point clouds tab, Open a cloud.
+- Look at the whole cloud, refining as you zoom, coloured by file colour, height, class, intensity or residual, with eye-dome lighting and points that shrink with distance. Point clouds tab, Look; the 3D view and the plan both show it.
+- Clean it: lasso, box or polygon, then delete, change the class, restore or crop; the count is shown before you apply, and Undo and Redo walk the edit log. Point clouds tab, Clean.
+- Find stray points (noise) and mark them as low or high noise. Point clouds tab, Clean, Noise filter.
+- Find the ground tile by tile, then sort the rest into low, medium and high vegetation and buildings. Point clouds tab, Classify.
+- Build the existing ground from the ground points, see how far the points sit from it, fly to the ten places that differ most, and pick breaklines on the cloud in 3D or in the plan. Point clouds tab, Ground, checks and numbers.
+- See the contours over the cloud before you keep them, in a small picture in the same tab.
+- Work out a stockpile volume inside a boundary you draw against a base you choose, and the cut and fill between two flights, with a CSV. Point clouds tab, Stockpile volume and Flight to flight.
+- Save the cleaned and classified cloud as a LAS 1.4 file; a very large cloud is written to the file as it goes. Point clouds tab, Export.
+- Keep the clouds in a folder you choose instead of the browser's storage. Point clouds tab, Clouds on this computer.

@@ -95,8 +95,8 @@ export async function run(h) {
   await h.tool('asm-insert-copy'); await pc(() => window.partcraft.asmBuilt());
   await pc(() => { window.partcraft.view.view('iso'); window.partcraft.view.fit(); });
   await pressX();
-  const st = await pc(() => { const v = window.partcraft.view; return { insts: v.instances.length, clipped: v.instances.every((o) => o.mesh.material.clippingPlanes?.length === 1 && o.edges.material.clippingPlanes?.length === 1), writers: v.capParts.length, cap: !!v.capQuad }; });
-  ok(st.insts === 2 && st.clipped && st.writers === 4 && st.cap, `both placed parts are cut, each with its two stencil writers, one cap (${JSON.stringify(st)})`);
+  const st = await pc(() => { const v = window.partcraft.view; return { insts: v.instances.length, clipped: v.batches.every((b) => b.mesh.material.clippingPlanes?.length === 1 && b.edges.material.clippingPlanes?.length === 1), groups: v.batches.length, writers: v.capParts.length, cap: !!v.capQuad }; });
+  ok(st.insts === 2 && st.clipped && st.writers === 2 * st.groups && st.cap, `both placed parts are cut, each draw group (one per part) with its two stencil writers, one cap (${JSON.stringify(st)})`);
   const where = await pc(() => { const a = window.partcraft.asm; return a.instances.map((i) => [i.place[12], i.place[13], i.place[14]]); });
   const capA = await pixel([where[1][0] + 20, where[1][1] + 10, where[1][2] + 10]);
   ok(reddish(capA), `the second copy's cut is filled too (${capA})`);

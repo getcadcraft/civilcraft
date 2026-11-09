@@ -1,0 +1,11 @@
+VCD info: dumpfile out/wave.vcd opened for output.
+printed 55
+printed 1
+printed 1
+printed 2
+printed 3
+printed 5
+printed 8
+printed 13
+printed 55
+PASS: Pebble printed the 9 expected numbers

@@ -66,6 +66,7 @@ $__build = [
     'manifest' => $__manifest, 'release' => null,
 ];
 Lang::use($__build, $lang !== null && Lang::validLocale($lang) ? $lang : 'en');
+if ($edition !== null) Lang::record();   // app-lang-boot.js swaps the English by the key that printed it (#cc-lang-printed)
 
 $imports = [];
 foreach ($__manifest['imports'] ?? [] as $spec => $path) $imports[$spec] = $path;
@@ -183,9 +184,9 @@ ob_start();
 <?php endif; ?>
   <button type="button" class="app-bar-btn app-bar-settings" data-settings-open aria-haspopup="dialog" aria-expanded="false" title="Settings (Ctrl+,)" hidden><i class="bi bi-gear" aria-hidden="true"></i><span class="app-bar-btn-label">Settings</span></button>
   <button type="button" class="app-bar-fs" data-fs-cycle aria-pressed="false" hidden><i class="bi bi-fullscreen" aria-hidden="true"></i><span class="app-bar-fs-label">Full screen</span></button>
-  <form class="space-toggle" method="get" action="<?= $edition === null ? '/' : '' ?>" role="group" aria-label="Drawing space (theme)">
-    <button type="submit" name="space" value="paper" aria-pressed="false" title="Paper space: light theme">Paper</button>
-    <button type="submit" name="space" value="model" aria-pressed="false" title="Model space: dark theme">Model</button>
+  <form class="space-toggle" method="get" action="<?= $edition === null ? '/' : '' ?>" role="group" aria-label="<?= Lang::e('shell.bar.space') ?>">
+    <button type="submit" name="space" value="paper" aria-pressed="false" title="<?= Lang::e('shell.bar.paper.title') ?>"><?= Lang::e('shell.bar.paper') ?></button>
+    <button type="submit" name="space" value="model" aria-pressed="false" title="<?= Lang::e('shell.bar.model.title') ?>"><?= Lang::e('shell.bar.model') ?></button>
   </form>
 </header>
 <?php require "$__appDir/ui.inc"; ?>
@@ -195,6 +196,7 @@ ob_start();
 <?php if ($__editionData !== null): ?>
 <script type="application/json" id="cc-edition"><?= json_embed($__editionData) ?></script>
 <script type="application/json" id="cc-offline"><?= json_embed($__offlineData) ?></script>
+<?= Lang::printedTag() ?>
 <script src="<?= $R ?>assets/js/app-lang-boot.js"></script>
 <?php endif; ?>
 <?php foreach (devshell_shell_js($__panels, $__offlineData !== null) as $__s): ?>

@@ -47,8 +47,10 @@ import { unitOf, formatStation, parseStation, fixed, pct, volumeText, areaText, 
 import { limitSelect, onUnitsChange } from './unit-prefs.js';   // 0.7 UNITS: Settings › General › Units
 import { buildProfile } from './profile.js';
 import { polyArea, pointInPoly } from './tin.js';
+import { METHODS as GRID_METHODS } from './gridding.js';   // 0.9 D9.6
 import { normAng } from './alignment.js';
 import { curveWhy, verticalWhy } from './solve-why.js';   // 0.5 WL.23
+import { snapTargets, nearestSnap, translate, rotate, bearingBetween, setTangent, copyOf } from './snap.js';   // 0.9 WB.10 + WB.15
 import { railProps } from './rail-ui.js';   // 0.7.1 71.26: railway alignments and tracks
 import { railSceneItems } from './rail.js';
 import { civilProblems, civilMarkers } from './problems-civilcraft.js';   // 0.7.1 → 0.8: the shell's Problems (docs/0.8-PROBLEMS-SPEC.md)
@@ -78,6 +80,7 @@ import { cleanSides, wallSceneItems } from './sides.js';
 import { createPowerlines } from './powerline/powerline-ui.js';   // 0.7 PL: the Power lines workspace (docs/0.7-PART8.md)
 import { riverProblems } from './problems-river.js';   // 0.8 SU.957: river warnings as Problems
 import { createPlatform } from './platform-ui.js';   // 0.8 SU.914: cut and fill map, free sections, ramps
+import { createTemplates } from './templates-ui.js';   // 0.9 SU.1110 + WB.6: corridor templates, several corridors, terrain templates (session civil-templates-09)
 import { createGround } from './ground-ui.js';   // 0.8 SU.911/935: ground from contours / a point cloud (session civil-08)
 import { waterProblems } from './problems-water.js';   // 0.8 LC.16: the water mains' warnings as shared Problems
 import { waterTools } from './water-agent.js';
@@ -113,6 +116,8 @@ import { mountUndoHook } from './undo-hook.js';   // 0.8 EG.77: tells Studio eac
 import { measure } from './measure.js';   // 0.7 PL.10: the Measure tool
 
 const root = document.querySelector('[data-civilcraft]');
+// root plus any toolbar torn off into its own window (app-toolbar-tear.js), so pressed and greyed-out states reach it (0.9 fix 2026-11-02)
+const tearAll = (s) => (window.ccToolbarTear?.all ? window.ccToolbarTear.all(root, s) : [...root.querySelectorAll(s)]);
 if (root) init(root);
 // Touch screens (0.4 S.8): the first touch marks the app, so CSS gives bigger targets and the draft bar shows
 if (root) root.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') root.classList.add('is-touch'); }, { capture: true, passive: true });
@@ -123,7 +128,7 @@ function init(root) {
     base: $('[data-base]'), over: $('[data-over]'), plan: $('[data-plan]'), hint: $('[data-hint]'), drop: $('[data-drop]'), busy: $('[data-busy]'), busyText: $('[data-busy-text]'),
     toolhint: $('[data-toolhint]'), file: $('[data-file]'), name: $('[data-name]'), units: $('[data-units]'),
     pointsEmpty: $('[data-points-empty]'), pointsInfo: $('[data-points-info]'), groups: $('[data-groups]'),
-    surfaceH: $('[data-surface-h]'), surfaceInfo: $('[data-surface-info]'), surfaceReport: $('[data-surface-report]'), maxEdge: $('[data-maxedge]'), surfaceActions: $('[data-surface-actions]'),
+    surfaceH: $('[data-surface-h]'), surfaceInfo: $('[data-surface-info]'), surfaceReport: $('[data-surface-report]'), maxEdge: $('[data-maxedge]'), gridMethod: $('[data-grid-method]'), gridStep: $('[data-grid-step]'), gridPower: $('[data-grid-power]'), surfaceActions: $('[data-surface-actions]'),
     showSurface: $('[data-show-surface]'), interval: $('[data-interval]'), major: $('[data-major]'), bandCount: $('[data-bandcount]'), checks: $('[data-checks]'), legend: $('[data-legend]'),
     props: $('[data-props]'), propsH: $('[data-props-h]'),
     coords: $('[data-coords]'), elev: $('[data-elev]'), staoff: $('[data-staoff]'), status: $('[data-status]'),
@@ -138,6 +143,7 @@ function init(root) {
   project.state.units = newProjectUnits();   // 0.7 UNITS: the starred length unit, else feet
   let measClosed = false;   // 0.7 PL.10: the Measure tool closed its shape (the next click starts a new one)
   let tool = 'select', draft = [], sel = null, selPvi = -1, cursor = null, snapPt = null, hoverPt = null, profCursor = null;
+  let snapHit = null, pickJob = null;   // 0.9 WB.10: the vertex or point the pointer snaps to · a Pick button waiting for a plan click { label, cb }
   let drag = null, pvDrag = null, lastReport = null;
   let picked = new Set();         // selected survey points, by point number
   let pasteJob = null;            // { pts, anchor, label, from, note } while the Paste tool carries points
@@ -198,6 +204,8 @@ function init(root) {
   const moUi = createMassOptions({ root, el, project: () => project, units: () => units(), say: (m) => say(m), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), select: (x) => { sel = x; selPvi = -1; picked.clear(); refresh(); view.invalidate(); }, refresh: () => { refresh(); view.invalidateScene(); }, redraw: () => view.invalidate() });   // 0.8 EG.58
   const solarUi = createSolar({ root, el, project: () => project, units: () => units(), say: (m) => say(m), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), redraw: () => view.invalidate(), refresh: () => { refresh(); view.invalidateScene(); egSrc?.invalidate(); } });   // 0.8 EG.15
   const gdUi = createGround({ root, el, project: () => project, say: (m) => say(m) });   // 0.8 SU.911
+  const tpUi = createTemplates({ root, el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), say: (m) => say(m), refresh: () => refresh(),   // 0.9 SU.1110 + WB.6
+    download: (...x) => download(...x), fileStem: () => fileStem(), showProject: () => { sel = null; selPvi = -1; picked.clear(); refresh(); } });
   let draftClosed = false;   // 0.4 V14: the Feature line tool closed its line on the first vertex
   // 0.6 WL.24: arcs in the Feature line tool — C (or the touch bar's Arc) turns arc mode on/off; in it, after a vertex the
   // next click is a point on the curve (flMid), the click after that ends the arc (the earlier vertex gets its bulge)
@@ -223,6 +231,7 @@ function init(root) {
     get sections() { return secUi; },   // 0.4 V13
     get landscape() { return lsUi; },   // 0.7 LD
     get powerlines() { return plUi; },   // 0.7 PL
+    get templates() { return tpUi; },   // 0.9 SU.1110 + WB.6 (tests)
     get rivers() { return rvUi; }, get platform() { return pfUi; }, get water() { return wmUi; },   // 0.8 SU.957 / SU.914 / LC.16 (tests)
     get sheets() { return ppUi; },   // 0.4 V15
     say: (m) => say(m),   // Studio Live (0.5 LV.22, live.js): its messages
@@ -242,7 +251,7 @@ function init(root) {
     // props: [(sel, box, head) => bool] (Properties for a GIS selection) · overlay: [(ctx, view, sel) => void] ·
     // exportExtra: [(container, host) => void] (sections in GIS › Export) · pointsLatLon / landxmlCrs (gis-vector-ui.js)
     pick: [], props: [], overlay: [], exportExtra: [], pointsLatLon: null, landxmlCrs: null };
-  const GIS_CMDS = new Set(['crs', 'gis-import', 'gis-export', 'basemap', 'cad-open', 'scan-start']);   // cad-open: 0.4 V1 (gis-cad-ui.js); scan-start: Super 0.1 (scan-start-ui.js)
+  const GIS_CMDS = new Set(['crs', 'gis-import', 'gis-export', 'basemap', 'cad-open', 'scan-start', 'gis-analysis', 'gis-table']);   // gis-analysis: 0.9 SU.1080 (gis-analysis-ui.js); cad-open: 0.4 V1 (gis-cad-ui.js); scan-start: Super 0.1 (scan-start-ui.js)
   const GIS_EXT = /\.(shp|shx|dbf|prj|cpg|zip|geojson|gpkg|kml|kmz|tif|tiff|asc|las|laz|jgw|pgw|tfw|wld|pngw|jpgw|png|jpe?g|dwg|dxf|pdf)$/i;   // pdf: Super 0.1, a scanned sheet (scan-start-ui.js)   // 0.4 V1: dwg|dxf → gis-cad-ui.js   // GIS: pictures + world files (map layers)
   let gisReady = null;
   function gisLoad() {
@@ -395,6 +404,7 @@ function init(root) {
     scene.items.push(...plUi.sceneItems(1 / mm));   // 0.7 PL: lines, supports, routes, equipment (C-POWR-* layers)
     scene.items.push(...pcUi.sceneItems(mm));   // 0.4 V21 parcels, their courses and areas
     scene.items.push(...msUi.sceneItems(mm));   // 0.7 LC.1 masses: outline, name, floors and GFA (A-MASS)
+    scene.items.push(...tpUi.sceneItems());   // 0.9 WB.6: terrain templates' shapes (C-TOPO-TMPL)
     if (d.points) scene.items.push(...codesUi.sceneItems());   // 0.4 V16 lines from line codes (groups that are not breaklines)
     for (const it of gr.items || []) {   // 0.4 V14: a daylighted feature line's slopes, as a pad's
       if (it.kind !== 'feature' || !it.daylight?.length) continue;
@@ -508,7 +518,7 @@ function init(root) {
       if (!P) return;
       const src = P.source({
         id: 'civilcraft.design', kind: 'check', label: t('problems.src.design'),
-        run: () => civilProblems({ alignments: project.state.alignments, standIn: eg().surface ? [] : project.standInCorridors(), graded: eg().surface ? (project.graded().items || []) : [], rail: project.railWarnings(), native: nativeWarnings() }, { t, unit: u().short }),   // native: 71.27 (the IFC pair)   // graded: 71.22 walls and slopes; rail: 71.26
+        run: () => civilProblems({ alignments: project.state.alignments, standIn: eg().surface ? [] : project.standInCorridors(), graded: eg().surface ? (project.graded().items || []) : [], rail: project.railWarnings(), native: nativeWarnings(), templates: project.templateWarnings() }, { t, unit: u().short }),   // templates: 0.9 SU.1110 + WB.6   // native: 71.27 (the IFC pair)   // graded: 71.22 walls and slopes; rail: 71.26
         fix: (p, f) => {
           if (f.action === 'ifcSave' || f.action === 'ifcTake') { nativeUi().then((n) => n?.fix(f.action)); return true; }   // 0.7.1 71.27
           const a = findAl(p.about[0]?.id);
@@ -605,7 +615,7 @@ function init(root) {
     const hasWork = hasData || project.state.pads.length || (project.state.features || []).length || (project.state.masses || []).length
       || !!project.state.water?.nodes.length   // 0.8 LC.16
       || !!(ls && (ls.plants.length || ls.beds.length || ls.hedges.length || ls.hardscape?.length || ls.grading?.length || ls.freeform?.length));
-    for (const b of root.querySelectorAll('[data-cmd]')) {
+    for (const b of tearAll('[data-cmd]')) {
       const c = b.dataset.cmd;
       // nothing to save, export, fit or clear yet: greyed out (the Edit buttons below say why in their title)
       if (c === 'new') b.disabled = !hasWork && !project.dirty;
@@ -672,6 +682,14 @@ function init(root) {
     ui.surfaceReport.replaceChildren(notes.length ? el('div', { className: 'cv-report' + (r.report?.errors?.length ? ' is-error' : '') }, el('ul', {}, ...notes.map((n) => el('li', {}, n)))) : '');
     if (ui.maxEdge.ownerDocument.activeElement !== ui.maxEdge) ui.maxEdge.value = s.surface.maxEdge || 0;
     ui.maxEdge.disabled = !!s.surface.tin;
+    // 0.9 D9.6: the contouring method (a grid built from the points) — not for a surface that came as a TIN
+    if (!ui.gridMethod.options.length) ui.gridMethod.append(...['tin', ...GRID_METHODS.map((m) => m.key)].map((k) => el('option', { value: k }, t('cv.grid.m.' + k))));
+    ui.gridMethod.value = s.surface.method || 'tin';
+    ui.gridMethod.disabled = ui.gridStep.disabled = ui.gridPower.disabled = !!s.surface.tin;
+    if (ui.gridStep.ownerDocument.activeElement !== ui.gridStep) ui.gridStep.value = s.surface.gridStep || 0;
+    if (ui.gridPower.ownerDocument.activeElement !== ui.gridPower) ui.gridPower.value = s.surface.gridPower || (s.surface.method === 'polyreg' ? 1 : 2);
+    ui.gridStep.disabled ||= !s.surface.method || s.surface.method === 'tin';
+    ui.gridPower.disabled ||= !['idw', 'polyreg'].includes(s.surface.method);
     const acts = [];
     if (s.surface.boundary) acts.push(el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => project.change(t('cv.undo.boundary.remove'), (st) => { st.surface.boundary = null; }) }, t('cv.sf.boundary.remove')));
     if (s.surface.breaklines.length) acts.push(el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => project.change(t('cv.undo.breaklines.remove'), (st) => { st.surface.breaklines = []; }) }, t('cv.sf.breaklines.remove', { n: s.surface.breaklines.length })));
@@ -692,7 +710,11 @@ function init(root) {
   }
 
   // ------------------------------------------------------------------ properties panel
-  function renderProps() {
+  // Auto-focus panel (Settings › Global): the Properties panel's groups (each h3 and what follows it) fold; redrawn content is folded again
+  let afProps = null;
+  function renderProps() { renderPropsBody(); if (!afProps && window.ccAutoFocus) afProps = window.ccAutoFocus.register({ id: 'civil-props', panel: ui.props, mode: 'flat', heading: 'h3.cv-h3' }); afProps?.refresh(); }
+  window.addEventListener('load', () => renderProps());   // the engine (app-settings.js) may load after this module: once the page has loaded the Properties panel folds
+  function renderPropsBody() {
     const p = ui.props;
     // never rebuild under the user's typing; a checkbox is not typing
     const focused = p.ownerDocument.activeElement;
@@ -704,9 +726,9 @@ function init(root) {
     if (plUi.isMine(sel)) { if (plUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.7 PL: a line, support, route, equipment, obstacle
     if (rvUi.isMine(sel)) { if (rvUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.8 SU.957: a river
     if (wmUi.isMine(sel)) { if (wmUi.props(sel, ui.props, ui.propsH)) return; sel = null; }   // 0.8 LC.16: a water node or pipe
-    if (sel?.kind === 'feature') { const f = flUi.find(sel.id); if (f) { ui.propsH.textContent = t('fl.props.head'); ui.props.replaceChildren(...flUi.props(f), el('div', { className: 'cv-actions' }, swUi.button('feature', f.id))); const lb = lsUi.linkBlock(sel); if (lb) ui.props.append(lb); return; } sel = null; }   // 0.8 LA.2 outputs: a feature line made from a line says what it follows   // 0.4 V14; 0.6 WL.28
+    if (sel?.kind === 'feature') { const f = flUi.find(sel.id); if (f) { ui.propsH.textContent = t('fl.props.head'); ui.props.replaceChildren(...flUi.props(f), transformBlock('feature', f.id), el('div', { className: 'cv-actions' }, swUi.button('feature', f.id))); const lb = lsUi.linkBlock(sel); if (lb) ui.props.append(lb); return; } sel = null; }   // 0.8 LA.2 outputs: a feature line made from a line says what it follows   // 0.4 V14; 0.6 WL.28
     if (sel?.kind === 'swept') { const w = swUi.find(sel.id); if (w) { ui.propsH.textContent = t('sw.head'); ui.props.replaceChildren(...swUi.props(w)); return; } sel = null; }   // 0.6 WL.28
-    if (sel?.kind === 'parcel') { const pc = pcUi.find(sel.id); if (pc) { ui.propsH.textContent = t('pc.props.head'); ui.props.replaceChildren(...pcUi.props(pc), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.4 V21
+    if (sel?.kind === 'parcel') { const pc = pcUi.find(sel.id); if (pc) { ui.propsH.textContent = t('pc.props.head'); ui.props.replaceChildren(...pcUi.props(pc), cornersBlock('parcel', pc.id), transformBlock('parcel', pc.id), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.4 V21
     if (sel?.kind === 'mass') { const ms = msUi.find(sel.id); if (ms) { ui.propsH.textContent = t('ms.props.head'); ui.props.replaceChildren(...msUi.props(ms), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.7 LC.1
     if (sel?.kind === 'catchment') { if (drUi.find(sel.id)) { ui.propsH.textContent = t('dr.c.head'); ui.props.replaceChildren(...drUi.props(drUi.find(sel.id)), el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')))); return; } sel = null; }   // 0.4 V19
     if (sel && !a && !pd && !st && !pp) sel = null;
@@ -783,7 +805,8 @@ function init(root) {
       out.push(el('h3', { className: 'cv-h3' }, t('cv.props.pads')));
       out.push(el('ul', { className: 'cv-plainlist' }, ...s.pads.map((d) => el('li', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { sel = { kind: 'pad', id: d.id }; refresh(); } }, d.name), ' · ', t('cv.pad.el', { z: fixed(Number(d.z), 2) })))));
     }
-    if (s.pads.length || s.alignments.some((a) => a.corridor?.on)) out.push(volumeBlock());
+    if (s.pads.length || s.alignments.some((a) => a.corridor?.on || (a.corridors || []).some((c) => c.on)) || (s.terrainTemplates || []).length) out.push(volumeBlock());
+    out.push(...tpUi.terrainBlock());   // 0.9 WB.6: terrain templates
     out.push(...pcUi.block());   // 0.4 V21
     out.push(...msUi.block());   // 0.7 LC.1
     out.push(...rvUi.block());   // 0.8 SU.957
@@ -800,7 +823,7 @@ function init(root) {
     const wrap = el('div', {}, el('h3', { className: 'cv-h3' }, t('cv.ew.head')));
     const probs = (g.report?.items || []).flatMap((p) => p.problems.map((x) => t('cv.ew.problem', { name: p.name || t('cv.pad'), problem: x })));
     if (probs.length) wrap.append(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((x) => el('li', {}, x)))));
-    if (!v) { wrap.append(el('p', { className: 'cv-note' }, t('cv.ew.none'))); return wrap; }
+    if (!v) { wrap.append(el('p', { className: 'cv-note' }, t('cv.ew.none')), ...tpUi.materialsBlock()); if (project.materials().length) wrap.append(qtyButton()); return wrap; }
     const net = v.fill - v.cut;
     wrap.append(el('dl', { className: 'cv-vol' },
       el('dt', {}, t('cv.ew.cut')), el('dd', { 'data-vol-cut': '' }, volumeText(v.cut, s.units)),
@@ -808,12 +831,14 @@ function init(root) {
       el('dt', {}, t('cv.ew.net')), el('dd', {}, Math.abs(net) < 1e-9 ? volumeText(Math.abs(net), s.units) : t(net > 0 ? 'cv.ew.net.fill' : 'cv.ew.net.cut', { v: volumeText(Math.abs(net), s.units) }))));
     if (v.items?.length > 1) wrap.append(el('ul', { className: 'cv-plainlist cv-note' }, ...v.items.map((it) => el('li', {}, t('cv.ew.item', { name: it.name, cut: volumeText(it.cut, s.units), fill: volumeText(it.fill, s.units) })))));
     wrap.append(el('p', { className: 'cv-note' }, t('cv.ew.grid', { n: v.cells, cells: num(v.cells), cell: fixed(v.cell, 3).replace(/\.?0+$/, ''), u: u().short })));
-    wrap.append(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'cv-linkbtn', dataset: { qtySend: '' }, title: t('cv.qty.send.title'), onclick: sendEarthwork }, el('i', { className: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' }), ' ', t('cv.qty.send'))));
+    wrap.append(...tpUi.materialsBlock());   // 0.9 SU.1110 + WB.6: what the templates place
+    wrap.append(qtyButton());
     return wrap;
   }
+  function qtyButton() { return el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'cv-linkbtn', dataset: { qtySend: '' }, title: t('cv.qty.send.title'), onclick: sendEarthwork }, el('i', { className: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' }), ' ', t('cv.qty.send'))); }
   /** TK.5+: cut and fill as a quantities file TakeoffCraft opens (File › Open takeoff, or a drop) as typed quantities. */
   function sendEarthwork() {
-    const r = earthworkFile({ name: project.state.name, units: project.state.units, volumes: project.volumes() });
+    const r = earthworkFile({ name: project.state.name, units: project.state.units, volumes: project.volumes(), materials: project.materials().map((m) => ({ ...m, name: tpUi.label(m.name), material: tpUi.label(m.material) })) });   // materials: 0.9 SU.1110 + WB.6
     if (!r.ok) { say(r.why); return; }
     const name = fileStem() + QTY_EXT;
     download(JSON.stringify(r.json, null, 1), name, 'application/json');
@@ -871,13 +896,17 @@ function init(root) {
       tbody.append(el('tr', {},
         el('td', {}, String(i + 1)),
         el('td', {}, numInput(fixed(p.x, 2), setXY('x'), { label: t('cv.al.pi.e', { n: i + 1 }) })),
-        el('td', {}, numInput(fixed(p.y, 2), setXY('y'), { label: t('cv.al.pi.n', { n: i + 1 }) })),
-        el('td', {}, end ? '—' : numInput(p.r || 0, (v) => { const r = Number(v); if (!(r >= 0)) return false; project.change(t('cv.al.pi.r', { n: i + 1 }), () => { findAl(a.id).pis[i].r = r; }); }, { label: t('cv.al.pi.r', { n: i + 1 }), min: 0 })),
-        ...[['ls1', 'cv.al.pi.ls1'], ['ls2', 'cv.al.pi.ls2']].map(([k, key]) => el('td', {}, end || !(p.r > 0) ? '—' : numInput(p[k] || 0, (v) => { const x = Number(v); if (!(x >= 0)) return false; project.change(t('cv.undo.pi.ls'), () => { const q = findAl(a.id).pis[i]; if (x > 0) q[k] = x; else delete q[k]; }); }, { label: t(key, { n: i + 1 }), min: 0, id: 'cv-pi' + (i + 1) + '-' + k }))),   // 0.7 D7.35
+        el('td', {}, el('div', { className: 'cv-row' }, numInput(fixed(p.y, 2), setXY('y'), { label: t('cv.al.pi.n', { n: i + 1 }) }),   // 0.9 WB.15: pick the place in the plan
+          pickBtn(t('cv.pick.pi', { n: i + 1 }), (pt) => project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { const q = findAl(a.id).pis[i]; q.x = pt.x; q.y = pt.y; })))),
+        el('td', end ? { className: 'cv-dash' } : {}, end ? '—' : numInput(p.r || 0, (v) => { const r = Number(v); if (!(r >= 0)) return false; project.change(t('cv.al.pi.r', { n: i + 1 }), () => { findAl(a.id).pis[i].r = r; }); }, { label: t('cv.al.pi.r', { n: i + 1 }), min: 0 })),
+        ...[['ls1', 'cv.al.pi.ls1'], ['ls2', 'cv.al.pi.ls2']].map(([k, key]) => el('td', end || !(p.r > 0) ? { className: 'cv-dash' } : {}, end || !(p.r > 0) ? '—' : numInput(p[k] || 0, (v) => { const x = Number(v); if (!(x >= 0)) return false; project.change(t('cv.undo.pi.ls'), () => { const q = findAl(a.id).pis[i]; if (x > 0) q[k] = x; else delete q[k]; }); }, { label: t(key, { n: i + 1 }), min: 0, id: 'cv-pi' + (i + 1) + '-' + k }))),   // 0.7 D7.35
         el('td', {}, a.pis.length > 2 ? el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.al.pi.remove', { n: i + 1 }), title: t('cv.al.pi.remove.title'), onclick: () => project.change(t('cv.undo.pi.remove'), () => { findAl(a.id).pis.splice(i, 1); }) }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })) : '')));
     });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' },
-      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, '#'), el('th', { scope: 'col' }, t('pt.props.easting')), el('th', { scope: 'col' }, t('pt.props.northing')), el('th', { scope: 'col' }, t('se.c.r')), el('th', { scope: 'col' }, t('cv.al.col.ls1')), el('th', { scope: 'col' }, t('cv.al.col.ls2')), el('th', {}, el('span', { className: 'visually-hidden' }, t('sec.props.remove'))))), tbody)));
+      el('thead', {},
+        el('tr', {}, ...[['#', '#'], [t('pt.props.easting')], [t('pt.props.northing')], [t('se.c.r')]].map(([x]) => el('th', { scope: 'col', rowSpan: 2 }, x)), el('th', { scope: 'colgroup', colSpan: 2, className: 'cv-th-group' }, t('cv.al.col.spiral')), el('th', { rowSpan: 2 }, el('span', { className: 'visually-hidden' }, t('sec.props.remove')))),
+        el('tr', {}, el('th', { scope: 'col' }, t('cv.al.col.in')), el('th', { scope: 'col' }, t('cv.al.col.out')))), tbody)));
+    out.push(tangentBlock(a), transformBlock('alignment', a.id));   // 0.9 WB.15 / WB.10
     // curves
     const cvs = al.ok ? al.curves : [];
     if (cvs.length) {
@@ -900,6 +929,7 @@ function init(root) {
     out.push(el('h3', { className: 'cv-h3' }, t('cv.prof.head')));
     if (al.ok) out.push(...profileProps(a, al));
     if (al.ok) out.push(...corridorProps(a));
+    if (al.ok && !a.rail?.on) out.push(...tpUi.moreCorridors(a, eg().surface ? graded() : { items: project.standInCorridors() }));   // 0.9 SU.1110: more corridors on this alignment
     if (al.ok) out.push(...secUi.props(a));   // 0.4 V13 sample lines
     out.push(el('div', { className: 'cv-actions' },
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => showProfile(true, a.id) }, el('i', { className: 'bi bi-graph-up', 'aria-hidden': 'true' }), ' ', t('cv.prof.view')),
@@ -967,7 +997,7 @@ function init(root) {
         el('td', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { selPvi = i; renderProfile(); renderProps(); } }, String(i + 1))),
         el('td', {}, numInput(formatStation(v.sta, units()), (x) => { const s = parseStation(x, units()); if (s === null) return false; project.change(t('cv.undo.pvi.sta'), () => { const p = findAl(a.id).pvis; p[i].sta = s; p.sort((m, n) => m.sta - n.sta); }); }, { text: true, station: true, label: t('cv.pvi.sta.of', { n: i + 1 }) })),
         el('td', {}, numInput(fixed(v.z, 2), (x) => { const z = Number(x); if (!Number.isFinite(z) || x === '') return false; project.change(t('cv.undo.pvi.z'), () => { findAl(a.id).pvis[i].z = z; }); }, { label: t('cv.pvi.z.of', { n: i + 1 }) })),
-        el('td', {}, interior ? numInput(v.L || 0, (x) => { const L = Number(x); if (!(L >= 0)) return false; project.change(t('cv.undo.pvi.l'), () => { findAl(a.id).pvis[i].L = L; }); }, { label: t('cv.pvi.l.of', { n: i + 1 }), min: 0 }) : '—'),
+        el('td', interior ? {} : { className: 'cv-dash' }, interior ? numInput(v.L || 0, (x) => { const L = Number(x); if (!(L >= 0)) return false; project.change(t('cv.undo.pvi.l'), () => { findAl(a.id).pvis[i].L = L; }); }, { label: t('cv.pvi.l.of', { n: i + 1 }), min: 0 }) : '—'),
         el('td', {}, el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.pvi.remove.of', { n: i + 1 }), onclick: () => { project.change(t('cv.undo.pvi.remove'), () => { findAl(a.id).pvis.splice(i, 1); }); selPvi = -1; } }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })))));
     });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-pvi-table': '' },
@@ -994,16 +1024,18 @@ function init(root) {
     if (!a.corridor?.on) { out.push(el('p', { className: 'cv-note' }, t('cv.co.off.note'))); return out; }
     const field = (k, label, undo, scale, unit, id) => [el('label', { for: id }, label), el('div', { className: 'cv-row' }, numInput(fixed(c[k] * scale, 2), (v) => { const x = Number(v); if (!(x >= 0) || v === '' || ((k === 'cut' || k === 'fill' || k === 'step') && !(x > 0))) return false; project.change(undo, () => { findAl(a.id).corridor[k] = x / scale; }); }, { id, min: 0 }), el('span', { className: 'cv-unit' }, unit))];
     const railTrack = !!a.rail?.on;   // 0.7.1 71.26: a track (Railway block above): only the side slopes and the section step here
-    const custom = !!a.corridor?.parts || railTrack;   // 0.7 D7.35: built from parts, left and right
+    const tplMode = !railTrack && !!a.corridor?.regions;   // 0.9 SU.1110: built from templates by station (the side slopes = the daylight when no end condition meets the ground)
+    const custom = !!a.corridor?.parts || railTrack || tplMode;   // 0.7 D7.35: built from parts, left and right
     out.push(el('div', { className: 'cv-props' },
-      ...(railTrack ? [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')] : []),
+      ...(railTrack || tplMode ? [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')] : []),
       ...(custom ? [] : [...field('lane', t('cv.co.lane'), t('cv.undo.co.lane'), 1, U.short, 'cv-co-lane'), ...field('laneSlope', t('cv.co.ls'), t('cv.undo.co.ls'), 100, '%', 'cv-co-ls'),
         ...field('shoulder', t('cv.co.sh'), t('cv.undo.co.sh'), 1, U.short, 'cv-co-sh'), ...field('shoulderSlope', t('cv.co.ss'), t('cv.undo.co.ss'), 100, '%', 'cv-co-ss')]),
       ...(custom ? [] : [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')]),
       ...field('step', t('cv.co.step'), t('cv.undo.co.step'), 1, U.short, 'cv-co-step')));
     if (railTrack) out.push(el('p', { className: 'cv-note', 'data-rail-co-note': '' }, t('rail.co.note')));
+    else if (tplMode) { /* 0.9 SU.1110: the templates block below replaces the assembly editor */ }
     else out.push(...assemblyProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), say: (m) => say(m) }, a));   // 0.7 D7.35
-    if (!railTrack) out.push(el('p', { className: 'cv-note' }, t('co.note')));   // 0.4 V18: superelevation is available now
+    if (!railTrack && !tplMode) out.push(el('p', { className: 'cv-note' }, t('co.note')));   // 0.4 V18: superelevation is available now
     // 0.7.1 71.19: no existing ground → the corridor built on flat stand-in ground, with its warning (project.standInCorridors)
     const standIn = eg().surface ? null : project.standInCorridors().find((x) => x.id === a.id);
     for (const w of standIn?.warnings || []) out.push(el('div', { className: 'cv-report', 'data-corridor-warning': w.code }, el('p', {}, w.text)));
@@ -1016,6 +1048,8 @@ function init(root) {
       out.push(el('p', { className: 'cv-note', 'data-corridor-facts': '' }, vi ? t('cv.co.facts.vol', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()), cut: volumeText(vi.cut, units()), fill: volumeText(vi.fill, units()) }) : t('cv.co.facts', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()) })));
     }
     if (railTrack) return out;   // 0.7.1 71.26: no targets or superelevation on a track (its cant is in the Railway block)
+    out.push(...tpUi.corridorBlock(a, a.corridor, a.id, it));   // 0.9 SU.1110: templates by station, left and right apart
+    if (tplMode) { out.push(el('p', { className: 'cv-note', 'data-tpl-mode-note': '' }, t('tpl.co.mode.note'))); return out; }
     out.push(...targetProps({ el, project: () => project, say: (m) => say(m) }, a, it));   // 0.6 WL.25
     out.push(...superProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, it));   // 0.4 V18
     return out;
@@ -1029,6 +1063,85 @@ function init(root) {
     project.change(t('cv.undo.prof.start'), () => { findAl(a.id).pvis = [{ sta: z0.sta, z: Number(z0.z.toFixed(2)), L: 0 }, { sta: z1.sta, z: Number(z1.z.toFixed(2)), L: 0 }]; });
     showProfile(true, a.id);
     say(t('cv.prof.started'));
+  }
+
+  // ---- 0.9 WB.10 + WB.15 (a visitor's CivilCraft request): typed and picked coordinates, a tangent from two points, move / copy / rotate ----
+  /** Easting / northing boxes for each vertex of a pad, parcel or feature line, each with a Pick button (snaps like the drawing tools). */
+  function cornersBlock(kind, id) {
+    const get = () => (kind === 'pad' ? project.state.pads : kind === 'parcel' ? project.state.parcels || [] : project.state.features || []).find((x) => x.id === id);
+    const o = get();
+    if (!o) return el('span');
+    const move = (i, x, y) => project.change(t('cv.undo.corner.move', { n: i + 1 }), () => { const q = get()?.pts[i]; if (q) { q.x = x; q.y = y; } });
+    const num = (v) => { const x = Number(v); return v !== '' && Number.isFinite(x) ? x : null; };
+    return el('div', { 'data-cv-corners': kind }, el('h3', { className: 'cv-h3' }, t('cv.corners.head')),
+      el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' },
+        el('thead', {}, el('tr', {}, ...['#', t('pt.props.easting'), t('pt.props.northing')].map((h) => el('th', { scope: 'col' }, h)))),
+        el('tbody', {}, ...o.pts.map((q, i) => el('tr', {},
+          el('td', {}, String(i + 1)),
+          el('td', {}, numInput(fixed(q.x, 2), (v) => { const x = num(v); if (x === null) return false; move(i, x, get().pts[i].y); }, { label: t('cv.corner.e', { n: i + 1 }) })),
+          el('td', {}, el('div', { className: 'cv-row' },
+            numInput(fixed(q.y, 2), (v) => { const y = num(v); if (y === null) return false; move(i, get().pts[i].x, y); }, { label: t('cv.corner.n', { n: i + 1 }) }),
+            pickBtn(t('cv.pick.corner', { n: i + 1 }), (pt) => move(i, pt.x, pt.y))))))))),
+      el('p', { className: 'cv-note' }, t('cv.corners.note')));
+  }
+
+  /** A tangent's direction from two picked points: PI k+1 turns about PI k to that direction, the tangent keeps its length. */
+  function tangentBlock(a) {
+    if (a.pis.length < 2) return el('span');
+    const which = el('select', { className: 'cv-select', id: 'cv-tan-k', 'aria-label': t('cv.tan.which'), style: 'width:auto' }, ...a.pis.slice(1).map((_, k) => el('option', { value: String(k) }, t('cv.tan.n', { n: k + 1 }))));
+    const status = el('p', { className: 'cv-note', 'data-cv-tan-status': '' }, t('cv.tan.note'));
+    let A = null, B = null;
+    const show = () => { status.textContent = A && B ? t('cv.tan.ready', { b: bearing(bearingBetween(A, B)) }) : A ? t('cv.tan.have.a') : t('cv.tan.note'); };
+    const apply = el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tan-apply': '', onclick: () => {
+      if (!A || !B || !(Math.hypot(B.x - A.x, B.y - A.y) > 1e-9)) { say(t('cv.tan.need')); return; }
+      const k = Number(which.value), cur = findAl(a.id)?.pis;
+      if (!cur || !(Math.hypot(cur[k + 1].x - cur[k].x, cur[k + 1].y - cur[k].y) > 1e-9)) { say(t('cv.tan.fail')); return; }
+      const dir = bearingBetween(A, B);
+      project.change(t('cv.undo.tan', { n: k + 1 }), () => setTangent(findAl(a.id).pis, k, dir));
+      say(t('cv.tan.done', { n: k + 1, b: bearing(dir) }));
+    } }, t('cv.tan.apply'));
+    return el('div', { 'data-cv-tangent': '' }, el('h3', { className: 'cv-h3' }, t('cv.tan.head')),
+      el('div', { className: 'cv-row' }, which,
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tan-a': '', onclick: () => armPick(t('cv.tan.first'), (pt) => { A = pt; show(); }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.tan.first')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tan-b': '', onclick: () => armPick(t('cv.tan.second'), (pt) => { B = pt; show(); }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.tan.second')),
+        apply), status);
+  }
+
+  /** Move, copy and rotate the selected alignment, pad, parcel or feature line (a typed distance, or two picked points). */
+  function transformBlock(kind, id) {
+    const LIST = { alignment: 'alignments', pad: 'pads', parcel: 'parcels', feature: 'features' }[kind], PFX = { alignment: 'a', pad: 'p', parcel: 'r', feature: 'f' }[kind];
+    const get = () => (project.state[LIST] || []).find((x) => x.id === id);
+    const verts = (o) => o.pis || o.pts;
+    if (!get()) return el('span');
+    const dx = numInput('0', () => true, { label: t('cv.tx.dx'), id: 'cv-tx-dx', width: '6rem' }), dy = numInput('0', () => true, { label: t('cv.tx.dy'), id: 'cv-tx-dy', width: '6rem' });
+    const ang = numInput('0', () => true, { label: t('cv.tx.angle'), id: 'cv-tx-ang', width: '6rem', calc: false });
+    let from = null, about = null;
+    const aboutTxt = el('span', { className: 'cv-note', 'data-cv-tx-about': '' }, t('cv.tx.about.centre'));
+    const val = (inp) => { const x = Number(inp.value); return Number.isFinite(x) ? x : null; };
+    const centre = (o) => { const v = verts(o); return { x: v.reduce((m, q) => m + q.x, 0) / v.length, y: v.reduce((m, q) => m + q.y, 0) / v.length }; };
+    const apply = (copy, how) => {
+      const o = get(); if (!o) return;
+      let mx = 0, my = 0, a = 0, c = null;
+      if (how === 'move') { const x = val(dx), y = val(dy); if (x === null || y === null) { say(t('cv.tx.bad')); return; } mx = x; my = y; }
+      else { const d = val(ang); if (d === null) { say(t('cv.tx.bad')); return; } a = (d * Math.PI) / 180; c = about || centre(o); }
+      const run = (list) => { const t0 = list.find((x) => x.id === id); const tgt = copy ? copyOf(t0, project.nextId(PFX), t('cv.tx.copy.name', { name: t0.name }).slice(0, 120), 0, 0) : t0; if (how === 'move') translate(verts(tgt), mx, my); else rotate(verts(tgt), c.x, c.y, a); if (copy) { list.push(tgt); return tgt.id; } return null; };
+      let nid = null;
+      project.change(t(copy ? 'cv.undo.tx.copy' : how === 'move' ? 'cv.undo.tx.move' : 'cv.undo.tx.rotate', { name: o.name }), (st) => { nid = run(st[LIST]); });
+      if (nid) { picked.clear(); sel = { kind, id: nid }; selPvi = -1; refresh(); }
+      say(t(copy ? 'cv.tx.copied' : how === 'move' ? 'cv.tx.moved' : 'cv.tx.rotated', { name: o.name }));
+    };
+    const btn = (key, fn, attr) => el('button', { type: 'button', className: 'btn-line btn-sm-cc', ...attr, onclick: fn }, t(key));
+    return el('div', { 'data-cv-transform': kind }, el('h3', { className: 'cv-h3' }, t('cv.tx.head')),
+      el('div', { className: 'cv-props' },
+        ...row(t('cv.tx.dx') + ' (' + u().short + ')', dx, 'cv-tx-dx'), ...row(t('cv.tx.dy') + ' (' + u().short + ')', dy, 'cv-tx-dy')),
+      el('div', { className: 'cv-row' },
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tx-from': '', onclick: () => armPick(t('cv.tx.from'), (pt) => { from = pt; say(t('cv.tx.from.done')); armPick(t('cv.tx.to'), (to) => { dx.value = String(Number((to.x - from.x).toFixed(6))); dy.value = String(Number((to.y - from.y).toFixed(6))); say(t('cv.tx.to.done')); }); }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.tx.pick.move')),
+        btn('cv.tx.move', () => apply(false, 'move'), { 'data-cv-tx-move': '' }), btn('cv.tx.copy', () => apply(true, 'move'), { 'data-cv-tx-copy': '' })),
+      el('div', { className: 'cv-props' }, ...row(t('cv.tx.angle') + ' (°)', ang, 'cv-tx-ang')),
+      el('div', { className: 'cv-row' },
+        pickBtn(t('cv.tx.about'), (pt) => { about = pt; aboutTxt.textContent = t('cv.tx.about.at', { e: fixed(pt.x, 2), n: fixed(pt.y, 2) }); }), aboutTxt),
+      el('div', { className: 'cv-row' }, btn('cv.tx.rotate', () => apply(false, 'rotate'), { 'data-cv-tx-rotate': '' }), btn('cv.tx.rotcopy', () => apply(true, 'rotate'), { 'data-cv-tx-rotcopy': '' })),
+      el('p', { className: 'cv-note' }, t('cv.tx.note')));
   }
 
   function padProps(d) {
@@ -1067,6 +1180,7 @@ function init(root) {
     // 0.7.1 71.22: each side its own slopes or a retaining wall, the walls' quantities and warnings
     out.push(...sidesBlock({ el, numInput: (...x) => numInput(...x), units: units(), n: d.pts.length, sides: d.sides, cut: Number(d.cut), fill: Number(d.fill), info: gp,
       change: (label, sides) => project.change(label, () => { const p = findPad(d.id); const c = cleanSides(sides, units(), p.pts.length); if (c) p.sides = c; else delete p.sides; }), idp: 'cv-pad-sd' }));
+    out.push(cornersBlock('pad', d.id), transformBlock('pad', d.id));   // 0.9 WB.10 / WB.15
     out.push(volumeBlock());
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
@@ -1420,6 +1534,7 @@ function init(root) {
         if (rvUi.command(c)) { refresh(); break; }   // 0.8 SU.957: river, river-xs, river-results
         if (pfUi.command(c)) { refresh(); break; }   // 0.8 SU.914: free-section, ramp
         if (gdUi.command(c)) break;   // 0.8 SU.911: ground-contours
+        if (tpUi.command(c)) break;   // 0.9 SU.1110 + WB.6: corridor-templates, terrain-templates
         if (msUi.command(c)) break;   // 0.7 LC.1: mass
         if (GIS_CMDS.has(c) || gisReg.commands.has(c)) { try { await gisLoad(); } catch { break; } await gisReg.commands.get(c)?.(); }
         break;
@@ -1709,7 +1824,7 @@ function init(root) {
     }
     if ((e.button !== 0 && panButton(e.button)) || spaceDown) { drag = { kind: 'pan', s, last: s, moved: true }; ui.over.classList.add('is-panning'); return; }   // IP.3: the style's pan buttons (middle and right unless changed)
     if (e.button !== 0) return;   // a middle or right button the style took off panning does nothing
-    if (tool === 'select') {
+    if (tool === 'select' && !pickJob) {   // 0.9 WB.15: a waiting Pick button takes the click, even on a grip
       const g = gripAt(s);
       if (g) { drag = { kind: 'grip', g, s, last: s, moved: false, orig: JSON.stringify(g.list[g.i]) }; return; }
       // 0.4 V2: the one selected survey point is a grip too — drag it to move it (one undo step on release)
@@ -1721,7 +1836,7 @@ function init(root) {
     }
     // Shift+drag in Select draws a box that adds the survey points inside it (a Shift+click still clicks); 0.4 W2.7: a drag
     // that bends away from a straight line becomes a lasso (lasso-core.js), Space while dragging: window → crossing → fence
-    drag = { kind: tool === 'select' && e.shiftKey && e.button === 0 ? 'maybe-box' : 'maybe', s, last: s, moved: false, w, shift: e.shiftKey, path: [s] };
+    drag = { kind: tool === 'select' && e.shiftKey && e.button === 0 ? 'maybe-box' : 'maybe', s, last: s, moved: false, w, shift: e.shiftKey, alt: e.altKey, path: [s] };
   });
   ui.over.addEventListener('pointermove', (e) => {
     const s = local(e);
@@ -1734,6 +1849,9 @@ function init(root) {
       pinch = { d, m }; return;
     }
     cursor = view.toWorld(s.x, s.y);
+    // 0.9 WB.10: drawing tools, a grip being dragged and a waiting Pick button snap to survey points and to the vertices of what is drawn (Alt = free)
+    snapHit = !e.altKey && (pickJob || (drag?.kind === 'grip' && drag.moved) || ['alignment', 'pad', 'parcel', 'mass', 'feature', 'measure', 'boundary', 'catchment'].includes(tool)) ? snapHere(s, drag?.kind === 'grip' ? drag.g.list[drag.g.i] : null) : null;
+    if (snapHit) cursor = { x: snapHit.x, y: snapHit.y };
     if (drag) {
       if (!drag.moved && Math.hypot(s.x - drag.s.x, s.y - drag.s.y) > slack(e)) { clearTimeout(longTimer); drag.moved = true; if (drag.kind === 'maybe') { drag.kind = 'pan'; ui.over.classList.add('is-panning'); } else if (drag.kind === 'maybe-box') drag.kind = 'box'; }
       if (drag.kind === 'pan' && drag.moved) { view.panBy(s.x - drag.last.x, s.y - drag.last.y); drag.last = s; }
@@ -1790,7 +1908,33 @@ function init(root) {
   (window.ccViews ||= []).push({ get el() { return is3D() ? planAway : ui.over; }, kind: '2d',
     pan: (dx, dy) => view.panBy(dx, dy), zoom: (f, x = view.w / 2, y = view.h / 2) => view.zoomAt(x, y, f), fit: () => fitAll() });
 
+  /** 0.9 WB.10: the closest vertex of anything drawn, or survey point, within 10 pixels of screen point s. */
+  function snapHere(s, skip = null) {
+    const v = nearestSnap(snapTargets(project.state, { skip }), (x, y) => view.toScreen(x, y), s, 10);
+    const p = nearestPoint(s, 10, false);
+    if (p && (!v || Math.hypot(view.toScreen(p.x, p.y).x - s.x, view.toScreen(p.x, p.y).y - s.y) < Math.hypot(view.toScreen(v.x, v.y).x - s.x, view.toScreen(v.x, v.y).y - s.y))) return { x: p.x, y: p.y, z: p.z, kind: 'point', label: String(p.n) };
+    return v;
+  }
+  /** 0.9 WB.15: a Pick button (next to an easting / northing) waits for one plan click; Esc cancels. */
+  function armPick(label, cb) {
+    if (is3D()) { say(t('cv.pick.plan')); return; }
+    pickJob = { label, cb };
+    ui.over.classList.add('is-picking');
+    say(t('cv.pick.armed', { what: label }));
+    view.invalidate();
+  }
+  function endPick() { pickJob = null; snapHit = null; ui.over.classList.remove('is-picking'); view.invalidate(); }
+  /** A small button that arms a pick: `onPick({x, y, z?})` gets the snapped place. */
+  const pickBtn = (what, onPick, extra = {}) => el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-pick', 'data-cv-pick': '', title: t('cv.pick.title', { what }), 'aria-label': t('cv.pick.title', { what }), onclick: () => armPick(what, onPick), ...extra }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }));
+
   function click(w, s, d = {}) {
+    if (pickJob) {   // 0.9 WB.15
+      const j = pickJob, h = d.alt ? null : snapHere(s);
+      endPick();
+      j.cb(h ? { x: h.x, y: h.y, z: h.z } : { x: w.x, y: w.y });
+      return;
+    }
+    if (!d.alt && ['alignment', 'pad', 'parcel', 'mass', 'feature', 'measure', 'boundary', 'catchment'].includes(tool)) { const h = snapHere(s); if (h) w = { x: h.x, y: h.y }; }   // 0.9 WB.10
     if (lsUi.ownsTool(tool) && lsUi.click(tool, w, s)) { view.invalidateScene(); view.invalidate(); return; }   // 0.7 LD: Plant places at once
     if (wmUi.ownsTool(tool) && wmUi.click(tool, w)) { view.invalidateScene(); view.invalidate(); return; }   // 0.8 LC.16: a node places at once; a link takes two clicks
     if (plUi.ownsTool(tool) && plUi.click(tool, w, s)) { view.invalidateScene(); view.invalidate(); return; }   // 0.7 PL: equipment and an added support place at once
@@ -2099,6 +2243,12 @@ function init(root) {
         ctx.fillText(fixed(L, 2) + ' ' + u().short + '  ' + bearing(Math.atan2(cursor.y - last.y, cursor.x - last.x)), q.x + 12, q.y - 8);
       }
     }
+    if (snapHit) {   // 0.9 WB.10: where the pointer will land
+      const q = S(snapHit);
+      ctx.strokeStyle = C.orange; ctx.lineWidth = 2; ctx.strokeRect(q.x - 6, q.y - 6, 12, 12);
+      ctx.font = '600 12px Helvetica, Arial, sans-serif'; ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'top';   // i18n-ignore: a CSS font stack
+      ctx.fillText(t('cv.snap.' + snapHit.kind, { n: snapHit.label || '' }) + '  ' + fixed(snapHit.x, 2) + ', ' + fixed(snapHit.y, 2), q.x + 10, q.y + 8);
+    }
   }
 
   // ------------------------------------------------------------------ status bar
@@ -2132,7 +2282,7 @@ function init(root) {
       return;
     }
     if (e.key === ' ' && !typing(e.target)) spaceDown = true;
-    if (root.querySelector('dialog[open]')) return;
+    if (root.querySelector('dialog[open]:not([data-gisa]):not([data-gist])')) return;   // the GIS analysis panel is not modal (0.9 SU.1080): keys still work beside it
     const k = e.key, ctrl = e.ctrlKey || e.metaKey;
     if (ctrl && !e.altKey && !typing(e.target) && k.toLowerCase() === 'v') { armClip('paste', e.shiftKey); return; }   // the paste event does the rest
     if (ctrl && !e.shiftKey && !e.altKey) {
@@ -2147,6 +2297,7 @@ function init(root) {
     }
     if (typing(e.target) || e.altKey) return;
     if (k === 'Escape') {
+      if (pickJob) { endPick(); say(t('cv.pick.cancelled')); return; }   // 0.9 WB.15
       if (drag?.kind === 'point') { drag.cancelled = true; view.invalidate(); say(t('pt.drag.cancel')); return; }   // 0.4 V2
       if (root.querySelector('details.cv-menu[open]')) { closeMenus(); return; }
       if (tool === 'paste') { setTool('select'); say(t('cv.paste.cancelled')); return; }
@@ -2186,7 +2337,7 @@ function init(root) {
   function clipEvent(e, op) {
     const p = pendingClip;
     if (p) { clearTimeout(p.timer); pendingClip = null; }
-    if (typing(e.target) || root.querySelector('dialog[open]') || settingsDlg?.open || document.querySelector('[data-help-panel]')?.contains(e.target)) return;
+    if (typing(e.target) || root.querySelector('dialog[open]:not([data-gisa]):not([data-gist])') || settingsDlg?.open || document.querySelector('[data-help-panel]')?.contains(e.target)) return;
     if (op === 'paste') {
       e.preventDefault();
       paste(p?.op === 'paste' ? p.inPlace : false, e.clipboardData ? e.clipboardData.getData('text/plain') : null);
@@ -2206,6 +2357,9 @@ function init(root) {
   ui.name.addEventListener('change', () => project.change(t('cv.undo.project.rename'), (s) => { s.name = ui.name.value.trim().slice(0, 120) || t('project.untitled'); }));
   ui.units.addEventListener('change', () => { project.change(t('cv.undo.units'), (s) => { s.units = ui.units.value === 'm' ? 'm' : 'ft'; }); say(t('cv.units.now', { units: u().name.toLowerCase() })); });
   onUnitsChange(() => refresh());   // 0.7 UNITS: a change in Settings › General › Units (lists, starred area / volume units)
+  ui.gridMethod.addEventListener('change', () => project.change(t('cv.undo.gridmethod'), (st) => { if (ui.gridMethod.value === 'tin') { delete st.surface.method; delete st.surface.gridStep; delete st.surface.gridPower; } else st.surface.method = ui.gridMethod.value; }));
+  ui.gridStep.addEventListener('change', () => { const v = Number(ui.gridStep.value); if (!(v >= 0)) { ui.gridStep.setAttribute('aria-invalid', 'true'); return; } ui.gridStep.removeAttribute('aria-invalid'); project.change(t('cv.undo.gridstep'), (st) => { if (v > 0) st.surface.gridStep = v; else delete st.surface.gridStep; }); });
+  ui.gridPower.addEventListener('change', () => { const v = Number(ui.gridPower.value); if (!(v >= 1 && v <= 10)) { ui.gridPower.setAttribute('aria-invalid', 'true'); return; } ui.gridPower.removeAttribute('aria-invalid'); project.change(t('cv.undo.gridpower'), (st) => { st.surface.gridPower = v; }); });
   ui.maxEdge.addEventListener('change', () => { const v = Number(ui.maxEdge.value); if (!(v >= 0)) { ui.maxEdge.setAttribute('aria-invalid', 'true'); return; } ui.maxEdge.removeAttribute('aria-invalid'); project.change(t('cv.undo.maxedge'), (s) => { s.surface.maxEdge = v; }); });
   ui.showSurface.addEventListener('change', () => project.setDisplay('surface', ui.showSurface.value));
   ui.interval.addEventListener('change', () => project.setDisplay('interval', Number(ui.interval.value)));
@@ -2308,6 +2462,8 @@ function init(root) {
   ui.plan.addEventListener('dragover', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
   ui.plan.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; ui.drop.hidden = true; } });
   ui.plan.addEventListener('drop', (e) => { e.preventDefault(); dragDepth = 0; ui.drop.hidden = true; const fs = [...e.dataTransfer.files]; if (fs.length) gisOpen(fs).then((done) => { if (!done) openAny(fs); }); });   // openAny: 0.7.1 71.27 (the pair)
+  // 2026-11-09: the start card can be closed, and its "Sample" button is the only way in to the sample site: the same action is in the command palette (Ctrl+K) while the card is closed
+  { const regSample = () => window.ccPalette?.register?.([{ id: 'civil-sample', label: t('ui.hint.sample'), group: 'file', keywords: 'sample example demo site survey points', run: () => $('[data-sample]')?.click() }]); if (window.ccPalette) regSample(); else window.addEventListener('load', regSample); }
   $('[data-sample]').addEventListener('click', async () => {
     try {
       const r = await fetch(new URL('./sample-site.csv', import.meta.url));
@@ -2815,4 +2971,26 @@ function init(root) {
   // carries the engine's config (manifest "workspaces"); a failed start shows the classic layout at once
   if (document.getElementById('cc-workspace')) import('./workspace-civilcraft.js').then((m) => m.mountCivilWorkspace({ root }))
     .catch((err) => { console.error(err); document.documentElement.removeAttribute('data-cc-ws-boot'); });
+}
+
+// FX: a box too narrow for its number (Easting 615005.25 shows "615005") shows the whole value in a Bootstrap tooltip while the pointer
+// or the keyboard is on it. One listener for the page; it only looks at a box when the pointer enters or focus lands on it.
+{
+  let tip = null, tipFor = null;
+  const hide = () => { if (tip) { try { tip.dispose(); } catch { /* already gone */ } } tip = null; tipFor = null; };
+  const show = (inp) => {
+    const B = window.bootstrap;
+    if (!B?.Tooltip || !inp.isConnected || inp === tipFor) return;
+    hide();
+    if (!inp.value || inp.scrollWidth <= inp.clientWidth + 1) return;   // it fits: nothing to add
+    tipFor = inp;
+    tip = new B.Tooltip(inp, { title: inp.value, trigger: 'manual', container: 'body', placement: 'top', fallbackPlacements: ['bottom'], animation: false, customClass: 'shell-tip' });
+    tip.show();
+  };
+  const boxOf = (t) => (t instanceof Element ? t.closest('input.cv-input') : null);
+  document.addEventListener('pointerover', (e) => { if (e.pointerType === 'touch') return; const b = boxOf(e.target); if (b) show(b); });
+  document.addEventListener('pointerout', (e) => { if (tipFor && !(e.relatedTarget instanceof Node && tipFor.contains(e.relatedTarget)) && boxOf(e.target) === tipFor && document.activeElement !== tipFor) hide(); });
+  document.addEventListener('focusin', (e) => { const b = boxOf(e.target); if (b) show(b); });
+  document.addEventListener('focusout', (e) => { if (boxOf(e.target) === tipFor) hide(); });
+  document.addEventListener('input', (e) => { if (boxOf(e.target) === tipFor) hide(); });
 }

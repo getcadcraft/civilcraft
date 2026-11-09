@@ -1,0 +1,14 @@
+{
+  "@locale": "fil",
+  "@name": "Filipino",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (add-on)",
+  "wind.of.note": "Pinapatakbo ang sarili mong OpenFOAM installation sa pamamagitan ng maliit na helper program sa computer na ito: isang steady RANS (k-epsilon) case bawat wind direction, atmospheric boundary layer inlet. Walang lumalabas sa computer na ito. Hindi kasama ng CadCraft ang OpenFOAM.",
+  "wind.of.url": "Address ng helper",
+  "wind.of.token": "Token ng helper",
+  "wind.of.check": "Suriin ang helper",
+  "wind.of.ok": "Sumagot ang helper. OpenFOAM: {foam}",
+  "wind.of.down": "Hindi sumagot ang helper ({why}). Simulan ito sa computer na ito: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Sumagot ang helper ngunit hindi masimulan ang OpenFOAM: {why}",
+  "wind.of.install": "I-install ang OpenFOAM (ESI v-series, openfoam.com) at ang helper mula sa Folder ng add-on; ipinapaliwanag ng help topic ang dalawa."
+}

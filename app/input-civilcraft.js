@@ -65,6 +65,8 @@ export const COMMANDS = [
   C('surface.mass', 'surface', 'bi-buildings', T('Surface', 'mass'), { label: 'ms.tb' }),   // 0.7 LC.1 (session massing): the Mass tool
   C('surface.river', 'surface', 'bi-water', T('Surface', 'river'), { label: 'sx.su957.tb' }),   // 0.8 SU.957: the River tool (river-ui.js)
   C('surface.ground-contours', 'surface', 'bi-layers', T('Surface', 'ground-contours'), { label: 'sx.su911.tb' }),   // 0.8 SU.911: terrain from contour lines (ground-ui.js)
+  C('surface.corridor-templates', 'surface', 'bi-sign-merge-right', T('Surface', 'corridor-templates'), { label: 'tpl.tb' }),   // 0.9 SU.1110: corridor templates (templates-ui.js)
+  C('surface.terrain-templates', 'surface', 'bi-layers-half', T('Surface', 'terrain-templates'), { label: 'tpl.tb.tt' }),   // 0.9 WB.6: terrain templates
   C('surface.water', 'surface', 'bi-droplet', T('Surface', 'water'), { label: 'wm.tb' }),   // 0.8 LC.16: water mains (water-ui.js)
   C('surface.eg-rain', 'surface', 'bi-cloud-rain', T('Surface', 'eg-rain'), { label: 'eg.tb.rain' }),   // 0.8 EG.69 Make it rain (eg-ui.js)
   C('surface.eg-earthwork', 'surface', 'bi-truck', T('Surface', 'eg-earthwork'), { label: 'eg.tb.earthwork' }),   // 0.8 EG.70 earthwork balancer
@@ -106,6 +108,8 @@ export const COMMANDS = [
   C('gis.import', 'gis', 'bi-box-arrow-in-down', T('GIS', 'gis-import')),
   C('gis.export', 'gis', 'bi-box-arrow-up', T('GIS', 'gis-export')),
   C('gis.basemap', 'gis', 'bi-map', T('GIS', 'basemap')),
+  C('gis.analysis', 'gis', 'bi-funnel', T('GIS', 'gis-analysis'), { label: 'gisa.tb' }),   // 0.9 SU.1080: GIS analysis (gis-analysis-ui.js)
+  C('gis.table', 'gis', 'bi-table', T('GIS', 'gis-table'), { label: 'gist.tb' }),   // 0.9 SU.1080 round 2: attribute table (gis-table-ui.js)
   C('view.select', 'view', 'bi-cursor', T('View', 'select'), { defKeys: ['V'] }),
   C('view.fit', 'view', 'bi-arrows-fullscreen', T('View', 'fit'), { defKeys: ['F'] }),
   C('view.view3d', 'view', 'bi-badge-3d', T('View', 'view3d'), { defKeys: ['D'] }),
@@ -141,12 +145,12 @@ export const STYLES = {
     quick: ['file.new', 'file.open', 'file.save', 'export.pdf', 'edit.undo', 'edit.redo'],
     tabs: [
       tab('home', [
-        ['draw', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.breakline', 'surface.boundary', 'surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.landscape', 'surface.powerlines'], { more: ['surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail'] }],
+        ['draw', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.breakline', 'surface.boundary', 'surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.landscape', 'surface.powerlines'], { more: ['surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.corridor-templates', 'surface.terrain-templates'] }],
         ['modify', ['view.select', 'edit.copy', 'edit.paste', 'edit.duplicate', 'edit.delete']],
         ['view', ['view.fit', 'view.view3d', 'design.profile', 'design.pvi-add', 'surface.sections', 'surface.free-section', 'surface.grades', 'surface.measure']],
         ['clipboard', ['edit.cut', 'edit.paste-in-place', 'edit.select-all', 'edit.select-none']],
       ]),
-      tab('insert', [['import', ['surface.cad-open', 'surface.scan-start', 'gis.import']], ['geolocation', ['gis.crs', 'gis.basemap']]]),
+      tab('insert', [['import', ['surface.cad-open', 'surface.scan-start', 'gis.import']], ['geolocation', ['gis.crs', 'gis.basemap']], ['analysis', ['gis.analysis', 'gis.table']]]),
       tab('output', [['plot', ['export.pdf']], ['export', ['export.landxml', 'export.dxf', 'export.dwg', 'export.ifc', 'gis.export']]]),
       ...WS_TABS,   // 0.7.1
     ],
@@ -156,11 +160,11 @@ export const STYLES = {
       'design.alignment': ['ALIGNMENT', 'AL'], 'design.pad': ['PAD', 'GRADING'], 'design.pipe': ['PIPE', 'PIPENETWORK'], 'surface.feature': ['FEATURELINE', 'FL'],
       'surface.breakline': ['BREAKLINE', 'BL'], 'surface.boundary': ['BOUNDARY', 'BO'], 'view.select': ['SELECT'], 'view.fit': ['ZOOM', 'Z', 'ZE', 'FIT'],
       'view.view3d': ['3D', '3DORBIT', 'ORBIT'], 'design.profile': ['PROFILE', 'PROFILEVIEW', 'PV'], 'design.pvi-add': ['PVI'], 'surface.sections': ['SECTIONS', 'SAMPLELINES', 'SECTIONVIEW'],
-      'surface.grades': ['GRADES', 'SLOPES'], 'surface.mass': ['MASS'], 'surface.river': ['RIVER'], 'surface.ground-contours': ['CONTOURSURF', 'TERRAINCONTOURS'], 'surface.free-section': ['FREESECTION'], 'surface.ramp': ['RAMP'], 'surface.landscape': ['LANDSCAPE'], 'surface.powerlines': ['POWERLINES'], 'edit.undo': ['U', 'UNDO'], 'edit.redo': ['REDO'], 'edit.copy': ['COPYCLIP'], 'edit.cut': ['CUTCLIP'], 'edit.paste': ['PASTECLIP'],
+      'surface.grades': ['GRADES', 'SLOPES'], 'surface.mass': ['MASS'], 'surface.river': ['RIVER'], 'surface.ground-contours': ['CONTOURSURF', 'TERRAINCONTOURS'], 'surface.corridor-templates': ['TEMPLATES', 'CORRIDORTEMPLATES'], 'surface.terrain-templates': ['TERRAINTEMPLATES'], 'surface.free-section': ['FREESECTION'], 'surface.ramp': ['RAMP'], 'surface.landscape': ['LANDSCAPE'], 'surface.powerlines': ['POWERLINES'], 'edit.undo': ['U', 'UNDO'], 'edit.redo': ['REDO'], 'edit.copy': ['COPYCLIP'], 'edit.cut': ['CUTCLIP'], 'edit.paste': ['PASTECLIP'],
       'edit.paste-in-place': ['PASTEORIG'], 'edit.duplicate': ['DUPLICATE', 'DUP'], 'edit.delete': ['ERASE', 'E', 'DELETE'], 'edit.select-all': ['SELECTALL', 'AI_SELALL'],
       'edit.select-none': ['DESELECT'], 'file.new': ['NEW'], 'file.open': ['OPEN'], 'file.save': ['SAVE', 'QSAVE'], 'export.pdf': ['PLOT', 'PRINT', 'PDF'],
       'export.landxml': ['LANDXML', 'LANDXMLOUT'], 'export.dxf': ['DXFOUT', 'DXF'], 'export.dwg': ['DWGOUT', 'DWG', 'SAVEAS'], 'export.ifc': ['IFCOUT', 'IFC', 'IFCEXPORT'], 'surface.cad-open': ['XATTACH', 'LINEWORK'],
-      'gis.import': ['MAPIMPORT', 'IMPORT'], 'gis.export': ['MAPEXPORT', 'EXPORT'], 'gis.crs': ['MAPCSASSIGN', 'CRS', 'COORDINATES'], 'gis.basemap': ['MAP', 'BASEMAP', 'GEOMAP'],
+      'gis.import': ['MAPIMPORT', 'IMPORT'], 'gis.export': ['MAPEXPORT', 'EXPORT'], 'gis.crs': ['MAPCSASSIGN', 'CRS', 'COORDINATES'], 'gis.basemap': ['MAP', 'BASEMAP', 'GEOMAP'], 'gis.analysis': ['GISANALYSIS', 'ANALYZE', 'BUFFER'], 'gis.table': ['ATTRIBUTES', 'ATTTABLE', 'TABLE'],
       'app.settings': ['OPTIONS', 'SETTINGS'], 'app.help': ['HELP'],
     },
     mouse: { wheel: 1, zoomSpeed: 1, pan2d: ['middle'], orbit3d: { left: 'none', middle: 'pan', right: 'none' } },
@@ -173,12 +177,12 @@ export const STYLES = {
       // 0.8 RIBBON-COMPACT (shell-08): the group's most-used tool large, the next three small, the rest behind the group name's arrow
       tab('home', [
         ['ground', [{ split: ['surface.cad-open', 'surface.scan-start', 'gis.import', 'file.open'], size: 'lg' }]],
-        ['create', [{ id: 'design.alignment', size: 'lg' }, { id: 'design.pad', size: 'sm' }, { id: 'design.pipe', size: 'sm' }, { id: 'surface.feature', size: 'sm' }], { more: ['surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.free-section', 'surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.landscape', 'surface.powerlines'] }],
+        ['create', [{ id: 'design.alignment', size: 'lg' }, { id: 'design.pad', size: 'sm' }, { id: 'design.pipe', size: 'sm' }, { id: 'surface.feature', size: 'sm' }], { more: ['surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.free-section', 'surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.corridor-templates', 'surface.terrain-templates', 'surface.landscape', 'surface.powerlines'] }],
         ['views', [{ id: 'design.profile', size: 'lg' }, { id: 'design.pvi-add', size: 'sm' }, { id: 'surface.sections', size: 'sm' }]],
       ]),
       tab('surfaces', [['editsurface', ['surface.breakline', 'surface.boundary']], ['analyze', ['surface.grades', 'surface.measure']]]),
       tab('modify', [['clipboard', [{ id: 'edit.paste', size: 'lg' }, { id: 'edit.cut', size: 'sm' }, { id: 'edit.copy', size: 'sm' }, { id: 'edit.delete', size: 'sm' }], { more: ['edit.paste-in-place', 'edit.duplicate'] }], ['selection', ['view.select', 'edit.select-all', 'edit.select-none']]]),
-      tab('geolocation', [['coordinates', ['gis.crs']], ['map', ['gis.basemap']], ['data', ['gis.export']]]),
+      tab('geolocation', [['coordinates', ['gis.crs']], ['map', ['gis.basemap']], ['data', ['gis.export']], ['analysis', ['gis.analysis', 'gis.table']]]),
       tab('view', [['navigate', ['view.fit', 'view.view3d']]]),
       tab('output', [['export', ['export.landxml', 'export.dxf', 'export.dwg', 'export.ifc']], ['plot', ['export.pdf']]]),
       ...WS_TABS,   // 0.7.1 (the workspace layouts show these as context tabs instead: workspace-civilcraft.js)

@@ -1,0 +1,22 @@
+{
+  "id": "carving",
+  "name": "Router carving",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft"
+  ],
+  "api": "1.1",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "files",
+    "storage",
+    "commands"
+  ],
+  "description": "V-carve letters and logos, engrave lines, or carve a grey picture as a relief for a router or laser-class machine. The V-bit follows the middle of each shape at the depth its width needs; a flat mill clears wide floors; a cutter follows a depth map without cutting into it. G-code from a post-processor you can edit, and a check that reads any program back.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

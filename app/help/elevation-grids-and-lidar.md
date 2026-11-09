@@ -65,4 +65,4 @@ The file is one band of 32-bit floating point elevations in the project's units,
 - Vertical datum changes (geoid models): elevations are used as the file has them.
 - Waveform data, LiDAR returns other than by class, colors and intensities.
 - Several bands, overviews, or files over 200 MB.
-- Writing LAS or LAZ.
+- Writing LAS or LAZ from a surface or from this tool (the [Point clouds](topic:point-clouds) add-on writes a cleaned cloud as LAS 1.4 or LAZ).

@@ -289,6 +289,18 @@ final class Help
             // Blank.
             if (trim($line) === '') { $flushPara(); $flushList(); continue; }
 
+            // Screenshot: ![what it shows](file.webp) alone on a line; the file lives in assets/help/img/<scope>/.
+            if (preg_match('/^!\[([^\]]+)\]\(([a-z0-9][a-z0-9-]*\.(?:webp|png|jpg))\)$/', $line, $m)) {
+                $flushPara(); $flushList();
+                $rel = '/assets/help/img/' . $ctx['scope'] . '/' . $m[2];
+                $size = @getimagesize(CC_PUBLIC . $rel);
+                if (!$size) { $errors[] = "$at: screenshot $rel does not exist."; continue; }
+                self::lintCopy($m[1], "$at screenshot", $errors);
+                $out[] = '<figure class="hfig"><img src="' . e($rel) . '?v=' . (int)@filemtime(CC_PUBLIC . $rel) . '" alt="' . e($m[1]) . '" width="' . (int)$size[0]
+                       . '" height="' . (int)$size[1] . '" loading="lazy" decoding="async"><figcaption>' . e($m[1]) . '</figcaption></figure>';
+                continue;
+            }
+
             // Headings.
             if (preg_match('/^(#{1,6})\s+(.+)$/', $line, $m)) {
                 $flushPara(); $flushList();
@@ -535,6 +547,82 @@ final class Help
      * else the dev build. Null when the app has no compiled help.
      * @return ?array{data: array, build: string}
      */
+    /**
+     * Site-only pictures for a topic, from assets/help/img/shots.json: {scope: {topic: [{file, alt, before?}]}}.
+     * An entry is a screenshot ({file}) or, rarely, a short silent clip ({video, poster}, mp4 beside its poster).
+     * Each goes before the heading id in `before`, else after the topic's first paragraph; entries with the same
+     * `before` keep their listed order. Works on frozen builds too. Made by tools/help-walkthrough-shots.mjs.
+     */
+    public static function withScreens(string $html, string $scope, string $slug): string
+    {
+        static $map = null;
+        $map ??= json_decode((string)@file_get_contents(CC_PUBLIC . '/assets/help/img/shots.json'), true) ?: [];
+        if ($map && !isset($map['__d'])) {   // shots.d/<app>.json: one file per app so sessions never share a file; same shape
+            foreach (glob(CC_PUBLIC . '/assets/help/img/shots.d/*.json') ?: [] as $f) {
+                foreach ((json_decode((string)@file_get_contents($f), true) ?: []) as $sc => $topics) {
+                    foreach ((array)$topics as $tp => $list) $map[$sc][$tp] = $list;
+                }
+            }
+            $map['__d'] = 1;
+        }
+        $afterFirst = null;   // pictures with no `before` go one after another after the first paragraph, in listed order
+        foreach ($map[$scope][$slug] ?? [] as $s) {
+            if (($s['alt'] ?? '') === '') continue;
+            $dir = '/assets/help/img/' . $scope . '/';
+            // "Step 3: ..." captions show the number as the same solid disc the picture carries on its control
+            // "Step 3: ..." captions show the number as the same solid disc the picture carries on its control
+            $cap = preg_match('/^Step (\\d+):\\s*(.*)$/s', $s['alt'], $cm)
+                ? '<span class="hfig-n" aria-hidden="true">' . (int)$cm[1] . '</span><span class="hfig-sr">Step ' . (int)$cm[1] . ': </span>' . e($cm[2])
+                : (preg_match('/^Clip:\\s*(.*)$/s', $s['alt'], $cm)
+                    ? '<span class="hfig-n hfig-play" aria-hidden="true">&#9654;</span><span class="hfig-sr">Clip: </span>' . e($cm[1])
+                    : e($s['alt']));
+            if (isset($s['video'])) {
+                $poster = $dir . ($s['poster'] ?? '');
+                $size = @getimagesize(CC_PUBLIC . $poster);
+                if (!$size || !is_file(CC_PUBLIC . $dir . $s['video'])) continue;
+                // Click to play, never autoplays with sound (there is none); loops quietly once started, no data until asked.
+                $fig = '<figure class="hfig hfig-video"><video controls muted loop playsinline preload="none" poster="' . e($poster)
+                     . '" width="' . (int)$size[0] . '" height="' . (int)$size[1] . '" aria-label="' . e($s['alt']) . '"><source src="'
+                     . e($dir . $s['video']) . '" type="video/mp4"></video><figcaption>' . $cap . ' (short silent clip)</figcaption></figure>';
+            } else {
+                $rel = $dir . ($s['file'] ?? '');
+                $size = @getimagesize(CC_PUBLIC . $rel);
+                if (!$size) continue;
+                $img = '<img src="' . e($rel) . '?v=' . (int)@filemtime(CC_PUBLIC . $rel) . '" alt="' . e($s['alt']) . '" width="' . (int)$size[0]
+                     . '" height="' . (int)$size[1] . '" loading="lazy" decoding="async">';
+                $holes = [];
+                $over = '';
+                foreach ((array)($s['marks'] ?? []) as $mk) {
+                    $x = max(0, min(100, (float)($mk['x'] ?? 0))); $y = max(0, min(100, (float)($mk['y'] ?? 0)));
+                    $w = max(0, min(100 - $x, (float)($mk['w'] ?? 0))); $h = max(0, min(100 - $y, (float)($mk['h'] ?? 0)));
+                    if ($w <= 0 || $h <= 0) continue;
+                    $x2 = $x + $w; $y2 = $y + $h;
+                    $holes[] = "$x% $y%,$x% $y2%,$x2% $y2%,$x2% $y%,$x% $y%,0 0";
+                    $over .= '<span class="hfig-ring" style="left:' . $x . '%;top:' . $y . '%;width:' . $w . '%;height:' . $h . '%">'
+                           . (!empty($mk['n']) ? '<b>' . (int)$mk['n'] . '</b>' : '') . '</span>';
+                }
+                if ($holes) {
+                    // everything outside the marked controls blurs while the picture rests (hover-capable screens only; see help.css)
+                    $mask = '<span class="hfig-mask" style="clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,' . implode(',', $holes) . ')"></span>';
+                    $img = '<div class="hfig-shot">' . $img . $mask . $over . '</div>';
+                }
+                $fig = '<figure class="hfig">' . $img . '<figcaption>' . $cap . '</figcaption></figure>';
+            }
+            $at = false;
+            if (isset($s['before'])) {   // an h2 or an h3 id
+                foreach (['<h2 id="', '<h3 id="'] as $hp) { $at = strpos($html, $hp . $s['before'] . '"'); if ($at !== false) break; }
+            }
+            $isDefault = $at === false;
+            if ($isDefault) {
+                if ($afterFirst === null) { $p = strpos($html, '</p>'); $afterFirst = $p === false ? 0 : $p + 4; }
+                $at = $afterFirst;
+            }
+            $html = substr($html, 0, $at) . $fig . substr($html, $at);
+            if ($isDefault) $afterFirst += strlen($fig);
+        }
+        return $html;
+    }
+
     public static function forApp(string $slug): ?array
     {
         if (!Catalog::app($slug)) return null;
@@ -543,9 +631,100 @@ final class Help
         if (AppBuilds::hasDev($slug)) $builds[] = 'dev';
         foreach ($builds as $b) {
             $d = self::readModule(self::sourceDir($slug, $b) . '/help.js');
-            if ($d) return ['data' => $d, 'build' => $b];
+            if ($d) return ['data' => $b === 'dev' ? $d : self::withReleaseNotes($d, $slug, $b), 'build' => $b];
         }
         return null;
+    }
+
+    // ------------------------------------------------------------------ search (the /tutorials search bars)
+
+    /** The words of a query: lower case, 2+ characters, at most 8 (extra words are ignored). */
+    public static function searchTerms(string $q): array
+    {
+        $q = mb_strtolower(trim(preg_replace('/\s+/u', ' ', $q) ?? ''));
+        $out = [];
+        foreach (explode(' ', mb_substr($q, 0, 120)) as $w) {
+            $w = trim($w, " \t\n\r\0\x0B.,;:!?\"'()[]");
+            if (mb_strlen($w) >= 2 && !in_array($w, $out, true)) $out[] = $w;
+        }
+        return array_slice($out, 0, 8);
+    }
+
+    /**
+     * Search compiled help. $sets = [[appRowOrNull, compiledData], ...]; a shared-basics topic is listed once.
+     * Every word must appear somewhere in a topic (title, keywords, headings, summary or body); title and keyword hits rank first.
+     * @return array<int, array{topic: array, app: ?array, url: string, score: int, snippet: string}>
+     */
+    public static function search(array $sets, string $q, int $limit = 40): array
+    {
+        $terms = self::searchTerms($q);
+        if (!$terms) return [];
+        $seen = [];
+        $hits = [];
+        foreach ($sets as [$app, $data]) {
+            foreach ($data['topics'] as $t) {
+                $isCommon = $t['scope'] === self::COMMON;
+                $key = $t['scope'] . '/' . $t['slug'];
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $title = mb_strtolower($t['title']);
+                $kw = mb_strtolower(implode(' ', (array)($t['keywords'] ?? [])));
+                $hd = mb_strtolower(implode(' ', array_map(static fn($h) => is_array($h) ? (string)($h['text'] ?? $h['title'] ?? '') : (string)$h, (array)($t['headings'] ?? []))));
+                $sum = mb_strtolower((string)($t['summary'] ?? ''));
+                $body = mb_strtolower((string)($t['text'] ?? ''));
+                $score = 0;
+                foreach ($terms as $w) {
+                    $n = 0;
+                    if (str_contains($title, $w)) $n += 10;
+                    if (str_contains($kw, $w)) $n += 6;
+                    if (str_contains($hd, $w)) $n += 4;
+                    if (str_contains($sum, $w)) $n += 3;
+                    $c = $body === '' ? 0 : mb_substr_count($body, $w);
+                    if ($c) $n += min($c, 5);
+                    if ($n === 0) { $score = 0; continue 2; }   // every word must match
+                    $score += $n;
+                }
+                if (str_contains($title, implode(' ', $terms))) $score += 8;
+                $hits[] = ['topic' => $t, 'app' => $isCommon ? null : $app, 'score' => $score,
+                    'url' => '/tutorials/' . ($isCommon ? self::COMMON : $t['scope']) . '/' . $t['slug'],
+                    'snippet' => self::snippet((string)($t['text'] ?? ''), $terms, (string)($t['summary'] ?? ''))];
+            }
+        }
+        usort($hits, static fn($a, $b) => $b['score'] <=> $a['score'] ?: strcmp($a['topic']['title'], $b['topic']['title']));
+        return array_slice($hits, 0, $limit);
+    }
+
+    /** ~180 characters of the body around the first word that is in it (else the summary). */
+    private static function snippet(string $text, array $terms, string $fallback): string
+    {
+        $lower = mb_strtolower($text);
+        $at = null;
+        foreach ($terms as $w) { $p = mb_strpos($lower, $w); if ($p !== false && ($at === null || $p < $at)) $at = $p; }
+        if ($at === null) return $fallback;
+        $from = max(0, $at - 60);
+        $s = trim(mb_substr($text, $from, 180));
+        return ($from > 0 ? '… ' : '') . $s . (mb_strlen($text) > $from + 180 ? ' …' : '');
+    }
+
+    /**
+     * A frozen release's help can't be corrected after it ships, but its "What's new" can be late (0.8.1 shipped with the 0.7
+     * text). The site shows the dev copy of the release-note topics (whats-new, whats-new-*) when the dev copy's title names the
+     * release being shown (e.g. "What's new in 0.8 and 0.8.1" for build 0.8.1), so nothing unreleased is ever announced here.
+     */
+    private static function withReleaseNotes(array $data, string $slug, string $build): array
+    {
+        $dev = self::readModule(self::sourceDir($slug, 'dev') . '/help.js');
+        if (!$dev) return $data;
+        $new = null;
+        foreach ($dev['topics'] as $t) if ($t['scope'] === $slug && $t['slug'] === 'whats-new') $new = $t;
+        if (!$new || !str_contains($new['title'], $build)) return $data;
+        $take = [];
+        foreach ($dev['topics'] as $t) if ($t['scope'] === $slug && ($t['slug'] === 'whats-new' || str_starts_with($t['slug'], 'whats-new-'))) $take[$t['slug']] = $t;
+        $topics = array_values(array_filter($data['topics'], static fn($t) => !($t['scope'] === $slug && isset($take[$t['slug']]))));
+        foreach ($take as $t) $topics[] = $t;
+        usort($topics, static fn($a, $b) => self::topicOrder($a, $b));
+        $data['topics'] = $topics;
+        return $data;
     }
 
     /** The shared basics for the site. */

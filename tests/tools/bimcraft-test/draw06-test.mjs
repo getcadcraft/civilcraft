@@ -234,6 +234,21 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     ok(gr[0].axes.some((x) => x.tag === '3a' && near(x.a[0], 18500, 1e-6)) && !gr[0].axes.some((x) => x.tag === '4'), 'renamed to 3a and moved 500');
     ed.modelChange(G.changeGrid({ bubbles: 'start' }));
     ok(G.readGrids(w())[0].bubbles === 'start', 'bubbles at the start only');
+    // 0.9 D9.2: grid dimensions — the Dims flag survives a rewrite and an undo; spacings + overall per family
+    ok(G.readGrids(w())[0].dims === false, 'D9.2: a grid starts without dimensions');
+    ed.modelChange(G.changeGrid({ dims: true }));
+    ok(G.readGrids(w())[0].dims === true && G.readGrids(w())[0].bubbles === 'start', 'D9.2: Dimensions on, the bubbles kept');
+    ed.modelChange(G.changeGridAxis('3a', { tag: '3b' }));
+    ok(G.readGrids(w())[0].dims === true, 'D9.2: Dimensions stay on when a line changes');
+    ed.modelChange(G.changeGridAxis('3b', { tag: '3a' }));
+    {
+      const gd = G.gridDims(G.gridLayout({ origin: [0, 0], angle: 0, u: { count: 4, spacing: [6000, 6000, 1500], first: '1' }, v: { count: 2, spacing: 7000, first: 'A' }, extend: 1500 }), (m) => String(Math.round(m)));
+      ok(gd.map((d) => d.text).sort().join() === ['1500', '6000', '6000', '13500', '7000'].sort().join(), 'D9.2: dimensions 6000, 6000, 1500 and 13500 overall across the numbered lines, 7000 between A and B', gd.map((d) => d.text).join());
+      const rot = G.gridDims(G.gridLayout({ origin: [100, 200], angle: 30, u: { count: 3, spacing: 5000, first: '1' }, v: { count: 1, spacing: 1, first: 'A' }, extend: 1000 }), (m) => String(Math.round(m)));
+      ok(rot.map((d) => d.text).join() === '5000,5000,10000', 'D9.2: a turned grid measures across its lines', rot.map((d) => d.text).join());
+    }
+    ed.modelChange(G.changeGrid({ dims: false }));
+    ok(G.readGrids(w())[0].dims === false, 'D9.2: Dimensions off');
     ed.modelChange(G.removeGridAxes(['3a']));
     gr = G.readGrids(w());
     ok(gr[0].axes.length === 5 && !danglingRefs(new TextDecoder().decode(ed.save())).length, 'a line deleted; no dangling references');
@@ -417,6 +432,12 @@ export async function draw06Mode({ APP, ROOT, WebIFC, IfcModel, quiet, args = []
     let key = ''; try { ed.modelChange(SI.addLevels({ elevations: [3000] })); } catch (e) { key = e.key; }
     ok(key === 'model.err.lv.none' && readLevels(w()).length === 4, 'a height that already has a level: refused, nothing added');
     ed.undo();
+    // a negative height goes below the lowest level (DC.119, the Add levels dialog)
+    ed.modelChange(SI.addLevels({ elevations: [-6000, -3000] }), { label: 'Levels', verb: 'Added' });
+    L = readLevels(w());
+    ok(L.map((l) => Math.round(l.elevation) + '/' + Math.round(l.height) + ' ' + l.name).join() === '-6000/3000 Level -2,-3000/3000 Level -1,0/3000 Level 1,3000/3000 Level 2', 'Add levels at -6000 and -3000: two below, each 3000 tall, named Level -1 and Level -2');
+    ed.undo();
+    ok(readLevels(w()).length === 2, 'undo takes both below-levels away');
     const B2 = await building({ n: 2, h: 3000 });
     const w2 = () => new ModelWriter(WebIFC, B2.ed.api, B2.ed.mid);
     B2.ed.modelChange(B2.OPS.drawWalls({ storey: B2.levels[0].guid, segs: [{ a: [0, 0], b: [5000, 0] }], typeKey: 'ext-2x6', topLevel: B2.levels[1].guid }));

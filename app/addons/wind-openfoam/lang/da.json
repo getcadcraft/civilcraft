@@ -1,0 +1,14 @@
+{
+  "@locale": "da",
+  "@name": "Dansk",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (add-on)",
+  "wind.of.note": "Kører din egen OpenFOAM-installation via et lille hjælpeprogram på denne computer: én stationær RANS-beregning (k-epsilon) pr. vindretning med atmosfærisk grænselagsindløb. Intet forlader denne computer. CadCraft inkluderer ikke OpenFOAM.",
+  "wind.of.url": "Hjælpeadresse",
+  "wind.of.token": "Hjælpetoken",
+  "wind.of.check": "Tjek hjælpeprogrammet",
+  "wind.of.ok": "Hjælpeprogrammet svarede. OpenFOAM: {foam}",
+  "wind.of.down": "Hjælpeprogrammet svarede ikke ({why}). Start det på denne computer: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Hjælpeprogrammet svarede, men kunne ikke starte OpenFOAM: {why}",
+  "wind.of.install": "Installér OpenFOAM (ESI v-serien, openfoam.com) og hjælpeprogrammet fra add-on'ens mappe; hjælpeemnet forklarer begge dele."
+}

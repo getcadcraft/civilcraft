@@ -36,6 +36,7 @@ const SESSION = admin('session');
 const [cname, cvalue] = SESSION.cookie.split('=');
 await ctx.addCookies([{ name: cname, value: cvalue, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
 const problems = [];
+await ctx.addInitScript(() => { try { localStorage.setItem('cc-newhere', 'skipped'); } catch { /* */ } });   // the "I'm new" offer would cover the command box
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
 page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));

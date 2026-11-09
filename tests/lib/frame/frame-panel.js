@@ -27,12 +27,17 @@
  *     live: { frameLive }   (0.8 round 3, EG.29) a Live switch: after an edit the frame is solved again, the answer shown when it is still wanted (study/live.js)
  *     concrete: true                                               (0.8 SU.1056) the app lets people set up concrete sections and floors: the Concrete and Seismic blocks show
  *     sections() → [{ name, A, Iy, Iz }]                           the sections the drawn members use (Concrete block); problems(list) → the checks' problems for the app's ⚠ panel
+ *     floorLoads: true                                             (0.9 SU.1056, BimCraft) the Loads block also takes a pressure on every slab ({ type: 'floor', p }); the app's frame builder turns it into area loads (plate-bim.js floorLoadCases)
+ *     fem: { modal(model, { n, bending, masses }) → out, modeSolution(sol, out, k) → { sol, key }, note, dyn: DYN }   (0.9 SU.908, optional) the finite element engine (lib/fem/frame-fem.js, imported by the app): the Finite elements block shows natural frequencies, periods, effective modal masses and each mode on the model
+ *     len: { text(mm), num(mm), mark(), point([x, y, z]), small(mm), smallMark(), parse(text) → mm | NaN }   (0.9 GH.3-A, optional) the app's one
+ *               display unit: load positions (shown and typed), points, deflections, floor heights and drifts follow it. Without it (DetailCraft)
+ *               every length stays in millimetres as before. The model, the report (PDF, CSV) and the CraftScript file stay in mm with the unit written.
  *   }
  * Words: keys frame.ui.*, frame.case.*, frame.note.*, frame.err.*, frame.warn.*, frame.dof.*, frame.kind.*, frame.rep.*
  * (tools/frame/lang.mjs is the one table; tools/frame/sync.mjs writes it into both apps' language files).
  */
 import { CASE_KINDS, LOAD_DIRS } from './frame-model.js';
-import { memberExtremes } from './frame-solve.js';
+import { memberExtremes, solveFrame } from './frame-solve.js';
 import { reportData, reportTables, reportCsv, KN, KNM } from './frame-report.js';
 import { reportPdf } from './frame-pdf.js';
 import { toCraftScript } from './frame-craft.js';
@@ -41,7 +46,9 @@ import { cleanDesign, checkFrame, designTables, utilRamp, GRADES, DEFAULT_GRADE 
 import { cleanConcrete } from './frame-concrete.js';
 import { PLATE_MODES, plateTables } from './plate-draw.js';
 import { concretePanel } from './frame-concrete-panel.js';
+import { loadsPanel, cleanLoads } from './frame-loads-panel.js';      // 0.9 SU.1056b: Wind, Seismic site and ASCE 7 combinations blocks
 import { breakFrame } from './frame-breakit.js';
+import { dynamicsPanel, cleanDyn } from './frame-dynamics-panel.js';      // 0.9 SU.1056: Response spectrum, Time history and Pushover blocks
 
 export const MODES = ['deflected', 'My', 'Mz', 'N', 'Vz', 'Vy', 'T', 'off'];
 export const DIRS = ['down', 'X', 'Y', 'Z', 'x', 'y', 'z'];
@@ -78,7 +85,7 @@ export function cleanAnalysis(a) {
     ids.add(id);
     const loads = [];
     for (const l of (Array.isArray(c.loads) ? c.loads : []).slice(0, 20000)) { const L = cleanLoad(l); if (L) loads.push(L); }
-    out.cases.push({ id, name: txt(c.name) || id, kind: CASE_KINDS.includes(c.kind) ? c.kind : 'other', selfWeight: fin(c.selfWeight ?? 0, -100, 100) ?? 0, loads, ...(c.gen === 'elf' ? { gen: 'elf' } : {}) });
+    out.cases.push({ id, name: txt(c.name) || id, kind: CASE_KINDS.includes(c.kind) ? c.kind : 'other', selfWeight: fin(c.selfWeight ?? 0, -100, 100) ?? 0, loads, ...(c.gen === 'elf' || c.gen === 'wind' ? { gen: c.gen } : {}) });
   }
   const cids = new Set();
   for (const c of (Array.isArray(a.combos) ? a.combos : []).slice(0, 200)) {
@@ -95,6 +102,12 @@ export function cleanAnalysis(a) {
     const member = txt(e?.member, 40);
     if (member && (e.end === 'start' || e.end === 'end') && (e.kind === 'rigid' || e.kind === 'pinned')) out.ends.push({ member, end: e.end, kind: e.kind });
   }
+  if (a.secondOrder === true) out.secondOrder = true;    // 0.9 SU.1056: second-order (P-Delta) runs; only when set, so an older analysis is unchanged
+  if (a.fem && typeof a.fem === 'object') out.fem = { modes: [3, 6, 10, 20].includes(Number(a.fem.modes)) ? Number(a.fem.modes) : 6, bending: a.fem.bending === 'dkq' ? 'dkq' : 'mitc4' };   // 0.9 SU.908: only when the file has it
+  const loads = cleanLoads(a.loads);                    // 0.9 SU.1056b: wind, seismic site and combination settings; only when the file has them
+  if (loads) out.loads = loads;
+  const dyn = cleanDyn(a.dyn);                          // 0.9 SU.1056: response spectrum, time history, pushover settings; only when the file has them
+  if (dyn) out.dyn = dyn;
   const concrete = cleanConcrete(a.concrete);           // 0.8 SU.1056: only when the file has it, so an older analysis is unchanged
   if (concrete) out.concrete = concrete;
   return out;
@@ -103,6 +116,7 @@ export function cleanAnalysis(a) {
 function cleanLoad(l) {
   if (!l || typeof l !== 'object') return null;
   if (l.type === 'node') { const at = vec3(l.at), F = six(l.F); return at && F ? { type: 'node', at, F } : null; }
+  if (l.type === 'floor') { const p = fin(l.p, -10, 10); return p !== null && p !== 0 ? { type: 'floor', p } : null; }   // 0.9 SU.1056: a pressure on every slab (N/mm², negative = down)
   const member = txt(l.member, 40);
   if (!member || !LOAD_DIRS.includes(l.dir)) return null;
   if (l.type === 'udl') {
@@ -147,12 +161,18 @@ export function partResults(parts, sol, key) {
 export function framePanel(host) {
   const { el, t } = host;
   const C = host.cls;
+  // 0.9 GH.3-A: lengths in the app's display unit when it passes host.len; otherwise millimetres, exactly as before
+  const L = host.len || null;
+  const lenText = (mm) => (L ? L.text(mm) : String(Math.round(mm)));
+  const ptText = (p) => (L ? L.point(p) : '(' + p.map((v) => Math.round(v)).join(', ') + ')');
   let result = null;       // { version, frame, sol, ms, error, shown }
   let setKey = '';
   let mode = 'deflected';
   let scale = 0;
   const form = { kind: 'udl', dir: 'down', value: '', a: '', b: '', case: '' };
 
+  let modalRes = null;     // { version, out, error? } — the last modal run, valid while the model is unchanged (0.9 SU.908)
+  let modeShown = 0;       // 0 = the ordinary results are drawn, k = mode k
   let design = null;       // { version, res } — the last member check, valid while the model is unchanged
   let brk = null;          // { version, res } — the last Break it, valid while the model is unchanged
   let liveCtl = null, liveOn = false, liveState = '';
@@ -164,8 +184,13 @@ export function framePanel(host) {
 
   function run() {
     const t0 = Date.now();
+    modeShown = 0;
     let out;
-    try { out = host.analyse(); }
+    try {
+      out = host.analyse();
+      // 0.9 SU.1056: second order — the same analytical model solved again with K + K_G(N) (frame-solve.js); the app's builder is untouched
+      if (current().secondOrder && out.sol.ok) out = { ...out, sol: solveFrame(out.frame.model, { secondOrder: true }) };
+    }
     catch (err) { result = { version: host.version(), error: { code: 'internal', message: err?.message || String(err) } }; host.hide(); host.print(errorText(result)); rerender(); return result; }
     result = { version: host.version(), frame: out.frame, sol: out.sol, ms: Date.now() - t0 };
     if (!out.sol.ok) { result.error = out.sol.error; host.hide(); host.print(errorText(result)); rerender(); return result; }
@@ -178,9 +203,14 @@ export function framePanel(host) {
   }
   function draw() {
     if (!result || result.error || stale()) { host.hide(); return; }
+    if (modeShown && modalRes?.out?.ok && modalRes.version === host.version() && host.fem) {
+      const ms = host.fem.modeSolution(result.sol, modalRes.out, modeShown - 1);
+      result.shown = host.show(result.frame, ms.sol, ms.key, { mode: 'deflected', scale });
+      return;
+    }
     result.shown = host.show(result.frame, result.sol, setKey, { mode, scale });
   }
-  const pointOf = (nodeId) => { const n = result?.frame?.nodes?.find((x) => x.id === nodeId); return n ? '(' + n.p.map((v) => Math.round(v)).join(', ') + ')' : nodeId || ''; };
+  const pointOf = (nodeId) => { const n = result?.frame?.nodes?.find((x) => x.id === nodeId); return n ? ptText(n.p) : nodeId || ''; };
   function errorText(r) {
     const e = r.error;
     if (!e) return '';
@@ -192,10 +222,14 @@ export function framePanel(host) {
   function tablesNow() {
     const data = reportData(result.frame.model, result.sol);
     const notes = result.frame.notes.map((x) => t(x.key, { n: x.n }));
+    if (result.sol.secondOrder) notes.push(t('frame.so.note', { seg: result.sol.secondOrder.segments }));
     const tables = reportTables(data, t, { notes, model: result.frame.model });
     if (designNow()) tables.push(...designTables(designNow(), t));
     if (conc) tables.push(...conc.tables());
+    if (lp) tables.push(...lp.tables());
+    if (dp) tables.push(...dp.tables());
     if (result.frame.model.plates?.length) tables.push(...plateTables(result.frame.model, result.sol, setKey, t));
+    if (modalOk()) tables.push(...modalTables());
     return tables;
   }
   function exportPdf() {
@@ -274,8 +308,9 @@ export function framePanel(host) {
     const down = l.dir === 'Z' && v < 0;
     const dir = down ? t('frame.ui.dir-down') : t('frame.ui.dir-' + dirKey(l.dir));
     const mag = Number((down ? -v : v).toFixed(3));
-    if (l.type === 'udl') return t('frame.ui.load-udl', { w: mag, dir, range: l.a !== undefined || l.b !== undefined ? t('frame.ui.load-range', { a: Math.round(l.a ?? 0), b: l.b !== undefined ? Math.round(l.b) : t('frame.ui.load-end') }) : '' });
-    return t('frame.ui.load-point', { p: mag, dir, a: Math.round(l.a) });
+    const u = L ? '-u' : '';
+    if (l.type === 'udl') return t('frame.ui.load-udl', { w: mag, dir, range: l.a !== undefined || l.b !== undefined ? t('frame.ui.load-range' + u, { a: lenText(l.a ?? 0), b: l.b !== undefined ? lenText(l.b) : t('frame.ui.load-end') }) : '' });
+    return t('frame.ui.load-point' + u, { p: mag, dir, a: lenText(l.a) });
   }
 
   function loadsBlock() {
@@ -289,7 +324,7 @@ export function framePanel(host) {
       if (!ids.length) { host.print(t('frame.ui.load-none-selected')); return; }
       if (!Number.isFinite(v) || v === 0) { host.print(t('frame.ui.load-bad-value')); return; }
       const dir = form.dir === 'down' ? 'Z' : form.dir, sign = form.dir === 'down' ? -1 : 1;
-      const num = (s) => (String(s).trim() === '' ? null : Number(String(s).replace(',', '.')));
+      const num = (s) => (String(s).trim() === '' ? null : L ? L.parse(s) : Number(String(s).replace(',', '.')));
       const aa = num(form.a), bb = num(form.b);
       if ((aa !== null && !(aa >= 0)) || (bb !== null && !(bb > (aa ?? 0)))) { host.print(t('frame.ui.load-bad-range')); return; }
       change(t('frame.ui.undo-load-add', { n: ids.length }), (x) => {
@@ -320,14 +355,35 @@ export function framePanel(host) {
         field(t('frame.ui.f-loadkind'), sel(form.kind, kinds.map((k) => [k, t('frame.ui.kind-' + k)]), (v) => { form.kind = v; rerender(); }, { 'data-fa-load': 'kind' })),
         field(t('frame.ui.f-dir'), sel(form.dir, dirs.map((d) => [d, t('frame.ui.dir-' + dirKey(d))]), (v) => { form.dir = v; }, { 'data-fa-load': 'dir' })),
         input('value', t('frame.ui.f-value', { unit })),
-        form.kind === 'udl' || form.kind === 'point' ? input('a', form.kind === 'udl' ? t('frame.ui.f-from') : t('frame.ui.f-at')) : null,
-        form.kind === 'udl' ? input('b', t('frame.ui.f-to')) : null,
+        form.kind === 'udl' || form.kind === 'point' ? input('a', L ? t(form.kind === 'udl' ? 'frame.ui.f-from-u' : 'frame.ui.f-at-u', { u: L.mark() }) : form.kind === 'udl' ? t('frame.ui.f-from') : t('frame.ui.f-at')) : null,
+        form.kind === 'udl' ? input('b', L ? t('frame.ui.f-to-u', { u: L.mark() }) : t('frame.ui.f-to')) : null,
         btn(t('frame.ui.load-add'), add, { 'data-fa-load-add': '', disabled: !ids.length })),
       listed.length ? table([t('frame.ui.col-case'), t('frame.ui.col-member'), t('frame.ui.col-load'), ''], [], listed.map(({ c, l, i, id }) => el('tr', {},
         td(c.name), td(host.member(id)?.label || id), td(loadText(l)),
         el('td', {}, link(t('frame.ui.remove'), () => change(t('frame.ui.undo-load-remove'), (x) => { x.cases.find((q) => q.id === c.id).loads.splice(i, 1); })))))) : null,
       nodeLoads(a),
+      host.floorLoads ? floorBlock(a) : null,
       endsBlock(ids));
+  }
+  /** A pressure on every slab (0.9 SU.1056): kN/m² down, per case; listed with a way to take it off. */
+  const floorForm = { value: '' };
+  function floorBlock(a) {
+    const rows = [];
+    for (const c of a.cases) c.loads.forEach((l, i) => { if (l.type === 'floor') rows.push({ c, l, i }); });
+    function add() {
+      const v = Number(String(floorForm.value).replace(',', '.'));
+      if (!Number.isFinite(v) || v === 0 || Math.abs(v) > 10000) { host.print(t('frame.ui.load-bad-value')); return; }
+      change(t('frame.floor.undo'), (x) => { x.cases.find((q) => q.id === form.case)?.loads.push({ type: 'floor', p: -v / 1000 }); });
+      host.print(t('frame.floor.added'));
+    }
+    return el('div', { className: 'fa-floor', 'data-fa-floor': '' },
+      el('div', { className: 'fa-row' },
+        field(t('frame.floor.f-value'), el('input', { type: 'text', inputMode: 'decimal', className: C.input, value: floorForm.value, oninput: (e) => { floorForm.value = e.target.value; }, 'data-fa-floor-value': '' })),
+        btn(t('frame.floor.add'), add, { 'data-fa-floor-add': '' })),
+      note(t('frame.floor.about')),
+      rows.length && result?.frame && !result.error && !stale() && !result.frame.model.plates?.length ? note(t('frame.floor.no-slabs'), { className: C.note + ' fa-warn' }) : null,
+      rows.length ? table([t('frame.ui.col-case'), t('frame.ui.col-load'), ''], [], rows.map(({ c, l, i }) => el('tr', {}, td(c.name), td(t('frame.floor.row', { p: Number((-l.p * 1000).toFixed(3)) })),
+        el('td', {}, link(t('frame.ui.remove'), () => change(t('frame.ui.undo-load-remove'), (x) => { x.cases.find((q) => q.id === c.id).loads.splice(i, 1); }))))), { 'data-fa-floor-loads': '' }) : null);
   }
   /** Loads at points (node loads), with a way to take them off. */
   function nodeLoads(a) {
@@ -338,7 +394,7 @@ export function framePanel(host) {
       const k = Math.max(0, l.F.findIndex((v) => v !== 0)), v = (l.F[k] || 0) / 1000;
       const down = k === 2 && v < 0;
       const dir = down ? t('frame.ui.dir-down') : t('frame.ui.dir-' + ['gx', 'gy', 'gz', 'gx', 'gy', 'gz'][k]);
-      return el('tr', {}, td(c.name), td('(' + l.at.map((q) => Math.round(q)).join(', ') + ')'), td(t('frame.ui.load-node', { p: Number((down ? -v : v).toFixed(3)), dir })),
+      return el('tr', {}, td(c.name), td(ptText(l.at)), td(t('frame.ui.load-node', { p: Number((down ? -v : v).toFixed(3)), dir })),
         el('td', {}, link(t('frame.ui.remove'), () => change(t('frame.ui.undo-load-remove'), (x) => { x.cases.find((q) => q.id === c.id).loads.splice(i, 1); }))));
     }), { 'data-fa-node-loads': '' });
   }
@@ -517,6 +573,53 @@ export function framePanel(host) {
     return el('div', { className: C.block + ' fa-design' }, ...out);
   }
 
+  // ---- Finite elements: natural frequencies (0.9 SU.908; lib/fem through host.fem) ----
+  const modalOk = () => !!(modalRes && modalRes.version === host.version() && modalRes.out?.ok);
+  const pctOf = (v, tot) => (tot > 0 ? (100 * v / tot).toFixed(1) : '0.0');
+  function runModal() {
+    if (!host.fem) return;
+    const f = current().fem || { modes: 6, bending: 'mitc4' };
+    if (!result || result.error || stale()) { run(); if (!result || result.error) return; }
+    let out;
+    try { out = host.fem.modal(result.frame.model, { n: f.modes, bending: f.bending }); }
+    catch (err) { out = { ok: false, error: { code: 'internal', message: err?.message || String(err) } }; }
+    modalRes = { version: host.version(), out };
+    modeShown = out.ok && out.rows.length ? 1 : 0;
+    draw();
+    host.print(out.ok ? t('frame.fem.ran', { n: out.rows.length, dofs: out.dofs }) : t('frame.fem.err.' + out.error.code, { message: out.error.message || '' }));
+    rerender();
+  }
+  function modalTables() {
+    const o = modalRes.out, tot = o.total;
+    /* i18n-ignore-start: column heads that are symbols / units */
+    return [{ title: t('frame.fem.title'), head: [t('frame.fem.col-mode'), 'f (Hz)', 'T (s)', 'X (%)', 'Y (%)', 'Z (%)'], numeric: [0, 1, 2, 3, 4, 5],
+      rows: o.rows.map((q) => [String(q.n), q.hz.toFixed(3), q.period.toFixed(4), pctOf(q.mass[0], tot[0]), pctOf(q.mass[1], tot[1]), pctOf(q.mass[2], tot[2])]) },
+    { title: t('frame.pl.about'), head: [t('frame.rep.item'), t('frame.rep.value')], numeric: [], rows: [[t('frame.pl.method'), t('frame.fem.method')], [t('frame.pl.limits'), t('frame.fem.limits')]] }];
+    /* i18n-ignore-end */
+  }
+  function femBlock() {
+    if (!host.fem) return null;
+    const f = current().fem || { modes: 6, bending: 'mitc4' };
+    const out = [head(t('frame.fem.h'), el('button', { type: 'button', className: C.primary, onclick: runModal, 'data-fa-modal-run': '' }, t('frame.fem.run')))];
+    out.push(el('div', { className: 'fa-row' },
+      field(t('frame.fem.f-modes'), sel(String(f.modes), [3, 6, 10, 20].map((n) => [String(n), String(n)]), (v) => change(t('frame.fem.undo'), (x) => { x.fem = { ...(x.fem || { bending: 'mitc4' }), modes: Number(v) }; }), { 'data-fa-modes': '' })),
+      field(t('frame.fem.f-slab'), sel(f.bending, [['mitc4', t('frame.fem.slab-mitc4')], ['dkq', t('frame.fem.slab-dkq')]], (v) => change(t('frame.fem.undo'), (x) => { x.fem = { ...(x.fem || { modes: 6 }), bending: v }; }), { 'data-fa-slab': '' }))));
+    out.push(note(t('frame.fem.about')));
+    if (!modalRes) return el('div', { className: C.block + ' fa-fem' }, ...out);
+    if (modalRes.version !== host.version()) { out.push(note(t('frame.ui.results-stale'), { 'data-fa-modal-stale': '' })); return el('div', { className: C.block + ' fa-fem' }, ...out); }
+    const o = modalRes.out;
+    if (!o.ok) { out.push(el('p', { className: C.error, role: 'alert', 'data-fa-modal-error': '' }, t('frame.fem.err.' + o.error.code, { message: o.error.message || '' }))); return el('div', { className: C.block + ' fa-fem' }, ...out); }
+    for (const w of o.warnings) out.push(note(t('frame.fem.warn.' + w.code, { n: w.n ?? '' }), { className: C.note + ' fa-warn' }));
+    out.push(el('div', { className: 'fa-row' }, field(t('frame.fem.f-show'), sel(String(modeShown), [['0', t('frame.fem.show-none')], ...o.rows.map((q) => [String(q.n), t('frame.fem.show-mode', { n: q.n, hz: q.hz.toFixed(2) })])], (v) => { modeShown = Number(v); draw(); rerender(); }, { 'data-fa-modal-show': '' }))));
+    const tot = o.total;
+    out.push(table([t('frame.fem.col-mode'), 'f (Hz)', 'T (s)', 'X (%)', 'Y (%)', 'Z (%)', t('frame.fem.col-cum')], [0, 1, 2, 3, 4, 5, 6], o.rows.map((q) =>
+      el('tr', { 'data-fa-modal-row': q.n }, td(String(q.n), 1), td(q.hz.toFixed(3), 1), td(q.period.toFixed(4), 1), td(pctOf(q.mass[0], tot[0]), 1), td(pctOf(q.mass[1], tot[1]), 1), td(pctOf(q.mass[2], tot[2]), 1),
+        td(['X ' + pctOf(q.cum[0], tot[0]), 'Y ' + pctOf(q.cum[1], tot[1]), 'Z ' + pctOf(q.cum[2], tot[2])].join(' · '), 1))), { 'data-fa-modal-table': '' }));
+    out.push(note(t('frame.fem.mass', { kg: Math.round(o.mass), dofs: o.dofs })));
+    out.push(note(host.fem.note));
+    return el('div', { className: C.block + ' fa-fem' }, ...out);
+  }
+
   function resultsBlock() {
     const out = [];
     const ok = result && !result.error && !stale();
@@ -525,19 +628,21 @@ export function framePanel(host) {
       link(t('frame.ui.pdf'), exportPdf, { disabled: !ok, 'data-fa-pdf': '' }),
       link(t('frame.ui.csv'), exportCsv, { disabled: !ok, 'data-fa-csv': '' }),
       link(t('frame.ui.craft'), exportCraft, { 'data-fa-craft': '' })));
+    out.push(el('label', { className: 'fa-live' }, el('input', { type: 'checkbox', checked: !!current().secondOrder, 'data-fa-second': '', onchange: (e) => change(t('frame.so.undo'), (a) => { if (e.target.checked) a.secondOrder = true; else delete a.secondOrder; }) }), ' ', t('frame.so.on')));
     if (host.live) out.push(el('label', { className: 'fa-live' }, el('input', { type: 'checkbox', checked: liveOn, 'data-fa-live': '', onchange: (e) => setLive(e.target.checked) }), ' ', t('frame.live.on'), liveOn && liveState ? ' · ' + t('frame.live.state-' + (liveState.replace(/-running$/, '') === liveState ? liveState : 'running')) : ''));
     if (!result) { out.push(note(t('frame.ui.results-none'))); return out; }
     if (stale()) { out.push(note(t('frame.ui.results-stale'), { 'data-fa-stale': '' })); return out; }
     if (result.error) { out.push(el('p', { className: C.error, role: 'alert', 'data-fa-error': '' }, errorText(result))); return out; }
     const sol = result.sol, keys = Object.keys(sol.results);
     out.push(el('div', { className: 'fa-row' },
-      field(t('frame.ui.f-show'), sel(setKey, keys.map((k) => [k, (k.startsWith('combo:') ? t('frame.ui.combo-prefix') : '') + sol.results[k].name]), (v) => { setKey = v; draw(); rerender(); }, { 'data-fa-set': '' })),
-      field(t('frame.ui.f-mode'), sel(mode, [...MODES, ...(result.frame.model.plates?.length ? PLATE_MODES : [])].map((m) => [m, t('frame.ui.mode-' + m.toLowerCase())]), (v) => { mode = v; draw(); rerender(); }, { 'data-fa-mode': '' })),
+      field(t('frame.ui.f-show'), sel(setKey, keys.map((k) => [k, (k.startsWith('combo:') ? t('frame.ui.combo-prefix') : '') + sol.results[k].name]), (v) => { setKey = v; modeShown = 0; draw(); rerender(); }, { 'data-fa-set': '' })),
+      field(t('frame.ui.f-mode'), sel(mode, [...MODES, ...(result.frame.model.plates?.length ? PLATE_MODES : [])].map((m) => [m, t('frame.ui.mode-' + m.toLowerCase())]), (v) => { mode = v; modeShown = 0; draw(); rerender(); }, { 'data-fa-mode': '' })),
       mode === 'deflected' ? field(t('frame.ui.f-scale'), sel(String(scale), [['0', t('frame.ui.scale-auto')], ...[1, 10, 50, 100, 500].map((s) => [String(s), t('frame.ui.scale-times', { s })])], (v) => { scale = Number(v); draw(); rerender(); }, { 'data-fa-scale': '' })) : null));
     const R = sol.results[setKey];
     const shown = result.shown;
     out.push(note(t('frame.ui.summary', { nodes: result.frame.model.nodes.length, members: result.frame.model.members.length, dofs: sol.dofs, ms: result.ms, fz: KN(-R.applied[2]), rz: KN(R.reacted[2]) })
       + (mode === 'deflected' && shown?.scale ? ' ' + t('frame.ui.scale-used', { s: shown.scale >= 10 ? Math.round(shown.scale) : Number(shown.scale.toPrecision(2)) }) : ''), { 'data-fa-summary': '' }));
+    if (R.second) out.push(note(R.second.converged ? t('frame.so.result', { n: R.second.iterations, a: R.second.amplification.toFixed(3), seg: R.second.segments }) : t('frame.so.not-converged', { n: R.second.iterations }), { className: C.note + (R.second.converged ? '' : ' fa-warn'), 'data-fa-second-result': '' }));
     for (const w of [...sol.warnings.slice(0, 6), ...(result.frame.warnings || []).slice(0, 3)]) out.push(note(t('frame.warn.' + w.code, { node: pointOf(w.node), dof: w.dof !== undefined ? t('frame.dof.' + w.dof) : '', id: w.id ?? '' }), { className: C.note + ' fa-warn' }));
     if (result.frame.skipped.length) out.push(note(t('frame.ui.skipped', { n: result.frame.skipped.length, ids: result.frame.skipped.slice(0, 8).map((s) => host.member(s.id)?.label || s.id).join(', ') }), { className: C.note + ' fa-warn' }));
     const res = partResults(result.frame.parts, sol, setKey);
@@ -547,13 +652,13 @@ export function framePanel(host) {
     const forceHeads = ['N (kN)', 'Vz (kN)', 'Vy (kN)', 'My (kN·m)', 'Mz (kN·m)', 'T (kN·m)'];
     const reacHeads = ['Fx (kN)', 'Fy (kN)', 'Fz (kN)', 'Mx (kN·m)', 'My (kN·m)', 'Mz (kN·m)'];
     /* i18n-ignore-end */
-    out.push(table([t('frame.ui.col-member'), t('frame.ui.col-type'), t('frame.ui.col-profile'), ...forceHeads, t('frame.ui.col-defl'), ''], [3, 4, 5, 6, 7, 8, 9], rows.map(([id, r]) => {
+    out.push(table([t('frame.ui.col-member'), t('frame.ui.col-type'), t('frame.ui.col-profile'), ...forceHeads, L ? t('frame.ui.col-defl-u', { u: L.smallMark() }) : t('frame.ui.col-defl'), ''], [3, 4, 5, 6, 7, 8, 9], rows.map(([id, r]) => {
       const m = host.member(id);
       return el('tr', {},
         el('td', {}, el('button', { type: 'button', className: C.link, onclick: () => host.select(id) }, m?.label || id)),
         td(m ? t('frame.ui.type-' + m.type) : ''), td(m?.profile || ''),
         td(KN(sm(r.ext.N)), 1), td(KN(sm(r.ext.Vz)), 1), td(KN(sm(r.ext.Vy)), 1), td(KNM(sm(r.ext.My)), 1), td(KNM(sm(r.ext.Mz)), 1), td(KNM(sm(r.ext.T)), 1),
-        td(r.ext.defl.value.toFixed(2), 1), td(Number.isFinite(r.ext.defl.ratio) && r.ext.defl.ratio < 1e7 ? 'L/' + Math.round(r.ext.defl.ratio) : ''));
+        td(L ? L.small(r.ext.defl.value) : r.ext.defl.value.toFixed(2), 1), td(Number.isFinite(r.ext.defl.ratio) && r.ext.defl.ratio < 1e7 ? 'L/' + Math.round(r.ext.defl.ratio) : ''));
     }), { 'data-fa-table': '' }));
     const fm = result.frame.model, idx = new Map(fm.nodes.map((n, k) => [n.id, k]));
     out.push(head(t('frame.ui.h-reactions')), table([t('frame.ui.col-at'), ...reacHeads], [1, 2, 3, 4, 5, 6], fm.supports.map((s) => {
@@ -567,16 +672,22 @@ export function framePanel(host) {
   // the Concrete and Seismic blocks (0.8 SU.1056; frame-concrete-panel.js), for apps that set up concrete sections and floors
   const conc = host.concrete ? concretePanel({ el, t, C, host, sel, btn, link, head, field, note, table, td, current, change, rerender, result: () => result, stale, run, version: () => host.version() }) : null;
 
+  // the Wind, Seismic site and ASCE 7 combinations blocks (0.9 SU.1056b; frame-loads-panel.js), beside the Seismic block
+  const dp = host.fem?.dyn ? dynamicsPanel({ el, t, C, host, sel, btn, link, head, field, note, table, td, current, change, rerender, result: () => result, stale, run, version: () => host.version() }) : null;      // 0.9 SU.1056
+  const lp = host.concrete ? loadsPanel({ el, t, C, host, sel, btn, link, head, field, note, table, td, current, change, rerender, result: () => result, stale, run, version: () => host.version() }) : null;
+
   return {
-    panel() { return [el('p', { className: 'fa-aid', 'data-fa-aid': '' }, t('frame.ui.aid')), ...resultsBlock(), designBlock(), breakBlock(), ...(conc ? conc.blocks() : []), loadsBlock(), casesBlock(), settingsBlock()].filter(Boolean); },
-    modelChanged() { if (result && stale()) { host.hide(); host.showUtil?.(null, null); conc?.publish(); host.breakit?.setProblems?.([]); } if (liveOn && liveCtl) liveCtl.change(host.version()); },
-    clear() { result = null; design = null; brk = null; liveCtl?.stop(); liveOn = false; host.hide(); host.showUtil?.(null, null); conc?.clear(); },
+    panel() { return [el('p', { className: 'fa-aid', 'data-fa-aid': '' }, t('frame.ui.aid')), ...resultsBlock(), femBlock(), ...(dp ? dp.blocks() : []), designBlock(), breakBlock(), ...(conc ? conc.blocks() : []), ...(lp ? lp.blocks() : []), loadsBlock(), casesBlock(), settingsBlock()].filter(Boolean); },
+    modelChanged() { dp?.modelChanged(); if (modalRes && modalRes.version !== host.version()) { modalRes = null; modeShown = 0; } if (result && stale()) { host.hide(); host.showUtil?.(null, null); conc?.publish(); host.breakit?.setProblems?.([]); } if (liveOn && liveCtl) liveCtl.change(host.version()); },
+    clear() { result = null; modalRes = null; modeShown = 0; design = null; brk = null; liveCtl?.stop(); liveOn = false; host.hide(); host.showUtil?.(null, null); conc?.clear(); lp?.clear(); dp?.clear(); },
     get concrete() { return conc; },
     get design() { return designNow(); },
     get break() { return brkNow(); },
     runBreak, setLive,
     runDesign, makeCombos,
     get result() { return result; },
+    get modal() { return modalOk() ? modalRes.out : null; },
+    runModal,
     get set() { return setKey; },
     run,
     setMode(m) { if (MODES.includes(m) || PLATE_MODES.includes(m)) { mode = m; draw(); } },

@@ -7,7 +7,7 @@
  *
  *   const p = popout({ name, title, nodes: [el…], listeners: [[type, fn, capture]…], onChange(open) })
  *   p.open() · p.back() · p.isOpen() · p.box (the window's wrapper while open)
- *   menuButton({ t, label, isOpen, open, back }) → a "…" button whose menu offers Move to a new window / Put … back
+ *   menuButton({ t, label, isOpen, open, back, extra }) → a "…" button whose menu offers Move to a new window / Put … back
  */
 const isTyping = (t) => !!t?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"])');
 
@@ -56,7 +56,7 @@ export function popout({ name, title, nodes, listeners = [], onChange = () => {}
 }
 
 /** A "…" button whose menu (built like a panel grip's, assets/js/app-panels.js openMenu) moves the piece out or back. */
-export function menuButton({ t, label, isOpen, open, back, backLabel }) {
+export function menuButton({ t, label, isOpen, open, back, backLabel, extra = [], noTear = false }) {
   let menu = null;
   const close = () => { if (!menu) return; menu.ul.remove(); menu.btn.setAttribute('aria-expanded', 'false'); menu.d.removeEventListener('pointerdown', menu.away, true); menu = null; };
   const btn = document.createElement('button');
@@ -67,7 +67,7 @@ export function menuButton({ t, label, isOpen, open, back, backLabel }) {
     e.stopPropagation();
     const again = menu?.btn === btn; close(); if (again) return;
     const d = btn.ownerDocument, out = isOpen();
-    const items = out ? [[backLabel, 'bi-box-arrow-in-down-left', back]] : [[t('shell.ws.tear'), 'bi-window-plus', open]];
+    const items = [...extra, ...(noTear ? [] : out ? [[backLabel, 'bi-box-arrow-in-down-left', back]] : [[t('shell.ws.tear'), 'bi-window-plus', open]])];   // extra: [text, icon, run] rows the piece adds (the toolbox's Collapse all / Expand all)
     const ul = d.createElement('ul'); ul.className = 'shell-panel-menu'; ul.setAttribute('role', 'menu'); ul.setAttribute('aria-label', label);
     for (const [text, ic, run] of items) {
       const li = d.createElement('li'); li.setAttribute('role', 'none');

@@ -1,0 +1,9 @@
+{"cases": [
+  {"id": "ld-1", "name": "Energy conservation in the room solve", "result": "Absorbed flux equals emitted flux within 3 % for a rectangle, an L shape and a clockwise outline (lib/lightdesign/test/test.mjs)"},
+  {"id": "ld-2", "name": "Inter-reflection against an independent photon trace of a 6 by 4 m office", "result": "667.6 lx against 676.8 lx, 1.4 % apart"},
+  {"id": "ld-3", "name": "Sky law, worked by hand", "result": "A roof light that sees the whole sky gives Eext within 0.5 %; an endless vertical window gives half of it on a horizontal plane within 1 %; vertical illuminance facing the sky is 0.396 of Eext within 1 %"},
+  {"id": "ld-4", "name": "Light entering a room through a window", "result": "The lumens that reach the room's surfaces equal T times the vertical sky illuminance times the glass area, 0.15 % apart on a 6 by 4 m room with a 3 m window"},
+  {"id": "ld-5", "name": "Obstruction", "result": "With no bounced light, points behind a full-height partition get no direct light and points in front are unchanged; touching a face is not a hit"},
+  {"id": "ld-6", "name": "BimCraft in the real page, on the showcase house", "result": "Windows and ceiling height read from the model; 6 IfcLightFixture placed at the calculated positions and height, 212 plan strokes, replaced not doubled, erased, undo restores them (tools/bimcraft-test/browser-lightdesign-bim.mjs, 22 checks)"},
+  {"id": "ld-7", "name": "Emergency lighting", "result": "Floor lux under one luminaire equals share times I over d squared; a partition blocks it. The limits it is checked against are unverified and wait for a lighting engineer"}
+]}

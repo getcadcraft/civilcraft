@@ -1,0 +1,23 @@
+{
+  "id": "lightdesign",
+  "name": "Interior lighting design",
+  "version": "0.9.0",
+  "apps": [
+    "cadcraft",
+    "bimcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "files",
+    "storage",
+    "commands"
+  ],
+  "description": "Light a room from photometry files (.ies, .ldt): plan luminaires for a target lux, then get mean, lowest and highest lux on the workplane, uniformity, glare (UGR) and watts per m², with bounced light included. Map, requirement checks, printable report. A design aid, not a certificate.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

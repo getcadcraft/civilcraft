@@ -98,9 +98,12 @@
   }
   function save() {
     try {
-      // app-panels.js keeps its layout in the same entry ("panels"); keep it.
-      var cur = JSON.parse(localStorage.getItem(KEY) || '{}');
-      localStorage.setItem(KEY, JSON.stringify(cur && cur.panels ? Object.assign({}, s, { panels: cur.panels }) : s));
+      // app-panels.js keeps its layout in the same entry ("panels"), and an app may keep its command line's place there ("cmdline":
+      // CadCraft's cmdline.js, 0.9 SU.1083); keep both.
+      var cur = JSON.parse(localStorage.getItem(KEY) || '{}'), keep = {};
+      if (cur && cur.panels) keep.panels = cur.panels;
+      if (cur && cur.cmdline) keep.cmdline = cur.cmdline;
+      localStorage.setItem(KEY, JSON.stringify(Object.assign({}, s, keep)));
     } catch (e) {}
   }
   function remPx() { return parseFloat(getComputedStyle(root).fontSize) || 16; }
@@ -237,7 +240,7 @@
     h.addEventListener('pointermove', function (e) {
       if (!h.hasPointerCapture(e.pointerId)) return;
       var d = (e.clientX - startX) / remPx();
-      setWidth(side, startW + (side === 'left' ? d : -d), false);
+      setWidth(side, startW + ((side === 'left') !== (document.documentElement.dir === 'rtl') ? d : -d), false);
     });
     function end(e) {
       if (!h.hasPointerCapture(e.pointerId)) return;
@@ -257,7 +260,7 @@
       else return;
       e.preventDefault();
       e.stopPropagation();   // the apps pan the drawing with arrow keys
-      setWidth(side, width(side) + (side === 'left' ? d : -d), true);
+      setWidth(side, width(side) + ((side === 'left') !== (document.documentElement.dir === 'rtl') ? d : -d), true);
     });
   });
 
@@ -282,7 +285,8 @@
       h.hidden = !threeCols || p.hidden || p.offsetParent === null;
       if (h.hidden) return;
       var r = p.getBoundingClientRect();
-      var x = side === 'left' ? r.right - mr.left : r.left - mr.left;
+      var rtl = document.documentElement.dir === 'rtl';   // LANG-35: in RTL the first column sits at the right, so its inner edge is its LEFT edge
+      var x = (side === 'left') !== rtl ? r.right - mr.left : r.left - mr.left;
       h.style.left = x + 'px';
       h.style.top = (r.top - mr.top + main.scrollTop) + 'px';
       h.style.height = r.height + 'px';
@@ -388,8 +392,18 @@
   }
   function resetOrder(force) {
     if (!original || (UI && s.tbLock && force !== true)) return;
-    original.groups.forEach(function (g) { tb.appendChild(g); });
-    original.rows.forEach(function (o) { o.items.forEach(function (el) { o.row.appendChild(el); }); });
+    // 2026-11-09: put the snapshot's own items back in their first order, and let every item that came later (an add-on's group or tool, a button the app drew after the
+    // snapshot) stay right after the item it follows now. Only what is still a child of the same parent is moved: an app that rebuilt its toolbar (ModelCraft moves loose tools
+    // into groups) must not have them flattened back, and a late item is never thrown to the front or the end.
+    function restore(parent, originals, current) {
+      var orig = originals.filter(function (el) { return el.parentNode === parent; }), isO = function (el) { return orig.indexOf(el) !== -1; };
+      var anchor = new Map(), last = null, lead = [];
+      current.forEach(function (el) { if (isO(el)) last = el; else if (last) { var l = anchor.get(last) || []; l.push(el); anchor.set(last, l); } else lead.push(el); });
+      var out = lead.slice(); orig.forEach(function (el) { out.push(el); (anchor.get(el) || []).forEach(function (x) { out.push(x); }); });
+      out.forEach(function (el) { parent.appendChild(el); });
+    }
+    restore(tb, original.groups, groupsOf());
+    original.rows.forEach(function (o) { restore(o.row, o.items, toolsOf(o.row)); });
     s.order = null;
     save();
     relayoutSoon();
@@ -573,6 +587,201 @@
     window.addEventListener('keydown', first, true);
   }
 
+  /* ---------------- Auto-focus panel (0.9, owner 2026-11-05) ----------------
+   * "If I click Plant in the menu, the Plants content should expand and collapse all the other content sections in the panel."
+   * One engine for every app and every panel: window.ccAutoFocus.register({ id, panel, mode, unit, heading, active, defaultId }) →
+   *   { refresh(), reveal(unitId) }.
+   *   mode 'sections'  each `unit` element (a section) in the panel is one fold: its `heading` child is the button, its other children fold
+   *   mode 'flat'      the panel's children are grouped by `heading` elements (a heading and what follows up to the next heading)
+   * Opening one shuts the others except the ones the person LOCKED (a lock by the caret). `active()` false = the panel looks as it always did.
+   * The person turns the whole thing off in Settings › Global › Auto-focus panel (localStorage cc-autofocus = "off"); open and locked
+   * states are remembered per panel (cc-autofocus-state / cc-autofocus-lock). Re-run refresh() after a panel draws its content again. */
+  var AF = (function () {
+    var KEY = 'cc-autofocus', STATE = 'cc-autofocus-state', LOCK = 'cc-autofocus-lock', ctls = [];
+    var mem = { s: {}, l: {} }, byId = {};
+    function enabled() { try { return localStorage.getItem(KEY) !== 'off'; } catch (e) { return true; } }
+    function read(k) { try { return JSON.parse(localStorage.getItem(k) || '{}') || {}; } catch (e) { return {}; } }
+    function write(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private window: this visit only */ } }
+    function slug(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'x'; }
+    /** 2026-11-09: a section with no remembered choice starts as it did before the folds: a <details> that was open, a section marked data-af-open (c.defOpen, filled by units()); the person's own saved choice always wins. */
+    function isOpen(c, id) { var k = c.id + '/' + id, st; if (k in mem.s) return mem.s[k]; st = read(STATE); return k in st ? !!st[k] : !!(c.defOpen && c.defOpen[id]); }
+    function setOpen(c, id, on) { var k = c.id + '/' + id; mem.s[k] = on; var st = read(STATE); st[k] = on; write(STATE, st); }
+    function isLocked(c, id) { var k = c.id + '/' + id; return k in mem.l ? mem.l[k] : !!read(LOCK)[k]; }
+    function setLocked(c, id, on) { var k = c.id + '/' + id; mem.l[k] = on; var st = read(LOCK); st[k] = on; write(LOCK, st); }
+
+    /** A stable name for a section that did not get one: its first data-* attribute, else its classes without the generic ones. */
+    function secKey(s, i) {
+      var a = Array.prototype.filter.call(s.attributes, function (x) { return x.name.indexOf('data-') === 0 && x.name !== 'data-af-id'; })[0];
+      if (a) return a.name.slice(5);
+      var k = String(s.className).split(/\s+/).filter(function (x) { return x && !/-sec$/.test(x); }).join('-');
+      return (k || 'sec') + '-' + i;
+    }
+    /** The heading of a section: a child heading, or the `*-sec-head` bar that holds one (with the section's own buttons beside it). */
+    function headOf(sec, sel) {
+      return Array.prototype.filter.call(sec.children, function (x) { return x.matches(sel) || (/(^|\s)\w+-sec-head(\s|$)/.test(String(x.className)) && x.querySelector('h1, h2, h3, h4')); })[0] || null;
+    }
+    function visible(u) { return !u.head.closest('[hidden]'); }
+
+    /** First sight of a fold: remember how it started (a <details> that is open, or data-af-open) as its default. */
+    function noteDefault(c, id, el) { c.defOpen = c.defOpen || {}; c.seenIds = c.seenIds || {}; if (c.seenIds[id]) return; c.seenIds[id] = 1; if (el.hasAttribute('data-af-open') || (el.tagName === 'DETAILS' && el.open)) c.defOpen[id] = true; }
+    /** The folds of a panel now: [{ id, head, members[] }]. */
+    function units(c) {
+      var out = [], panel = c.panel, i;
+      if (c.mode === 'details') {   // <details> groups: the browser keeps their content; we only decide which are open
+        var ds = panel.querySelectorAll(':scope > ' + c.unit);
+        for (i = 0; i < ds.length; i++) { var sm = ds[i].querySelector(':scope > summary'); if (sm) { var di = ds[i].getAttribute(c.idAttr || 'data-af-id') || secKey(ds[i], i); noteDefault(c, di, ds[i]); out.push({ id: di, head: sm, members: [], box: ds[i] }); } }
+        if (c.mode === 'details' && c.unit.indexOf('section') === 0) {   // 2026-11-09: a plain section (title + body, no <details>) beside the folds is a fold too (MarkupCraft's Sheets)
+          var ps = panel.querySelectorAll(':scope > section');
+          for (i = 0; i < ps.length; i++) { if (ps[i].querySelector('details')) continue; var hh = headOf(ps[i], 'h1, h2, h3, h4'); if (hh) { var pid = ps[i].getAttribute('data-af-id') || secKey(ps[i], i); noteDefault(c, pid, ps[i]); c.defOpen = c.defOpen || {}; if (!(pid in (c.defSeen = c.defSeen || {}))) { c.defSeen[pid] = 1; c.defOpen[pid] = true; } } if (hh) out.push({ ext: true, id: ps[i].getAttribute('data-af-id') || secKey(ps[i], i), head: hh, members: Array.prototype.filter.call(ps[i].children, function (x) { return x !== hh; }) }); }
+        }
+      } else if (c.mode === 'flat') {
+        var kids = Array.prototype.slice.call(panel.children), cur = null, seen = {};
+        for (i = 0; i < kids.length; i++) {
+          if (kids[i].matches(c.heading)) { var id = slug(kids[i].textContent); if (seen[id]) id += '-' + i; seen[id] = 1; cur = { id: id, head: kids[i], members: [] }; out.push(cur); }
+          else if (cur) cur.members.push(kids[i]);
+        }
+      } else {
+        var secs = panel.querySelectorAll(':scope > ' + c.unit + ', :scope > details');   // 2026-11-09: a <details> sub-section (DetailCraft's Grids, Levels, ...) is a fold like any section: same lock, caret and remembered state
+        for (i = 0; i < secs.length; i++) {
+          if (secs[i].tagName === 'DETAILS') {
+            var sm1 = secs[i].querySelector(':scope > summary'); if (!sm1) continue;
+            var di1 = secs[i].getAttribute('data-af-id') || secKey(secs[i], i); noteDefault(c, di1, secs[i]); out.push({ id: di1, head: sm1, members: [], box: secs[i], ext: true }); continue;
+          }
+          var h = headOf(secs[i], c.heading); if (!h) continue;
+          var id2 = secs[i].getAttribute('data-af-id') || secKey(secs[i], i);
+          noteDefault(c, id2, secs[i]); out.push({ id: id2, head: h, members: Array.prototype.filter.call(secs[i].children, function (x) { return x !== h; }) });
+        }
+      }
+      return out;
+    }
+    function clear(c) {
+      var heads = c.panel.querySelectorAll('[data-af]'), i;
+      for (i = 0; i < heads.length; i++) {
+        var h = heads[i]; h.removeAttribute('data-af'); h.removeAttribute('role'); h.removeAttribute('tabindex'); h.removeAttribute('aria-expanded');
+        var b = h.querySelector(':scope > button[data-af-lock]'); if (b) b.remove();
+      }
+      var m = c.panel.querySelectorAll('.af-collapsed'); for (i = 0; i < m.length; i++) m[i].classList.remove('af-collapsed');
+      var lk = c.panel.querySelectorAll('button[data-af-lock]'); for (i = 0; i < lk.length; i++) lk[i].remove();
+    }
+    function paint(c, us) {
+      us.forEach(function (u) {
+        var open = isOpen(c, u.id), locked = isLocked(c, u.id), h = u.head;
+        h.setAttribute('data-af-id', u.id);
+        if (!u.box) { h.setAttribute('data-af', open ? 'open' : 'closed'); h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(open)); }   // a <details> summary already is a button
+        var b = h.querySelector(':scope > button[data-af-lock]');
+        if (!b) { b = document.createElement('button'); b.type = 'button'; b.className = 'af-lock'; b.setAttribute('data-af-lock', ''); b.innerHTML = '<i class="bi" aria-hidden="true"></i>'; h.appendChild(b); }
+        b.setAttribute('aria-pressed', String(locked)); b.title = T(locked ? 'shell.af.unlock' : 'shell.af.lock'); b.setAttribute('aria-label', b.title);
+        b.firstChild.className = 'bi ' + (locked ? 'bi-lock' : 'bi-unlock');
+        u.members.forEach(function (m) { m.classList.toggle('af-collapsed', !open); });
+        if (u.box && u.box.open !== open) u.box.open = open;   // <details>: the browser hides and shows
+      });
+    }
+    function refresh(c) {
+      if (!enabled() || (c.active && !c.active())) { clear(c); return; }
+      var us = units(c); if (!us.length) return;
+      if (!c.settled) {   // first time: sections left open together settle to one (+ the locked)
+        c.settled = true;
+        var kept = false;
+        us.forEach(function (u) { if (isOpen(c, u.id) && !isLocked(c, u.id)) { if (c.defOpen && c.defOpen[u.id]) return; if (kept) setOpen(c, u.id, false); else kept = true; } });
+      }
+      // a panel always has one section open (a new selection can bring headings that were never opened)
+      var seen = us.filter(visible);
+      // (a host that sets window.ccAutoFocusAllowNone, SuperCad Studio, lets every section be folded: nothing opens by itself)
+      // 2026-11-09: on the first pass only the classic folds count (a sub-section that starts open must not leave the panel's own first section closed, as /use shows it); afterwards any open fold does (opening a sub-section closes the first one, and it must stay closed)
+      var firstPass = !c.passed; c.passed = true;
+      if (!window.ccAutoFocusAllowNone && seen.length && !seen.some(function (u) { return (!firstPass || !u.ext) && isOpen(c, u.id); })) setOpen(c, (seen.filter(function (u) { return u.id === c.defaultId; })[0] || seen.filter(function (u) { return !u.ext; })[0] || seen[0]).id, true);
+      paint(c, us);
+    }
+    function open(c, id, on, silent) {
+      var us = units(c);
+      if (on) us.forEach(function (u) { if (u.id !== id && isOpen(c, u.id) && !isLocked(c, u.id)) setOpen(c, u.id, false); });
+      setOpen(c, id, on);
+      paint(c, us);
+      if (on && !silent && c.onOpen) c.onOpen(id);   // a linked panel follows (the toolbox shows the group of the section in focus, and the other way round)
+    }
+    function register(o) {
+      var c = { id: o.id, panel: o.panel, mode: o.mode || 'sections', unit: o.unit || 'section', heading: o.heading || 'h2', active: o.active, defaultId: o.defaultId, idAttr: o.idAttr, onOpen: o.onOpen };
+      ctls.push(c);
+      if (c.panel.setAttribute) c.panel.setAttribute('data-af-owned', '');
+      function target(e) { var h = e.target.closest ? e.target.closest('[data-af]') : null; return h && c.panel.contains(h) ? h : null; }
+      if (c.mode === 'details' || c.mode === 'sections') c.panel.addEventListener('toggle', function (e) {   // the browser opened or closed a group: follow it
+        var d = e.target; if (!d || !d.matches || !d.matches(c.mode === 'sections' ? ':scope > details, details' : c.unit) || !c.panel.contains(d) || (c.mode === 'sections' && d.parentNode !== c.panel)) return;
+        if (!enabled() || (c.active && !c.active())) return;
+        var sm0 = d.querySelector(':scope > summary'), id = d.getAttribute(c.idAttr || 'data-af-id') || (sm0 && sm0.getAttribute('data-af-id')); if (!id) return;
+        if (d.open === isOpen(c, id)) return;   // our own change (paint): already known
+        if (d.open) open(c, id, true); else { setOpen(c, id, false); paint(c, units(c)); }
+      }, true);
+      c.panel.addEventListener('click', function (e) {
+        var lock = e.target.closest ? e.target.closest('button[data-af-lock]') : null, h = lock ? lock.parentNode : target(e);
+        if (lock) e.preventDefault();   // inside a <summary>: the lock must not also fold the group
+        if (!h || !h.getAttribute('data-af-id')) return;
+        if (!lock && e.target.closest && e.target.closest('button, a, input, select, textarea, summary, label, [role="menuitem"]') && e.target.closest('button, a, input, select, textarea, summary, label, [role="menuitem"]') !== h) return;   // the section's own buttons keep their job
+        var id = h.getAttribute('data-af-id');
+        if (lock) { setLocked(c, id, !isLocked(c, id)); paint(c, units(c)); e.stopPropagation(); return; }
+        open(c, id, h.getAttribute('data-af') !== 'open');
+      });
+      c.panel.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        if (e.target.closest && e.target.closest('button[data-af-lock]')) return;
+        var h = target(e); if (!h || e.target !== h) return;
+        e.preventDefault(); open(c, h.getAttribute('data-af-id'), h.getAttribute('data-af') !== 'open');
+      });
+      refresh(c);
+      var api = { refresh: function () { refresh(c); }, reveal: function (id, silent) { if (!enabled() || (c.active && !c.active())) return; c.settled = true; open(c, id, true, silent); var h = c.panel.querySelector('[data-af-id="' + id + '"]'); if (h && h.scrollIntoView) h.scrollIntoView({ block: c.mode === 'details' ? 'start' : 'nearest' }); }, setOnOpen: function (f) { c.onOpen = f; } };
+      byId[c.id] = api;
+      return api;
+    }
+    window.addEventListener('cc-autofocus-changed', function () { ctls.forEach(refresh); });
+
+    /** Every app's side panels, with no per-app code: an `aside` panel with two or more sections that each start with a heading folds, unless the
+     *  app registered it itself or marked it data-af-skip (tab panels are left alone). Redrawn headings are painted again (a childList watch on each
+     *  section and on the panel: nothing deeper, so typing and canvases never wake it). */
+    function auto() {
+      var asides = document.querySelectorAll('aside[class*="-panel"]');
+      Array.prototype.forEach.call(asides, function (panel, n) {
+        if (panel.hasAttribute('data-af-owned') || panel.hasAttribute('data-af-skip')) return;
+        var secs = Array.prototype.filter.call(panel.children, function (x) { return (x.tagName === 'SECTION' && x.getAttribute('role') !== 'tabpanel' && !!headOf(x, 'h1, h2, h3, h4')) || (x.tagName === 'DETAILS' && !!x.querySelector(':scope > summary')); });
+        if (secs.length < 2) {   // panels whose sections are each one <details> (MarkupCraft): the details are the folds
+          var dts = panel.querySelectorAll(':scope > section > details');
+          if (dts.length >= 2) {
+            var app0 = (document.querySelector('[data-app-settings]') || document.body).getAttribute('data-app') || 'app';
+            var side0 = (String(panel.className).match(/(\w+)-(left|right)\b/) || [0, 0, 'p' + n])[2];
+            var api0 = register({ id: 'auto-' + app0 + '-' + side0, panel: panel, mode: 'details', unit: 'section > details' });
+            var q0 = false, mo0 = new MutationObserver(function () { if (q0) return; q0 = true; requestAnimationFrame(function () { q0 = false; api0.refresh(); }); });
+            mo0.observe(panel, { childList: true });
+          }
+          return;
+        }
+        var app = (document.querySelector('[data-app-settings]') || document.body).getAttribute('data-app') || 'app';
+        var side = (String(panel.className).match(/(\w+)-(left|right)\b/) || [0, 0, 'p' + n])[2];
+        var api = register({ id: 'auto-' + app + '-' + side, panel: panel, mode: 'sections', unit: 'section', heading: 'h1, h2, h3, h4' });
+        var queued = false, again = function () { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; api.refresh(); }); };
+        var mo = new MutationObserver(again);
+        mo.observe(panel, { childList: true });
+        secs.forEach(function (s) { mo.observe(s, { childList: true, attributes: true, attributeFilter: ['hidden'] }); });
+      });
+    }
+    /** Commands that work with a panel section open it (owner 2026-11-05): choosing the tool brings its section into focus and the others close.
+     *  [data-attribute, value pattern, panel side, section id]; the section id is the one `auto` gave it (a data-af-id on the section, else its first data-* name). */
+    var LINKS = {
+      cadcraft: [['cmd', /^(PARAMETERS|DIMCONSTRAINT|GEOMCONSTRAINT|AUTOCONSTRAIN|GC[A-Z]+)$/, 'right', 'params-sec']],
+      takeoffcraft: [['tool', /^(linear|area|circle|room|path|cutout|count|autocount|legend|cadgeom)$/, 'right', 'items'], ['tool', /^(note|cloud|highlight)$/, 'right', 'notes-sec']],
+      modelcraft: [['tool', /^paint$/, 'right', 'colors']]
+    };
+    document.addEventListener('click', function (e) {
+      var app = (document.querySelector('[data-app-settings]') || document.body).getAttribute('data-app'), rules = LINKS[app];
+      if (!rules || !enabled() || !e.target.closest) return;
+      var b = e.target.closest('[data-cmd], [data-tool], [data-act]'); if (!b) return;
+      for (var i = 0; i < rules.length; i++) {
+        var v = b.getAttribute('data-' + rules[i][0]);
+        if (v && rules[i][1].test(v)) { var ctl = byId['auto-' + app + '-' + rules[i][2]]; if (ctl) ctl.reveal(rules[i][3]); return; }
+      }
+    }, true);
+    if (document.readyState === 'complete') setTimeout(auto, 0); else window.addEventListener('load', function () { setTimeout(auto, 0); });
+    return { register: register, auto: auto, enabled: enabled, get: function (id) { return byId[id] || null; } };
+  })();
+  window.ccAutoFocus = AF;
+
   /* ---------------- Tooltips for cut-off text ---------------- */
   var tipTimer = 0, tipEl = null, tip = null;
   var SKIP = 'input, select, textarea, [contenteditable], .shell-split';   // i18n-ignore (selector)
@@ -647,15 +856,66 @@
    * person imported, kept in cc-workspace-files); the layout engine (assets/js/app-workspace.js) registers itself here with
    * register(api) so Settings can list its layouts, import, export and remove them. Without the engine the list stays hidden. */
   var WS_KEY = 'cc-workspace', WS_RE = /^(standard|(addon:|file:)?[a-z][a-z0-9-]{1,39})$/, wsApi = null;
-  function wsChoice() { try { var v = localStorage.getItem(WS_KEY); return v && WS_RE.test(v) ? v : 'standard'; } catch (e) { return 'standard'; } }
+  /* 0.9 FX.82 (owner 2026-11-06): a layout for this app alone. localStorage cc-workspace-app = {<app slug>: layout}; an entry wins over the
+   * global choice for that app, no entry = follows the global one. SuperCad Studio hosts the apps, so its slug is the active app's
+   * (window.ccWorkspaceAppSlug, set by Studio): the layout follows whichever app you are working in. */
+  var WSA_KEY = 'cc-workspace-app';
+  function wsAppSlug() { try { var f = window.ccWorkspaceAppSlug && window.ccWorkspaceAppSlug(); if (f) return String(f); } catch (e) {} return dlg.getAttribute('data-app') || ''; }
+  function wsAppMap() { try { var o = JSON.parse(localStorage.getItem(WSA_KEY) || '{}'); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
+  function wsAppOwn() { var v = wsAppMap()[wsAppSlug()]; return typeof v === 'string' && WS_RE.test(v) ? v : null; }
+  function wsGlobal() { try { var v = localStorage.getItem(WS_KEY); return v && WS_RE.test(v) ? v : 'standard'; } catch (e) { return 'standard'; } }
+  function wsChoice() { return wsAppOwn() || wsGlobal(); }
+  function wsAppSave(v) {
+    var m = wsAppMap(), k = wsAppSlug(); if (!k) return;
+    if (v) m[k] = v; else delete m[k];
+    try { if (Object.keys(m).length) localStorage.setItem(WSA_KEY, JSON.stringify(m)); else localStorage.removeItem(WSA_KEY); } catch (e) {}
+  }
   function wsTell() { window.dispatchEvent(new CustomEvent('cc-workspace', { detail: { layout: wsChoice() } })); }
-  function wsMark() { var v = wsChoice(); form.querySelectorAll('input[name="workspace"]').forEach(function (r) { r.checked = r.value === v; }); }
+  function wsMark() {
+    var v = wsChoice(); form.querySelectorAll('input[name="workspace"]').forEach(function (r) { r.checked = r.value === v; });
+    wsCur();
+    var c = form.querySelector('[data-ws-perapp]'); if (c) c.checked = !!wsAppOwn();
+    var n = form.querySelector('[data-ws-perapp-name]'); if (n) n.textContent = wsAppSlug() === dlg.getAttribute('data-app') ? (dlg.getAttribute('data-app-name') || '') : wsAppSlug();
+  }
+  /* 0.9 FX.83 (owner 2026-11-06): the layout list is a drop-down; the trigger shows the chosen layout (icon, name, hint), the pop-up holds the
+   * radios (so the pick, the extras list and the keyboard work as before). Esc / a pick / a click elsewhere closes it. */
+  var wsPick = form.querySelector('[data-ws-pick]'), wsTrig = wsPick && wsPick.querySelector('[data-ws-trigger]'), wsPop = wsPick && wsPick.querySelector('[data-ws-pop]');
+  function wsCur() {
+    if (!wsTrig) return;
+    var cur = wsTrig.querySelector('[data-ws-cur]'), r = form.querySelector('input[name="workspace"]:checked'), lab = r && r.closest('label');
+    cur.textContent = '';
+    if (!lab) return;
+    Array.prototype.forEach.call(lab.childNodes, function (n) {
+      if (n === r || (n.classList && n.classList.contains('shell-ws-remove'))) return;
+      cur.appendChild(n.cloneNode(true));
+    });
+  }
+  function wsOpen(on, focus) {
+    if (!wsPick) return;
+    wsPick.classList.toggle('is-open', !!on); wsTrig.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (on && focus) { var r = form.querySelector('input[name="workspace"]:checked:not(:disabled)') || wsPop.querySelector('input[name="workspace"]:not(:disabled)'); if (r) r.focus(); }
+    else if (!on && focus) wsTrig.focus();
+  }
+  if (wsPick) {
+    wsPick.classList.add('is-js');
+    wsTrig.addEventListener('click', function () { wsOpen(!wsPick.classList.contains('is-open'), true); });
+    wsTrig.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); wsOpen(true, true); } });
+    wsPop.addEventListener('change', function (e) { if (e.target && e.target.name === 'workspace') setTimeout(function () { wsOpen(false, true); }, 0); });
+    wsPick.addEventListener('keydown', function (e) { if (e.key === 'Escape' && wsPick.classList.contains('is-open')) { e.stopPropagation(); e.preventDefault(); wsOpen(false, true); } });
+    document.addEventListener('pointerdown', function (e) { if (wsPick.classList.contains('is-open') && !wsPick.contains(e.target)) wsOpen(false, false); });
+    dlg.addEventListener('close', function () { wsOpen(false, false); });
+  }
   function setWs(v) {
     if (!v || !WS_RE.test(v)) v = 'standard';
-    try { if (v === 'standard') localStorage.removeItem(WS_KEY); else localStorage.setItem(WS_KEY, v); } catch (e) {}
+    if (wsAppOwn()) wsAppSave(v);   // this app has its own: the pick is for it alone
+    else { try { if (v === 'standard') localStorage.removeItem(WS_KEY); else localStorage.setItem(WS_KEY, v); } catch (e) {} }
     wsMark();
     wsTell();
   }
+  function setWsPerApp(on) { wsAppSave(on ? wsChoice() : null); wsMark(); wsTell(); }
+  form.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches('[data-ws-perapp]')) setWsPerApp(e.target.checked); });
+  window.addEventListener('cc-workspace-app', function () { wsMark(); wsTell(); });   // Studio: the active app changed
+  window.addEventListener('storage', function (e) { if (e.key === WSA_KEY) { wsMark(); wsTell(); } });
   function wsSay(text) { var m = form.querySelector('[data-ws-io-msg]'); if (m) m.textContent = text || ''; }
   /** The layouts from add-ons and imported files, after the three built-ins (radios like theirs; an imported one can be removed). */
   function wsRender() {
@@ -690,10 +950,53 @@
     wsSay(r.message);
     if (r.ok) wsRender();
   }
-  window.ccShellWorkspace = { get: wsChoice, set: setWs,
+  window.ccShellWorkspace = { get: wsChoice, set: setWs, setPerApp: setWsPerApp, hasOwn: function () { return !!wsAppOwn(); },
     register: function (api) { wsApi = api; wsRender(); },
     importText: function (text) { if (!wsApi) return { ok: false }; var r = wsApi.importText(text); wsSay(r.message); if (r.ok) wsRender(); return r; } };
   if (window.ccWorkspaceEngine) { wsApi = window.ccWorkspaceEngine; }   // the app's layout engine started before this script
+  /* Tool icons (0.9 DU.1, owner 2026-11-05): "Full colour" or "Outline" in a colour the person picks (colorized), or each app's own drawings.
+   * localStorage cc-icons {style: full|outline|app, color: #rrggbb}; <html data-cc-icons> and --cc-icon-color carry it to the CSS (app-workspace.css),
+   * and 'cc-icons' on window tells an engine that is already running. The set itself is assets/js/app-workspace-icons.js. */
+  var IC_KEY = 'cc-icons', IC_STYLES = ['full', 'outline', 'app'], IC_DEFAULT = '#1b7fb5';
+  function icRead() { try { var o = JSON.parse(localStorage.getItem(IC_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
+  function icStyle() { var s = icRead().style; return IC_STYLES.indexOf(s) >= 0 ? s : 'full'; }
+  function icColor() { var c = icRead().color; return typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c) ? c : ''; }
+  function icApply() {
+    var r = document.documentElement; r.setAttribute('data-cc-icons', icStyle());
+    var c = icColor(); if (c) r.style.setProperty('--cc-icon-color', c); else r.style.removeProperty('--cc-icon-color');
+  }
+  function icMark() {
+    var s = icStyle(), c = icColor();
+    form.querySelectorAll('input[name="icons"]').forEach(function (r) { r.checked = r.value === s; });
+    var pick = form.querySelector('[data-icons-color]'); if (pick) { pick.value = c || IC_DEFAULT; pick.disabled = s !== 'outline'; }
+    var rst = form.querySelector('[data-icons-reset]'); if (rst) rst.disabled = s !== 'outline' || !c;
+    icPreview();
+  }
+  function icSet(patch) {
+    var o = icRead(); if (patch.style && IC_STYLES.indexOf(patch.style) >= 0) o.style = patch.style;
+    if ('color' in patch) { if (patch.color && /^#[0-9a-fA-F]{6}$/.test(patch.color)) o.color = patch.color; else delete o.color; }
+    /* Outline with no colour chosen yet: take the one the picker shows, so what you see is what you get */
+    if (o.style === 'outline' && !o.color && !('color' in patch)) { var pk = form.querySelector('[data-icons-color]'); o.color = pk && /^#[0-9a-fA-F]{6}$/.test(pk.value) ? pk.value : IC_DEFAULT; }
+    try { localStorage.setItem(IC_KEY, JSON.stringify(o)); } catch (e) {}
+    icApply(); icMark();
+    window.dispatchEvent(new CustomEvent('cc-icons', { detail: { style: icStyle(), color: icColor() } }));
+  }
+  /** A few of the set's icons in the chosen style, drawn by the set itself once the layout engine has loaded it (else the row stays empty). */
+  function icPreview() {
+    var box = form.querySelector('[data-icons-preview]'); if (!box || !window.ccIconSet) return;
+    box.textContent = '';
+    ['line', 'circle', 'move', 'wall', 'door', 'dim', 'section', 'library'].forEach(function (k) { var n = window.ccIconSet.node(k); if (n) box.appendChild(n); });
+  }
+  window.ccShellIcons = { style: icStyle, color: icColor, set: icSet };
+  icApply();
+  form.addEventListener('change', function (e) {
+    var t = e.target; if (!t || !t.matches) return;
+    if (t.matches('input[name="icons"]')) icSet({ style: t.value });
+    else if (t.matches('[data-icons-color]')) icSet({ color: t.value });
+  });
+  form.addEventListener('input', function (e) { if (e.target && e.target.matches && e.target.matches('[data-icons-color]')) icSet({ color: e.target.value }); });
+  form.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-icons-reset]')) icSet({ color: '' }); });
+  window.addEventListener('cc-icon-set', icPreview);
   (function () {
     var file = form.querySelector('[data-ws-file]');
     form.addEventListener('click', function (e) {
@@ -723,7 +1026,7 @@
    * engine starts from them; an app with unsaved work asks first, as on any reload), exported and imported as .ccenv.json (read as untrusted:
    * only these keys, bounded sizes). The theme and the language stay as they are. */
   var ENV_KEY = 'cc-environments', ENV_NOW = 'cc-environment', ENV_MAX = 12, ENV_FORMAT = 'cadcraft-environment', ENV_BYTES = 1048576;
-  var ENV_RE = /^(cc-workspace|cc-workspace-files|cc-input-family|cc-app-settings:[a-z]{2,24}|cc-ws-mytools:[a-z]{2,24}|cc-ws-ribbon:[a-z]{2,24}|[a-z]{2,24}\.input)$/;
+  var ENV_RE = /^(cc-workspace|cc-workspace-files|cc-icons|cc-input-family|cc-app-settings:[a-z]{2,24}|cc-ws-mytools:[a-z]{2,24}|cc-ws-ribbon:[a-z]{2,24}|[a-z]{2,24}\.input)$/;
   var envForm = form.querySelector('[data-env-set]');
   function envAll() { try { var v = JSON.parse(localStorage.getItem(ENV_KEY) || '[]'); return Array.isArray(v) ? v.filter(envOk) : []; } catch (e) { return []; } }
   function envOk(x) { return !!x && typeof x.name === 'string' && x.name.length > 0 && x.keys && typeof x.keys === 'object'; }
@@ -836,13 +1139,14 @@
     var d = form.querySelector('[data-hw-default]'); if (d) d.textContent = T(hwDesktop() ? 'shell.hw.default.desktop' : 'shell.hw.default.web');
   }
   window.ccShellHardware = { allowed: hwAllowed, set: setHw, desktop: hwDesktop };
-  window.addEventListener('storage', function (e) { if (e.key === WS_KEY) { wsMark(); wsTell(); } if (e.key === 'cc-workspace-files') wsRender(); });
+  window.addEventListener('storage', function (e) { if (e.key === IC_KEY) { icApply(); icMark(); window.dispatchEvent(new CustomEvent('cc-icons')); } if (e.key === WS_KEY) { wsMark(); wsTell(); } if (e.key === 'cc-workspace-files') wsRender(); });
   function syncForm() {
     wsRender();
     if (wsApi && wsApi.notice && wsApi.notice()) wsSay(wsApi.notice());   // a layout that could not be used: why
     if (form.elements.toursAll) form.elements.toursAll.checked = toursOn();
     syncHw();
     wsMark();
+    icMark();
     var th = themeChoice();
     form.querySelectorAll('input[name="theme"]').forEach(function (r) { r.checked = r.value === th; });
     if (form.elements.ui) form.elements.ui.value = String(s.ui);
@@ -859,6 +1163,7 @@
       out.textContent = s[side] == null ? T('shell.settings.width.default', { n: width(side) }) : T('shell.settings.width', { n: width(side) });
     });
     form.elements.tips.checked = s.tips;
+    form.elements.autofocus.checked = AF.enabled();
     form.elements.screen.value = s.screen;
     var tbSet = form.querySelector('[data-tb-set]');
     tbSet.hidden = !tb;
@@ -944,9 +1249,20 @@
       nav.ccPane = pane;
       // Add-ons' own sections (addons.js settingsSection: .shell-addon-set) come last, under an "Add-ons" eyebrow.
       var isAddon = function (fs) { return fs.classList.contains('shell-addon-set'); };
-      var ul = document.createElement('ul'), ulAdd = document.createElement('ul'), list = secsOf(pane).filter(secShown);
+      var ulAdd = document.createElement('ul'), list = secsOf(pane).filter(secShown);
       list = list.filter(function (fs) { return !isAddon(fs); }).concat(list.filter(isAddon));
-      list.forEach(function (fs) {
+      // 0.9 FX.85 (owner 2026-11-06): the Global list is grouped (Interface, Language, Display, Input, Other); a pane whose sections carry no
+      // data-sec-group (the app's own tab) stays one plain list. Order inside a group is the page order.
+      var GROUPS = ['interface', 'language', 'display', 'input', 'other'];
+      // An app's own tab may name its own groups: data-sec-group="<id>" with data-sec-group-label="<words>" on the group's first section
+      // (SuperCad Studio). Those groups come first, in page order, then any of the shared groups above that are left.
+      var custom = list.some(function (fs) { return fs.hasAttribute('data-sec-group-label'); }), labels = {};
+      list.forEach(function (fs) { var g = fs.getAttribute('data-sec-group'), l = fs.getAttribute('data-sec-group-label'); if (g && l && !labels[g]) labels[g] = l; });
+      var gOf = function (fs) { var g = fs.getAttribute('data-sec-group'); return GROUPS.indexOf(g) >= 0 || (custom && labels[g]) ? g : 'other'; };
+      var gName = function (g) { return labels[g] || T('shell.nav.' + g); };
+      if (custom) GROUPS = Object.keys(labels).filter(function (g) { return GROUPS.indexOf(g) < 0; }).concat(GROUPS);
+      var grouped = list.some(function (fs) { return !isAddon(fs) && fs.hasAttribute('data-sec-group'); });
+      var mk = function (fs, ul) {
         var lg = fs.querySelector('legend'), b = document.createElement('button');
         b.type = 'button';
         b.textContent = (lg ? lg.textContent : '').replace(/\s+/g, ' ').trim();
@@ -954,8 +1270,24 @@
         b.addEventListener('click', function () { showSec(fs); save(); });
         var li = document.createElement('li');
         li.appendChild(b);
-        (isAddon(fs) ? ulAdd : ul).appendChild(li);
-      });
+        ul.appendChild(li);
+      };
+      var blocks = [];
+      if (grouped) {
+        GROUPS.forEach(function (g) {
+          var items = list.filter(function (fs) { return !isAddon(fs) && gOf(fs) === g; });
+          if (!items.length) return;
+          var eb = document.createElement('p'); eb.className = 'shell-sec-eyebrow'; eb.textContent = gName(g);
+          var u = document.createElement('ul'); u.setAttribute('aria-label', gName(g));
+          items.forEach(function (fs) { mk(fs, u); });
+          blocks.push(eb, u);
+        });
+      } else {
+        var u0 = document.createElement('ul');
+        list.filter(function (fs) { return !isAddon(fs); }).forEach(function (fs) { mk(fs, u0); });
+        blocks.push(u0);
+      }
+      list.filter(isAddon).forEach(function (fs) { mk(fs, ulAdd); });
       if (ulAdd.children.length) {
         var eb = document.createElement('p');
         eb.className = 'shell-sec-eyebrow';
@@ -963,8 +1295,8 @@
         eb.innerHTML = '<i class="bi bi-puzzle" aria-hidden="true"></i> ';
         eb.appendChild(document.createTextNode(T('shell.addons')));
         ulAdd.setAttribute('aria-label', T('shell.addons'));
-        nav.replaceChildren(ul, eb, ulAdd);
-      } else nav.replaceChildren(ul);
+        nav.replaceChildren.apply(nav, blocks.concat([eb, ulAdd]));
+      } else nav.replaceChildren.apply(nav, blocks);
       var n = s.secs && s.secs[paneName(pane)], all = secsOf(pane);
       if (!pick || list.indexOf(pick) === -1) pick = list.indexOf(all[n]) !== -1 ? all[n] : list[0];
       showSec(pick);
@@ -1025,6 +1357,7 @@
     else if (t.name === 'ui') { var u = parseFloat(t.value); s.ui = u >= 0.8 && u <= 1.4 ? u : 1; applyUi(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.ui.now', { pct: Math.round(s.ui * 100) })); }
     else if (t.name === 'density') { s.density = t.value === 'compact' ? 'compact' : 'comfortable'; applyDensity(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.density.now', { density: (s.density === 'compact' ? T('shell.settings.density.compact') : T('shell.settings.density.comfortable')) })); }
     else if (t.name === 'toursAll') setToursOn(t.checked);
+    else if (t.name === 'autofocus') { try { localStorage.setItem('cc-autofocus', t.checked ? 'on' : 'off'); } catch (e) { /* this visit only */ } window.dispatchEvent(new Event('cc-autofocus-changed')); }
     else if (t.name === 'tips') { s.tips = t.checked; if (!s.tips) hideTip(); save(); }
     else if (t.name === 'screen') { s.screen = t.value; save(); }
     else if (t.name === 'tb') { s.tb = t.value; applyTb(); save(); }

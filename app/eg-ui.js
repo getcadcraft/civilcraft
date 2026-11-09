@@ -20,6 +20,7 @@ import { pondDefaults, cleanPond, runPond, sizeOrifice, POND_KINDS } from './det
 import { progressGrid, cleanProgress } from './progress.js';
 import { catchmentArea } from './hydro.js';
 import { fixed, unitOf } from './units.js';
+import { siteClimate } from './climate-mount.js';   // 0.9 EG.46 (climate-futures-09): flood level, wildfire and heat in a future climate
 
 export const EG_COMMANDS = ['eg-rain', 'eg-earthwork', 'eg-route', 'eg-site', 'eg-pond', 'eg-progress'];
 
@@ -30,6 +31,7 @@ export function createEg(ctx) {
   const uo = () => unitOf(U());
   const vol = (v) => fixed(v / uo().volPer, 0).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' ' + uo().vol;
   const rain = createRain(ctx);
+  const climate = siteClimate(ctx);
   const btn = (label, icon, fn, data) => el('button', { type: 'button', className: 'btn-line btn-sm-cc', [data || 'data-eg-btn']: '', onclick: fn }, el('i', { className: 'bi bi-' + icon, 'aria-hidden': 'true' }), ' ', label);   // i18n-ignore: icon class
   const kv = (rows) => el('div', { className: 'cv-props' }, ...rows.flatMap(([k, v]) => [el('span', { className: 'k' }, k), el('span', { className: 'v' }, v)]));
   const review = () => [el('p', { className: 'cv-note' }, el('strong', {}, t('eg.review')))];
@@ -295,6 +297,8 @@ export function createEg(ctx) {
         };
         out.replaceChildren(kv(words), el('div', { className: 'cv-actions' }, btn('CSV', 'download', () => dl(stem('site') + '.csv', csv(['item', 'value'], words)), 'data-eg-st-csv'),
           btn(t('eg.st.ctx.save'), 'file-earmark-arrow-down', () => sendTo(false), 'data-eg-st-ctx-save'), btn(t('eg.st.ctx.send', { app: ctx.bimApp?.() || 'BimCraft' }), 'box-arrow-up-right', () => sendTo(true), 'data-eg-st-ctx-send'), btn(t('eg.st.keep'), 'journal-check', () => keep(used, lat, lon), 'data-eg-st-keep')), el('p', { className: 'cv-note' }, t('eg.st.ctx.note')));   // i18n-ignore: file type, csv headers
+        const fl = rows.find((x) => x.key === 'flood');   // FEMA's STATIC_BFE is in feet (NAVD 88)
+        out.append(el('div', { 'data-eg-st-climate': '' }, climate.block({ lat, lon, flood: Number.isFinite(fl?.bfe) ? { level: fl.bfe, unit: 'ft', source: 'FEMA NFHL base flood elevation, feet NAVD 88' } : null })));   // i18n-ignore: source name
       };
       kids.push(el('div', { className: 'cv-actions' }, btn(t('eg.st.add'), 'file-earmark-plus', () => pick.click(), 'data-eg-st-add'), btn(t('eg.st.clear'), 'x-circle', () => { siteLayers = []; drawList(); }, 'data-eg-st-clear'),
         el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-eg-st-run': '', onclick: run }, t('eg.st.run'))), list, srcBox, status, out, keptBox,

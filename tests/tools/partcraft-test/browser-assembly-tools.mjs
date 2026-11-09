@@ -175,7 +175,7 @@ export async function run(h) {
   const g = await pc((id) => {
     const v = window.partcraft.view, cam = v.camera, T = window.partcraft.host.THREE;
     const o = v.instances.find((x) => x.id === id);
-    const bb = new T.Box3().setFromBufferAttribute(o.mesh.geometry.attributes.position).applyMatrix4(new T.Matrix4().fromArray(o.matrix));
+    const bb = new T.Box3().setFromBufferAttribute(o.batch.mesh.geometry.attributes.position).applyMatrix4(new T.Matrix4().fromArray(o.matrix));
     const c = bb.getCenter(new T.Vector3());
     const factor = (cam.top - cam.bottom) / cam.zoom * 0.9 / 4;
     const r = v.canvas.getBoundingClientRect();

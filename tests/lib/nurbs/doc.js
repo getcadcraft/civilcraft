@@ -7,7 +7,9 @@
  *
  *   { format: 'cadcraft-nurbs', version: 1, unit: 'mm',
  *     items: [{ id, name, kind: 'curve' | 'surface', curve | surface, trim? (surface only: { outer, holes }, trim.js), hidden? }],
- *     links: [{ a, edgeA, b, edgeB, want: 'G0' | 'G1' | 'G2' }] }       (a, b = item ids; edge names as in surface.js)
+ *     links: [{ a, edgeA, b, edgeB, want: 'G0' | 'G1' | 'G2' }],      (a, b = item ids; edge names as in surface.js)
+ *     solids?: [{ id, name, faces: [surface ids] }] }                    (0.9 DC.54: solids bounded by the faces, solid.js; the key is
+ *                                                                         left out when there are none, so older readers open it)
  *
  *   newDoc() · cleanDoc(x, caps) → doc (untrusted input: every field checked; NurbsError nurbs.err.* when it cannot be read) ·
  *   toJSON(doc) → text · fromJSON(text, caps) → doc · add(doc, kind, geom, { name, id }) → { doc, id } · replace(doc, id, geom) ·
@@ -20,6 +22,7 @@ import * as C from './curve.js';
 import * as S from './surface.js';
 import * as G from './continuity.js';
 import * as T from './trim.js';
+import * as B from './solid.js';
 
 const { fail } = C;
 export const FORMAT = 'cadcraft-nurbs';
@@ -70,6 +73,8 @@ export function cleanDoc(x, caps = CAPS) {
     if (!S.EDGES.includes(l.edgeA) || !S.EDGES.includes(l.edgeB)) continue;
     out.links.push({ a: l.a, edgeA: l.edgeA, b: l.b, edgeB: l.edgeB, want: WANTS.includes(l.want) ? l.want : 'G0' });
   }
+  const sol = B.cleanSolids(x.solids, out.items);
+  if (sol.length) out.solids = sol;
   return out;
 }
 
@@ -115,7 +120,12 @@ export function setTrim(doc, id, trim) {
 }
 
 export function remove(doc, id) {
-  return { ...doc, items: doc.items.filter((i) => i.id !== id), links: doc.links.filter((l) => l.a !== id && l.b !== id) };
+  const out = { ...doc, items: doc.items.filter((i) => i.id !== id), links: doc.links.filter((l) => l.a !== id && l.b !== id) };
+  if (Array.isArray(doc.solids)) {   // a face taken out of a solid leaves it open: the solid group goes, its other faces stay
+    const sol = doc.solids.filter((b) => !b.faces.includes(id));
+    if (sol.length) out.solids = sol; else delete out.solids;
+  }
+  return out;
 }
 
 export function link(doc, a, edgeA, b, edgeB, want = 'G1') {

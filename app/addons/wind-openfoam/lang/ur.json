@@ -1,0 +1,14 @@
+{
+  "@locale": "ur",
+  "@name": "اردو",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ایڈ آن)",
+  "wind.of.note": "یہ آپ کی اپنی OpenFOAM تنصیب کو اسی کمپیوٹر پر ایک چھوٹے مددگار پروگرام کے ذریعے چلاتا ہے: ہر ہوا کی سمت کے لیے ایک مستقل RANS (k-epsilon) کیس، ماحولیاتی باؤنڈری لیئر ان لیٹ کے ساتھ۔ کچھ بھی اس کمپیوٹر سے باہر نہیں جاتا۔ CadCraft کے ساتھ OpenFOAM شامل نہیں ہے۔",
+  "wind.of.url": "مددگار کا پتہ",
+  "wind.of.token": "مددگار کا ٹوکن",
+  "wind.of.check": "مددگار کی جانچ کریں",
+  "wind.of.ok": "مددگار نے جواب دے دیا۔ OpenFOAM: {foam}",
+  "wind.of.down": "مددگار نے جواب نہیں دیا ({why})۔ اسے اسی کمپیوٹر پر یہ کمانڈ دے کر شروع کریں: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "مددگار نے جواب دیا، لیکن OpenFOAM شروع نہیں ہو سکا: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series، openfoam.com) اور مددگار، دونوں ایڈ آن کے فولڈر سے انسٹال کریں؛ مدد کا موضوع دونوں کی وضاحت کرتا ہے۔"
+}

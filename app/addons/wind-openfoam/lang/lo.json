@@ -1,0 +1,14 @@
+{
+  "@locale": "lo",
+  "@name": "ລາວ",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ສ່ວນເສີມ)",
+  "wind.of.note": "ເຮັດວຽກໂດຍໃຊ້ການຕິດຕັ້ງ OpenFOAM ຂອງທ່ານເອງ ຜ່ານໂປຣແກຣມຊ່ວຍເຫຼືອຂະໜາດນ້ອຍໃນຄອມພິວເຕີເຄື່ອງນີ້: ການຄຳນວນ RANS (k-epsilon) ແບບຄົງທີ່ ໜຶ່ງກໍລະນີຕໍ່ທິດທາງລົມ, ທາງເຂົ້າຂອງຊັ້ນຂອບບັນຍາກາດ. ບໍ່ມີຫຍັງອອກຈາກຄອມພິວເຕີເຄື່ອງນີ້. CadCraft ບໍ່ໄດ້ລວມ OpenFOAM ມານຳ.",
+  "wind.of.url": "ທີ່ຢູ່ຂອງຕົວຊ່ວຍເຫຼືອ",
+  "wind.of.token": "ໂທເຄັນຂອງຕົວຊ່ວຍເຫຼືອ",
+  "wind.of.check": "ກວດສອບຕົວຊ່ວຍເຫຼືອ",
+  "wind.of.ok": "ຕົວຊ່ວຍເຫຼືອຕອບກັບແລ້ວ. OpenFOAM: {foam}",
+  "wind.of.down": "ຕົວຊ່ວຍເຫຼືອບໍ່ຕອບກັບ ({why}). ໃຫ້ເລີ່ມມັນໃນຄອມພິວເຕີເຄື່ອງນີ້: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "ຕົວຊ່ວຍເຫຼືອຕອບກັບແລ້ວ ແຕ່ບໍ່ສາມາດເລີ່ມ OpenFOAM ໄດ້: {why}",
+  "wind.of.install": "ຕິດຕັ້ງ OpenFOAM (ລຸ້ນ ESI v-series, openfoam.com) ແລະ ຕົວຊ່ວຍເຫຼືອຈາກໂຟນເດີຂອງສ່ວນເສີມ; ຫົວຂໍ້ຊ່ວຍເຫຼືອອະທິບາຍທັງສອງຢ່າງ."
+}

@@ -1,0 +1,14 @@
+{
+  "@locale": "tr",
+  "@name": "Türkçe",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (eklenti)",
+  "wind.of.note": "Bu bilgisayarda küçük bir yardımcı program aracılığıyla kendi OpenFOAM kurulumunuzu çalıştırır: rüzgar yönü başına bir sabit RANS (k-epsilon) durumu, atmosferik sınır tabakası girişiyle. Hiçbir şey bu bilgisayardan çıkmaz. CadCraft OpenFOAM'ı içermez.",
+  "wind.of.url": "Yardımcı adresi",
+  "wind.of.token": "Yardımcı belirteci",
+  "wind.of.check": "Yardımcıyı denetle",
+  "wind.of.ok": "Yardımcı yanıt verdi. OpenFOAM: {foam}",
+  "wind.of.down": "Yardımcı yanıt vermedi ({why}). Bunu bu bilgisayarda başlatın: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Yardımcı yanıt verdi ancak OpenFOAM başlatılamadı: {why}",
+  "wind.of.install": "OpenFOAM'ı (ESI v-serisi, openfoam.com) ve yardımcıyı eklentinin klasöründen kurun; yardım konusu ikisini de açıklar."
+}

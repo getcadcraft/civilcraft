@@ -1,90 +1,62 @@
 ---
-title: Có gì mới trong 0.7
-summary: CivilCraft 0.7 bổ sung không gian làm việc Đường dây điện (đường dây trên không và cáp ngầm với thư viện riêng của bạn, độ võng và lực căng, kiểm tra khoảng cách và độ bền, bảng căng dây, khối lượng, tờ bản vẽ và GIS), không gian làm việc Cảnh quan (danh sách cây, mặt bằng trồng cây và bảng thống kê, san nền cảnh quan, lát nền, tường và bậc, công cụ tính tưới tiêu, tờ cảnh quan và đối tượng tự do), khối công trình với giới hạn quy hoạch bạn nhập và giờ nắng, đường cong chuyển tiếp clothoid, hành lang dựng từ các bộ phận mỗi bên, xuất USD và thêm công cụ cho các trợ lý AI.
-keywords: có gì mới, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.7, phiên bản, tính năng mới, cảnh quan, không gian làm việc cảnh quan, danh sách cây, cây, trồng cây, bảng thống kê cây, luống, hàng rào cây, san nền, nền phẳng, đê đất, rãnh trũng, cao độ điểm, phân tích độ dốc, đọng nước, cảnh quan cứng, lát nền, lối đi, tường, đá vỉa, dốc, bậc, tưới tiêu, đầu phun, nhỏ giọt, tờ cảnh quan, đối tượng tự do, khối công trình, tạo khối, tổng diện tích sàn, quy hoạch, lùi, đường bao, mặt phẳng trời, hệ số sử dụng đất, mật độ xây dựng, giờ nắng, bóng đổ, ifc, phát triển trong bimcraft, đường cong chuyển tiếp, clothoid, chuyển tiếp, cấu tạo, bó vỉa, rãnh thoát nước, vỉa hè, usd, trợ lý, đơn vị, tiếng bồ đào nha
-from: 3c9d79db
+title: Có gì mới trong 0.8 và 0.8.1
+summary: CivilCraft 0.8 thêm Cho mưa rơi (chạy một trận mưa trên nền đã san), cân bằng đất, tìm tuyến tốt nhất, ao điều tiết, tiến độ từ các đợt khảo sát, bộ nhập địa chỉ đến công trường giữ công trường trong dự án, và các cửa sổ cho đất và mái dốc, nút giao và sơn vạch, bình sai đo đạc, mỏ lộ thiên, tuyến vô tuyến và ghi đường sắt. 0.8.1 sửa cách đọc tệp DWG.
+keywords: có gì mới, what's new, ghi chú phát hành, nhật ký thay đổi, thay đổi, 0.8, 0.8.1, phiên bản, tính năng mới, mưa, bão, ngập úng, tràn, đào và đắp, cân bằng khối lượng, vận chuyển, tuyến tốt nhất, chi phí thấp nhất, tuyến, ao điều tiết, cửa xả, hạ mực nước, cao trình an toàn, tiến độ, khảo sát, máy bay không người lái, đống vật liệu, từ địa chỉ đến công trường, thửa đất, đất, lũ lụt, ổn định mái dốc, Bishop, lún, nút giao, sơn vạch, biển báo, tầm nhìn, bình sai, bình phương nhỏ nhất, đường chuyền, mỏ lộ thiên, mô hình khối, liên kết vô tuyến, Fresnel, ghi, ghi chéo, ngôn ngữ, sự cố, Live, DWG
+from: b0932cf0
 ---
 
-Đây là những thay đổi trong CivilCraft 0.7 so với 0.6. Phần mới lớn nhất là các không gian làm việc Đường dây điện và Cảnh quan, cùng khối công trình.
+Đây là những thay đổi trong CivilCraft 0.8 (2026-11-01) và 0.8.1 (2026-11-02), so với 0.7. Phần mới lớn gồm các công cụ kiểm tra nền san và công trường (mưa, đất, tuyến, ao, tiến độ) và sáu cửa sổ tính toán cho nền, đường, khảo sát, mỏ, liên kết và đường sắt.
 
 ## Mới
 
-### Không gian làm việc Cảnh quan
+### Kiểm tra nền san
 
-- **Một không gian làm việc Cảnh quan trên cùng khu đất.** {{ui:Bề mặt}} › {{ui:Thêm}} › {{ui:Không gian làm việc Cảnh quan}} thêm các công cụ trồng cây, san nền, cảnh quan cứng và tưới tiêu vào khu đất bạn đã có: cùng các điểm đo, bề mặt và tệp dự án. Chọn **Civil** dưới **Workspace** để quay lại. Xem [Không gian làm việc Cảnh quan](topic:landscape).
-- **Danh sách cây.** Khoảng 420 loại cây thân gỗ, cây bụi, hàng rào cây, cỏ, cây lâu năm, cây phủ đất và cây leo phổ biến vùng ôn đới và Địa Trung Hải, kèm kích thước lúc trồng và lúc trưởng thành, vùng chịu lạnh, ánh sáng, nước và khoảng cách trồng. Tìm theo bất kỳ tên nào bằng tiếng Anh, Tây Ban Nha hoặc Bồ Đào Nha. Nhập danh sách của riêng bạn dạng CSV; nó được lưu cùng dự án. Các kích thước có sẵn là điển hình và đã làm tròn: hãy kiểm tra với vườn ươm địa phương. Xem [Danh sách cây](topic:plant-list).
-- **Mặt bằng trồng cây.** {{ui:Cây}} đặt từng cây nằm trên mặt đất và đi theo việc san nền sau đó, {{ui:Luống}} lấp đầy một đường viền theo khoảng cách trồng với hỗn hợp theo phần trăm, và {{ui:Hàng rào cây}} đặt một hoặc hai hàng dọc theo một đường. Cây được ghi nhãn trên mặt bằng. Xem [Mặt bằng trồng cây và bảng thống kê](topic:planting).
-- **Bảng thống kê cây.** Thêm › {{ui:Bảng thống kê cây…}} đếm cây theo loài và cỡ trồng. Lưu thành CSV hoặc XLSX, hoặc gửi sang TakeoffCraft để báo giá. Xem [Bảng thống kê cây](topic:planting#the-plant-schedule).
-- **San nền cho cảnh quan.** {{ui:San nền}} có nền phẳng (bằng hoặc dốc), đê đất, rãnh trũng, và vùng san nền với cao độ điểm và đường đồng mức bạn kéo được. Đào và đắp hiện ra khi bạn làm. **Slope analysis** tô màu bề mặt theo hai giới hạn của riêng bạn, và **Flow arrows and ponding** cho thấy nước chảy đâu và sẽ đọng ở đâu. Tất cả đi vào cùng bề mặt dự kiến như nền và hành lang. Xem [San nền cho cảnh quan](topic:landscape-grading).
-- **Lát nền, lối đi, tường, đá vỉa, dốc và bậc.** {{ui:Cảnh quan cứng}} vẽ lát nền với độ dốc ngang hoặc dốc về ga thoát nước, một mẫu và các lớp của nó; lối đi bám theo mặt đất; tường chắn và tường đứng riêng với móng bậc; đá vỉa; và dốc cùng bậc được kiểm tra theo các giới hạn bạn đặt. Tường chắn cao trên 1,2 m (4 ft) được đánh dấu để kỹ sư xem. Xem [Lát nền, tường và bậc](topic:hardscape).
-- **Công cụ tính tưới tiêu.** {{ui:Tưới tiêu}} đặt đầu phun, ống nhánh, ống chính, van, đường nhỏ giọt và điểm đấu nối. {{ui:Kiểm tra hệ thống…}} tìm các vùng từ các đường ống và tính lưu lượng của mỗi vùng, áp suất cần tại van của nó và tại nguồn cấp (Hazen–Williams), lượng mưa nhân tạo, thời gian chạy, độ phủ và bảng vật tư. Đây là công cụ hỗ trợ tính toán, không phải chứng nhận thiết kế: người thiết kế tưới tiêu kiểm tra mọi kết quả. Đầu phun là các loại chung, hoặc của riêng bạn từ một tệp. Xem [Thiết kế tưới tiêu](topic:irrigation).
-- **Tờ cảnh quan.** Thêm › {{ui:Tờ cảnh quan…}} tạo mặt bằng trồng cây, san nền và tưới tiêu cùng chú giải của chúng, và một tờ chi tiết gồm mặt cắt tường, cấu tạo lát nền và bậc, thành một PDF. Xem [Tờ cảnh quan](topic:landscape-sheets).
-- **Đối tượng tự do.** Thêm › {{ui:Đối tượng tự do…}} đặt một lưới STL, OBJ hoặc mục thư viện làm từ ứng dụng khác, như chậu cây hay một tác phẩm điêu khắc. Nó nằm trên mặt đất hoặc cắt vào đó, và thể tích, diện tích cùng diện tích chiếm đất của nó được tính. Xem [Đối tượng tự do](topic:freeform-objects).
-- **IFC cảnh quan.** Thêm › {{ui:Xuất IFC cảnh quan}} lưu cây (dưới dạng thảm thực vật cùng thuộc tính của chúng), cảnh quan cứng và đối tượng tự do thành IFC 4.3 cho mô hình BIM. Xem [IFC](topic:planting#ifc).
-- **Từ đầu đến cuối.** [Thiết kế một khu vườn, từ đầu đến cuối](topic:landscape-walkthrough) đi qua toàn bộ không gian làm việc trên khu đất mẫu.
+- **Make it rain.** {{ui:Make it rain…}} (trong {{ui:Surface}}) thả một trận mưa lớn xuống nền đã san. Bạn xem nước chảy khỏi các nền, đọng lại ở các góc thấp và làm tràn các ao quá nhỏ. Quá trình chạy có hoạt ảnh và cho ra thể tích, lưu lượng xả đỉnh và tệp CSV của mọi ao. Ô lưới mặc định thô để xem nhanh lần đầu; ô mịn hơn thì chậm hơn. Các ao bị tràn cũng xuất hiện trong bảng Vấn đề.
+- **Earthwork balancer.** {{ui:Earthwork balancer…}} nâng hoặc hạ một nền cho đến khi đào bằng đắp, và hiển thị bảng vận chuyển giữa chúng.
+- **Best route.** {{ui:Best route…}}: chọn điểm đầu và điểm cuối, CivilCraft tìm đường rẻ nhất qua địa hình, giữ trong giới hạn độ dốc và bán kính cong của bạn, rồi tạo tuyến từ đó.
+- **Detention ponds.** {{ui:Detention ponds…}} tính cao độ và dung tích từ nền của bạn, nhận các thiết bị xả (lỗ, đập tràn, khe chữ V, tràn xả lũ), cho một trận mưa chạy qua ao, và kiểm tra lưu lượng đỉnh được giữ lại, thời gian rút cạn và cao trình an toàn.
+- **Progress from surveys.** {{ui:Progress from surveys…}} so sánh các bề mặt máy bay không người lái hoặc quét từ các ngày khác nhau với nền như trước và với thiết kế: phần trăm hoàn thành theo khối lượng, vùng đào quá và đắp quá, đống vật liệu, và thời điểm công việc hoàn tất với tiến độ này (được ghi là ước tính).
 
-### Không gian làm việc Đường dây điện
+### Hiểu công trường
 
-- **Đường dây trên không và cáp ngầm trên khu đất của bạn.** {{ui:Bề mặt}} › {{ui:Thêm}} › {{ui:Không gian làm việc Đường dây điện}}: vẽ một đường dây theo các trụ đỡ, cáp trong rãnh, thiết bị và chướng ngại, trên cùng mặt đất và trong cùng tệp dự án. Xem [Không gian làm việc Đường dây điện](topic:power-lines).
-- **Thư viện của riêng bạn.** Dây dẫn, cáp, trụ đỡ, thiết bị (xà ngang, sứ cách điện, phụ kiện, dây néo, máy biến áp, tủ, hộp nối) và loại rãnh, trong các danh mục bạn đặt tên, chia sẻ dưới dạng tệp hoặc bảng tính. Không có danh mục của quốc gia hay nhà sản xuất nào được tích hợp; các ví dụ ghi rõ chúng là ví dụ. Xem [Thư viện đường dây điện của bạn](topic:power-line-library).
-- **Độ võng và lực căng theo các trường hợp tải của bạn.** Nhiệt độ, gió, băng và băng một bên; giới hạn lực căng theo tỷ lệ của lực phá hủy; đường dây xích chính xác trên mọi nhịp, kể cả nhịp dốc; bảng căng dây. Xem [Độ võng và lực căng](topic:sag-and-tension).
-- **Kiểm tra, luôn cập nhật.** Khoảng cách tới mặt đất và chướng ngại, khoảng cách pha, độ lắc của sứ, lực nhổ, tải trọng trụ đỡ với việc chọn cỡ từ thư viện của bạn, dây néo, phụ kiện, móng, dữ liệu thiếu, cáp bị ngắt, quá tải và sụt áp, được đánh dấu trên mặt bằng và trên trắc dọc đường dây. Đây là công cụ hỗ trợ thiết kế: kỹ sư kiểm tra. Xem [Kiểm tra đường dây điện](topic:power-line-checks).
-- **Bảng, tờ bản vẽ và GIS.** Bảng căng dây và trụ đỡ, khối lượng (CSV, Excel, TakeoffCraft), tờ mặt bằng và trắc dọc cùng báo cáo nghiên cứu trong một PDF, lớp GIS với dữ liệu của mọi tài sản. Xem [Bảng, khối lượng, tờ bản vẽ và GIS của đường dây điện](topic:power-line-outputs).
-- **Sau những lần thử đầu.** Trắc dọc đường dây đi theo đường dây bạn chọn, có danh sách **Line**, đọc mặt đất, dây dẫn và khoảng cách dưới con trỏ và đo giữa hai điểm. Cây và tường cảnh quan được tính là chướng ngại dưới đường dây; tuyến cáp và ống hiện trong trắc dọc đường dây và giao cắt theo quy tắc khoảng cách bạn chọn; **Rules…** bên cạnh mỗi khoảng cách mở các quy tắc của riêng bạn; và các bộ quy tắc kèm thư viện được lưu thành gói để chia sẻ theo quốc gia. Xem [Kiểm tra đường dây điện](topic:power-line-checks) và [Gói](topic:sag-and-tension#packs-rules-and-a-library-for-a-country).
-- **Định dạng tệp riêng của bạn.** Đường dây điện được lưu trong tệp dự án CivilCraft, thư viện trong `.cclines.json` hoặc CSV, bộ quy tắc và gói trong các tệp JSON riêng của chúng: định dạng mở mà ai cũng đọc hoặc chuyển đổi được. Tệp nghiên cứu `.DON` là phần nhập và xuất bổ sung bên cạnh chúng.
-- **Tệp nghiên cứu (.DON), chưa kiểm thử.** Lưu một đường dây thành tệp nghiên cứu `.DON` cho chương trình đường dây khác, hoặc đọc các trụ đỡ của một tệp; được dựng từ tên trường của định dạng, chưa thử với chương trình đó. Xem [Tệp nghiên cứu](topic:power-line-study-file).
+- **Address to site.** {{ui:Address to site…}} gom dữ liệu thửa đất, công trình, quy hoạch, đất, lũ lụt và địa hình mở trên cùng một công trường. Bạn có thể giữ công trường trong tệp dự án: địa chỉ đã gõ, từng nguồn cùng ngày bạn lấy và giấy phép của nguồn, và kết quả trả về. Mở lại hoặc chia sẻ dự án thì công trường vẫn còn, không lấy lại dữ liệu nào. Bạn cũng có thể lưu thành tệp công trường hoặc gửi sang BimCraft. Xem [Từ địa chỉ đến công trường](topic:address-to-site).
 
-### Đo
+### Nền, đường, khảo sát, mỏ, liên kết và đường sắt
 
-- **Công cụ Đo.** {{ui:Bề mặt}} › {{ui:Thêm}} › {{ui:Đo}} (hoặc {{key:M}}) đo trên mặt bằng: chiều dài và phương vị của từng cạnh, tổng cộng dồn, chiều dài dọc theo mặt đất và độ dốc, cùng diện tích và chu vi khi bạn khép hình. Không có gì được vẽ vào dự án. Xem [Đo](topic:measure).
+- **Soils and slopes.** {{ui:Soils and slopes…}} vẽ mặt cắt đất giữa các lỗ khoan bạn nhập. Sau đó phương pháp Bishop tìm cung trượt nguy hiểm nhất trên nền của bạn, với mực nước ngầm, tải trọng phụ thêm và hệ số động đất; lún móng có cố kết, lún tức thời và lún theo thời gian.
+- **Junctions and striping.** {{ui:Junctions and striping…}} ghép các nhánh với bo góc vỉa hè (một bán kính cho mỗi nhánh, hoặc bo góc ba tâm), tầm nhìn theo tốc độ thiết kế, kiểm tra tam giác tầm nhìn, vạch sang đường, vạch dừng, vạch sơn và biển báo cùng bảng thống kê biển báo. Chúng được vẽ trên mặt bằng và lưu thành tệp .dxf với các lớp đặt tên.
+- **Survey adjustment.** {{ui:Survey adjustment…}} chạy bình sai bình phương nhỏ nhất cho một đường chuyền hoặc lưới: tọa độ sau bình sai, elip sai số, kiểm định chi bình phương và cờ đánh dấu phép đo không khớp. Có lưới tự do, khép đường chuyền theo quy tắc la bàn, và các tệp đo ngoại nghiệp RW5, GSI, JobXML hoặc CSV; các điểm sau bình sai được lưu thành CSV.
+- **Open pits.** {{ui:Open pits…}} biến mẫu khoan thành mô hình khối và hố cuối cùng trong góc dốc của bạn, với tỷ số bóc, bảng theo bậc khai thác và đường cong hàm lượng–tấn. Cũng có các hố lồng nhau theo hệ số doanh thu và kế hoạch sản xuất với dòng tiền chiết khấu.
+- **Radio links.** {{ui:Radio links…}} kiểm tra tầm nhìn thẳng trên nền của bạn với độ cong Trái Đất, vùng Fresnel thứ nhất, ngân sách đường truyền, biên suy hao và gián đoạn đa đường, rồi cho chiều cao cột anten cần để vượt qua đường truyền. Nó cũng tính ngân sách suy hao cáp quang, khối lượng tuyến và tải gió trên tháp.
+- **Rail turnouts.** {{ui:Rail turnouts…}} tạo ghi từ số hiệu ghi (frog), ghi chéo giữa các đường song song và khổ giới hạn nghiêng theo siêu cao, mở rộng trên đường cong. Ghi có thể đặt tại một cọc của tuyến.
 
-### Khối công trình
-
-- **Vẽ khối công trình.** Trong Thuộc tính, dưới **Building masses**, {{ui:Vẽ một khối}} (cũng là {{ui:Bề mặt}} › {{ui:Thêm}} › {{ui:Khối}}). Cho một khối số tầng và chiều cao tầng rồi đọc tổng diện tích sàn của nó. Chọn cách nó đặt trên nền dốc (bậc, bệ hoặc đào) và xem đắp và đào. Các khối hiện trên mặt bằng, trong PDF và trong DWG và DXF trên các lớp riêng của chúng. Xem [Vẽ khối công trình trên khu đất](topic:building-masses).
-- **Đẩy và kéo trong 3D.** Trong khung nhìn 3D, kéo mái của một khối đã chọn, hoặc nhấn {{key:PageUp}} và {{key:PageDown}}, để đổi từng tầng một, trong một bước hoàn tác. **Sun** đổ bóng của các khối. Xem [Trong khung nhìn 3D](topic:building-masses#in-the-3d-view).
-- **Giới hạn quy hoạch bạn nhập.** Khoảng lùi từng đường tính từ chỉ giới đường đỏ, giới hạn chiều cao, mặt phẳng lộ trời, hệ số sử dụng đất và mật độ xây dựng. Đường bao được phép xây vẽ trên mặt bằng, và mỗi khối nhận một dấu tích hoặc dấu chéo cho từng giới hạn. CivilCraft không chứa quy chuẩn quy hoạch nào: mọi con số là số bạn nhập từ quy định của riêng bạn. Xem [Kiểm tra khối theo giới hạn quy hoạch bạn nhập](topic:zoning-limits).
-- **Giờ nắng.** Chọn một ngày, hoặc một mùa, và một múi giờ theo tên hoặc độ lệch, rồi đọc số giờ nắng trực tiếp trên mọi bức tường của mọi khối, từng tầng một, và trên mặt đất quanh chúng, vẽ trên mặt bằng. Lưu các bức tường và mặt đất thành CSV. Dự án cần một hệ tọa độ. Xem [Tính số giờ nắng trên một khu đất](topic:sun-hours).
-- **Khối dạng IFC, và chuyển tiếp sang BimCraft.** {{ui:Khối dạng IFC}} lưu các khối thành IFC4, đặt trên bản đồ khi dự án có hệ tọa độ. {{ui:Phát triển trong BimCraft}} mở BimCraft trong một thẻ mới cùng các khối, nơi **Develop this mass** dựng tường ở mọi tầng và một sàn từ dấu chân. Không có gì được tải lên. Xem [Gửi tiếp](topic:building-masses#send-it-on).
-
-### Tuyến
-
-- **Đường cong chuyển tiếp clothoid.** Nhập chiều dài vào **Spiral in** và **Spiral out** trong bảng PI cho một đường cong: tiếp tuyến, chuyển tiếp, đường cong, chuyển tiếp, tiếp tuyến, với chiều dài bằng nhau hoặc khác nhau. Mặt bằng ghi nhãn TS, SC, CS và ST, danh sách đường cong cho θs cùng các khoảng cách tiếp tuyến và ngoại, và cọc cùng độ lệch chạy qua các đoạn chuyển tiếp. Xem [Đường cong chuyển tiếp](topic:alignment#spirals).
-- **Đường cong chuyển tiếp trong LandXML.** LandXML ghi và đọc đường cong chuyển tiếp clothoid. Các tuyến có đường cong chuyển tiếp, mà trước đây CivilCraft bỏ qua khi nhập, giờ mở được. Xem [Trao đổi LandXML](topic:landxml).
-
-### Hành lang
-
-- **Dựng mỗi bên từ các bộ phận.** Bật **Build each side from parts** để cho mỗi bên một danh sách riêng từ tim tuyến ra ngoài: làn xe, lề, rãnh thoát nước, bó vỉa, dải trồng cây, vỉa hè và mái dốc bên với đào và đắp riêng. Bắt đầu từ {{ui:Đường nông thôn}} hoặc {{ui:Đường đô thị}} và sao chép một bên sang bên kia. Trắc ngang đánh dấu đường chảy, bó vỉa và lối đi bộ, và bề mặt đã san có bó vỉa. Xem [Dựng mỗi bên từ các bộ phận](topic:corridor#build-each-side-from-parts).
-- **Siêu cao trên đường cong chuyển tiếp.** Trên đường cong có chuyển tiếp, đoạn nâng siêu cao chạy trên đoạn chuyển tiếp: mui phẳng tại TS, siêu cao đầy đủ tại SC. Xem [Siêu cao](topic:corridor#superelevation).
-
-### Tệp 3D
-
-- **Xuất USD.** Trong khung nhìn 3D, {{ui:USD}} ghi khu đất thành `.usda`, `.usdc` hoặc `.usdz` ở tỷ lệ thật và tại tọa độ dự án của nó: bề mặt, ống và công trình dưới dạng lưới, các đường, từng tuyến, và điểm đo cùng số của chúng. Xem [Xuất khu đất 3D thành USD](topic:usd).
-
-### Trợ lý AI
-
-- **Thêm cho trợ lý.** Khi trợ lý được bật trong {{ui:Cài đặt}} › {{ui:CivilCraft}}, một trợ lý giờ còn có thể đọc thửa đất, đào đắp và trắc dọc, thêm điểm đo, lưu dự án, xuất LandXML, DWG và USD, và làm việc trong các thư mục bạn chọn trong CadCraft Studio. Không gian làm việc Cảnh quan thêm công cụ để tìm cây, đặt cây, luống và hàng rào cây, san nền và kiểm tra tưới tiêu. Máy chủ tệp và dòng lệnh `cadcraft` mở các dự án đã lưu mà không cần cửa sổ. Xem [Để trợ lý AI làm việc với khu đất của bạn](topic:assistants).
+Xem [Đất và mái dốc, nút giao, bình sai, mỏ, liên kết vô tuyến và ghi](topic:soils-roads-survey-mines-links).
 
 ## Trong mọi ứng dụng
 
-- **Đơn vị.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Đơn vị}} có một danh sách riêng cho chiều dài, diện tích, thể tích, góc và độ dốc, với các cỡ chính xác theo định nghĩa của đơn vị (feet khảo sát Mỹ là một đơn vị riêng). Tắt những đơn vị bạn không bao giờ dùng và chúng rời khỏi danh sách đơn vị; gắn sao một đơn vị và công việc mới bắt đầu bằng nó. Một tệp luôn giữ đơn vị riêng của nó. Trong CivilCraft, danh sách **Units** của dự án theo các công tắc; sao ở một đơn vị chiều dài hệ mét bắt đầu dự án mới bằng mét (nếu không thì feet, là feet khảo sát Mỹ), sao ở một đơn vị diện tích hoặc thể tích đặt đơn vị báo cáo diện tích và thể tích, và ô chiều dài nhận ký hiệu của mọi đơn vị, như `3 ch` hoặc `450 mm`. Xem [Đơn vị, giá trị nhập và các danh sách đơn vị](common:unit-lists).
-- **Bố cục dày hơn và các bảng tự gọn lại.** {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Mật độ bố cục}} › {{ui:Gọn}} chứa được nhiều hơn trên màn hình (màn hình cảm ứng và điện thoại giữ các nút lớn). Mỗi bảng bên có một thanh tiêu đề mảnh: kéo nó để neo hoặc cho bảng nổi, thả nó lên thanh của bảng khác để dùng chung một khung dưới dạng các thẻ, ghim nó để trượt ra mép, hoặc ẩn nó và gọi lại từ mép. Xem [Sắp xếp các bảng](common:arrange-panels#make-the-layout-denser).
-- **Hộp thoại di chuyển được.** Kéo một hộp thoại bằng thanh tiêu đề để tránh khỏi bản vẽ; nó trở lại nơi bạn để. Nhấp đúp thanh tiêu đề để căn giữa lại. Xem [Di chuyển hộp thoại](common:arrange-panels#move-a-dialog).
-- **Công thức cho trợ lý AI.** Mười yêu cầu mẫu cho trợ lý của riêng bạn (dọn bản vẽ, in một bộ, kiểm tra bản vẽ, hỏi mô hình, cộng một bản bóc tách, thử một biến thể chi tiết…), mỗi yêu cầu kèm các công cụ nó gọi và quyền nó cần, và mỗi yêu cầu được các bài kiểm thử của chúng tôi chạy lại. Các ứng dụng không chứa AI. Xem [Công thức cho trợ lý AI](common:assistants-recipes).
-- **Ngôn ngữ.** **Português (Portugal)** là mới trong {{ui:Cài đặt}} › {{ui:Chung}} › {{ui:Ngôn ngữ}}. Nó, **Português (Brasil)**, **Español (México)** và **Bahasa Indonesia** giờ có đủ mọi chữ của các ứng dụng, dưới dạng bản nháp chưa được người bản ngữ xem xét. Các chủ đề trợ giúp bằng tiếng Anh, một số bằng tiếng Tây Ban Nha.
-- **CadCraft Studio** nói rõ vì sao kiểm tra cập nhật thất bại (chưa có tệp cho hệ thống của bạn, không có mạng, chữ ký sai) thay vì chỉ "Done", và ngừng đưa lại thẻ Có gì mới mà bạn đã đóng cho đến khi có bản phát hành mới hơn.
+- **Languages.** 54 ngôn ngữ, trong đó 10 ngôn ngữ mới. Các ngôn ngữ khác tiếng Anh là bản dịch máy (bản nháp) cho đến khi người bản ngữ đọc lại. Phần lớn chủ đề trợ giúp vẫn bằng tiếng Anh.
+- **Toolbar rows.** {{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}}: Tự xuống dòng (như trước), 2 hàng hoặc 1 hàng. Dải lệnh của CivilCraft hiển thị công cụ dùng nhiều nhất ở kích thước lớn, các công cụ kế tiếp ở kích thước nhỏ, và phần còn lại nằm sau mũi tên của tên nhóm.
+- **Input devices.** Bàn di chuột, bút, chuột 3D, bộ điều khiển và MIDI đều có thể điều khiển các ứng dụng.
+- **Problems.** Bảng Vấn đề cảnh báo trong mọi ứng dụng, với các kiểm tra đọc từ bộ quy định.
+- **Live.** Chế độ xem vị trí của từng người trong phiên Live.
+- **Add-ons.** Danh sách tiện ích bổ sung, gồm tiện ích chiếu sáng.
+- **Connect your AI.** Bất kỳ trợ lý nào bạn kết nối đều có thể điều khiển các công cụ của CivilCraft. Kèm theo ghi chú rằng kết nối một chạm trong CadCraft Studio và bộ kết nối được lưu trữ chưa sẵn sàng. Xem [Để trợ lý AI làm việc với công trường của bạn](topic:assistants).
+
+## Đã sửa trong 0.8.1
+
+- **DWG classes section.** Phần này bị đọc sai kiểu (GitHub cadcraft#5). Đã sửa trong CivilCraft cùng với CadCraft, BimCraft, ModelCraft và TakeoffCraft.
+- **Switching language while running.** CadCraft Studio và các bản đóng gói có thể đổi ngôn ngữ khi đang chạy. Trước đây chỉ có tiếng Anh. Chưa kiểm tra trên mọi nền tảng: cho chúng tôi biết nếu ngôn ngữ không đổi.
 
 ## Chưa có trong phiên bản này
 
-- **0.7 chưa được ký mã.** Việc ký, và gói Microsoft Store, đã chuyển sang 0.8 vì việc xác thực chứng chỉ chưa xong. Hãy kiểm tra SHA-256 bên cạnh mỗi tệp trên getcadcraft.com/download. Trên Windows, nếu SmartScreen chặn trình cài đặt, chọn {{ui:Thông tin thêm}}, rồi {{ui:Vẫn chạy}}. Trên Mac, lần đầu, nhấp chuột phải vào CadCraft Studio và chọn {{ui:Mở}}. CadCraft Studio chưa có trên cửa hàng ứng dụng nào, và chưa có bản cho iPad hay iPhone.
-- Các danh sách góc và độ dốc trong {{ui:Đơn vị}} được lưu, nhưng chưa có ô nào đọc chúng.
-- Đầu phun tưới của nhà sản xuất: chỉ có đầu phun chung và đầu phun của riêng bạn từ một tệp. Dữ liệu của nhà sản xuất chỉ được đưa vào khi họ cho phép, và chưa có ai cho phép.
-- BimCraft và ModelCraft mang theo danh sách cây, nhưng chức năng Đặt từ thư viện của chúng chưa đưa ra cây. Cây đến BimCraft qua IFC cảnh quan.
-- Các công cụ cảnh quan cho trợ lý hoạt động khi cửa sổ CivilCraft đang mở; máy chủ tệp và dòng lệnh chưa có chúng.
-- Khối công trình: không có ánh sáng ban ngày hay gió ở mặt đứng, không có bóng đổ từ cây hay bất cứ thứ gì không vẽ thành khối, không có hình dạng mái, và giờ nắng hiện trên mặt bằng, không phải trong khung nhìn 3D. Phát triển trong BimCraft dựng tường trơn và một sàn, không có lỗ mở hay mái.
-- Đường dây điện: không tích hợp tiêu chuẩn của quốc gia nào (bạn đặt các trường hợp tải, giới hạn và khoảng cách); không có độ dão dây dẫn, định mức nhiệt của cáp chôn, ngắn mạch, bảo vệ hay nghiên cứu nối đất; không có đường dây trong khung nhìn 3D hay IFC. Tệp nghiên cứu `.DON` chưa được thử với chương trình đọc nó.
-- Đường cong chuyển tiếp không phải clothoid, đường chuyển tiếp giữa hai đường cong, và đường chuyển tiếp trong đường đặc trưng. Các đường chuyển tiếp đã được kiểm tra theo công thức và lược đồ LandXML, chưa kiểm tra với tệp LandXML có đường chuyển tiếp từ chương trình khác.
-- Cấu tạo hành lang thay đổi dọc đường, vùng, và mục tiêu cho mái dốc bên.
-- Đường ống cấp nước chính và mạng áp lực (công việc dân dụng tiếp theo), dòng chảy thay đổi theo thời gian, và liên kết giữa mạng cấp nước và mạng thoát nước mưa.
-- Cung tròn trong đường ngắt đã vẽ. Bảng phương tiện thiết kế tiêu chuẩn: năm phương tiện đi kèm là chỗ giữ chỗ có ghi nhãn. Đường đặc trưng dùng chung giữa các dự án chờ dự án nhóm.
+- **These are calculation aids.** Mọi kết quả trong các cửa sổ mới đều cần kỹ sư kiểm tra. Cường độ đất bắt đầu từ giá trị điển hình của nhóm đất, và cửa sổ có ghi điều đó.
+- **Make it rain.** Một lần chạy trên công trường mẫu có thể mất hơn hai phút trong trình duyệt ở ô lưới mịn. Đã kiểm tra với các trường hợp tính tay và một lưu vực hình chữ V, chưa kiểm tra trên công trường san nền thực tế.
+- **Address to site.** Công cụ đọc các tệp dữ liệu mở do bạn cung cấp, và chỉ được thử nghiệm trên tệp của chúng tôi. Cây cối không phải là nguồn dữ liệu. Việc tự động lấy dữ liệu từ các nguồn đang chờ nội dung về quyền riêng tư.
+- **Progress from surveys.** Chỉ thử nghiệm trên các khảo sát giả lập. Tiến độ trên bản vẽ tờ và đánh dấu (MarkupCraft), cũng như quét so với mô hình (BimCraft), chưa xây dựng.
+- **Soils and slopes.** Chỉ có mặt trượt tròn: chưa có tìm kiếm mặt trượt phẳng hoặc khối, và chưa có khe nứt do kéo.
+- **Junctions.** Mỗi nhánh một bán kính, chưa có đường quét của xe tải, và chưa đưa vào hành lang tuyến.
+- **Field files.** Các bộ đọc được viết từ mô tả định dạng công khai và thử với tệp chúng tôi tạo. Cần các tệp đo thực từ máy đo.
+- **Links and rail.** Liên kết vô tuyến: chỉ có suy hao không gian tự do và đa đường (không có suy hao do mưa hay mẫu anten), và không có tiêu chuẩn đường sắt: mọi giới hạn đường sắt là giá trị tạm, với các số liệu nháp mà chưa kỹ sư đường sắt nào kiểm tra.
+- **Windows and macOS.** 0.8 chưa được ký mã. Windows có thể cảnh báo, và macOS yêu cầu nhấn chuột phải rồi chọn Open.
 
-Mọi thứ còn lại nằm trong [Chưa xây dựng](topic:not-built-yet).
+Mọi nội dung khác nằm trong [Chưa xây dựng](topic:not-built-yet). Về bản phát hành trước, xem [Có gì mới trong 0.7](topic:whats-new-0-7).

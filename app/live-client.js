@@ -310,6 +310,7 @@ export class LiveClient {
     this.propRevs = new Map();     // key\0field → [seq, client]
     this.edits = [];               // DC.23 edit log, oldest first: {q, c, name, of, label, keys[], more, at}; memory only
     this.lastEdits = new Map();    // DC.23: key → its newest entry in this.edits
+    this.byPerson = new Map();     // 0.9 ED.2: c → { n, at, label } (the class view's "last edited")
     this.liveFrom = 0;             // DC.23: commits up to this seq were decided before this connection's welcome
     this.logBase = null;           // DC.23: the seq before the first commit this window logged
     this.peers = new Map();        // c → {c, name, role, via, state}
@@ -769,6 +770,8 @@ export class LiveClient {
     const e = { q: cm.q, c: cm.c || 0, name, of, label: String(cm.label || ''), keys, more, at: cm.q > this.liveFrom ? clock() : null };
     this.edits.push(e);
     for (const k of keys) this.lastEdits.set(k, e);
+    // per person (0.9 ED.2, the class view): how many edits this window saw from them, and their newest one
+    if (e.c) { const was = this.byPerson.get(e.c); this.byPerson.set(e.c, { n: (was ? was.n : 0) + 1, at: e.at ?? (was ? was.at : null), label: e.label || (was ? was.label : '') }); }
     if (this.edits.length > EDIT_LOG_MAX) {
       const old = this.edits.shift();
       for (const k of old.keys) if (this.lastEdits.get(k) === old) this.lastEdits.delete(k);
@@ -796,6 +799,8 @@ export class LiveClient {
   }
   /** Who changed this key last in this session, as far as this window saw: an entry of editLog(), or null. */
   lastEdit(key) { return this.lastEdits.get(key) || null; }
+  /** One person's edits as this window saw them (0.9 ED.2): { n, at (this window's clock, or null before it joined), label } or null. */
+  personEdits(c) { return this.byPerson.get(c) || null; }
   /** The newest edit of any of these keys, or null. */
   lastEditOf(keys) {
     let best = null;

@@ -177,6 +177,37 @@ export async function mergePdf(baseBytes, oursBytes, theirsBytes) {
       taken++; notes.push(`${key}: taken from their side`);
     } else conflicts.push({ path: 'Info/' + key, kind: 'changed-both', why: 'changed on both sides: ours is kept' });
   }
+  // 0.9 NOTES.1: the notes stream in the catalog ({ v, notes: [markup data with an id], sealed: [opaque blobs], uid }) merges like the markups
+  const readNotes = (doc) => {
+    try {
+      const st = doc.context.lookup(doc.catalog.get(PDFName.of('MarkupCraftNotes')));
+      if (!st || !L.decodePDFRawStream) return { v: 1, notes: [], sealed: [] };
+      const v = JSON.parse(new TextDecoder().decode(L.decodePDFRawStream(st).decode()));
+      return { ...v, notes: Array.isArray(v.notes) ? v.notes : [], sealed: Array.isArray(v.sealed) ? v.sealed : [] };
+    } catch { return { v: 1, notes: [], sealed: [] }; }
+  };
+  const NB = readNotes(bd), NO = readNotes(od), NT = readNotes(td);
+  const nj = JSON.stringify;
+  if (nj(NO) !== nj(NT) && nj(NT) !== nj(NB)) {
+    const mergeList = (kind, key, b, o, t) => {
+      const idx = (a) => new Map(a.map((x, i) => [key(x, i), x]));
+      const mb = idx(b), mo = idx(o), mt = idx(t), out = [];
+      for (const k of new Set([...mo.keys(), ...mt.keys(), ...mb.keys()])) {
+        const fb = mb.has(k) ? nj(mb.get(k)) : undefined, fo = mo.has(k) ? nj(mo.get(k)) : undefined, ft = mt.has(k) ? nj(mt.get(k)) : undefined;
+        let pick = mo.get(k);
+        if (fo === ft || ft === fb) pick = mo.get(k);
+        else if (fo === fb) { pick = mt.get(k); taken++; }
+        else { pick = mo.get(k); conflicts.push({ path: kind + '/' + String(k).slice(0, 60), kind: 'changed-both', why: 'changed on both sides: ours is kept' }); }
+        if (fo !== undefined && ft === undefined && fb !== undefined && fo !== fb) conflicts.push({ path: kind + '/' + String(k).slice(0, 60), kind: 'deleted', why: 'removed on their side, changed on ours: removed' });
+        if (pick !== undefined) out.push(pick);
+      }
+      return out;
+    };
+    const merged = { ...NO, notes: mergeList('note', (x, i) => (x && x.id) || 'n' + i, NB.notes, NO.notes, NT.notes), sealed: mergeList('sealed', (x) => nj(x), NB.sealed, NO.sealed, NT.sealed) };
+    if (!merged.uid && NT.uid) merged.uid = NT.uid;
+    od.catalog.set(PDFName.of('MarkupCraftNotes'), octx.register(octx.flateStream(new TextEncoder().encode(nj(merged)))));
+    notes.push(`notes: ${merged.notes.length} note(s) and ${merged.sealed.length} sealed block(s) after the merge`);
+  }
   const bytes = await od.save({ useObjectStreams: false });
   notes.unshift(`${taken} markup(s) taken from theirs, ${added} added, ${removed} removed`);
   return { code: conflicts.length ? 1 : 0, bytes, format: 'markupcraft-pdf', conflicts, notes };

@@ -25,7 +25,7 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
 .app-bar-mark { display: inline-flex; color: var(--ink); }
 .app-bar-home { color: inherit; text-decoration: none; }   /* the app name links home in every bar mode (owner 2026-11-01) */
 .app-bar-home:hover, .app-bar-home:focus-visible { text-decoration: underline; }
-.app-bar-name { display: flex; align-items: center; gap: .55rem; margin: 0; font-weight: 700; font-stretch: 112%; }
+.app-bar-name { display: flex; align-items: center; gap: .55rem; margin: 0; font-weight: 700; font-stretch: 112%; flex: 0 0 auto; }   /* FX.89: never squeezed under the buttons; the bar folds instead (app-phone.js barFit) */
 .app-bar-area {
   font-size: var(--fs-sm);
   font-weight: 600;
@@ -95,6 +95,8 @@ body.app-shell > main { flex: 1 1 auto; min-height: 0; }
     padding: .25rem 0; background: var(--sheet-2); color: var(--ink);
     border: var(--pen-2) solid var(--ink); border-radius: var(--radius); font-size: var(--fs-sm);
   }
+  /* LANG-35: in right-to-left the menu opens toward the reading end (it sat at x -236, off the window). */
+  html[dir="rtl"] .app-bar-more-menu { right: auto; left: 0; }
   .app-bar-more-item {
     display: flex; align-items: center; gap: .6rem; width: 100%; min-height: 2.75rem; padding: 0 .9rem;
     font: inherit; font-weight: 600; text-align: left; color: var(--ink); text-decoration: none;
@@ -252,6 +254,8 @@ body.shell-hinting .shell-hint { opacity: 1; }
 .offline-menu p { margin: 0 0 .5rem; color: var(--ink-2); }
 .offline-menu button { display: block; width: 100%; margin-top: .25rem; padding: .35rem .5rem; font: inherit; text-align: left; color: var(--ink); background: transparent; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
 .offline-menu button:hover { border-color: var(--ink); }
+html.cc-bar-tight .app-bar-btn-label { display: none; }   /* LANG-35: set by app-phone.js barFit when the bar still overflows after folding */
+html.cc-bar-tight .app-bar-offline[data-state="saving"] .app-bar-btn-label { display: inline; }
 @media (max-width: 1100px) {
   .app-bar-btn-label { display: none; }   /* icons only; the title says what they do */
   .app-bar-offline[data-state="saving"] .app-bar-btn-label { display: inline; }
@@ -311,8 +315,7 @@ body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user
 .shell-pane { display: grid; gap: 1rem; min-width: 0; }
 .shell-pane[hidden] { display: none; }
 .shell-pane-lede { padding-bottom: .1rem; }
-.shell-x { display: inline-grid; place-items: center; width: 2rem; height: 2rem; padding: 0; color: var(--ink); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); }
-.shell-x:hover { border-color: var(--ink); }
+/* .shell-x: the one remove / close x, defined once at the end of this file (2026-11-09: compact, 1.5rem) */
 .shell-set { margin: 0; padding: 0; border: 0; display: grid; gap: .55rem; min-width: 0; }
 .shell-set legend { float: none; margin: 0 0 .15rem; padding: 0; font-size: var(--fs-sm); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
 .shell-seg { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
@@ -423,7 +426,7 @@ body[data-shell-tb="labels"] .shell-tb :is(button:not([role="menuitem"]), summar
 body.shell-tb-nogroups:not(.shell-arranging) .shell-tb > [role="group"] > [class$="-tool-label"] { display: none; }
 .shell-btns { display: flex; flex-wrap: wrap; gap: .5rem; }
 /* 0.7 WS.24 work environments (Settings › Global › Layout) */
-.shell-env { display: grid; gap: .5rem; margin-block: .75rem; padding-top: .75rem; border-top: var(--pen-1) solid var(--line); }
+.shell-env { display: grid; gap: .5rem; }
 .shell-env-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
 .shell-env-row .select-cc { flex: 1 1 12rem; min-width: 0; width: auto; }
 .shell-env-name { flex: 1 1 12rem; min-width: 0; padding: .3rem .5rem; font: inherit; color: var(--ink); background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
@@ -1088,6 +1091,23 @@ dialog.shell-dw-dialog:not([open]) { display: none; }
 .shell-seg label.is-off { opacity: .65; cursor: default; }
 .shell-ws-opt > span { display: grid; gap: .1rem; }
 .shell-ws-opt { align-items: flex-start !important; }
+.shell-ws-pick { position: relative; }   /* FX.83: the layout drop-down; without JS the list simply shows */
+.shell-ws-trigger { display: none; }
+.shell-ws-pick.is-js .shell-ws-trigger { display: flex; align-items: flex-start; gap: .5rem; width: 100%; text-align: left; padding: .4rem .6rem; cursor: pointer;
+  color: var(--ink); background: var(--sheet); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); }
+.shell-ws-trigger:focus-visible { outline: var(--pen-3) solid var(--action); outline-offset: 2px; }
+.shell-ws-trigger > i.bi-caret-down-fill { margin-left: auto; align-self: stretch; display: flex; align-items: center; flex: 0 0 auto; padding-left: .6rem; border-left: var(--pen-1, 1px) solid var(--ink); color: var(--action); font-size: 1.1rem; }   /* solid caret, always pointing down: the select cue */
+.shell-ws-trigger:hover > i.bi-caret-down-fill { color: var(--ink); }
+.shell-ws-cur { display: flex; align-items: flex-start; gap: .5rem; min-width: 0; }
+.shell-ws-cur > span { display: grid; gap: .1rem; }
+.shell-ws-cur > i { margin-top: .2rem; }
+.shell-ws-pick.is-js .shell-ws-pop { display: none; position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + .2rem); max-height: min(24rem, 60vh); overflow-y: auto;
+  padding: .35rem; background: var(--sheet-2); border: var(--pen-2) solid var(--ink); border-radius: var(--radius); box-shadow: 0 .4rem 1.2rem rgba(0,0,0,.25); }
+.shell-ws-pick.is-js.is-open .shell-ws-pop { display: block; }
+.shell-ws-pop .shell-ws-opt { padding: .35rem .4rem; border-radius: var(--radius); cursor: pointer; }
+.shell-ws-pop .shell-ws-opt:hover, .shell-ws-pop .shell-ws-opt:has(input:focus-visible) { background: var(--sheet); }
+.shell-ws-pop .shell-ws-opt:has(input:checked) { box-shadow: inset var(--pen-3) 0 0 var(--action); }
+.shell-ws-perapp { display: flex; align-items: center; gap: .5rem; margin: .5rem 0 .1rem; font-weight: 600; }   /* FX.82 */
 .shell-ws-opt > input, .shell-ws-opt > i { margin-top: .2rem; }
 .shell-ws-name { font-weight: 600; }
 .shell-ws-hint { font-weight: 400; }
@@ -1132,3 +1152,146 @@ html:not(.cc-phone):not(.cc-touch) body[data-shell-tb-rows="2"]:not(:has(.cc[dat
 .shell-dev-axis > label:first-child { min-width: 9rem; }
 .shell-dev-binds { list-style: none; padding: 0; margin: 0; display: grid; gap: .25rem; }
 .shell-dev-binds li { display: flex; gap: .4rem; align-items: center; }
+
+/* Auto-focus panel (app-settings.js, window.ccAutoFocus): a section heading is the button, a lock sits by the caret, closed sections hide their content */
+/* 2026-11-09 (owner): every section header reads  title … lock … caret  with the caret at the FAR RIGHT of the row (CadCraft's "Layers and drawing" is the model);
+   MarkupCraft and the toolbox draw their folds as <details>, whose native triangle sat on the left and whose lock followed the title: they use the same layout now.
+   The direction (open down, closed up) is the one line in tokens.css. */
+/* (the direction variables --af-caret-open / --af-caret-closed live in tokens.css, the one line) */
+[data-af] { cursor: pointer; display: flex; align-items: center; gap: .5rem; user-select: none; }
+[data-af] { overflow: hidden; }
+[data-af] > :not(.af-lock) { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* a long title / its links shrink with an ellipsis; the lock and the caret never do */
+[data-af]::after { font-family: bootstrap-icons; content: "\f282" / ""; font-size: .8em; opacity: .65; transition: transform .12s; flex: none; transform: rotate(var(--af-caret-closed)); }
+[data-af="open"]::after { transform: rotate(var(--af-caret-open)); }
+[data-af]:focus-visible { outline: 2px solid var(--action, #1e48c8); outline-offset: 2px; }
+.af-collapsed { display: none !important; }
+/* the section LOCK icon (every app, one variable): half visible at rest, full on hover and keyboard focus; locked / unlocked is the glyph (closed / open padlock) and aria-pressed, not dimming */
+:root { --cc-lock-opacity: .5; }
+.af-lock { margin-left: auto; flex: none; border: 0; background: none; color: inherit; padding: .1rem .3rem; cursor: pointer; font-size: .8rem; line-height: 1; }
+.af-lock[aria-pressed="true"] { color: var(--action, #1e48c8); }
+:is(.af-lock, main .bc-lock) { opacity: var(--cc-lock-opacity); }
+:is(.af-lock, main .bc-lock):is(:hover, :focus-visible) { opacity: 1; }
+.af-lock:focus-visible { outline: 2px solid var(--action, #1e48c8); outline-offset: 1px; }
+/* <details> folds, at EVERY nesting level, in every app (owner 2026-11-09, standing rule: the caret is always at the far right): a section summary is  title … [lock] … caret.
+   FOLD = a summary of a <details> inside the app page (main) that is not a drop-down menu / tool button (those carry "menu", "more", "tool", "btn" in their class); an app may also
+   mark a block .shell-fold. The title is cut with an ellipsis; the lock and the caret sit in reserved room at the right and never move or shrink. */
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary:not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"]) {
+  display: block; position: relative; list-style: none; cursor: pointer; padding-right: 1.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; outline-offset: -2px;
+}
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary:not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"])::-webkit-details-marker { display: none; }
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary:not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"])::marker { content: ""; }
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary:not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"])::before { content: none; }
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary:not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"])::after {
+  font-family: bootstrap-icons; content: "\f282" / ""; font-size: .8em; opacity: .65; position: absolute; right: 0; top: 50%; transition: transform .12s; transform: translateY(-50%) rotate(var(--af-caret-closed));
+}
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp)[open] > summary:not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"])::after { transform: translateY(-50%) rotate(var(--af-caret-open)); }
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary:has(> :is(.af-lock, .bc-lock)):not([class*="tool"], [class*="btn"], [class*="linkbtn"], [class*="tab"]) { padding-right: 3.1rem; }
+:is(main details, .shell-fold):not([class*="menu"], [class*="more"], .cc-snapkinds, .sp) > summary > :is(.af-lock, .bc-lock) { position: absolute; right: 1.35rem; top: 50%; transform: translateY(-50%); margin: 0; }
+summary:has(> .af-lock):not(:is(main details > summary)) { display: block; position: relative; list-style: none; padding-right: 3.1rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* The row-remove x (owner 2026-11-09): ONE small compact icon button everywhere a list row or a card has a remove / close x: .shell-x (icon about the text line, 1.5rem hit area;
+   a coarse pointer keeps a larger touch target). Apps map their own class onto it (.dc-icon-btn x, MarkupCraft's chest, the start cards' close). */
+.shell-x { display: inline-grid; place-items: center; flex: none; width: 1.5rem; height: 1.5rem; min-width: 0; min-height: 0; padding: 0; margin: 0; font: inherit; font-size: 1rem; line-height: 1; background: none; border: var(--pen-1, 1px) solid transparent; border-radius: var(--radius, 2px); color: var(--ink-2, inherit); cursor: pointer; }
+.shell-x .bi { font-size: 1rem; line-height: 1; }
+.shell-x:hover, .shell-x:focus-visible { border-color: var(--line, currentColor); color: var(--ink, inherit); }
+.shell-x:focus-visible { outline: var(--pen-2, 2px) solid var(--action, #1e48c8); outline-offset: 1px; }
+/* the apps' own row-remove classes take the same size (one look, MarkupCraft's chest / colours / signatures, BimCraft's rule rows) */
+main :is(.mc-x, .bc-forget) { display: inline-grid; place-items: center; flex: none; width: 1.5rem; height: 1.5rem; padding: 0; margin-top: 0; margin-bottom: 0; font-size: 1rem; line-height: 1; }
+main :is(.mc-x, .bc-forget) .bi { font-size: 1rem; line-height: 1; }
+@media (pointer: coarse) { .shell-x, main :is(.mc-x, .bc-forget) { width: 2.5rem; height: 2.5rem; } }
+
+/* ---- About <app> (core/components/app-about.inc, assets/js/app-about.js): every app, every layout ---- */
+.about-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--rule, #888); border-radius: var(--radius, 2px); background: var(--sheet, #fff); color: var(--ink, #111); }
+.about-dialog::backdrop { background: rgba(0, 0, 0, .45); }
+.about-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .75rem; }
+.about-brand { display: flex; align-items: center; gap: .6rem; min-width: 0; }
+.about-brand h2 { margin: 0; font-size: 1.125rem; }
+.about-mark { display: inline-flex; flex: 0 0 auto; } .about-mark > * { width: 1.75rem; height: 1.75rem; }
+.about-facts { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1rem; margin: 0 0 1rem; font-size: .875rem; }
+.about-facts dt { color: var(--muted, #666); } .about-facts dd { margin: 0; overflow-wrap: anywhere; }
+.about-sub { margin: 1rem 0 .5rem; padding-top: .75rem; border-top: 1px solid var(--rule, #ccc); font-size: 1rem; }
+.about-form { display: flex; flex-direction: column; gap: .75rem; }
+.about-form label { display: flex; flex-direction: column; gap: .2rem; font-size: .8125rem; }
+.about-form input[type=text], .about-form input[type=email], .about-form textarea { width: 100%; font: inherit; padding: .4rem .5rem; }
+.about-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+@media (max-width: 30rem) { .about-row { grid-template-columns: 1fr; } }
+.about-shots { display: flex; flex-direction: column; gap: .4rem; padding: .625rem; border: 1px dashed var(--rule, #888); border-radius: var(--radius, 2px); }
+.about-shots.over { background: var(--ws-soft, rgba(0, 0, 0, .06)); }
+.about-pick { display: inline-flex !important; flex-direction: row !important; align-items: center; gap: .4rem; align-self: flex-start; cursor: pointer; font-weight: 600; }
+.about-hint { color: var(--muted, #666); font-size: .75rem; margin: 0; }
+.about-thumbs { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+.about-thumbs li { position: relative; } .about-thumbs img { display: block; height: 4rem; max-width: 7rem; object-fit: cover; border: 1px solid var(--rule, #888); }
+.about-x { position: absolute; top: -.4rem; right: -.4rem; width: 1.25rem; height: 1.25rem; padding: 0; line-height: 1; border-radius: 50%; border: 1px solid var(--rule, #888); background: var(--sheet, #fff); cursor: pointer; }
+.about-status { margin: 0; font-size: .875rem; } .about-status[data-state="error"] { color: var(--danger, #b00020); }
+.about-foot { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.help-about { padding: .25rem .75rem; font-size: .8125rem; }
+
+/* FX.84 (owner 2026-11-06): a titled frame groups related settings so a long pane reads as a few blocks, not one run of controls */
+.shell-group { display: grid; gap: .5rem; margin-block: .9rem; padding: .7rem .85rem .85rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); background: var(--sheet); }
+.shell-group > * { margin-block: 0; }
+.shell-group-h { margin: 0; font-size: var(--fs-sm); font-weight: 700; font-stretch: 112%; color: var(--ink-2); text-transform: none; }
+.shell-sec-nav > .shell-sec-eyebrow:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+
+/* FX.86: "Starting up…" beside the app name until the app has settled (app-shell.js) */
+.app-bar-boot { display: inline-flex; align-items: center; gap: .35rem; margin-left: .6rem; color: var(--ink-2); font-size: var(--fs-sm); white-space: nowrap; transition: opacity .15s ease; animation: app-boot-tint 1.4s ease-in-out infinite; }
+.app-bar-boot[hidden] { display: none; }
+.app-bar-boot.is-done { opacity: 0; }
+.app-bar-boot-clock { flex: 0 0 auto; transform-box: view-box; transform-origin: 50% 50%; animation: app-boot-spin 1.6s linear infinite; }   /* an SVG, so it turns about its own centre */
+@keyframes app-boot-spin { to { transform: rotate(360deg); } }
+@media (max-width: 40rem) { .app-bar-boot-label, .app-bar-boot-step { display: none; } }
+@keyframes app-boot-tint { 0%, 100% { color: var(--ink-2); } 50% { color: var(--action); } }   /* colour shift to draw the eye */
+.app-bar-boot-label { animation: app-boot-pulse 1.4s ease-in-out infinite; }
+.app-bar-boot-step { font-size: .625rem; color: var(--ink-2); opacity: .85; overflow: hidden; text-overflow: ellipsis; max-width: 16rem; }
+.app-bar-boot-step:not(:empty)::before { content: '\00b7\00a0'; }
+@keyframes app-boot-pulse { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+/* owner 2026-11-06: this indicator always moves, whatever the system's reduced-motion setting (it is the only sign the app is working) */
+
+/* FX.91 (owner 2026-11-06): a toolbar group's name (File, Draw, Modify …) is in the app's own colour, so it reads apart from the tools, whose
+ * disabled ones are grey. One rule for every app (each names it <prefix>-tool-label), not eight edits. */
+body.app-shell [class*="-tool-label"] { color: var(--layer, var(--action)); font-weight: 700; }
+
+/* "I'm new…" tour card (assets/js/app-newhere.js, core/components/app-newhere.inc) */
+.newhere { position: fixed; inset: auto 1rem 1rem auto; margin: 0; width: min(25rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; padding: .85rem 1rem 1rem; border: var(--pen-2, 2px) solid var(--ink, #111); border-radius: var(--radius, 2px); background: var(--sheet, #fff); color: var(--ink, #111); box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .3); font-size: .9rem; }
+.newhere:not(:popover-open) { display: none; }
+.nh-head { display: flex; align-items: center; justify-content: space-between; }
+.nh-step { margin: 0; font-size: .8rem; opacity: .7; }
+.nh-title { margin: .25rem 0 .5rem; font-size: 1.15rem; }
+.nh-body > * { margin: 0 0 .65rem; }
+.nh-list, .nh-apps, .nh-rows { padding: 0; list-style: none; }
+.nh-list li { display: flex; gap: .5rem; margin-bottom: .3rem; }
+.nh-field { display: flex; flex-direction: column; gap: .2rem; }
+.nh-field select { padding: .3rem .4rem; }
+.nh-check { display: flex; gap: .4rem; align-items: center; }
+.nh-note { font-size: .8rem; opacity: .75; }
+.nh-apps { display: grid; gap: .35rem; }
+.nh-app { display: grid; grid-template-columns: 1fr auto; gap: 0 .5rem; padding: .35rem .5rem; border: var(--pen-1, 1px) solid var(--rule, #888); }
+.nh-app-name { font-weight: 600; }
+.nh-app-name em { margin-left: .4rem; font-size: .72rem; font-style: normal; padding: 0 .35rem; border: var(--pen-1, 1px) solid currentColor; }
+.nh-app-what { grid-column: 1; font-size: .8rem; opacity: .8; }
+.nh-app a { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.nh-rec { border-color: var(--ink, #111); border-width: var(--pen-2, 2px); }
+.nh-row { display: flex; align-items: center; gap: .6rem; padding: .3rem 0; border-bottom: var(--pen-1, 1px) solid var(--rule, #888); }
+.nh-row-t { flex: 1; display: flex; flex-direction: column; }
+.nh-row-t small { opacity: .75; }
+.nh-btn { display: inline-flex; gap: .35rem; align-items: center; padding: .35rem .7rem; border: var(--pen-1, 1px) solid var(--ink, #111); border-radius: var(--radius, 2px); background: transparent; color: inherit; font: inherit; text-decoration: none; cursor: pointer; }
+.nh-btn:hover { background: var(--sheet-2, #eee); }
+.nh-primary { background: var(--ink, #111); color: var(--sheet, #fff); }
+.nh-primary:hover { background: var(--ink, #111); opacity: .85; }
+.nh-quiet { border-color: transparent; }
+.nh-sm { padding: .15rem .5rem; font-size: .8rem; }
+.nh-dots { display: flex; gap: .35rem; justify-content: center; margin: .25rem 0 .6rem; padding: 0; list-style: none; }
+.nh-dots li { width: .5rem; height: .5rem; border: var(--pen-1, 1px) solid var(--ink, #111); border-radius: 50%; }
+.nh-dots li.on { background: var(--ink, #111); }
+.nh-dots li.past { opacity: .5; background: var(--ink, #111); }
+.nh-foot { display: flex; gap: .4rem; align-items: center; }
+.nh-grow { flex: 1; }
+.newhere-ring { position: fixed; inset: auto; margin: 0; padding: 0; background: transparent; border: 3px solid var(--ink, #111); border-radius: 4px; box-shadow: 0 0 0 3px var(--sheet, #fff), 0 0 0 6px var(--ink, #111); pointer-events: none; overflow: visible; }
+.newhere-ring:not(:popover-open) { display: none; }
+.nh-offer { position: fixed; inset: auto 1rem 1rem auto; margin: 0; width: min(20rem, calc(100vw - 2rem)); padding: .75rem 1rem; border: var(--pen-2, 2px) solid var(--ink, #111); background: var(--sheet, #fff); color: var(--ink, #111); box-shadow: 0 .4rem 1.2rem rgba(0, 0, 0, .3); }
+.nh-offer p { margin: 0 0 .5rem; }
+.nh-offer-bar { display: flex; gap: .4rem; }
+@media (prefers-reduced-motion: no-preference) { .newhere-ring { animation: nh-pulse 1.6s ease-in-out infinite; } }
+@keyframes nh-pulse { 50% { box-shadow: 0 0 0 3px var(--sheet, #fff), 0 0 0 10px var(--ink, #111); } }
+
+/* 2026-11-09: tab labels never wrap, in every app (the strip scrolls with chevrons when they do not fit: assets/js/app-tabs-scroll.js) */
+[role="tablist"] > :is([role="tab"], button) { white-space: nowrap; }

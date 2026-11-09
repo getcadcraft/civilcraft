@@ -112,6 +112,8 @@ try {
     window.dispatchEvent(new Event('cc-teamwork-ready'));
   }, [UUID, MINE]);
   ok(await page.$eval('[data-model-team]', (b) => !b.hidden), 'with the shell\'s team module and a cloud file the button shows');
+  // 0.9 mounts-09: the panel sections fold (shell accordion); a person opens the section that holds the button first, as this does
+  await page.evaluate(() => { const b = document.querySelector('[data-model-team]'); for (let n = b.parentElement; n && !b.offsetParent; n = n.parentElement) { const h = n.querySelector(':scope > [data-af="closed"]'); if (h) { h.click(); } } });
   await page.click('[data-model-team]');
   await waitStatus(/team|model/i, 60000);
   await page.waitForFunction(() => document.querySelectorAll('[data-model-remove]').length >= 1, null, { timeout: 60000 });

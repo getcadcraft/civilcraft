@@ -187,7 +187,7 @@ export class CadSession {
   /** diagram_from_text's headless twin (0.8 SU.883): the same engine as the live tool (diagram.js drawDiagramInto), one undo step. */
   async diagram(text, o = {}) {
     const dg = await load(APP, 'diagram.js');
-    return dg.drawDiagramInto(this.doc, text, { format: o.format || 'auto', x: o.x || 0, y: o.y || 0, th: o.textHeight, layer: o.layer || 'Diagram', label: this.undoPrefix + 'Diagram from text' });
+    return dg.drawDiagramFrom(this.doc, text, { format: o.format || 'auto', x: o.x || 0, y: o.y || 0, th: o.textHeight, layer: o.layer || 'Diagram', label: this.undoPrefix + 'Diagram from text' });
   }
   async insert(o) {
     this.out = [];

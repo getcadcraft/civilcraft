@@ -1,0 +1,5 @@
+- Turn customers into demands: one line per parcel or meter (an id, a place, a kind and an amount), placed on the nearest junction or shared between close ones, with a peaking factor and a residential, commercial or flat day pattern. WaterCraft tab, Demands. {#wn-demand}
+- Test fire flow at every hydrant, or every junction when none is marked: the flow each can give while the residual pressure holds, held either at the hydrant or everywhere in the system, listed worst first with meets or short. WaterCraft tab, Fire flow. {#wn-fire}
+- Take each main, or each valved section, out of service in turn and see how much demand is cut off and which junctions fall under the minimum pressure. WaterCraft tab, Which main matters most. {#wn-crit}
+- Follow water age, chlorine decay (in the water and at the pipe wall) and a source trace through the run, with junctions flagged when the residual is too low or the water too old. WaterCraft tab, Water age and chlorine. {#wn-quality}
+- Save every table as a CSV that a spreadsheet will open without running a name as a formula. Each table's Save as CSV button. {#wn-csv}

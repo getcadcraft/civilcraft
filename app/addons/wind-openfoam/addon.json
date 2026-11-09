@@ -1,0 +1,18 @@
+{
+  "id": "wind-openfoam",
+  "name": "Pedestrian wind (OpenFOAM)",
+  "version": "0.9.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.0",
+  "license": "GPL-3.0-or-later",
+  "entry": "./main.js",
+  "permissions": [
+    "network"
+  ],
+  "description": "Adds OpenFOAM as an engine for the Environment wind study. OpenFOAM is GPL software that you install yourself; CadCraft never ships it. The add-on writes an OpenFOAM case from your masses for each wind direction, hands it to a small helper program on this computer (127.0.0.1 only) that runs OpenFOAM, and reads the pedestrian-height wind back. Off until you switch it on.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

@@ -177,6 +177,67 @@ export async function run({ ok, close, section, APP }) {
     T.lastCopy = null;
   }
 
+  section('the ten arc methods, by clicks and typing (0.9 FX.136, lib/arcs)');
+  {
+    const model = new M.Model();
+    model.units = 'm';
+    const cam = new Camera();
+    cam.setSize(1000, 800);
+    let cache = null;
+    const host = {
+      model, cam, path: [], sel: [], units: 'm', msgs: [], keys: 'sketchup',
+      scene() { return sceneOf(host.model); },   // rebuilt every time: undo leaves the version alone
+      setSel(s) { host.sel = s; }, overlay() {}, tip() {}, vcb() {}, print(m) { host.msgs.push(m); }, changed() {},
+      openContext(p) { host.path = p; }, closeContext() { host.path = host.path.slice(0, -1); },
+    };
+    const T = new Tools(host);
+    cam.eye = [0, -1.5, 30]; cam.target = [0, 0, 0]; cam.clip(60);   // looking almost straight down: the blue axis is a point on screen, so no click snaps to it
+    let tt = 0;
+    const click = (x, y) => { const s = cam.project([x, y, 0]); T.move({ x: s[0], y: s[1] }); T.click(s[0], s[1], { time: (tt += 1000) }); };
+    const hover = (x, y) => { const s = cam.project([x, y, 0]); T.move({ x: s[0], y: s[1] }); };
+    const arcOf = () => { const e = [...model.root.edges.values()].find((x) => x.curve?.startsWith('arc:')); return e ? M.curveInfo(model.root, e.curve) : null; };
+    const ends = (ci) => [model.root.verts.get(ci.verts[0]), model.root.verts.get(ci.verts[ci.verts.length - 1])];
+    const near = (p, q) => V.dist(p, q) < 1e-6;
+    const check = (what, r, sweep, a, b, ccw = true) => {
+      const ci = arcOf();
+      const [e0, e1] = ci ? ends(ci) : [];
+      const okEnds = ci && ((near(e0, a) && near(e1, b)) || (near(e0, b) && near(e1, a)));
+      ok(!!ci && close(ci.radius, r, 1e-6) && close(ci.sweep, sweep, 1e-6) && okEnds && ci.segs === 12, what + `: radius ${r}, sweep ${Math.round(sweep * 180 / Math.PI)}°, the right ends` + (ci ? '' : ' (no arc)'));
+      ok(model.root.edges.size === 12, what + ': twelve edges as one curve');
+      model.undo();
+      ok(model.root.edges.size === 0, what + ': one undo takes the whole arc away');
+    };
+    const A = [4, 0, 0], B = [0, 4, 0], Cc = [-4, 0, 0];
+    // every method draws its own quarter or half circle of radius 4 about the origin
+    T.set('arc3p'); click(4, 0); click(0, 4); click(-4, 0); check('3-Point', 4, Math.PI, A, Cc);
+    T.set('arcsce'); click(4, 0); click(0, 0); click(0, 7); check('Start, Center, End', 4, Math.PI / 2, A, B);
+    T.set('arcsca'); click(4, 0); click(0, 0); hover(0, 5); click(0, 5); check('Start, Center, Angle (pointer)', 4, Math.PI / 2, A, B);
+    T.set('arcsca'); click(4, 0); click(0, 0); T.value('90'); check('Start, Center, Angle (typed 90)', 4, Math.PI / 2, A, B);
+    T.set('arcsca'); click(4, 0); click(0, 0); T.value('-90'); check('Start, Center, Angle (typed -90: clockwise)', 4, Math.PI / 2, A, [0, -4, 0]);
+    T.set('arcscl'); click(4, 0); click(0, 0); T.value(String(4 * Math.SQRT2)); check('Start, Center, Length', 4, Math.PI / 2, A, B);
+    T.set('arcsea'); click(4, 0); click(0, 4); T.value('90'); check('Start, End, Angle', 4, Math.PI / 2, A, B);
+    T.set('arcsed'); click(4, 0); click(0, 4); T.value('90'); check('Start, End, Direction', 4, Math.PI / 2, A, B);
+    T.set('arcser'); click(4, 0); click(0, 4); T.value('4'); check('Start, End, Radius', 4, Math.PI / 2, A, B);
+    T.set('arcser'); click(4, 0); click(0, 4); T.value('-4'); check('Start, End, Radius (minus: the major arc)', 4, Math.PI * 1.5, A, B);
+    T.set('arccse'); click(0, 0); click(4, 0); click(0, 7); check('Center, Start, End', 4, Math.PI / 2, A, B);
+    T.set('arccsa'); click(0, 0); click(4, 0); T.value('90'); check('Center, Start, Angle', 4, Math.PI / 2, A, B);
+    T.set('arccsl'); click(0, 0); click(4, 0); T.value(String(4 * Math.SQRT2)); check('Center, Start, Length', 4, Math.PI / 2, A, B);
+    // a distance typed for a point step goes along the pointer
+    T.set('arccse'); click(0, 0); hover(3, 0); T.value('4'); hover(0, 4); T.value(String(4 * Math.SQRT2)); check('Center, Start, End with typed distances (from the last click)', 4, Math.PI / 2, A, B);
+    // segments, a refused answer that leaves the tool where it was, and Esc
+    T.set('arcser'); click(4, 0); click(0, 4); T.value('1');
+    ok(model.root.edges.size === 0 && /radius/i.test(host.msgs.at(-1)) && T.tool.vals.length === 2, 'a radius too small for the ends is refused and the arc waits: ' + host.msgs.at(-1));
+    T.value('4'); ok(model.root.edges.size === 12, 'then a good radius draws it'); model.undo();
+    T.set('arcsce'); T.value('6s'); click(4, 0); click(0, 0); click(0, 7);
+    ok(arcOf()?.segs === 6, 'typing 6s before the arc: six segments'); model.undo();
+    T.set('arc3p'); click(4, 0); click(0, 4); ok(T.tool.busy, 'two clicks in: the arc is under way');
+    ok(T.escape() && model.root.edges.size === 0 && !T.tool.busy && T.tool.vals.length === 0, 'Esc cancels it: nothing drawn, the tool is back at its first step');
+    T.set('arcsce'); click(4, 0); click(0, 0); click(0, 0);
+    ok(T.tool.vals.length === 2 && /same/i.test(host.msgs.at(-1)), 'an end on the center draws nothing and says so: ' + host.msgs.at(-1));
+    T.escape();
+    ok(model.root.edges.size === 0, 'nothing was drawn from the bad input');
+  }
+
   section('arithmetic in the value box (0.7 MC-CALC)');
   {
     const U = await import(path.join(APP, 'units.js'));

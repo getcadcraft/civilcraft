@@ -4,6 +4,25 @@
   'use strict';
   var root = document.documentElement;
 
+  /* ---- Password show/hide eye (account/password-eye.inc) ---- */
+  document.querySelectorAll('[data-pw-eye]').forEach(function (b) {
+    var input = document.getElementById(b.getAttribute('aria-controls'));
+    var icon = b.querySelector('i');
+    if (!input || !icon) return;
+    function show(on) {
+      input.type = on ? 'text' : 'password';
+      icon.className = on ? 'bi bi-eye-slash' : 'bi bi-eye';
+      var label = on ? 'Hide password' : 'Show password';
+      b.setAttribute('aria-label', label);
+      b.title = label;
+    }
+    b.hidden = false;
+    b.addEventListener('click', function () { show(input.type === 'password'); });
+    /* Back to masked on submit: the browser then offers to save it as a password, and
+       never keeps it in plain-text form history or shows it again on Back. */
+    if (input.form) input.form.addEventListener('submit', function () { show(false); });
+  });
+
   /* ---- Paper / model space toggle: instant switch, remembered in localStorage + cookie ---- */
   function setSpace(s) {
     root.setAttribute('data-space', s);
@@ -93,4 +112,12 @@
       wrap.addEventListener('pointerleave', function () { wrap.classList.remove('is-hovering'); });
     }
   }
+})();
+
+/* Footer language picker (site-lang.inc): the tiny Save shows only once the pick differs from the saved one. */
+(function () {
+  var f = document.getElementById('site-lang'), sel = f && f.querySelector('select');
+  if (!sel) return;
+  var was = sel.value;
+  sel.addEventListener('change', function () { f.classList.toggle('is-changed', sel.value !== was); });
 })();

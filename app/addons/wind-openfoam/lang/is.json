@@ -1,0 +1,14 @@
+{
+  "@locale": "is",
+  "@name": "Íslenska",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (viðbót)",
+  "wind.of.note": "Keyrir þína eigin OpenFOAM uppsetningu í gegnum lítið hjálparforrit á þessari tölvu: eitt stöðugt RANS (k-epsilon) reiknilíkan fyrir hverja vindátt, með inntaki fyrir andrúmsloftsmörk. Ekkert fer frá þessari tölvu. CadCraft fylgir ekki með OpenFOAM.",
+  "wind.of.url": "Vistfang hjálpar",
+  "wind.of.token": "Aðgangslykill hjálpar",
+  "wind.of.check": "Athuga hjálparforritið",
+  "wind.of.ok": "Hjálparforritið svaraði. OpenFOAM: {foam}",
+  "wind.of.down": "Hjálparforritið svaraði ekki ({why}). Ræstu það á þessari tölvu: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Hjálparforritið svaraði en gat ekki ræst OpenFOAM: {why}",
+  "wind.of.install": "Settu upp OpenFOAM (ESI v-línuna, openfoam.com) og hjálparforritið úr möppu viðbótarinnar; hjálparefnið útskýrir hvort tveggja."
+}

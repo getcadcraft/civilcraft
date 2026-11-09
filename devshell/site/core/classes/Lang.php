@@ -52,6 +52,7 @@ final class Lang
 
     private static ?array $cur = null;     // {app, dir, locale, chain, strings}
     private static bool $booted = false;
+    private static ?array $printed = null;  // record(): every t() in call order, for a packed page (printedTag)
     private static array $fileCache = [];
 
     // ------------------------------------------------------------------ setup
@@ -95,6 +96,49 @@ final class Lang
         $list = self::$cur !== null && ($buildDir === '' || self::$cur['dir'] === $buildDir) && isset(self::$cur['available'])
             ? self::$cur['available'] : self::locales($buildDir);
         return array_values(array_filter($list, static fn($l) => $l !== self::PSEUDO));
+    }
+
+    /**
+     * A language file's own name ("@name"), or null when it has none. Reads only the head of the file: every file written
+     * by tools/lang puts "@locale" and "@name" first, so a 1 KB read finds it (0.9 FX.141, 2026-11-08: the Settings dialog
+     * used to json_decode every locale of the build AND the shell — 130 files, 43 MB — on every app page, 150 ms of its
+     * 218 ms). A file whose head has no "@name" (hand-written, keys in another order) is decoded in full, as before.
+     */
+    public static function nameOf(string $file): ?string
+    {
+        if (!is_file($file)) return null;
+        $head = (string)file_get_contents($file, false, null, 0, 1024);
+        if (preg_match('/"@name"\s*:\s*"((?:[^"\\\\]|\\\\.)*)"/', $head, $m)) {
+            $name = json_decode('"' . $m[1] . '"');
+            if (is_string($name) && $name !== '') return $name;
+        }
+        if (strlen($head) < 1024) return null;   // the whole file was in the head: no "@name"
+        $j = json_decode((string)file_get_contents($file), true);
+        return is_array($j) && is_string($j['@name'] ?? null) && $j['@name'] !== '' ? $j['@name'] : null;
+    }
+
+    /** The languages a person can pick on the website (the footer's picker, lab only for now): every shell language file
+     *  that names itself ("@name"), English first. → [locale => its own name]. The apps read the same cc_lang cookie. */
+    public static function siteChoices(): array
+    {
+        $out = [self::DEFAULT => 'English'];
+        foreach (glob(self::shellDir() . '/*.json') ?: [] as $f) {
+            $l = basename($f, '.json');
+            if ($l === self::DEFAULT || $l === self::PSEUDO || !self::validLocale($l)) continue;
+            $name = self::nameOf($f);
+            if ($name !== null) $out[$l] = $name;
+        }
+        return $out;
+    }
+
+    /** Remember the choice the way the apps do (i18n.js setLocale, app-settings.js): cookie cc_lang, a year; '' = Automatic. */
+    public static function rememberChoice(string $locale): bool
+    {
+        if ($locale !== '' && !isset(self::siteChoices()[$locale])) return false;
+        return setcookie(self::COOKIE, $locale, [
+            'expires' => $locale === '' ? time() - 3600 : time() + 31536000,
+            'path' => '/', 'samesite' => 'Lax', 'secure' => true, 'httponly' => false,   // the packed apps read it in the browser
+        ]);
     }
 
     /** Forget the current build (tests). */
@@ -272,6 +316,10 @@ final class Lang
     {
         $v = self::$cur['strings'][$key] ?? null;
         if ($v === null) return $key;
+        if (self::$printed !== null) {
+            $fills = array_filter($vars, static fn($x) => is_scalar($x));
+            self::$printed[] = $fills ? [$key, $fills] : [$key];
+        }
         $text = is_string($v) ? $v : self::choosePlural($v, $vars['n'] ?? null, self::locale());
         return self::fill($text, $vars);
     }
@@ -324,6 +372,22 @@ final class Lang
             foreach ($data['@server'] as $k) if (is_string($k)) $out[$k] = true;
         }
         return $out;
+    }
+
+    /** A packed page (devshell/render.php --edition) is printed once, in English: record which key printed each string, so
+     * assets/js/app-lang-boot.js can swap it by key. Without this, English that several keys share with different
+     * translations ("Open", "New", "Save") and text with fills ("About {app}") stayed English (FX, Discord 2026-11-07). */
+    public static function record(bool $on = true): void
+    {
+        self::$printed = $on ? [] : null;
+    }
+
+    /** The keys t() gave so far, in order: <script type="application/json" id="cc-lang-printed">[[key], [key, {fills}]…]. */
+    public static function printedTag(): string
+    {
+        if (self::$printed === null) return '';
+        $json = json_encode(self::$printed, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        return '<script type="application/json" id="cc-lang-printed">' . $json . '</script>';
     }
 
     /** The catalog for i18n.js, once per page: <script type="application/json" id="cc-lang">. Keys only PHP prints

@@ -1,0 +1,10 @@
+{"cases": [
+  {"id": "pc-1", "name": "Every source point lands in exactly one tile, and a stopped build resumes to the same bytes", "result": "Round trip and resume tests pass on made-up clouds (bin/test-pointcloud-engine.mjs)"},
+  {"id": "pc-2", "name": "Ground against the true terrain of the made-up 300 m site", "result": "RMS 0.017 m to the true terrain; no roof or tree point kept as ground; stray points found; tile seams within tolerance"},
+  {"id": "pc-3", "name": "Stray points planted in the made-up site", "result": "200 of 200 found, 0.09 % of real points wrongly marked by the isolated-point filter"},
+  {"id": "pc-4", "name": "Vegetation and buildings on the made-up site", "result": "97 % of roof points are class 6; every tree point is class 3, 4 or 5 (no real data yet)"},
+  {"id": "pc-5", "name": "Volumes against solids with a known volume", "result": "Gaussian hill 0.02 % off, cone 0.12 % off on flat ground; a 6,000 m3 block on curved sloping ground within 1 to 3 % depending on the base"},
+  {"id": "pc-6", "name": "Cleaned LAS 1.4 re-read by our reader and by laspy", "result": "Point count, bounds and class counts equal; a streamed save is byte for byte the gathered one"},
+  {"id": "pc-8", "name": "LAZ written by our own compressor, read back by our reader, laz-perf and laspy with lazrs", "result": "Every field of every point equal, bit for bit, in point formats 0 to 3 with extra bytes and several chunks; LAZ files made by laspy come out byte for byte the same when their points are written again; the made-up 300 m site's LAZ is 20 % of its LAS 1.4 file (bin/test-pointcloud-laz.mjs). Other LAZ programs not tried yet"},
+  {"id": "pc-7", "name": "Frame rate on a real graphics card (workstation, NVIDIA RTX 5070, Chrome)", "result": "2 million points drawn at about 100 frames a second (the screen's limit) with eye-dome lighting and shrinking points on, no frame gap over 17 ms; a made-up site, not a real survey"}
+]}

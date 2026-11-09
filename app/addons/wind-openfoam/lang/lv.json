@@ -1,0 +1,14 @@
+{
+  "@locale": "lv",
+  "@name": "Latviešu",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (papildinājums)",
+  "wind.of.note": "Darbina jūsu pašu OpenFOAM instalāciju caur nelielu palīgprogrammu šajā datorā: viens stabilā režīma RANS (k-epsilon) aprēķins katram vēja virzienam, atmosfēras robežslāņa ieplūde. Nekas neatstāj šo datoru. CadCraft neiekļauj OpenFOAM.",
+  "wind.of.url": "Palīgprogrammas adrese",
+  "wind.of.token": "Palīgprogrammas marķieris",
+  "wind.of.check": "Pārbaudīt palīgprogrammu",
+  "wind.of.ok": "Palīgprogramma atbildēja. OpenFOAM: {foam}",
+  "wind.of.down": "Palīgprogramma neatbildēja ({why}). Palaidiet to šajā datorā: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Palīgprogramma atbildēja, bet nevarēja palaist OpenFOAM: {why}",
+  "wind.of.install": "Instalējiet OpenFOAM (ESI v-sērija, openfoam.com) un palīgprogrammu no papildinājuma mapes; palīdzības tēma izskaidro abus."
+}

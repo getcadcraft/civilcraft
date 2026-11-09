@@ -121,3 +121,8 @@ html.cc-phone .cct-totals-own { bottom: var(--shell-bar-h, 3.5rem); }   /* above
 .cct-tw-replyform { display: flex; gap: .35rem; }
 .cct-tw-msg { color: var(--layer-red); margin: 0 0 .5rem; }
 @media (max-width: 47.5rem) { .app-bar > .app-bar-teamwork { display: none; } }
+
+/* Drawing details (DI.1): the facts list */
+.cct-facts { display: grid; grid-template-columns: minmax(6rem, auto) 1fr; gap: .15rem .75rem; margin: 0; font-variant-numeric: tabular-nums; }
+.cct-facts dt { color: var(--ink-2); }
+.cct-facts dd { margin: 0; overflow-wrap: anywhere; text-align: right; }

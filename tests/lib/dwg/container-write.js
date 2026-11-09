@@ -102,9 +102,22 @@ export function objectMap(map) {
   return out.bytes();
 }
 
-/** Free-space table (21.1). */
-export function objFreeSpace(count, jdUpdate, objectsAt) {
-  const o = new ByteWriter(64);
+/**
+ * Free-space table (21.1). R2000 to R2007: RL 0, RL object count, RL TDUPDATE day, RL ms, RL objects offset, RC 4, then
+ * four (RL, RL) descriptors. R2010 and later (AutoCAD 2010/2013/2018 and the ODA File Converter write 89 bytes): the
+ * first two counters and every descriptor field are 64 bit and there is no objects-offset RL: RLL 0, RLL count, RL day,
+ * RL ms, RC 4, four (RLL, RLL). Writing the 53-byte layout into an R2010+ file leaves every field after the first
+ * counter shifted from where AutoCAD reads it.
+ */
+export function objFreeSpace(count, jdUpdate, objectsAt, version = 'AC1015') {
+  const o = new ByteWriter(96);
+  const wide = version === 'AC1024' || version === 'AC1027' || version === 'AC1032';
+  if (wide) {
+    o.RLL(0); o.RLL(count); o.RL(jdUpdate.day); o.RL(jdUpdate.ms);
+    o.RC(4);
+    for (const v of [0x32, 0x64, 0x200, 0xFFFFFFFF]) { o.RLL(v); o.RLL(0); }
+    return o.bytes();
+  }
   o.RL(0); o.RL(count); o.RL(jdUpdate.day); o.RL(jdUpdate.ms); o.RL(objectsAt);
   o.RC(4);
   for (const v of [0x32, 0x64, 0x200, 0xFFFFFFFF]) { o.RL(v); o.RL(0); }
@@ -123,20 +136,26 @@ export function templateSection(measurement, version = 'AC1015') {
   return o.bytes();
 }
 
-/** Auxiliary header (27). */
+/**
+ * Auxiliary header (27). R2018 (AC1032): every DWG version / maintenance RS pair is followed by one more RS 0 (AutoCAD 2018
+ * files and the ODA File Converter's: 129 bytes against 123, the three extra RS sit after the pairs, not at the end);
+ * writing them at the end moved every later field (the save counters, the creation and update times, the handle seed)
+ * by 2 to 6 bytes from where AutoCAD reads it.
+ */
 export function auxHeader(version, jd, handseed) {
   const { code, maint } = VERSION_INFO[version];
+  const r2018 = version === 'AC1032';
   const o = new ByteWriter(160);
+  const pair = () => { o.RS(code); o.RS(maint); if (r2018) o.RS(0); };
   o.raw([0xFF, 0x77, 0x01]);
-  o.RS(code); o.RS(maint);
+  pair();
   o.RL(1); o.RL(-1); o.RS(1); o.RS(0); o.RL(0);
-  o.RS(code); o.RS(maint); o.RS(code); o.RS(maint);
+  pair(); pair();
   o.RS(0x0005); o.RS(0x0893); o.RS(0x0005); o.RS(0x0893); o.RS(0); o.RS(1);
   for (let i = 0; i < 5; i++) o.RL(0);
   o.RL(jd.created.day); o.RL(jd.created.ms); o.RL(jd.updated.day); o.RL(jd.updated.ms);
   o.RL(handseed < 0x7FFFFFFF ? handseed : -1);
   o.RL(0); o.RS(0); o.RS(1); o.RL(0); o.RL(0); o.RL(0); o.RL(1); o.RL(0); o.RL(0); o.RL(0); o.RL(0);
-  if (version === 'AC1032') { o.RS(0); o.RS(0); o.RS(0); }
   return o.bytes();
 }
 
@@ -259,7 +278,7 @@ export function layoutR2004(parts, version) {
     ...(parts.acds ? [['AcDb:AcDsPrototype_1b', parts.acds, 2, 0x7400]] : []),
     ['AcDb:RevHistory', revHistory(version), 2, 0x7400],
     ['AcDb:AcDbObjects', ob.bytes(), 2, 0x7400],
-    ['AcDb:ObjFreeSpace', objFreeSpace(map.length, parts.jd.updated, 0), 2, 0x7400],
+    ['AcDb:ObjFreeSpace', objFreeSpace(map.length, parts.jd.updated, 0, version), 2, 0x7400],
     ['AcDb:Template', templateSection(parts.measurement, version), 2, 0x7400],
     ['AcDb:Handles', objectMap(map), 2, 0x7400],
     ['AcDb:Classes', classesSection(parts.classes, version), 2, 0x7400],

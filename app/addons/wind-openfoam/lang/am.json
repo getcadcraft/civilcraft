@@ -1,0 +1,14 @@
+{
+  "@locale": "am",
+  "@name": "አማርኛ",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (ተጨማሪ)",
+  "wind.of.note": "በዚህ ኮምፒውተር ላይ ባለ ትንሽ ረዳት ፕሮግራም በኩል የራስዎን OpenFOAM ተከላ ያሂዳል፡ ለእያንዳንዱ የንፋስ አቅጣጫ አንድ የተረጋጋ RANS (k-epsilon) ስሌት፣ የከባቢ አየር ድንበር ንብርብር መግቢያ ያለው። ምንም ነገር ከዚህ ኮምፒውተር አይወጣም። CadCraft OpenFOAMን አያካትትም።",
+  "wind.of.url": "የረዳት አድራሻ",
+  "wind.of.token": "የረዳት ቶከን",
+  "wind.of.check": "ረዳቱን ፈትሽ",
+  "wind.of.ok": "ረዳቱ መለሰ። OpenFOAM: {foam}",
+  "wind.of.down": "ረዳቱ አልመለሰም ({why})። በዚህ ኮምፒውተር ላይ ይጀምሩት፡ node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "ረዳቱ መለሰ፤ ነገር ግን OpenFOAMን ማስጀመር አልተቻለም: {why}",
+  "wind.of.install": "OpenFOAMን (ESI v-series, openfoam.com) እና ረዳቱን ከተጨማሪው አቃፊ ጫን። የእገዛ ርዕሱ ሁለቱንም ያብራራል።"
+}

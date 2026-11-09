@@ -408,7 +408,7 @@ html.cc-compact .cv-toolhint { left: .5rem; right: 5.75rem; transform: none; max
 .cv-ids-specs li[data-ids-spec="pass"] { border-left-color: var(--layer-green); }
 
 /* 0.8 LC.16: the Water mains window is not modal (the plan stays clickable for the tools); it sits at the right edge, scrolls inside */
-.cv-wmdlg { position: fixed; inset: 4.5rem 1rem auto auto; margin: 0; width: min(34rem, calc(100vw - 2rem)); max-height: calc(100vh - 6rem); overflow: auto; z-index: 30; }
+.cv-wmdlg { position: fixed; inset: 9rem 1rem auto auto; margin: 0; width: min(34rem, calc(100vw - 2rem)); max-height: calc(100vh - 10.5rem); overflow: auto; z-index: 30; }
 .cv-wmdlg .cv-dlg-body { max-height: calc(100vh - 12rem); overflow: auto; }
 
 /* Super 0.1: Start from a scan (scan-start-ui.js over lib/scanstart) — the chosen way of placing the sheet reads as chosen */
@@ -424,3 +424,101 @@ html.cc-compact .cv-toolhint { left: .5rem; right: 5.75rem; transform: none; max
 .cv-scan[data-scan-state="drawn"] { border-left: 4px solid var(--action); }
 .cv-scan .cv-note, .cv-scan-status { margin: .25rem 0; }
 .cv-scan-acts { display: flex; flex-wrap: wrap; gap: .25rem; }
+
+/* 0.9 SU.1110 + WB.6: corridor templates (templates-ui.js) */
+.cv-tpl-dlg { width: min(52rem, calc(100vw - 2rem)); }
+.cv-tpl-ed { width: min(72rem, calc(100vw - 2rem)); }
+.cv-tpl-dlg .cv-table select { min-width: 7.5rem; }
+.cv-tpl-dlg .cv-table td { vertical-align: middle; }
+.cv-tpl-canvas { display: block; max-width: 100%; background: var(--sheet); border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.cv-tpl-draw { display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap; margin: .5rem 0; }
+.cv-tpl-draw .cv-note { flex: 1 1 14rem; margin: 0; }
+.cv-tpl-region { border: var(--pen-1) solid var(--line); border-radius: var(--radius); padding: .5rem .6rem; margin: .5rem 0; }
+.cv-tpl-side { margin-top: .5rem; padding-top: .4rem; border-top: var(--pen-1) dashed var(--line); }
+.cv-tpl-use { flex-wrap: wrap; gap: .3rem; margin: .2rem 0; }
+.cv-tpl-use .cv-select { max-width: 100%; }
+.cv-badge { display: inline-block; margin-left: .4rem; padding: 0 .35rem; font-size: .8em; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+.cv-tpl-thumb { width: 8rem; }
+.cv-tpl-thumb .cv-tpl-canvas { max-width: none; }
+
+/* 0.9 SU.1080 GIS analysis panel (gis-analysis-ui.js): a panel that does not block the plan, so the selection stays in view */
+.cv-gisa { position: fixed; z-index: 40; inset: 9rem 1rem auto auto; margin: 0; width: min(34rem, calc(100vw - 2rem)); max-height: calc(100vh - 10.5rem); overflow: auto; }
+.cv-gisa .cv-dlg-body { display: grid; gap: .6rem; }
+.cv-gisa-tabs { display: flex; flex-wrap: wrap; gap: .3rem; }
+.cv-gisa-tabs [aria-selected="true"] { background: var(--action, #1f5fbf); color: var(--paper, #fff); border-color: transparent; }
+.cv-gisa-pane { display: grid; gap: .5rem; }
+.cv-gisa-pane[hidden] { display: none; }
+.cv-gisa .cv-props { display: grid; grid-template-columns: 11rem 1fr; gap: .4rem .6rem; align-items: center; }
+.cv-gisa .cv-props[hidden] { display: none; }
+.cv-gisa textarea.cv-input { font-family: var(--font-mono, monospace); width: 100%; }
+.cv-gisa .cv-table-wrap { max-height: 14rem; overflow: auto; }
+.cv-gisa .cv-gisa-err { color: var(--danger, #b3261e); }
+.cv-gisa .cv-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+
+/* 0.9 SU.1080 round 2: attribute table (gis-table-ui.js) and symbology by attribute (gis-symbology-ui.js) */
+.cv-gist-dlg { position: fixed; z-index: 40; inset: auto 1rem 1rem auto; margin: 0; width: min(52rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem); max-height: calc(100vh - 7rem); overflow: auto; }
+.cv-gist-dlg .cv-dlg-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+.cv-gist-dlg .cv-dlg-body > *, .cv-gist-main, .cv-gist-host { min-width: 0; }
+.cv-gist-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+.cv-gist-dlg .cv-input, .cv-gist-dlg .cv-select { max-width: 100%; box-sizing: border-box; }
+.cv-gist-dlg .cv-actions .btn-line { white-space: normal; }
+.cv-gist-dlg .cv-dlg-foot { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-end; }
+.cv-gist-row { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.cv-gist-row > .cv-input, .cv-gist-row > .cv-select { flex: 1 1 8rem; min-width: 6rem; }
+.cv-gist-row-inline { display: inline-flex; gap: .4rem; flex: 1 1 12rem; }
+.cv-gist-row-inline[hidden], .cv-gist-main[hidden], .cv-gsym .cv-props[hidden], .cv-gsym .cv-check[hidden] { display: none; }
+.cv-gist-hint { font-size: .8125rem; white-space: nowrap; }
+.cv-gist-scroll { max-height: 20rem; overflow: auto; border: var(--pen-1) solid var(--line); }
+.cv-gist-scroll:focus-visible { outline: 2px solid var(--action); outline-offset: 1px; }
+.cv-gist { table-layout: fixed; margin: 0; min-width: 100%; width: max-content; }
+.cv-gist thead th { position: sticky; top: 0; background: var(--sheet, #fff); z-index: 1; width: 9rem; padding: 0; }
+.cv-gist th.cv-gist-n, .cv-gist td.cv-gist-n { width: 3.2rem; }
+.cv-gist tbody tr[data-i] { height: 28px; }
+.cv-gist tbody td, .cv-gist tbody th { height: 28px; max-height: 28px; padding: 0 .35rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-sizing: border-box; }
+.cv-gist td[tabindex]:focus-visible { outline: 2px solid var(--action); outline-offset: -2px; }
+.cv-gist tbody tr.is-sel td, .cv-gist tbody tr.is-sel th { background: color-mix(in srgb, var(--action) 18%, transparent); }
+.cv-gist .cv-gist-pad td { padding: 0; border: 0; height: 0; }
+.cv-gist-sort { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: .3rem; background: none; border: 0; padding: .25rem .35rem; font: inherit; font-weight: 600; text-align: left; cursor: pointer; color: inherit; }
+.cv-gist-type { font-weight: 400; color: var(--ink-2); }
+.cv-gist-edit { width: 100%; height: 24px; box-sizing: border-box; }
+.cv-gist-sec summary { cursor: pointer; font-weight: 600; }
+.cv-gist-dlg .cv-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.cv-gist-dlg textarea.cv-input { font-family: var(--font-mono, monospace); width: 100%; }
+.cv-gist-dlg .cv-gisa-err { color: var(--danger, #b3261e); }
+.cv-gsym { width: min(34rem, calc(100vw - 2rem)); }
+.cv-gsym .cv-dlg-body { display: grid; gap: .45rem; }
+.cv-gsym .cv-table-wrap { max-height: 12rem; overflow: auto; }
+.cv-gsym-strip { display: flex; height: .9rem; margin-top: .3rem; border: var(--pen-1) solid var(--line); }
+.cv-gsym-strip span { flex: 1; }
+.cv-gsym-pair { display: inline-flex; gap: .4rem; }
+.cv-gsym-pair input { width: 5rem; }
+.cv-gsym .cv-swatch { display: inline-block; width: .9rem; height: .9rem; vertical-align: -.1rem; border: var(--pen-1) solid var(--line); }
+
+/* FX: an empty "—" cell is centred and light */
+.cv-table td.cv-dash, .cv-groups td.cv-dash { text-align: center; color: color-mix(in srgb, var(--ink-2) 45%, transparent); }
+
+/* the PI table's two-row head: one "Spiral" over In and Out */
+.cv-table th.cv-th-group { text-align: center; border-bottom: var(--pen-1) solid var(--line); }
+.cv-table thead tr + tr th { text-align: center; }
+
+/* Sun menu: every field is its label above its box; pairs share a row in equal columns */
+.cv3-sun > label:not(:has(input[type=checkbox])), .cv3-sun .cv-row > label { display: flex; flex-direction: column; align-items: stretch; gap: .15rem; flex: 1 1 0; min-width: 0; }
+.cv3-sun .cv-row { align-items: flex-end; gap: .6rem; }
+.cv3-sun .cv-input, .cv3-sun .cv-select { width: 100%; box-sizing: border-box; }
+.cv3-sun-actions { justify-content: flex-end; gap: .5rem; margin-top: .5rem; }
+.cv-menu-list .cv3-sun-actions button { text-align: center; border: var(--pen-1) solid var(--line); border-radius: 4px; padding: .3rem .9rem; }
+.cv-menu-list .cv3-sun-actions .cv3-sun-apply { font-weight: 600; border-color: var(--action); color: var(--action); }
+
+
+/* split tiles (split-menu.js): the icon runs the tool, the edge with the arrow opens the menu */
+summary.cv-tool { position: relative; }
+.cv-split > summary.cv-tool { padding-right: 1.2rem; }
+.cv-split-edge { position: absolute; top: 0; right: 0; bottom: 0; width: .95rem; display: flex; align-items: center; justify-content: center; border-right: var(--pen-1) solid color-mix(in srgb, var(--line) 45%, transparent); border-radius: 0 var(--radius) var(--radius) 0; opacity: .6; }   /* the divider sits to the right of the arrow (owner 2026-11-06), and the label keeps clear of the arrow: */
+.cv-split-edge .bi { font-size: .6rem; color: var(--ink-2); }
+.cv-split > summary.cv-tool:hover .cv-split-edge, .cv-split[open] > summary.cv-tool .cv-split-edge { opacity: 1; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+
+/* the Hardscape / Areas / Levels sections: the things drawn, each a button that selects it */
+.cv-ls-drawn { list-style: none; margin: .4rem 0 0; padding: 0; }
+.cv-ls-pick { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; width: 100%; text-align: left; font: inherit; font-size: .875rem; color: var(--ink); background: none; border: 0; border-bottom: var(--pen-1) solid var(--grid); padding: .3rem .2rem; cursor: pointer; }
+.cv-ls-pick small { color: var(--ink-2); }
+.cv-ls-pick:hover, .cv-ls-pick:focus-visible { background: var(--sheet); outline: none; }

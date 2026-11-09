@@ -1,0 +1,5 @@
+{
+  "data.sources": "Datos y fuentes",
+  "data.nex": "NASA NEX-GDDP-CMIP6, resultados de modelos CMIP6 con reducción de escala (CC BY 4.0 por modelo); nivel del mar global: IPCC AR6",
+  "data.sample": "Paquete de muestra: tres lugares, un modelo, cinco años por periodo. No es para diseño."
+}

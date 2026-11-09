@@ -515,7 +515,9 @@ function mountSettings(A) {
   let quiet = false;
   A.on(() => { if (!quiet && (!dlg || dlg.open)) render(); });
   if (dlg) new MutationObserver(() => { if (dlg.open) render(); }).observe(dlg, { attributes: true, attributeFilter: ['open'] });
-  window.addEventListener('cc-input-ready', render);
-  render();
+  // Startup perf (2026-11-05): the panel builds every action list from the app's whole command palette (~120 ms on CadCraft), and nobody sees it
+  // until Settings is open. So it is drawn when the dialog opens (the observer above), not at page load.
+  window.addEventListener('cc-input-ready', () => { if (!dlg || dlg.open) render(); });
+  if (!dlg || dlg.open) render();
   box.closest('[data-dev-set]')?.removeAttribute('hidden');
 }

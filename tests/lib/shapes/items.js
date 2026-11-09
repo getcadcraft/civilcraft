@@ -35,7 +35,9 @@ const r1 = (v) => Math.round(v * 10) / 10;
 const kgm = (v) => Math.round(v * 100) / 100;
 const num = (v) => String(Number(Number(v).toFixed(2))).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 const P = (pts) => pts.map(([x, y, b]) => (b ? [r3(x), r3(y), r3(b)] : [r3(x), r3(y)]));
-const FAMILY_TYPE = { W: 'W shape', S: 'S shape', C: 'Channel', L: 'Angle', HSS: 'Hollow structural section', Pipe: 'Pipe', IPE: 'IPE beam', HEA: 'HEA beam', HEB: 'HEB beam', UPN: 'UPN channel' };
+const FAMILY_TYPE = { W: 'W shape', S: 'S shape', C: 'Channel', L: 'Angle', HSS: 'Hollow structural section', Pipe: 'Pipe', IPE: 'IPE beam', HEA: 'HEA beam', HEB: 'HEB beam', UPN: 'UPN channel',
+  UB: 'Universal beam', UC: 'Universal column', PFC: 'Parallel flange channel', EA: 'Equal angle', UEA: 'Unequal angle', SHS: 'Square hollow section', RHS: 'Rectangular hollow section',
+  CHS: 'Circular hollow section', CFSHS: 'Cold formed square hollow section', CFRHS: 'Cold formed rectangular hollow section', CFCHS: 'Cold formed circular hollow section' };
 
 function layers(prefix) {
   return [{ name: prefix, color: 7 }, { name: prefix + '-THIN', color: 8 }, { name: prefix + '-CENTER', color: 1 }, { name: prefix + '-HIDDEN', color: 4 }, { name: prefix + '-FILL', color: 254 }];

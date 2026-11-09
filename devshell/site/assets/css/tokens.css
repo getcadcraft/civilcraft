@@ -76,6 +76,18 @@
   --container: 75rem;
 }
 
+/* LANG-VISITORS (0.9): scripts Archivo and the usual system UI faces do not cover. Archivo stays first for Latin
+   (commands, units, file formats); then each system's own face for the script: Windows, Apple, then Noto (Android, Linux). */
+:root:lang(am) { --font: 'Archivo', 'Ebrima', 'Nyala', 'Kefa', 'Noto Sans Ethiopic', system-ui, sans-serif; }
+:root:lang(km) { --font: 'Archivo', 'Leelawadee UI', 'Khmer UI', 'Khmer Sangam MN', 'Noto Sans Khmer', system-ui, sans-serif; }
+:root:lang(lo) { --font: 'Archivo', 'Leelawadee UI', 'Lao UI', 'Lao Sangam MN', 'Noto Sans Lao', system-ui, sans-serif; }
+:root:lang(si) { --font: 'Archivo', 'Nirmala UI', 'Iskoola Pota', 'Sinhala Sangam MN', 'Noto Sans Sinhala', system-ui, sans-serif; }
+:root:lang(ka) { --font: 'Archivo', 'Segoe UI', 'Sylfaen', 'Helvetica Neue', 'Noto Sans Georgian', system-ui, sans-serif; }
+:root:lang(hy) { --font: 'Archivo', 'Segoe UI', 'Sylfaen', 'Mshtakan', 'Noto Sans Armenian', system-ui, sans-serif; }
+:root:lang(dv) { --font: 'Archivo', 'MV Boli', 'Noto Sans Thaana', system-ui, sans-serif; }
+:root:lang(ps) { --font: 'Archivo', 'Segoe UI', 'Tahoma', 'Geeza Pro', 'Noto Naskh Arabic', 'Noto Sans Arabic', system-ui, sans-serif; }
+:root:lang(ne) { --font: 'Archivo', 'Nirmala UI', 'Kohinoor Devanagari', 'Noto Sans Devanagari', system-ui, sans-serif; }
+
 /* Large-screen scaling: 16px up to a 1920px viewport, rising linearly to 20px (125%) at 3840px.
    Layout is sized in rem, so everything above 1920 reads as the same layout zoomed. */
 html { font-size: clamp(100%, 0.75rem + 0.2083vw, 125%); }
@@ -144,3 +156,6 @@ html { font-size: clamp(100%, 0.75rem + 0.2083vw, 125%); }
 .layer-magenta { --layer: var(--layer-magenta); }
 .layer-orange  { --layer: var(--layer-orange); }
 .layer-violet  { --layer: var(--layer-violet); }
+
+/* THE DISCLOSURE CARET DIRECTION: ONE LINE FOR THE WHOLE SITE AND EVERY APP (owner 2026-11-09: open = pointing down, closed = pointing up; swap the two values to flip it back). The caret is the Bootstrap Icons chevron-down (\f282) at the far right of the header. */
+:root { --af-caret-open: 0deg; --af-caret-closed: 180deg; }

@@ -1,0 +1,4 @@
+- A surveyor or engineer who flew a drone and needs an existing-ground surface and contours from the photogrammetry points.
+- A site manager who wants the volume of a stockpile, or how much earth moved between two flights.
+- A landscape architect or civil designer who wants to see a scanned site, and to take out the trees and buildings before using the ground.
+- Anyone who has a LAS or LAZ file that is too big to open whole and wants to look before deciding what to keep.

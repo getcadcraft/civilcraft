@@ -13,7 +13,7 @@ ANSI_1252
   9
 $HANDSEED
   5
-4F3
+4FA
   9
 $INSBASE
  10
@@ -50,6 +50,18 @@ $MEASUREMENT
 $LUNITS
  70
 2
+  9
+$PLIMMIN
+ 10
+0.0
+ 20
+0.0
+  9
+$PLIMMAX
+ 10
+420
+ 20
+297
   9
 $LTSCALE
  40
@@ -1485,7 +1497,7 @@ AcDbBlockBegin
   0
 VIEWPORT
   5
-8C
+8E
 330
 1B
 100
@@ -1605,7 +1617,7 @@ iso-a3
   0
 INSERT
   5
-8D
+8F
 330
 1B
 100
@@ -1632,12 +1644,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nfnj0ze6gy1
   0
 ATTRIB
   5
-8E
+90
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1667,9 +1683,9 @@ PROJECT
   0
 ATTRIB
   5
-8F
+91
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1699,9 +1715,9 @@ TITLE
   0
 ATTRIB
   5
-90
+92
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1731,9 +1747,9 @@ PLANT
   0
 ATTRIB
   5
-91
+93
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1763,9 +1779,9 @@ LOC
   0
 ATTRIB
   5
-92
+94
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1795,9 +1811,9 @@ DRAWN
   0
 ATTRIB
   5
-93
+95
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1827,9 +1843,9 @@ DATE
   0
 ATTRIB
   5
-94
+96
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1859,9 +1875,9 @@ REV
   0
 ATTRIB
   5
-95
+97
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1899,9 +1915,9 @@ SHEET
   0
 ATTRIB
   5
-96
+98
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1939,9 +1955,9 @@ SHEETS
   0
 SEQEND
   5
-97
+99
 330
-8D
+8F
 100
 AcDbEntity
  67
@@ -1951,7 +1967,7 @@ EL-FRAME
   0
 LINE
   5
-98
+9A
 330
 1B
 100
@@ -1974,10 +1990,14 @@ AcDbLine
 262.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n91n2wtud47
   0
 TEXT
   5
-99
+9B
 330
 1B
 100
@@ -2012,10 +2032,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nw6ce4lygmm
   0
 LINE
   5
-9A
+9C
 330
 1B
 100
@@ -2038,10 +2062,14 @@ AcDbLine
 60
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n5s12rdg615
   0
 TEXT
   5
-9B
+9D
 330
 1B
 100
@@ -2076,10 +2104,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nwuir3ztxxw
   0
 INSERT
   5
-9C
+9E
 330
 1B
 100
@@ -2106,12 +2138,16 @@ EL_IEC_FUSE
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nmgm1x3bc0p
   0
 ATTRIB
   5
-9D
+9F
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2149,9 +2185,9 @@ TAG
   0
 ATTRIB
   5
-9E
+A0
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2189,9 +2225,9 @@ DESC
   0
 ATTRIB
   5
-9F
+A1
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2229,9 +2265,9 @@ MFR
   0
 ATTRIB
   5
-A0
+A2
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2269,9 +2305,9 @@ PART
   0
 ATTRIB
   5
-A1
+A3
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2301,9 +2337,9 @@ P1
   0
 ATTRIB
   5
-A2
+A4
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2333,9 +2369,9 @@ P2
   0
 SEQEND
   5
-A3
+A5
 330
-9C
+9E
 100
 AcDbEntity
  67
@@ -2345,7 +2381,7 @@ EL-SYMBOL
   0
 LINE
   5
-A4
+A6
 330
 1B
 100
@@ -2368,10 +2404,14 @@ AcDbLine
 245
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nijcowkxpz7
   0
 INSERT
   5
-A5
+A7
 330
 1B
 100
@@ -2398,12 +2438,16 @@ EL_IEC_CONTACT_NO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ngoqtqxd83f
   0
 ATTRIB
   5
-A6
+A8
 330
-A5
+A7
 100
 AcDbEntity
  67
@@ -2441,9 +2485,9 @@ TAG
   0
 ATTRIB
   5
-A7
+A9
 330
-A5
+A7
 100
 AcDbEntity
  67
@@ -2481,9 +2525,9 @@ DESC
   0
 ATTRIB
   5
-A8
+AA
 330
-A5
+A7
 100
 AcDbEntity
  67
@@ -2513,9 +2557,9 @@ P1
   0
 ATTRIB
   5
-A9
+AB
 330
-A5
+A7
 100
 AcDbEntity
  67
@@ -2545,9 +2589,9 @@ P2
   0
 ATTRIB
   5
-AA
+AC
 330
-A5
+A7
 100
 AcDbEntity
  67
@@ -2577,9 +2621,9 @@ XREF
   0
 SEQEND
   5
-AB
+AD
 330
-A5
+A7
 100
 AcDbEntity
  67
@@ -2589,7 +2633,7 @@ EL-SYMBOL
   0
 LINE
   5
-AC
+AE
 330
 1B
 100
@@ -2612,10 +2656,14 @@ AcDbLine
 220
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nnkts07juw5
   0
 INSERT
   5
-AD
+AF
 330
 1B
 100
@@ -2642,12 +2690,16 @@ EL_IEC_PUSHBUTTON_NC
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nrlrh252flw
   0
 ATTRIB
   5
-AE
+B0
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2685,9 +2737,9 @@ TAG
   0
 ATTRIB
   5
-AF
+B1
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2725,9 +2777,9 @@ DESC
   0
 ATTRIB
   5
-B0
+B2
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2765,9 +2817,9 @@ MFR
   0
 ATTRIB
   5
-B1
+B3
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2805,9 +2857,9 @@ PART
   0
 ATTRIB
   5
-B2
+B4
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2845,9 +2897,9 @@ ORDER
   0
 ATTRIB
   5
-B3
+B5
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2877,9 +2929,9 @@ P1
   0
 ATTRIB
   5
-B4
+B6
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2909,9 +2961,9 @@ P2
   0
 SEQEND
   5
-B5
+B7
 330
-AD
+AF
 100
 AcDbEntity
  67
@@ -2921,7 +2973,7 @@ EL-SYMBOL
   0
 LINE
   5
-B6
+B8
 330
 1B
 100
@@ -2944,10 +2996,14 @@ AcDbLine
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nc2wr1rda5z
   0
 INSERT
   5
-B7
+B9
 330
 1B
 100
@@ -2974,12 +3030,16 @@ EL_IEC_PUSHBUTTON_NO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ngt3ifen2e1
   0
 ATTRIB
   5
-B8
+BA
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3017,9 +3077,9 @@ TAG
   0
 ATTRIB
   5
-B9
+BB
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3057,9 +3117,9 @@ DESC
   0
 ATTRIB
   5
-BA
+BC
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3097,9 +3157,9 @@ MFR
   0
 ATTRIB
   5
-BB
+BD
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3137,9 +3197,9 @@ PART
   0
 ATTRIB
   5
-BC
+BE
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3177,9 +3237,9 @@ ORDER
   0
 ATTRIB
   5
-BD
+BF
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3209,9 +3269,9 @@ P1
   0
 ATTRIB
   5
-BE
+C0
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3241,9 +3301,9 @@ P2
   0
 SEQEND
   5
-BF
+C1
 330
-B7
+B9
 100
 AcDbEntity
  67
@@ -3253,7 +3313,7 @@ EL-SYMBOL
   0
 LINE
   5
-C0
+C2
 330
 1B
 100
@@ -3276,10 +3336,14 @@ AcDbLine
 170
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nebbnui5lgc
   0
 INSERT
   5
-C1
+C3
 330
 1B
 100
@@ -3306,12 +3370,16 @@ EL_IEC_CONTACT_NO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nxdv68ja99l
   0
 ATTRIB
   5
-C2
+C4
 330
-C1
+C3
 100
 AcDbEntity
  67
@@ -3349,9 +3417,9 @@ TAG
   0
 ATTRIB
   5
-C3
+C5
 330
-C1
+C3
 100
 AcDbEntity
  67
@@ -3389,9 +3457,9 @@ DESC
   0
 ATTRIB
   5
-C4
+C6
 330
-C1
+C3
 100
 AcDbEntity
  67
@@ -3421,9 +3489,9 @@ P1
   0
 ATTRIB
   5
-C5
+C7
 330
-C1
+C3
 100
 AcDbEntity
  67
@@ -3453,9 +3521,9 @@ P2
   0
 ATTRIB
   5
-C6
+C8
 330
-C1
+C3
 100
 AcDbEntity
  67
@@ -3485,9 +3553,9 @@ XREF
   0
 SEQEND
   5
-C7
+C9
 330
-C1
+C3
 100
 AcDbEntity
  67
@@ -3497,7 +3565,7 @@ EL-SYMBOL
   0
 LWPOLYLINE
   5
-C8
+CA
 330
 1B
 100
@@ -3526,10 +3594,14 @@ AcDbPolyline
 117.5
  20
 170
+1001
+CADCRAFT
+1000
+CCKEY:ngkxlltxvzf
   0
 LINE
   5
-C9
+CB
 330
 1B
 100
@@ -3552,10 +3624,14 @@ AcDbLine
 125
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nn5ki2sg83s
   0
 LWPOLYLINE
   5
-CA
+CC
 330
 1B
 100
@@ -3584,10 +3660,14 @@ AcDbPolyline
 77.5
  20
 150
+1001
+CADCRAFT
+1000
+CCKEY:n4y49u8c4ms
   0
 INSERT
   5
-CB
+CD
 330
 1B
 100
@@ -3614,12 +3694,16 @@ EL_IEC_COIL
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:no8f2yg2kkp
   0
 ATTRIB
   5
-CC
+CE
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3657,9 +3741,9 @@ TAG
   0
 ATTRIB
   5
-CD
+CF
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3697,9 +3781,9 @@ DESC
   0
 ATTRIB
   5
-CE
+D0
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3737,9 +3821,9 @@ MFR
   0
 ATTRIB
   5
-CF
+D1
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3777,9 +3861,9 @@ PART
   0
 ATTRIB
   5
-D0
+D2
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3817,9 +3901,9 @@ ORDER
   0
 ATTRIB
   5
-D1
+D3
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3849,9 +3933,9 @@ P1
   0
 ATTRIB
   5
-D2
+D4
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3881,9 +3965,9 @@ P2
   0
 ATTRIB
   5
-D3
+D5
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3913,9 +3997,9 @@ XREF1
   0
 ATTRIB
   5
-D4
+D6
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3945,9 +4029,9 @@ XREF2
   0
 ATTRIB
   5
-D5
+D7
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -3977,9 +4061,9 @@ XREF3
   0
 ATTRIB
   5
-D6
+D8
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -4009,9 +4093,9 @@ XREF4
   0
 ATTRIB
   5
-D7
+D9
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -4041,9 +4125,9 @@ XREF5
   0
 ATTRIB
   5
-D8
+DA
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -4073,9 +4157,9 @@ XREF6
   0
 ATTRIB
   5
-D9
+DB
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -4105,9 +4189,9 @@ XREF7
   0
 ATTRIB
   5
-DA
+DC
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -4137,9 +4221,9 @@ XREF8
   0
 SEQEND
   5
-DB
+DD
 330
-CB
+CD
 100
 AcDbEntity
  67
@@ -4149,7 +4233,7 @@ EL-SYMBOL
   0
 LINE
   5
-DC
+DE
 330
 1B
 100
@@ -4172,10 +4256,14 @@ AcDbLine
 60
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nu6ve5344w6
   0
 INSERT
   5
-DD
+DF
 330
 1B
 100
@@ -4202,12 +4290,16 @@ EL_IEC_CONTACT_NO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n0p36kehn9m
   0
 ATTRIB
   5
-DE
+E0
 330
-DD
+DF
 100
 AcDbEntity
  67
@@ -4245,9 +4337,9 @@ TAG
   0
 ATTRIB
   5
-DF
+E1
 330
-DD
+DF
 100
 AcDbEntity
  67
@@ -4285,9 +4377,9 @@ DESC
   0
 ATTRIB
   5
-E0
+E2
 330
-DD
+DF
 100
 AcDbEntity
  67
@@ -4317,9 +4409,9 @@ P1
   0
 ATTRIB
   5
-E1
+E3
 330
-DD
+DF
 100
 AcDbEntity
  67
@@ -4349,9 +4441,9 @@ P2
   0
 ATTRIB
   5
-E2
+E4
 330
-DD
+DF
 100
 AcDbEntity
  67
@@ -4381,9 +4473,9 @@ XREF
   0
 SEQEND
   5
-E3
+E5
 330
-DD
+DF
 100
 AcDbEntity
  67
@@ -4393,7 +4485,7 @@ EL-SYMBOL
   0
 LINE
   5
-E4
+E6
 330
 1B
 100
@@ -4416,10 +4508,14 @@ AcDbLine
 170
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n0ggqpevbyx
   0
 INSERT
   5
-E5
+E7
 330
 1B
 100
@@ -4446,12 +4542,16 @@ EL_IEC_LAMP
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n4qym7d6r09
   0
 ATTRIB
   5
-E6
+E8
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4489,9 +4589,9 @@ TAG
   0
 ATTRIB
   5
-E7
+E9
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4529,9 +4629,9 @@ DESC
   0
 ATTRIB
   5
-E8
+EA
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4569,9 +4669,9 @@ MFR
   0
 ATTRIB
   5
-E9
+EB
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4609,9 +4709,9 @@ PART
   0
 ATTRIB
   5
-EA
+EC
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4641,9 +4741,9 @@ P1
   0
 ATTRIB
   5
-EB
+ED
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4673,9 +4773,9 @@ P2
   0
 SEQEND
   5
-EC
+EE
 330
-E5
+E7
 100
 AcDbEntity
  67
@@ -4685,7 +4785,7 @@ EL-SYMBOL
   0
 LINE
   5
-ED
+EF
 330
 1B
 100
@@ -4708,10 +4808,14 @@ AcDbLine
 125
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ndeoxx9h41j
   0
 LINE
   5
-EE
+F0
 330
 1B
 100
@@ -4734,10 +4838,14 @@ AcDbLine
 60
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n0ykua65gh9
   0
 INSERT
   5
-EF
+F1
 330
 1B
 100
@@ -4762,10 +4870,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ngfwnl3ytgx
   0
 INSERT
   5
-F0
+F2
 330
 1B
 100
@@ -4790,10 +4902,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nw69eklpe8b
   0
 INSERT
   5
-F1
+F3
 330
 1B
 100
@@ -4818,10 +4934,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nd7r8ii8365
   0
 INSERT
   5
-F2
+F4
 330
 1B
 100
@@ -4846,10 +4966,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nll3dmckwgy
   0
 INSERT
   5
-F3
+F5
 330
 1B
 100
@@ -4874,10 +4998,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ner7ko4uk12
   0
 INSERT
   5
-F4
+F6
 330
 1B
 100
@@ -4902,10 +5030,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ng7s3vowtba
   0
 INSERT
   5
-F5
+F7
 330
 1B
 100
@@ -4932,12 +5064,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nzpbl40zb42
   0
 ATTRIB
   5
-F6
+F8
 330
-F5
+F7
 100
 AcDbEntity
  67
@@ -4975,9 +5111,9 @@ WIRENO
   0
 ATTRIB
   5
-F7
+F9
 330
-F5
+F7
 100
 AcDbEntity
  67
@@ -5007,9 +5143,9 @@ LOCK
   0
 SEQEND
   5
-F8
+FA
 330
-F5
+F7
 100
 AcDbEntity
  67
@@ -5019,7 +5155,7 @@ EL-WIRENO
   0
 INSERT
   5
-F9
+FB
 330
 1B
 100
@@ -5048,12 +5184,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:n556n9a3uye
   0
 ATTRIB
   5
-FA
+FC
 330
-F9
+FB
 100
 AcDbEntity
  67
@@ -5093,9 +5233,9 @@ WIRENO
   0
 ATTRIB
   5
-FB
+FD
 330
-F9
+FB
 100
 AcDbEntity
  67
@@ -5127,9 +5267,9 @@ LOCK
   0
 SEQEND
   5
-FC
+FE
 330
-F9
+FB
 100
 AcDbEntity
  67
@@ -5139,7 +5279,7 @@ EL-WIRENO
   0
 INSERT
   5
-FD
+FF
 330
 1B
 100
@@ -5168,12 +5308,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nvyasoez9i2
   0
 ATTRIB
   5
-FE
+100
 330
-FD
+FF
 100
 AcDbEntity
  67
@@ -5213,9 +5357,9 @@ WIRENO
   0
 ATTRIB
   5
-FF
+101
 330
-FD
+FF
 100
 AcDbEntity
  67
@@ -5247,9 +5391,9 @@ LOCK
   0
 SEQEND
   5
-100
+102
 330
-FD
+FF
 100
 AcDbEntity
  67
@@ -5259,7 +5403,7 @@ EL-WIRENO
   0
 INSERT
   5
-101
+103
 330
 1B
 100
@@ -5286,12 +5430,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nzxangs1wxy
   0
 ATTRIB
   5
-102
+104
 330
-101
+103
 100
 AcDbEntity
  67
@@ -5329,9 +5477,9 @@ WIRENO
   0
 ATTRIB
   5
-103
+105
 330
-101
+103
 100
 AcDbEntity
  67
@@ -5361,9 +5509,9 @@ LOCK
   0
 SEQEND
   5
-104
+106
 330
-101
+103
 100
 AcDbEntity
  67
@@ -5373,7 +5521,7 @@ EL-WIRENO
   0
 INSERT
   5
-105
+107
 330
 1B
 100
@@ -5400,12 +5548,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nn442emy8kp
   0
 ATTRIB
   5
-106
+108
 330
-105
+107
 100
 AcDbEntity
  67
@@ -5443,9 +5595,9 @@ WIRENO
   0
 ATTRIB
   5
-107
+109
 330
-105
+107
 100
 AcDbEntity
  67
@@ -5475,9 +5627,9 @@ LOCK
   0
 SEQEND
   5
-108
+10A
 330
-105
+107
 100
 AcDbEntity
  67
@@ -5487,7 +5639,7 @@ EL-WIRENO
   0
 INSERT
   5
-109
+10B
 330
 1B
 100
@@ -5514,12 +5666,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nal5mvuggr4
   0
 ATTRIB
   5
-10A
+10C
 330
-109
+10B
 100
 AcDbEntity
  67
@@ -5557,9 +5713,9 @@ WIRENO
   0
 ATTRIB
   5
-10B
+10D
 330
-109
+10B
 100
 AcDbEntity
  67
@@ -5589,9 +5745,9 @@ LOCK
   0
 SEQEND
   5
-10C
+10E
 330
-109
+10B
 100
 AcDbEntity
  67
@@ -5601,7 +5757,7 @@ EL-WIRENO
   0
 INSERT
   5
-10D
+10F
 330
 1B
 100
@@ -5630,12 +5786,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nrig580691h
   0
 ATTRIB
   5
-10E
+110
 330
-10D
+10F
 100
 AcDbEntity
  67
@@ -5675,9 +5835,9 @@ WIRENO
   0
 ATTRIB
   5
-10F
+111
 330
-10D
+10F
 100
 AcDbEntity
  67
@@ -5709,9 +5869,9 @@ LOCK
   0
 SEQEND
   5
-110
+112
 330
-10D
+10F
 100
 AcDbEntity
  67
@@ -5763,7 +5923,7 @@ AcDbBlockBegin
   0
 VIEWPORT
   5
-111
+113
 330
 1E
 100
@@ -5883,7 +6043,7 @@ iso-a3
   0
 INSERT
   5
-112
+114
 330
 1E
 100
@@ -5910,12 +6070,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:neqmswm0ly1
   0
 ATTRIB
   5
-113
+115
 330
-112
+114
 100
 AcDbEntity
  67
@@ -5945,9 +6109,9 @@ PROJECT
   0
 ATTRIB
   5
-114
+116
 330
-112
+114
 100
 AcDbEntity
  67
@@ -5977,9 +6141,9 @@ TITLE
   0
 ATTRIB
   5
-115
+117
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6009,9 +6173,9 @@ PLANT
   0
 ATTRIB
   5
-116
+118
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6041,9 +6205,9 @@ LOC
   0
 ATTRIB
   5
-117
+119
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6073,9 +6237,9 @@ DRAWN
   0
 ATTRIB
   5
-118
+11A
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6105,9 +6269,9 @@ DATE
   0
 ATTRIB
   5
-119
+11B
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6137,9 +6301,9 @@ REV
   0
 ATTRIB
   5
-11A
+11C
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6177,9 +6341,9 @@ SHEET
   0
 ATTRIB
   5
-11B
+11D
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6217,9 +6381,9 @@ SHEETS
   0
 SEQEND
   5
-11C
+11E
 330
-112
+114
 100
 AcDbEntity
  67
@@ -6229,7 +6393,7 @@ EL-FRAME
   0
 INSERT
   5
-11D
+11F
 330
 1E
 100
@@ -6256,12 +6420,16 @@ EL_IEC_CONTACT_NO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nassgh1ytw7
   0
 ATTRIB
   5
-11E
+120
 330
-11D
+11F
 100
 AcDbEntity
  67
@@ -6299,9 +6467,9 @@ TAG
   0
 ATTRIB
   5
-11F
+121
 330
-11D
+11F
 100
 AcDbEntity
  67
@@ -6339,9 +6507,9 @@ DESC
   0
 ATTRIB
   5
-120
+122
 330
-11D
+11F
 100
 AcDbEntity
  67
@@ -6371,9 +6539,9 @@ P1
   0
 ATTRIB
   5
-121
+123
 330
-11D
+11F
 100
 AcDbEntity
  67
@@ -6403,9 +6571,9 @@ P2
   0
 ATTRIB
   5
-122
+124
 330
-11D
+11F
 100
 AcDbEntity
  67
@@ -6435,9 +6603,9 @@ XREF
   0
 SEQEND
   5
-123
+125
 330
-11D
+11F
 100
 AcDbEntity
  67
@@ -6447,7 +6615,7 @@ EL-SYMBOL
   0
 LINE
   5
-124
+126
 330
 1E
 100
@@ -6470,10 +6638,14 @@ AcDbLine
 220
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n3fj0594b9b
   0
 LINE
   5
-125
+127
 330
 1E
 100
@@ -6496,10 +6668,14 @@ AcDbLine
 262.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nsmvke98pim
   0
 TEXT
   5
-126
+128
 330
 1E
 100
@@ -6534,10 +6710,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n72uap2kyyh
   0
 INSERT
   5
-127
+129
 330
 1E
 100
@@ -6564,12 +6744,16 @@ EL_IEC_PLC_INPUT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n2hr031hv95
   0
 ATTRIB
   5
-128
+12A
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6607,9 +6791,9 @@ TAG
   0
 ATTRIB
   5
-129
+12B
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6647,9 +6831,9 @@ DESC
   0
 ATTRIB
   5
-12A
+12C
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6687,9 +6871,9 @@ MFR
   0
 ATTRIB
   5
-12B
+12D
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6727,9 +6911,9 @@ PART
   0
 ATTRIB
   5
-12C
+12E
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6759,9 +6943,9 @@ P1
   0
 ATTRIB
   5
-12D
+12F
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6799,9 +6983,9 @@ ADDR
   0
 SEQEND
   5
-12E
+130
 330
-127
+129
 100
 AcDbEntity
  67
@@ -6811,7 +6995,7 @@ EL-SYMBOL
   0
 LINE
   5
-12F
+131
 330
 1E
 100
@@ -6834,10 +7018,14 @@ AcDbLine
 185
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nkxp9y4qer7
   0
 INSERT
   5
-130
+132
 330
 1E
 100
@@ -6864,12 +7052,16 @@ EL_IEC_PLC_OUTPUT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n3pwhjl07wm
   0
 ATTRIB
   5
-131
+133
 330
-130
+132
 100
 AcDbEntity
  67
@@ -6907,9 +7099,9 @@ TAG
   0
 ATTRIB
   5
-132
+134
 330
-130
+132
 100
 AcDbEntity
  67
@@ -6947,9 +7139,9 @@ DESC
   0
 ATTRIB
   5
-133
+135
 330
-130
+132
 100
 AcDbEntity
  67
@@ -6979,9 +7171,9 @@ P1
   0
 ATTRIB
   5
-134
+136
 330
-130
+132
 100
 AcDbEntity
  67
@@ -7019,9 +7211,9 @@ ADDR
   0
 SEQEND
   5
-135
+137
 330
-130
+132
 100
 AcDbEntity
  67
@@ -7031,7 +7223,7 @@ EL-SYMBOL
   0
 INSERT
   5
-136
+138
 330
 1E
 100
@@ -7058,12 +7250,16 @@ EL_IEC_LAMP
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:no086u8gtjp
   0
 ATTRIB
   5
-137
+139
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7101,9 +7297,9 @@ TAG
   0
 ATTRIB
   5
-138
+13A
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7141,9 +7337,9 @@ DESC
   0
 ATTRIB
   5
-139
+13B
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7181,9 +7377,9 @@ MFR
   0
 ATTRIB
   5
-13A
+13C
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7221,9 +7417,9 @@ PART
   0
 ATTRIB
   5
-13B
+13D
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7253,9 +7449,9 @@ P1
   0
 ATTRIB
   5
-13C
+13E
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7285,9 +7481,9 @@ P2
   0
 SEQEND
   5
-13D
+13F
 330
-136
+138
 100
 AcDbEntity
  67
@@ -7297,7 +7493,7 @@ EL-SYMBOL
   0
 LINE
   5
-13E
+140
 330
 1E
 100
@@ -7320,10 +7516,14 @@ AcDbLine
 185
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nzi3s09jh11
   0
 LINE
   5
-13F
+141
 330
 1E
 100
@@ -7346,10 +7546,14 @@ AcDbLine
 60
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nre4lcytky0
   0
 LINE
   5
-140
+142
 330
 1E
 100
@@ -7372,10 +7576,14 @@ AcDbLine
 60
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nfizb1h7chv
   0
 TEXT
   5
-141
+143
 330
 1E
 100
@@ -7410,10 +7618,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nafh5f6avxr
   0
 INSERT
   5
-142
+144
 330
 1E
 100
@@ -7438,10 +7650,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n57anay37zw
   0
 INSERT
   5
-143
+145
 330
 1E
 100
@@ -7466,10 +7682,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n6t7nla8hnn
   0
 INSERT
   5
-144
+146
 330
 1E
 100
@@ -7496,12 +7716,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nyc52mict9m
   0
 ATTRIB
   5
-145
+147
 330
-144
+146
 100
 AcDbEntity
  67
@@ -7539,9 +7763,9 @@ WIRENO
   0
 ATTRIB
   5
-146
+148
 330
-144
+146
 100
 AcDbEntity
  67
@@ -7571,9 +7795,9 @@ LOCK
   0
 SEQEND
   5
-147
+149
 330
-144
+146
 100
 AcDbEntity
  67
@@ -7583,7 +7807,7 @@ EL-WIRENO
   0
 INSERT
   5
-148
+14A
 330
 1E
 100
@@ -7612,12 +7836,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nf77afvlqa2
   0
 ATTRIB
   5
-149
+14B
 330
-148
+14A
 100
 AcDbEntity
  67
@@ -7657,9 +7885,9 @@ WIRENO
   0
 ATTRIB
   5
-14A
+14C
 330
-148
+14A
 100
 AcDbEntity
  67
@@ -7691,9 +7919,9 @@ LOCK
   0
 SEQEND
   5
-14B
+14D
 330
-148
+14A
 100
 AcDbEntity
  67
@@ -7703,7 +7931,7 @@ EL-WIRENO
   0
 INSERT
   5
-14C
+14E
 330
 1E
 100
@@ -7732,12 +7960,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:n5pbb4ouq98
   0
 ATTRIB
   5
-14D
+14F
 330
-14C
+14E
 100
 AcDbEntity
  67
@@ -7777,9 +8009,9 @@ WIRENO
   0
 ATTRIB
   5
-14E
+150
 330
-14C
+14E
 100
 AcDbEntity
  67
@@ -7811,9 +8043,9 @@ LOCK
   0
 SEQEND
   5
-14F
+151
 330
-14C
+14E
 100
 AcDbEntity
  67
@@ -7823,7 +8055,7 @@ EL-WIRENO
   0
 INSERT
   5
-150
+152
 330
 1E
 100
@@ -7850,12 +8082,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nz4r3wpqz8r
   0
 ATTRIB
   5
-151
+153
 330
-150
+152
 100
 AcDbEntity
  67
@@ -7893,9 +8129,9 @@ WIRENO
   0
 ATTRIB
   5
-152
+154
 330
-150
+152
 100
 AcDbEntity
  67
@@ -7925,9 +8161,9 @@ LOCK
   0
 SEQEND
   5
-153
+155
 330
-150
+152
 100
 AcDbEntity
  67
@@ -7979,7 +8215,7 @@ AcDbBlockBegin
   0
 VIEWPORT
   5
-154
+156
 330
 21
 100
@@ -8099,7 +8335,7 @@ iso-a3
   0
 INSERT
   5
-155
+157
 330
 21
 100
@@ -8126,12 +8362,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nga1ukic1ig
   0
 ATTRIB
   5
-156
+158
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8161,9 +8401,9 @@ PROJECT
   0
 ATTRIB
   5
-157
+159
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8193,9 +8433,9 @@ TITLE
   0
 ATTRIB
   5
-158
+15A
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8225,9 +8465,9 @@ PLANT
   0
 ATTRIB
   5
-159
+15B
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8257,9 +8497,9 @@ LOC
   0
 ATTRIB
   5
-15A
+15C
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8289,9 +8529,9 @@ DRAWN
   0
 ATTRIB
   5
-15B
+15D
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8321,9 +8561,9 @@ DATE
   0
 ATTRIB
   5
-15C
+15E
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8353,9 +8593,9 @@ REV
   0
 ATTRIB
   5
-15D
+15F
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8393,9 +8633,9 @@ SHEET
   0
 ATTRIB
   5
-15E
+160
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8433,9 +8673,9 @@ SHEETS
   0
 SEQEND
   5
-15F
+161
 330
-155
+157
 100
 AcDbEntity
  67
@@ -8445,7 +8685,7 @@ EL-FRAME
   0
 TEXT
   5
-160
+162
 330
 21
 100
@@ -8470,58 +8710,10 @@ Sheet list
 Standard
 100
 AcDbText
-  0
-LINE
-  5
-161
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-267
- 30
-0.0
- 11
-405
- 21
-267
- 31
-0.0
-  0
-LINE
-  5
-162
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-261
- 30
-0.0
- 11
-405
- 21
-261
- 31
-0.0
+1001
+CADCRAFT
+1000
+CCKEY:nxe6s2qasze
   0
 LINE
   5
@@ -8539,15 +8731,19 @@ AcDbLine
  10
 25
  20
-255
+267
  30
 0.0
  11
 405
  21
-255
+267
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n25z68bfibk
   0
 LINE
   5
@@ -8565,15 +8761,19 @@ AcDbLine
  10
 25
  20
-249
+261
  30
 0.0
  11
 405
  21
-249
+261
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n7whm2gpkyv
   0
 LINE
   5
@@ -8591,15 +8791,19 @@ AcDbLine
  10
 25
  20
-243
+255
  30
 0.0
  11
 405
  21
-243
+255
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n3xj139ro1b
   0
 LINE
   5
@@ -8617,15 +8821,19 @@ AcDbLine
  10
 25
  20
-237
+249
  30
 0.0
  11
 405
  21
-237
+249
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n137u983kbl
   0
 LINE
   5
@@ -8643,15 +8851,19 @@ AcDbLine
  10
 25
  20
-267
+243
  30
 0.0
  11
-25
+405
  21
-237
+243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nnr90oknbo0
   0
 LINE
   5
@@ -8667,17 +8879,21 @@ EL-REPORT
 100
 AcDbLine
  10
-65.1671583087512
+25
  20
-267
+237
  30
 0.0
  11
-65.1671583087512
+405
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nira8k2gko8
   0
 LINE
   5
@@ -8693,17 +8909,21 @@ EL-REPORT
 100
 AcDbLine
  10
-163.249754178958
+25
  20
 267
  30
 0.0
  11
-163.249754178958
+25
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ntaqjfdqj9k
   0
 LINE
   5
@@ -8719,17 +8939,21 @@ EL-REPORT
 100
 AcDbLine
  10
-226.583087512291
+65.1671583087512
  20
 267
  30
 0.0
  11
-226.583087512291
+65.1671583087512
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nldxlvit99p
   0
 LINE
   5
@@ -8745,17 +8969,21 @@ EL-REPORT
 100
 AcDbLine
  10
-307.291052114061
+163.249754178958
  20
 267
  30
 0.0
  11
-307.291052114061
+163.249754178958
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nw53be1c2qv
   0
 LINE
   5
@@ -8771,6 +8999,66 @@ EL-REPORT
 100
 AcDbLine
  10
+226.583087512291
+ 20
+267
+ 30
+0.0
+ 11
+226.583087512291
+ 21
+237
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:ntwtojz1gqc
+  0
+LINE
+  5
+16D
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
+307.291052114061
+ 20
+267
+ 30
+0.0
+ 11
+307.291052114061
+ 21
+237
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:nv0llxzyia7
+  0
+LINE
+  5
+16E
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
 335.875122910521
  20
 267
@@ -8782,10 +9070,14 @@ AcDbLine
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nkfwbpc8jqi
   0
 LINE
   5
-16D
+16F
 330
 21
 100
@@ -8808,10 +9100,14 @@ AcDbLine
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nwh54s3f9wv
   0
 TEXT
   5
-16E
+170
 330
 21
 100
@@ -8844,82 +9140,94 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-16F
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 11
-26.5
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-170
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-2
-  7
-Standard
- 11
-26.5
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nn9yl4117zj
   0
 TEXT
   5
 171
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 11
+26.5
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nigfrs2do1q
+  0
+TEXT
+  5
+172
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+2
+  7
+Standard
+ 11
+26.5
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n672rne0l7y
+  0
+TEXT
+  5
+173
 330
 21
 100
@@ -8952,10 +9260,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nyxjwwmrwnj
   0
 TEXT
   5
-172
+174
 330
 21
 100
@@ -8988,10 +9300,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n7ii0m9vbus
   0
 TEXT
   5
-173
+175
 330
 21
 100
@@ -9024,10 +9340,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nmov8yn80i4
   0
 TEXT
   5
-174
+176
 330
 21
 100
@@ -9060,10 +9380,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nv2kgknkwvj
   0
 TEXT
   5
-175
+177
 330
 21
 100
@@ -9096,10 +9420,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n2xtgv455z9
   0
 TEXT
   5
-176
+178
 330
 21
 100
@@ -9132,10 +9460,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nmwbifig6vj
   0
 TEXT
   5
-177
+179
 330
 21
 100
@@ -9168,10 +9500,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n6sbc02v3ou
   0
 TEXT
   5
-178
+17A
 330
 21
 100
@@ -9204,78 +9540,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-179
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-164.749754178958
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-PS1
-  7
-Standard
- 11
-164.749754178958
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-17A
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-164.749754178958
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-PS1
-  7
-Standard
- 11
-164.749754178958
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nxvgdqp5gmg
   0
 TEXT
   5
@@ -9293,6 +9561,86 @@ AcDbText
  10
 164.749754178958
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+PS1
+  7
+Standard
+ 11
+164.749754178958
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n580fynr5fx
+  0
+TEXT
+  5
+17C
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+164.749754178958
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+PS1
+  7
+Standard
+ 11
+164.749754178958
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nfrb3mleohf
+  0
+TEXT
+  5
+17D
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+164.749754178958
+ 20
 246
  30
 0.0
@@ -9312,10 +9660,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nbdh3ivx61b
   0
 TEXT
   5
-17C
+17E
 330
 21
 100
@@ -9348,78 +9700,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-17D
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-228.083087512291
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-CP1
-  7
-Standard
- 11
-228.083087512291
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-17E
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-228.083087512291
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-CP1
-  7
-Standard
- 11
-228.083087512291
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nc9007djfam
   0
 TEXT
   5
@@ -9437,6 +9721,86 @@ AcDbText
  10
 228.083087512291
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+CP1
+  7
+Standard
+ 11
+228.083087512291
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nc2e2bazzcm
+  0
+TEXT
+  5
+180
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+228.083087512291
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+CP1
+  7
+Standard
+ 11
+228.083087512291
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n26623n8f2d
+  0
+TEXT
+  5
+181
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+228.083087512291
+ 20
 246
  30
 0.0
@@ -9456,10 +9820,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n583zzhsdp1
   0
 TEXT
   5
-180
+182
 330
 21
 100
@@ -9492,78 +9860,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-181
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-308.791052114061
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-A
-  7
-Standard
- 11
-308.791052114061
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-182
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-308.791052114061
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-A
-  7
-Standard
- 11
-308.791052114061
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nx2w5ijau35
   0
 TEXT
   5
@@ -9581,6 +9881,86 @@ AcDbText
  10
 308.791052114061
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+A
+  7
+Standard
+ 11
+308.791052114061
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nww3ujonglb
+  0
+TEXT
+  5
+184
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+308.791052114061
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+A
+  7
+Standard
+ 11
+308.791052114061
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nsw6xlzr0j0
+  0
+TEXT
+  5
+185
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+308.791052114061
+ 20
 246
  30
 0.0
@@ -9600,10 +9980,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nd89dkv0uth
   0
 TEXT
   5
-184
+186
 330
 21
 100
@@ -9636,78 +10020,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-185
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-337.375122910521
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-2026-10-13
-  7
-Standard
- 11
-337.375122910521
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-186
-330
-21
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-337.375122910521
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-2026-10-13
-  7
-Standard
- 11
-337.375122910521
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nxu5jcrh8ts
   0
 TEXT
   5
@@ -9725,6 +10041,86 @@ AcDbText
  10
 337.375122910521
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+2026-10-13
+  7
+Standard
+ 11
+337.375122910521
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n5yol2hjt1s
+  0
+TEXT
+  5
+188
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+337.375122910521
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+2026-10-13
+  7
+Standard
+ 11
+337.375122910521
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:ncr610mz9px
+  0
+TEXT
+  5
+189
+330
+21
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+337.375122910521
+ 20
 246
  30
 0.0
@@ -9744,6 +10140,10 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nfeanak9eht
   0
 ENDBLK
   5
@@ -9789,7 +10189,7 @@ AcDbBlockBegin
   0
 VIEWPORT
   5
-188
+18A
 330
 24
 100
@@ -9909,7 +10309,7 @@ iso-a3
   0
 INSERT
   5
-189
+18B
 330
 24
 100
@@ -9936,12 +10336,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n3ulvmrgoko
   0
 ATTRIB
   5
-18A
+18C
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -9971,9 +10375,9 @@ PROJECT
   0
 ATTRIB
   5
-18B
+18D
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10003,9 +10407,9 @@ TITLE
   0
 ATTRIB
   5
-18C
+18E
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10035,9 +10439,9 @@ PLANT
   0
 ATTRIB
   5
-18D
+18F
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10067,9 +10471,9 @@ LOC
   0
 ATTRIB
   5
-18E
+190
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10099,9 +10503,9 @@ DRAWN
   0
 ATTRIB
   5
-18F
+191
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10131,9 +10535,9 @@ DATE
   0
 ATTRIB
   5
-190
+192
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10163,9 +10567,9 @@ REV
   0
 ATTRIB
   5
-191
+193
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10203,9 +10607,9 @@ SHEET
   0
 ATTRIB
   5
-192
+194
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10243,9 +10647,9 @@ SHEETS
   0
 SEQEND
   5
-193
+195
 330
-189
+18B
 100
 AcDbEntity
  67
@@ -10255,7 +10659,7 @@ EL-FRAME
   0
 TEXT
   5
-194
+196
 330
 24
 100
@@ -10280,58 +10684,10 @@ Terminal plan
 Standard
 100
 AcDbText
-  0
-LINE
-  5
-195
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-267
- 30
-0.0
- 11
-405
- 21
-267
- 31
-0.0
-  0
-LINE
-  5
-196
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-261
- 30
-0.0
- 11
-405
- 21
-261
- 31
-0.0
+1001
+CADCRAFT
+1000
+CCKEY:nxxlk2g02m2
   0
 LINE
   5
@@ -10349,15 +10705,19 @@ AcDbLine
  10
 25
  20
-255
+267
  30
 0.0
  11
 405
  21
-255
+267
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n3prb6atfuv
   0
 LINE
   5
@@ -10375,15 +10735,19 @@ AcDbLine
  10
 25
  20
-249
+261
  30
 0.0
  11
 405
  21
-249
+261
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nyhtv3f320f
   0
 LINE
   5
@@ -10401,15 +10765,19 @@ AcDbLine
  10
 25
  20
-243
+255
  30
 0.0
  11
 405
  21
-243
+255
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nu8afkmy11b
   0
 LINE
   5
@@ -10427,15 +10795,19 @@ AcDbLine
  10
 25
  20
-237
+249
  30
 0.0
  11
 405
  21
-237
+249
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nheeh6fjlke
   0
 LINE
   5
@@ -10453,15 +10825,19 @@ AcDbLine
  10
 25
  20
-267
+243
  30
 0.0
  11
-25
+405
  21
-237
+243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n00b11p4pdi
   0
 LINE
   5
@@ -10477,17 +10853,21 @@ EL-REPORT
 100
 AcDbLine
  10
-87.5276979893311
+25
  20
-267
+237
  30
 0.0
  11
-87.5276979893311
+405
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nbrtqbuxhyk
   0
 LINE
   5
@@ -10503,17 +10883,21 @@ EL-REPORT
 100
 AcDbLine
  10
-135.553959786623
+25
  20
 267
  30
 0.0
  11
-135.553959786623
+25
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nyoby88go11
   0
 LINE
   5
@@ -10529,17 +10913,21 @@ EL-REPORT
 100
 AcDbLine
  10
-169.078785391875
+87.5276979893311
  20
 267
  30
 0.0
  11
-169.078785391875
+87.5276979893311
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n6yqp0111j6
   0
 LINE
   5
@@ -10555,17 +10943,21 @@ EL-REPORT
 100
 AcDbLine
  10
-250.941731637259
+135.553959786623
  20
 267
  30
 0.0
  11
-250.941731637259
+135.553959786623
  21
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nn1p8yskgm6
   0
 LINE
   5
@@ -10581,6 +10973,66 @@ EL-REPORT
 100
 AcDbLine
  10
+169.078785391875
+ 20
+267
+ 30
+0.0
+ 11
+169.078785391875
+ 21
+237
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:nmwa3ssnxb6
+  0
+LINE
+  5
+1A1
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
+250.941731637259
+ 20
+267
+ 30
+0.0
+ 11
+250.941731637259
+ 21
+237
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:n4wow2sgkcs
+  0
+LINE
+  5
+1A2
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
 347.306114074682
  20
 267
@@ -10592,10 +11044,14 @@ AcDbLine
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nv5n0r0tomu
   0
 LINE
   5
-1A1
+1A3
 330
 24
 100
@@ -10618,10 +11074,14 @@ AcDbLine
 237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nd8qlpmwn4v
   0
 TEXT
   5
-1A2
+1A4
 330
 24
 100
@@ -10654,78 +11114,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1A3
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-=PS1+CP1-X1
-  7
-Standard
- 11
-26.5
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1A4
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-=PS1+CP1-X1
-  7
-Standard
- 11
-26.5
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nasnyk8bqdk
   0
 TEXT
   5
@@ -10743,6 +11135,86 @@ AcDbText
  10
 26.5
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+=PS1+CP1-X1
+  7
+Standard
+ 11
+26.5
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:npnopn0hjlw
+  0
+TEXT
+  5
+1A6
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+=PS1+CP1-X1
+  7
+Standard
+ 11
+26.5
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:npb9mf18k2k
+  0
+TEXT
+  5
+1A7
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
 246
  30
 0.0
@@ -10762,10 +11234,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ncdyb2mtxvb
   0
 TEXT
   5
-1A6
+1A8
 330
 24
 100
@@ -10798,10 +11274,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nf81lwcznyp
   0
 TEXT
   5
-1A7
+1A9
 330
 24
 100
@@ -10834,82 +11314,94 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1A8
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-89.0276979893311
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 11
-89.0276979893311
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1A9
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-89.0276979893311
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-2
-  7
-Standard
- 11
-89.0276979893311
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nciwgb38ww1
   0
 TEXT
   5
 1AA
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+89.0276979893311
+ 20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 11
+89.0276979893311
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nee203fil50
+  0
+TEXT
+  5
+1AB
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+89.0276979893311
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+2
+  7
+Standard
+ 11
+89.0276979893311
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nwd6kyhljpw
+  0
+TEXT
+  5
+1AC
 330
 24
 100
@@ -10942,10 +11434,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nndsu0flho1
   0
 TEXT
   5
-1AB
+1AD
 330
 24
 100
@@ -10978,10 +11474,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n7yxj50m9xi
   0
 TEXT
   5
-1AC
+1AE
 330
 24
 100
@@ -11014,10 +11514,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n1eop9axliu
   0
 TEXT
   5
-1AD
+1AF
 330
 24
 100
@@ -11050,10 +11554,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n2914d5iesr
   0
 TEXT
   5
-1AE
+1B0
 330
 24
 100
@@ -11086,10 +11594,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nvhuxd5rbtc
   0
 TEXT
   5
-1AF
+1B1
 330
 24
 100
@@ -11122,10 +11634,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nznxn5b088s
   0
 TEXT
   5
-1B0
+1B2
 330
 24
 100
@@ -11158,10 +11674,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nc24k5h9hyk
   0
 TEXT
   5
-1B1
+1B3
 330
 24
 100
@@ -11194,10 +11714,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nwqv83gw209
   0
 TEXT
   5
-1B2
+1B4
 330
 24
 100
@@ -11230,10 +11754,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nssozxpgx5g
   0
 TEXT
   5
-1B3
+1B5
 330
 24
 100
@@ -11266,10 +11794,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ncnpzz0zoc9
   0
 TEXT
   5
-1B4
+1B6
 330
 24
 100
@@ -11302,10 +11834,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nnbc1csqq1a
   0
 TEXT
   5
-1B5
+1B7
 330
 24
 100
@@ -11338,10 +11874,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nljtpbz0udy
   0
 TEXT
   5
-1B6
+1B8
 330
 24
 100
@@ -11374,10 +11914,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n7yfbr36rnh
   0
 TEXT
   5
-1B7
+1B9
 330
 24
 100
@@ -11410,10 +11954,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nsdiv5wsig7
   0
 TEXT
   5
-1B8
+1BA
 330
 24
 100
@@ -11446,10 +11994,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nnvj9p64les
   0
 TEXT
   5
-1B9
+1BB
 330
 24
 100
@@ -11482,78 +12034,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1BA
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-348.806114074682
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-1.3
-  7
-Standard
- 11
-348.806114074682
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1BB
-330
-24
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-348.806114074682
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-1.3
-  7
-Standard
- 11
-348.806114074682
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nlw23tth6o2
   0
 TEXT
   5
@@ -11571,6 +12055,86 @@ AcDbText
  10
 348.806114074682
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+1.3
+  7
+Standard
+ 11
+348.806114074682
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nuoy0qu53cz
+  0
+TEXT
+  5
+1BD
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+348.806114074682
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+1.3
+  7
+Standard
+ 11
+348.806114074682
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nbrpsb9uapl
+  0
+TEXT
+  5
+1BE
+330
+24
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+348.806114074682
+ 20
 246
  30
 0.0
@@ -11590,10 +12154,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nzga1vxajej
   0
 TEXT
   5
-1BD
+1BF
 330
 24
 100
@@ -11626,6 +12194,10 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nu14g41muwq
   0
 ENDBLK
   5
@@ -11671,7 +12243,7 @@ AcDbBlockBegin
   0
 VIEWPORT
   5
-1BE
+1C0
 330
 27
 100
@@ -11791,7 +12363,7 @@ iso-a3
   0
 INSERT
   5
-1BF
+1C1
 330
 27
 100
@@ -11818,12 +12390,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nl2vyxlj95s
   0
 ATTRIB
   5
-1C0
+1C2
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -11853,9 +12429,9 @@ PROJECT
   0
 ATTRIB
   5
-1C1
+1C3
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -11885,9 +12461,9 @@ TITLE
   0
 ATTRIB
   5
-1C2
+1C4
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -11917,9 +12493,9 @@ PLANT
   0
 ATTRIB
   5
-1C3
+1C5
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -11949,9 +12525,9 @@ LOC
   0
 ATTRIB
   5
-1C4
+1C6
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -11981,9 +12557,9 @@ DRAWN
   0
 ATTRIB
   5
-1C5
+1C7
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -12013,9 +12589,9 @@ DATE
   0
 ATTRIB
   5
-1C6
+1C8
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -12045,9 +12621,9 @@ REV
   0
 ATTRIB
   5
-1C7
+1C9
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -12085,9 +12661,9 @@ SHEET
   0
 ATTRIB
   5
-1C8
+1CA
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -12125,9 +12701,9 @@ SHEETS
   0
 SEQEND
   5
-1C9
+1CB
 330
-1BF
+1C1
 100
 AcDbEntity
  67
@@ -12137,7 +12713,7 @@ EL-FRAME
   0
 TEXT
   5
-1CA
+1CC
 330
 27
 100
@@ -12162,58 +12738,10 @@ Cable list
 Standard
 100
 AcDbText
-  0
-LINE
-  5
-1CB
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-267
- 30
-0.0
- 11
-405
- 21
-267
- 31
-0.0
-  0
-LINE
-  5
-1CC
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-261
- 30
-0.0
- 11
-405
- 21
-261
- 31
-0.0
+1001
+CADCRAFT
+1000
+CCKEY:n188wdgbzp1
   0
 LINE
   5
@@ -12231,15 +12759,19 @@ AcDbLine
  10
 25
  20
-255
+267
  30
 0.0
  11
 405
  21
-255
+267
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n4b87chomh9
   0
 LINE
   5
@@ -12257,15 +12789,19 @@ AcDbLine
  10
 25
  20
-249
+261
  30
 0.0
  11
 405
  21
-249
+261
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nbg38zn8g72
   0
 LINE
   5
@@ -12283,15 +12819,19 @@ AcDbLine
  10
 25
  20
-243
+255
  30
 0.0
  11
 405
  21
-243
+255
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nnhd2tealnf
   0
 LINE
   5
@@ -12309,15 +12849,19 @@ AcDbLine
  10
 25
  20
-267
+249
  30
 0.0
  11
-25
+405
  21
-243
+249
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nxxihh766wr
   0
 LINE
   5
@@ -12333,17 +12877,21 @@ EL-REPORT
 100
 AcDbLine
  10
-63.4832783796514
+25
  20
-267
+243
  30
 0.0
  11
-63.4832783796514
+405
  21
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n8l7kp49hu3
   0
 LINE
   5
@@ -12359,17 +12907,21 @@ EL-REPORT
 100
 AcDbLine
  10
-146.35657089025
+25
  20
 267
  30
 0.0
  11
-146.35657089025
+25
  21
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nytwihv8w84
   0
 LINE
   5
@@ -12385,17 +12937,21 @@ EL-REPORT
 100
 AcDbLine
  10
-179.291097503533
+63.4832783796514
  20
 267
  30
 0.0
  11
-179.291097503533
+63.4832783796514
  21
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nejjyfo049a
   0
 LINE
   5
@@ -12411,17 +12967,21 @@ EL-REPORT
 100
 AcDbLine
  10
-217.774375883184
+146.35657089025
  20
 267
  30
 0.0
  11
-217.774375883184
+146.35657089025
  21
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nf4vuccc27p
   0
 LINE
   5
@@ -12437,17 +12997,21 @@ EL-REPORT
 100
 AcDbLine
  10
-256.257654262836
+179.291097503533
  20
 267
  30
 0.0
  11
-256.257654262836
+179.291097503533
  21
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nakusrqsgi7
   0
 LINE
   5
@@ -12463,17 +13027,21 @@ EL-REPORT
 100
 AcDbLine
  10
-294.740932642487
+217.774375883184
  20
 267
  30
 0.0
  11
-294.740932642487
+217.774375883184
  21
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nay3f2nitte
   0
 LINE
   5
@@ -12489,6 +13057,66 @@ EL-REPORT
 100
 AcDbLine
  10
+256.257654262836
+ 20
+267
+ 30
+0.0
+ 11
+256.257654262836
+ 21
+243
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:nbmvsn33vnv
+  0
+LINE
+  5
+1D8
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
+294.740932642487
+ 20
+267
+ 30
+0.0
+ 11
+294.740932642487
+ 21
+243
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:nkq04vrjr3t
+  0
+LINE
+  5
+1D9
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
 338.772962788507
  20
 267
@@ -12500,10 +13128,14 @@ AcDbLine
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nuohzq50k24
   0
 LINE
   5
-1D8
+1DA
 330
 27
 100
@@ -12526,10 +13158,14 @@ AcDbLine
 243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:neqgzboq211
   0
 TEXT
   5
-1D9
+1DB
 330
 27
 100
@@ -12562,78 +13198,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1DA
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
--W1
-  7
-Standard
- 11
-26.5
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1DB
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
--W1
-  7
-Standard
- 11
-26.5
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:ncoiusa04fa
   0
 TEXT
   5
@@ -12651,6 +13219,86 @@ AcDbText
  10
 26.5
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+-W1
+  7
+Standard
+ 11
+26.5
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n11mfeln13r
+  0
+TEXT
+  5
+1DD
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+-W1
+  7
+Standard
+ 11
+26.5
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:niy1a2m2fmy
+  0
+TEXT
+  5
+1DE
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
 246
  30
 0.0
@@ -12670,10 +13318,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n9c0m06f3bf
   0
 TEXT
   5
-1DD
+1DF
 330
 27
 100
@@ -12706,78 +13358,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1DE
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-64.9832783796514
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-H07RN-F 4G1.5
-  7
-Standard
- 11
-64.9832783796514
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1DF
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-64.9832783796514
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-H07RN-F 4G1.5
-  7
-Standard
- 11
-64.9832783796514
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nb72g8o0u55
   0
 TEXT
   5
@@ -12795,6 +13379,86 @@ AcDbText
  10
 64.9832783796514
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+H07RN-F 4G1.5
+  7
+Standard
+ 11
+64.9832783796514
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nrt6930m9bs
+  0
+TEXT
+  5
+1E1
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+64.9832783796514
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+H07RN-F 4G1.5
+  7
+Standard
+ 11
+64.9832783796514
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nx41q7uczb3
+  0
+TEXT
+  5
+1E2
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+64.9832783796514
+ 20
 246
  30
 0.0
@@ -12814,10 +13478,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n0tyo169pcf
   0
 TEXT
   5
-1E1
+1E3
 330
 27
 100
@@ -12850,82 +13518,94 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1E2
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-147.85657089025
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 11
-147.85657089025
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1E3
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-147.85657089025
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-2
-  7
-Standard
- 11
-147.85657089025
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:n33ausphpuo
   0
 TEXT
   5
 1E4
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+147.85657089025
+ 20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 11
+147.85657089025
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nf7c710hci6
+  0
+TEXT
+  5
+1E5
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+147.85657089025
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+2
+  7
+Standard
+ 11
+147.85657089025
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n1odgza0rgs
+  0
+TEXT
+  5
+1E6
 330
 27
 100
@@ -12958,10 +13638,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nm1ccxynu0j
   0
 TEXT
   5
-1E5
+1E7
 330
 27
 100
@@ -12994,10 +13678,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nmjipuplu99
   0
 TEXT
   5
-1E6
+1E8
 330
 27
 100
@@ -13030,10 +13718,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ngrs5hr3f54
   0
 TEXT
   5
-1E7
+1E9
 330
 27
 100
@@ -13066,10 +13758,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nkd4ngay4w0
   0
 TEXT
   5
-1E8
+1EA
 330
 27
 100
@@ -13102,10 +13798,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n9165wc5bnb
   0
 TEXT
   5
-1E9
+1EB
 330
 27
 100
@@ -13138,10 +13838,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nxtp7g156j0
   0
 TEXT
   5
-1EA
+1EC
 330
 27
 100
@@ -13174,10 +13878,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nu8gw77w92s
   0
 TEXT
   5
-1EB
+1ED
 330
 27
 100
@@ -13210,10 +13918,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ny1e6mcnili
   0
 TEXT
   5
-1EC
+1EE
 330
 27
 100
@@ -13246,10 +13958,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nrkujxdt1dy
   0
 TEXT
   5
-1ED
+1EF
 330
 27
 100
@@ -13282,10 +13998,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n3v75d1qs24
   0
 TEXT
   5
-1EE
+1F0
 330
 27
 100
@@ -13318,10 +14038,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ny8ql6vme9h
   0
 TEXT
   5
-1EF
+1F1
 330
 27
 100
@@ -13354,10 +14078,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nvdm950jcf7
   0
 TEXT
   5
-1F0
+1F2
 330
 27
 100
@@ -13390,10 +14118,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nap5apznezc
   0
 TEXT
   5
-1F1
+1F3
 330
 27
 100
@@ -13426,78 +14158,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1F2
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-296.240932642487
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-18
-  7
-Standard
- 11
-296.240932642487
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1F3
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-296.240932642487
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-18
-  7
-Standard
- 11
-296.240932642487
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nn3pgdq50ry
   0
 TEXT
   5
@@ -13515,6 +14179,86 @@ AcDbText
  10
 296.240932642487
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+18
+  7
+Standard
+ 11
+296.240932642487
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:ns4htirx7oe
+  0
+TEXT
+  5
+1F5
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+296.240932642487
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+18
+  7
+Standard
+ 11
+296.240932642487
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n4hk0ns6qeh
+  0
+TEXT
+  5
+1F6
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+296.240932642487
+ 20
 246
  30
 0.0
@@ -13534,10 +14278,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nygg9r9gh1a
   0
 TEXT
   5
-1F5
+1F7
 330
 27
 100
@@ -13570,78 +14318,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-1F6
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-340.272962788507
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-1.3
-  7
-Standard
- 11
-340.272962788507
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-1F7
-330
-27
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-340.272962788507
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-1.3
-  7
-Standard
- 11
-340.272962788507
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:n1uhehrci41
   0
 TEXT
   5
@@ -13659,6 +14339,86 @@ AcDbText
  10
 340.272962788507
  20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+1.3
+  7
+Standard
+ 11
+340.272962788507
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nu3502qn0td
+  0
+TEXT
+  5
+1F9
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+340.272962788507
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+1.3
+  7
+Standard
+ 11
+340.272962788507
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n1zifv53ylf
+  0
+TEXT
+  5
+1FA
+330
+27
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+340.272962788507
+ 20
 246
  30
 0.0
@@ -13678,6 +14438,10 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n5h008et6no
   0
 ENDBLK
   5
@@ -13723,7 +14487,7 @@ AcDbBlockBegin
   0
 VIEWPORT
   5
-1F9
+1FB
 330
 2A
 100
@@ -13843,7 +14607,7 @@ iso-a3
   0
 INSERT
   5
-1FA
+1FC
 330
 2A
 100
@@ -13870,12 +14634,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nu9gpc2fald
   0
 ATTRIB
   5
-1FB
+1FD
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -13905,9 +14673,9 @@ PROJECT
   0
 ATTRIB
   5
-1FC
+1FE
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -13937,9 +14705,9 @@ TITLE
   0
 ATTRIB
   5
-1FD
+1FF
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -13969,9 +14737,9 @@ PLANT
   0
 ATTRIB
   5
-1FE
+200
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14001,9 +14769,9 @@ LOC
   0
 ATTRIB
   5
-1FF
+201
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14033,9 +14801,9 @@ DRAWN
   0
 ATTRIB
   5
-200
+202
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14065,9 +14833,9 @@ DATE
   0
 ATTRIB
   5
-201
+203
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14097,9 +14865,9 @@ REV
   0
 ATTRIB
   5
-202
+204
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14137,9 +14905,9 @@ SHEET
   0
 ATTRIB
   5
-203
+205
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14177,9 +14945,9 @@ SHEETS
   0
 SEQEND
   5
-204
+206
 330
-1FA
+1FC
 100
 AcDbEntity
  67
@@ -14189,7 +14957,7 @@ EL-FRAME
   0
 TEXT
   5
-205
+207
 330
 2A
 100
@@ -14214,58 +14982,10 @@ Parts list
 Standard
 100
 AcDbText
-  0
-LINE
-  5
-206
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-267
- 30
-0.0
- 11
-405
- 21
-267
- 31
-0.0
-  0
-LINE
-  5
-207
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbLine
- 10
-25
- 20
-261
- 30
-0.0
- 11
-405
- 21
-261
- 31
-0.0
+1001
+CADCRAFT
+1000
+CCKEY:n7zc7it8yvm
   0
 LINE
   5
@@ -14283,15 +15003,19 @@ AcDbLine
  10
 25
  20
-255
+267
  30
 0.0
  11
 405
  21
-255
+267
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n4v80agourp
   0
 LINE
   5
@@ -14309,15 +15033,19 @@ AcDbLine
  10
 25
  20
-249
+261
  30
 0.0
  11
 405
  21
-249
+261
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nu1c48po6zl
   0
 LINE
   5
@@ -14335,15 +15063,19 @@ AcDbLine
  10
 25
  20
-243
+255
  30
 0.0
  11
 405
  21
-243
+255
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nth2b2bhrw7
   0
 LINE
   5
@@ -14361,15 +15093,19 @@ AcDbLine
  10
 25
  20
-237
+249
  30
 0.0
  11
 405
  21
-237
+249
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n7kfcqzb7us
   0
 LINE
   5
@@ -14387,15 +15123,19 @@ AcDbLine
  10
 25
  20
-231
+243
  30
 0.0
  11
 405
  21
-231
+243
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nt1hnw52vxf
   0
 LINE
   5
@@ -14413,15 +15153,19 @@ AcDbLine
  10
 25
  20
-225
+237
  30
 0.0
  11
 405
  21
-225
+237
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:noq4kr5sgnl
   0
 LINE
   5
@@ -14439,15 +15183,19 @@ AcDbLine
  10
 25
  20
-219
+231
  30
 0.0
  11
 405
  21
-219
+231
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nbjn1e3cg9z
   0
 LINE
   5
@@ -14465,15 +15213,19 @@ AcDbLine
  10
 25
  20
-213
+225
  30
 0.0
  11
 405
  21
-213
+225
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nggpw98wnkt
   0
 LINE
   5
@@ -14491,15 +15243,19 @@ AcDbLine
  10
 25
  20
-207
+219
  30
 0.0
  11
 405
  21
-207
+219
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nrxowmskt85
   0
 LINE
   5
@@ -14517,15 +15273,19 @@ AcDbLine
  10
 25
  20
-201
+213
  30
 0.0
  11
 405
  21
-201
+213
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n5w77ag8mis
   0
 LINE
   5
@@ -14543,15 +15303,19 @@ AcDbLine
  10
 25
  20
-195
+207
  30
 0.0
  11
 405
  21
-195
+207
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ntk7mlh75b0
   0
 LINE
   5
@@ -14569,15 +15333,19 @@ AcDbLine
  10
 25
  20
-267
+201
  30
 0.0
  11
-25
+405
  21
-195
+201
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nx52q1wnmvx
   0
 LINE
   5
@@ -14593,17 +15361,21 @@ EL-REPORT
 100
 AcDbLine
  10
-45.6977572089712
+25
  20
-267
+195
  30
 0.0
  11
-45.6977572089712
+405
  21
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n19ne7xk3m6
   0
 LINE
   5
@@ -14619,17 +15391,21 @@ EL-REPORT
 100
 AcDbLine
  10
-133.494126023496
+25
  20
 267
  30
 0.0
  11
-133.494126023496
+25
  21
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ncvpkbyginb
   0
 LINE
   5
@@ -14645,17 +15421,21 @@ EL-REPORT
 100
 AcDbLine
  10
-242.258810964756
+45.6977572089712
  20
 267
  30
 0.0
  11
-242.258810964756
+45.6977572089712
  21
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n763lqgsw4n
   0
 LINE
   5
@@ -14671,17 +15451,21 @@ EL-REPORT
 100
 AcDbLine
  10
-292.312210751157
+133.494126023496
  20
 267
  30
 0.0
  11
-292.312210751157
+133.494126023496
  21
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nxcjjaa0kk2
   0
 LINE
   5
@@ -14697,6 +15481,66 @@ EL-REPORT
 100
 AcDbLine
  10
+242.258810964756
+ 20
+267
+ 30
+0.0
+ 11
+242.258810964756
+ 21
+195
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:no0c5s401xh
+  0
+LINE
+  5
+219
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
+292.312210751157
+ 20
+267
+ 30
+0.0
+ 11
+292.312210751157
+ 21
+195
+ 31
+0.0
+1001
+CADCRAFT
+1000
+CCKEY:no0utebbc2d
+  0
+LINE
+  5
+21A
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbLine
+ 10
 346.559273762905
  20
 267
@@ -14708,10 +15552,14 @@ AcDbLine
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ncbojty8p3k
   0
 LINE
   5
-219
+21B
 330
 2A
 100
@@ -14734,10 +15582,14 @@ AcDbLine
 195
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nsa35ap7q99
   0
 TEXT
   5
-21A
+21C
 330
 2A
 100
@@ -14770,10 +15622,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n7m5pixwpo6
   0
 TEXT
   5
-21B
+21D
 330
 2A
 100
@@ -14806,78 +15662,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-21C
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 11
-26.5
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-21D
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-26.5
- 20
-246
- 30
-0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 11
-26.5
- 21
-246
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nn5vir2t0pj
   0
 TEXT
   5
@@ -14895,7 +15683,7 @@ AcDbText
  10
 26.5
  20
-240
+252
  30
 0.0
  40
@@ -14907,13 +15695,17 @@ Standard
  11
 26.5
  21
-240
+252
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ngt3veki00m
   0
 TEXT
   5
@@ -14931,7 +15723,7 @@ AcDbText
  10
 26.5
  20
-234
+246
  30
 0.0
  40
@@ -14943,13 +15735,17 @@ Standard
  11
 26.5
  21
-234
+246
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nu20bkppiq7
   0
 TEXT
   5
@@ -14967,7 +15763,7 @@ AcDbText
  10
 26.5
  20
-228
+240
  30
 0.0
  40
@@ -14979,13 +15775,17 @@ Standard
  11
 26.5
  21
-228
+240
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ng4bi2h29bc
   0
 TEXT
   5
@@ -15003,7 +15803,7 @@ AcDbText
  10
 26.5
  20
-222
+234
  30
 0.0
  40
@@ -15015,13 +15815,17 @@ Standard
  11
 26.5
  21
-222
+234
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nx45qza1as3
   0
 TEXT
   5
@@ -15039,7 +15843,7 @@ AcDbText
  10
 26.5
  20
-216
+228
  30
 0.0
  40
@@ -15051,13 +15855,17 @@ Standard
  11
 26.5
  21
-216
+228
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n52pauv5uv8
   0
 TEXT
   5
@@ -15075,7 +15883,7 @@ AcDbText
  10
 26.5
  20
-210
+222
  30
 0.0
  40
@@ -15087,13 +15895,17 @@ Standard
  11
 26.5
  21
-210
+222
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n0ikhg89glq
   0
 TEXT
   5
@@ -15111,6 +15923,86 @@ AcDbText
  10
 26.5
  20
+216
+ 30
+0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 11
+26.5
+ 21
+216
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nkjr8tmdsul
+  0
+TEXT
+  5
+225
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
+210
+ 30
+0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 11
+26.5
+ 21
+210
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nq44szfvf5i
+  0
+TEXT
+  5
+226
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+26.5
+ 20
 204
  30
 0.0
@@ -15130,10 +16022,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nu2s4uol0ep
   0
 TEXT
   5
-225
+227
 330
 2A
 100
@@ -15166,10 +16062,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nhxf9tcpfa7
   0
 TEXT
   5
-226
+228
 330
 2A
 100
@@ -15202,10 +16102,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:njusj3an9ya
   0
 TEXT
   5
-227
+229
 330
 2A
 100
@@ -15238,10 +16142,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:na5k805hjqh
   0
 TEXT
   5
-228
+22A
 330
 2A
 100
@@ -15274,10 +16182,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nwp4sb5zu4k
   0
 TEXT
   5
-229
+22B
 330
 2A
 100
@@ -15310,10 +16222,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:no3u2r94zfz
   0
 TEXT
   5
-22A
+22C
 330
 2A
 100
@@ -15346,10 +16262,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n5oh09sgqm5
   0
 TEXT
   5
-22B
+22D
 330
 2A
 100
@@ -15382,10 +16302,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ns6ssqlnk5d
   0
 TEXT
   5
-22C
+22E
 330
 2A
 100
@@ -15418,10 +16342,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nitsuwhizrk
   0
 TEXT
   5
-22D
+22F
 330
 2A
 100
@@ -15454,10 +16382,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nqmtc4c33qb
   0
 TEXT
   5
-22E
+230
 330
 2A
 100
@@ -15490,10 +16422,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nrcgatztd8a
   0
 TEXT
   5
-22F
+231
 330
 2A
 100
@@ -15526,10 +16462,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nzofzm824yw
   0
 TEXT
   5
-230
+232
 330
 2A
 100
@@ -15562,10 +16502,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nz19vou37ni
   0
 TEXT
   5
-231
+233
 330
 2A
 100
@@ -15598,10 +16542,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ne5ijt4uien
   0
 TEXT
   5
-232
+234
 330
 2A
 100
@@ -15634,82 +16582,94 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-233
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-134.994126023496
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-Terminal
-  7
-Standard
- 11
-134.994126023496
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-234
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-134.994126023496
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-Terminal
-  7
-Standard
- 11
-134.994126023496
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nfc7s42z8ap
   0
 TEXT
   5
 235
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+134.994126023496
+ 20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+Terminal
+  7
+Standard
+ 11
+134.994126023496
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nwx7bxjf3sp
+  0
+TEXT
+  5
+236
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+134.994126023496
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+Terminal
+  7
+Standard
+ 11
+134.994126023496
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nmd0aky1w1s
+  0
+TEXT
+  5
+237
 330
 2A
 100
@@ -15742,10 +16702,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n0wibetzc33
   0
 TEXT
   5
-236
+238
 330
 2A
 100
@@ -15778,10 +16742,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nbsk5wsmt8g
   0
 TEXT
   5
-237
+239
 330
 2A
 100
@@ -15814,10 +16782,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nnpwf1atjga
   0
 TEXT
   5
-238
+23A
 330
 2A
 100
@@ -15850,10 +16822,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nxvwlk05p8z
   0
 TEXT
   5
-239
+23B
 330
 2A
 100
@@ -15886,10 +16862,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n610j5o48qr
   0
 TEXT
   5
-23A
+23C
 330
 2A
 100
@@ -15922,10 +16902,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:npoqzbbpsqw
   0
 TEXT
   5
-23B
+23D
 330
 2A
 100
@@ -15958,10 +16942,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nglslg6zr4a
   0
 TEXT
   5
-23C
+23E
 330
 2A
 100
@@ -15994,10 +16982,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nlil2j7m30w
   0
 TEXT
   5
-23D
+23F
 330
 2A
 100
@@ -16030,10 +17022,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nvsa420v112
   0
 TEXT
   5
-23E
+240
 330
 2A
 100
@@ -16066,82 +17062,94 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-23F
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-243.758810964756
- 20
-258
- 30
-0.0
- 40
-2.5
-  1
-Clampo
-  7
-Standard
- 11
-243.758810964756
- 21
-258
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-240
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-243.758810964756
- 20
-252
- 30
-0.0
- 40
-2.5
-  1
-Clampo
-  7
-Standard
- 11
-243.758810964756
- 21
-252
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:n0urh33mfnt
   0
 TEXT
   5
 241
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+243.758810964756
+ 20
+258
+ 30
+0.0
+ 40
+2.5
+  1
+Clampo
+  7
+Standard
+ 11
+243.758810964756
+ 21
+258
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:n42t9u3hn09
+  0
+TEXT
+  5
+242
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+243.758810964756
+ 20
+252
+ 30
+0.0
+ 40
+2.5
+  1
+Clampo
+  7
+Standard
+ 11
+243.758810964756
+ 21
+252
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:niduqp2u1t4
+  0
+TEXT
+  5
+243
 330
 2A
 100
@@ -16174,10 +17182,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nmr8ub570hq
   0
 TEXT
   5
-242
+244
 330
 2A
 100
@@ -16210,78 +17222,10 @@ Standard
 AcDbText
  73
 2
-  0
-TEXT
-  5
-243
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-243.758810964756
- 20
-234
- 30
-0.0
- 40
-2.5
-  1
-Volta
-  7
-Standard
- 11
-243.758810964756
- 21
-234
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-244
-330
-2A
-100
-AcDbEntity
- 67
-1
-  8
-EL-REPORT
-100
-AcDbText
- 10
-243.758810964756
- 20
-228
- 30
-0.0
- 40
-2.5
-  1
-Volta
-  7
-Standard
- 11
-243.758810964756
- 21
-228
- 31
-0.0
-100
-AcDbText
- 73
-2
+1001
+CADCRAFT
+1000
+CCKEY:nigwojfmvkc
   0
 TEXT
   5
@@ -16299,7 +17243,7 @@ AcDbText
  10
 243.758810964756
  20
-222
+234
  30
 0.0
  40
@@ -16311,13 +17255,17 @@ Standard
  11
 243.758810964756
  21
-222
+234
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nosfbimjoug
   0
 TEXT
   5
@@ -16335,7 +17283,7 @@ AcDbText
  10
 243.758810964756
  20
-216
+228
  30
 0.0
  40
@@ -16347,13 +17295,17 @@ Standard
  11
 243.758810964756
  21
-216
+228
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n95dqg7c0yz
   0
 TEXT
   5
@@ -16371,7 +17323,7 @@ AcDbText
  10
 243.758810964756
  20
-210
+222
  30
 0.0
  40
@@ -16383,13 +17335,17 @@ Standard
  11
 243.758810964756
  21
-210
+222
  31
 0.0
 100
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nq1rul50rk6
   0
 TEXT
   5
@@ -16407,6 +17363,86 @@ AcDbText
  10
 243.758810964756
  20
+216
+ 30
+0.0
+ 40
+2.5
+  1
+Volta
+  7
+Standard
+ 11
+243.758810964756
+ 21
+216
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:njxvsg5rwgs
+  0
+TEXT
+  5
+249
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+243.758810964756
+ 20
+210
+ 30
+0.0
+ 40
+2.5
+  1
+Volta
+  7
+Standard
+ 11
+243.758810964756
+ 21
+210
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+1001
+CADCRAFT
+1000
+CCKEY:nfqqylo6em8
+  0
+TEXT
+  5
+24A
+330
+2A
+100
+AcDbEntity
+ 67
+1
+  8
+EL-REPORT
+100
+AcDbText
+ 10
+243.758810964756
+ 20
 204
  30
 0.0
@@ -16426,10 +17462,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nz0xpaqnzb2
   0
 TEXT
   5
-249
+24B
 330
 2A
 100
@@ -16462,10 +17502,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n45zalpbgpz
   0
 TEXT
   5
-24A
+24C
 330
 2A
 100
@@ -16498,10 +17542,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n0mpektjm2g
   0
 TEXT
   5
-24B
+24D
 330
 2A
 100
@@ -16534,10 +17582,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:neebivynk0w
   0
 TEXT
   5
-24C
+24E
 330
 2A
 100
@@ -16570,10 +17622,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n94nazwik01
   0
 TEXT
   5
-24D
+24F
 330
 2A
 100
@@ -16606,10 +17662,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ntoy02ksfav
   0
 TEXT
   5
-24E
+250
 330
 2A
 100
@@ -16642,10 +17702,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n0lfryz9hin
   0
 TEXT
   5
-24F
+251
 330
 2A
 100
@@ -16678,10 +17742,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n86cr1yxaf2
   0
 TEXT
   5
-250
+252
 330
 2A
 100
@@ -16714,10 +17782,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nyp59se2gq7
   0
 TEXT
   5
-251
+253
 330
 2A
 100
@@ -16750,10 +17822,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n35hm08n7xc
   0
 TEXT
   5
-252
+254
 330
 2A
 100
@@ -16786,10 +17862,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nfhnhgfxte8
   0
 TEXT
   5
-253
+255
 330
 2A
 100
@@ -16822,10 +17902,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nsckr2bof87
   0
 TEXT
   5
-254
+256
 330
 2A
 100
@@ -16858,10 +17942,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nyui8qhltlw
   0
 TEXT
   5
-255
+257
 330
 2A
 100
@@ -16894,10 +17982,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n9my2m2fa4p
   0
 TEXT
   5
-256
+258
 330
 2A
 100
@@ -16930,10 +18022,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nc5jr7zlnpi
   0
 TEXT
   5
-257
+259
 330
 2A
 100
@@ -16966,10 +18062,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ndjyrkwsvjj
   0
 TEXT
   5
-258
+25A
 330
 2A
 100
@@ -17002,10 +18102,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n6ld216895w
   0
 TEXT
   5
-259
+25B
 330
 2A
 100
@@ -17038,10 +18142,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n6b099gooja
   0
 TEXT
   5
-25A
+25C
 330
 2A
 100
@@ -17074,10 +18182,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nk1p1r7fetn
   0
 TEXT
   5
-25B
+25D
 330
 2A
 100
@@ -17110,6 +18222,10 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nx2ynd2jmcv
   0
 ENDBLK
   5
@@ -17153,7 +18269,7 @@ EL_FRAME_A3
   0
 LWPOLYLINE
   5
-25C
+25E
 330
 2D
 100
@@ -17187,54 +18303,6 @@ AcDbPolyline
   0
 LINE
   5
-25D
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-20
- 20
-282
- 30
-0.0
- 11
-410
- 21
-282
- 31
-0.0
-  0
-LINE
-  5
-25E
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-20
- 20
-45
- 30
-0.0
- 11
-410
- 21
-45
- 31
-0.0
-  0
-LINE
-  5
 25F
 330
 2D
@@ -17247,13 +18315,13 @@ AcDbLine
  10
 20
  20
-40
+282
  30
 0.0
  11
 410
  21
-40
+282
  31
 0.0
   0
@@ -17271,13 +18339,13 @@ AcDbLine
  10
 20
  20
-282
+45
  30
 0.0
  11
-20
+410
  21
-287
+45
  31
 0.0
   0
@@ -17299,13 +18367,13 @@ AcDbLine
  30
 0.0
  11
-20
+410
  21
-45
+40
  31
 0.0
   0
-TEXT
+LINE
   5
 262
 330
@@ -17315,33 +18383,21 @@ AcDbEntity
   8
 0
 100
-AcDbText
+AcDbLine
  10
-39.5
+20
  20
-284.5
+282
  30
 0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 72
-1
  11
-39.5
+20
  21
-284.5
+287
  31
 0.0
-100
-AcDbText
- 73
-2
   0
-TEXT
+LINE
   5
 263
 330
@@ -17351,33 +18407,21 @@ AcDbEntity
   8
 0
 100
-AcDbText
+AcDbLine
  10
-39.5
+20
  20
-42.5
+40
  30
 0.0
- 40
-2.5
-  1
-1
-  7
-Standard
- 72
-1
  11
-39.5
+20
  21
-42.5
+45
  31
 0.0
-100
-AcDbText
- 73
-2
   0
-LINE
+TEXT
   5
 264
 330
@@ -17387,21 +18431,33 @@ AcDbEntity
   8
 0
 100
-AcDbLine
+AcDbText
  10
-59
+39.5
  20
-282
+284.5
  30
 0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 72
+1
  11
-59
+39.5
  21
-287
+284.5
  31
 0.0
+100
+AcDbText
+ 73
+2
   0
-LINE
+TEXT
   5
 265
 330
@@ -17411,21 +18467,33 @@ AcDbEntity
   8
 0
 100
-AcDbLine
+AcDbText
  10
-59
+39.5
  20
-40
+42.5
  30
 0.0
+ 40
+2.5
+  1
+1
+  7
+Standard
+ 72
+1
  11
-59
+39.5
  21
-45
+42.5
  31
 0.0
+100
+AcDbText
+ 73
+2
   0
-TEXT
+LINE
   5
 266
 330
@@ -17435,33 +18503,21 @@ AcDbEntity
   8
 0
 100
-AcDbText
+AcDbLine
  10
-78.5
+59
  20
-284.5
+282
  30
 0.0
- 40
-2.5
-  1
-2
-  7
-Standard
- 72
-1
  11
-78.5
+59
  21
-284.5
+287
  31
 0.0
-100
-AcDbText
- 73
-2
   0
-TEXT
+LINE
   5
 267
 330
@@ -17471,33 +18527,21 @@ AcDbEntity
   8
 0
 100
-AcDbText
+AcDbLine
  10
-78.5
+59
  20
-42.5
+40
  30
 0.0
- 40
-2.5
-  1
-2
-  7
-Standard
- 72
-1
  11
-78.5
+59
  21
-42.5
+45
  31
 0.0
-100
-AcDbText
- 73
-2
   0
-LINE
+TEXT
   5
 268
 330
@@ -17507,21 +18551,33 @@ AcDbEntity
   8
 0
 100
-AcDbLine
+AcDbText
  10
-98
+78.5
  20
-282
+284.5
  30
 0.0
+ 40
+2.5
+  1
+2
+  7
+Standard
+ 72
+1
  11
-98
+78.5
  21
-287
+284.5
  31
 0.0
+100
+AcDbText
+ 73
+2
   0
-LINE
+TEXT
   5
 269
 330
@@ -17531,21 +18587,33 @@ AcDbEntity
   8
 0
 100
-AcDbLine
+AcDbText
  10
-98
+78.5
  20
-40
+42.5
  30
 0.0
+ 40
+2.5
+  1
+2
+  7
+Standard
+ 72
+1
  11
-98
+78.5
  21
-45
+42.5
  31
 0.0
+100
+AcDbText
+ 73
+2
   0
-TEXT
+LINE
   5
 26A
 330
@@ -17555,33 +18623,21 @@ AcDbEntity
   8
 0
 100
-AcDbText
+AcDbLine
  10
-117.5
+98
  20
-284.5
+282
  30
 0.0
- 40
-2.5
-  1
-3
-  7
-Standard
- 72
-1
  11
-117.5
+98
  21
-284.5
+287
  31
 0.0
-100
-AcDbText
- 73
-2
   0
-TEXT
+LINE
   5
 26B
 330
@@ -17591,6 +18647,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+98
+ 20
+40
+ 30
+0.0
+ 11
+98
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+26C
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+117.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+3
+  7
+Standard
+ 72
+1
+ 11
+117.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+26D
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 117.5
@@ -17619,7 +18735,7 @@ AcDbText
   0
 LINE
   5
-26C
+26E
 330
 2D
 100
@@ -17642,66 +18758,6 @@ AcDbLine
 0.0
   0
 LINE
-  5
-26D
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-137
- 20
-40
- 30
-0.0
- 11
-137
- 21
-45
- 31
-0.0
-  0
-TEXT
-  5
-26E
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-156.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-4
-  7
-Standard
- 72
-1
- 11
-156.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
   5
 26F
 330
@@ -17711,6 +18767,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+137
+ 20
+40
+ 30
+0.0
+ 11
+137
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+270
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+156.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+4
+  7
+Standard
+ 72
+1
+ 11
+156.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+271
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 156.5
@@ -17739,7 +18855,7 @@ AcDbText
   0
 LINE
   5
-270
+272
 330
 2D
 100
@@ -17762,66 +18878,6 @@ AcDbLine
 0.0
   0
 LINE
-  5
-271
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-176
- 20
-40
- 30
-0.0
- 11
-176
- 21
-45
- 31
-0.0
-  0
-TEXT
-  5
-272
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-195.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-5
-  7
-Standard
- 72
-1
- 11
-195.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
   5
 273
 330
@@ -17831,6 +18887,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+176
+ 20
+40
+ 30
+0.0
+ 11
+176
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+274
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+195.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+5
+  7
+Standard
+ 72
+1
+ 11
+195.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+275
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 195.5
@@ -17859,7 +18975,7 @@ AcDbText
   0
 LINE
   5
-274
+276
 330
 2D
 100
@@ -17882,66 +18998,6 @@ AcDbLine
 0.0
   0
 LINE
-  5
-275
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-215
- 20
-40
- 30
-0.0
- 11
-215
- 21
-45
- 31
-0.0
-  0
-TEXT
-  5
-276
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-234.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-6
-  7
-Standard
- 72
-1
- 11
-234.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
   5
 277
 330
@@ -17951,6 +19007,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+215
+ 20
+40
+ 30
+0.0
+ 11
+215
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+278
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+234.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+6
+  7
+Standard
+ 72
+1
+ 11
+234.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+279
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 234.5
@@ -17979,7 +19095,7 @@ AcDbText
   0
 LINE
   5
-278
+27A
 330
 2D
 100
@@ -18002,66 +19118,6 @@ AcDbLine
 0.0
   0
 LINE
-  5
-279
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-254
- 20
-40
- 30
-0.0
- 11
-254
- 21
-45
- 31
-0.0
-  0
-TEXT
-  5
-27A
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-273.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-7
-  7
-Standard
- 72
-1
- 11
-273.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
   5
 27B
 330
@@ -18071,6 +19127,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+254
+ 20
+40
+ 30
+0.0
+ 11
+254
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+27C
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+273.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+7
+  7
+Standard
+ 72
+1
+ 11
+273.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+27D
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 273.5
@@ -18099,7 +19215,7 @@ AcDbText
   0
 LINE
   5
-27C
+27E
 330
 2D
 100
@@ -18122,66 +19238,6 @@ AcDbLine
 0.0
   0
 LINE
-  5
-27D
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-293
- 20
-40
- 30
-0.0
- 11
-293
- 21
-45
- 31
-0.0
-  0
-TEXT
-  5
-27E
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-312.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-8
-  7
-Standard
- 72
-1
- 11
-312.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
   5
 27F
 330
@@ -18191,6 +19247,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+293
+ 20
+40
+ 30
+0.0
+ 11
+293
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+280
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+312.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+8
+  7
+Standard
+ 72
+1
+ 11
+312.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+281
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 312.5
@@ -18219,7 +19335,7 @@ AcDbText
   0
 LINE
   5
-280
+282
 330
 2D
 100
@@ -18242,66 +19358,6 @@ AcDbLine
 0.0
   0
 LINE
-  5
-281
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-332
- 20
-40
- 30
-0.0
- 11
-332
- 21
-45
- 31
-0.0
-  0
-TEXT
-  5
-282
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-351.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-9
-  7
-Standard
- 72
-1
- 11
-351.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
   5
 283
 330
@@ -18311,6 +19367,66 @@ AcDbEntity
   8
 0
 100
+AcDbLine
+ 10
+332
+ 20
+40
+ 30
+0.0
+ 11
+332
+ 21
+45
+ 31
+0.0
+  0
+TEXT
+  5
+284
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+351.5
+ 20
+284.5
+ 30
+0.0
+ 40
+2.5
+  1
+9
+  7
+Standard
+ 72
+1
+ 11
+351.5
+ 21
+284.5
+ 31
+0.0
+100
+AcDbText
+ 73
+2
+  0
+TEXT
+  5
+285
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
 AcDbText
  10
 351.5
@@ -18339,7 +19455,7 @@ AcDbText
   0
 LINE
   5
-284
+286
 330
 2D
 100
@@ -18363,7 +19479,7 @@ AcDbLine
   0
 LINE
   5
-285
+287
 330
 2D
 100
@@ -18386,78 +19502,6 @@ AcDbLine
 0.0
   0
 TEXT
-  5
-286
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-390.5
- 20
-284.5
- 30
-0.0
- 40
-2.5
-  1
-10
-  7
-Standard
- 72
-1
- 11
-390.5
- 21
-284.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-TEXT
-  5
-287
-330
-2D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-390.5
- 20
-42.5
- 30
-0.0
- 40
-2.5
-  1
-10
-  7
-Standard
- 72
-1
- 11
-390.5
- 21
-42.5
- 31
-0.0
-100
-AcDbText
- 73
-2
-  0
-LINE
   5
 288
 330
@@ -18467,21 +19511,33 @@ AcDbEntity
   8
 0
 100
-AcDbLine
+AcDbText
  10
-410
+390.5
  20
-282
+284.5
  30
 0.0
+ 40
+2.5
+  1
+10
+  7
+Standard
+ 72
+1
  11
-410
+390.5
  21
-287
+284.5
  31
 0.0
+100
+AcDbText
+ 73
+2
   0
-LINE
+TEXT
   5
 289
 330
@@ -18491,19 +19547,31 @@ AcDbEntity
   8
 0
 100
-AcDbLine
+AcDbText
  10
-410
+390.5
  20
-40
+42.5
  30
 0.0
+ 40
+2.5
+  1
+10
+  7
+Standard
+ 72
+1
  11
-410
+390.5
  21
-45
+42.5
  31
 0.0
+100
+AcDbText
+ 73
+2
   0
 LINE
   5
@@ -18517,15 +19585,15 @@ AcDbEntity
 100
 AcDbLine
  10
-121.4
+410
  20
-10
+282
  30
 0.0
  11
-121.4
+410
  21
-40
+287
  31
 0.0
   0
@@ -18541,15 +19609,15 @@ AcDbEntity
 100
 AcDbLine
  10
-254
+410
  20
-10
+40
  30
 0.0
  11
-254
+410
  21
-40
+45
  31
 0.0
   0
@@ -18565,13 +19633,13 @@ AcDbEntity
 100
 AcDbLine
  10
-293
+121.4
  20
 10
  30
 0.0
  11
-293
+121.4
  21
 40
  31
@@ -18589,13 +19657,13 @@ AcDbEntity
 100
 AcDbLine
  10
-332
+254
  20
 10
  30
 0.0
  11
-332
+254
  21
 40
  31
@@ -18613,6 +19681,54 @@ AcDbEntity
 100
 AcDbLine
  10
+293
+ 20
+10
+ 30
+0.0
+ 11
+293
+ 21
+40
+ 31
+0.0
+  0
+LINE
+  5
+28F
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+332
+ 20
+10
+ 30
+0.0
+ 11
+332
+ 21
+40
+ 31
+0.0
+  0
+LINE
+  5
+290
+330
+2D
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
 371
  20
 10
@@ -18627,7 +19743,7 @@ AcDbLine
   0
 LINE
   5
-28F
+291
 330
 2D
 100
@@ -18651,7 +19767,7 @@ AcDbLine
   0
 LINE
   5
-290
+292
 330
 2D
 100
@@ -18675,7 +19791,7 @@ AcDbLine
   0
 TEXT
   5
-291
+293
 330
 2D
 100
@@ -18709,7 +19825,7 @@ AcDbText
   0
 TEXT
   5
-292
+294
 330
 2D
 100
@@ -18743,7 +19859,7 @@ AcDbText
   0
 TEXT
   5
-293
+295
 330
 2D
 100
@@ -18777,7 +19893,7 @@ AcDbText
   0
 TEXT
   5
-294
+296
 330
 2D
 100
@@ -18811,7 +19927,7 @@ AcDbText
   0
 TEXT
   5
-295
+297
 330
 2D
 100
@@ -18845,7 +19961,7 @@ AcDbText
   0
 TEXT
   5
-296
+298
 330
 2D
 100
@@ -18879,7 +19995,7 @@ AcDbText
   0
 TEXT
   5
-297
+299
 330
 2D
 100
@@ -18913,7 +20029,7 @@ AcDbText
   0
 TEXT
   5
-298
+29A
 330
 2D
 100
@@ -18947,7 +20063,7 @@ AcDbText
   0
 ATTDEF
   5
-299
+29B
 330
 2D
 100
@@ -18979,7 +20095,7 @@ PROJECT
   0
 ATTDEF
   5
-29A
+29C
 330
 2D
 100
@@ -19011,7 +20127,7 @@ TITLE
   0
 ATTDEF
   5
-29B
+29D
 330
 2D
 100
@@ -19043,7 +20159,7 @@ PLANT
   0
 ATTDEF
   5
-29C
+29E
 330
 2D
 100
@@ -19075,7 +20191,7 @@ LOC
   0
 ATTDEF
   5
-29D
+29F
 330
 2D
 100
@@ -19107,7 +20223,7 @@ DRAWN
   0
 ATTDEF
   5
-29E
+2A0
 330
 2D
 100
@@ -19139,7 +20255,7 @@ DATE
   0
 ATTDEF
   5
-29F
+2A1
 330
 2D
 100
@@ -19171,7 +20287,7 @@ REV
   0
 ATTDEF
   5
-2A0
+2A2
 330
 2D
 100
@@ -19211,7 +20327,7 @@ SHEET
   0
 ATTDEF
   5
-2A1
+2A3
 330
 2D
 100
@@ -19251,7 +20367,7 @@ SHEETS
   0
 ATTDEF
   5
-2A2
+2A4
 330
 2D
 100
@@ -19321,7 +20437,7 @@ EL_IEC_BREAKER_MOTOR
   0
 LINE
   5
-2A3
+2A5
 330
 30
 100
@@ -19345,7 +20461,7 @@ AcDbLine
   0
 LINE
   5
-2A4
+2A6
 330
 30
 100
@@ -19369,7 +20485,7 @@ AcDbLine
   0
 LINE
   5
-2A5
+2A7
 330
 30
 100
@@ -19393,55 +20509,55 @@ AcDbLine
   0
 LINE
   5
-2A6
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
--5.9
- 20
-1.6
- 30
-0.0
- 11
--4.1
- 21
-3.4
- 31
-0.0
-  0
-LINE
-  5
-2A7
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
--5.9
- 20
-3.4
- 30
-0.0
- 11
--4.1
- 21
-1.6
- 31
-0.0
-  0
-LINE
-  5
 2A8
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-5.9
+ 20
+1.6
+ 30
+0.0
+ 11
+-4.1
+ 21
+3.4
+ 31
+0.0
+  0
+LINE
+  5
+2A9
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-5.9
+ 20
+3.4
+ 30
+0.0
+ 11
+-4.1
+ 21
+1.6
+ 31
+0.0
+  0
+LINE
+  5
+2AA
 330
 30
 100
@@ -19465,7 +20581,7 @@ AcDbLine
   0
 LINE
   5
-2A9
+2AB
 330
 30
 100
@@ -19489,7 +20605,7 @@ AcDbLine
   0
 LINE
   5
-2AA
+2AC
 330
 30
 100
@@ -19513,55 +20629,55 @@ AcDbLine
   0
 LINE
   5
-2AB
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
--0.9
- 20
-1.6
- 30
-0.0
- 11
-0.9
- 21
-3.4
- 31
-0.0
-  0
-LINE
-  5
-2AC
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
--0.9
- 20
-3.4
- 30
-0.0
- 11
-0.9
- 21
-1.6
- 31
-0.0
-  0
-LINE
-  5
 2AD
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.9
+ 20
+1.6
+ 30
+0.0
+ 11
+0.9
+ 21
+3.4
+ 31
+0.0
+  0
+LINE
+  5
+2AE
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.9
+ 20
+3.4
+ 30
+0.0
+ 11
+0.9
+ 21
+1.6
+ 31
+0.0
+  0
+LINE
+  5
+2AF
 330
 30
 100
@@ -19585,7 +20701,7 @@ AcDbLine
   0
 LINE
   5
-2AE
+2B0
 330
 30
 100
@@ -19609,7 +20725,7 @@ AcDbLine
   0
 LINE
   5
-2AF
+2B1
 330
 30
 100
@@ -19633,55 +20749,55 @@ AcDbLine
   0
 LINE
   5
-2B0
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-4.1
- 20
-1.6
- 30
-0.0
- 11
-5.9
- 21
-3.4
- 31
-0.0
-  0
-LINE
-  5
-2B1
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbLine
- 10
-4.1
- 20
-3.4
- 30
-0.0
- 11
-5.9
- 21
-1.6
- 31
-0.0
-  0
-LINE
-  5
 2B2
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+4.1
+ 20
+1.6
+ 30
+0.0
+ 11
+5.9
+ 21
+3.4
+ 31
+0.0
+  0
+LINE
+  5
+2B3
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+4.1
+ 20
+3.4
+ 30
+0.0
+ 11
+5.9
+ 21
+1.6
+ 31
+0.0
+  0
+LINE
+  5
+2B4
 330
 30
 100
@@ -19705,7 +20821,7 @@ AcDbLine
   0
 LINE
   5
-2B3
+2B5
 330
 30
 100
@@ -19729,7 +20845,7 @@ AcDbLine
   0
 LINE
   5
-2B4
+2B6
 330
 30
 100
@@ -19753,7 +20869,7 @@ AcDbLine
   0
 LINE
   5
-2B5
+2B7
 330
 30
 100
@@ -19777,7 +20893,7 @@ AcDbLine
   0
 LINE
   5
-2B6
+2B8
 330
 30
 100
@@ -19801,7 +20917,7 @@ AcDbLine
   0
 LINE
   5
-2B7
+2B9
 330
 30
 100
@@ -19825,7 +20941,7 @@ AcDbLine
   0
 LINE
   5
-2B8
+2BA
 330
 30
 100
@@ -19849,7 +20965,7 @@ AcDbLine
   0
 LWPOLYLINE
   5
-2B9
+2BB
 330
 30
 100
@@ -19883,7 +20999,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-2BA
+2BC
 330
 30
 100
@@ -19925,7 +21041,7 @@ AcDbPolyline
   0
 TEXT
   5
-2BB
+2BD
 330
 30
 100
@@ -19961,7 +21077,7 @@ AcDbText
   0
 ATTDEF
   5
-2BC
+2BE
 330
 30
 100
@@ -20001,7 +21117,7 @@ TAG
   0
 ATTDEF
   5
-2BD
+2BF
 330
 30
 100
@@ -20041,86 +21157,6 @@ DESC
   0
 ATTDEF
   5
-2BE
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--12
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--12
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-2BF
-330
-30
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--12
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--12
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 2C0
 330
 30
@@ -20153,9 +21189,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -20193,6 +21229,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+2C2
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-12
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-12
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+2C3
+330
+30
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-12
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-12
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -20201,7 +21317,7 @@ PART
   0
 ATTDEF
   5
-2C2
+2C4
 330
 30
 100
@@ -20241,7 +21357,7 @@ ORDER
   0
 ATTDEF
   5
-2C3
+2C5
 330
 30
 100
@@ -20273,7 +21389,7 @@ P1
   0
 ATTDEF
   5
-2C4
+2C6
 330
 30
 100
@@ -20305,7 +21421,7 @@ P2
   0
 ATTDEF
   5
-2C5
+2C7
 330
 30
 100
@@ -20337,7 +21453,7 @@ P3
   0
 ATTDEF
   5
-2C6
+2C8
 330
 30
 100
@@ -20369,7 +21485,7 @@ P4
   0
 ATTDEF
   5
-2C7
+2C9
 330
 30
 100
@@ -20401,7 +21517,7 @@ P5
   0
 ATTDEF
   5
-2C8
+2CA
 330
 30
 100
@@ -20433,7 +21549,7 @@ P6
   0
 ATTDEF
   5
-2C9
+2CB
 330
 30
 100
@@ -20503,7 +21619,7 @@ EL_IEC_CONTACT_MAIN_3P
   0
 LINE
   5
-2CA
+2CC
 330
 33
 100
@@ -20527,7 +21643,7 @@ AcDbLine
   0
 LINE
   5
-2CB
+2CD
 330
 33
 100
@@ -20551,7 +21667,7 @@ AcDbLine
   0
 LINE
   5
-2CC
+2CE
 330
 33
 100
@@ -20575,7 +21691,7 @@ AcDbLine
   0
 ARC
   5
-2CD
+2CF
 330
 33
 100
@@ -20601,7 +21717,7 @@ AcDbArc
   0
 LINE
   5
-2CE
+2D0
 330
 33
 100
@@ -20625,7 +21741,7 @@ AcDbLine
   0
 LINE
   5
-2CF
+2D1
 330
 33
 100
@@ -20649,7 +21765,7 @@ AcDbLine
   0
 LINE
   5
-2D0
+2D2
 330
 33
 100
@@ -20673,7 +21789,7 @@ AcDbLine
   0
 ARC
   5
-2D1
+2D3
 330
 33
 100
@@ -20699,7 +21815,7 @@ AcDbArc
   0
 LINE
   5
-2D2
+2D4
 330
 33
 100
@@ -20723,7 +21839,7 @@ AcDbLine
   0
 LINE
   5
-2D3
+2D5
 330
 33
 100
@@ -20747,7 +21863,7 @@ AcDbLine
   0
 LINE
   5
-2D4
+2D6
 330
 33
 100
@@ -20771,7 +21887,7 @@ AcDbLine
   0
 ARC
   5
-2D5
+2D7
 330
 33
 100
@@ -20797,7 +21913,7 @@ AcDbArc
   0
 LINE
   5
-2D6
+2D8
 330
 33
 100
@@ -20821,7 +21937,7 @@ AcDbLine
   0
 LINE
   5
-2D7
+2D9
 330
 33
 100
@@ -20845,7 +21961,7 @@ AcDbLine
   0
 LINE
   5
-2D8
+2DA
 330
 33
 100
@@ -20869,7 +21985,7 @@ AcDbLine
   0
 LINE
   5
-2D9
+2DB
 330
 33
 100
@@ -20893,7 +22009,7 @@ AcDbLine
   0
 LINE
   5
-2DA
+2DC
 330
 33
 100
@@ -20917,7 +22033,7 @@ AcDbLine
   0
 LINE
   5
-2DB
+2DD
 330
 33
 100
@@ -20941,7 +22057,7 @@ AcDbLine
   0
 LINE
   5
-2DC
+2DE
 330
 33
 100
@@ -20965,7 +22081,7 @@ AcDbLine
   0
 ATTDEF
   5
-2DD
+2DF
 330
 33
 100
@@ -21005,7 +22121,7 @@ TAG
   0
 ATTDEF
   5
-2DE
+2E0
 330
 33
 100
@@ -21045,86 +22161,6 @@ DESC
   0
 ATTDEF
   5
-2DF
-330
-33
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--9.1
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--9.1
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-2E0
-330
-33
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--9.1
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--9.1
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 2E1
 330
 33
@@ -21157,9 +22193,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -21197,6 +22233,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+2E3
+330
+33
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-9.1
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-9.1
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+2E4
+330
+33
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-9.1
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-9.1
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -21205,7 +22321,7 @@ PART
   0
 ATTDEF
   5
-2E3
+2E5
 330
 33
 100
@@ -21245,7 +22361,7 @@ ORDER
   0
 ATTDEF
   5
-2E4
+2E6
 330
 33
 100
@@ -21277,7 +22393,7 @@ P1
   0
 ATTDEF
   5
-2E5
+2E7
 330
 33
 100
@@ -21309,7 +22425,7 @@ P2
   0
 ATTDEF
   5
-2E6
+2E8
 330
 33
 100
@@ -21341,7 +22457,7 @@ P3
   0
 ATTDEF
   5
-2E7
+2E9
 330
 33
 100
@@ -21373,7 +22489,7 @@ P4
   0
 ATTDEF
   5
-2E8
+2EA
 330
 33
 100
@@ -21405,7 +22521,7 @@ P5
   0
 ATTDEF
   5
-2E9
+2EB
 330
 33
 100
@@ -21437,7 +22553,7 @@ P6
   0
 ATTDEF
   5
-2EA
+2EC
 330
 33
 100
@@ -21469,7 +22585,7 @@ XREF
   0
 ATTDEF
   5
-2EB
+2ED
 330
 33
 100
@@ -21539,7 +22655,7 @@ EL_IEC_TERMINAL
   0
 CIRCLE
   5
-2EC
+2EE
 330
 36
 100
@@ -21559,7 +22675,7 @@ AcDbCircle
   0
 LINE
   5
-2ED
+2EF
 330
 36
 100
@@ -21583,7 +22699,7 @@ AcDbLine
   0
 LINE
   5
-2EE
+2F0
 330
 36
 100
@@ -21607,7 +22723,7 @@ AcDbLine
   0
 ATTDEF
   5
-2EF
+2F1
 330
 36
 100
@@ -21641,7 +22757,7 @@ TAG
   0
 ATTDEF
   5
-2F0
+2F2
 330
 36
 100
@@ -21681,86 +22797,6 @@ DESC
   0
 ATTDEF
   5
-2F1
-330
-36
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--3
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--3
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-2F2
-330
-36
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--3
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--3
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 2F3
 330
 36
@@ -21793,9 +22829,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -21833,6 +22869,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+2F5
+330
+36
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-3
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+2F6
+330
+36
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-3
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -21841,7 +22957,7 @@ PART
   0
 ATTDEF
   5
-2F5
+2F7
 330
 36
 100
@@ -21881,7 +22997,7 @@ ORDER
   0
 ATTDEF
   5
-2F6
+2F8
 330
 36
 100
@@ -21913,7 +23029,7 @@ P1
   0
 ATTDEF
   5
-2F7
+2F9
 330
 36
 100
@@ -21945,7 +23061,7 @@ P2
   0
 ATTDEF
   5
-2F8
+2FA
 330
 36
 100
@@ -22015,7 +23131,7 @@ EL_IEC_MOTOR_3PH
   0
 CIRCLE
   5
-2F9
+2FB
 330
 39
 100
@@ -22035,7 +23151,7 @@ AcDbCircle
   0
 LINE
   5
-2FA
+2FC
 330
 39
 100
@@ -22059,7 +23175,7 @@ AcDbLine
   0
 LINE
   5
-2FB
+2FD
 330
 39
 100
@@ -22083,7 +23199,7 @@ AcDbLine
   0
 LINE
   5
-2FC
+2FE
 330
 39
 100
@@ -22107,7 +23223,7 @@ AcDbLine
   0
 TEXT
   5
-2FD
+2FF
 330
 39
 100
@@ -22143,7 +23259,7 @@ AcDbText
   0
 TEXT
   5
-2FE
+300
 330
 39
 100
@@ -22179,7 +23295,7 @@ AcDbText
   0
 ATTDEF
   5
-2FF
+301
 330
 39
 100
@@ -22219,7 +23335,7 @@ TAG
   0
 ATTDEF
   5
-300
+302
 330
 39
 100
@@ -22259,86 +23375,6 @@ DESC
   0
 ATTDEF
   5
-301
-330
-39
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--6.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--6.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-302
-330
-39
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--6.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--6.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 303
 330
 39
@@ -22371,9 +23407,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -22411,6 +23447,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+305
+330
+39
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-6.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-6.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+306
+330
+39
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-6.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-6.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -22419,7 +23535,7 @@ PART
   0
 ATTDEF
   5
-305
+307
 330
 39
 100
@@ -22459,7 +23575,7 @@ ORDER
   0
 ATTDEF
   5
-306
+308
 330
 39
 100
@@ -22491,7 +23607,7 @@ P1
   0
 ATTDEF
   5
-307
+309
 330
 39
 100
@@ -22523,7 +23639,7 @@ P2
   0
 ATTDEF
   5
-308
+30A
 330
 39
 100
@@ -22555,7 +23671,7 @@ P3
   0
 ATTDEF
   5
-309
+30B
 330
 39
 100
@@ -22625,7 +23741,7 @@ EL_CABLE
   0
 CIRCLE
   5
-30A
+30C
 330
 3C
 100
@@ -22645,7 +23761,7 @@ AcDbCircle
   0
 ATTDEF
   5
-30B
+30D
 330
 3C
 100
@@ -22677,7 +23793,7 @@ TAG
   0
 ATTDEF
   5
-30C
+30E
 330
 3C
 100
@@ -22709,7 +23825,7 @@ TYPE
   0
 ATTDEF
   5
-30D
+30F
 330
 3C
 100
@@ -22741,7 +23857,7 @@ CORES
   0
 ATTDEF
   5
-30E
+310
 330
 3C
 100
@@ -22773,71 +23889,71 @@ LENGTH
   0
 ATTDEF
   5
-30F
-330
-3C
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-2.6
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-310
-330
-3C
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-2.6
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 311
+330
+3C
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+2.6
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+312
+330
+3C
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+2.6
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+313
 330
 3C
 100
@@ -22907,7 +24023,7 @@ EL_IEC_FUSE
   0
 LINE
   5
-312
+314
 330
 3F
 100
@@ -22931,7 +24047,7 @@ AcDbLine
   0
 LWPOLYLINE
   5
-313
+315
 330
 3F
 100
@@ -22965,7 +24081,7 @@ AcDbPolyline
   0
 ATTDEF
   5
-314
+316
 330
 3F
 100
@@ -23005,7 +24121,7 @@ TAG
   0
 ATTDEF
   5
-315
+317
 330
 3F
 100
@@ -23045,86 +24161,6 @@ DESC
   0
 ATTDEF
   5
-316
-330
-3F
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--3
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--3
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-317
-330
-3F
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--3
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--3
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 318
 330
 3F
@@ -23157,9 +24193,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -23197,6 +24233,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+31A
+330
+3F
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-3
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+31B
+330
+3F
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-3
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -23205,7 +24321,7 @@ PART
   0
 ATTDEF
   5
-31A
+31C
 330
 3F
 100
@@ -23245,7 +24361,7 @@ ORDER
   0
 ATTDEF
   5
-31B
+31D
 330
 3F
 100
@@ -23277,7 +24393,7 @@ P1
   0
 ATTDEF
   5
-31C
+31E
 330
 3F
 100
@@ -23309,7 +24425,7 @@ P2
   0
 ATTDEF
   5
-31D
+31F
 330
 3F
 100
@@ -23379,7 +24495,7 @@ EL_IEC_CONTACT_NO
   0
 LINE
   5
-31E
+320
 330
 42
 100
@@ -23403,7 +24519,7 @@ AcDbLine
   0
 LINE
   5
-31F
+321
 330
 42
 100
@@ -23427,7 +24543,7 @@ AcDbLine
   0
 LINE
   5
-320
+322
 330
 42
 100
@@ -23451,7 +24567,7 @@ AcDbLine
   0
 ATTDEF
   5
-321
+323
 330
 42
 100
@@ -23491,7 +24607,7 @@ TAG
   0
 ATTDEF
   5
-322
+324
 330
 42
 100
@@ -23531,86 +24647,6 @@ DESC
   0
 ATTDEF
   5
-323
-330
-42
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--4.1
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--4.1
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-324
-330
-42
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--4.1
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--4.1
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 325
 330
 42
@@ -23643,9 +24679,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -23683,6 +24719,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+327
+330
+42
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-4.1
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-4.1
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+328
+330
+42
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-4.1
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-4.1
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -23691,7 +24807,7 @@ PART
   0
 ATTDEF
   5
-327
+329
 330
 42
 100
@@ -23731,7 +24847,7 @@ ORDER
   0
 ATTDEF
   5
-328
+32A
 330
 42
 100
@@ -23763,7 +24879,7 @@ P1
   0
 ATTDEF
   5
-329
+32B
 330
 42
 100
@@ -23795,7 +24911,7 @@ P2
   0
 ATTDEF
   5
-32A
+32C
 330
 42
 100
@@ -23827,7 +24943,7 @@ XREF
   0
 ATTDEF
   5
-32B
+32D
 330
 42
 100
@@ -23897,7 +25013,7 @@ EL_IEC_PUSHBUTTON_NC
   0
 LINE
   5
-32C
+32E
 330
 45
 100
@@ -23921,7 +25037,7 @@ AcDbLine
   0
 LINE
   5
-32D
+32F
 330
 45
 100
@@ -23945,7 +25061,7 @@ AcDbLine
   0
 LINE
   5
-32E
+330
 330
 45
 100
@@ -23969,7 +25085,7 @@ AcDbLine
   0
 LINE
   5
-32F
+331
 330
 45
 100
@@ -23993,7 +25109,7 @@ AcDbLine
   0
 LINE
   5
-330
+332
 330
 45
 100
@@ -24017,7 +25133,7 @@ AcDbLine
   0
 LINE
   5
-331
+333
 330
 45
 100
@@ -24041,7 +25157,7 @@ AcDbLine
   0
 LINE
   5
-332
+334
 330
 45
 100
@@ -24065,7 +25181,7 @@ AcDbLine
   0
 LINE
   5
-333
+335
 330
 45
 100
@@ -24089,7 +25205,7 @@ AcDbLine
   0
 LINE
   5
-334
+336
 330
 45
 100
@@ -24113,7 +25229,7 @@ AcDbLine
   0
 LINE
   5
-335
+337
 330
 45
 100
@@ -24137,7 +25253,7 @@ AcDbLine
   0
 ATTDEF
   5
-336
+338
 330
 45
 100
@@ -24177,7 +25293,7 @@ TAG
   0
 ATTDEF
   5
-337
+339
 330
 45
 100
@@ -24217,86 +25333,6 @@ DESC
   0
 ATTDEF
   5
-338
-330
-45
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--7.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--7.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-339
-330
-45
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--7.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--7.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 33A
 330
 45
@@ -24329,9 +25365,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -24369,6 +25405,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+33C
+330
+45
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-7.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-7.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+33D
+330
+45
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-7.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-7.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -24377,7 +25493,7 @@ PART
   0
 ATTDEF
   5
-33C
+33E
 330
 45
 100
@@ -24417,7 +25533,7 @@ ORDER
   0
 ATTDEF
   5
-33D
+33F
 330
 45
 100
@@ -24449,7 +25565,7 @@ P1
   0
 ATTDEF
   5
-33E
+340
 330
 45
 100
@@ -24481,7 +25597,7 @@ P2
   0
 ATTDEF
   5
-33F
+341
 330
 45
 100
@@ -24551,7 +25667,7 @@ EL_IEC_PUSHBUTTON_NO
   0
 LINE
   5
-340
+342
 330
 48
 100
@@ -24575,7 +25691,7 @@ AcDbLine
   0
 LINE
   5
-341
+343
 330
 48
 100
@@ -24599,7 +25715,7 @@ AcDbLine
   0
 LINE
   5
-342
+344
 330
 48
 100
@@ -24623,7 +25739,7 @@ AcDbLine
   0
 LINE
   5
-343
+345
 330
 48
 100
@@ -24647,7 +25763,7 @@ AcDbLine
   0
 LINE
   5
-344
+346
 330
 48
 100
@@ -24671,7 +25787,7 @@ AcDbLine
   0
 LINE
   5
-345
+347
 330
 48
 100
@@ -24695,7 +25811,7 @@ AcDbLine
   0
 LINE
   5
-346
+348
 330
 48
 100
@@ -24719,7 +25835,7 @@ AcDbLine
   0
 LINE
   5
-347
+349
 330
 48
 100
@@ -24743,7 +25859,7 @@ AcDbLine
   0
 LINE
   5
-348
+34A
 330
 48
 100
@@ -24767,7 +25883,7 @@ AcDbLine
   0
 ATTDEF
   5
-349
+34B
 330
 48
 100
@@ -24807,7 +25923,7 @@ TAG
   0
 ATTDEF
   5
-34A
+34C
 330
 48
 100
@@ -24847,86 +25963,6 @@ DESC
   0
 ATTDEF
   5
-34B
-330
-48
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--7.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--7.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-34C
-330
-48
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--7.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--7.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 34D
 330
 48
@@ -24959,9 +25995,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -24999,6 +26035,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+34F
+330
+48
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-7.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-7.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+350
+330
+48
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-7.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-7.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -25007,7 +26123,7 @@ PART
   0
 ATTDEF
   5
-34F
+351
 330
 48
 100
@@ -25047,7 +26163,7 @@ ORDER
   0
 ATTDEF
   5
-350
+352
 330
 48
 100
@@ -25079,7 +26195,7 @@ P1
   0
 ATTDEF
   5
-351
+353
 330
 48
 100
@@ -25111,7 +26227,7 @@ P2
   0
 ATTDEF
   5
-352
+354
 330
 48
 100
@@ -25181,7 +26297,7 @@ EL_IEC_COIL
   0
 LINE
   5
-353
+355
 330
 4B
 100
@@ -25205,7 +26321,7 @@ AcDbLine
   0
 LINE
   5
-354
+356
 330
 4B
 100
@@ -25229,7 +26345,7 @@ AcDbLine
   0
 LWPOLYLINE
   5
-355
+357
 330
 4B
 100
@@ -25263,7 +26379,7 @@ AcDbPolyline
   0
 ATTDEF
   5
-356
+358
 330
 4B
 100
@@ -25303,7 +26419,7 @@ TAG
   0
 ATTDEF
   5
-357
+359
 330
 4B
 100
@@ -25343,86 +26459,6 @@ DESC
   0
 ATTDEF
   5
-358
-330
-4B
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--4.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--4.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-359
-330
-4B
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--4.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--4.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 35A
 330
 4B
@@ -25455,9 +26491,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -25495,6 +26531,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+35C
+330
+4B
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-4.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-4.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+35D
+330
+4B
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-4.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-4.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -25503,7 +26619,7 @@ PART
   0
 ATTDEF
   5
-35C
+35E
 330
 4B
 100
@@ -25543,7 +26659,7 @@ ORDER
   0
 ATTDEF
   5
-35D
+35F
 330
 4B
 100
@@ -25575,7 +26691,7 @@ P1
   0
 ATTDEF
   5
-35E
+360
 330
 4B
 100
@@ -25607,7 +26723,7 @@ P2
   0
 ATTDEF
   5
-35F
+361
 330
 4B
 100
@@ -25639,7 +26755,7 @@ XREF1
   0
 ATTDEF
   5
-360
+362
 330
 4B
 100
@@ -25671,7 +26787,7 @@ XREF2
   0
 ATTDEF
   5
-361
+363
 330
 4B
 100
@@ -25703,7 +26819,7 @@ XREF3
   0
 ATTDEF
   5
-362
+364
 330
 4B
 100
@@ -25735,7 +26851,7 @@ XREF4
   0
 ATTDEF
   5
-363
+365
 330
 4B
 100
@@ -25767,7 +26883,7 @@ XREF5
   0
 ATTDEF
   5
-364
+366
 330
 4B
 100
@@ -25799,7 +26915,7 @@ XREF6
   0
 ATTDEF
   5
-365
+367
 330
 4B
 100
@@ -25831,7 +26947,7 @@ XREF7
   0
 ATTDEF
   5
-366
+368
 330
 4B
 100
@@ -25863,7 +26979,7 @@ XREF8
   0
 ATTDEF
   5
-367
+369
 330
 4B
 100
@@ -25933,7 +27049,7 @@ EL_IEC_LAMP
   0
 LINE
   5
-368
+36A
 330
 4E
 100
@@ -25957,7 +27073,7 @@ AcDbLine
   0
 LINE
   5
-369
+36B
 330
 4E
 100
@@ -25981,7 +27097,7 @@ AcDbLine
   0
 CIRCLE
   5
-36A
+36C
 330
 4E
 100
@@ -26001,7 +27117,7 @@ AcDbCircle
   0
 LINE
   5
-36B
+36D
 330
 4E
 100
@@ -26025,7 +27141,7 @@ AcDbLine
   0
 LINE
   5
-36C
+36E
 330
 4E
 100
@@ -26049,7 +27165,7 @@ AcDbLine
   0
 ATTDEF
   5
-36D
+36F
 330
 4E
 100
@@ -26089,7 +27205,7 @@ TAG
   0
 ATTDEF
   5
-36E
+370
 330
 4E
 100
@@ -26129,86 +27245,6 @@ DESC
   0
 ATTDEF
   5
-36F
-330
-4E
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--4.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--4.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-370
-330
-4E
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--4.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--4.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 371
 330
 4E
@@ -26241,9 +27277,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -26281,6 +27317,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+373
+330
+4E
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-4.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-4.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+374
+330
+4E
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-4.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-4.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -26289,7 +27405,7 @@ PART
   0
 ATTDEF
   5
-373
+375
 330
 4E
 100
@@ -26329,7 +27445,7 @@ ORDER
   0
 ATTDEF
   5
-374
+376
 330
 4E
 100
@@ -26361,7 +27477,7 @@ P1
   0
 ATTDEF
   5
-375
+377
 330
 4E
 100
@@ -26393,7 +27509,7 @@ P2
   0
 ATTDEF
   5
-376
+378
 330
 4E
 100
@@ -26463,7 +27579,7 @@ EL_IEC_PLC_INPUT
   0
 LINE
   5
-377
+379
 330
 51
 100
@@ -26487,7 +27603,7 @@ AcDbLine
   0
 LWPOLYLINE
   5
-378
+37A
 330
 51
 100
@@ -26521,7 +27637,7 @@ AcDbPolyline
   0
 TEXT
   5
-379
+37B
 330
 51
 100
@@ -26557,7 +27673,7 @@ AcDbText
   0
 ATTDEF
   5
-37A
+37C
 330
 51
 100
@@ -26597,7 +27713,7 @@ TAG
   0
 ATTDEF
   5
-37B
+37D
 330
 51
 100
@@ -26637,86 +27753,6 @@ DESC
   0
 ATTDEF
   5
-37C
-330
-51
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--6.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--6.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-37D
-330
-51
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--6.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--6.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 37E
 330
 51
@@ -26749,9 +27785,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -26789,6 +27825,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+380
+330
+51
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-6.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-6.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+381
+330
+51
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-6.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-6.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -26797,7 +27913,7 @@ PART
   0
 ATTDEF
   5
-380
+382
 330
 51
 100
@@ -26837,7 +27953,7 @@ ORDER
   0
 ATTDEF
   5
-381
+383
 330
 51
 100
@@ -26869,7 +27985,7 @@ P1
   0
 ATTDEF
   5
-382
+384
 330
 51
 100
@@ -26909,7 +28025,7 @@ ADDR
   0
 ATTDEF
   5
-383
+385
 330
 51
 100
@@ -26979,7 +28095,7 @@ EL_IEC_PLC_OUTPUT
   0
 LINE
   5
-384
+386
 330
 54
 100
@@ -27003,7 +28119,7 @@ AcDbLine
   0
 LWPOLYLINE
   5
-385
+387
 330
 54
 100
@@ -27037,7 +28153,7 @@ AcDbPolyline
   0
 TEXT
   5
-386
+388
 330
 54
 100
@@ -27073,7 +28189,7 @@ AcDbText
   0
 ATTDEF
   5
-387
+389
 330
 54
 100
@@ -27113,7 +28229,7 @@ TAG
   0
 ATTDEF
   5
-388
+38A
 330
 54
 100
@@ -27153,86 +28269,6 @@ DESC
   0
 ATTDEF
   5
-389
-330
-54
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--6.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--6.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-FUNC
-  2
-FUNC
- 70
-1
-  0
-ATTDEF
-  5
-38A
-330
-54
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
--6.5
- 20
--5
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
- 72
-2
- 11
--6.5
- 21
--5
- 31
-0.0
-100
-AcDbAttributeDefinition
-  3
-LOC
-  2
-LOC
- 70
-1
-  0
-ATTDEF
-  5
 38B
 330
 54
@@ -27265,9 +28301,9 @@ Standard
 100
 AcDbAttributeDefinition
   3
-MFR
+FUNC
   2
-MFR
+FUNC
  70
 1
   0
@@ -27305,6 +28341,86 @@ Standard
 100
 AcDbAttributeDefinition
   3
+LOC
+  2
+LOC
+ 70
+1
+  0
+ATTDEF
+  5
+38D
+330
+54
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-6.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-6.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+38E
+330
+54
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-6.5
+ 20
+-5
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+ 72
+2
+ 11
+-6.5
+ 21
+-5
+ 31
+0.0
+100
+AcDbAttributeDefinition
+  3
 PART
   2
 PART
@@ -27313,7 +28429,7 @@ PART
   0
 ATTDEF
   5
-38D
+38F
 330
 54
 100
@@ -27353,7 +28469,7 @@ ORDER
   0
 ATTDEF
   5
-38E
+390
 330
 54
 100
@@ -27385,7 +28501,7 @@ P1
   0
 ATTDEF
   5
-38F
+391
 330
 54
 100
@@ -27425,7 +28541,7 @@ ADDR
   0
 ATTDEF
   5
-390
+392
 330
 54
 100
@@ -27495,7 +28611,7 @@ EL_DOT
   0
 HATCH
   5
-391
+393
 330
 57
 100
@@ -27607,7 +28723,7 @@ SOLID
   0
 ATTDEF
   5
-392
+394
 330
 57
 100
@@ -27677,7 +28793,7 @@ EL_WIRENO
   0
 ATTDEF
   5
-393
+395
 330
 5A
 100
@@ -27717,7 +28833,7 @@ WIRENO
   0
 ATTDEF
   5
-394
+396
 330
 5A
 100
@@ -27749,7 +28865,7 @@ LOCK
   0
 ATTDEF
   5
-395
+397
 330
 5A
 100
@@ -27819,7 +28935,7 @@ EL_INST_BOARD
   0
 LWPOLYLINE
   5
-396
+398
 330
 5D
 100
@@ -27853,7 +28969,7 @@ AcDbPolyline
   0
 SOLID
   5
-397
+399
 330
 5D
 100
@@ -27889,7 +29005,7 @@ AcDbTrace
   0
 ATTDEF
   5
-398
+39A
 330
 5D
 100
@@ -27929,7 +29045,7 @@ TAG
   0
 ATTDEF
   5
-399
+39B
 330
 5D
 100
@@ -27969,7 +29085,7 @@ DESC
   0
 ATTDEF
   5
-39A
+39C
 330
 5D
 100
@@ -28001,70 +29117,6 @@ VOLTAGE
   0
 ATTDEF
   5
-39B
-330
-5D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-39C
-330
-5D
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 39D
 330
 5D
@@ -28089,6 +29141,70 @@ Standard
 100
 AcDbAttributeDefinition
   3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+39E
+330
+5D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+39F
+330
+5D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
 ORDER
   2
 ORDER
@@ -28097,7 +29213,7 @@ ORDER
   0
 ATTDEF
   5
-39E
+3A0
 330
 5D
 100
@@ -28167,7 +29283,7 @@ EL_INST_SOCKET_EARTH
   0
 ARC
   5
-39F
+3A1
 330
 60
 100
@@ -28193,7 +29309,7 @@ AcDbArc
   0
 LINE
   5
-3A0
+3A2
 330
 60
 100
@@ -28217,7 +29333,7 @@ AcDbLine
   0
 LINE
   5
-3A1
+3A3
 330
 60
 100
@@ -28241,7 +29357,7 @@ AcDbLine
   0
 LINE
   5
-3A2
+3A4
 330
 60
 100
@@ -28265,7 +29381,7 @@ AcDbLine
   0
 ATTDEF
   5
-3A3
+3A5
 330
 60
 100
@@ -28297,7 +29413,7 @@ CIRCUIT
   0
 ATTDEF
   5
-3A4
+3A6
 330
 60
 100
@@ -28329,7 +29445,7 @@ LOAD
   0
 ATTDEF
   5
-3A5
+3A7
 330
 60
 100
@@ -28361,7 +29477,7 @@ TAG
   0
 ATTDEF
   5
-3A6
+3A8
 330
 60
 100
@@ -28393,70 +29509,6 @@ DESC
   0
 ATTDEF
   5
-3A7
-330
-60
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-3A8
-330
-60
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 3A9
 330
 60
@@ -28481,6 +29533,70 @@ Standard
 100
 AcDbAttributeDefinition
   3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+3AA
+330
+60
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+3AB
+330
+60
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
 ORDER
   2
 ORDER
@@ -28489,7 +29605,7 @@ ORDER
   0
 ATTDEF
   5
-3AA
+3AC
 330
 60
 100
@@ -28559,7 +29675,7 @@ EL_INST_SOCKET_DOUBLE
   0
 ARC
   5
-3AB
+3AD
 330
 63
 100
@@ -28585,7 +29701,7 @@ AcDbArc
   0
 LINE
   5
-3AC
+3AE
 330
 63
 100
@@ -28609,7 +29725,7 @@ AcDbLine
   0
 LINE
   5
-3AD
+3AF
 330
 63
 100
@@ -28633,7 +29749,7 @@ AcDbLine
   0
 LINE
   5
-3AE
+3B0
 330
 63
 100
@@ -28657,7 +29773,7 @@ AcDbLine
   0
 ATTDEF
   5
-3AF
+3B1
 330
 63
 100
@@ -28689,7 +29805,7 @@ CIRCUIT
   0
 ATTDEF
   5
-3B0
+3B2
 330
 63
 100
@@ -28721,7 +29837,7 @@ LOAD
   0
 ATTDEF
   5
-3B1
+3B3
 330
 63
 100
@@ -28753,7 +29869,7 @@ TAG
   0
 ATTDEF
   5
-3B2
+3B4
 330
 63
 100
@@ -28785,70 +29901,6 @@ DESC
   0
 ATTDEF
   5
-3B3
-330
-63
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-3B4
-330
-63
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 3B5
 330
 63
@@ -28873,6 +29925,70 @@ Standard
 100
 AcDbAttributeDefinition
   3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+3B6
+330
+63
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+3B7
+330
+63
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
 ORDER
   2
 ORDER
@@ -28881,7 +29997,7 @@ ORDER
   0
 ATTDEF
   5
-3B6
+3B8
 330
 63
 100
@@ -28951,7 +30067,7 @@ EL_INST_LUMINAIRE_LINEAR
   0
 LINE
   5
-3B7
+3B9
 330
 66
 100
@@ -28975,7 +30091,7 @@ AcDbLine
   0
 LINE
   5
-3B8
+3BA
 330
 66
 100
@@ -28999,7 +30115,7 @@ AcDbLine
   0
 LINE
   5
-3B9
+3BB
 330
 66
 100
@@ -29023,7 +30139,7 @@ AcDbLine
   0
 ATTDEF
   5
-3BA
+3BC
 330
 66
 100
@@ -29055,7 +30171,7 @@ CIRCUIT
   0
 ATTDEF
   5
-3BB
+3BD
 330
 66
 100
@@ -29087,7 +30203,7 @@ LOAD
   0
 ATTDEF
   5
-3BC
+3BE
 330
 66
 100
@@ -29119,7 +30235,7 @@ TAG
   0
 ATTDEF
   5
-3BD
+3BF
 330
 66
 100
@@ -29151,70 +30267,6 @@ DESC
   0
 ATTDEF
   5
-3BE
-330
-66
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-3BF
-330
-66
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 3C0
 330
 66
@@ -29239,6 +30291,70 @@ Standard
 100
 AcDbAttributeDefinition
   3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+3C1
+330
+66
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+3C2
+330
+66
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
 ORDER
   2
 ORDER
@@ -29247,7 +30363,7 @@ ORDER
   0
 ATTDEF
   5
-3C1
+3C3
 330
 66
 100
@@ -29317,7 +30433,7 @@ EL_INST_SWITCH
   0
 CIRCLE
   5
-3C2
+3C4
 330
 69
 100
@@ -29337,7 +30453,7 @@ AcDbCircle
   0
 LINE
   5
-3C3
+3C5
 330
 69
 100
@@ -29361,7 +30477,7 @@ AcDbLine
   0
 LINE
   5
-3C4
+3C6
 330
 69
 100
@@ -29385,7 +30501,7 @@ AcDbLine
   0
 ATTDEF
   5
-3C5
+3C7
 330
 69
 100
@@ -29417,7 +30533,7 @@ CIRCUIT
   0
 ATTDEF
   5
-3C6
+3C8
 330
 69
 100
@@ -29449,7 +30565,7 @@ LOAD
   0
 ATTDEF
   5
-3C7
+3C9
 330
 69
 100
@@ -29481,7 +30597,7 @@ TAG
   0
 ATTDEF
   5
-3C8
+3CA
 330
 69
 100
@@ -29513,70 +30629,6 @@ DESC
   0
 ATTDEF
   5
-3C9
-330
-69
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-3CA
-330
-69
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 3CB
 330
 69
@@ -29601,6 +30653,70 @@ Standard
 100
 AcDbAttributeDefinition
   3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+3CC
+330
+69
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+3CD
+330
+69
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
 ORDER
   2
 ORDER
@@ -29609,7 +30725,7 @@ ORDER
   0
 ATTDEF
   5
-3CC
+3CE
 330
 69
 100
@@ -29679,7 +30795,7 @@ EL_INST_SOCKET_3PH
   0
 ARC
   5
-3CD
+3CF
 330
 6C
 100
@@ -29705,7 +30821,7 @@ AcDbArc
   0
 LINE
   5
-3CE
+3D0
 330
 6C
 100
@@ -29729,7 +30845,7 @@ AcDbLine
   0
 LINE
   5
-3CF
+3D1
 330
 6C
 100
@@ -29753,7 +30869,7 @@ AcDbLine
   0
 LINE
   5
-3D0
+3D2
 330
 6C
 100
@@ -29777,7 +30893,7 @@ AcDbLine
   0
 LINE
   5
-3D1
+3D3
 330
 6C
 100
@@ -29801,7 +30917,7 @@ AcDbLine
   0
 ATTDEF
   5
-3D2
+3D4
 330
 6C
 100
@@ -29833,7 +30949,7 @@ CIRCUIT
   0
 ATTDEF
   5
-3D3
+3D5
 330
 6C
 100
@@ -29865,7 +30981,7 @@ LOAD
   0
 ATTDEF
   5
-3D4
+3D6
 330
 6C
 100
@@ -29897,7 +31013,7 @@ TAG
   0
 ATTDEF
   5
-3D5
+3D7
 330
 6C
 100
@@ -29929,70 +31045,6 @@ DESC
   0
 ATTDEF
   5
-3D6
-330
-6C
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-MFR
-  2
-MFR
- 70
-1
-  0
-ATTDEF
-  5
-3D7
-330
-6C
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-0.0
- 20
-0.0
- 30
-0.0
- 40
-1.8
-  1
-
-  7
-Standard
-100
-AcDbAttributeDefinition
-  3
-PART
-  2
-PART
- 70
-1
-  0
-ATTDEF
-  5
 3D8
 330
 6C
@@ -30017,6 +31069,70 @@ Standard
 100
 AcDbAttributeDefinition
   3
+MFR
+  2
+MFR
+ 70
+1
+  0
+ATTDEF
+  5
+3D9
+330
+6C
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+PART
+  2
+PART
+ 70
+1
+  0
+ATTDEF
+  5
+3DA
+330
+6C
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
 ORDER
   2
 ORDER
@@ -30025,7 +31141,7 @@ ORDER
   0
 ATTDEF
   5
-3D9
+3DB
 330
 6C
 100
@@ -30095,7 +31211,7 @@ EL_CIRCUIT
   0
 LINE
   5
-3DA
+3DC
 330
 6F
 100
@@ -30119,7 +31235,7 @@ AcDbLine
   0
 ATTDEF
   5
-3DB
+3DD
 330
 6F
 100
@@ -30159,7 +31275,7 @@ CIRCUIT
   0
 ATTDEF
   5
-3DC
+3DE
 330
 6F
 100
@@ -30199,7 +31315,7 @@ DESC
   0
 ATTDEF
   5
-3DD
+3DF
 330
 6F
 100
@@ -30231,7 +31347,7 @@ BOARD
   0
 ATTDEF
   5
-3DE
+3E0
 330
 6F
 100
@@ -30263,7 +31379,7 @@ BREAKER
   0
 ATTDEF
   5
-3DF
+3E1
 330
 6F
 100
@@ -30295,7 +31411,7 @@ CURVE
   0
 ATTDEF
   5
-3E0
+3E2
 330
 6F
 100
@@ -30327,7 +31443,7 @@ PHASE
   0
 ATTDEF
   5
-3E1
+3E3
 330
 6F
 100
@@ -30359,7 +31475,7 @@ VOLTAGE
   0
 ATTDEF
   5
-3E2
+3E4
 330
 6F
 100
@@ -30391,7 +31507,7 @@ PF
   0
 ATTDEF
   5
-3E3
+3E5
 330
 6F
 100
@@ -30423,7 +31539,39 @@ CABLE
   0
 ATTDEF
   5
-3E4
+3E6
+330
+6F
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 40
+1.8
+  1
+
+  7
+Standard
+100
+AcDbAttributeDefinition
+  3
+RCD (for example RCD1 30 mA A)
+  2
+RCD
+ 70
+1
+  0
+ATTDEF
+  5
+3E7
 330
 6F
 100
@@ -30473,7 +31621,7 @@ ENTITIES
   0
 LWPOLYLINE
   5
-3E5
+3E8
 330
 15
 100
@@ -30504,10 +31652,14 @@ AcDbPolyline
 0.0
  20
 8000
+1001
+CADCRAFT
+1000
+CCKEY:n0ovl6w21nm
   0
 INSERT
   5
-3E6
+3E9
 330
 15
 100
@@ -30534,12 +31686,16 @@ EL_INST_BOARD
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:n15d9risi21
   0
 ATTRIB
   5
-3E7
+3EA
 330
-3E6
+3E9
 100
 AcDbEntity
   8
@@ -30577,9 +31733,9 @@ TAG
   0
 ATTRIB
   5
-3E8
+3EB
 330
-3E6
+3E9
 100
 AcDbEntity
   8
@@ -30617,9 +31773,9 @@ DESC
   0
 ATTRIB
   5
-3E9
+3EC
 330
-3E6
+3E9
 100
 AcDbEntity
   8
@@ -30649,9 +31805,9 @@ VOLTAGE
   0
 SEQEND
   5
-3EA
+3ED
 330
-3E6
+3E9
 100
 AcDbEntity
   8
@@ -30659,7 +31815,7 @@ EL-INSTALL
   0
 LWPOLYLINE
   5
-3EB
+3EE
 330
 15
 100
@@ -30698,10 +31854,14 @@ AcDbPolyline
 300
  20
 4000
+1001
+CADCRAFT
+1000
+CCKEY:n7lspcv3h4t
   0
 LWPOLYLINE
   5
-3EC
+3EF
 330
 15
 100
@@ -30724,10 +31884,14 @@ AcDbPolyline
 6000
  20
 1000
+1001
+CADCRAFT
+1000
+CCKEY:n6b2li4avyi
   0
 INSERT
   5
-3ED
+3F0
 330
 15
 100
@@ -30754,12 +31918,16 @@ EL_INST_SOCKET_EARTH
 1
  50
 180
+1001
+CADCRAFT
+1000
+CCKEY:npik2xcnl5e
   0
 ATTRIB
   5
-3EE
+3F1
 330
-3ED
+3F0
 100
 AcDbEntity
   8
@@ -30797,9 +31965,9 @@ CIRCUIT
   0
 ATTRIB
   5
-3EF
+3F2
 330
-3ED
+3F0
 100
 AcDbEntity
   8
@@ -30829,9 +31997,9 @@ LOAD
   0
 ATTRIB
   5
-3F0
+3F3
 330
-3ED
+3F0
 100
 AcDbEntity
   8
@@ -30861,9 +32029,9 @@ TAG
   0
 ATTRIB
   5
-3F1
+3F4
 330
-3ED
+3F0
 100
 AcDbEntity
   8
@@ -30893,9 +32061,9 @@ DESC
   0
 SEQEND
   5
-3F2
+3F5
 330
-3ED
+3F0
 100
 AcDbEntity
   8
@@ -30903,7 +32071,7 @@ EL-INSTALL
   0
 INSERT
   5
-3F3
+3F6
 330
 15
 100
@@ -30930,12 +32098,16 @@ EL_INST_SOCKET_EARTH
 1
  50
 180
+1001
+CADCRAFT
+1000
+CCKEY:n0zkspwaie4
   0
 ATTRIB
   5
-3F4
+3F7
 330
-3F3
+3F6
 100
 AcDbEntity
   8
@@ -30973,9 +32145,9 @@ CIRCUIT
   0
 ATTRIB
   5
-3F5
+3F8
 330
-3F3
+3F6
 100
 AcDbEntity
   8
@@ -31005,9 +32177,9 @@ LOAD
   0
 ATTRIB
   5
-3F6
+3F9
 330
-3F3
+3F6
 100
 AcDbEntity
   8
@@ -31037,9 +32209,9 @@ TAG
   0
 ATTRIB
   5
-3F7
+3FA
 330
-3F3
+3F6
 100
 AcDbEntity
   8
@@ -31069,9 +32241,9 @@ DESC
   0
 SEQEND
   5
-3F8
+3FB
 330
-3F3
+3F6
 100
 AcDbEntity
   8
@@ -31079,7 +32251,7 @@ EL-INSTALL
   0
 INSERT
   5
-3F9
+3FC
 330
 15
 100
@@ -31106,12 +32278,16 @@ EL_INST_SOCKET_EARTH
 1
  50
 180
+1001
+CADCRAFT
+1000
+CCKEY:nc3r0ob9usr
   0
 ATTRIB
   5
-3FA
+3FD
 330
-3F9
+3FC
 100
 AcDbEntity
   8
@@ -31149,9 +32325,9 @@ CIRCUIT
   0
 ATTRIB
   5
-3FB
+3FE
 330
-3F9
+3FC
 100
 AcDbEntity
   8
@@ -31181,9 +32357,9 @@ LOAD
   0
 ATTRIB
   5
-3FC
+3FF
 330
-3F9
+3FC
 100
 AcDbEntity
   8
@@ -31213,9 +32389,9 @@ TAG
   0
 ATTRIB
   5
-3FD
+400
 330
-3F9
+3FC
 100
 AcDbEntity
   8
@@ -31245,9 +32421,9 @@ DESC
   0
 SEQEND
   5
-3FE
+401
 330
-3F9
+3FC
 100
 AcDbEntity
   8
@@ -31255,7 +32431,7 @@ EL-INSTALL
   0
 INSERT
   5
-3FF
+402
 330
 15
 100
@@ -31280,12 +32456,16 @@ EL_INST_SOCKET_DOUBLE
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nbn6qu9athj
   0
 ATTRIB
   5
-400
+403
 330
-3FF
+402
 100
 AcDbEntity
   8
@@ -31313,9 +32493,9 @@ CIRCUIT
   0
 ATTRIB
   5
-401
+404
 330
-3FF
+402
 100
 AcDbEntity
   8
@@ -31343,9 +32523,9 @@ LOAD
   0
 ATTRIB
   5
-402
+405
 330
-3FF
+402
 100
 AcDbEntity
   8
@@ -31369,81 +32549,85 @@ AcDbAttribute
   2
 TAG
  70
-1
-  0
-ATTRIB
-  5
-403
-330
-3FF
-100
-AcDbEntity
-  8
-0
-100
-AcDbText
- 10
-2160
- 20
-370
- 30
-0.0
- 40
-90
-  1
-
-  7
-Standard
-100
-AcDbAttribute
-  2
-DESC
- 70
-1
-  0
-SEQEND
-  5
-404
-330
-3FF
-100
-AcDbEntity
-  8
-EL-INSTALL
-  0
-INSERT
-  5
-405
-330
-15
-100
-AcDbEntity
-  8
-EL-INSTALL
-100
-AcDbBlockReference
- 66
-1
-  2
-EL_INST_SOCKET_DOUBLE
- 10
-5000
- 20
-200
- 30
-0.0
- 41
-50
- 42
-50
- 43
 1
   0
 ATTRIB
   5
 406
 330
-405
+402
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+2160
+ 20
+370
+ 30
+0.0
+ 40
+90
+  1
+
+  7
+Standard
+100
+AcDbAttribute
+  2
+DESC
+ 70
+1
+  0
+SEQEND
+  5
+407
+330
+402
+100
+AcDbEntity
+  8
+EL-INSTALL
+  0
+INSERT
+  5
+408
+330
+15
+100
+AcDbEntity
+  8
+EL-INSTALL
+100
+AcDbBlockReference
+ 66
+1
+  2
+EL_INST_SOCKET_DOUBLE
+ 10
+5000
+ 20
+200
+ 30
+0.0
+ 41
+50
+ 42
+50
+ 43
+1
+1001
+CADCRAFT
+1000
+CCKEY:n0dicbqzmbx
+  0
+ATTRIB
+  5
+409
+330
+408
 100
 AcDbEntity
   8
@@ -31471,9 +32655,9 @@ CIRCUIT
   0
 ATTRIB
   5
-407
+40A
 330
-405
+408
 100
 AcDbEntity
   8
@@ -31501,9 +32685,9 @@ LOAD
   0
 ATTRIB
   5
-408
+40B
 330
-405
+408
 100
 AcDbEntity
   8
@@ -31531,9 +32715,9 @@ TAG
   0
 ATTRIB
   5
-409
+40C
 330
-405
+408
 100
 AcDbEntity
   8
@@ -31561,9 +32745,9 @@ DESC
   0
 SEQEND
   5
-40A
+40D
 330
-405
+408
 100
 AcDbEntity
   8
@@ -31571,7 +32755,7 @@ EL-INSTALL
   0
 INSERT
   5
-40B
+40E
 330
 15
 100
@@ -31596,12 +32780,16 @@ EL_INST_SOCKET_DOUBLE
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n80t1a2iijq
   0
 ATTRIB
   5
-40C
+40F
 330
-40B
+40E
 100
 AcDbEntity
   8
@@ -31629,9 +32817,9 @@ CIRCUIT
   0
 ATTRIB
   5
-40D
+410
 330
-40B
+40E
 100
 AcDbEntity
   8
@@ -31659,9 +32847,9 @@ LOAD
   0
 ATTRIB
   5
-40E
+411
 330
-40B
+40E
 100
 AcDbEntity
   8
@@ -31689,9 +32877,9 @@ TAG
   0
 ATTRIB
   5
-40F
+412
 330
-40B
+40E
 100
 AcDbEntity
   8
@@ -31719,9 +32907,9 @@ DESC
   0
 SEQEND
   5
-410
+413
 330
-40B
+40E
 100
 AcDbEntity
   8
@@ -31729,7 +32917,7 @@ EL-INSTALL
   0
 INSERT
   5
-411
+414
 330
 15
 100
@@ -31754,12 +32942,16 @@ EL_INST_LUMINAIRE_LINEAR
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n7xksf3a59w
   0
 ATTRIB
   5
-412
+415
 330
-411
+414
 100
 AcDbEntity
   8
@@ -31787,9 +32979,9 @@ CIRCUIT
   0
 ATTRIB
   5
-413
+416
 330
-411
+414
 100
 AcDbEntity
   8
@@ -31817,9 +33009,9 @@ LOAD
   0
 ATTRIB
   5
-414
+417
 330
-411
+414
 100
 AcDbEntity
   8
@@ -31847,9 +33039,9 @@ TAG
   0
 ATTRIB
   5
-415
+418
 330
-411
+414
 100
 AcDbEntity
   8
@@ -31877,9 +33069,9 @@ DESC
   0
 SEQEND
   5
-416
+419
 330
-411
+414
 100
 AcDbEntity
   8
@@ -31887,7 +33079,7 @@ EL-INSTALL
   0
 INSERT
   5
-417
+41A
 330
 15
 100
@@ -31912,12 +33104,16 @@ EL_INST_LUMINAIRE_LINEAR
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nfwx7t5y4nm
   0
 ATTRIB
   5
-418
+41B
 330
-417
+41A
 100
 AcDbEntity
   8
@@ -31945,9 +33141,9 @@ CIRCUIT
   0
 ATTRIB
   5
-419
+41C
 330
-417
+41A
 100
 AcDbEntity
   8
@@ -31975,9 +33171,9 @@ LOAD
   0
 ATTRIB
   5
-41A
+41D
 330
-417
+41A
 100
 AcDbEntity
   8
@@ -32005,9 +33201,9 @@ TAG
   0
 ATTRIB
   5
-41B
+41E
 330
-417
+41A
 100
 AcDbEntity
   8
@@ -32035,9 +33231,9 @@ DESC
   0
 SEQEND
   5
-41C
+41F
 330
-417
+41A
 100
 AcDbEntity
   8
@@ -32045,7 +33241,7 @@ EL-INSTALL
   0
 INSERT
   5
-41D
+420
 330
 15
 100
@@ -32070,12 +33266,16 @@ EL_INST_LUMINAIRE_LINEAR
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n9cls1qzj3y
   0
 ATTRIB
   5
-41E
+421
 330
-41D
+420
 100
 AcDbEntity
   8
@@ -32103,9 +33303,9 @@ CIRCUIT
   0
 ATTRIB
   5
-41F
+422
 330
-41D
+420
 100
 AcDbEntity
   8
@@ -32133,9 +33333,9 @@ LOAD
   0
 ATTRIB
   5
-420
+423
 330
-41D
+420
 100
 AcDbEntity
   8
@@ -32163,9 +33363,9 @@ TAG
   0
 ATTRIB
   5
-421
+424
 330
-41D
+420
 100
 AcDbEntity
   8
@@ -32193,9 +33393,9 @@ DESC
   0
 SEQEND
   5
-422
+425
 330
-41D
+420
 100
 AcDbEntity
   8
@@ -32203,7 +33403,7 @@ EL-INSTALL
   0
 INSERT
   5
-423
+426
 330
 15
 100
@@ -32228,12 +33428,16 @@ EL_INST_SWITCH
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:njox1kzunoe
   0
 ATTRIB
   5
-424
+427
 330
-423
+426
 100
 AcDbEntity
   8
@@ -32261,9 +33465,9 @@ CIRCUIT
   0
 ATTRIB
   5
-425
+428
 330
-423
+426
 100
 AcDbEntity
   8
@@ -32291,9 +33495,9 @@ LOAD
   0
 ATTRIB
   5
-426
+429
 330
-423
+426
 100
 AcDbEntity
   8
@@ -32321,9 +33525,9 @@ TAG
   0
 ATTRIB
   5
-427
+42A
 330
-423
+426
 100
 AcDbEntity
   8
@@ -32351,9 +33555,9 @@ DESC
   0
 SEQEND
   5
-428
+42B
 330
-423
+426
 100
 AcDbEntity
   8
@@ -32361,7 +33565,7 @@ EL-INSTALL
   0
 INSERT
   5
-429
+42C
 330
 15
 100
@@ -32388,12 +33592,16 @@ EL_INST_SOCKET_3PH
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nxnezfurcql
   0
 ATTRIB
   5
-42A
+42D
 330
-429
+42C
 100
 AcDbEntity
   8
@@ -32423,9 +33631,9 @@ CIRCUIT
   0
 ATTRIB
   5
-42B
+42E
 330
-429
+42C
 100
 AcDbEntity
   8
@@ -32455,9 +33663,9 @@ LOAD
   0
 ATTRIB
   5
-42C
+42F
 330
-429
+42C
 100
 AcDbEntity
   8
@@ -32487,9 +33695,9 @@ TAG
   0
 ATTRIB
   5
-42D
+430
 330
-429
+42C
 100
 AcDbEntity
   8
@@ -32519,9 +33727,9 @@ DESC
   0
 SEQEND
   5
-42E
+431
 330
-429
+42C
 100
 AcDbEntity
   8
@@ -32529,7 +33737,7 @@ EL-INSTALL
   0
 INSERT
   5
-42F
+432
 330
 15
 100
@@ -32554,12 +33762,16 @@ EL_CIRCUIT
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:noecd9rd1e1
   0
 ATTRIB
   5
-430
+433
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32595,9 +33807,9 @@ CIRCUIT
   0
 ATTRIB
   5
-431
+434
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32633,9 +33845,9 @@ DESC
   0
 ATTRIB
   5
-432
+435
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32663,9 +33875,9 @@ BOARD
   0
 ATTRIB
   5
-433
+436
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32693,9 +33905,9 @@ BREAKER
   0
 ATTRIB
   5
-434
+437
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32723,9 +33935,9 @@ CURVE
   0
 ATTRIB
   5
-435
+438
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32753,9 +33965,9 @@ PHASE
   0
 ATTRIB
   5
-436
+439
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32783,9 +33995,9 @@ VOLTAGE
   0
 ATTRIB
   5
-437
+43A
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32813,9 +34025,9 @@ PF
   0
 ATTRIB
   5
-438
+43B
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32841,11 +34053,41 @@ CABLE
  70
 1
   0
+ATTRIB
+  5
+43C
+330
+432
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3000
+ 20
+5000
+ 30
+0.0
+ 40
+90
+  1
+
+  7
+Standard
+100
+AcDbAttribute
+  2
+RCD
+ 70
+1
+  0
 SEQEND
   5
-439
+43D
 330
-42F
+432
 100
 AcDbEntity
   8
@@ -32853,7 +34095,7 @@ EL-CIRCUIT
   0
 INSERT
   5
-43A
+43E
 330
 15
 100
@@ -32878,12 +34120,16 @@ EL_CIRCUIT
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n9jv7bqw3i2
   0
 ATTRIB
   5
-43B
+43F
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -32919,9 +34165,9 @@ CIRCUIT
   0
 ATTRIB
   5
-43C
+440
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -32957,9 +34203,9 @@ DESC
   0
 ATTRIB
   5
-43D
+441
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -32987,9 +34233,9 @@ BOARD
   0
 ATTRIB
   5
-43E
+442
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33017,9 +34263,9 @@ BREAKER
   0
 ATTRIB
   5
-43F
+443
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33047,9 +34293,9 @@ CURVE
   0
 ATTRIB
   5
-440
+444
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33077,9 +34323,9 @@ PHASE
   0
 ATTRIB
   5
-441
+445
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33107,9 +34353,9 @@ VOLTAGE
   0
 ATTRIB
   5
-442
+446
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33137,9 +34383,9 @@ PF
   0
 ATTRIB
   5
-443
+447
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33165,11 +34411,41 @@ CABLE
  70
 1
   0
+ATTRIB
+  5
+448
+330
+43E
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3000
+ 20
+4500
+ 30
+0.0
+ 40
+90
+  1
+
+  7
+Standard
+100
+AcDbAttribute
+  2
+RCD
+ 70
+1
+  0
 SEQEND
   5
-444
+449
 330
-43A
+43E
 100
 AcDbEntity
   8
@@ -33177,7 +34453,7 @@ EL-CIRCUIT
   0
 INSERT
   5
-445
+44A
 330
 15
 100
@@ -33202,12 +34478,16 @@ EL_CIRCUIT
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nzx7gok8pdy
   0
 ATTRIB
   5
-446
+44B
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33243,9 +34523,9 @@ CIRCUIT
   0
 ATTRIB
   5
-447
+44C
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33281,9 +34561,9 @@ DESC
   0
 ATTRIB
   5
-448
+44D
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33311,9 +34591,9 @@ BOARD
   0
 ATTRIB
   5
-449
+44E
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33341,9 +34621,9 @@ BREAKER
   0
 ATTRIB
   5
-44A
+44F
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33371,9 +34651,9 @@ CURVE
   0
 ATTRIB
   5
-44B
+450
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33401,9 +34681,9 @@ PHASE
   0
 ATTRIB
   5
-44C
+451
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33431,9 +34711,9 @@ VOLTAGE
   0
 ATTRIB
   5
-44D
+452
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33461,9 +34741,9 @@ PF
   0
 ATTRIB
   5
-44E
+453
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33489,11 +34769,41 @@ CABLE
  70
 1
   0
+ATTRIB
+  5
+454
+330
+44A
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3000
+ 20
+4000
+ 30
+0.0
+ 40
+90
+  1
+
+  7
+Standard
+100
+AcDbAttribute
+  2
+RCD
+ 70
+1
+  0
 SEQEND
   5
-44F
+455
 330
-445
+44A
 100
 AcDbEntity
   8
@@ -33501,7 +34811,7 @@ EL-CIRCUIT
   0
 INSERT
   5
-450
+456
 330
 15
 100
@@ -33526,12 +34836,16 @@ EL_CIRCUIT
 50
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nler811s2z3
   0
 ATTRIB
   5
-451
+457
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33567,9 +34881,9 @@ CIRCUIT
   0
 ATTRIB
   5
-452
+458
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33605,9 +34919,9 @@ DESC
   0
 ATTRIB
   5
-453
+459
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33635,9 +34949,9 @@ BOARD
   0
 ATTRIB
   5
-454
+45A
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33665,9 +34979,9 @@ BREAKER
   0
 ATTRIB
   5
-455
+45B
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33695,9 +35009,9 @@ CURVE
   0
 ATTRIB
   5
-456
+45C
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33725,9 +35039,9 @@ PHASE
   0
 ATTRIB
   5
-457
+45D
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33755,9 +35069,9 @@ VOLTAGE
   0
 ATTRIB
   5
-458
+45E
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33785,9 +35099,9 @@ PF
   0
 ATTRIB
   5
-459
+45F
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33813,11 +35127,41 @@ CABLE
  70
 1
   0
+ATTRIB
+  5
+460
+330
+456
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-3000
+ 20
+3500
+ 30
+0.0
+ 40
+90
+  1
+
+  7
+Standard
+100
+AcDbAttribute
+  2
+RCD
+ 70
+1
+  0
 SEQEND
   5
-45A
+461
 330
-450
+456
 100
 AcDbEntity
   8
@@ -33825,7 +35169,7 @@ EL-CIRCUIT
   0
 VIEWPORT
   5
-45B
+462
 330
 18
 100
@@ -33945,7 +35289,7 @@ iso-a3
   0
 INSERT
   5
-45C
+463
 330
 18
 100
@@ -33972,12 +35316,16 @@ EL_FRAME_A3
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:npecb18f3it
   0
 ATTRIB
   5
-45D
+464
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34007,9 +35355,9 @@ PROJECT
   0
 ATTRIB
   5
-45E
+465
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34039,9 +35387,9 @@ TITLE
   0
 ATTRIB
   5
-45F
+466
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34071,9 +35419,9 @@ PLANT
   0
 ATTRIB
   5
-460
+467
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34103,9 +35451,9 @@ LOC
   0
 ATTRIB
   5
-461
+468
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34135,9 +35483,9 @@ DRAWN
   0
 ATTRIB
   5
-462
+469
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34167,9 +35515,9 @@ DATE
   0
 ATTRIB
   5
-463
+46A
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34199,9 +35547,9 @@ REV
   0
 ATTRIB
   5
-464
+46B
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34239,9 +35587,9 @@ SHEET
   0
 ATTRIB
   5
-465
+46C
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34279,9 +35627,9 @@ SHEETS
   0
 SEQEND
   5
-466
+46D
 330
-45C
+463
 100
 AcDbEntity
  67
@@ -34291,7 +35639,7 @@ EL-FRAME
   0
 LINE
   5
-467
+46E
 330
 18
 100
@@ -34314,10 +35662,14 @@ AcDbLine
 262.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ng9kuw4x5g2
   0
 TEXT
   5
-468
+46F
 330
 18
 100
@@ -34352,10 +35704,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:n2bpa8o133h
   0
 LINE
   5
-469
+470
 330
 18
 100
@@ -34378,10 +35734,14 @@ AcDbLine
 255
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:ni5ms7inpw0
   0
 TEXT
   5
-46A
+471
 330
 18
 100
@@ -34416,10 +35776,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:ncjizrxfjbo
   0
 LINE
   5
-46B
+472
 330
 18
 100
@@ -34442,10 +35806,14 @@ AcDbLine
 247.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nxq6nrdqfih
   0
 TEXT
   5
-46C
+473
 330
 18
 100
@@ -34480,10 +35848,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nnqdjm5m2pq
   0
 LINE
   5
-46D
+474
 330
 18
 100
@@ -34506,10 +35878,14 @@ AcDbLine
 240
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nl10u97rvwl
   0
 TEXT
   5
-46E
+475
 330
 18
 100
@@ -34544,10 +35920,14 @@ Standard
 AcDbText
  73
 2
+1001
+CADCRAFT
+1000
+CCKEY:nelrn2ily42
   0
 INSERT
   5
-46F
+476
 330
 18
 100
@@ -34574,12 +35954,16 @@ EL_IEC_BREAKER_MOTOR
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:newbh7gwytc
   0
 ATTRIB
   5
-470
+477
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34617,9 +36001,9 @@ TAG
   0
 ATTRIB
   5
-471
+478
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34657,9 +36041,9 @@ DESC
   0
 ATTRIB
   5
-472
+479
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34697,9 +36081,9 @@ MFR
   0
 ATTRIB
   5
-473
+47A
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34737,9 +36121,9 @@ PART
   0
 ATTRIB
   5
-474
+47B
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34777,9 +36161,9 @@ ORDER
   0
 ATTRIB
   5
-475
+47C
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34809,9 +36193,9 @@ P1
   0
 ATTRIB
   5
-476
+47D
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34841,9 +36225,9 @@ P2
   0
 ATTRIB
   5
-477
+47E
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34873,9 +36257,9 @@ P3
   0
 ATTRIB
   5
-478
+47F
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34905,9 +36289,9 @@ P4
   0
 ATTRIB
   5
-479
+480
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34937,9 +36321,9 @@ P5
   0
 ATTRIB
   5
-47A
+481
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34969,9 +36353,9 @@ P6
   0
 SEQEND
   5
-47B
+482
 330
-46F
+476
 100
 AcDbEntity
  67
@@ -34981,7 +36365,7 @@ EL-SYMBOL
   0
 INSERT
   5
-47C
+483
 330
 18
 100
@@ -35008,12 +36392,16 @@ EL_IEC_CONTACT_MAIN_3P
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n880zwas8fj
   0
 ATTRIB
   5
-47D
+484
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35051,9 +36439,9 @@ TAG
   0
 ATTRIB
   5
-47E
+485
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35091,9 +36479,9 @@ DESC
   0
 ATTRIB
   5
-47F
+486
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35123,9 +36511,9 @@ P1
   0
 ATTRIB
   5
-480
+487
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35155,9 +36543,9 @@ P2
   0
 ATTRIB
   5
-481
+488
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35187,9 +36575,9 @@ P3
   0
 ATTRIB
   5
-482
+489
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35219,9 +36607,9 @@ P4
   0
 ATTRIB
   5
-483
+48A
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35251,9 +36639,9 @@ P5
   0
 ATTRIB
   5
-484
+48B
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35283,9 +36671,9 @@ P6
   0
 ATTRIB
   5
-485
+48C
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35315,9 +36703,9 @@ XREF
   0
 SEQEND
   5
-486
+48D
 330
-47C
+483
 100
 AcDbEntity
  67
@@ -35327,7 +36715,7 @@ EL-SYMBOL
   0
 LINE
   5
-487
+48E
 330
 18
 100
@@ -35350,10 +36738,14 @@ AcDbLine
 225
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:npp1big0vir
   0
 LINE
   5
-488
+48F
 330
 18
 100
@@ -35376,10 +36768,14 @@ AcDbLine
 190
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nwh19ns9421
   0
 INSERT
   5
-489
+490
 330
 18
 100
@@ -35406,12 +36802,16 @@ EL_IEC_TERMINAL
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n4357zwj5c3
   0
 ATTRIB
   5
-48A
+491
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35443,9 +36843,9 @@ TAG
   0
 ATTRIB
   5
-48B
+492
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35483,9 +36883,9 @@ DESC
   0
 ATTRIB
   5
-48C
+493
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35523,9 +36923,9 @@ MFR
   0
 ATTRIB
   5
-48D
+494
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35563,9 +36963,9 @@ PART
   0
 ATTRIB
   5
-48E
+495
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35595,9 +36995,9 @@ P1
   0
 ATTRIB
   5
-48F
+496
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35627,9 +37027,9 @@ P2
   0
 SEQEND
   5
-490
+497
 330
-489
+490
 100
 AcDbEntity
  67
@@ -35639,7 +37039,7 @@ EL-SYMBOL
   0
 LINE
   5
-491
+498
 330
 18
 100
@@ -35662,10 +37062,14 @@ AcDbLine
 142.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nns259mzqfa
   0
 LINE
   5
-492
+499
 330
 18
 100
@@ -35688,10 +37092,14 @@ AcDbLine
 100
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nrmx7cc2s46
   0
 LINE
   5
-493
+49A
 330
 18
 100
@@ -35714,10 +37122,14 @@ AcDbLine
 225
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n2zhm4nxv3k
   0
 LINE
   5
-494
+49B
 330
 18
 100
@@ -35740,10 +37152,14 @@ AcDbLine
 190
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nf0oqwhvwrh
   0
 INSERT
   5
-495
+49C
 330
 18
 100
@@ -35770,12 +37186,16 @@ EL_IEC_TERMINAL
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nmcnok0wg5j
   0
 ATTRIB
   5
-496
+49D
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -35807,9 +37227,9 @@ TAG
   0
 ATTRIB
   5
-497
+49E
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -35847,9 +37267,9 @@ DESC
   0
 ATTRIB
   5
-498
+49F
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -35887,9 +37307,9 @@ MFR
   0
 ATTRIB
   5
-499
+4A0
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -35927,9 +37347,9 @@ PART
   0
 ATTRIB
   5
-49A
+4A1
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -35959,9 +37379,9 @@ P1
   0
 ATTRIB
   5
-49B
+4A2
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -35991,9 +37411,9 @@ P2
   0
 SEQEND
   5
-49C
+4A3
 330
-495
+49C
 100
 AcDbEntity
  67
@@ -36003,7 +37423,7 @@ EL-SYMBOL
   0
 LINE
   5
-49D
+4A4
 330
 18
 100
@@ -36026,10 +37446,14 @@ AcDbLine
 142.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n0hoo66apaw
   0
 LINE
   5
-49E
+4A5
 330
 18
 100
@@ -36052,10 +37476,14 @@ AcDbLine
 100
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nsis239uzgo
   0
 LINE
   5
-49F
+4A6
 330
 18
 100
@@ -36078,10 +37506,14 @@ AcDbLine
 225
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n3ijli3gbfw
   0
 LINE
   5
-4A0
+4A7
 330
 18
 100
@@ -36104,10 +37536,14 @@ AcDbLine
 190
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:num0xqv0lrg
   0
 INSERT
   5
-4A1
+4A8
 330
 18
 100
@@ -36134,12 +37570,16 @@ EL_IEC_TERMINAL
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nx6yljj1luy
   0
 ATTRIB
   5
-4A2
+4A9
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36171,9 +37611,9 @@ TAG
   0
 ATTRIB
   5
-4A3
+4AA
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36211,9 +37651,9 @@ DESC
   0
 ATTRIB
   5
-4A4
+4AB
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36251,9 +37691,9 @@ MFR
   0
 ATTRIB
   5
-4A5
+4AC
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36291,9 +37731,9 @@ PART
   0
 ATTRIB
   5
-4A6
+4AD
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36323,9 +37763,9 @@ P1
   0
 ATTRIB
   5
-4A7
+4AE
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36355,9 +37795,9 @@ P2
   0
 SEQEND
   5
-4A8
+4AF
 330
-4A1
+4A8
 100
 AcDbEntity
  67
@@ -36367,7 +37807,7 @@ EL-SYMBOL
   0
 LINE
   5
-4A9
+4B0
 330
 18
 100
@@ -36390,10 +37830,14 @@ AcDbLine
 142.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n79v1kv434p
   0
 LINE
   5
-4AA
+4B1
 330
 18
 100
@@ -36416,10 +37860,14 @@ AcDbLine
 100
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:nt2hd0cpwdz
   0
 INSERT
   5
-4AB
+4B2
 330
 18
 100
@@ -36446,12 +37894,16 @@ EL_IEC_TERMINAL
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n3wh6z0vlm7
   0
 ATTRIB
   5
-4AC
+4B3
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36483,9 +37935,9 @@ TAG
   0
 ATTRIB
   5
-4AD
+4B4
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36523,9 +37975,9 @@ DESC
   0
 ATTRIB
   5
-4AE
+4B5
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36563,9 +38015,9 @@ MFR
   0
 ATTRIB
   5
-4AF
+4B6
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36603,9 +38055,9 @@ PART
   0
 ATTRIB
   5
-4B0
+4B7
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36635,9 +38087,9 @@ P1
   0
 ATTRIB
   5
-4B1
+4B8
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36667,9 +38119,9 @@ P2
   0
 SEQEND
   5
-4B2
+4B9
 330
-4AB
+4B2
 100
 AcDbEntity
  67
@@ -36679,7 +38131,7 @@ EL-SYMBOL
   0
 LINE
   5
-4B3
+4BA
 330
 18
 100
@@ -36702,10 +38154,14 @@ AcDbLine
 142.5
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:neblnv3coav
   0
 INSERT
   5
-4B4
+4BB
 330
 18
 100
@@ -36732,12 +38188,16 @@ EL_IEC_MOTOR_3PH
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n13w3ljlalh
   0
 ATTRIB
   5
-4B5
+4BC
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36775,9 +38235,9 @@ TAG
   0
 ATTRIB
   5
-4B6
+4BD
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36815,9 +38275,9 @@ DESC
   0
 ATTRIB
   5
-4B7
+4BE
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36855,9 +38315,9 @@ MFR
   0
 ATTRIB
   5
-4B8
+4BF
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36895,9 +38355,9 @@ PART
   0
 ATTRIB
   5
-4B9
+4C0
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36935,9 +38395,9 @@ ORDER
   0
 ATTRIB
   5
-4BA
+4C1
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36967,9 +38427,9 @@ P1
   0
 ATTRIB
   5
-4BB
+4C2
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -36999,9 +38459,9 @@ P2
   0
 ATTRIB
   5
-4BC
+4C3
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -37031,9 +38491,9 @@ P3
   0
 SEQEND
   5
-4BD
+4C4
 330
-4B4
+4BB
 100
 AcDbEntity
  67
@@ -37043,7 +38503,7 @@ EL-SYMBOL
   0
 LINE
   5
-4BE
+4C5
 330
 18
 100
@@ -37066,10 +38526,14 @@ AcDbLine
 123
  31
 0.0
+1001
+CADCRAFT
+1000
+CCKEY:n8ils4du1sv
   0
 INSERT
   5
-4BF
+4C6
 330
 18
 100
@@ -37096,12 +38560,16 @@ EL_CABLE
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nhpyje0qr9r
   0
 ATTRIB
   5
-4C0
+4C7
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37131,9 +38599,9 @@ TAG
   0
 ATTRIB
   5
-4C1
+4C8
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37163,9 +38631,9 @@ TYPE
   0
 ATTRIB
   5
-4C2
+4C9
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37195,9 +38663,9 @@ CORES
   0
 ATTRIB
   5
-4C3
+4CA
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37227,9 +38695,9 @@ LENGTH
   0
 ATTRIB
   5
-4C4
+4CB
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37259,9 +38727,9 @@ MFR
   0
 ATTRIB
   5
-4C5
+4CC
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37291,9 +38759,9 @@ PART
   0
 SEQEND
   5
-4C6
+4CD
 330
-4BF
+4C6
 100
 AcDbEntity
  67
@@ -37303,7 +38771,7 @@ EL-CABLE
   0
 INSERT
   5
-4C7
+4CE
 330
 18
 100
@@ -37328,10 +38796,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ntgthiwdyxo
   0
 INSERT
   5
-4C8
+4CF
 330
 18
 100
@@ -37356,10 +38828,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nkys3sxfcz2
   0
 INSERT
   5
-4C9
+4D0
 330
 18
 100
@@ -37384,10 +38860,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:njujvha722r
   0
 INSERT
   5
-4CA
+4D1
 330
 18
 100
@@ -37412,10 +38892,14 @@ EL_DOT
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:ndxgtmzgt60
   0
 INSERT
   5
-4CB
+4D2
 330
 18
 100
@@ -37442,12 +38926,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n31z599offv
   0
 ATTRIB
   5
-4CC
+4D3
 330
-4CB
+4D2
 100
 AcDbEntity
  67
@@ -37485,9 +38973,9 @@ WIRENO
   0
 ATTRIB
   5
-4CD
+4D4
 330
-4CB
+4D2
 100
 AcDbEntity
  67
@@ -37517,9 +39005,9 @@ LOCK
   0
 SEQEND
   5
-4CE
+4D5
 330
-4CB
+4D2
 100
 AcDbEntity
  67
@@ -37529,7 +39017,7 @@ EL-WIRENO
   0
 INSERT
   5
-4CF
+4D6
 330
 18
 100
@@ -37556,12 +39044,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nue59lkqp1v
   0
 ATTRIB
   5
-4D0
+4D7
 330
-4CF
+4D6
 100
 AcDbEntity
  67
@@ -37599,9 +39091,9 @@ WIRENO
   0
 ATTRIB
   5
-4D1
+4D8
 330
-4CF
+4D6
 100
 AcDbEntity
  67
@@ -37631,9 +39123,9 @@ LOCK
   0
 SEQEND
   5
-4D2
+4D9
 330
-4CF
+4D6
 100
 AcDbEntity
  67
@@ -37643,7 +39135,7 @@ EL-WIRENO
   0
 INSERT
   5
-4D3
+4DA
 330
 18
 100
@@ -37670,12 +39162,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:nz23d735c1j
   0
 ATTRIB
   5
-4D4
+4DB
 330
-4D3
+4DA
 100
 AcDbEntity
  67
@@ -37713,9 +39209,9 @@ WIRENO
   0
 ATTRIB
   5
-4D5
+4DC
 330
-4D3
+4DA
 100
 AcDbEntity
  67
@@ -37745,9 +39241,9 @@ LOCK
   0
 SEQEND
   5
-4D6
+4DD
 330
-4D3
+4DA
 100
 AcDbEntity
  67
@@ -37757,7 +39253,7 @@ EL-WIRENO
   0
 INSERT
   5
-4D7
+4DE
 330
 18
 100
@@ -37784,12 +39280,16 @@ EL_WIRENO
 1
  43
 1
+1001
+CADCRAFT
+1000
+CCKEY:n5tunm1t3ky
   0
 ATTRIB
   5
-4D8
+4DF
 330
-4D7
+4DE
 100
 AcDbEntity
  67
@@ -37827,9 +39327,9 @@ WIRENO
   0
 ATTRIB
   5
-4D9
+4E0
 330
-4D7
+4DE
 100
 AcDbEntity
  67
@@ -37859,9 +39359,9 @@ LOCK
   0
 SEQEND
   5
-4DA
+4E1
 330
-4D7
+4DE
 100
 AcDbEntity
  67
@@ -37871,7 +39371,7 @@ EL-WIRENO
   0
 INSERT
   5
-4DB
+4E2
 330
 18
 100
@@ -37900,12 +39400,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nt2t02likwz
   0
 ATTRIB
   5
-4DC
+4E3
 330
-4DB
+4E2
 100
 AcDbEntity
  67
@@ -37945,9 +39449,9 @@ WIRENO
   0
 ATTRIB
   5
-4DD
+4E4
 330
-4DB
+4E2
 100
 AcDbEntity
  67
@@ -37979,9 +39483,9 @@ LOCK
   0
 SEQEND
   5
-4DE
+4E5
 330
-4DB
+4E2
 100
 AcDbEntity
  67
@@ -37991,7 +39495,7 @@ EL-WIRENO
   0
 INSERT
   5
-4DF
+4E6
 330
 18
 100
@@ -38020,12 +39524,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nb51h7fbn6v
   0
 ATTRIB
   5
-4E0
+4E7
 330
-4DF
+4E6
 100
 AcDbEntity
  67
@@ -38065,9 +39573,9 @@ WIRENO
   0
 ATTRIB
   5
-4E1
+4E8
 330
-4DF
+4E6
 100
 AcDbEntity
  67
@@ -38099,9 +39607,9 @@ LOCK
   0
 SEQEND
   5
-4E2
+4E9
 330
-4DF
+4E6
 100
 AcDbEntity
  67
@@ -38111,7 +39619,7 @@ EL-WIRENO
   0
 INSERT
   5
-4E3
+4EA
 330
 18
 100
@@ -38140,12 +39648,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nem2u3motpt
   0
 ATTRIB
   5
-4E4
+4EB
 330
-4E3
+4EA
 100
 AcDbEntity
  67
@@ -38185,9 +39697,9 @@ WIRENO
   0
 ATTRIB
   5
-4E5
+4EC
 330
-4E3
+4EA
 100
 AcDbEntity
  67
@@ -38219,9 +39731,9 @@ LOCK
   0
 SEQEND
   5
-4E6
+4ED
 330
-4E3
+4EA
 100
 AcDbEntity
  67
@@ -38231,7 +39743,7 @@ EL-WIRENO
   0
 INSERT
   5
-4E7
+4EE
 330
 18
 100
@@ -38260,12 +39772,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:nms0bvrl5yo
   0
 ATTRIB
   5
-4E8
+4EF
 330
-4E7
+4EE
 100
 AcDbEntity
  67
@@ -38305,9 +39821,9 @@ WIRENO
   0
 ATTRIB
   5
-4E9
+4F0
 330
-4E7
+4EE
 100
 AcDbEntity
  67
@@ -38339,9 +39855,9 @@ LOCK
   0
 SEQEND
   5
-4EA
+4F1
 330
-4E7
+4EE
 100
 AcDbEntity
  67
@@ -38351,7 +39867,7 @@ EL-WIRENO
   0
 INSERT
   5
-4EB
+4F2
 330
 18
 100
@@ -38380,12 +39896,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:npth7b9kmjw
   0
 ATTRIB
   5
-4EC
+4F3
 330
-4EB
+4F2
 100
 AcDbEntity
  67
@@ -38425,9 +39945,9 @@ WIRENO
   0
 ATTRIB
   5
-4ED
+4F4
 330
-4EB
+4F2
 100
 AcDbEntity
  67
@@ -38459,9 +39979,9 @@ LOCK
   0
 SEQEND
   5
-4EE
+4F5
 330
-4EB
+4F2
 100
 AcDbEntity
  67
@@ -38471,7 +39991,7 @@ EL-WIRENO
   0
 INSERT
   5
-4EF
+4F6
 330
 18
 100
@@ -38500,12 +40020,16 @@ EL_WIRENO
 1
  50
 90
+1001
+CADCRAFT
+1000
+CCKEY:npybo24vwk3
   0
 ATTRIB
   5
-4F0
+4F7
 330
-4EF
+4F6
 100
 AcDbEntity
  67
@@ -38545,9 +40069,9 @@ WIRENO
   0
 ATTRIB
   5
-4F1
+4F8
 330
-4EF
+4F6
 100
 AcDbEntity
  67
@@ -38579,9 +40103,9 @@ LOCK
   0
 SEQEND
   5
-4F2
+4F9
 330
-4EF
+4F6
 100
 AcDbEntity
  67

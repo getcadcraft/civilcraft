@@ -9,11 +9,11 @@
     "name": "South Africa"
   },
   "base": null,
-  "edition": "SANS 10400, edition not yet confirmed",
+  "edition": "SANS 10400, parts by edition (XA:2021 ed. 2, O:2025 ed. 4); numbers not confirmed",
   "in_force": null,
   "review": {
     "state": "unchecked",
-    "note": "A sample, not a reference. These numbers were entered from memory and a study aid and have NOT been checked against the standard (SABS sells it). Several parts have newer editions (Part O edition 4 was published in 2025). Check every number against the current standard before relying on it. A rule the pack leaves out is simply not checked."
+    "note": "A sample, not a reference. These numbers were entered from memory and a study aid and have NOT been checked against the standard (SABS sells it). Several parts have newer editions (Part O edition 4 was published in 2025 and Part XA edition 2 in 2021 (eight energy zones, no SANS 204 reference)). Check every number against the current standard before relying on it. A rule the pack leaves out is simply not checked."
   },
   "authority": "adopted-law",
   "source": {

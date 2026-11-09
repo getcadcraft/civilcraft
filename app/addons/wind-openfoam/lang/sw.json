@@ -1,0 +1,14 @@
+{
+  "@locale": "sw",
+  "@name": "Kiswahili",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (programu-jalizi)",
+  "wind.of.note": "Huendesha usakinishaji wako wa OpenFOAM kupitia programu ndogo ya msaidizi kwenye kompyuta hii: kesi moja ya RANS (k-epsilon) kwa kila mwelekeo wa upepo, yenye ingizo la safu ya mpaka ya angahewa. Hakuna kitu kinachotoka kwenye kompyuta hii. CadCraft haijumuishi OpenFOAM.",
+  "wind.of.url": "Anwani ya msaidizi",
+  "wind.of.token": "Tokeni ya msaidizi",
+  "wind.of.check": "Kagua msaidizi",
+  "wind.of.ok": "Msaidizi amejibu. OpenFOAM: {foam}",
+  "wind.of.down": "Msaidizi hakujibu ({why}). Mwanzishe kwenye kompyuta hii: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Msaidizi amejibu lakini hakuweza kuanzisha OpenFOAM: {why}",
+  "wind.of.install": "Sakinisha OpenFOAM (toleo la ESI v-series, openfoam.com) na msaidizi kutoka folda ya programu-jalizi; mada ya usaidizi inaeleza yote mawili."
+}

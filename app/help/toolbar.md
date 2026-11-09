@@ -76,6 +76,8 @@ Undo covers edits to the design, the surface settings and the survey points (pas
 | {{ui:Coordinates}} | none | Opens the **Coordinate system** dialog: say which system the project is in, or use ground or local coordinates. See [Set the project's coordinate system](topic:coordinate-systems) and [Ground and local coordinates](topic:ground-and-local-coordinates). |
 | {{ui:Import}} | none | Imports GIS data: shapefiles, GeoJSON, GeoPackage, elevation grids and LiDAR. See [Import GIS data](topic:gis-import). |
 | {{ui:Export}} | none | Exports as-built data for a GIS department. See [Export as-built data for GIS](topic:gis-export). |
+| {{ui:Analyze}} | none | Opens the GIS analysis panel: buffer, overlay, spatial join, select by attribute, measure. See [Analyze GIS layers](topic:gis-analysis). |
+| {{ui:Attribute table}} | none | In Surface › More. Opens the attribute table of a GIS layer: sort, filter, select, edit, add fields, calculate, save as CSV. See [Work with a layer's attribute table](topic:gis-table). |
 | {{ui:Map}} | none | Opens the **Map layers** dialog: a georeferenced picture, or map servers you add, drawn under the plan. See [Show map layers under the plan](topic:map-layers). |
 
 The GIS tools load the first time you use one of these buttons, open a GIS file, or open a project that has a coordinate system or GIS layers.

@@ -1,1 +1,1 @@
-{"addons":["regs","site-county-parcels","site-fema-flood","site-geocode-osm","site-osm-buildings","site-ssurgo-soil","site-usgs-elevation"]}
+{"addons": ["regs", "site-county-parcels", "site-fema-flood", "site-geocode-osm", "site-osm-buildings", "site-ssurgo-soil", "site-usgs-elevation", "wind-openfoam", "climate-futures", "pointcloud", "watercraft"]}

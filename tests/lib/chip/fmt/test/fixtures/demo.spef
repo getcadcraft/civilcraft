@@ -1,0 +1,52 @@
+*SPEF "IEEE 1481-1998"
+*DESIGN "cc_demo_top"
+*DATE "Tue Nov 3 2026"
+*VENDOR "hand written"
+*PROGRAM "CadCraft Chip design tests"
+*VERSION "1"
+*DESIGN_FLOW "NETLIST_TYPE_VERILOG"
+*DIVIDER /
+*DELIMITER :
+*BUS_DELIMITER [ ]
+*T_UNIT 1 NS
+*C_UNIT 1 PF
+*R_UNIT 1 KOHM
+*L_UNIT 1 HENRY
+
+// made-up parasitics for the demo design
+*NAME_MAP
+*1 din
+*2 n1
+*3 u1
+*4 u2
+*5 dout
+
+*PORTS
+*1 I
+*5 O
+
+*D_NET *1 0.004
+*CONN
+*P *1 I
+*I *3:A I *L 0.002 *D INV_X1
+*CAP
+1 *1 0.001
+2 *1:1 0.0005
+3 *3:A 0.0005
+4 *1:1 *2:1 0.002
+*RES
+1 *1 *1:1 0.1
+2 *1:1 *3:A 0.2
+*END
+
+*D_NET *2 0.0030:0.0031:0.0032
+*CONN
+*I *3:Y O *D INV_X1
+*I *4:A I *L 0.0021
+*CAP
+1 *3:Y 0.0005
+2 *4:A 0.0006
+3 *2:1 *1:1 0.002
+*RES
+1 *3:Y *4:A 0.3
+*END

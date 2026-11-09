@@ -1,0 +1,3 @@
+- Switch the add-on on in Settings, Add-ons, then open the Point clouds tab and choose your LAS or LAZ file; press Build the cloud.
+- Look at it, clean it with the lasso, then Find noise, Find the ground and Classify vegetation and buildings.
+- Press Build ground; read the numbers, then Show contours, or draw a boundary round a pile for its volume.

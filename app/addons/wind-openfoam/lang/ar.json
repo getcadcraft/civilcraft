@@ -1,0 +1,14 @@
+{
+  "@locale": "ar",
+  "@name": "العربية",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (إضافة)",
+  "wind.of.note": "يشغّل تثبيت OpenFOAM الخاص بك عبر برنامج مساعد صغير على هذا الحاسوب: حالة RANS مستقرة واحدة (k-epsilon) لكل اتجاه رياح، مع مدخل طبقة الحدّ الجوية. لا يغادر شيء هذا الحاسوب. لا يتضمن CadCraft برنامج OpenFOAM‏.",
+  "wind.of.url": "عنوان المساعد",
+  "wind.of.token": "رمز المساعد",
+  "wind.of.check": "فحص المساعد",
+  "wind.of.ok": "أجاب المساعد. OpenFOAM: {foam}",
+  "wind.of.down": "لم يُجب المساعد ({why}). شغّله على هذا الحاسوب: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "أجاب المساعد لكن تعذّر تشغيل OpenFOAM: {why}",
+  "wind.of.install": "ثبّت OpenFOAM (سلسلة ESI v، openfoam.com) والمساعد من مجلد الإضافة؛ يشرح موضوع المساعدة الخطوتين."
+}

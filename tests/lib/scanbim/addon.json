@@ -1,0 +1,20 @@
+{
+  "id": "scanbim",
+  "name": "Scan to BIM",
+  "version": "0.9.0",
+  "apps": [
+    "bimcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "storage"
+  ],
+  "description": "Proposes the floors, walls, doors and windows of a building from a point cloud you have open in BimCraft. Every proposal shows how far it sits from the scanned points, in millimetres. You accept, edit or reject each one; accepting draws them in the model as one undo step. A starting drawing from a scan, to be checked against the building: not a survey.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

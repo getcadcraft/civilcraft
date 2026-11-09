@@ -269,7 +269,7 @@ export function layoutRoof(roof, o = {}) {
   const rect = Math.abs(area(mainRun.P) - (mainRun.u1 - mainRun.u0 + 0) * (Math.max(...mainRun.P.map((q) => q[1])) - Math.min(...mainRun.P.map((q) => q[1])))) < 1e4;
   if (!rect && !trusses.some((t) => t.kind === 'valley')) issues.push({ code: 'notrect', vars: { spans: new Set(trusses.map((t) => t.span)).size } });
   if (trusses.some((t) => t.span > 12000)) issues.push({ code: 'longspan', vars: { span: Math.max(...trusses.map((t) => t.span)) } });
-  return { ok: true, ridgeDir: ru, spanDir: mainRun.rv, trusses, designs, groups, issues, failures, spacing: r1(mainRun.step), count: trusses.length, valley, valleys, roofPitch: roof.pitch, hipMethod: o.hipMethod || 'stepdown' };
+  return { ok: true, ridgeDir: ru, spanDir: mainRun.rv, trusses, designs, groups, issues, failures, spacing: r1(mainRun.step), count: trusses.length, valley, valleys, wing: wingRun ? { u0: wingRun.u0, u1: wingRun.u1, sgn: wingRun.sgn, mouthV: wingRun.mouthV } : null, ruDir: ru, roofPitch: roof.pitch, hipMethod: o.hipMethod || 'stepdown' };
 }
 
 /** A layout made of the valley set alone (typed numbers, or one valley of a plan): positions are relative unless a plan gave them. */

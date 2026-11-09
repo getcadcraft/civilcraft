@@ -45,6 +45,29 @@ const rbytes = (n, alpha = 256) => { const b = new Uint8Array(n); for (let i = 0
 const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const hex = (n) => '0x' + (n >>> 0).toString(16).toUpperCase();
 
+
+/** R2007 file header "number of sections + 1" and the entries of the section map (spec 5.2–5.4). */
+function r2007Map(bytes) {
+  const R7 = R.r2007;
+  const hdr = R7.deinterleave(bytes, 0x80, 3, 239, true, { bad: 0, corrected: 0 });
+  const hd = new DataView(hdr.buffer, hdr.byteOffset);
+  const cl = hd.getInt32(0x18, true);
+  const fh = cl < 0 ? hdr.slice(0x20, 0x20 - cl) : R7.decompressR21(hdr, 0x20, cl, 0x110);
+  const F = new DataView(fh.buffer, fh.byteOffset), u = (o) => Number(F.getBigUint64(o, true));
+  const sys = (at, csize, usize, factor) => { const blocks = Math.ceil((((csize + 7) & ~7) * factor) / 239); const d = R7.deinterleave(bytes, at, blocks, 239, true, { bad: 0, corrected: 0 }); return csize < usize ? R7.decompressR21(d, 0, csize, usize) : d.slice(0, usize); };
+  const pm = sys(0x480 + u(0x38), u(0x50), u(0x58), u(0x18)), pd = new DataView(pm.buffer, pm.byteOffset);
+  const pages = new Map(); let off = 0;
+  for (let p = 0; p < pm.length; p += 16) { const size = Number(pd.getBigInt64(p, true)), id = Number(pd.getBigInt64(p + 8, true)); pages.set(Math.abs(id), off); off += size; }
+  const sm = sys(0x480 + pages.get(u(0xC0)), u(0xB0), u(0xC8), u(0xD8)), sd = new DataView(sm.buffer, sm.byteOffset);
+  const entries = []; let p = 0;
+  while (p + 0x40 <= sm.length) {
+    const nl = Number(sd.getBigUint64(p + 0x20, true)), np = Number(sd.getBigUint64(p + 0x38, true)); let name = '';
+    for (let i = 0; i + 1 < nl; i += 2) name += String.fromCharCode(sd.getUint16(p + 0x40 + i, true));
+    entries.push({ name: name.replace(/\0+$/, ''), pages: np }); p += 0x40 + nl + np * 56;
+  }
+  return { hdr: u(0xA0), entries };
+}
+
 const R = {}, W = {}, why = {};
 for (const [k, f] of [['bits', 'bits-read.js'], ['crc', 'crc.js'], ['lz', 'lz-r2004.js'], ['r2007', 'r2007.js'], ['hv', 'header-vars.js'], ['index', 'index.js'], ['read', 'read.js']]) { const r = await tryImport(f); R[k] = r.mod; why['R.' + k] = r.why; }
 for (const [k, f] of [['bits', 'bits-write.js'], ['lz', 'lz-r2004-write.js'], ['r2007', 'r2007-write.js'], ['cont', 'container-write.js']]) { const r = await tryImport(f); W[k] = r.mod; why['W.' + k] = r.why; }
@@ -455,6 +478,46 @@ if (section('underlay', 'PDF underlays: PDFDEFINITION + PDFUNDERLAY (0.7 D7.24; 
   const r = spawnSync(process.execPath, [path.join(REPO, 'tools/dwg-test/underlay.mjs')], { encoding: 'utf8', timeout: 900000 });
   const m = /(\d+) passed, (\d+) failed/.exec(r.stdout || '');
   ok(m && +m[2] === 0 && r.status === 0, `underlay.mjs: ${m ? m[1] + ' passed, ' + m[2] + ' failed' : 'did not run'}` + (r.status ? '\n' + (r.stdout || '').split('\n').filter((l) => /FAIL/.test(l)).join('\n') : ''));
+}
+
+if (section('structure', 'structure a strict reader relies on, all six versions (0.9 "Drawing file is not valid"; tools/dwg-test/structure.mjs)')) {
+  const { validate } = await import(pathToFileURL(path.join(REPO, 'tools/dwg-test/structure.mjs')).href);
+  const { kitchenSink } = await import(pathToFileURL(path.join(REPO, 'tools/dwg-test/writer-models.mjs')).href);
+  const Wr2 = await tryImport('write.js');
+  if (!Wr2.mod) skipT('structure: ' + Wr2.why);
+  else {
+    const small = () => ({ units: 'mm', header: { INSUNITS: 4 }, tables: { layers: [{ name: 'A', color: 1 }] }, blocks: [{ name: '*Model_Space', entities: [
+      { type: 'LINE', layer: 'A', start: { x: 0, y: 0, z: 0 }, end: { x: 10, y: 5, z: 0 }, color: { index: 300 } },
+      { type: 'LINE', layer: 'A', start: { x: 0, y: 0, z: 0 }, end: { x: 10, y: 5, z: 0 }, color: { index: -5 } },
+      { type: 'LINE', layer: 'A', start: { x: 0, y: 0, z: 0 }, end: { x: 10, y: 5, z: 0 }, color: 3 }] }] });
+    for (const [name, model] of [['kitchen sink', kitchenSink()], ['small, colours out of range', small()]]) {
+      for (const v of ['AC1015', 'AC1018', 'AC1021', 'AC1024', 'AC1027', 'AC1032']) {
+        let res;
+        try { res = validate(Wr2.mod.writeDwg(model, { version: v, created: new Date(Date.UTC(2026, 10, 8, 12)) }).bytes); } catch (e) { res = { problems: ['threw: ' + e.message] }; }
+        ok(!res.problems.length, `${name} ${v}: no structural problems` + (res.problems.length ? ' — ' + res.problems.slice(0, 4).join(' | ') : ''));
+      }
+    }
+    // the colour fix: the entity colours are in range whatever the model held
+    const back = R.read.readDwg(Wr2.mod.writeDwg(small(), { version: 'AC1018' }).bytes);
+    const cols = back.blocks[0].entities.filter((e) => e.type === 'LINE').map((e) => e.color?.index);
+    ok(cols.join() === '256,256,3', 'an ACI outside 0–257 is written as ByLayer (256), a good one is kept', cols.join());
+    // container helpers: the layouts AutoCAD's own files have
+    const C = W.cont;
+    if (C) {
+      const jd = { created: { day: 2461353, ms: 5 }, updated: { day: 2461353, ms: 5 } };
+      ok(C.objFreeSpace(70, jd.updated, 0, 'AC1018').length === 53 && C.objFreeSpace(70, jd.updated, 0, 'AC1032').length === 89 && C.objFreeSpace(70, jd.updated, 0, 'AC1024').length === 89, 'ObjFreeSpace: 53 bytes to R2007, 89 (64-bit counters) from R2010');
+      const aux = C.auxHeader('AC1032', jd, 0x48), dv = new DataView(aux.buffer, aux.byteOffset);
+      ok(aux.length === 129 && dv.getInt32(3 + 6 + 4, true) === -1 && dv.getUint16(3 + 4, true) === 0, 'AuxHeader R2018: an RS 0 after each version / maintenance pair (the RL -1 sits 10 bytes after the signature)');
+      const aux4 = C.auxHeader('AC1018', jd, 0x48), dv4 = new DataView(aux4.buffer, aux4.byteOffset);
+      ok(aux4.length === 123 && dv4.getInt32(3 + 4 + 4, true) === -1, 'AuxHeader R2004: no extra RS');
+    }
+    // R2007: the section map ends with the empty entry the header counts (AutoCAD example_2007.dwg: 13 and 13)
+    {
+      const bytes = Wr2.mod.writeDwg(kitchenSink(), { version: 'AC1021' }).bytes;
+      const { hdr, entries } = r2007Map(bytes);
+      ok(entries.length === hdr && entries[entries.length - 1].name === '' && entries[entries.length - 1].pages === 0, `R2007 section map: ${entries.length} entries, the header counts ${hdr}, the last is the empty closing one`);
+    }
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed, ${skip} skipped`);

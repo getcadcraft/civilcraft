@@ -17,6 +17,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { figure2 as figure } from './figure.mjs';
 import { furnitureDetail } from './furniture.mjs';
+import { commercialDetail } from './commercial.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '../../..');
@@ -84,14 +85,24 @@ function leaves(a, b, n) {
 /** Plan shapes (kind rect|circle|line|ellipse) → plan entities on a layer. */
 function planShapes(p, shapes) {
   for (const sh of shapes) {
-    if (sh.kind === 'rect') p.rect('EQUIP', sh.x0, sh.y0, sh.x1, sh.y1);
-    else if (sh.kind === 'circle') p.circle('EQUIP', sh.x, sh.y, sh.r);
-    else if (sh.kind === 'line') p.line('EQUIP-DETAIL', sh.x1, sh.y1, sh.x2, sh.y2);
-    else if (sh.kind === 'ellipse') p.ents.push({ type: 'ellipse', layer: 'EQUIP', color: null, cx: r(sh.x), cy: r(sh.y), mx: r(sh.rx), my: 0, ratio: r(sh.ry / sh.rx), t0: 0, t1: 6.283185 });
+    if (sh.kind === 'rect') p.rect(sh.layer || 'EQUIP', sh.x0, sh.y0, sh.x1, sh.y1);
+    else if (sh.kind === 'circle') p.circle(sh.layer || 'EQUIP', sh.x, sh.y, sh.r);
+    else if (sh.kind === 'line') p.line(sh.layer || 'EQUIP-DETAIL', sh.x1, sh.y1, sh.x2, sh.y2);
+    else if (sh.kind === 'ellipse') p.ents.push({ type: 'ellipse', layer: sh.layer || 'EQUIP', color: null, cx: r(sh.x), cy: r(sh.y), mx: sh.ry > sh.rx ? 0 : r(sh.rx), my: sh.ry > sh.rx ? r(sh.ry) : 0, ratio: r(Math.min(sh.rx, sh.ry) / Math.max(sh.rx, sh.ry)), t0: 0, t1: 6.283185 });
+    else if (sh.kind === 'arc') p.arc(sh.layer || 'EQUIP-SWING', sh.x, sh.y, sh.r, sh.a0, sh.a1);
+    else if (sh.kind === 'poly') p.ents.push({ type: 'poly', layer: sh.layer || 'EQUIP', color: null, closed: true, pts: sh.pts.map(([x, y]) => [r(x), r(y)]) });
   }
 }
 
 function detail(base) {
+  // The commercial blocks (*-3.csv and later) are drawn by commercial.mjs: parametric cabinets, tables and one builder per type.
+  const cd = commercialDetail(base);
+  if (cd) {
+    const p0 = plan(), m0 = mesh();
+    for (const t of cd.tris) m0.tri(t[0], t[1], t[2]);
+    planShapes(p0, cd.plan);
+    return { ents: p0.ents, body: m0.body(), clear: cd.clear, changelog: cd.changelog };
+  }
   // Furniture (seating, tables, beds, desks) gets the finer 3D and plan detail from furniture.mjs.
   if (base.category.startsWith('furniture/')) {
     const fd = furnitureDetail(base.name, base.body);

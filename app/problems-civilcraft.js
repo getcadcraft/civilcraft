@@ -13,6 +13,8 @@
  *                 wall taller than its limit, a side slope steeper than allowed) — already in this shape (code, severity, msg, text, about);
  *                 required vs found from their limit and height / slope, one problem per side
  *     rail        project.railWarnings() (0.7.1 71.26): each track's rail.js cantPlan warnings (codes rail.*), about its alignment
+ *     templates   project.templateWarnings() (0.9 SU.1110 + WB.6): a corridor naming a template that is gone, a terrain template that
+ *                 cannot be draped (codes tpl.*), already in this shape
  *     native      the open IFC pair's warnings (0.7.1 71.27, ifc-native.js decide: ifc.native.changed / .stale / .missing), with their fixes
  *   t(key, vars) = CivilCraft's t (the words are the Properties panel's own keys: why.*, corr.standin*); unit = the short length unit.
  *   cleanAcceptedCivil(list)   the project file's problems.accepted (project.js), the same rules as the core's cleanAccepted
@@ -22,8 +24,12 @@ import { regionOf } from './solar-run.js';   // 0.8 EG.15: a solar array's probl
 
 const n2 = (v) => String(Math.round(v * 100) / 100);
 
-export function civilProblems({ alignments = [], standIn = [], graded = [], rail = [], native = [] } = {}, { t = (k) => k, unit = 'm' } = {}) {
+export function civilProblems({ alignments = [], standIn = [], graded = [], rail = [], native = [], templates = [] } = {}, { t = (k) => k, unit = 'm' } = {}) {
   const out = [];
+  for (const w of templates || []) {   // 0.9 SU.1110 + WB.6
+    if (!w || typeof w.code !== 'string' || !/^tpl\./.test(w.code)) continue;
+    out.push({ code: w.code, severity: w.severity === 'error' ? 'error' : 'warning', text: String(w.text || ''), ...(w.msg ? { msg: w.msg } : {}), about: w.about ? [{ kind: String(w.about.kind), id: String(w.about.id), label: w.about.label || w.about.id }] : [], source: { name: 'civilcraft.templates' } });
+  }
   for (const a of alignments) {
     if (!a || !Array.isArray(a.pis)) continue;
     const about = [{ kind: 'alignment', id: a.id, label: a.name || a.id }];

@@ -220,6 +220,8 @@ without `--force`. All CC0, ours, made up to show the tools (not engineered desi
 | `bimcraft-water-treatment.ifc` | make-water-treatment | "Hillside water treatment plant" on a sloping site |
 | `bimcraft-piping-retrofit.ifc` | make-piping-retrofit | the process plant with one new transfer line (reads `bimcraft-process-plant.ifc`) |
 | `cadcraft-pump-skid-pid.dwg` | make-pump-skid-pid | P&ID of the pump skid, same tags (P&ID add-on) |
+| `cadcraft-hvac-office.dwg` | make-hvac-office | made-up 60 x 40 ft office: supply main S-1 (3 sections sized from 2400/1500/700 cfm, two transitions), branches S-2 and S-3, five 150 cfm round takeoffs with diffusers, duct schedule table under the plan (HVAC add-on, CC0, ours; shoot the plan view, then the 3D tab) |
+| `cadcraft-piping-plumbing.dwg` | make-piping-plumbing | made-up bathroom group: copper type L cold-water main CW-1 with 3/4 and 1/2 in branches and gate/ball valves, 4 in PVC drain D-1 on the code's 1/8 in/ft with 2 and 3 in branch drains, pipe and fitting schedule table (Piping add-on, CC0, ours; shoot the plan view, then the 3D tab to show the fall) |
 | `cadcraft-chip-sky130.gds` + `.dwg` | make-cap-chip | chip layout at nanometer scale, opened with GDSIN (SU.752) |
 | `cadcraft-wafer-map.dwg` + `.lsp` | make-cap-wafer | 300 mm wafer map drawn by a LISP routine (APPLOAD) |
 | `cadcraft-pcb-fab-drawing.dwg` | make-cap-pcb | PCB fabrication / assembly drawing (a drawing, not a board router) |
@@ -256,3 +258,12 @@ without `--force`. All CC0, ours, made up to show the tools (not engineered desi
   was not built; the picture is geometry and the exploded view only. Made once by `tools/great-eight-media/make-turbo-compressor.mjs`
   (refuses to overwrite; `--cache <dir>` keeps the part meshes between runs). Shots: open it in /lab/supercadcraft, Model workspace > Parts view,
   Explode view "Exploded" (Properties panel), look along (-0.55, -0.45, -0.85), zoom 1.8.
+- `chip-pebble/` (CC0; 0.9 HD.10, session `chip-runners-09`): **Pebble**, the Chip design add-on's sample design — our own small RISC-style
+  teaching core (Verilog, testbench, SDC), the made-up `cc_cells` teaching cell library (Liberty, LEF, Verilog models), the project file, and
+  the outputs of REAL Icarus Verilog 11 + Yosys 0.9 runs (RTL waves, mapped netlist of 801 cells, gate-level waves with an SDF, STIL), plus a
+  DEF/GDS placement and SDF made by the script itself (no routing; OpenROAD/KLayout/Netgen not run). Made once by
+  `node tools/chip/make-sample.mjs` (refuses to overwrite; `--check` compares the sources); `node tools/chip/sync.mjs cadcraft` copies it
+  into the add-on's `sample/`. Shots: /lab/cadcraft, Chip design › Project › Open the sample design.
+- `scan-rim-can.stl` and `scan-var-fillet-block.stl` (binary STL; CC0, ours; 0.9 SU.1082, video 18-scan-fit, 2026-11-09): synthetic "scans" with known truth, written once from `tools/nurbs/scan-fixtures.mjs` (`roundedCan(20, 40, 4, 96, 8, 0.01)`: a can R 20, H 40 mm with a rim fillet of 4 mm, 0.01 mm noise; `varFilletBlock(60, 40, 30, x => 2 + 4x/60, 10, 0.01)`: a 60 x 40 x 30 mm block whose edge radius runs 2 to 6 mm). Shots: import in /lab/modelcraft, Surfaces › Scan › Fit (tolerance 0.1 mm) lists the Torus / Variable fillet rows, then Stitch. Not a real scan.
+- `detailcraft-frame-live-load.detailcraft.json` (CC0, ours; 0.9 SU.1056, video 19-pdelta, 2026-11-09): DetailCraft's built-in sample frame with a 20 kN/m live load (case L) on its first beam, saved from the app's own model (`model.toJSON()`). Shots: open it in /lab/detailcraft, Analysis tab, Run, tick Second order (P-Delta), Run again.
+- `modelcraft-step-part.modelcraft` (CC0, ours; 0.9 TW.13, video 20-conveyor-from-step, 2026-11-09): `fixtures/step/box.step` (50 x 40 x 30 mm) imported through ModelCraft's own Import and saved with `modelcraft.file()`. Shots: open it in /lab/modelcraft with the Digital twin add-on on, Behaviours on imported parts › Pick a face (top), Conveyor, Test. A plain box, not a real machine part.

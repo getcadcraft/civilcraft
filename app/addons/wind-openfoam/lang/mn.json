@@ -1,0 +1,14 @@
+{
+  "@locale": "mn",
+  "@name": "Монгол",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (нэмэлт)",
+  "wind.of.note": "Энэ компьютер дээрх жижиг туслах програмаар дамжуулан таны өөрийн OpenFOAM суулгалтыг ажиллуулна: салхины чиглэл тус бүрт нэг тогтмол RANS (k-epsilon) тооцоолол, агаар мандлын хилийн давхаргын оролт. Юу ч энэ компьютерээс гарахгүй. CadCraft нь OpenFOAM-ийг агуулдаггүй.",
+  "wind.of.url": "Туслагчийн хаяг",
+  "wind.of.token": "Туслагчийн токен",
+  "wind.of.check": "Туслагчийг шалгах",
+  "wind.of.ok": "Туслагч хариулсан. OpenFOAM: {foam}",
+  "wind.of.down": "Туслагч хариулсангүй ({why}). Үүнийг энэ компьютер дээр эхлүүлнэ үү: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Туслагч хариулсан боловч OpenFOAM-ийг эхлүүлж чадсангүй: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-цуврал, openfoam.com) болон туслагчийг нэмэлтийн хавтаснаас суулгана уу; тусламжийн сэдэвт хоёуланг нь тайлбарласан байна."
+}

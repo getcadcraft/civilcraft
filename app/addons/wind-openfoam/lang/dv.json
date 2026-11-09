@@ -1,0 +1,14 @@
+{
+  "@locale": "dv",
+  "@name": "ދިވެހި",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (އެޑް-އޮން)",
+  "wind.of.note": "މި ކޮމްޕިއުޓަރުގައި ކުޑަ ހެލްޕަރު ޕްރޮގްރާމެއްގެ ވަސީލަތުން ތިޔަ OpenFOAM ހެދިފައިވާ ގޮތުގައި ރަން ކުރޭ: ކޮންމެ ހަވާ ދިމާއަކަށް ވަކި ހުރަވާ (RANS, k-epsilon) ކޭސްއެއް, ވަތަނުގެ ބައުންޑަރީ ލޭޔަރު އިންލެޓަށް. މި ކޮމްޕިއުޓަރުން ކިހިނެއްވެސް އެއްޗެއް ބޭރަށް ނުދެވޭ. CadCraft ގައި OpenFOAM ނެތް.",
+  "wind.of.url": "ހެލްޕަރުގެ އެޑްރެސް",
+  "wind.of.token": "ހެލްޕަރުގެ ޓޯކަން",
+  "wind.of.check": "ހެލްޕަރު ޗެކްކުރޭ",
+  "wind.of.ok": "ހެލްޕަރު ޖަވާބު ދިނެވި. OpenFOAM: {foam}",
+  "wind.of.down": "ހެލްޕަރު ޖަވާބު ނުދިނެވި ({why}). މި ކޮމްޕިއުޓަރުގައި ފަށާ: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "ހެލްޕަރު ޖަވާބު ދިނެވިޔަސް OpenFOAM ފަށަން ނޮޅުނު: {why}",
+  "wind.of.install": "OpenFOAM (ESI v-series, openfoam.com) އަދި ހެލްޕަރު އެޑް-އޮނުގެ ފޮލްޑަރުން ހަދާ; ހެލްޕް ޓޮޕިކުން ދެ ކަމުގެ ތަފްޞީލު ދެއްކެވޭ."
+}

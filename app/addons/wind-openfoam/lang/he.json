@@ -1,0 +1,14 @@
+{
+  "@locale": "he",
+  "@name": "עברית",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "תוסף OpenFOAM",
+  "wind.of.note": "מריץ את התקנת OpenFOAM שלכם דרך תוכנית עזר קטנה במחשב זה: מקרה RANS יציב (k-epsilon) לכל כיוון רוח, עם כניסה של שכבת הגבול האטמוספרית. דבר אינו יוצא מהמחשב הזה. CadCraft אינו כולל את OpenFOAM.",
+  "wind.of.url": "כתובת העוזר",
+  "wind.of.token": "אסימון העוזר",
+  "wind.of.check": "בדיקת העוזר",
+  "wind.of.ok": "העוזר ענה. OpenFOAM: {foam}",
+  "wind.of.down": "העוזר לא ענה ({why}). הפעילו אותו במחשב זה: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "העוזר ענה אך לא הצליח להפעיל את OpenFOAM: {why}",
+  "wind.of.install": "התקינו את OpenFOAM (סדרת ESI v, openfoam.com) ואת העוזר מתיקיית התוסף; נושא העזרה מסביר את שניהם."
+}

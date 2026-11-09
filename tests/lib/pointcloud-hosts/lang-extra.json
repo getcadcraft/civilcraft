@@ -1,0 +1,8 @@
+{
+  "pc.file": "Point cloud file (LAS, LAZ, E57, PLY, PCD, PTX, XYZ or PTS)",
+  "pc.err.no_app": "Open a model first: the cloud is drawn in the app's 3D view, which the app makes with the first model.",
+  "pc.err.no_3d": "The app's 3D view is not available yet. Open the 3D view and try again.",
+  "pcx.note.bim": "Drawn in BimCraft's 3D view beside the model. LAS and LAZ are tiled as they are; E57, PLY, PCD, PTX, XYZ and PTS are read by the app's own reader (at most 3 million points kept, thinned evenly) and then tiled the same way. Metres are assumed unless the file says feet. Eye-dome lighting starts off here.",
+  "pcx.note.cad": "Drawn in CadCraft's 3D tab. LAS and LAZ are tiled as they are; E57, PLY, PCD, PTX, XYZ and PTS are read by the app's own reader (at most 3 million points kept, thinned evenly) and then tiled the same way. Metres are assumed unless the file says feet. The ground and class tools are not in this app. Eye-dome lighting starts off here.",
+  "pcx.thinned": "The file has {read} points; {kept} were kept, spread evenly, before tiling."
+}

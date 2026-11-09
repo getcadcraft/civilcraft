@@ -1,0 +1,14 @@
+{
+  "@locale": "id",
+  "@name": "Bahasa Indonesia",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM (add-on)",
+  "wind.of.note": "Menjalankan instalasi OpenFOAM Anda sendiri melalui program pembantu kecil di komputer ini: satu kasus RANS tunak (k-epsilon) untuk setiap arah angin, dengan inlet lapisan batas atmosfer. Tidak ada yang keluar dari komputer ini. CadCraft tidak menyertakan OpenFOAM.",
+  "wind.of.url": "Alamat pembantu",
+  "wind.of.token": "Token pembantu",
+  "wind.of.check": "Periksa pembantu",
+  "wind.of.ok": "Pembantu merespons. OpenFOAM: {foam}",
+  "wind.of.down": "Pembantu tidak merespons ({why}). Jalankan di komputer ini: node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "Pembantu merespons tetapi tidak dapat memulai OpenFOAM: {why}",
+  "wind.of.install": "Pasang OpenFOAM (v-series ESI, openfoam.com) dan pembantu dari folder add-on; topik bantuan menjelaskan keduanya."
+}

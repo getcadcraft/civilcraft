@@ -44,7 +44,11 @@
 import { unitM, toForce, forceUnit, round } from './units.js';
 import { t } from '../i18n.js';
 import { writeXlsx } from '../landscape/xlsx.js';
-import { mapXY } from '../gis-geom.js';
+// (a local copy of gis-geom.js mapXY for points and lines: gis-geom.js is not fetched at start)
+const mapXY = (g, fn) => {
+  const m = (p) => { const q = fn(p[0], p[1]); return p.length > 2 ? [q[0], q[1], p[2]] : [q[0], q[1]]; };
+  return g.t === 'pt' ? { t: 'pt', c: m(g.c) } : { t: 'ln', c: g.c.map((part) => part.map(m)) };
+};
 import { trenchQuantities as ugTrench } from './underground.js';
 
 export const JUMPER_PCT = 2;

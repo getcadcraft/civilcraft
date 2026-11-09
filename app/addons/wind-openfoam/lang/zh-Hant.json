@@ -1,0 +1,14 @@
+{
+  "@locale": "zh-Hant",
+  "@name": "繁體中文",
+  "@note": "Draft translation, not yet reviewed by a native speaker",
+  "wind.of.label": "OpenFOAM（外掛）",
+  "wind.of.note": "透過這台電腦上的小型輔助程式執行已安裝的 OpenFOAM：每個風向各執行一個穩態 RANS（k-epsilon）案例，入口採大氣邊界層。內容不會離開這台電腦。CadCraft 不包含 OpenFOAM。",
+  "wind.of.url": "輔助程式位址",
+  "wind.of.token": "輔助程式權杖",
+  "wind.of.check": "檢查輔助程式",
+  "wind.of.ok": "輔助程式已回應。OpenFOAM：{foam}",
+  "wind.of.down": "輔助程式未回應（{why}）。在這台電腦上啟動：node cc-openfoam-runner.mjs serve",
+  "wind.of.nofoam": "輔助程式已回應，但無法啟動 OpenFOAM：{why}",
+  "wind.of.install": "從外掛資料夾安裝 OpenFOAM（ESI v-series，openfoam.com）與輔助程式；說明主題中有兩者的做法。"
+}
