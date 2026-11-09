@@ -22,7 +22,7 @@ Use it now at https://getcadcraft.com/use/civilcraft, or install CadCraft Studio
 | Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.9](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0) (installer, `.deb`, AppImage); not code-signed yet |
 | [macOS](macos/) | In [CadCraft Studio 0.9](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0) (universal disk image; not code-signed or notarized yet) |
 | [Android](android/) | The Studio APK, on the [download page](https://getcadcraft.com/download#studio) |
-| [iPad](ios/) | Planned |
+| [iPad](ios/) | From the App Store when Apple releases it (Studio 0.8 is with Apple); not in the store yet |
 
 ## Work on it
 
