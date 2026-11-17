@@ -59,7 +59,19 @@ function boot() {
       lk.document ? h('small', { class: 'cct-snip', text: ' ' + T('shell.activity.in.file', { file: lk.document }) }) : null,
       lk.undo ? h('small', { class: 'cct-snip', text: ' ' + T('shell.assistants.undo', { label: lk.undo }) }) : null,
       canUndo ? h('button', { type: 'button', class: 'cct-ib', 'data-k': 'undo', title: T('shell.activity.undo.title'), onclick: () => { try { adapter.undoTo(lk.undoIndex - 1); } catch (e) { /* the app says why */ } } }, T('shell.activity.undo')) : null,
+      sentEl(r),
       lk.document && lk.version && typeof adapter.history === 'function' ? h('button', { type: 'button', class: 'cct-ib', 'data-k': 'history', title: T('shell.activity.history.title'), onclick: () => adapter.history(lk.document, lk.version) }, T('shell.activity.history')) : null);
+  }
+
+  /** BK.145: what went back to the assistant for this call: its size and field names, and what the model-data-only filter held back. Never the values. */
+  function sentEl(r) {
+    const s = log.sent(r);
+    if (!s) return null;
+    const names = s.fields.filter((f) => f.name).map((f) => f.name + (f.n !== undefined ? ' (' + f.n + ')' : '')).join(', ');
+    const size = s.bytes >= 1024 ? T('shell.activity.sent.kb', { n: Math.round(s.bytes / 102.4) / 10 }) : T('shell.activity.sent.bytes', { n: s.bytes });
+    return h('div', { class: 'cct-ac-sent', 'data-k': 'sent' },
+      h('small', { class: 'cct-snip', text: T(names ? 'shell.activity.sent' : 'shell.activity.sent.plain', { size, fields: names }) }),
+      s.heldCount ? h('small', { class: 'cct-ac-held', 'data-k': 'held', text: ' ' + T('shell.activity.held', { n: s.heldCount, what: s.held.map((x) => x.path + ' (' + T('shell.activity.held.' + x.why) + ')').join(', ') }) }) : null);
   }
 
   function download(format) {
@@ -89,7 +101,7 @@ function boot() {
     kids.push(h('div', { class: 'cct-bar' },
       ...['csv', 'json', 'txt'].map((f) => h('button', { type: 'button', class: 'cct-btn', 'data-k': 'export-' + f, onclick: () => download(f) }, T('shell.activity.export.' + f))),
       h('button', { type: 'button', class: 'cct-btn', 'data-k': 'clear', onclick: () => { log.clear(); } }, T('shell.activity.clear'))));
-    kids.push(h('p', { class: 'cct-note', text: T('shell.activity.note') }));
+    kids.push(h('p', { class: 'cct-note', text: T('shell.activity.note') }), h('p', { class: 'cct-note', 'data-k': 'modelonly', text: T('shell.activity.modelonly') }));
     P.body.replaceChildren(...kids);
   }
 

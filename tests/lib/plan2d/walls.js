@@ -15,6 +15,9 @@
  * The join record (0.9 FX.59, the same record as BimCraft's IfcRelConnectsPathElements, rules in lib/walls/joins.js): a join is kept
  * on BOTH walls as jn: [{ o: the other wall's g, me: 'start'|'end'|'mid', ot: the other's place, k: 'L'|'T'|'X' }]. Joins are no
  * longer found by position at each edit: geometry() and followMoves() use the walls the caller names (the joined ones).
+ * The join STYLE (0.9 WT.5, walls-plan-10) is two more fields on an L record: st: 'butt' | 'square' (absent = mitre, what every older
+ * drawing has) and th: 1 when THIS wall runs through, 0 when the other does. Both walls carry it (mirrored). The cut of the two ends is
+ * lib/walls/joinstyle.js cornerEnds (one set of rules with BimCraft); only a corner of exactly two walls takes a style.
  *
  *   isWall(e) · wallData(e) · withWallData(e, data) · model(e) → { id, a, b, t, f, ops, flip, scale } in world coordinates
  *   geometry(w, others) → { lines, arcs, fills } in world coordinates: clean corners, T joins, crossings, gaps for openings
@@ -22,6 +25,8 @@
  *   snapEnd(p, walls, reach) · offsetChain(pts, d, closed) · placeAt(w, p) → { at, side, d } · fits(w, op, skip)
  *   wallGrips(e) · wallGripMove(e, key, to) · wallGripAct(e, key) → the entity with its data changed (the host rebuilds the block)
  */
+
+import { cornerEnds } from '../walls/joinstyle.js';
 
 export const APP = 'CADCRAFT_WALL';
 export const DOOR_STYLES = ['single', 'double', 'sliding', 'opening'];
@@ -47,7 +52,10 @@ export function cleanWall(d) {
   const out = { v: 1, a: [nums[0], nums[1]], b: [nums[2], nums[3]], t: d.t, f: typeof d.f === 'string' ? d.f.slice(0, 64) : '', ops: (Array.isArray(d.ops) ? d.ops : []).slice(0, MAX_OPS).map(cleanOp).filter(Boolean) };
   if (typeof d.g === 'string' && /^[0-9a-zA-Z_-]{6,40}$/.test(d.g)) out.g = d.g;
   const POS = ['start', 'end', 'mid'];
-  if (Array.isArray(d.jn)) out.jn = d.jn.slice(0, 64).filter((r) => r && typeof r.o === 'string' && POS.includes(r.me) && POS.includes(r.ot)).map((r) => ({ o: r.o.slice(0, 40), me: r.me, ot: r.ot, k: r.me === 'mid' && r.ot === 'mid' ? 'X' : r.me === 'mid' || r.ot === 'mid' ? 'T' : 'L' }));
+  if (Array.isArray(d.jn)) out.jn = d.jn.slice(0, 64).filter((r) => r && typeof r.o === 'string' && POS.includes(r.me) && POS.includes(r.ot)).map((r) => {
+    const k = r.me === 'mid' && r.ot === 'mid' ? 'X' : r.me === 'mid' || r.ot === 'mid' ? 'T' : 'L';
+    return { o: r.o.slice(0, 40), me: r.me, ot: r.ot, k, ...(k === 'L' && (r.st === 'butt' || r.st === 'square') ? { st: r.st, th: r.th ? 1 : 0 } : {}) };   // the join style, on a corner only
+  });
   if (d.jo === 'a' || d.jo === 'b' || d.jo === 'ab') out.jo = d.jo;
   if (d.lj === 'l' || d.lj === 'r') out.lj = d.lj;
   if (Array.isArray(d.h) && d.h.length) out.h = d.h.slice(0, 32).filter((x) => x && typeof x === 'object' && ['line', 'end', 'dim'].includes(x.kind) && typeof x.id === 'string').map((x) => JSON.parse(JSON.stringify(x)));
@@ -148,6 +156,16 @@ function endTreatment(w, f, isB, others) {
       const s = meet(at(me.d, off), me.d, at(other.d, otherOff), other.d);
       return s === null || Math.abs(s) > limit ? 0 : s;
     };
+    // a corner of exactly two walls with a stored join style (butt, square off): the ends are cut by the shared rules (lib/walls/joinstyle.js)
+    const rec = arms.length === 2 && ccw.w.g ? (w.jn || []).find((r) => r.o === ccw.w.g && r.me === (isB ? 'end' : 'start') && r.ot !== 'mid' && r.st) : null;
+    if (rec) {
+      const c = cornerEnds({ p: [P.x, P.y], d: [me.d.x, me.d.y], h: me.h }, { p: [P.x, P.y], d: [ccw.d.x, ccw.d.y], h: ccw.h }, { style: rec.st, through: rec.th ? 'a' : 'b', tol });
+      if (c.style !== 'mitre') {
+        const s = (q) => (q[0] - P.x) * me.d.x + (q[1] - P.y) * me.d.y;
+        // the wall that runs through ends in a face of its own: one more line; the wall that stops ends on the other wall's side, which that wall draws
+        return { left: s(c.a.left), right: s(c.a.right), cap: false, steps: rec.th ? [{ x1: c.a.left[0], y1: c.a.left[1], x2: c.a.right[0], y2: c.a.right[1] }] : [] };
+      }
+    }
     const left = side(me.h, ccw, -ccw.h), right = side(-me.h, cw, cw.h);
     // walls of different thickness in a straight run: a short step closes the gap
     const steps = [];

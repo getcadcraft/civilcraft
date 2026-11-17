@@ -16,9 +16,10 @@ import * as groundSurface from './ground-surface.js';
 import { placement } from './common.js';
 
 export const ground = true;
-export const accept = '.las,.laz,.e57,.ply,.pcd,.ptx,.xyz,.pts';
+export const accept = '.las,.laz,.e57,.ply,.obj,.usdz,.pcd,.ptx,.xyz,.pts';
 export const engineDeps = () => ({ las, thin, groundClassify, groundSurface });
 export const readers = () => import('../../pointcloud.js');
+export const e57 = () => import('../../e57.js');   // 0.10 PERF.25: its e57Detail reads the XML section for the page-by-page reader
 
 const YUP = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1];   // Z up → Y up: (x, y, z) → (x, z, −y)
 const toZ = (v) => [v.x, -v.z, v.y];
@@ -97,3 +98,68 @@ export function placementOf(ctx) {
   return cache.get(c.id);
 }
 export function dispose() { document.querySelectorAll('[data-canvas-wrap][data-view3d]').forEach((e) => e.removeAttribute('data-view3d')); current = null; cache.clear(); }
+
+// ------------------------------------------------------------------ Compare with model (0.10 SU.1809)
+/**
+ * The model's elements as triangles in the cloud's Z-up scene (metres): every batch of every model layer of the viewer, the layer's matrix applied,
+ * then Y up → Z up (x, −z, y). `key` is the viewer's element key (the one the app's selection, schedules and Verification use); the name and
+ * GlobalId come from window.bimcraftKeyInfo(key) when the app offers it, else the key stands for the name.
+ */
+export function model() {
+  const v = find();
+  if (!v || !v.layers || !v.layers.size) return null;
+  const by = new Map(), info = typeof window.bimcraftKeyInfo === 'function' ? window.bimcraftKeyInfo : null;
+  const e = new THREE.Vector3();
+  for (const L of v.layers.values()) {
+    const M = L.group.matrix;
+    for (const b of L.batches) {
+      const P = b.positions, I = b.indices, ids = b.triIds;
+      if (!P || !I || !ids) continue;
+      const W = new Float64Array(P.length);   // the batch's vertices, in the viewer's world, turned Z up
+      for (let i = 0; i < P.length; i += 3) { e.set(P[i], P[i + 1], P[i + 2]).applyMatrix4(M); W[i] = e.x; W[i + 1] = -e.z; W[i + 2] = e.y; }
+      for (let t = 0; t < I.length / 3; t++) {
+        const key = ids[t];
+        let a = by.get(key); if (!a) by.set(key, a = []);
+        for (let k = 0; k < 3; k++) { const o = 3 * I[3 * t + k]; a.push(W[o], W[o + 1], W[o + 2]); }
+      }
+    }
+  }
+  const elements = [];
+  for (const [key, a] of by) { const i = info ? info(key) || {} : {}; elements.push({ key, name: i.name || '', guid: i.guid || '', tris: Float32Array.from(a) }); }
+  return elements.length ? { elements } : null;
+}
+export const modelBounds = () => hostBox();
+
+let sampleLayer = null;
+export function clearSample() {
+  if (!sampleLayer) return;
+  sampleLayer.removeFromParent(); sampleLayer.geometry.dispose(); sampleLayer.material.dispose(); sampleLayer = null;
+  const v = find(); if (v) v.render();
+}
+/** The compared points, coloured by band, hung under the cloud's Z-up group so they sit where the cloud and the model are. */
+export function showSample(ctx, report, rgb) {
+  clearSample();
+  const v = find(); if (!v || !current || current.v !== v) { const ap = app(ctx); void (ap && ap.view3d); }
+  if (!v || !current) return;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(report.sample.pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(Float32Array.from(rgb, (c) => c / 255), 3));
+  const m = new THREE.PointsMaterial({ size: 3, sizeAttenuation: false, vertexColors: true, depthTest: true });
+  sampleLayer = new THREE.Points(g, m); sampleLayer.frustumCulled = false; sampleLayer.name = 'pointcloud-compare';
+  if (!current.wrap.parent) v.root.add(current.wrap);
+  current.wrap.add(sampleLayer);
+  v.render();
+}
+export function select(keys) {
+  const v = find();
+  if (!v || !keys.length) return;
+  v.select(keys);
+  v.render();
+}
+/** BK.49: elements the scan matched within tolerance become field-verified, method scan, through the app's own Verification (verify-ui.js). */
+export function verify(keys, { note = '' } = {}) {
+  const api = window.bimcraftVerify;
+  if (!api || typeof api.fromScan !== 'function') return null;
+  const r = api.fromScan(keys, { note });
+  return Array.isArray(r) ? r.length : (typeof r === 'number' ? r : keys.length);
+}

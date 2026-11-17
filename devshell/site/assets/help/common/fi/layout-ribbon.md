@@ -1,52 +1,54 @@
 ---
-title: Työskentele valintanauha- ja projektiselainasettelulla
-summary: Vaihda sovellus valintanauhaan, jossa välilehdet ovat piirustuksen päällä, Ominaisuudet ja projektiselain vasemmalla ja jokaisella avoimella näkymällä oma välilehti, ja palaa perinteiseen asetteluun milloin haluat.
-keywords: asettelu, työtila, valintanauha, valintanauhan välilehdet, projektiselain, selain, paletit, ominaisuuspaletti, näkymävälilehdet, tilarivi, pikakäyttö, tiivistä valintanauha, pienennä valintanauha, valintanauhan ikkuna, perinteinen asettelu, vaihda asettelua, kiinnitetty
-from: c1a6eccc
+title: Työskentely valintanauhan ja projektiselaimen asettelussa
+summary: Vaihda sovellus valintanauhaan välilehtineen piirustuksen päällä, jossa Ominaisuudet ja projektiselain ovat vasemmalla ja jokaisella avoimella näkymällä on oma välilehti, ja palaa klassiseen asetteluun milloin tahansa.
+keywords: asettelu, työtila, valintanauha, valintanauhan välilehdet, projektiselain, selain, paletit, ominaisuudet, näkymävälilehdet, tilarivi, pikakäyttö, tiivistä valintanauha, minimoi valintanauha, valintanauhan ikkuna, klassinen asettelu, vaihda asettelu, kiinnitetty
+from: 93700102
 ---
 
-**Valintanauha ja projektiselain** on yksi sovelluksen kolmesta työtila-asettelusta. Välilehdistä koostuva valintanauha kulkee ylhäällä, Ominaisuudet ja projektiselain jakavat vasemman paneelin, jokainen avaamasi näkymä saa välilehden piirustuksen päälle, ja tilarivi on alhaalla. Työkalut ovat sovelluksen omat: kaikki, minkä voit tehdä perinteisessä asettelussa, onnistuu myös täällä, ja piirustuksesi, valikkotyylisi ja näppäimesi pysyvät ennallaan.
+**Valintanauha ja projektiselain** on yksi sovelluksen kolmesta työtilan asettelusta. Välilehdistä koostuva valintanauha kulkee yläreunassa, Ominaisuudet ja projektiselain jakavat vasemman paneelin, jokainen avattu näkymä saa välilehden piirustuksen päälle ja tilarivi on alhaalla. Työkalut ovat sovelluksen omia: kaikki, mitä klassisessa asettelussa voi tehdä, toimii tässäkin, ja piirustus, valikkotyyli ja näppäimet pysyvät ennallaan.
 
 ## Valitse se
 
-1. Avaa {{ui:Asetukset}} (hammasratas tai {{key:Mod+,}}).
-2. Valitse {{ui:Yleinen}}-välilehti ja siirry kohtaan {{ui:Asettelu}} › {{ui:Työtila}}.
+1. Avaa {{ui:Asetukset}} (vaihde tai {{key:Mod+,}}).
+2. Valitse välilehti {{ui:Yleinen}} ja siirry kohtaan {{ui:Asettelu}} › {{ui:Työtila}}.
 3. Valitse {{ui:Valintanauha ja projektiselain}}.
 
-Asettelu vaihtuu heti. Valinta on yksi kaikille tämän selaimen sovelluksille: jokainen sovellus avautuu siitä lähtien siihen, ja se on paikallaan ennen kuin sivu piirretään, joten et koskaan näe perinteistä asettelua ensin.
+Asettelu vaihtuu heti. Valinta on yhteinen kaikille tämän selaimen sovelluksille: jokainen sovellus avautuu siihen tästä eteenpäin, ja se on paikallaan ennen sivun piirtymistä, joten klassista asettelua ei koskaan näy ensin.
 
-## Mikä on missä
+## Missä mikäkin on
 
-- **Otsikkopalkki:** sovelluksen nimi, pikakäyttöpainikkeet (avaa, tallenna, kumoa, tee uudelleen), avoimen tiedoston nimi, {{ui:Mitä kukin työkalu tekee täällä}} (luettelo kaikista työkaluista hakuruudulla, joka kertoo, mitkä ovat valmiita nyt ja miksi muut eivät ole), kokoruutu, {{ui:Ohje}} ja {{ui:Asetukset}}. Tässä asettelussa otsikkopalkki korvaa sovelluspalkin.
-- **Valintanauha:** sovelluksen työkalut välilehdillä, kukin välilehti ryhmiin jaettuna. {{ui:Tiedosto}} vasemmalla avaa, tallentaa ja niin edelleen. Jotkin sovellukset lisäävät oman välilehden, kun työskentelet tietyssä tilassa tai työtilassa; se palaa, kun se on käytössä, ja poistuu sen jälkeen.
-- **Asetuspalkki:** valintanauhan alla se, mitä käynnissä oleva työkalu tarvitsee sinulta, tai mikä on valittuna.
-- **Vasen paneeli:** {{ui:Ominaisuudet}} ylhäällä ja sen alla paletit (projektiselain ja paneelin oma sisältö) välilehtinä. Vedä niiden välistä viivaa jakaaksesi tilan.
-- **Näkymävälilehdet:** yksi välilehti jokaista avaamaasi näkymää kohti (arkki, pohjapiirros, näkymä…). Sulje yksi sen sulkupainikkeella; tiedosto pysyy auki.
+- **Otsikkopalkki:** sovelluksen nimi, pikakäyttöpainikkeet (avaa, tallenna, kumoa, tee uudelleen), avoimen tiedoston nimi, {{ui:Mitä kukin työkalu tekee täällä}} (luettelo kaikista työkaluista hakukentällä, joka kertoo, mitkä ovat valmiina nyt ja miksi muut eivät ole), koko näyttö, {{ui:Ohje}} ja {{ui:Asetukset}}. Tässä asettelussa otsikkopalkki korvaa sovelluspalkin.
+- **Valintanauha:** sovelluksen työkalut välilehdillä, jokainen välilehti ryhmissä. Vasemmalla oleva {{ui:Tiedosto}} avaa, tallentaa ja muut. Jotkin sovellukset lisäävät oman välilehden tietyssä tilassa tai työtilassa; se on valaistu niin kauan kuin se pätee ja katoaa sen jälkeen.
+- **Vaihtoehtopalkki:** valintanauhan alla; se näyttää, mitä käynnissä oleva työkalu tarvitsee sinulta tai mitä on valittu.
+- **Vasen paneeli:** {{ui:Ominaisuudet}} ylhäällä ja sen alla paletit (projektiselain ja paneelin oma sisältö) välilehtinä. Jaa tila vetämällä niiden välistä viivaa.
+- **Näkymävälilehdet:** yksi välilehti kutakin avattua näkymää kohden (arkki, pohjapiirros, kohtaus…). Sulje välilehti sen sulkupainikkeella; tiedosto pysyy auki.
 - **Näkymäpalkki ja tilarivi:** piirustuksen alla näkymän omat säätimet (mittakaava, zoomaus); alhaalla sovelluksen viestit.
 
-Työkalu, jota ei voi ajaa juuri nyt, on harmaana, ja sen työkaluvihje kertoo syyn (esimerkiksi ”Avaa ensin tiedosto” tai että sovelluksessa ei ole vielä sitä työkalua). Napsauta sitä tai paina sen kohdalla {{key:Enter}} lukeaksesi syyn ruudusta.
+Työkalu, jota ei voi käyttää juuri nyt, on harmaana, ja sen ohjeteksti kertoo syyn (esimerkiksi ”Avaa ensin tiedosto” tai että työkalua ei ole vielä toteutettu). Napsauta sitä tai paina {{key:Enter}} sen kohdalla, niin syy näkyy ruudussa.
 
-## Käytä valintanauhaa näppäimistöltä
+## Valintanauhan käyttö näppäimistöllä
 
-Kun valintanauhan välilehti on kohdistettuna, {{key:Left}} ja {{key:Right}} siirtyvät välilehtien välillä ja {{key:Home}} ja {{key:End}} ensimmäiseen ja viimeiseen. {{key:Esc}} lopettaa ensin käynnissä olevan työkalun, kuten perinteisessä asettelussa, ja kaikki pikanäppäimet sekä {{key:Ctrl+Shift+F}} (näyttötilat) toimivat entiseen tapaan.
+Kun valintanauhan välilehti on kohdistettuna, {{key:Left}} ja {{key:Right}} siirtävät välilehtien välillä, ja {{key:Home}} sekä {{key:End}} siirtävät ensimmäiseen ja viimeiseen. {{key:Esc}} lopettaa ensin käynnissä olevan työkalun, kuten klassisessa asettelussa, ja jokainen pikanäppäin sekä {{key:Ctrl+Shift+F}} (näyttötilat) toimivat kuten ennenkin.
 
-## Tiivistä valintanauha tai anna sille oma ikkuna
+## Taita valintanauha tai anna sille oma ikkuna
 
-- Kaksoisnapsauta valintanauhan välilehteä tiivistääksesi valintanauhan välilehtiinsä; välilehden napsautus näyttää sitten sen työkalut, kunnes siirryt pois. Kaksoisnapsauta uudelleen pitääksesi sen auki. Valintanauhan oikeassa päässä olevassa {{ui:Siirrä valintanauha}} -painikkeessa ovat myös {{ui:Tiivistä valintanauha}} ja {{ui:Pidä valintanauha auki}}. Kukin sovellus muistaa valinnan.
-- {{ui:Siirrä valintanauha}} › {{ui:Siirrä uuteen ikkunaan}} laittaa valintanauhan omaan ikkunaansa, esimerkiksi toiselle näytölle. Siellä painetut näppäimet saavuttavat sovelluksen. {{ui:Palauta valintanauha}} tai ikkunan sulkeminen tuo sen kotiin.
+- Kaksoisnapsauta valintanauhan välilehteä taittaaksesi valintanauhan välilehtiinsä; napsautus välilehdellä näyttää sitten sen työkalut, kunnes siirrytään muualle. Kaksoisnapsauta uudelleen pitääksesi se auki. {{ui:Siirrä valintanauha}}-painikkeessa valintanauhan oikeassa päässä on myös {{ui:Tiivistä valintanauha}} ja {{ui:Pidä valintanauha auki}}. Jokainen sovellus muistaa asetuksen.
+- {{ui:Siirrä valintanauha}} › {{ui:Siirrä uuteen ikkunaan}} siirtää valintanauhan omaan ikkunaansa, esimerkiksi toiselle näytölle. Siellä painetut näppäimet menevät sovellukseen. {{ui:Palauta valintanauha}} tai ikkunan sulkeminen tuo sen takaisin.
 
-Työkalurivin asetukset koskevat valintanauhaa: {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Työkalurivi}} › {{ui:Kuvakkeet ja nimiöt}}, {{ui:Vain kuvakkeet}} (valintanauha näyttää silloin kaksi riviä pieniä kuvakkeita ryhmää kohti) tai {{ui:Vain nimiöt}}, sekä {{ui:Näytä ryhmien nimet (Tiedosto, Piirrä, …)}}.
+Työkalurivin asetukset koskevat valintanauhaa: {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Työkalurivi}} › {{ui:Kuvakkeet ja nimiöt}}, {{ui:Vain kuvakkeet}} (valintanauha näyttää silloin ryhmässä kaksi riviä pieniä kuvakkeita) tai {{ui:Vain nimiöt}}, sekä {{ui:Näytä ryhmien nimet (Tiedosto, Piirrä, …)}}.
 
-## Paneelisi pysyvät sinun
+## Paneelit pysyvät omina
 
-Vasen ja oikea paneeli säilyttävät kaiken, mitä kohdassa [Järjestä paneelit](common:arrange-panels) kuvataan: kiinnittäminen, kellutus, neulaus, piilotus, välilehdet, {{ui:Siirrä uuteen ikkunaan}} ja {{ui:Palauta asettelu}}.
+Vasen ja oikea paneeli säilyttävät kaiken kohdassa [Paneelien järjestäminen](common:arrange-panels) kuvatun: kiinnityksen, kellutuksen, nastan, piilotuksen, välilehdet, {{ui:Siirrä uuteen ikkunaan}} ja {{ui:Palauta asettelu}}.
 
-## Palaa perinteiseen asetteluun
+## Palaa klassiseen asetteluun
 
-Avaa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Asettelu}} › {{ui:Työtila}} ja valitse {{ui:CadCraft klassinen}}. Jokainen työkalurivi, välilehti ja paneeli palaa paikalleen.
+Avaa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Asettelu}} › {{ui:Työtila}} ja valitse {{ui:CadCraft klassinen}}. Jokainen työkalurivi, välilehti ja paneeli palaa entiseen paikkaansa.
 
 :::note
-Puhelimessa tai ikkunassa, joka on 760 kuvapistettä leveä tai kapeampi, sovellus käyttää puhelinasettelua valinnastasi riippumatta. Leveämpi ikkuna tuo asettelusi takaisin.
+Puhelimessa tai ikkunassa, joka on 760 pikseliä leveä tai kapeampi, sovellus käyttää puhelinasettelua valinnastasi riippumatta. Leveämpi ikkuna tuo asettelun takaisin.
 :::
 
-Jos haluat kokeilla toista järjestelyä, katso [työkalupakin ja tietoruudun asettelu](common:layout-toolbox).
+Muun järjestelyn kokeilemiseen katso [työkalupakin ja tietoruudun asettelu](common:layout-toolbox).
+
+Asettelun näytettävän sisällön muuttamiseen katso [Muuta asettelua näytöllä](common:layout-edit); tummaan järjestelyyn, jossa on valikkopalkki ja valintanauha, katso [Piirustuksen asettelu](common:layout-drafting).

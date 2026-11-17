@@ -1,97 +1,101 @@
 ---
 title: Habee panelada oo isticmaal shaashad labaad
-summary: Ku xidh panelada bidix, midig ama hoosta, isku dar, ku dar tab-yo, pin ama qari, ku dhaaf naqshadda, ka dhig mid dhow, dooro tirada safafka qalabka, ama u guuri daaqad u gaar ah oo shaashad kale ku taal.
-keywords: panelada, ku xidh, ku dhaaf, guuri panel, jiid, qaabeynta, tab-yo, kooxda tab-ka, isku dar, pin, si otomaatig ah u qari, qari panelka, xir panelka, kooban, cabbirka qaabeynta, dhow, safafka qalabka, lafmeyso, 1 safka, 2 safka, safafka qalabka, shaashad labaad, labo shaashad, shaashado badan, daaqad, pop-up, dib u deji qaabka
-from: 32a8dae2
+summary: Ku xidh panelada dhinaca bidix, midig ama hoosta, isku rari, u kooxee sida tab-yo, ku hay ama qari, ku dhaaf naqshadda, ka dhig qaabeynta mid dhow, dooro inta safka qalabku isticmaalo, ama u wareeji daaqad gaar ah shaashad kale.
+keywords: panelada, ku xidh, ku dhaaf, wareeji panel, jiid, qaabeynta, tab-yada, kooxda tab-ka, isku rari, ku hay, auto-hide, qari panel, xir panel, kooban, cabbirka qaabeynta, dhow, safafka qalabka, lafmeyso, 1 safka, 2 safka, khadka qalabka, shaashad labaad, laba shaashad, shaashado badan, daaqad, daaqad kor u soo booda, dib u deji qaabka
+from: 49530239
 ---
 
-Panelada ku dhow naqshadda way dhaqaaqi karaan. Meesha ku dhig meesha kugu habboon, ama u sii daaqad u gaar ah shaashad labaad si naqshaddu u hesho shaashadda koowaad oo dhan.
+Panelada ku yaal dhinaca naqshadda way dhaqaaqi karaan. Ku dhig meesha ku habboon, ama u sii daaqad u gaar ah shaashad labaad si naqshaddu u qaadato shaashadda koowaad oo dhan.
 
 :::note
-Panel kasta waxa uu leeyahay bar cinwaan: bar cad oo magaca panelka ku qoran, menu {{ui:⋯}}, pin iyo badhanka xidhista oo ku yaal sare panelka. Noocyada ka hor 0.7 waxay leeyihiin magaca iyo menu {{ui:⋯}} keliya.
+Panel kasta wuxuu leeyahay safka magacyada: xariiq khafiif ah oo leh magaca panelka, menu {{ui:⋯}}, pin iyo badhanka xidhka ee sare ee panelka. Noocyada ka hor 0.7 waxay leeyihiin magaca iyo menu {{ui:⋯}} oo keliya.
 :::
 
-## Dhaqaajinta panelka daaqadda gudaheeda
+## Dhaqaaji panel daaqadda gudaheeda
 
-1. Jiid panelka magiciisa ee sare.
-2. Intaad jiidayso, meelaha xuduudda leh ayaa ka soo muuqda bidix, midig iyo hoosta naqshadda. Panelka ku dhig mid ka mid ah si aad halkaas ugu xidho. Meesha aad ku sugan tahay way madowsanaysaa.
-3. Meel kasta oo kale ee naqshadda dul ku dhig si ay u ku dhaaftamo.
+1. Jiid panelka adigoo ku qabanaya magiciisa sare.
+2. Intaad jiidayso, meelo jaranjaro ah ayaa soo muuqda dhinaca bidix, midig iyo hoosta naqshadda. Ku dhig panelka mid ka mid ah si uu halkaas ugu xirmo. Meeshii aad ku jirtid way madowtaa.
+3. Ku dhig meel kasta oo kale naqshadda dushiisa si uu u noqdo mid kor u kaca.
 
-Panelada waxay wada wadaagi karaan hal dhinac: way isku rogaan, xariiqa u dhexeeya labo kasta waa la jiidi karaa si ay booska u wadaagaan (marka xariiqu xooga ku yeesho, furayaasha fallaadhka ayaa dhaqaajiya, laba jeer gujinta ayaana booska si siman u wadaagta). Geesha gudaha ee dhinac xidhan jiid si ay u ballaaran ama u cidhiidhsan noqoto; laba jeer guji geeska si aad dib ugu celiso.
+Panelada wadaag hal dhinac: way isku rarmaan, xariiq kasta oo u dhexeeya laba panel ayaa la jiidi karaa si ay booska u wadaagaan (marka xariiqda uu xiran yahay, furayaasha fallaadhaha ayaa dhaqaajiya, laba jeer riixista ayaana booska si siman u wadaagta). Jiid geeska gudaha dhinac xidhan si aad uga dhigto mid ballac weyn ama mid yar; laba jeer riix geeska si aad u celiso.
 
-Panelka ku dhaaftay wuxuu ku sii jiraa naqshadda. Magiciisa ku dhaqaaqi, cabbirkana jiid geeska hoose ee midig (ama tab ku gaadh geeska oo isticmaal furayaasha fallaadhka). Magiciisa laba jeer guji si aad dib ugu xidho meeshii uu ahaa.
+Panel kor u kaca wuxuu ku sii jiraa naqshadda dushiisa. Dhaqaaji adigoo ku qabanaya magiciisa, cabbirka beddel adigoo jiidayo geeska hoose ee midigta (ama u gudub geeska adigoo isticmaalaya furaha Tab oo furayaasha fallaadhaha isticmaal). Laba jeer riix magiciisa si uu dib ugu xirmo meeshii uu ka ahaa.
 
 :::touch
-Hal farta ku jiid magaca panelka. Hal farta ku jiid geeska hoose ee midig ee panelka ku dhaaftay si aad cabbirkiisa u beddasho, iyo geesaha u dhexeeya panelada xidhan si la mid ah. Si aad u ku dhaaftid ama u xidhato adigoon jiidin, isticmaal menu-ga {{ui:⋯}}.
+Ku jiid hal farta adigoo ku qabanaya magaca panelka. Geeska hoose ee midigta ee panelka kor u kaca ku jiid hal farta si aad u beddesho cabbirka, iyo xuduudaha u dhexeeya panelada xidhan si isku mid ah. Si aad u kor u kacdo ama u xidho adigoon jiidin, isticmaal menu {{ui:⋯}}.
 :::
 
-## Panelada u kooxee sida tab-yo
+## U kooxee panelada sida tab-yo
 
-Labo panel ayaa wadaagi kara hal frame oo mar kasta mid kaliya ayey muujiyaan. Panel magiciisa ku jiid bar cinwaanka panel kale (barku waa la xardhayaa intaad ku sugan tahay) kadibna sii dayso: frame-ka hadda wuxuu leeyahay tab kasta panel, bar cinwaankiisa. Guji tab si aad panelkaas u muujiso. Markii tab la xulay, {{key:Left}} iyo {{key:Right}} ayey tab-yada bedelaan, {{key:Home}} iyo {{key:End}} waxay gaadhaan kii ugu horreeyay iyo kii ugu dambeeyay.
+Laba panel waxay wadaagi karaan hal qaab oo mid mid ayay tusi karaan. Jiid panel adigoo ku qabanaya magiciisa oo ku dhig safka magaca panel kale (safka waa jaranjaro intaad korkiisa taagan tahay), kadibna sii dayn: qaabku wuxuu hadda leeyahay tab kasta panel kasta, safka magaciisa. Riix tab si aad panelkaas u muujiso. Markaad tab-ka xulan tahay, {{key:Left}} iyo {{key:Right}} ayaa beddela tab-yada, {{key:Home}} iyo {{key:End}} waxay tagaan kii ugu horreeyay iyo kii ugu dambeeyay.
 
-Si aad panel uga saarto kooxda, dooro {{ui:Ka bax kooxda tab-ka}} menu-ga {{ui:⋯}} ee panelkaas, ama jiid meel kale. Dooro {{ui:Ku tab-geli}} iyo magaca panel si aad u kooxeyso adigoon jiidin.
+Si aad panel uga saarto kooxda, dooro {{ui:Move out of the tab group}} menu {{ui:⋯}}-ka, ama jiid meel kale. Dooro {{ui:Tab with}} iyo magaca panel si aad u kooxeyso adigoon jiidin.
 
-## Pin, qari iyo soo celin
+## Pin, qari oo soo celi
 
-- Pin-ka ku yaal bar cinwaanka panelka wuxuu ka dhigayaa **si otomaatig ah u qarsoonaata**: panelku wuxuu ka baxaa meeshiisa xidhan oo wuxuu noqonayaa tab yar geeskaas. Tab-ka u soco, ku dhufo ama guji, panelka ayaa naqshadda ku siibta; ka tag (ama riix {{key:Esc}}) wuxuu dib ugu siibtaa. Pin-ka mar kale riix, ama dooro {{ui:Ka saar pin-ka}}, si aad u xidhato si joogto ah.
-- Badhanka xidhista, ama {{ui:Qari panelkan}} oo menu-ga ku jira, ayaa panelka qariya oo meesha xidhan ayuu xidhaa. Tab jajaban oo geeska ku taal ayaa soo celinaya: guji, ama markii tab la xulo riix {{key:Enter}}.
+- Pin-ka safka magaca panelka wuxuu ka dhigaa **auto-hide**: panelka wuu ka baxaa dhinacaas oo wuxuu noqdaa tab yar oo dhinaca ku yaal. Ku tilmaam tab-ka, xulo ama riix, panelka ayaa ku sii dhacaa naqshadda dushiisa; ka fogow (ama riix {{key:Esc}}) wuu dib ugu soo laabanayaa. Mar kale riix pin-ka, ama dooro {{ui:Unpin}}, si aad u xidho si joogto ah.
+- Badhanka xidhka, ama {{ui:Hide this panel}} menu-ga, ayaa qari panelka oo xidha dhinaciisa. Tab dhinaca ku jira oo jaranjaro ah ayaa soo celinaya: riix, ama xulo oo riix {{key:Enter}}.
 
 ## Ka dhig qaabeynta mid dhow
 
-{{ui:Dejinta}} › {{ui:Guud}} › {{ui:Cabbirka qaabeynta}} waxay leedahay laba doorasho. {{ui:Raaxo}} ayaa caadi ah. {{ui:Kooban}} wuxuu cidhiidhiyaa dhererka safafka, dhejinta panelka, badhamada qalabka iyo qoraalka panelka ee app-kaas si wax badan u habboon shaashadda. Waxaa loo kaydiyaa app kasta. Shaashadda taabashada waxay ku haysaa badhamada waaweyn labadaba, telefoonka ayaa ku haysa qaabeyntiisa. {{ui:Dib u deji qaabka}} waxay cabbirka qaabeynta u daysaa sida aad dejisay.
+{{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} waxay leedahay laba doorasho. {{ui:Comfortable}} waa caadiga. {{ui:Compact}} wuxuu kooban gareeyaa dhererka safafka, dhexdhexaadinta panelka, badhanada qalabka iyo qoraalka panelka ee barnaamijkaas si wax badan u dhacaan shaashadda. Waa la kaydiyaa barnaamij kasta. Shaashad taabasho waxay haysaa badhamada weyn labadaba, taleefankuna qaabeynta gaarka ah. {{ui:Reset layout}} ma beddelo cabbirka sida aad dooratay.
 
-## Dooro tirada safafka ay qalabku isticmaalo
+## Dooro inta safka qalabku isticmaalo
 
-{{ui:Dejinta}} › {{ui:Guud}} › {{ui:Safafka qalabka}} waxay leedahay saddex doorasho. {{ui:Lafmeyso}} ayaa caadi ah: kooxda qalab kasta way muuqataa, safaf badan ayey u qaadanaysaa sida ay u baahan tahay. {{ui:2 safka}} wuxuu qalabka ku haya laba safaf, {{ui:1 safka}} hal safaf, si naqshaddu u helo dhererka; kooxyada aan ku habboonayn way ku jiidaan dhinac qalabka gudihiisa (isticmaal tuubada wheel-ka mouse-ka, jiidista labada farood, ama {{key:Tab}} ilaa qalab). Qalab horay u ku habboon laba safaf ayuu sidaas ku sii jiraa {{ui:2 safka}} hoostiisa, sababtoo ah shabakad keliya ayaa ka dhigi lahayd mid dheer. Doorashada waxaa loo kaydiyaa app kasta. Shaashadda taabashada iyo telefoonku qaabeyntooda ayey ilaaliyaan. CadCraft waxa uu leeyahay dejin u gaar ah qalabkiisa, oo ku yaal {{ui:Dejinta}} › CadCraft.
+{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} waxay leedahay saddex doorasho. {{ui:Wrap}} waa caadiga: koox kasta oo qalab ayaa muuqda, sidii ay u qaadanayso safar badan. {{ui:2 rows}} wuxuu qalabka ku haya laba safka, {{ui:1 row}} hal safka, si naqshaddu u heli dhererka; kooxaha aan mugga u filnayn ayaa dhinac u jeeda gudaha qalabka (isticmaal tuubbada mouse-ka, jiidista labada farood, ama {{key:Tab}} ilaa qalab). Qalab horay u mugga u ah laba safka wuxuu ku sii jiraa sidiisa hoos {{ui:2 rows}}, sababtoo ah shabakad kaliya way dheereyn lahayd. Doorashadu waa la kaydiyaa barnaamij kasta. Shaashad taabasho iyo taleefanku qaabeynta gaarka ah ayay haystaan. CadCraft waxay leedahay dejintiisa qalabkeeda, hoosta {{ui:Settings}} › {{ui:CadCraft}}.
 
 ## Isticmaal kiiboodhka
 
-Badhanka {{ui:⋯}} ee panel kasta wuxuu furaa menu: {{ui:Ku xidh bidix}}, {{ui:Ku xidh midig}}, {{ui:Ku xidh hoosta}}, {{ui:Ku dhaaf naqshadda}}, {{ui:Ku pin-garee geeska}}, {{ui:Qari panelkan}}, {{ui:Ku tab-geli}} panel kale, {{ui:U dhaqaaq daaqad cusub}} iyo {{ui:Dib u celi}}. Tab ilaa badhanka, riix {{key:Enter}}, u dhaqaaq furayaasha fallaadhka oo mar kale riix {{key:Enter}}. {{key:Esc}} ayaa menu-ga xidha.
+Badhanka {{ui:⋯}} ee panel kasta wuxuu furaa menu: {{ui:Dock on the left}}, {{ui:Dock on the right}}, {{ui:Dock at the bottom}}, {{ui:Float over the drawing}}, {{ui:Pin to the edge}}, {{ui:Hide this panel}}, {{ui:Tab with}} panel kale, {{ui:Move to a new window}} iyo {{ui:Put it back}}. Tab ilaa badhanka, riix {{key:Enter}}, u dhaqaaji furayaasha fallaadhaha, kadibna mar kale riix {{key:Enter}}. {{key:Esc}} ayaa xidha menu-ga.
 
-## Panelada ku dhig shaashad labaad
+## Dib u dhig panelada shaashad labaad
 
-1. Dooro {{ui:⋯}} panel dhexdiisa, kadibna {{ui:Dhammaan panelada u guuri daaqad cusub}}. Waxaad sidoo kale dooran kartaa {{ui:Ku wareeji panelada daaqad cusub}} {{ui:Dejinta}} gudaheeda.
-2. Daaqad yar ayaa furmaysa oo panelada ku jira. Jiidda shaashaddaada kale oo ka dhig sida aad jeceshahay ballaadhka.
-3. Sii shaqeey: panelada waxay saameeyaan naqshadda sida hore, naqshaddu daaqadda ugu weyn ayay buuxisaa.
+1. Dooro {{ui:⋯}} panel, kadibna {{ui:Move all panels to a new window}}. Waxaad sidoo kale dooran kartaa {{ui:Move panels to a new window}} {{ui:Settings}} gudahiisa.
+2. Daaqad yar ayaa furmaysa oo panelada ku jira. Jiid shaashadda kale ee aad leedahay oo ka dhig mid weyn sidii aad rabto.
+3. Sii shaqada: panelada ayaa sida hore u shaqeeya naqshadda, naqshaddana waxay buuxinaysaa daaqadda koowaad.
 
-Gaadhka furayaasha ayaa shaqeeya inta daaqadda panelada hore u taagan tahay: furayaasha halkaas lagu riixo, marka laga reebo qorista sanduuq, naqshadda ayey u gudbaan. Su'aalaha iyo sanduuqyada app-ku weydiiyo waxay weli ku furmaan daaqadda ugu weyn, markaas halkaas eeg markay soo muuqdaan. Mawduuca iyo cabbirka qoraalka panelka waxay raacaan daaqadda ugu weyn.
+Furayaasha wali way shaqeeyaan intaan daaqadda panelada hore u jirto: furayaasha aad halkaas riixdo, marka aan qoraal sanduuq ah lagu qorin, waxay u gudbaan naqshadda. Su'aalaha iyo wada-hadallada barnaamijku weydiiyo waxay ku furmaan daaqadda koowaad, sidaas darteed halkaas ka eeg marka ay soo muuqdaan. Midabka iyo cabbirka qoraalka panelka way raacaan daaqadda koowaad.
 
 :::chromium
-Chrome iyo Edge way kuu dhigi karaan daaqadda shaashadda kale. Shaashad labaad oo xidhan tahay marka, dooro {{ui:Shaashadaydii kale ku dhig}} daaqadda panelada (ama {{ui:Panelada shaashadaydii kale ku dhig}} menu-ga {{ui:⋯}} ee panel). Browserku wuxuu hal mar weydiin doonaa in websaydhkan la oggolaan karo inuu arko shaashadaha; markaad ogolaato, daaqadda panelada mar walba shaashadaas ayey ku furmaysaa.
+Chrome iyo Edge waxay daaqadda ku dhigi karaan shaashadda kale adiga ayagu. Shaashad labaad oo xidhan, dooro {{ui:Put it on my other screen}} daaqadda panelada (ama {{ui:Put the panels on my other screen}} menu {{ui:⋯}} panel). Browser-ka mar ayuu weydiiyaa in goobtan la oggolaado inay aragto shaashadahaaga; markaad oggolaatid, daaqadda panelada mar kasta shaashadaas ayay ku furmaysaa.
 :::
 
 :::firefox safari
-Daaqadda panelada shaashadda kale ku jiid adigu laftiinaa. Marka xigta isla meeshii iyo isla cabbirkii ayey ku furmaysaa.
+Daaqadda panelada adigu ku jiid shaashadda kale. Xiligii xiga way isla meeshii iyo cabbirkii isla ahaa ku furmaysaa.
 :::
 
-## In ka badan hal daaqadda panelada
+## Hal daaqad oo panelo ka badan
 
-Panel kasta wuxuu leeyahay daaqad u gaar ah: ilaa afar daaqadood oo panelada ah, tusaale ahaan mid shaashad kasta.
+Panel kasta wuxuu leeyahay daaqad u gaar ah: ilaa afar daaqadood oo panelo ah, tusaale ahaan mid shaashad kasta.
 
-- Menu-ga {{ui:⋯}} ee panel dhexdiisa, {{ui:U dhaqaaq daaqad cusub}} wuxuu panelkaas u furaa daaqad kale, {{ui:U guuri daaqadda panelada 2}} (iyo kuwa kale) waxay ku guurisaa mid furan. Daaqadda labaad waxa loo yaqaanaa "panels 2".
-- Panel magiciisa ku jiid daaqad ka mid ah ilaa mid kale: ku sii dayso daaqadda ugu weyn si halkaas ugu xidho (meelaha xuduudda leh ayaa muuqda intaad ku sugan tahay) ama si ay u ku dhaaftamo, iyo daaqadda panelada kale si ay u guurto. Meel kasta oo kale ku sii dayso, wuxuu ku sii jiraa meeshii uu ahaa.
-- Daaqadda panelada oo aan panel kale ku hadhin waxay isu xidhaa.
+- Menu {{ui:⋯}} ee panel, {{ui:Move to a new window}} wuxuu furaa daaqad kale panelkaas, {{ui:Move to panels window 2}} (iyo kuwa kale) wuxuu u wareejiyaa mid furan. Daaqadda labaad waxa lagu magacaabaa "panels 2".
+- Jiid panel adigoo ku qabanaya magiciisa daaqad ka tegi daaqad kale: ku sii dayn daaqadda koowaad si aad ugu xidho halkaas (jaranjarooyinku waa muuqdaan intaad korkiisa taagan tahay) ama si kor u kaco. Ku sii dayn daaqadda panelada kale si aad ugu wareejiso halkaas. Meel kasta oo kale ku sii dayn, wuu ku sii jiraa meeshii uu ka ahaa.
+- Daaqadda panelada oo aan panel ku harin waxay isku xidhaa iyada.
 
-Markii bogga dib loo cusboonaysiiyo, app-ku daaqadahaaga panelada mar kale ayuu soo jeedinayaa. Browserrada mid kastaa mar kasta hal daaqad ayay furaan, sidaas darteed dooro {{ui:Fur kan xiga}} hal mar daaqad kasta.
+Markaad dib u soo rartid, barnaamijku wuxuu dib kuu soo bandhigaa daaqadaha panelada. Browser-ku daaqad kaliya mar kasta riix, sidaas darteed dooro {{ui:Open the next one}} mar kasta daaqad kasta.
 
-## Sanduuqa hadalka u dhaqaaq
+## Isku mid qaab kasta oo qaabeyn ah
 
-Sanduuq kasta wuxuu naqshadda ka dhaqaaqi karaa si uusan u daboolin: riix oo jiid bar cinwaankiisa. Sanduuqu wuxuu xusaa meesha aad ka tagtay, sanduuq kastaa gaarkiisa, markii la furo mar kale meeshaas ayuu ku soo laabanayaa. Bar cinwaanka laba jeer guji si aad mar kale dhexda ugu dhigto.
+Qaybta amarrada, sanduuqa qalabka, safafka qalabka iyo safka xaaladda ayaa daaqad gaar ah u dhaqaaqa si isku mid ah sida panel: fur menu {{ui:⋯}} qaybtaas oo dooro {{ui:Move to a new window}}; {{ui:Put it back}} (ama xidhida daaqadda) ayaa soo celinaya. Furayaasha aad daaqadaas ku riixdo waxay gaaraan barnaamijka, sida ay ka gaaraan daaqadda panelada. Qayb kasta wuxuu leeyaa hal menu oo sidaas ah.
 
-Kiiboodhka ka isticmaal: markii xooga uu ku jiro sanduuqa, riix {{key:Alt}}+{{key:Shift}} oo fallaadh furayaasha mid, si aad 16 pixel mar kasta u dhaqaajiso; ku dar {{key:Ctrl}} si aad 64 u dhaqaajiso. Sanduuq ka baxay shaashadda (kadib daaqad ama shaashad yar) waa la soo celiyaa.
+## Dhaqaaji wada-hadal
 
-Telefoonka, sanduuqyada waxay ku sii jiraan xaashiyo ballaadhan oo buuxa, mana dhaqaaqaan.
+Wada-hadal kasta waa la dhaqaajin karaa si uu u baxo naqshadda dariiqeeda: riix oo jiid magaca sare. Wada-hadalku wuxuu xasuustaa meesha aad ka tagtay, wada-hadal kasta gaar ahaan, oo markii dambe ee la furo isla meeshaas ayuu ku soo laabanayaa. Laba jeer riix magaca sare si aad dib ugu dhexdhexaadiso.
 
-CadCraft Studio-ga, sanduuqa {{ui:Daabac PDF}} ee CadCraft, kaas oo aad shaqada inta aad sameynayso furan ku haysan karto, bar cinwaankiisa badhan ayuu ku leeyahay: {{ui:Ku fur daaqad u gaar ah}}. Sanduuqu wuxuu u guurayaa daaqad u gaar ah oo shaashad kale ku dhigi karto. Sanduuqa xidhashadiisa daaqadda ayaa xidhaysa, daaqadda xidhashadeedana sanduuqa ayaa xidhaysa.
+Kiiboodhka, adigoo wada-hadalka gudihiisa ku jira riix {{key:Alt}}+{{key:Shift}}+furaha fallaadha si aad u dhaqaajiso 16 pixel mar kasta; ku dar {{key:Ctrl}} si aad 64 u dhaqaajiso. Wada-hadal dhacaya shaashadda ka baxsan (kadib daaqad ama shaashad yar) ayaa dib loo soo celiyaa.
 
-## Panelada dib u celi
+Taleefan kasta, wada-hadalku waa xaashi buuxda oo aan la dhaqaajin.
 
-- Dooro {{ui:Panelada dib u celi}} daaqadda panelada, ama si fudud xir. Panelada meeshii ay ka ahaayeen ayay dib ugu noqonayaan.
-- Xidhida ama dib u cusboonaysiinta daaqadda ugu weyn ayaa daaqadda panelada sidoo kale xidha. Markii app mar kale furmo wuxuu sheegayaa in panelkaagu ku jireen daaqad u gaar ah; dooro {{ui:Fur}} si aad daaqadda dib ugu soo celiso, ama {{ui:Halkan ku hay}}.
-- {{ui:Dejinta}} › {{ui:Guud}} › {{ui:Dib u deji qaabka}} wuxuu panel kasta dib ugu celinayaa meeshii ay ka bilaabeen.
+Ku dhex jira CadCraft Studio, wada-hadalka {{ui:Plot to PDF}} ee CadCraft, kaas oo aad furan u hayn kartid intaad shaqaynayso, wuxuu badhan ku leeyahay magaca sare, {{ui:Open in its own window}}. Wada-hadalku wuxuu galaa daaqad gaar ah oo aad shaashad kale ku dhigi karto. Wada-hadalka xidhida daaqadda ayaa xidha, daaqadda xidhidana wada-hadalka ayaa xidha.
+
+## Dib u dhig panelada
+
+- Dooro {{ui:Put the panels back}} daaqadda panelada, ama si fudud xidh. Panelada waxay ku noqonayaan meeshii ay ka ahaayeen.
+- Xidhida ama dib-u-rartida daaqadda koowaad ayaa sidoo kale xidha daaqadda panelada. Marka barnaamijku mar kale furmo wuxuu sheegayaa in paneladaadu daaqad gaar ah ku jireen; dooro {{ui:Open it}} si aad daaqadda dib ugu soo celiso, ama {{ui:Keep them here}}.
+- {{ui:Settings}} › {{ui:General}} › {{ui:Reset layout}} wuxuu panel kasta ku celinayaa meeshii ay ka bilaabeen.
 
 :::tip
-Haddii waxba aanu furmin markaad panelada u guurinayso daaqad cusub, browserku wuxuu xannibay pop-up-ka. App-ku taas ayuu sheegaa oo panelada meeshooda ayuu hayaa. Ogolow pop-ups getcadcraft.com, kadibna isku day mar kale.
+Haddii waxba aanu furmin markaad panelada u wareejinayso daaqad cusub, browser-ku wuu xannibay pop-up-ka. Barnaamijku taas ayuu sheegayaa oo panelada meeshii ay ku jireen ayuu ku hayaa. Oggolow pop-up-yada getcadcraft.com, kadibna isku day mar kale.
 :::
 
-Qaabeyntu waxa loo kaydiyaa app kasta browserkan, oo ay weheliyaan dejimahaaga kale.
+Qaabeyntu waa la kaydiyaa barnaamij kasta browser-kan, oo wayn dejintaada kale.

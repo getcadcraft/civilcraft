@@ -1,0 +1,13 @@
+{
+  "name": "Specification: Client pack",
+  "description": "A specification for presentation, filled from the open IFC model: quantities by type, tag values and schedules. Edit the text, then save the document as PDF or Word. Reads the model’s tags (the definitions are listed with the template).",
+  "template": {
+    "format": "cadcraft-doc-template",
+    "version": 1,
+    "key": "spec-clientpack",
+    "trade": "presentation",
+    "title": "Client pack",
+    "tags": [],
+    "text": "# Client pack: {{project}}\n\nStage: {{stage}}. File {{file}}, {{date}}.\n\n## The options compared\n\n{{options}}\n\n## Floor areas\n\n{{areas}}\n\n## Rooms\n\n{{schedule rooms}}\n\n## Drawings\n\n{{sheets}}\n"
+  }
+}

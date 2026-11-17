@@ -1,0 +1,132 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* app-block.css: the chrome blocks of 0.10 (ui-blocks-10; assets/js/app-block-*.js; pattern docs/INTERFACE-PATTERN.md).
+   Tokens only: the six chrome tokens (--sheet, --sheet-2, --line, --ink, --ink-2, --action) and the app's --layer; a literal colour appears
+   ONLY inside the tone token block below. No shadows, Archivo for chrome text, sizes in rem (hairlines in px), motion only under
+   prefers-reduced-motion: no-preference. Everything scales with --ws-scale (UI.29's density step). */
+
+/* ---- UI.16: the chrome tone, once. "theme" (no attribute) follows the site; dark and light are the same values as tokens.css ---- */
+[data-ws-tone="dark"] { color-scheme: dark; --sheet: #1D232B; --sheet-2: #252D37; --ink: #E8EEF4; --ink-2: #C3CDD8; --line: #6C7A8A; --action: #6E95FF; --layer: #6E95FF; }
+[data-ws-tone="light"] { color-scheme: light; --sheet: #F3F6F8; --sheet-2: #FFFFFF; --ink: #17202B; --ink-2: #34404E; --line: #7A8796; --action: #1E48C8; --layer: #1E48C8; }
+[data-ws-tone] :is(canvas, .ws-drawing, [data-ws-drawing]) { color-scheme: normal; }   /* the drawing keeps the app's own background */
+:root { --ws-scale: 1; --ws-panel-min: 13rem; --ws-panel-max: 28rem; }
+
+/* ---- shared: tools, carets, badges, menus ---- */
+.blk-tb, .blk-status, .blk-mtabs, .blk-cmd, .blk-ov, .blk-menu, .blk-labels-hint, .blk-present-exit { font-family: Archivo, system-ui, sans-serif; font-size: calc(0.8125rem * var(--ws-scale, 1)); color: var(--ink); }
+.blk-tool, .blk-toggle, .blk-pin, .blk-tb-glass, .blk-st-gear, .blk-more, .blk-theme-btn, .blk-tb-addons, .blk-tb-brand, .blk-cmd-grip, .blk-cmd-log, .blk-mtab, .blk-mtab-add, .blk-mtab-x, .blk-wcs, .blk-vl-menu {
+  appearance: none; font: inherit; color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: var(--radius, 0.25rem); cursor: pointer; }
+.blk-tool, .blk-toggle, .blk-pin, .blk-tb-glass, .blk-st-gear, .blk-theme-btn { min-width: calc(1.75rem * var(--ws-scale, 1)); height: calc(1.75rem * var(--ws-scale, 1)); display: inline-grid; place-items: center; padding: 0 0.25rem; }
+:is(.blk-tool, .blk-toggle, .blk-pin, .blk-tb-glass, .blk-st-gear, .blk-theme-btn, .blk-more, .blk-tb-addons, .blk-tb-brand, .blk-mtab, .blk-mtab-add, .blk-wcs, .blk-vl-menu, .blk-cmd-grip, .blk-cmd-log):hover { border-color: var(--layer, var(--action)); }
+:is(.blk-tool, .blk-toggle, .blk-pin, .blk-theme-btn, .blk-tb-glass, .blk-st-gear, .blk-more, .blk-tb-brand, .blk-tb-addons, .blk-mtab, .blk-mtab-add, .blk-wcs, .blk-vl-menu, .blk-menu-item, .blk-menu-pin, .blk-cmd-grip, .blk-cmd-log, .blk-labels-hide, .blk-present-exit):focus-visible { outline: 2px solid var(--action); outline-offset: 1px; }
+:is(.blk-tool, .blk-toggle, .blk-pin, .blk-theme-btn)[aria-pressed="true"] { background: color-mix(in srgb, var(--layer, var(--action)) 22%, var(--sheet-2)); border-color: var(--layer, var(--action)); }
+:is(.blk-tool, .blk-toggle)[aria-disabled="true"] { color: var(--ink-2); opacity: 0.55; cursor: default; }
+.blk-badge { margin-left: 0.25rem; min-width: 1.1em; padding: 0 0.3em; border-radius: 1em; background: var(--layer, var(--action)); color: var(--sheet-2); font-size: 0.6875rem; line-height: 1.4; text-align: center; }
+.blk-theme { display: inline-flex; gap: 0.125rem; margin: 0; }
+.blk-theme-btn svg { display: block; }
+
+.blk-menu { position: fixed; z-index: 1085; min-width: 12rem; max-width: 22rem; max-height: min(34rem, 80vh); overflow: auto; padding: 0.25rem; background: var(--sheet-2); border: 1px solid var(--line); border-radius: var(--radius, 0.25rem); }
+.blk-menu-item { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 1rem; text-align: left; padding: 0.375rem 0.625rem; background: transparent; border: 0; border-radius: var(--radius, 0.25rem); font: inherit; color: var(--ink); cursor: pointer; }
+.blk-menu-item:hover, .blk-menu-item:focus-visible { background: color-mix(in srgb, var(--layer, var(--action)) 16%, var(--sheet-2)); }
+.blk-menu-item[aria-checked="true"]::before { content: "\2713"; margin-right: 0.5rem; }
+.blk-menu-item[aria-checked="false"]::before { content: ""; display: inline-block; width: 1em; margin-right: 0.5rem; }
+.blk-menu-item.is-indent { padding-left: 1.75rem; }
+.blk-menu-item[aria-disabled="true"] { color: var(--ink-2); opacity: 0.6; cursor: default; }
+.blk-menu-label { flex: 1; }
+.blk-menu kbd { font: inherit; font-size: 0.75rem; color: var(--ink-2); }
+.blk-menu-sep { border: 0; border-top: 1px solid var(--line); margin: 0.25rem 0; opacity: 0.5; }
+.blk-menu-head { padding: 0.25rem 0.625rem; font-weight: 600; color: var(--ink-2); font-size: 0.75rem; }
+.blk-menu-empty { padding: 0.5rem 0.625rem; color: var(--ink-2); }
+.blk-menu-row { display: flex; align-items: center; }
+.blk-menu-row .blk-menu-item { flex: 1; }
+.blk-menu-pin { appearance: none; background: transparent; border: 0; color: var(--ink-2); width: 1.5rem; height: 1.5rem; cursor: pointer; opacity: 0.45; font-size: 0.625rem; }
+.blk-menu-pin[aria-pressed="true"] { color: var(--layer, var(--action)); opacity: 1; }
+.blk-menu-theme { padding: 0.25rem 0.625rem; display: flex; justify-content: flex-start; }
+
+/* ---- UI.8: the title bar, the absolute top: one row, never wraps ---- */
+.blk-tb { display: flex; align-items: center; gap: 0.5rem; flex-wrap: nowrap; min-height: calc(2.25rem * var(--ws-scale, 1)); padding: 0 0.5rem; background: var(--sheet-2); border-bottom: 1px solid var(--line); overflow: hidden; white-space: nowrap; }
+.blk-tb-brand { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.125rem 0.5rem; font-weight: 600; }
+.blk-tb-chip { font-weight: 400; font-size: 0.6875rem; color: var(--ink-2); border: 1px solid var(--line); border-radius: 1em; padding: 0 0.5em; }
+.blk-tb-dock { display: flex; align-items: center; min-width: 0; flex: 0 1 auto; }
+.blk-tb-quick { display: inline-flex; align-items: center; gap: 0.125rem; }
+.blk-tool-pair { display: inline-flex; }
+.blk-caret { min-width: 1rem; padding: 0; font-size: 0.625rem; }
+.blk-tb-switch { height: calc(1.75rem * var(--ws-scale, 1)); max-width: 11rem; background: var(--sheet-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius, 0.25rem); font: inherit; }
+.blk-tb-doc { flex: 1 1 auto; min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+.blk-tb-doc.is-dirty { font-weight: 600; }
+.blk-tb-pins { display: inline-flex; gap: 0.125rem; }
+.blk-tb-addons { padding: 0.25rem 0.5rem; }
+.blk-tb-find { display: inline-flex; align-items: center; margin: 0; border: 1px solid var(--line); border-radius: var(--radius, 0.25rem); background: var(--sheet-2); }
+.blk-tb-findbox { width: 13rem; height: calc(1.625rem * var(--ws-scale, 1)); padding: 0 0.5rem; border: 0; background: transparent; color: var(--ink); font: inherit; }
+.blk-tb-find .blk-tb-glass { order: -1; }
+.blk-tb.is-find-folded .blk-tb-find { border-color: transparent; }
+.blk-tb.is-find-folded .blk-tb-findbox { display: none; }
+.blk-tb.is-find-folded.is-find-open .blk-tb-findbox { display: block; position: absolute; right: 0.5rem; top: 100%; z-index: 5; width: 16rem; border: 1px solid var(--line); background: var(--sheet-2); }
+.blk-picker { min-width: 14rem; }
+
+/* ---- UI.9: the command line anywhere ---- */
+.blk-cmd { display: flex; align-items: center; gap: 0.25rem; width: min(var(--blk-cmd-w, 34rem), 100%); padding: 0 0.25rem; background: var(--sheet-2); border: 1px solid var(--line); border-radius: var(--radius, 0.25rem); }
+.blk-cmd[hidden] { display: none; }
+.blk-cmd[data-mode="float"] { position: absolute; z-index: 20; }
+.blk-cmd .ws-cmdline { flex: 1; margin: 0; }
+.blk-cmd-grip { cursor: grab; letter-spacing: -0.2em; width: 1.5rem; touch-action: none; }
+
+/* ---- UI.10: the four corners of the drawing; pointer events only on the overlays' own boxes ---- */
+.blk-corner { position: absolute; z-index: 15; display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; pointer-events: none; }
+.blk-corner > * { pointer-events: auto; }
+.blk-corner[data-corner="view-tl"] { top: 0; left: 0; align-items: flex-start; }
+.blk-corner[data-corner="view-tr"] { top: 0; right: 0; align-items: flex-end; }
+.blk-corner[data-corner="view-bl"] { bottom: 0; left: 0; align-items: flex-start; }
+.blk-corner[data-corner="view-br"] { bottom: 0; right: 0; align-items: flex-end; }
+.blk-ov { background: color-mix(in srgb, var(--sheet-2) 82%, transparent); border: 1px solid var(--line); border-radius: var(--radius, 0.25rem); }
+.blk-viewlabel { display: inline-flex; padding: 0.125rem 0.375rem; gap: 0.25rem; }
+.blk-viewcube { padding: 0.25rem; display: grid; justify-items: center; gap: 0.125rem; }
+.blk-viewcube svg { display: block; overflow: visible; }
+.blk-cube-ring { stroke: var(--line); stroke-width: 1; }
+.blk-cube-compass { fill: var(--ink-2); font-size: 9px; cursor: pointer; }
+.blk-cube-face rect { fill: var(--sheet-2); stroke: var(--line); stroke-width: 1; cursor: pointer; }
+.blk-cube-face text { fill: var(--ink); font-size: 6px; pointer-events: none; }
+.blk-cube-face:hover rect, .blk-cube-face:focus-visible rect { stroke: var(--layer, var(--action)); }
+.blk-navbar { display: flex; flex-direction: column; padding: 0.125rem; }
+.blk-axes { background: transparent; border: 0; }
+.blk-axes svg { display: block; overflow: visible; }
+.blk-ax-x { stroke: var(--layer-red, var(--action)); stroke-width: 2; } .blk-ax-y { stroke: var(--layer-green, var(--action)); stroke-width: 2; }
+.blk-axes text { fill: var(--ink-2); font-size: 8px; }
+
+/* ---- UI.11: ribbon additions and the footer ---- */
+.blk-more { margin-left: 0.25rem; padding: 0 0.25rem; font-size: 0.625rem; }
+.blk-slot { display: flex; align-items: center; gap: 0.25rem; padding: 0 0.25rem; }
+.ws-context-tab.blk-context-lit { background: var(--layer, var(--action)); color: var(--sheet-2); border-color: var(--layer, var(--action)); }
+.blk-context-label { margin-left: 0.5rem; font-weight: 400; font-size: 0.6875rem; }
+.blk-keys [data-blk-key]::after { content: attr(data-blk-key); margin-left: 0.25rem; font-size: 0.625rem; border: 1px solid currentColor; border-radius: 0.2rem; padding: 0 0.2rem; }
+.blk-status { display: flex; align-items: center; gap: 0.5rem; padding: 0 0.5rem; min-height: calc(1.75rem * var(--ws-scale, 1)); background: var(--sheet-2); border-top: 1px solid var(--line); overflow: hidden; white-space: nowrap; }
+.blk-st-toggles { display: flex; gap: 0.125rem; flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.blk-toggle { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.02em; }
+.blk-st-select { height: calc(1.5rem * var(--ws-scale, 1)); background: var(--sheet-2); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius, 0.25rem); font: inherit; }
+.blk-mtabs { display: flex; align-items: stretch; min-height: calc(1.75rem * var(--ws-scale, 1)); background: var(--sheet); border-top: 1px solid var(--line); }
+.blk-mtabs-strip { display: flex; overflow-x: auto; scrollbar-width: thin; min-width: 0; flex: 1 1 auto; }
+.blk-mtab { padding: 0 0.875rem; white-space: nowrap; border-radius: 0; border-bottom: 2px solid transparent; }
+.blk-mtab[aria-selected="true"] { border-bottom-color: var(--layer, var(--action)); font-weight: 600; background: var(--sheet-2); }
+.blk-mtab-wrap { display: inline-flex; align-items: center; }
+.blk-mtab-x { padding: 0 0.25rem; }
+
+/* ---- UI.29: density steps. The chrome's type and bars follow --ws-scale; panels are clamped by the step and the window ---- */
+:root[data-ws-density="compact"] .blk-tb, :root[data-ws-density="compact"] .blk-status { padding-inline: 0.25rem; gap: 0.25rem; }
+:root[data-ws-density="comfortable"] .blk-tb, :root[data-ws-density="comfortable"] .blk-status { gap: 0.75rem; }
+:root[data-ws-density] :is(.shell-panel, .ws-panel, .app-panel-left, .app-panel-right) { min-width: var(--ws-panel-min); max-width: var(--ws-panel-max); }
+/* the presentation look: chrome out, the drawing and the view cube stay; Esc or the pill brings it back (nothing is closed) */
+:root[data-ws-present] :is(.blk-tb, .blk-status, .blk-mtabs, .blk-cmd, .blk-navbar, .blk-viewlabel, .blk-axes, .ws-block, .ws-titlebar, .ws-ribbon-tabs, .ws-ribbon, .ws-statusbar, .ws-palettes, .shell-panel) { display: none !important; }
+.blk-present-exit { position: fixed; top: 0.5rem; right: 0.5rem; z-index: 1090; padding: 0.25rem 0.75rem; background: var(--sheet-2); border: 1px solid var(--line); border-radius: 1em; cursor: pointer; opacity: 0.35; }
+.blk-present-exit:hover, .blk-present-exit:focus-visible { opacity: 1; }
+
+/* ---- BK.123: the word under an icon for the first sessions (html[data-ws-labels="1"]); the word is the tool's own aria-label ---- */
+:root[data-ws-labels="1"] :is(.ws-tool.ws-compact, .tbx-tool, .blk-tool, .blk-toggle, .blk-pin) { height: auto; min-height: calc(1.75rem * var(--ws-scale, 1)); flex-direction: column; }
+:root[data-ws-labels="1"] :is(.tbx-tool, .blk-tool, .blk-toggle, .blk-pin)::after { content: attr(aria-label); display: block; max-width: 5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.625rem; line-height: 1; color: var(--ink-2); }
+:root[data-ws-labels="1"] .ws-tool.ws-compact span { display: block; font-size: 0.625rem; line-height: 1; }
+/* 0.10 UI.17: the title bar's quick-access tools stay icon-only (their 1.5625rem squares cannot hold a word: the labels overlapped and ran out of the bar); the name is the tip */
+:root[data-ws-labels="1"] .ws-quick .ws-tool.ws-compact span { display: none; }
+:root[data-ws-labels="1"] .ws-quick .ws-tool.ws-compact { height: 1.5625rem; min-height: 0; flex-direction: row; }
+.blk-labels-hint { display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0.75rem; background: var(--sheet); border-bottom: 1px solid var(--line); color: var(--ink-2); }
+.blk-labels-hide { appearance: none; font: inherit; color: var(--action); background: transparent; border: 0; text-decoration: underline; cursor: pointer; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .blk-tool, .blk-toggle, .blk-pin, .blk-menu-item { transition: background-color 120ms linear, border-color 120ms linear; }
+}

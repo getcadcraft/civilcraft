@@ -1,0 +1,12 @@
+{"format":"cadcraft-vehicle-pack","version":1,"id":"road-classes","name":"Road vehicle classes (placeholders)",
+ "source":{"title":"Generic classes of the size found in published road design vehicle tables","note":"PLACEHOLDERS. The figures are rounded sizes of common vehicle classes, not copied from any one standard. Every entry says verified: false. Set them from the design vehicle your jurisdiction requires (copy a vehicle, edit it, check against the table you design to) before relying on a result."},
+ "vehicles":[
+  {"key":"passenger-car","name":"Passenger car (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.13,"front":0.9,"wheelbase":3.4,"rear":1.5,"track":1.83,"maxSteer":35,"trailers":[]},
+  {"key":"single-unit-truck","name":"Single-unit truck (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.44,"front":1.2,"wheelbase":6.1,"rear":1.8,"track":2.07,"maxSteer":35,"trailers":[]},
+  {"key":"intercity-bus","name":"Intercity bus (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.6,"front":2.1,"wheelbase":7.6,"rear":2.4,"track":2.13,"maxSteer":40,"trailers":[]},
+  {"key":"city-bus","name":"City bus (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.6,"front":2.3,"wheelbase":5.8,"rear":3.0,"track":2.13,"maxSteer":42,"trailers":[]},
+  {"key":"tractor-semitrailer","name":"Tractor and semitrailer (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.6,"front":1.2,"wheelbase":5.8,"rear":0.6,"track":2.13,"maxSteer":30,"trailers":[{"hitch":0,"wheelbase":12.5,"front":0.9,"rear":2.4,"width":2.6,"track":2.13,"maxArticulation":70}]},
+  {"key":"car-and-trailer","name":"Car and trailer (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.13,"front":0.9,"wheelbase":3.4,"rear":1.5,"track":1.83,"maxSteer":35,"trailers":[{"hitch":1.5,"wheelbase":3.7,"front":1.2,"rear":0.9,"width":2.13,"track":1.83,"maxArticulation":80}]},
+  {"key":"fire-engine","name":"Fire engine (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.5,"front":1.5,"wheelbase":5.2,"rear":2.6,"track":2.07,"maxSteer":38,"trailers":[]},
+  {"key":"refuse-truck","name":"Refuse truck (class)","kind":"road","verified":false,"source":"generic class, rounded","width":2.5,"front":1.3,"wheelbase":5.0,"rear":2.9,"track":2.07,"maxSteer":38,"trailers":[]}
+ ]}

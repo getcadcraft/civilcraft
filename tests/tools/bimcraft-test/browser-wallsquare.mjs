@@ -167,6 +167,28 @@ try {
   ok(Math.abs(Math.min(...W.flatMap((w) => [w.a[1], w.b[1]])) + 600) < 0.01, 'typed 600, let go: it uses the 600', W);
   await undo();
 
+  console.log('== FX.63: an end grip dragged off its line: the joined walls keep their angle');
+  {
+    const B = await walls(), sb = south(B), eEnd = sb.a[0] > sb.b[0] ? sb.a : sb.b, wEnd = sb.a[0] > sb.b[0] ? sb.b : sb.a;
+    const others = (L) => L.filter((w) => w.guid !== sb.guid);
+    await planClick((sb.a[0] + sb.b[0]) / 2, (sb.a[1] + sb.b[1]) / 2); await page.waitForSelector('[data-mp-square]');
+    await gripDrag(eEnd, [eEnd[0] + 600, eEnd[1] - 600]);
+    let A = await walls(); const sa = A.find((w) => w.guid === sb.guid), eA = sa.a[0] > sa.b[0] ? sa.a : sa.b, wA = sa.a[0] > sa.b[0] ? sa.b : sa.a;
+    ok(dirMod(sa) > 1, 'the dragged wall turned', dirMod(sa));
+    ok(Math.hypot(wA[0] - wEnd[0], wA[1] - wEnd[1]) < 0.01, 'its other end held', wA);
+    ok(others(A).every((w) => dirMod(w) < 0.01), 'no joined wall went sloped', others(A).map(dirMod));
+    ok(joinedUp(A), 'every corner still joins');
+    ok(Math.abs(eA[0] - eEnd[0]) < 0.5 && eA[1] < eEnd[1] - 100, 'the corner slid along the joined wall\'s own line (same x, lower y)', eA);
+    await undo();
+    ok(JSON.stringify(await walls()) === JSON.stringify(B), 'one undo puts all the walls back');
+    await planClick((sb.a[0] + sb.b[0]) / 2, (sb.a[1] + sb.b[1]) / 2); await page.waitForSelector('[data-mp-square]');
+    await gripDrag(eEnd, [eEnd[0] + 600, eEnd[1] - 600], { ctrl: true });
+    A = await walls();
+    ok(others(A).some((w) => dirMod(w) > 1) && joinedUp(A), 'Ctrl: a free drag, the joined wall comes with the end and turns', others(A).map(dirMod));
+    await undo();
+    await pickSouth();
+  }
+
   console.log('== Shift on an end grip');
   await pickSouth();
   const [ax, ay] = await at(5000, 0), [bx, by] = await at(6500, -80);

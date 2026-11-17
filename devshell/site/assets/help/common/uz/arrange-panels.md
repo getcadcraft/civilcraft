@@ -1,97 +1,101 @@
 ---
 title: Panellarni joylashtirish va ikkinchi monitordan foydalanish
-summary: Yon panellarni chapga, oʻngga yoki pastga biriktiring, ularni qatlamlang, yorliqlar guruhiga birlashtiring, mahkamlang yoki yashiring, chizma ustida suzdiring, tartibni zichlashtiring, asboblar paneli necha qatorda boʻlishini tanlang yoki ularni boshqa ekrandagi alohida oynaga koʻchiring.
-keywords: panellar, biriktirish, suzish, panelni koʻchirish, sudrash, joylashuv, yorliqlar, yorliqlar guruhi, qatlamlash, mahkamlash, avtomatik yashirish, panelni yashirish, panelni yopish, ixcham, tartib zichligi, zich, asboblar paneli qatorlari, oʻrash, 1 qator, 2 qator, ikkinchi monitor, ikki ekran, ikki monitor, bir nechta monitor, oyna, qalqib chiquvchi oyna, tartibni tiklash
-from: 32a8dae2
+summary: Yon panellarni chapga, oʻngga yoki pastga biriktiring, ularni ustma-ust joylashtiring, yorliqlar sifatida guruhlang, mahkamlang yoki yashiring, chizma ustida suzdiring, tartibni zichlashtiring, asboblar paneli necha qatorda boʻlishini tanlang yoki ularni boshqa ekrandagi alohida oynaga koʻchiring.
+keywords: panellar, biriktirish, suzdirish, panelni koʻchirish, sudrash, joylashuv, yorliqlar, yorliqlar guruhi, ustma-ust, mahkamlash, avtomatik yashirish, panelni yashirish, panelni yopish, ixcham, joylashuv zichligi, zich, asboblar paneli qatorlari, 1 qator, 2 qator, asboblar paneli qatorlari, ikkinchi monitor, ikki ekran, ikki monitor, bir nechta monitor, oyna, qalqib chiquvchi, joylashuvni tiklash
+from: 49530239
 ---
 
-Chizma yonidagi panellarni koʻchirish mumkin. Ularni oʻzingizga qulay joyga qoʻying yoki ikkinchi monitorda alohida oynaga ajratib, chizma birinchi monitorning butun maydonini egallashi uchun joy bering.
+Chizma yonidagi panellarni koʻchirish mumkin. Ularni oʻzingizga qulay joyga qoʻying yoki birinchi monitorning butun maydonini chizma egallashi uchun ikkinchi monitorda alohida oyna bering.
 
 :::note
-Har bir panelning sarlavha satri bor: panel nomi, {{ui:⋯}} menyusi, mahkamlash tugmasi va panel yuqorisidagi yopish tugmasi. 0.7 versiyasidan oldingi versiyalarda faqat nom va {{ui:⋯}} menyusi boʻladi.
+Har bir panelning sarlavha satri bor: panel nomi, {{ui:⋯}} menyusi, mahkamlash tugmasi va yopish tugmasi joylashgan ingichka satr. 0.7 dan oldingi versiyalarda faqat nom va {{ui:⋯}} menyusi boʻladi.
 :::
 
-## Panelni oynada koʻchirish
+## Oynada panelni koʻchirish
 
-1. Panelni yuqoridagi nomidan sudrang.
-2. Sudrash davomida chizmaning chap, oʻng va pastki qismida konturlangan sohalar paydo boʻladi. Panelni ulardan biriga tashlang, shunda u oʻsha yerga biriktiriladi. Ustida turgan soha qoraygan boʻladi.
-3. Panelni chizmaning istalgan boshqa joyiga tashlasangiz, u suzib yuradi.
+1. Panelni tepadagi nomidan sudrang.
+2. Sudrash davomida chizmaning chap, oʻng va pastki tomonida konturli sohalar paydo boʻladi. Panelni shulardan biriga tashlang, u oʻsha yerga biriktiriladi. Ustida turgan soha quyuqlashadi.
+3. Panelni chizma ustida boshqa joyga tashlasangiz, u suzib yuradi.
 
-Panellar bir tomonni birga egallashi mumkin: ular qatlamlanadi va ikkitasi orasidagi har bir chiziq joyni boʻlish uchun sudraladi (chiziq fokusda boʻlganda strelka tugmalari uni siljitadi, uni ikki marta bosish esa joyni teng boʻlib beradi). Biriktirilgan tomonning ichki chetini sudrab, uni kengroq yoki torroq qiling; chetni ikki marta bosing — u oldingi holatiga qaytadi.
+Panellar bir tomonni boʻlishishi mumkin: ular ustma-ust joylashadi va ikkitasi orasidagi har bir chiziq joyni boʻlish uchun sudraladi (chiziq fokusda boʻlganda yoʻnalish tugmalari uni siljitadi, ikki marta bosilganda joy teng boʻlinadi). Biriktirilgan tomonning ichki chetini sudrab, uni kengroq yoki torroq qiling; chetni ikki marta bosing — u joyiga qaytadi.
 
-Suzuvchi panel chizma ustida turadi. Uni nomidan sudrab siljiting va pastki oʻng burchagidan sudrab oʻlchamini oʻzgartiring (yoki burchakka {{key:Tab}} bilan oʻtib, strelka tugmalaridan foydalaning). Uni yana biriktirish uchun nomini ikki marta bosing — u avval turgan joyga qayta biriktiriladi.
+Suzuvchi panel chizma ustida qoladi. Uni nomi boʻyicha suring, oʻlchamini esa pastki oʻng burchagini sudrab oʻzgartiring (yoki burchakka Tab bilan oʻtib, yoʻnalish tugmalaridan foydalaning). Nomini ikki marta bosing — u avval turgan joyga qayta biriktiriladi.
 
 :::touch
-Panel nomini bir barmoq bilan sudrang. Suzuvchi panelning pastki oʻng burchagini bir barmoq bilan sudrab oʻlchamini oʻzgartiring, biriktirilgan panellar orasidagi chetlarni ham shunday. Sudramasdan suzdirish yoki biriktirish uchun {{ui:⋯}} menyusidan foydalaning.
+Panelning nomida bir barmoq bilan sudrang. Suzuvchi panelning pastki oʻng burchagini bir barmoq bilan sudrab oʻlchamini oʻzgartiring; biriktirilgan panellar orasidagi chetlar ham shunday. Sudramasdan suzdirish yoki biriktirish uchun {{ui:⋯}} menyusidan foydalaning.
 :::
 
 ## Panellarni yorliqlar sifatida guruhlash
 
-Ikki panel bitta ramkani baham koʻrib, bir vaqtda bittasini koʻrsatishi mumkin. Panelni nomidan boshqa panelning sarlavha satriga sudrang (ustida turganda satr konturlanadi) va qoʻyib yuboring: ramkada har bir panel uchun sarlavha satrida yorliq paydo boʻladi. Panelni koʻrsatish uchun yorliqni bosing. Yorliq fokusda boʻlganda {{key:Left}} va {{key:Right}} yorliqlarni almashtiradi, {{key:Home}} va {{key:End}} esa birinchi va oxirgisiga oʻtkazadi.
+Ikki panel bitta ramkani ulashishi va bir vaqtda bittasini koʻrsatishi mumkin. Panelni nomi boʻyicha boshqa panelning sarlavha satriga sudrang (siz ustida turganingizda satr konturlanadi) va qoʻyib yuboring: ramkaning sarlavha satrida har bir panel uchun yorliq paydo boʻladi. Panelni koʻrsatish uchun yorliqni bosing. Yorliq fokusda boʻlganda {{key:Left}} va {{key:Right}} yorliqlarni almashtiradi, {{key:Home}} va {{key:End}} birinchi va oxirgisiga oʻtkazadi.
 
-Panelni guruhdan chiqarish uchun uning {{ui:⋯}} menyusida {{ui:Yorliqlar guruhidan chiqarish}} ni tanlang yoki uni boshqa joyga sudrang. Sudramasdan guruhlash uchun {{ui:⋯}} menyusida {{ui:Yorliq bilan birlashtirish}} ni va panel nomini tanlang.
+Panelni guruhdan chiqarish uchun uning {{ui:⋯}} menyusida {{ui:Yorliqlar guruhidan chiqarish}} ni tanlang yoki uni boshqa joyga sudrang. Sudramasdan guruhlash uchun {{ui:Yorliq bilan birlashtirish}} ni va panel nomini tanlang.
 
 ## Mahkamlash, yashirish va qaytarish
 
-- Panel sarlavha satridagi mahkamlash tugmasi uni **avtomatik yashirish** rejimiga oʻtkazadi: panel oʻz biriktirilgan tomonini tark etadi va oʻsha chetda kichik yorliqqa aylanadi. Yorliqqa koʻrsatgich olib boring, fokusga oling yoki bosing — panel chizma ustiga suriladi; uzoqlashsangiz (yoki {{key:Esc}} bossangiz), u qaytib yashirinadi. Panelni doimiy biriktirish uchun mahkamlash tugmasini yana bosing yoki {{ui:Mahkamlashni bekor qilish}} ni tanlang.
-- Yopish tugmasi yoki menyudagi {{ui:Bu panelni yashirish}} panelni yashiradi va uning tomonini yigʻib qoʻyadi. Chetdagi punktir yorliq uni qaytaradi: uni bosing yoki fokusga olib {{key:Enter}} bosing.
+- Panel sarlavha satridagi mahkamlagich uni **avtomatik yashirish** rejimiga oʻtkazadi: panel oʻz biriktirilgan joyidan chiqib, shu chetda kichik yorliqqa aylanadi. Yorliqqa tuting, fokuslang yoki bosing — panel chizma ustiga surilib chiqadi; uzoqlashsangiz (yoki {{key:Esc}} ni bossangiz) u qaytib suriladi. Mahkamlagichni yana bosing yoki {{ui:Mahkamlashni bekor qilish}} ni tanlang — panel doimiy biriktiriladi.
+- Panel sarlavhasidagi yopish tugmasi yoki menyudagi {{ui:Bu panelni yashirish}} panelni yashiradi va uning biriktirilgan joyini yigʻadi. Chetdagi punktir yorliq uni qaytaradi: uni bosing yoki fokuslab {{key:Enter}} ni bosing.
 
-## Tartibni zichlashtirish
+## Joylashuv zichligini oshirish
 
-{{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Tartib zichligi}} da ikkita tanlov bor. {{ui:Qulay}} standart. {{ui:Ixcham}} ushbu ilovadagi qator balandliklari, panel ichki boʻshligi, asboblar paneli tugmalari va panel matnini ixchamlashtiradi, shunda ekranga koʻproq sigʻadi. Tanlov har bir ilova uchun saqlanadi. Sensorli ekran ikkala holatda ham katta tugmalarini saqlaydi, telefon esa oʻz tartibini saqlaydi. {{ui:Tartibni tiklash}} zichlikni tanlaganingizcha qoldiradi.
+{{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Tartib zichligi}} da ikkita variant bor. {{ui:Qulay}} — standart. {{ui:Ixcham}} shu ilovaning qator balandliklarini, panel ichki boʻshligʻini, asboblar paneli tugmalarini va panel matnini ixchamlashtiradi, shunda ekranga koʻproq sigʻadi. Bu har bir ilova uchun saqlanadi. Sensorli ekran katta tugmalarini ikkala variantda ham saqlaydi, telefon esa oʻz joylashuvini saqlaydi. {{ui:Tartibni tiklash}} zichlikni oʻrnatganingizdek qoldiradi.
 
 ## Asboblar paneli necha qatorda boʻlishini tanlash
 
-{{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Asboblar paneli qatorlari}} da uchta tanlov bor. {{ui:Oʻrash}} standart: har bir asboblar guruhi koʻrinadi, kerak boʻlsa bir necha qatorda. {{ui:2 qator}} asboblar panelini ikki qatorda, {{ui:1 qator}} esa bir qatorda ushlaydi, shunda chizmaga balandlik beriladi; sigʻmagan guruhlar asboblar paneli ichida yon tomonga aylanadi (sichqoncha gʻildiragi, ikki barmoq bilan surish yoki asbobga {{key:Tab}} bilan oʻtish orqali). Asboblar paneli allaqachon ikki qatorga sigʻsa, {{ui:2 qator}} tanlovida u oʻzgarmaydi, chunki panjara uni faqat balandroq qilardi. Tanlov har bir ilova uchun saqlanadi. Sensorli ekran va telefon oʻz tartibini saqlaydi. CadCraft asboblar paneli uchun alohida sozlamaga ega: {{ui:Sozlamalar}} › {{ui:CadCraft}}.
+{{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Asboblar paneli qatorlari}} da uchta variant bor. {{ui:Oʻrash}} — standart: har bir asboblar guruhi koʻrinadi, qancha qator kerak boʻlsa shuncha qatorda. {{ui:2 qator}} asboblar panelini ikki qatorda, {{ui:1 qator}} esa bir qatorda ushlaydi — chizmaga balandlik ajraladi; sigʻmagan guruhlar asboblar paneli ichida yon tomonga surilib koʻrinadi (sichqoncha gʻildiragi, ikki barmoqli surish yoki {{key:Tab}} bilan asbobga oʻting). Ikki qatorga sigʻadigan asboblar paneli {{ui:2 qator}} da oʻz holicha qoladi, chunki panjara uni faqat balandroq qilardi. Tanlov har bir ilova uchun saqlanadi. Sensorli ekran va telefon oʻz joylashuvini saqlaydi. CadCraft asboblar paneli uchun oʻz sozlamasiga ega: {{ui:Sozlamalar}} › {{ui:CadCraft}} ostida.
 
 ## Klaviaturadan foydalanish
 
-Har bir panelning {{ui:⋯}} tugmasi menyuni ochadi: {{ui:Chapga biriktirish}}, {{ui:Oʻngga biriktirish}}, {{ui:Pastga biriktirish}}, {{ui:Chizma ustida suzish}}, {{ui:Chetga mahkamlash}}, {{ui:Bu panelni yashirish}}, boshqa panel bilan {{ui:Yorliq bilan birlashtirish}}, {{ui:Yangi oynaga koʻchirish}} va {{ui:Joyiga qaytarish}}. {{key:Tab}} bilan tugmaga oʻting, {{key:Enter}} bosing, strelka tugmalari bilan siljiting va yana {{key:Enter}} bosing. {{key:Esc}} menyuni yopadi.
+Har bir panelning {{ui:⋯}} tugmasi menyuni ochadi: {{ui:Chapga biriktirish}}, {{ui:Oʻngga biriktirish}}, {{ui:Pastga biriktirish}}, {{ui:Chizma ustida suzish}}, {{ui:Chetga mahkamlash}}, {{ui:Bu panelni yashirish}}, boshqa panel bilan {{ui:Yorliq bilan birlashtirish}}, {{ui:Yangi oynaga koʻchirish}} va {{ui:Joyiga qaytarish}}. Tugmaga Tab bilan oʻting, {{key:Enter}} ni bosing, yoʻnalish tugmalari bilan siljiting va yana {{key:Enter}} ni bosing. {{key:Esc}} menyuni yopadi.
 
 ## Panellarni ikkinchi monitorga qoʻyish
 
-1. Panelda {{ui:⋯}} ni, soʻng {{ui:Barcha panellarni yangi oynaga koʻchirish}} ni tanlang. Shuningdek, {{ui:Sozlamalar}} ichida {{ui:Panellarni yangi oynaga koʻchirish}} ni tanlashingiz mumkin.
-2. Ichida panellar boʻlgan kichik oyna ochiladi. Uni boshqa monitoringizga sudrang va xohlaganingizcha katta qiling.
-3. Ishlashda davom eting: panellar avvalgidek chizmaga taʼsir qiladi, chizma esa asosiy oynani toʻldiradi.
+1. Panelda {{ui:⋯}} ni tanlang, soʻng {{ui:Barcha panellarni yangi oynaga koʻchirish}}. Shuningdek, {{ui:Sozlamalar}} ichida {{ui:Panellarni yangi oynaga koʻchirish}} ni tanlashingiz mumkin.
+2. Panellar bilan kichik oyna ochiladi. Uni boshqa monitoringizga sudrang va xohlagancha katta qiling.
+3. Ishni davom eting: panellar avvalgidek chizmaga taʼsir qiladi, chizma esa asosiy oynani toʻldiradi.
 
-Panellar oynasi oldinda turganda yorliqlar ishlashda davom etadi: u yerda bosgan tugmalar — qutiga matn yozishdan tashqari — chizmaga yuboriladi. Ilova bergan savollar va muloqot oynalari hamon asosiy oynada ochiladi, shuning uchun biror narsa paydo boʻlganda oʻsha yerga qarang. Mavzu va panel matnining hajmi asosiy oynaga mos keladi.
+Panellar oynasi oldinda turganda tezkor tugmalar ishlaydi: u yerda bosgan tugmalaringiz (matn kiritish qutisidan tashqari) chizmaga boradi. Ilova bergan savollar va dialoglar esa asosiy oynada ochiladi, shuning uchun bir narsa paydo boʻlganda oʻsha yerga qarang. Mavzu va panel matnining oʻlchami asosiy oynaga ergashadi.
 
 :::chromium
-Chrome va Edge oynani boshqa ekranga oʻzi joylashtira oladi. Ikkinchi ekran ulangan boʻlsa, panellar oynasida {{ui:Uni boshqa ekranimga qoʻy}} ni tanlang (yoki panelning {{ui:⋯}} menyusida {{ui:Panellarni boshqa ekranimga qoʻy}} ni). Brauzer ekranlaringizni koʻrishga ruxsat berasizmi, deb bir marta soʻraydi; ruxsat bergach, panellar oynasi har safar oʻsha ekranda ochiladi.
+Chrome va Edge oynani ikkinchi ekranga oʻzi joylashtira oladi. Ikkinchi ekran ulangan boʻlsa, panellar oynasida {{ui:Uni boshqa ekranimga qoʻy}} ni tanlang (yoki panelning {{ui:⋯}} menyusida {{ui:Panellarni boshqa ekranimga qoʻy}}). Brauzer bir marta ekranlaringizni koʻrishga ruxsat soʻraydi; ruxsat bergach, panellar oynasi har safar oʻsha ekranda ochiladi.
 :::
 
 :::firefox safari
-Panellar oynasini boshqa monitorga oʻzingiz sudrang. Keyingi safar u oʻsha joyda va oʻsha oʻlchamda ochiladi.
+Panellar oynasini boshqa monitorga oʻzingiz sudrang. Keyingi safar u xuddi shu joyda va xuddi shu oʻlchamda ochiladi.
 :::
 
 ## Bir nechta panellar oynasi
 
-Har bir panelning oʻz oynasi boʻlishi mumkin: toʻrttagacha panellar oynasi, masalan, har bir monitor uchun bittadan.
+Har bir panelning oʻz oynasi boʻlishi mumkin: panellar oynalari soni toʻrtgacha, masalan har bir monitor uchun bittadan.
 
-- Panelning {{ui:⋯}} menyusida {{ui:Yangi oynaga koʻchirish}} shu panel uchun boshqa oyna ochadi, {{ui:Panellar oynasi 2 ga koʻchirish}} (va hokazo) esa uni ochiq oynaga koʻchiradi. Ikkinchi oyna "panels 2" deb ataladi.
-- Panelni nomidan bir oynadan boshqasiga sudrang: asosiy oynaga tashlasangiz, u oʻsha yerga biriktiriladi (ustida turganda konturlar koʻrinadi) yoki suziydi; boshqa panellar oynasi ustiga tashlasangiz, u oʻsha yerga koʻchadi. Boshqa joyga tashlasangiz, u oldingi joyida qoladi.
-- Ichida panel qolmagan panellar oynasi oʻz-oʻzidan yopiladi.
+- Panelning {{ui:⋯}} menyusida {{ui:Yangi oynaga koʻchirish}} shu panel uchun boshqa oyna ochadi, {{ui:Panellar oynasi 2 ga koʻchirish}} (va hokazo) esa uni allaqachon ochiq oynaga koʻchiradi. Ikkinchi oyna «panellar 2» deb ataladi.
+- Panelni nomi boʻyicha bir oynadan boshqasiga sudrang: asosiy oynada qoʻyib yuborsangiz u shu yerga biriktiriladi (siz ustida turganingizda konturli sohalar koʻrinadi) yoki suzadi, boshqa panellar oynasi ustida qoʻyib yuborsangiz unga koʻchadi. Boshqa joyda qoʻyib yuborsangiz, u avvalgi joyida qoladi.
+- Panellari qolmagan panellar oynasi oʻzi yopiladi.
 
-Sahifa qayta yuklangandan keyin ilova panellar oynalaringizni yana taklif qiladi. Brauzerlar har bir bosishda bitta oyna ochadi, shuning uchun har bir oyna uchun {{ui:Keyingisini ochish}} ni bir marta tanlang.
+Sahifa qayta yuklangandan keyin ilova panellar oynalarini yana taklif qiladi. Brauzerlar har bosishda bitta oyna ochadi, shuning uchun har bir oyna uchun {{ui:Keyingisini ochish}} ni bir marta tanlang.
 
-## Muloqot oynasini koʻchirish
+## Joylashuvning har bir qismi uchun xuddi shunday
 
-Har bir muloqot oynasini chizmaga xalaqit bermasligi uchun koʻchirish mumkin: uning sarlavha satridan bosib torting. Muloqot oynasi qayerga qoʻyilganini eslab qoladi, har bir muloqot oynasi alohida, va keyingi ochilganda oʻsha joyga qaytadi. Markazga qaytarish uchun sarlavha satrini ikki marta bosing.
+Lenta, asboblar qutisi, asboblar qatorlari va holat paneli ham panel kabi oʻz oynasiga chiqadi: qismdagi {{ui:⋯}} menyusini oching va {{ui:Yangi oynaga koʻchirish}} ni tanlang; {{ui:Joyiga qaytarish}} (yoki oynani yopish) uni uyiga qaytaradi. Shu oynada bosgan tugmalaringiz ilovaga yetib boradi, xuddi panellar oynasidagidek. Har bir qismda shunday bitta menyu bor.
 
-Klaviaturadan, muloqot ichida fokus boʻlganda, {{key:Alt}}+{{key:Shift}} va strelka tugmasini bosib, 16 pikselli qadamlar bilan siljiting; {{key:Ctrl}} qoʻshsangiz, 64 pikselli qadam boʻladi. Ekrandan tashqariga chiqib qolgan muloqot oynasi (kichikroq oyna yoki ekran tufayli) qaytarib olib kelinadi.
+## Dialogni koʻchirish
 
-Telefonda muloqot oynalari toʻliq kenglikdagi varaqlar boʻlib qoladi va koʻchirilmaydi.
+Har bir dialogni chizmaga xalaqit bermaslik uchun koʻchirish mumkin: uning sarlavha satridan bosib suring. Dialog qayerga qoʻyganingizni eslab qoladi, har biri oʻzicha, va keyingi ochilganda oʻsha joyga qaytadi. Markazga qaytarish uchun sarlavha satrini ikki marta bosing.
 
-CadCraft Studio da CadCraft ning {{ui:PDF fayl sifatida chiqarish}} muloqot oynasi — ishlash paytida ochiq qoldirishingiz mumkin — sarlavha satrida {{ui:Oʻz oynasida ochish}} tugmasiga ega. Muloqot oʻz oynasiga koʻchadi, uni ikkinchi monitorga qoʻyishingiz mumkin. Muloqotni yopish oynani yopadi, oynani yopish esa muloqotni yopadi.
+Klaviaturadan: fokus dialog ichida boʻlganda {{key:Alt}}+{{key:Shift}}+yoʻnalish tugmasini bosing — u 16 piksel siljiydi; {{key:Ctrl}} qoʻshsangiz 64 piksel. Kichikroq oyna yoki ekrandan keyin ekrandan tashqariga chiqib qolgan dialog qaytarib keltiriladi.
 
-## Panellarni joyiga qaytarish
+Telefonda dialoglar butun kenglikdagi varaq boʻlib qoladi va koʻchirilmaydi.
 
-- Panellar oynasida {{ui:Panellarni qaytarish}} ni tanlang yoki oddiygina uni yoping. Panellar oʻz joylariga qaytadi.
-- Asosiy oynani yopish yoki qayta yuklash panellar oynasini ham yopadi. Ilova qayta ochilganda, panellaringiz alohida oynada boʻlganini aytadi; oynani qaytarish uchun {{ui:Ochish}} ni, yoki {{ui:Ularni shu yerda qoldirish}} ni tanlang.
-- {{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Tartibni tiklash}} har bir panelni boshlanish joyiga qaytaradi.
+CadCraft Studio da, ish davomida ochiq qoldirishingiz mumkin boʻlgan CadCraft ning {{ui:PDF ga chop etish}} dialogida sarlavha satrida {{ui:Oʻz oynasida ochish}} tugmasi bor. Dialog oʻz oynasiga koʻchadi, uni boshqa monitorga qoʻyish mumkin. Dialogni yopsangiz oyna yopiladi, oynani yopsangiz dialog yopiladi.
+
+## Panellarni qaytarish
+
+- Panellar oynasida {{ui:Panellarni qaytarish}} ni tanlang yoki shunchaki yoping. Panellar avvalgi joyiga qaytadi.
+- Asosiy oynani yopish yoki qayta yuklash ham panellar oynasini yopadi. Ilova qayta ochilganda panellaringiz oʻz oynasida ekanligini aytadi; oynani qaytarish uchun {{ui:Ochish}} ni tanlang yoki {{ui:Ularni shu yerda qoldirish}} ni.
+- {{ui:Sozlamalar}} › {{ui:Umumiy}} › {{ui:Tartibni tiklash}} har bir panelni boshlangan joyiga qaytaradi.
 
 :::tip
-Panellarni yangi oynaga koʻchirganda hech narsa ochilmasa, brauzer qalqib chiquvchi oynani toʻsgan boʻladi. Ilova buni aytadi va panellarni joyida qoldiradi. getcadcraft.com uchun qalqib chiquvchi oynalarga ruxsat bering, soʻng qayta urinib koʻring.
+Panellarni yangi oynaga koʻchirganingizda hech narsa ochilmasa, brauzer pop-up oynani bloklagan boʻladi. Ilova buni aytadi va panellarni avvalgi joyida qoldiradi. getcadcraft.com uchun pop-up oynalarga ruxsat bering va qaytadan urinib koʻring.
 :::
 
-Tartib har bir ilova uchun shu brauzerda, boshqa sozlamalaringiz bilan birga saqlanadi.
+Joylashuv har bir ilova uchun shu brauzerda, boshqa sozlamalaringiz bilan birga saqlanadi.

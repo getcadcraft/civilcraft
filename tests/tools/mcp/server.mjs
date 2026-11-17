@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
+import { fileURLToPath } from 'node:url';
 import { createDispatcher, TOOL_GROUPS } from './core.mjs';
 import { createEnv, headlessTools, headlessRollback } from '../cli/headless/tools.mjs';
 import { PACKAGE_VERSION } from '../cli/headless/apps.mjs';
@@ -103,13 +104,19 @@ if (opts.log) {
 }
 
 const allowed = new Set(opts.allow);
+// The files beside this one in the npm package, or under public_html/assets/js in the repo.
+const sibling = async (name, ...repoRel) => { for (const rel of ['./' + name, ...repoRel]) { try { return await import(new URL(rel, import.meta.url).href); } catch { /* try the next place */ } } return null; };
+// Model data only (BK.145): every result passes the filter before it leaves; a path it gave out with "~" for the user's folder is put back in the arguments.
+const modelOnlyMod = await sibling('ai-model-only.js', '../../public_html/assets/js/ai-model-only.js');
+const modelOnly = modelOnlyMod && modelOnlyMod.createModelOnly ? modelOnlyMod.createModelOnly() : null;
 const d = createDispatcher({
+  ...(modelOnly ? { outgoing: modelOnly.outgoing, incoming: modelOnly.incoming } : {}),
   server: { name: 'cadcraft', title: 'CadCraft', version: PACKAGE_VERSION },
   allowed: () => allowed,
   rollback: headlessRollback(env),   // previews of command_run, script_run and block_insert on a drawing
   howToAllow: (g) => 'The person can restart the server with --allow ' + [...new Set([...allowed, g])].join(',') + '.',
   instructions: () => 'CadCraft tools for DWG/DXF drawings (CadCraft), IFC models (BimCraft), CivilCraft sites, PartCraft parts and manuals, takeoffs (TakeoffCraft, on PDFs or straight from a DWG/DXF) and PDF markups (MarkupCraft). '
-    + 'Files: only inside ' + (env.roots.any ? env.roots.list.join(', ') : 'no folders (no --root was given)') + '. Allowed: ' + [...allowed].join(', ') + '. '
+    + 'Files: only inside ' + (env.roots.any ? env.roots.list.map((r) => (modelOnly ? modelOnly.text(r) : r)).join(', ') : 'no folders (no --root was given)') + '. Allowed: ' + [...allowed].join(', ') + '. '
     + 'Open a file first (drawing_open, ifc_open, site_open, part_open, takeoff_open — a .takeoff.json or a .dwg/.dxf for the cad_* tools; markups_list and illustrate_export take a path) and pass the handle it returns. command_run types at CadCraft\'s command line, one prompt answer per list item; every edit is one undo step labelled "Assistant: …".',
   log: (entry) => {
     if (logFile) { try { fs.appendFileSync(logFile, JSON.stringify(entry) + '\n'); } catch (e) { err('cadcraft-mcp: could not write the log: ' + e.message); } }
@@ -118,9 +125,32 @@ const d = createDispatcher({
 });
 for (const t of headlessTools(env)) d.tool(t);
 
+// The knowledge pack (BK.57, BK.146): the pack whose version is nearest this server's, as tools (knowledge_info / _find / _get) and as
+// resources. knowledge_info says plainly when the pack is for another version. Beside this file in the npm package (knowledge/), else the repo's.
+let knowledge = null;
+{
+  const kMod = await sibling('knowledge-pack.js', '../../public_html/assets/js/knowledge-pack.js');
+  for (const rel of ['./knowledge/', '../../public_html/assets/packs/knowledge/']) {
+    if (!kMod || knowledge) break;
+    try {
+      const dir = fileURLToPath(new URL(rel, import.meta.url));
+      const list = JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8')).versions || [];
+      const mine = kMod.versionParts(PACKAGE_VERSION) || [0, 0, 0];
+      const rank = (v) => { const p = kMod.versionParts(v.version) || [0, 0, 0]; return (v.channel === 'release' ? 0 : 4) + (p[0] === mine[0] && p[1] === mine[1] ? (p[2] === mine[2] ? 0 : 1) : 2); };
+      const pick = list.slice().sort((a, b) => rank(a) - rank(b))[0];
+      if (!pick) continue;
+      const base = path.join(dir, pick.version);
+      const index = JSON.parse(fs.readFileSync(path.join(base, 'index.json'), 'utf8'));
+      const read = async (p) => { if (!index.documents.some((x) => x.path === p)) return null; try { return fs.readFileSync(path.join(base, p), 'utf8'); } catch { return null; } };
+      const o = { pack: () => index, read, appName: 'this CadCraft server', appVersion: () => PACKAGE_VERSION };
+      for (const t of kMod.knowledgeTools(o)) d.tool(t);
+      knowledge = kMod.knowledgeResources(o);
+    } catch { /* no pack there */ }
+  }
+}
+
 // Skill packs and prompt starters as MCP prompts/resources (AC.5, packs.mjs), and the firm's standards from --standards (AC.14). The files sit
 // beside this one in the npm package and under public_html/assets/js in the repo.
-const sibling = async (name, ...repoRel) => { for (const rel of ['./' + name, ...repoRel]) { try { return await import(new URL(rel, import.meta.url).href); } catch { /* try the next place */ } } return null; };
 const packsMod = await sibling('packs.mjs'), skillMod = await sibling('skill-packs.js', '../../public_html/assets/js/skill-packs.js');
 if (packsMod && skillMod && Array.isArray(skillMod.PACKS)) {
   let standards = null;
@@ -133,7 +163,7 @@ if (packsMod && skillMod && Array.isArray(skillMod.PACKS)) {
       if (stdMod && stdMod.cleanStandards) { const r0 = stdMod.cleanStandards(text); if (!r0.standards) throw new Error(r0.problems.join(' ')); standards = { get: () => r0.standards, text: (s1, app) => stdMod.standardsText(s1, app) }; }
     } catch (e) { err('cadcraft-mcp: could not read --standards ' + opts.standards + ': ' + e.message); process.exit(2); }
   }
-  packsMod.mountPacks(d, { packs: skillMod.PACKS, standards });
+  packsMod.mountPacks(d, { packs: skillMod.PACKS, standards, more: knowledge });
 }
 
 err('cadcraft-mcp ' + PACKAGE_VERSION + ': folders ' + (env.roots.any ? env.roots.list.join(', ') : '(none — no file access)') + '; allowed: ' + [...allowed].join(', ') + '.');

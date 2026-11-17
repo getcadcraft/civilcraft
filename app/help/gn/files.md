@@ -1,113 +1,113 @@
 ---
-title: Archivos que podés abrir, guardar y exportar
-summary: Archivos de puntos, LandXML y proyectos de CivilCraft que entran; proyectos, LandXML, DXF y PDF que salen; qué guarda cada uno, adónde van los archivos y qué cambia sin conexión.
+title: Archivos ojeporúva abrir, guardar ha exportar
+summary: Archivos de puntos, LandXML ha proyectos CivilCraft ojeike; proyectos, LandXML, DXF ha PDF oguenohẽ; mba'éichapa oñeñangareko cada archivo, mba'éichapa oho archivos ha mba'e oñemyasã sin conexión.
 keywords: abrir, guardar, exportar, importar, formatos de archivo, csv, txt, landxml, xml, dxf, pdf, json, descargar, archivo de proyecto
-from: a7debb61
+from: 82bff559
 ---
 
-CivilCraft ojeabre archivo nde ordenadorgui ha ojeguarda descarga rupive upeicha. Ndaipóri ojeenvia nada ni ojeguarda servidorpe. Esto avei: [Tus archivos](common:your-files).
+CivilCraft oabre archivos nde computadora-gui ha oguarda archivos oñemboguejy ndéve descargando. Nada ndoikói ni ndoñangarekói servidor-pe. Ehecha avei [Tus archivos](common:your-files).
 
-## Mboyvea oñeabre
+## Mba'e oabre
 
-Emboguejy {{ui:Abrir}} (térã emoĩ {{key:Mod+O}}) ha eiporavo archivo, térã emboguejy archivo {{pick:mac=Finder|windows=File Explorer|linux=tu administrador de archivos}} rupi plano-pe. Peteĩ archivo jave; archivo 200 MB-gui hasýva ndoguerekoi.
+Eprésiona **Abrir** (térã {{key:Mod+O}}) ha eleji archivo, térã eguejy archivo {{pick:mac=Finder|windows=File Explorer|linux=tu administrador de archivos}} gui plano-pe. Peteĩ archivo peteĩha; archivos hetave 200 MB ndoĩmi aceptado. LandXML térã archivo de proyecto hetave 32 MB oñeleía pedazos de 4 MB rupi, ndaha'éi peteĩ texto tuichavévape; LandXML oikuaáva, emaña ojeporu 13 vécespe tamaño del archivo memoria-pe (69 MB archivo ojeporu 0.9 GB ñanemoarandu-pe).
 
-| Tipo | Nombres de archivo | Mba'épa ojehupyty |
+| Tipo | Nombres de archivo | Mba'épa oiko |
 |---|---|---|
-| Archivo de puntos | `.csv`, `.txt`, `.pnt`, `.xyz` (cualquier archivo de texto) | Ojeprende **Importar puntos** diálogo. Puntos ojerrepláza proyecto puntos; alineaciones, plataformas ha caños oĩ ohóvo. |
-| LandXML | `.xml`, `.landxml` | Oñemoĩ **nuevo proyecto** archivo rupive (oporandu jevy umi ndaha'éi guardado hag̃uáicha). |
-| Proyecto de CivilCraft | `.civilcraft.json` (cualquier `.json`) | Proyecto ojeabre upe ojeguardava jave (oporandu jevy umi ndaha'éi guardado hag̃uáicha). |
+| Archivo de puntos | `.csv`, `.txt`, `.pnt`, `.xyz` (texto cualquiera) | Ventana **Importar puntos** oikuaa. Puntos omboaprovéchavo proyecto-pe puntos; alineaciones, plataformas ha caños oñemoĩ. |
+| LandXML | `.xml`, `.landxml` | **Proyecto nuevo** ojapo archivo-gui (eporandu mboyve tenda ojeporu ha ndaha'éi guardado). |
+| Proyecto CivilCraft | `.civilcraft.json` (`.json` cualquiera) | Proyecto oñepyrũ guardado hína ramo. (Eporandu mboyve tenda ojeporu ha ndaha'éi guardado). |
 
-CivilCraft ohechakuaa archivo nombre ipaha rupi, upéi ipa'angue'i rupi: tekstoa oñepyrõva `{`-gui oñemoĩ proyecto-icha, `<`-gui LandXML-icha, ambue mbaʼeve puntos archivo-icha. Archivo open box-pe ojehecha grisado ojeguerekóramo imbaʼe, oikeva plano-pe.
+CivilCraft oikuaa archivo ojeiporúva pe fin-gui, upéi pe primer tembiaporã-gui: texto oñepyrũva `{` ha'e proyecto, oñepyrũva `<` ha'e LandXML, ambue ha'e archivo de puntos. Archivo abrir ventana ndojapói ojehecha plano-pe ojejuhu avei.
 
 :::note
-Puntos archivo omoĩ proyecto-pe, hyʼaite puntos, ojerrepláza oporandúvo ndaje; ha ojejeheka deshacer historia (archivo ojeabre jave ojepyrũ ojehecha pyahu deshacer-pe). Surface oiko LandXML-gui, puntos omoĩ jave ojejapo jeyva surface puntos-gui. Ajahendu mboyve guardar, pe puntos-kuéra jejuhu ramo.
+Archivo de puntos importar proyecto-pe oguereko puntos ndoporandúi omboaprovecha, ha historial de deshacer oñemboguejy (ojeabrí cualquier archivo ojepyrũ hína deshacer-pe). Superficie oúva LandXML-gui, puntos importar oguenohẽ hína superficie puntos-gui. Guardá primero témpo ojeporúva hína puntos viejos.
 :::
 
-Ojehechaukávo: [Formatos de archivo de puntos](topic:point-file-formats), [LandXML: mbaʼépa ojelee ha ojeikuaa](topic:landxml-reference).
+Detalles: [Formatos de archivo de puntos](topic:point-file-formats), [LandXML: mba'e oñeleía ha oñemoĩ](topic:landxml-reference).
 
-## Mboyvea oñeguarda
+## Mba'e oguarda
 
-{{ui:Guardar}} ({{key:Mod+S}}) ojeguarda mokõi archivo peteĩ peteĩ gotyo, **Nombre** panel izquierdo-pe héra rupive: `<nombre>.civilcraft.json`, proyecto oñeeditáta jevýva, ha `<nombre>.ifc`, pe mismo diseño IFC 4.3 ojapóva ambue ndive (ehecha [IFC exportación ha importación](topic:ifc)). Peteĩ peteĩ ojehechaukáta ambuépe, ha IFC-pe avei oguereko proyecto oñemongeta ijyvapaiterei, upévare IFC ndoaguéi ohóvo ojeabre mboyvéva oñeeditáta.
+{{ui:Guardar}} ({{key:Mod+S}}) oguarda archivo mokõi hendápe, oñehenóiva **Nombre** panel izquierda-gui: `<nombre>.civilcraft.json`, proyecto oendelva ajustar, ha `<nombre>.ifc`, diseño mbojojáva IFC 4.3 ambue tembiapohára-pe (echa [Exportación e importación IFC](topic:ifc)). Cada archivo omombe'u ambue, ha IFC avei oguereko proyecto comprimido, upévare IFC omboty hína ojeipeaseha ha oikuaa ojeporu hetave.
 
-- **Studio-pe** mokõiva ojeguarda peteĩ gotyo, tenda rehe.
-- **Chrome ha Edge-pe** ojeporandu mboyve tenda, upéi mokõiva oguarda upépe; upe rire guardar ojeguarda upe tenda-pe. Tenda porandu ndejejapóiramo, mokõiva ojeguarda descarga-pe.
-- **Ambue navegador-pe** mokõiva ojeguarda descarga, proyecto archivo ojeguarda mboyve.
+- **En Studio** archivo mokõiva oguarda peteĩ hendápe, hépe.
+- **En Chrome ha Edge** primer Guardar oipota carpeta ha oguarda mokõiva upépe; upe rupi guardados ambue carpeta ojeporúva-pe. Cancelar carpeta pregunta-pe ojeipota ambos descargados.
+- **Ambue navegadores** archivo mokõiva oñedescarga, proyecto primero.
 
-Archivo ojeabre jave ojekuaa ambue. Ojeabre mokõiva peteĩ jeyvápe (térã emboguejy mokõiva), térã peteĩ ojeabre: Studio-pe ambue ojejuhu tenda pe rehe; navegador-pe CivilCraft oporandu emoĩ hag̃ua térã ojeguereko pe peteĩ ndive. Ha IFC ambue programa-gui oñemoambue CivilCraft-pe ojeguarda mboyve térã mokõi archivo mbaʼe ojehasa, proyecto oñemoĩ diseño pyahúgui ha Problemas panel omombeʼu mbaʼépa oikóma, ha **Guardar ahora** (oñemoĩ mokõi archivo jeýta) ha **Mostrar la geometría del IFC como referencia**. Ambue programa oñemoambue IFC ndojeabremoʼãi IFC-pe ojeguardava proyecto-gui ha umi ojejapo oipytyvõva: alineación oñemoambue ojehupyty ijyvapaiterei geometría, ojepe'áva ndoikéi, ha ambue cambios oñeha ndojehupytyi.
+Abriendo peteĩ archivo ojekuaa ambue. Ojepyta mokõiva peteĩicha (térã guejy mokõiva), térã peteĩ: Studio-pe ambue oñekuaa carpeta peteĩha-pe; navegador-pe CivilCraft oporandu pemoĩ, térã oguerovia pe peteĩ reiko. Si IFC ambue programa ojapo CivilCraft oguardárõ mboyve, térã peteĩ archivo ojeguerekóvo ambue mboyve, proyecto oñepyrũ diseño pyahúgui, ha Problemas panel omombe'u mba'épa ojehu, **Guardar ahora** (oguarda mokõiva jey) ha **Mostrar geometría del IFC como referencia**. IFC hína ambue programa ojapo oñepyrũ copia proyecto-gui ojeikuaa rupi: alineaciones oñemudáva oñeikotevẽ geometría, objetos oñemboguejy oñemboguejy oho, ha ambue cambios oñemombe'u, ndoñeikotevẽi. Proyecto archivo 0.7.1 mboyve oñepyrũ tesãi.
 
-Proyecto archivo oguarda:
+Archivo de proyecto oñangarekóva:
 
-- puntos peteĩ peteĩ (número, coordenadas, elevación, descripción) ha puntos archivo héra oúva
-- surface ajustes: grupo elección, dibujado breaklines, límite, pe ñanduti tuichaiterei borde, ha TIN LandXML-gui ojelee
+- cada punto (número, coordenadas, elevación, descripción) ha pe archivo de puntos oñeikuaa
+- superficie ajustes: grupos ojeporúva, breaklines ojejapóva, límite, borde externo más largo, ha TIN LandXML-gui
 - pantalla ajustes
-- alineaciones PI-kuéra, radios ha inicio estación, design perfiles (PVI ha curva longitudes) ha corredor ajustes
-- plataformas ha caños red reglas ndive
+- alineaciones PI, radios ha estación de inicio, perfiles de diseño (PVI ha longitud de curva) ha corredor ajustes
+- plataformas ha red de caños ha reglas
 
-Ndoguardái deshacer historia. Surface, curvas de nivel, líneas de luz ha volúmenes ndoguardáiva; ojejapo jeyvavéta guardado insumos-gui proyecto ojeabre jave. Proyecto archivo CivilCraft pyahúgui ojerechaza ojehechaukáva versión.
+Ndoñangarekói historial de deshacer. Superficies, curvas de nivel, líneas de luz natural ha volúmenes ndoguardái; oñeho jey proyecto oñepyrũ ramo oñeikotevẽ entradas-gui. Archivo de proyecto CivilCraft pyahúgui ndoaceptái, ha mensaje omombe'u versión.
 
-## Mboyvea oñeexporta
+## Mba'e oexporta
 
 | Botón | Archivo | Contenido |
 |---|---|---|
-| {{ui:LandXML}} | `<nombre>.xml` | LandXML 1.2: puntos, terreno existente (ha surface ojapo ramo TIN surface-kuéra), alineaciones, terreno ha diseño perfiles, caños red |
-| {{ui:DXF}} | `<nombre>.dxf` | R12 DXF plano líneas ojehechaukáva pantalla-pe, capas héra rupive |
-| {{ui:DWG}} | `<nombre>.dwg` | Pe mismo líneas DWG dibujo-pe, emboguejy formato (2000 hasta 2018) |
-| {{ui:PDF}} | `<nombre>.pdf` | Plano vectorial hoja-pe, escala emboguejýva |
-| {{ui:GLB}} térã {{ui:OBJ}} (3D vista barra-pe) | `<nombre>-3d.glb`, `<nombre>-3d.obj` | 3D vista omombe'úva 3D modelo: metro, Y arriba, escala verdadera, lokál origen ojeguardava rupi |
+| {{ui:LandXML}} | `<nombre>.xml` | LandXML 1.2: puntos, terreno existente (ha superficie diseñada oiko ramo) TIN superficies-pe, alineaciones, perfiles de terreno ha diseño, red de caños |
+| {{ui:DXF}} | `<nombre>.dxf` | Plano R12 DXF oĩva ojehecha ramo, capas oñehenóiva-pe |
+| {{ui:DWG}} | `<nombre>.dwg` | Ko mismo ojehecha DWG dibujo-pe, ojeporúva formato (2000 rupi 2018 peve) |
+| {{ui:PDF}} | `<nombre>.pdf` | Plano vectorial hoja-pe, escala ojeporúva |
+| {{ui:GLB}} térã {{ui:OBJ}} (3D barra-pe) | `<nombre>-3d.glb`, `<nombre>-3d.obj` | Mba'e 3D vista omoñe'ẽva: metros, Y arriba, escala verdadera, origen local ojeporúva |
 
-Mbaʼe ndoguerekói umi: [Exchange LandXML](topic:landxml), [Exportar el plano a DXF](topic:dxf-export) (DWG avei), [Imprimir el plano a PDF](topic:plot-pdf), [Exportar el sitio en 3D](topic:export-3d).
+Mba'e ndoguerekóiva cada uno: [Intercambio LandXML](topic:landxml), [Exportar plano a DXF](topic:dxf-export) (DWG avei), [Imprimir plano a PDF](topic:plot-pdf), [Exportar sitio en 3D](topic:export-3d).
 
-## Mboyvea oñeguardáta archivo
+## Mba'épa oho archivos
 
-Ojeguardava ha exportava archivo oho navegador ojeguardáva descarga-pe, ojeguerekóva Descargas carpeta-pe. Cada vez tenda emboguejy hag̃ua:
+Archivos guardados ha exportados oho navegador descargas-pe, usualmente carpeta Descargas-pe. Cada vez carpeta eleji:
 
 :::chromium
-Emboguejy navegador **Configuración**, upéi **Descargas**, ha emboguejy **Preguntar dónde guardar cada archivo antes de descargar**.
+Abrí navegador **Configuración**, upéi **Descargas**, ha ojapo **Preguntar dónde guardar cada archivo antes de descargar**.
 :::
 
 :::firefox
-Emboguejy **Configuración**, upéi **General**, ha **Archivos y aplicaciones** rupi emboguejy **Preguntar siempre dónde guardar archivos**.
+Abrí **Configuración**, upéi **General**, ha **Archivos y aplicaciones** ryepýpe eleji **Preguntar siempre dónde guardar archivos**.
 :::
 
 :::safari
-Emboguejy **Safari > Configuración > General** ha **Ubicación de descarga de archivos** emboguejy **Preguntar en cada descarga**.
+Abrí **Safari > Configuración > General** ha ajusta **Ubicación de descarga de archivos** **Preguntar en cada descarga**.
 :::
 
-Mokõi jey guardáramo héra peteĩ héra rupi, navegador omoĩ número segundo archivo-pe, por ejemplo `Sitio (1).civilcraft.json`. Ojeabre pyahúva upe jave.
+Guardaste mokõi jey peteĩ nombre, navegador oñemoĩ número segundo archivo-pe, ejemplo `Sitio (1).civilcraft.json`. Próxima vez pe ojehecha más nuevo oipe'a.
 
-## Ojeikuaa ha ndojeikuaái
+## En línea ha sin conexión
 
-CivilCraft oñemoĩ ordenadorgui ha upéicha: ojeabre navegador-pe ojehecha archivo, ojeguarda ojeguerekóva descarga. Ndaipóri mbaʼeve conexión ojeabre hag̃ua CivilCraft, guardar ojeguardaporãite hag̃ua ko'ã mbaʼe ndive:
+CivilCraft oñemba'apo tu computadora-pe ambue hendápe: abrir oleé archivo navegador-pe, guardar oguenohẽ descarga. Para abrir CivilCraft sin conexión ningún, guardá primero para uso sin conexión:
 
-1. Oĩmba conectado jave, emboguejy {{ui:Guardar para usar sin conexión}} app barra-pe pyhare.
-2. Botón oñemboguejy ojeheka ("Guardando 12 de 30") ha upéi oñemombe'u {{ui:Listo para usar sin conexión}}. CivilCraft ipequeño (0,6 MB ndaje), upévare ohasa mokõi aja. Guardado copia oguerekóva ko'ã ayuda ha sitio de muestra.
-3. Ndaipóri conexión, emoĩ upe ndirección (térã marcador) ojeabre hag̃ua. Ojapo mbaʼe, {{ui:Abrir el sitio de muestra}} avei.
+1. Mientras en línea, eprésiona **Guardar para usar sin conexión** barra superior-pe.
+2. Botón oñemoĩ ("Guardando 12 de 30") ha upéi oñemoĩ **Listo para usar sin conexión**. CivilCraft ndahasúi (0.6 MB aproximadamente), upévare oñemboguejy peteĩ momento. Copia guardada oguereko ko ayuda ha sitio de muestra.
+3. Sin conexión, abrí mismo dirección (térã favorito) ha oñembaʼapo opa. Ojeporu **Abrir el sitio de muestra** avei.
 
-Botón ambue estado-kuéra:
+Botón ambue estado:
 
-- {{ui:No se pudo guardar}}: archivo peteĩ ndojejapóiri descarga. Emaña conexión ha emboguejy jey oñeha hag̃ua.
-- {{ui:Uso sin conexión no disponible}}: ko navegador ventana ndaikatúi guarda ojeikuaa copia (ventana privada ha ordenador administrado peteĩ ojejoko). Emboguejy ventana normal.
+- **No se pudo guardar**: archivos peteĩ ndoguardái. Revisá conexión ha eprésiona jey ojeporu.
+- **Uso sin conexión no disponible**: ko navegador ventana ndoguerekói copia sin conexión (ventanas privadas ha computadora administradas ojejuhu oikotevẽ). Ojeporu ventana normal.
 
-Emboguejy {{ui:Listo para usar sin conexión}} oikuaa hag̃ua mboyve guardado, mokõi aporãva: {{ui:Guardar otra vez (obtener la versión más nueva)}} ha {{ui:Quitar la copia sin conexión}}. Guardar jey sitio visita mboyve ojeguarda, copia oikóva versión pyahúvape. Más [Sin conexión](common:offline).
+Eprésiona **Listo para usar sin conexión** ojehecha mboyve oñemboguejy copia, ha dos elección: **Guardar otra vez (obtener la versión más nueva)** ha **Quitar la copia sin conexión**. Guardá otra vez antes visita de sitio, copia omoĩ versión más nueva. Más: [Sin conexión](common:offline).
 
 :::offline
-Ko'ágã ndaipóri conexión. CivilCraft oñeguardáramo sin conexión, mbaʼe ojapo, sitio de muestra avei. Ndojeguardái jave, ko pestaña-pe tembiapo jeporã, ha ndereiporavóima conexión jevy. Guardado copia ndaipóri jave, {{ui:Abrir el sitio de muestra}} ndojejapomo: "No se pudo cargar la muestra".
+Ko'ágã ndaiporiri conexión. Si CivilCraft oguardáva uso sin conexión, opa oñemba'apo, ha sitio de muestra avei. Si ndoguardái, tembiapo ko pestaña-pe ojeporu, ha ndapu'ã jey hasta reconecta; guardado copia ndoguerekói, **Abrir el sitio de muestra** ndoñeha'ãi "The sample could not be loaded".
 :::
 
 :::tip
-Ko'ẽ tembiapo-pe, CivilCraft guardá sin conexión ha eguereko punto archivo laptop-pe. Proyecto ha exportación ojeguarda descarga conexión ndaipóri jave, upévare pe día ojeguahẽva puntos ojehechaukáta, surface oñeha ha proyecto ojeguarda sitio-pe.
+Campo-pe ojeporúvo, guardá CivilCraft uso sin conexión ha eguejy punto archivos laptop-pe. Proyectos ha exportaciones oguarda descargas-pe ndaconexiónri, upévare ikatu importar día medición, revisar superficie ha guardar proyecto sitio-pe.
 :::
 
-Nube guardado ndaikatúi ko'ágã, ordenador ndaipóri ko'ágã. Ko'ágã archivo ojeguardáva peteĩ jave copia ha upévare oñeguardáva ñemoĩ.
+Guardado de nube ndoiko'ẽi ko'ágã, ha escritorio versiones ndoiko'ẽi. Ko'ágã, archivos oguardáva ha'e única copia: oguarda hendápe oñeñangareko backup-pe.
 
-## Complementos ojeikotevẽva archivo
+## Complementos ojeporúva archivo-pe
 
-Proyecto archivo oguardáramo mbaʼe complemento-gui (Normas de construcción tick-kuéra, térã Dirección a sitio fuente), archivo omoĩ mávapa complementos ha versiones. Ojeabre ordenador-pe ndoguerekóiva, barra plano ári omombe'u ha omoĩ hag̃ua cuenta-gui. Registro ndaha'éi ojehechaukáva: archivo ojeabre upéicha.
+Proyecto guardáramo datos complemento-gui (ticks de Reglamentos de edificación, térã fuente de Dirección a sitio), archivo omombe'u complementos ha versiones. Oipe'a computadora ndoguerekóiva, plano jurúpe barra omombe'u ha ofrece agregar cuenta lista-gui. Registro ha'e nota añónte: archivo oikuaa umi jave.
 
-## Deshacer Studio-gui
+## Deshacer desde Studio
 
-CadCraft Studio-pe, CivilCraft-pe oñemboguejýva omombe'u Studio-pe, upévare proyecto deshacer omboguejy peteĩ jey app-kuéra ndive. Studio ojeheja peteĩ mbaʼe CivilCraft deshacer pila ipyahúvape ha oikóramo; ambue archivo ojeabre rire ndojejapói.
+CadCraft Studio-pe, cada paso CivilCraft-pe ojehecha oñemombe'u Studio-pe, upévare deshacer proyecto-nivel-pe ikatu omboguejy último paso aplicaciones mbytépe. Studio oñemboguejy paso hína CivilCraft deshacer pila exactamente ojehechahápe; ambue archivo abrirámo ndoiko'ẽi ko ventana.
 
-## Mboyve cerrar cambios ndojeguardavéva
+## Cerrar con cambios sin guardar
 
-Proyecto cambios ndojeguardavéva pestaña, recarga térã pasa página, navegador ojerporandu ndaha'éi haʼe ja'ukáramo. Pe palabras ha forma navegadorgui, CivilCraft ndojeikotevẽi. {{ui:Nuevo}} térã proyecto térã LandXML ojeabre, CivilCraft-pe **Cambios sin guardar** caja-pe ojerporandu, {{ui:Cancelar}}, {{ui:No guardar}} ha {{ui:Guardar una copia}} ndive.
+Proyecto cambios sin guardar ha cerrá pestaña, recargá térã oho página, navegador oporandu oikuaa mboyve oho. Mba'e ojehai navegador-pe oñemoĩ, CivilCraft ndaikatúi ñemuda. **Nuevo**, ha proyecto térã LandXML abrir, ojapo CivilCraft **Cambios sin guardar** ventana-pe, ha **Cancelar**, **No guardar** ha **Guardar una copia** oĩ.

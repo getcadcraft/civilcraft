@@ -107,7 +107,7 @@ if (ext === '.dxf') {
     const bb = bounds(ents);
     cands.push({ key: key(b.name), name: b.name, entities: ents.length, attrs, has_body: true,
       item: { format: 'cadcraft-library-item', format_version: 1, name: b.name, kind: 'equipment', category: 'other/other',
-        description: '', maker: '', model: '', plan: { layers: [{ name: '0', color: 7 }], entities: ents },
+        description: '', maker: '', model: '', ifc: { class: 'IfcFurnishingElement', predefined: 'NOTDEFINED' }, plan: { layers: [{ name: '0', color: 7 }], entities: ents },
         body: { type: 'box', x: bb.x0, y: bb.y0, z: 0, w: bb.x1 - bb.x0, d: bb.y1 - bb.y0, h: 900 },
         params: { width: bb.x1 - bb.x0, depth: bb.y1 - bb.y0, height: 900 }, source_attrs: attrs } });
   }
@@ -122,7 +122,7 @@ if (ext === '.dxf') {
     const ents = [{ type: 'poly', layer: 'EQUIP', color: null, pts: [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, d / 2], [-w / 2, d / 2]], closed: true }];
     cands.push({ key: key(nm), name: nm, entities: 1, attrs: {}, has_body: true,
       item: { format: 'cadcraft-library-item', format_version: 1, name: nm, kind: 'equipment', category: r[col('category')] || 'other/other',
-        plan: { layers: [{ name: 'EQUIP', color: 7 }], entities: ents }, body: { type: 'box', x: -w / 2, y: -d / 2, z: 0, w, d, h: hh },
+        ifc: { class: 'IfcFurnishingElement', predefined: 'NOTDEFINED' }, plan: { layers: [{ name: 'EQUIP', color: 7 }], entities: ents }, body: { type: 'box', x: -w / 2, y: -d / 2, z: 0, w, d, h: hh },
         params: { width: w, depth: d, height: hh }, source_attrs: {} } });
   }
 } else out({ ok: false, error: 'stub: unsupported type ' + ext }, 2);

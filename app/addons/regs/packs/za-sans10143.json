@@ -6,6 +6,7 @@
   "jurisdiction": {
     "country": "ZA",
     "level": "country",
+    "region": "",
     "name": "South Africa"
   },
   "base": null,
@@ -19,90 +20,12 @@
   "source": {
     "name": "South African Bureau of Standards, SANS 10143 (building drawing practice)",
     "url": "https://www.sabs.co.za/",
+    "date": "",
     "checked": "2026-10-28"
   },
-  "rules": [
-    {
-      "id": "draw.dim.suffix",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Dimensions with a unit written after the number",
-      "note": "Dimensions are in millimetres and carry no unit. Not confirmed against the standard."
-    },
-    {
-      "id": "draw.dim.unit",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Dimensions not written in millimetres",
-      "note": "Not confirmed against the standard."
-    },
-    {
-      "id": "draw.dim.decimals",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Dimensions written with decimals",
-      "note": "Whole millimetres. Not confirmed against the standard."
-    },
-    {
-      "id": "draw.level.decimals",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Levels not in metres to three decimals",
-      "note": "Levels such as +1.250 or -0.150. Not confirmed against the standard."
-    },
-    {
-      "id": "draw.sheet.series",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Sheets that are not an A-series size",
-      "note": "ISO A0 to A4. Not confirmed against the standard."
-    },
-    {
-      "id": "draw.scale.listed",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Viewports at a scale outside the building scales",
-      "note": "1:5, 1:10, 1:20, 1:50, 1:100 (and 1:200, 1:500 for site plans). Not confirmed against the standard."
-    },
-    {
-      "id": "draw.titleblock.fields",
-      "applies": "drawing",
-      "op": ">=",
-      "value": 6,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Title block fields on each sheet",
-      "note": "Erf number, township, client, registered professional, registration number, drawing number and revision. Not confirmed against the standard."
-    },
-    {
-      "id": "draw.hatch.metric",
-      "applies": "drawing",
-      "op": "<=",
-      "value": 0,
-      "unit": "count",
-      "clause": "SANS 10143",
-      "label": "Hatches drawn in inches",
-      "note": "Material hatching in metric patterns. Not confirmed against the standard."
-    }
-  ],
+  "maker": null,
+  "price": null,
+  "criteria": {},
   "tables": {
     "drawing": {
       "kind": "drawing",
@@ -183,5 +106,138 @@
         ]
       }
     }
+  },
+  "rules": [
+    {
+      "id": "draw.dim.suffix",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Dimensions with a unit written after the number",
+      "note": "Dimensions are in millimetres and carry no unit. Not confirmed against the standard.",
+      "value": 0
+    },
+    {
+      "id": "draw.dim.unit",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Dimensions not written in millimetres",
+      "note": "Not confirmed against the standard.",
+      "value": 0
+    },
+    {
+      "id": "draw.dim.decimals",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Dimensions written with decimals",
+      "note": "Whole millimetres. Not confirmed against the standard.",
+      "value": 0
+    },
+    {
+      "id": "draw.level.decimals",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Levels not in metres to three decimals",
+      "note": "Levels such as +1.250 or -0.150. Not confirmed against the standard.",
+      "value": 0
+    },
+    {
+      "id": "draw.sheet.series",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Sheets that are not an A-series size",
+      "note": "ISO A0 to A4. Not confirmed against the standard.",
+      "value": 0
+    },
+    {
+      "id": "draw.scale.listed",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Viewports at a scale outside the building scales",
+      "note": "1:5, 1:10, 1:20, 1:50, 1:100 (and 1:200, 1:500 for site plans). Not confirmed against the standard.",
+      "value": 0
+    },
+    {
+      "id": "draw.titleblock.fields",
+      "applies": "drawing",
+      "op": ">=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Title block fields on each sheet",
+      "note": "Erf number, township, client, registered professional, registration number, drawing number and revision. Not confirmed against the standard.",
+      "value": 6
+    },
+    {
+      "id": "draw.hatch.metric",
+      "applies": "drawing",
+      "op": "<=",
+      "unit": "count",
+      "clause": "SANS 10143",
+      "label": "Hatches drawn in inches",
+      "note": "Material hatching in metric patterns. Not confirmed against the standard.",
+      "value": 0
+    }
+  ],
+  "release": {
+    "version": "0.1.0",
+    "changelog": [
+      {
+        "version": "0.1.0",
+        "date": "2026-11-11",
+        "added": [
+          "Added: drawing conventions as marks tied to the pack's own drawing rules"
+        ]
+      }
+    ]
+  },
+  "conventions": {
+    "sources": [
+      {
+        "title": "South African Bureau of Standards, SANS 10143 (building drawing practice)",
+        "url": "https://www.sabs.co.za/",
+        "fetched": "2026-10-28",
+        "licence": "Not read: the standard is sold by SABS."
+      }
+    ],
+    "text": [],
+    "lines": [],
+    "marks": [
+      {
+        "id": "scale-list",
+        "label": "Viewports at a scale from the pack's scale list",
+        "required": true,
+        "clause": "SANS 10143",
+        "source": 0,
+        "rule": "draw.scale.listed"
+      },
+      {
+        "id": "metric-hatch",
+        "label": "Hatch patterns drawn in metric",
+        "required": true,
+        "clause": "SANS 10143",
+        "source": 0,
+        "rule": "draw.hatch.metric"
+      },
+      {
+        "id": "title-block",
+        "label": "Title block fields on each sheet",
+        "required": true,
+        "clause": "SANS 10143",
+        "source": 0,
+        "rule": "draw.titleblock.fields"
+      }
+    ],
+    "note": "Not confirmed against the standard; the checks are the pack's own draw.* rules."
   }
 }

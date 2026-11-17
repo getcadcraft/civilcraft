@@ -263,7 +263,7 @@ try {
   {
     await page.evaluate(() => { const v = document.querySelector('[data-canvas]').viewer; v.view('iso'); });
     await page.click('[data-rtab="library"]');
-    await page.click('.bc-lib-src:has-text("LibraryCraft")');
+    await page.click('.bc-lib-src:text-is("Library")');
     await page.waitForSelector('.bc-lib-card', { timeout: 15000 });
     await page.fill('.bc-lib-search', 'Deciduous tree, 6 m');
     await page.press('.bc-lib-search', 'Enter');

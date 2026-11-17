@@ -32,7 +32,36 @@ export class ProfileView {
     this.cv.width = Math.round(this.w * this.dpr); this.cv.height = Math.round(this.h * this.dpr);
     this.fitY(); this.draw();
   }
-  set(d) { const keep = this.data && d && this.data.key === d.key; this.data = d; if (!keep) this.fitY(); this.draw(); }
+  set(d) {
+    const keep = this.data && d && this.data.key === d.key;
+    // CV.3 (#1534): a zoomed window stays through edits to the same alignment (the key moves with every edit)
+    const same = this.data && d && this.data.align && this.data.align === d.align && this.zoomed;
+    this.data = d;
+    if (!same) { this.zoomed = false; this.fitX(); }
+    if (!keep && !same) this.fitY();
+    this.draw();
+  }
+  /** CV.3: the station window shown (the whole alignment unless zoomed). */
+  fitX() { const d = this.data; if (d) { this.s0 = d.start; this.s1 = d.end; } }
+  fit() { this.zoomed = false; this.fitX(); this.fitY(); this.draw(); }
+  /** CV.3: zoom about the screen point (sx, sy) by factor f (> 1 in); axis 'x' stations only, 'y' elevations only, else both. */
+  zoomAt(sx, sy, f, axis = 'xy') {
+    const d = this.data; if (!d) return;
+    const a = this.toData(sx, sy), min = 0.02;
+    if (axis.includes('x')) {
+      const full = Math.max(d.end - d.start, 1e-9), w = Math.min(full * 1.5, Math.max(full * 1e-4, (this.s1 - this.s0) / f)), k = (a.sta - this.s0) / Math.max(this.s1 - this.s0, 1e-9);
+      this.s0 = a.sta - k * w; this.s1 = this.s0 + w;
+    }
+    if (axis.includes('y')) {
+      const h = Math.max(min, (this.z1 - this.z0) / f), k = (a.z - this.z0) / Math.max(this.z1 - this.z0, 1e-9);
+      this.z0 = a.z - k * h; this.z1 = this.z0 + h;
+    }
+    this.zoomed = true; this.draw();
+  }
+  panBy(dx, dy) {
+    const P = this.plot, ds = (dx / (P.x1 - P.x0)) * (this.s1 - this.s0), dz = (dy / (P.y0 - P.y1)) * (this.z1 - this.z0);
+    this.s0 -= ds; this.s1 -= ds; this.z0 += dz; this.z1 += dz; this.zoomed = true; this.draw();
+  }
 
   fitY() {
     const d = this.data;
@@ -50,13 +79,13 @@ export class ProfileView {
   cantH() { return this.data?.cant?.curves?.some((c) => c.cant) && this.h > 220 ? 58 : 0; }
   toScreen(sta, z) {
     const d = this.data, P = this.plot;
-    const sx = P.x0 + (sta - d.start) / Math.max(d.end - d.start, 1e-9) * (P.x1 - P.x0);
+    const sx = P.x0 + (sta - this.s0) / Math.max(this.s1 - this.s0, 1e-9) * (P.x1 - P.x0);
     const sy = P.y0 - (z - this.z0) / Math.max(this.z1 - this.z0, 1e-9) * (P.y0 - P.y1);
     return { x: sx, y: sy };
   }
   toData(sx, sy) {
     const d = this.data, P = this.plot;
-    return { sta: d.start + (sx - P.x0) / (P.x1 - P.x0) * (d.end - d.start), z: this.z0 + (P.y0 - sy) / (P.y0 - P.y1) * (this.z1 - this.z0) };
+    return { sta: this.s0 + (sx - P.x0) / (P.x1 - P.x0) * (this.s1 - this.s0), z: this.z0 + (P.y0 - sy) / (P.y0 - P.y1) * (this.z1 - this.z0) };
   }
   hitFeature(sx, sy, px = 8) {
     let best = null, bd = px;
@@ -89,19 +118,19 @@ export class ProfileView {
     }
     const P = this.plot, u = d.units;
     // grid: stations and elevations
-    const len = d.end - d.start, pxPerSta = (P.x1 - P.x0) / Math.max(len, 1e-9);
-    const sStep = niceStep(70 / pxPerSta, u === 'm' ? [10, 20, 50, 100, 200, 500, 1000] : [25, 50, 100, 200, 500, 1000, 2000]);
+    const len = this.s1 - this.s0, pxPerSta = (P.x1 - P.x0) / Math.max(len, 1e-9);
+    const sStep = niceStep(70 / pxPerSta, u === 'm' ? [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000] : [0.5, 1, 2, 5, 10, 25, 50, 100, 200, 500, 1000, 2000]);
     const zStep = niceStep(28 / ((P.y0 - P.y1) / (this.z1 - this.z0)), [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]);
     ctx.lineWidth = 1; ctx.strokeStyle = C.grid; ctx.fillStyle = C.ink2;
     ctx.beginPath();
     ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    for (let s = Math.ceil(d.start / sStep) * sStep; s <= d.end + 1e-9; s += sStep) {
+    for (let s = Math.ceil(this.s0 / sStep) * sStep; s <= this.s1 + 1e-9; s += sStep) {
       const x = this.toScreen(s, this.z0).x; ctx.moveTo(x, P.y1); ctx.lineTo(x, P.y0);
-      ctx.fillText(formatStation(s, u, 0), x, P.y0 + 6);
+      ctx.fillText(formatStation(s, u, sStep < 1 ? 1 : 0), x, P.y0 + 6);
     }
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     for (let z = Math.ceil(this.z0 / zStep) * zStep; z <= this.z1 + 1e-9; z += zStep) {
-      const y = this.toScreen(d.start, z).y; ctx.moveTo(P.x0, y); ctx.lineTo(P.x1, y);
+      const y = this.toScreen(this.s0, z).y; ctx.moveTo(P.x0, y); ctx.lineTo(P.x1, y);
       ctx.fillText(fixed(z, zStep < 1 ? 1 : 0), P.x0 - 6, y);
     }
     ctx.stroke();
@@ -184,6 +213,13 @@ export class ProfileView {
       const s = this.toScreen(d.cursor.sta, this.z0);
       ctx.strokeStyle = C.action; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(s.x, P.y1); ctx.lineTo(s.x, P.y0); ctx.stroke();
     }
+    if (d.snap) {   // CV.3 (#1534): the point the next click takes (profile-snap.js)
+      const q = this.toScreen(d.snap.sta, d.snap.z);
+      ctx.strokeStyle = C.green; ctx.lineWidth = 2; ctx.fillStyle = C.bg;
+      if (d.snap.kind === 'ground' || d.snap.kind === 'pvi') { ctx.beginPath(); ctx.rect(q.x - 6, q.y - 6, 12, 12); ctx.stroke(); }
+      else { ctx.beginPath(); ctx.moveTo(q.x - 6, q.y); ctx.lineTo(q.x + 6, q.y); ctx.moveTo(q.x, q.y - 6); ctx.lineTo(q.x, q.y + 6); ctx.stroke(); }
+      if (d.snap.label) { ctx.font = '600 11px ' + LABEL_FONT; ctx.fillStyle = C.green; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText(d.snap.label, Math.min(q.x + 9, P.x1 - 80), q.y - 8); }
+    }
     if (this.cantH()) this.drawCant(C);   // 0.7.1 71.26
   }
 }
@@ -201,7 +237,7 @@ ProfileView.prototype.drawCant = function drawCant(C) {
   const n = 400;
   for (const [k, dash, col] of [['L', [], C.fg], ['R', [5, 3], C.action]]) {
     ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.setLineDash(dash); ctx.beginPath();
-    for (let i = 0; i <= n; i++) { const s = d.start + ((d.end - d.start) * i) / n, v = cantAt(plan, s)[k]; i ? ctx.lineTo(X(s), Y(v)) : ctx.moveTo(X(s), Y(v)); }
+    for (let i = 0; i <= n; i++) { const s = this.s0 + ((this.s1 - this.s0) * i) / n, v = cantAt(plan, s)[k]; i ? ctx.lineTo(X(s), Y(v)) : ctx.moveTo(X(s), Y(v)); }
     ctx.stroke();
   }
   ctx.setLineDash([]); ctx.fillStyle = C.ink; ctx.textAlign = 'center'; ctx.textBaseline = 'top';

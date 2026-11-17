@@ -173,10 +173,21 @@ export function cleanFrame(obj) {
   return { model, warnings };
 }
 
-/** The drawn shape a design check reads (0.7 SU.878): an I-shape's d, bf, tw, tf, r in mm, or null. */
+/** The drawn shape a design check reads (0.7 SU.878): an I-shape's d, bf, tw, tf, r in mm; 0.10 SU.1811: a rectangular { kind 'RHS', h, b, t, ro } or round { kind 'CHS', D, t } hollow section; or null. */
 function cleanShape(sh) {
-  if (!sh || typeof sh !== 'object' || sh.kind !== 'I') return null;
+  if (!sh || typeof sh !== 'object') return null;
   const v = (x, lo, hi) => (typeof x === 'number' && Number.isFinite(x) && x >= lo && x <= hi ? x : null);
+  if (sh.kind === 'RHS') {
+    const h = v(sh.h, 1, 5000), b = v(sh.b, 1, 5000), t = v(sh.t, 0.1, 500), ro = v(sh.ro ?? 2 * (sh.t || 0), 0, 1000);
+    if ([h, b, t, ro].includes(null) || 2 * t + 1 >= Math.min(h, b)) return null;
+    return { kind: 'RHS', h, b, t, ro, ...(sh.hot ? { hot: true } : {}) };
+  }
+  if (sh.kind === 'CHS') {
+    const D = v(sh.D, 1, 5000), t = v(sh.t, 0.1, 500);
+    if ([D, t].includes(null) || 2 * t + 1 >= D) return null;
+    return { kind: 'CHS', D, t, ...(sh.hot ? { hot: true } : {}) };
+  }
+  if (sh.kind !== 'I') return null;
   const d = v(sh.d, 1, 5000), bf = v(sh.bf, 1, 2000), tw = v(sh.tw, 0.1, 500), tf = v(sh.tf, 0.1, 500), r = v(sh.r ?? 0, 0, 200);
   if ([d, bf, tw, tf, r].includes(null) || 2 * tf + 1 >= d || tw >= bf) return null;
   const out = { kind: 'I', d, bf, tw, tf, r };

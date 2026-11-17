@@ -583,6 +583,300 @@ console.log('== spec tests 1-9 (docs/team-roadmap/bimcraft-wall-tool-specificati
   ok(/centre line/i.test(lbl), 'test 9: the Length field names its reference (centre line); CadCraft draws no wall dimensions of its own, so there is no second reading to agree with', lbl);
 }
 
+// ======================================================================== walls-plan-10: FX.63 an end grip and ROTATE keep the neighbours' direction
+console.log('== FX.63 end grip, corner, Alt, ROTATE (walls-plan-10)');
+const WC = await imp('walls-cmd.js');
+const { mAbout, mRotate } = G;
+/** A room 4000 x 3000 (s south, e east, n north, x west, drawn anticlockwise from the origin) and a partition p from the south wall's middle up to (2000, 1500). */
+const roomP = (d) => { const r = room(d); r.p = addWall(d, [2000, 0], [2000, 1500]); return r; };
+const at = (p, x, y, e = 1e-4) => near(p.x, x, e) && near(p.y, y, e);
+{
+  // the south wall's east end dragged by its grip to (5000, 500), only that wall selected. Its new line runs from (0,0) with slope
+  // 500 / 5000 = 0.1; the east wall's own line is x = 4000: they meet at (4000, 400). The partition's line is x = 2000: 0.1 x 2000 = 200.
+  const d = new Doc(), r = roomP(d), before = stateOf(d), n0 = d.undoStack.length;
+  const did = WC.wallGripCommit(d, { id: r.s.id, key: 'wall:b' }, { x: 5000, y: 500 }, { selection: new Set([r.s.id]) });
+  ok(did && at(M(d, r.s.id).b, 4000, 400) && at(M(d, r.s.id).a, 0, 0), 'end grip: the dragged end lands on the joined wall\'s line where its own new line crosses it: (4000, 400)', M(d, r.s.id).b);
+  ok(at(M(d, r.e.id).a, 4000, 400) && at(M(d, r.e.id).b, 4000, 3000), 'the joined wall\'s end slides along its own line to (4000, 400); it stays vertical and keeps its far end (it does not go sloped)', [M(d, r.e.id).a, M(d, r.e.id).b]);
+  ok(at(M(d, r.p.id).a, 2000, 200) && at(M(d, r.p.id).b, 2000, 1500), 'the partition on the dragged wall follows along its own line: (2000, 200)', M(d, r.p.id).a);
+  ok(at(M(d, r.n.id).a, 4000, 3000) && at(M(d, r.n.id).b, 0, 3000) && at(M(d, r.x.id).a, 0, 3000) && at(M(d, r.x.id).b, 0, 0), 'the north and west walls do not move');
+  ok(jn(M(d, r.s.id)) === 'end-L-start,mid-T-start,start-L-end' && jn(M(d, r.e.id)) === 'end-L-start,start-L-end' && jn(M(d, r.p.id)) === 'start-T-mid', 'every join record is kept (the corner, the T, the far corner)', [jn(M(d, r.s.id)), jn(M(d, r.e.id)), jn(M(d, r.p.id))]);
+  ok(d.undoStack.length === n0 + 1, 'one undo step', d.undoStack.length - n0);
+  d.undo();
+  ok(stateOf(d) === before, 'and one undo puts all three walls back');
+}
+{
+  // along the wall itself: a Length change (4000 to 5000): the east wall moves parallel to x = 5000 and the north wall lengthens to it (D1 option A)
+  const d = new Doc(), r = roomP(d);
+  WC.wallGripCommit(d, { id: r.s.id, key: 'wall:b' }, { x: 5000, y: 0 }, { selection: new Set([r.s.id]) });
+  ok(at(M(d, r.s.id).b, 5000, 0) && at(M(d, r.e.id).a, 5000, 0) && at(M(d, r.e.id).b, 5000, 3000) && at(M(d, r.n.id).a, 5000, 3000), 'end grip along the wall: the joined wall moves parallel (x = 5000), the north wall lengthens', [M(d, r.e.id).a, M(d, r.e.id).b]);
+}
+{
+  // the corner grip with BOTH walls on it selected: the corner goes to (4500, -500) and both walls stay on it (both turn: that is what moving a
+  // corner means). The partition slides along x = 2000 to the south wall's new line y = -500/4500 x = -x/9: -222.2222. North and west hold.
+  const d = new Doc(), r = roomP(d), n0 = d.undoStack.length;
+  WC.wallGripCommit(d, { id: r.s.id, key: 'wall:b' }, { x: 4500, y: -500 }, { selection: new Set([r.s.id, r.e.id]) });
+  ok(at(M(d, r.s.id).b, 4500, -500) && at(M(d, r.e.id).a, 4500, -500), 'corner grip (both walls selected): both walls stay on the moved corner (4500, -500)', [M(d, r.s.id).b, M(d, r.e.id).a]);
+  ok(at(M(d, r.e.id).b, 4000, 3000) && at(M(d, r.s.id).a, 0, 0) && at(M(d, r.n.id).a, 4000, 3000) && at(M(d, r.x.id).b, 0, 0), 'their far ends hold and the walls further along stay as they were (square)');
+  ok(at(M(d, r.p.id).a, 2000, -2000 / 9), 'the partition slides along its own line to the south wall\'s new line: (2000, -222.2222)', M(d, r.p.id).a);
+  ok(d.undoStack.length === n0 + 1 && jn(M(d, r.s.id)) === 'end-L-start,mid-T-start,start-L-end', 'one undo step; the records are kept');
+}
+{
+  // Alt held: the join is broken on purpose. The end goes to (3000, -800) and nothing follows. The records that no longer hold go: the corner with
+  // the east wall (its end is hypot(1000, 800) = 1281 away) and the partition's T (at x = 2000 the wall's line is at y = -533, the partition's end at 0:
+  // further than half a thickness, and below the partition, so no crossing either).
+  const d = new Doc(), r = roomP(d), n0 = d.undoStack.length;
+  WC.wallGripCommit(d, { id: r.s.id, key: 'wall:b' }, { x: 3000, y: -800 }, { selection: new Set([r.s.id]), free: true });
+  ok(at(M(d, r.s.id).b, 3000, -800) && at(M(d, r.e.id).a, 4000, 0) && at(M(d, r.p.id).a, 2000, 0), 'Alt + end grip: the end goes where it is put, the joined walls stay where they were', [M(d, r.s.id).b, M(d, r.e.id).a]);
+  ok(jn(M(d, r.s.id)) === 'start-L-end' && jn(M(d, r.e.id)) === 'end-L-start' && jn(M(d, r.p.id)) === '', 'the broken joins leave the record on both walls; the corner at the other end keeps its record', [jn(M(d, r.s.id)), jn(M(d, r.e.id)), jn(M(d, r.p.id))]);
+  ok(d.undoStack.length === n0 + 1, 'one undo step');
+}
+{
+  // a drag that would turn the joined wall back through its far end ((4000, 3500) is past the east wall's top at 3000): refused, nothing changes
+  const d = new Doc(), r = roomP(d), before = stateOf(d), n0 = d.undoStack.length;
+  WC.wallGripCommit(d, { id: r.s.id, key: 'wall:b' }, { x: 4000, y: 3500 }, { selection: new Set([r.s.id]) });
+  ok(stateOf(d) === before && d.undoStack.length === n0 && /model\.err\.short|too short/i.test(d.lastNote || ''), 'no solution that keeps the neighbour: the drag is refused with the existing message and nothing changes', d.lastNote);
+  // the preview is the solved result, not the raw cursor: its lines reach (4000, 400), none reaches (5000, 500)
+  const ghost = WC.wallGripGhost(d, { id: r.s.id, key: 'wall:b' }, { x: 5000, y: 500 }, { selection: new Set([r.s.id]) });
+  const xs = ghost.filter((l) => l.type === 'line').flatMap((l) => [l.x1, l.x2]);
+  ok(ghost.length > 8 && Math.max(...xs) < 4100, 'the grip preview shows the solved walls (nothing drawn out at the cursor x = 5000)', Math.max(...xs));
+}
+{
+  // ROTATE: the east wall turned about its middle (4000, 1500) by atan(0.1) = 5.7106 degrees anticlockwise. Its new line leaves the vertical by
+  // 0.1 per unit: it crosses the south wall's line y = 0 at x = 4000 + 1500 x 0.1 = 4150 and the north wall's line y = 3000 at x = 4000 - 150 = 3850.
+  const d = new Doc(), r = roomP(d), before = stateOf(d), n0 = d.undoStack.length;
+  d.change('ROTATE', () => d.update(r.e.id, txEntity(d.get(r.e.id), mAbout({ x: 4000, y: 1500 }, mRotate(Math.atan(0.1))))));
+  ok(at(M(d, r.s.id).b, 4150, 0) && at(M(d, r.s.id).a, 0, 0), 'ROTATE: the south wall\'s end slides along its own line to the turned wall\'s line: (4150, 0); it stays horizontal', M(d, r.s.id).b);
+  ok(at(M(d, r.n.id).a, 3850, 3000) && at(M(d, r.n.id).b, 0, 3000), 'the north wall\'s end slides to (3850, 3000); it stays horizontal', M(d, r.n.id).a);
+  ok(at(M(d, r.e.id).a, 4150, 0) && at(M(d, r.e.id).b, 3850, 3000), 'the turned wall runs between the two corners, on the line it was turned to', [M(d, r.e.id).a, M(d, r.e.id).b]);
+  ok(jn(M(d, r.e.id)) === 'end-L-start,start-L-end' && d.undoStack.length === n0 + 1, 'both corners stay joined; one undo step');
+  d.undo();
+  ok(stateOf(d) === before, 'one undo takes the turn back');
+}
+{
+  // ROTATE typed as a person does: select the east wall, base point (4000, 1500), angle 5.710593 (atan 0.1 in degrees): the same corners
+  const h = harness(), r = roomP(h.doc);
+  h.host.selection = new Set([r.e.id]);
+  await h.type('ROTATE'); await h.type('4000,1500'); await h.type('5.710593');
+  ok(at(M(h.doc, r.s.id).b, 4150, 0, 0.01) && at(M(h.doc, r.n.id).a, 3850, 3000, 0.01) && near(M(h.doc, r.s.id).a.y, M(h.doc, r.s.id).b.y), 'the ROTATE command on a joined wall: neighbours slide to (4150, 0) and (3850, 3000)', [M(h.doc, r.s.id).b, M(h.doc, r.n.id).a]);
+}
+
+// ======================================================================== walls-plan-10: FX.70 Disallow join as a command
+console.log('== FX.70 WALLDISJOIN (walls-plan-10)');
+{
+  const h = harness(), r = room(h.doc);
+  const blockLines = (id) => h.doc.blocks.get(h.doc.get(id).block).entities.filter((l) => l.type === 'line').map((l) => [l.x1, l.y1, l.x2, l.y2].map((v) => Math.round(v * 1e3) / 1e3).join(','));
+  // pick the south wall near its east end (3900 is nearer 4000 than 0): Disallow join at its end
+  await h.type('WALLDISJOIN');
+  await h.click(3900, 50);
+  ok(M(h.doc, r.s.id).jo === 'b', 'WALLDISJOIN near the east end: Disallow join is on at that end only (jo = b)', M(h.doc, r.s.id).jo);
+  ok(jn(M(h.doc, r.s.id)) === 'start-L-end' && jn(M(h.doc, r.e.id)) === 'end-L-start', 'the corner\'s record leaves both walls; the other corners keep theirs', [jn(M(h.doc, r.s.id)), jn(M(h.doc, r.e.id))]);
+  // the south wall (thickness 100, block origin at its start) is now capped at x = 4000 from y = 50 to y = -50, not mitred
+  ok(blockLines(r.s.id).includes('4000,50,4000,-50'), 'the end is drawn capped (a square end), not mitred into the east wall', blockLines(r.s.id));
+  ok(h.log.some((l) => /disjoin\.off|disallow/i.test(l)), 'the command says what it did', h.log.slice(-1));
+  // moving the south wall now leaves the east wall alone (no record), while the west wall (still joined) follows
+  h.doc.change('MOVE', () => h.doc.update(r.s.id, txEntity(h.doc.get(r.s.id), mTranslate(0, -300))));
+  ok(near(M(h.doc, r.e.id).a.y, 0) && near(M(h.doc, r.x.id).b.y, -300), 'a disallowed end stays out when the wall moves: the east wall keeps y = 0, the joined west wall follows to -300', [M(h.doc, r.e.id).a, M(h.doc, r.x.id).b]);
+  h.doc.undo();
+  // the same pick again: Allow join; the touching ends join at once
+  await h.type('WALLDISJOIN');
+  await h.click(3900, 50);
+  ok(!M(h.doc, r.s.id).jo && jn(M(h.doc, r.s.id)) === 'end-L-start,start-L-end' && jn(M(h.doc, r.e.id)) === 'end-L-start,start-L-end', 'the same pick again allows the join: the record is back on both walls', [M(h.doc, r.s.id).jo, jn(M(h.doc, r.s.id))]);
+  ok(!blockLines(r.s.id).includes('4000,50,4000,-50'), 'and the corner is drawn joined again (no cap)');
+  // near the start: the other end
+  await h.type('WALLDISJOIN');
+  await h.click(100, 50);
+  ok(M(h.doc, r.s.id).jo === 'a', 'picked near the start: that end is the one switched', M(h.doc, r.s.id).jo);
+  h.doc.undo();
+  ok(!M(h.doc, r.s.id).jo && jn(M(h.doc, r.s.id)) === 'end-L-start,start-L-end', 'one undo takes the switch back, with the record');
+}
+
+// ======================================================================== walls-plan-10: GRIDMOVE and walls along the line
+console.log('== GRIDMOVE: a wall along the grid line moves whole (walls-plan-10)');
+{
+  // Grid line A is drawn short: x = 4000 from y = -500 to y = 1000 (length 1500; a bubble may sit 15% = 225 past its ends, so the line "holds"
+  // y from -725 to 1225). The east wall runs along it from y = 0 to y = 3000: only its south end is inside. It used to be stretched (the south
+  // end moved, the wall went sloped); now it moves whole. GRIDMOVE Distance 500 is to the left of the line's direction (+y), so towards -x.
+  const h = harness(), r = room(h.doc);
+  let gl;
+  h.doc.change('grid', () => { gl = h.doc.add({ type: 'line', layer: 'A-GRID', x1: 4000, y1: -500, x2: 4000, y2: 1000 }); h.doc.add({ type: 'text', layer: 'A-GRID', x: 4000, y: 1100, h: 100, s: 'A', rot: 0 }); });
+  const n0 = h.doc.undoStack.length;
+  await h.type('GRIDMOVE');
+  await h.click(4000, -300);
+  await h.type('D', '500');
+  ok(at(M(h.doc, r.e.id).a, 3500, 0) && at(M(h.doc, r.e.id).b, 3500, 3000), 'a wall along the grid line with one end past the drawn line: both ends move (x = 3500), it stays vertical', [M(h.doc, r.e.id).a, M(h.doc, r.e.id).b]);
+  ok(at(M(h.doc, r.s.id).b, 3500, 0) && at(M(h.doc, r.n.id).a, 3500, 3000) && at(M(h.doc, r.s.id).a, 0, 0) && at(M(h.doc, r.n.id).b, 0, 3000), 'the joined south and north walls shorten to it; their far ends hold');
+  ok(near(h.doc.get(gl.id).x1, 3500) && h.doc.undoStack.length === n0 + 1, 'the grid line moved; one undo step');
+}
+{
+  // the same short grid line, the east wall LOCKED along it with WALLGRID: it follows the line whole and the joined walls follow
+  const h = harness(), r = room(h.doc);
+  h.doc.change('grid', () => { h.doc.add({ type: 'line', layer: 'A-GRID', x1: 4000, y1: -500, x2: 4000, y2: 1000 }); h.doc.add({ type: 'text', layer: 'A-GRID', x: 4000, y: 1100, h: 100, s: 'A', rot: 0 }); });
+  await h.type('WALLGRID');
+  await h.click(4050, 1500);
+  await h.click(4000, -300);
+  await h.type('A');
+  ok(M(h.doc, r.e.id).h[0]?.to.grid === 'A' && near(M(h.doc, r.e.id).h[0].off, 0), 'setup: the east wall is locked along grid line A, on the line (distance 0)', M(h.doc, r.e.id).h);
+  const before = stateOf(h.doc);
+  await h.type('GRIDMOVE');
+  await h.click(4000, -300);
+  await h.type('D', '-250');
+  ok(at(M(h.doc, r.e.id).a, 4250, 0) && at(M(h.doc, r.e.id).b, 4250, 3000), 'the locked wall moves with the grid line (-250 = towards +x: x = 4250), whole', [M(h.doc, r.e.id).a, M(h.doc, r.e.id).b]);
+  ok(at(M(h.doc, r.s.id).b, 4250, 0) && at(M(h.doc, r.n.id).a, 4250, 3000) && at(M(h.doc, r.x.id).a, 0, 3000), 'the joined walls follow (they lengthen to x = 4250), the west wall stays');
+  h.doc.undo();
+  ok(stateOf(h.doc) === before, 'one undo puts the line and the walls back');
+}
+{
+  // a wall locked along a grid line at a DISTANCE: the partition at x = 2000 is locked to grid line A (x = 4000). The line's direction is +y, so
+  // its left is -x: the wall stands 2000 to its left (off = +2000 mm). The line moves 300 towards -x: the wall keeps its distance (x = 1700) and
+  // stays on the south wall (its T end slides along the wall it butts into).
+  const h = harness(), r = roomP(h.doc);
+  h.doc.change('grid', () => { h.doc.add({ type: 'line', layer: 'A-GRID', x1: 4000, y1: -500, x2: 4000, y2: 3500 }); h.doc.add({ type: 'text', layer: 'A-GRID', x: 4000, y: 3700, h: 100, s: 'A', rot: 0 }); });
+  await h.type('WALLGRID');
+  await h.click(2050, 700);
+  await h.click(4000, -300);
+  await h.type('A');
+  ok(near(M(h.doc, r.p.id).h[0]?.off, 2000), 'WALLGRID on a wall beside the line stores its distance (2000), so it is not pulled onto the line', M(h.doc, r.p.id).h);
+  await h.type('GRIDMOVE');
+  await h.click(4000, -300);
+  await h.type('D', '300');
+  ok(at(M(h.doc, r.p.id).a, 1700, 0) && at(M(h.doc, r.p.id).b, 1700, 1500), 'the grid line moves 300: the locked partition keeps 2000 from it (x = 1700)', [M(h.doc, r.p.id).a, M(h.doc, r.p.id).b]);
+  ok(at(M(h.doc, r.e.id).a, 3700, 0) && at(M(h.doc, r.e.id).b, 3700, 3000), 'and the east wall, which lies on the line, moves with it (x = 3700)', M(h.doc, r.e.id).a);
+}
+{
+  // FX.96 is kept: a wall that merely STARTS on the grid line (the south wall ends on x = 4000) is stretched by its end, never carried whole.
+  // Here the walls are not joined (each drawn alone), so only the end on the line moves.
+  const h = harness();
+  const w = addWall(h.doc, [1000, 500], [4000, 500]);
+  h.doc.change('grid', () => { h.doc.add({ type: 'line', layer: 'A-GRID', x1: 4000, y1: -500, x2: 4000, y2: 3500 }); });
+  await h.type('GRIDMOVE');
+  await h.click(4000, -300);
+  await h.type('D', '-400');
+  ok(at(M(h.doc, w.id).a, 1000, 500) && at(M(h.doc, w.id).b, 4400, 500), 'FX.96 kept: a wall that only ends on the grid line is stretched (its end goes to x = 4400), its other end stays', [M(h.doc, w.id).a, M(h.doc, w.id).b]);
+}
+
+// ======================================================================== walls-plan-10: WT.5 the join style of a corner
+console.log('== WT.5 join style: mitre, butt, square off (walls-plan-10)');
+const linesOf = (d, id) => d.blocks.get(d.get(id).block).entities.filter((l) => l.type === 'line').map((l) => [l.x1, l.y1, l.x2, l.y2].map((v) => Math.round(v * 1e3) / 1e3 + 0).join(','));
+const propDef = (d, id, key) => WC.wallSection().defs([d.get(id)]).find((x) => x.key === key);
+const setProp = (d, id, key, v) => d.change('Properties', () => d.update(id, propDef(d, id, key).set(d.get(id), v)));
+const styleAt = (w, pos) => { const r = (w.jn || []).find((x) => x.me === pos && x.ot !== 'mid'); return r ? (r.st || 'mitre') + (r.st ? (r.th ? ' through' : ' stops') : '') : 'none'; };
+{
+  // The room 4000 x 3000, walls 100 thick (half 50). The corner of the south wall s (0,0)→(4000,0) and the east wall e (4000,0)→(4000,3000).
+  // A wall's block starts at its own start point, so s's lines are in world coordinates and e's are measured from (4000, 0).
+  const d = new Doc(), r = room(d), before = stateOf(d);
+  // mitre (no style stored): s's inner face y = 50 runs between the inner corners x = 50 and 3950, its outer face y = -50 between -50 and 4050
+  ok(linesOf(d, r.s.id).includes('50,50,3950,50') && linesOf(d, r.s.id).includes('-50,-50,4050,-50') && linesOf(d, r.s.id).length === 2, 'mitre (the default): both faces of the south wall stop at the mitre corners (3950, 50) and (4050, -50)', linesOf(d, r.s.id));
+  // butt, the south wall runs through: it goes on to the east wall's outer face x = 4050 on both faces and ends there in a face of its own
+  // (from (4050, -50) to (4050, 50)). The east wall stops against the south wall's inner side y = 50: both its faces (x = 3950 and x = 4050,
+  // that is -50 and +50 from its start) begin at y = 50; its inner face still ends at the north mitre y = 2950, its outer at 3050.
+  setProp(d, r.s.id, 'js.b', 'butt');
+  ok(styleAt(M(d, r.s.id), 'end') === 'butt through' && styleAt(M(d, r.e.id), 'start') === 'butt stops', 'Properties › Join style at end = Butt: stored on BOTH walls\' records, this wall runs through, the other stops', [M(d, r.s.id).jn, M(d, r.e.id).jn]);
+  ok(linesOf(d, r.s.id).includes('50,50,4050,50') && linesOf(d, r.s.id).includes('-50,-50,4050,-50') && linesOf(d, r.s.id).includes('4050,-50,4050,50') && linesOf(d, r.s.id).length === 3, 'butt: the wall that runs through reaches the other wall\'s outer face x = 4050 on both faces and ends square there (one more line)', linesOf(d, r.s.id));
+  ok(linesOf(d, r.e.id).includes('-50,50,-50,2950') && linesOf(d, r.e.id).includes('50,50,50,3050') && linesOf(d, r.e.id).length === 2, 'the wall that stops begins on the other wall\'s inner side y = 50 on both faces', linesOf(d, r.e.id));
+  ok(styleAt(M(d, r.s.id), 'start') === 'mitre' && linesOf(d, r.x.id).length === 2, 'the other corners stay mitre');
+  // the other wall runs through: the east wall goes down to the south wall's outer face y = -50 and ends there (from (3950,-50) to (4050,-50):
+  // -50,-50 to 50,-50 from its start); the south wall stops against the east wall's inner side x = 3950 on both faces
+  setProp(d, r.s.id, 'jt.b', false);
+  ok(styleAt(M(d, r.s.id), 'end') === 'butt stops' && styleAt(M(d, r.e.id), 'start') === 'butt through', 'Runs through off: the other wall runs through now (mirrored on its record)');
+  ok(linesOf(d, r.s.id).includes('50,50,3950,50') && linesOf(d, r.s.id).includes('-50,-50,3950,-50') && linesOf(d, r.s.id).length === 2, 'the south wall stops on the east wall\'s inner side x = 3950 on both faces', linesOf(d, r.s.id));
+  ok(linesOf(d, r.e.id).includes('-50,-50,-50,2950') && linesOf(d, r.e.id).includes('50,-50,50,3050') && linesOf(d, r.e.id).includes('-50,-50,50,-50'), 'the east wall runs down to the south wall\'s outer face y = -50 and ends there', linesOf(d, r.e.id));
+  // moving a wall keeps the style: the record is not made again while the corner holds
+  d.change('MOVE', () => d.update(r.e.id, txEntity(d.get(r.e.id), mTranslate(500, 0))));
+  ok(styleAt(M(d, r.s.id), 'end') === 'butt stops' && near(M(d, r.s.id).b.x, 4500) && linesOf(d, r.s.id).includes('50,50,4450,50'), 'a Move keeps the style on the corner (the south wall now stops at x = 4450)', linesOf(d, r.s.id));
+  d.undo(); d.undo(); d.undo();
+  ok(stateOf(d) === before, 'three undos (move, through, style) return the drawing byte for byte: each change was one step');
+  d.redo(); d.redo();
+  ok(styleAt(M(d, r.e.id), 'start') === 'butt through', 'redo puts the style back on both walls');
+  // back to mitre: the fields leave both records
+  setProp(d, r.e.id, 'js.a', 'mitre');
+  ok(M(d, r.s.id).jn.every((x) => !('st' in x) && !('th' in x)) && M(d, r.e.id).jn.every((x) => !('st' in x)) && linesOf(d, r.s.id).includes('-50,-50,4050,-50'), 'Mitre again: no style field is left on either record and the corner is mitred', M(d, r.s.id).jn);
+}
+{
+  // a corner that is not square: wall T (0,0)→(4000,0) and wall S (0,0)→(2000, 3464.1016) at 60 degrees, both 100 thick, joined start to start.
+  // T runs through. S lies on T's left, so S stops on T's left face y = 50. S's far face (its own left) passes (-43.3013, 25) along (0.5, 0.8660):
+  //   it reaches y = 50 at x = -43.3013 + 0.5 x 25/0.8660 = -28.8675 and y = -50 at x = -43.3013 - 0.5 x 75/0.8660 = -86.6025.
+  // butt: T's faces are cut on S's far face: left face from x = -28.8675, right face from x = -86.6025, and its end runs between those points.
+  // square off: T ends square where S's far face reaches its side: both faces from x = -28.8675, the end from (-28.8675, 50) to (-28.8675, -50).
+  // S either way: its left face starts at (-28.8675, 50), its right face (through (43.3013, -25)) at x = 43.3013 + 0.5 x 75/0.8660 = 86.6025.
+  const d = new Doc();
+  const T = addWall(d, [0, 0], [4000, 0]), S = addWall(d, [0, 0], [2000, 3464.1016]);
+  setProp(d, T.id, 'js.a', 'butt');
+  let L = linesOf(d, T.id);
+  ok(L.includes('-28.868,50,4000,50') && L.includes('-86.603,-50,4000,-50') && L.includes('-28.868,50,-86.603,-50'), 'butt at 60 degrees: the through wall\'s faces are cut on the other wall\'s far face: from x = -28.868 (left) and -86.603 (right)', L);
+  setProp(d, T.id, 'js.a', 'square');
+  L = linesOf(d, T.id);
+  ok(L.includes('-28.868,50,4000,50') && L.includes('-28.868,-50,4000,-50') && L.includes('-28.868,50,-28.868,-50'), 'square off at 60 degrees: the through wall ends square at x = -28.868 on both faces', L);
+  // S's block is measured from its own start (0,0) too
+  const Ls = linesOf(d, S.id), startOf = (x, y) => Ls.some((l) => { const v = l.split(',').map(Number); return near(v[0], x, 0.002) && near(v[1], y, 0.002); });
+  ok(startOf(-28.868, 50) && startOf(86.603, 50), 'the wall that stops begins on the through wall\'s side y = 50: its faces start at x = -28.868 and x = 86.603', Ls);
+}
+{
+  // the command: a click on the corner goes mitre → butt → square off → mitre; T switches which wall runs through; one run = one undo step
+  const h = harness(), r = room(h.doc), n0 = h.doc.undoStack.length;
+  await h.type('WALLJOINSTYLE');
+  await h.click(4010, 20);
+  const first = styleAt(M(h.doc, r.s.id), 'end');
+  ok(/^butt (through|stops)$/.test(first) && styleAt(M(h.doc, r.e.id), 'start') === (first === 'butt through' ? 'butt stops' : 'butt through'), 'WALLJOINSTYLE, a click on the corner: Butt, stored on both walls, one of them runs through', [first, styleAt(M(h.doc, r.e.id), 'start')]);
+  ok(h.doc.undoStack.length === n0 + 1, 'one undo step for the click', h.doc.undoStack.length - n0);
+  await h.type('T');
+  ok(styleAt(M(h.doc, r.s.id), 'end') === (first === 'butt through' ? 'butt stops' : 'butt through') && h.doc.undoStack.length === n0 + 2, 'T (Through): the other wall runs through at the corner clicked last; one more undo step', styleAt(M(h.doc, r.s.id), 'end'));
+  await h.click(4010, 20);
+  ok(/^square /.test(styleAt(M(h.doc, r.s.id), 'end')) && /^square /.test(styleAt(M(h.doc, r.e.id), 'start')), 'a second click: Square off', styleAt(M(h.doc, r.s.id), 'end'));
+  await h.click(4010, 20);
+  ok(styleAt(M(h.doc, r.s.id), 'end') === 'mitre' && styleAt(M(h.doc, r.e.id), 'start') === 'mitre', 'a third click: Mitre again');
+  await h.click(4010, 20);
+  await h.type('');
+  ok(/^butt /.test(styleAt(M(h.doc, r.s.id), 'end')) && h.doc.undoStack.length === n0 + 1, 'the command ended on Butt: its whole run is ONE undo step (as every command)', h.doc.undoStack.length - n0);
+  h.doc.undo();
+  ok(styleAt(M(h.doc, r.s.id), 'end') === 'mitre' && styleAt(M(h.doc, r.e.id), 'start') === 'mitre' && M(h.doc, r.s.id).jn.every((x) => !('st' in x)), 'one undo returns the corner to how it was (mitre, no style field on either wall)');
+  h.doc.redo();
+  ok(/^butt /.test(styleAt(M(h.doc, r.s.id), 'end')) && /^butt /.test(styleAt(M(h.doc, r.e.id), 'start')), 'redo puts Butt back on both walls');
+  // a T join has no style to choose; three walls at a point stay mitre; an empty place says so
+  const stem = addWall(h.doc, [2000, 0], [2000, 1500]), s0 = stateOf(h.doc);
+  await h.type('WALLJOINSTYLE');
+  await h.click(2000, 10);
+  ok(stateOf(h.doc) === s0 && h.log.some((l) => /joinstyle\.t/.test(l)), 'a T join is refused with its reason: the wall whose side is met runs through', h.log.slice(-1));
+  await h.click(2000, 2500);
+  ok(stateOf(h.doc) === s0 && h.log.some((l) => /joinstyle\.none/.test(l)), 'a click away from any corner changes nothing and says so');
+  await h.type('');
+  const third = addWall(h.doc, [4000, 0], [6000, 0]), s1 = stateOf(h.doc);
+  await h.type('WALLJOINSTYLE');
+  await h.click(4010, 20);
+  await h.type('');
+  ok(stateOf(h.doc) === s1 && h.log.some((l) => /joinstyle\.many/.test(l)), 'a corner of three walls stays mitre (said, nothing changes)', h.log.slice(-1));
+  void stem; void third;
+}
+{
+  // two walls in one line: butt cannot be made (the shared rules fall back to mitre), so the command stores nothing
+  const h = harness();
+  const a = addWall(h.doc, [0, 0], [2000, 0]), b = addWall(h.doc, [2000, 0], [5000, 0]), s0 = stateOf(h.doc);
+  await h.type('WALLJOINSTYLE');
+  await h.click(2000, 20);
+  await h.type('');
+  ok(stateOf(h.doc) === s0 && h.log.some((l) => /joinstyle\.sharp/.test(l)), 'walls in one line: no butt or square off is possible; nothing is stored and it is said', h.log.slice(-1));
+  void a; void b;
+}
+{
+  // the style travels in the file: DXF R12, DXF 2000, DWG 2000, DWG 2018 (our own readers), and a Copy starts without it
+  const d = new Doc(), r = room(d);
+  setProp(d, r.s.id, 'js.b', 'square');
+  const want = wallsOf(d).map((w) => [w.g, (w.jn || []).map((x) => [x.o, x.me, x.ot, x.st || '', x.th ?? ''].join(':')).sort().join(';')]).sort().join('|');
+  const sLines = linesOf(d, r.s.id).slice().sort().join('|');
+  for (const [name, fn] of [['DXF R12', (x) => readDxf(writeDxf(x).text)], ['DXF 2000', (x) => readDxf(writeDxf2000(x).text)], ['DWG 2000', (x) => importDwg(readDwg(saveDwg(x, { version: '2000' }).bytes), { versionTag: 'x' })], ['DWG 2018', (x) => importDwg(readDwg(saveDwg(x, { version: '2018' }).bytes), { versionTag: 'x' })]]) {
+    const d2 = new Doc();
+    d2.load(fn(d));
+    const got = wallsOf(d2).map((w) => [w.g, (w.jn || []).map((x) => [x.o, x.me, x.ot, x.st || '', x.th ?? ''].join(':')).sort().join(';')]).sort().join('|');
+    ok(got === want && /square:1/.test(got) && /square:0/.test(got), name + ': the join style comes back on both walls\' records (square off, which wall runs through)', got);
+    // and it is still the style after an edit: the south wall is redrawn with its square end at x = 4050
+    const south = [...d2.model.values()].find((e) => W.isWall(e) && near(W.model(e).a.x, 0) && near(W.model(e).a.y, 0) && near(W.model(e).b.y, 0));
+    d2.change('P', () => d2.update(south.id, { ...d2.get(south.id) }));
+    ok(linesOf(d2, south.id).slice().sort().join('|') === sLines, name + ': the corner is drawn the same after the round trip and an edit');
+  }
+  let cp;
+  d.change('COPY', () => { const c0 = { ...txEntity(d.get(r.s.id), mTranslate(0, 9000)) }; delete c0.id; cp = d.add(c0); });
+  ok(M(d, cp.id).jn.length === 0 && styleAt(M(d, r.s.id), 'end') === 'square through', 'a Copy gets no records, so no style; the original keeps its own');
+}
+
 // ======================================================================== done
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

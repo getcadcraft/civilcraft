@@ -71,7 +71,7 @@ export function landXmlOf(p, { date } = {}) {
   if (g.surface) surfaces.push({ name: t('cv.lx.proposed'), desc: t('cv.lx.proposed.desc', { n: s.pads.length }), surface: g.surface });
   return writeLandXml({
     name: s.name, units: s.units, points: p.points, surfaces, crs: s.crs, ...(date ? { date } : {}),
-    alignments: s.alignments.map((a) => ({ name: a.name, alignment: p.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: p.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: p.designProfile(a) } : null })),
+    alignments: s.alignments.map((a) => ({ name: a.name, alignment: p.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: p.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: p.designProfile(a) } : null, cant: a.rail?.on ? { plan: p.railPlan(a), rail: a.rail, speed: p.railAsm(a).rail.speed } : null })),   // cant: CV.1 2026-11-12
     features: s.features || [],
     networks: s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = p.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [],
   });

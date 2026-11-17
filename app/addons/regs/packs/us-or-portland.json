@@ -1,0 +1,448 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-or-portland",
+  "name": "Portland, Oregon: residential building permit (process, submission, conventions)",
+  "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "OR",
+    "name": "City of Portland, Oregon"
+  },
+  "base": null,
+  "edition": "pages read 2026-11-11",
+  "in_force": null,
+  "review": {
+    "state": "draft",
+    "note": "Process, submission format and drawing conventions read on 2026-11-11 from the City of Portland pages cited, in our own words. Not confirmed by a Portland practitioner; the City decides what it requires. No building rules: Oregon's code is not in this pack. Sheet size, title block contents, maximum file size and fee amounts are not on the pages read and are left out."
+  },
+  "authority": "government",
+  "source": {
+    "name": "City of Portland, Portland Permitting & Development",
+    "url": "https://www.portland.gov/ppd/get-permit",
+    "date": "",
+    "checked": "2026-11-11"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [],
+  "release": {
+    "version": "0.1.0",
+    "changelog": [
+      {
+        "version": "0.1.0",
+        "date": "2026-11-11",
+        "added": [
+          "Added: approval steps, submission format, required drawings with scales, supporting documents and drawing conventions for a Portland residential permit, read 2026-11-11 (first version of this pack)"
+        ]
+      }
+    ]
+  },
+  "process": {
+    "authority": "City of Portland, Portland Permitting & Development",
+    "summary": "Residential building permit: apply online through the City's portal, review with correction sheets, pre-issuance check, then the permit is emailed.",
+    "sources": [
+      {
+        "title": "City of Portland, Portland Permitting & Development: Get a permit",
+        "url": "https://www.portland.gov/ppd/get-permit",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: Submit plans online (Single PDF Process)",
+        "url": "https://www.portland.gov/ppd/get-permit/submit-plans-online",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: Building permit plans for residential projects",
+        "url": "https://www.portland.gov/ppd/get-permit/building-permit-plans",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: File naming standards and preparing PDFs",
+        "url": "https://www.portland.gov/ppd/spp-file-naming-standards-preparing-pdfs",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      }
+    ],
+    "steps": [
+      {
+        "id": "research",
+        "title": "Research the property, zoning and codes",
+        "who": "Applicant",
+        "handIn": "Nothing",
+        "documents": [],
+        "detail": "A free 15-minute appointment is offered.",
+        "clause": "Step 1",
+        "source": 0
+      },
+      {
+        "id": "prepare",
+        "title": "Prepare the application, plans and supporting documents",
+        "who": "Applicant",
+        "handIn": "Nothing yet",
+        "documents": [
+          "Building Permit Application PDF",
+          "Drawing set",
+          "Supporting documents"
+        ],
+        "detail": "",
+        "clause": "Step 2",
+        "source": 0
+      },
+      {
+        "id": "apply",
+        "title": "Apply online and pass the intake check",
+        "who": "Applicant; a permit technician checks minimum standards",
+        "handIn": "The application, the drawings (one PDF) and the supporting documents (separate PDFs)",
+        "documents": [],
+        "detail": "Applications of 35 pages and under may use the Single PDF Process; larger ones use another process the page does not describe. Paper plans may need an in-person appointment.",
+        "clause": "Steps 3; Single PDF Process: Intake",
+        "source": 1
+      },
+      {
+        "id": "intake-fees",
+        "title": "Pay the intake fees",
+        "who": "Applicant",
+        "handIn": "Intake fees, so reviews can start",
+        "documents": [],
+        "detail": "",
+        "clause": "Step 4",
+        "source": 0,
+        "fee": {
+          "text": "Fees are based on the estimated cost of construction and materials; no amounts are on the page",
+          "source": 0
+        }
+      },
+      {
+        "id": "review",
+        "title": "Review and corrections",
+        "who": "City reviewers; applicant answers every checksheet item",
+        "handIn": "Revised drawings uploaded for each checksheet, repeated until every review is approved",
+        "documents": [],
+        "detail": "The page points to a timelines page updated weekly and states no number of days.",
+        "clause": "Step 5; Single PDF Process: Corrections",
+        "source": 1
+      },
+      {
+        "id": "pre-issuance",
+        "title": "Final check before issuance",
+        "who": "City",
+        "handIn": "Outstanding fees",
+        "documents": [],
+        "detail": "The City checks approval stamps, notes and fees.",
+        "clause": "Step 5",
+        "source": 0
+      },
+      {
+        "id": "issue",
+        "title": "Receive the permit and approved plans",
+        "who": "City emails; applicant prints",
+        "handIn": "Permit fees",
+        "documents": [],
+        "detail": "The approved plans arrive as a link; the page says it is available for 60 days and that no printed set is provided. Permits expire 180 days after the Under Review date unless extended or reactivated.",
+        "clause": "Steps 6 and 7; Single PDF Process: Issuance",
+        "source": 1
+      }
+    ]
+  },
+  "submission": {
+    "authority": "City of Portland, Portland Permitting & Development",
+    "summary": "Plans for a residential building permit, uploaded through the City's online Single PDF Process.",
+    "sources": [
+      {
+        "title": "City of Portland, Portland Permitting & Development: Get a permit",
+        "url": "https://www.portland.gov/ppd/get-permit",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: Submit plans online (Single PDF Process)",
+        "url": "https://www.portland.gov/ppd/get-permit/submit-plans-online",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: Building permit plans for residential projects",
+        "url": "https://www.portland.gov/ppd/get-permit/building-permit-plans",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: File naming standards and preparing PDFs",
+        "url": "https://www.portland.gov/ppd/spp-file-naming-standards-preparing-pdfs",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      }
+    ],
+    "format": {
+      "orientation": "landscape",
+      "fileFormats": [
+        "pdf"
+      ],
+      "singleFile": true,
+      "fileNaming": "Under 50 characters, with no permit numbers, addresses or identifiers; calculation packets named Supplemental or Replacement.",
+      "copies": {
+        "text": "One set online; four sets if submitted in person. One set is stamped and returned for the job site.",
+        "paper": 4,
+        "electronic": 1
+      },
+      "stampSpace": "Leave room for the City stamp in the top-right or bottom-right corner of each drawing.",
+      "note": "Drawings in one PDF; application, calculations and other documents as separate PDFs. Disable font embedding; scans at 150 dpi; no digitally signed or permission-protected PDFs.",
+      "source": 3
+    },
+    "drawings": [
+      {
+        "id": "site-plan",
+        "title": "Site plan",
+        "detail": "The entire lot at a scale of at least 1 inch = 10 feet, showing where the building sits relative to the property lines and other buildings.",
+        "clause": "Site plan",
+        "when": "always",
+        "source": 2,
+        "scale": {
+          "text": "at least 1 in = 10 ft (1:120 or larger)",
+          "maxDenominator": 120
+        },
+        "satisfy": [
+          {
+            "words": [
+              "site plan"
+            ]
+          }
+        ],
+        "site": true
+      },
+      {
+        "id": "floor-plans",
+        "title": "Floor plans",
+        "detail": "One for each level where work occurs, existing and proposed, at 1/4 inch = 1 foot: all walls, room sizes and uses, a north arrow, windows with size and type, stairs and smoke detectors; bearing walls, headers and beams here or on framing plans.",
+        "clause": "Floor plans",
+        "when": "always",
+        "source": 2,
+        "satisfy": [
+          {
+            "view": [
+              "plan"
+            ]
+          },
+          {
+            "words": [
+              "floor plan"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "roof-plan",
+        "title": "Roof plan",
+        "detail": "A roof plan.",
+        "clause": "Floor plans",
+        "when": "always",
+        "source": 2,
+        "satisfy": [
+          {
+            "words": [
+              "roof plan",
+              "roof"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "foundation",
+        "title": "Foundation plan",
+        "detail": "For new buildings and additions: layout, dimensions and details of slabs, footings and reinforcing steel, concrete strength, crawl space access and foundation vents.",
+        "clause": "Foundation plan",
+        "when": "if-applicable",
+        "source": 2,
+        "satisfy": [
+          {
+            "words": [
+              "foundation"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "sections",
+        "title": "Section drawings",
+        "detail": "Full sections usually at least 1/4 inch = 1 foot; wall sections and details at least 1/2 inch = 1 foot. Footings, foundation wall height, member sizes and spacing, coverings, insulation, ceiling heights; stair details for new or changed stairs.",
+        "clause": "Section drawings",
+        "when": "always",
+        "source": 2,
+        "scale": {
+          "text": "full sections at least 1/4 in = 1 ft (1:",
+          "maxDenominator": 48
+        },
+        "satisfy": [
+          {
+            "view": [
+              "section"
+            ]
+          },
+          {
+            "words": [
+              "section"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "elevations",
+        "title": "Building elevation drawings",
+        "detail": "For any exterior change, normally at 1/4 inch = 1 foot: ground level and slope at the building, windows and doors, siding and roofing, guardrails.",
+        "clause": "Building elevation drawings",
+        "when": "if-applicable",
+        "source": 2,
+        "satisfy": [
+          {
+            "view": [
+              "elevation"
+            ]
+          },
+          {
+            "words": [
+              "elevation"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "framing",
+        "title": "Framing plans and structural details",
+        "detail": "Separate framing plans where load-bearing members are not on the floor plans; structural sections or details for more complex work.",
+        "clause": "Floor plans; Section drawings",
+        "when": "if-applicable",
+        "source": 2,
+        "satisfy": [
+          {
+            "words": [
+              "framing",
+              "structural"
+            ]
+          }
+        ],
+        "site": false
+      }
+    ],
+    "documents": [
+      {
+        "id": "application-form",
+        "title": "Building Permit Application (PDF form)",
+        "detail": "The completed application form; uploaded as its own PDF, not inside the drawing set.",
+        "clause": "Get a permit, step 2",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "structural-calcs",
+        "title": "Structural calculations",
+        "detail": "For projects that change structural elements; uploaded as a separate PDF.",
+        "clause": "Get a permit, step 2; Submit plans online",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "product-specs",
+        "title": "Product specifications",
+        "detail": "Listed among the supporting documents.",
+        "clause": "Get a permit, step 2",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "geotech",
+        "title": "Geotechnical report",
+        "detail": "Listed among the supporting documents.",
+        "clause": "Get a permit, step 2",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "property-line-survey",
+        "title": "Surveyed location of the property line",
+        "detail": "Listed among the supporting documents.",
+        "clause": "Get a permit, step 2",
+        "when": "if-applicable",
+        "source": 0
+      }
+    ]
+  },
+  "conventions": {
+    "sources": [
+      {
+        "title": "City of Portland: Building permit plans for residential projects",
+        "url": "https://www.portland.gov/ppd/get-permit/building-permit-plans",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Portland: File naming standards and preparing PDFs",
+        "url": "https://www.portland.gov/ppd/spp-file-naming-standards-preparing-pdfs",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+      }
+    ],
+    "text": [
+      {
+        "id": "notes",
+        "use": "Notes",
+        "kind": "text",
+        "clause": "Plans you need: legibility",
+        "min": false,
+        "source": 0,
+        "pt": 12
+      },
+      {
+        "id": "dimensions",
+        "use": "Dimensions",
+        "kind": "dimension",
+        "clause": "Plans you need: legibility",
+        "min": false,
+        "source": 0,
+        "pt": 12
+      }
+    ],
+    "lines": [],
+    "marks": [
+      {
+        "id": "north-arrow",
+        "label": "North arrow on floor plans",
+        "required": true,
+        "clause": "Floor plans",
+        "source": 0
+      },
+      {
+        "id": "scale",
+        "label": "Scale shown on each drawing; scale bar or reference scale on all drawings",
+        "required": true,
+        "clause": "Scale; PDF preparation",
+        "source": 1
+      },
+      {
+        "id": "no-colour",
+        "label": "Black line work only: drawings may not contain colour",
+        "required": true,
+        "clause": "Legibility",
+        "source": 0
+      },
+      {
+        "id": "stamp-space",
+        "label": "Space for the City stamp in a right-hand corner",
+        "required": true,
+        "clause": "PDF preparation",
+        "source": 1
+      }
+    ],
+    "note": "Line weights and standard notes are not stated on the pages read."
+  }
+}

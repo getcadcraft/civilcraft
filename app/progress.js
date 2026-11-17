@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { pointInPolygon } from './geom2d.js';
 /**
  * progress.js — progress from drone flights and scans (0.8 EG.39, the CivilCraft side): compare surveys of the site made on different dates with
  * the ground as it was and the design, and say how much of the earthwork is done, what is over-dug or over-filled, what stands where it should
@@ -57,7 +58,7 @@ export function progressGrid({ existing, design, surveys = [], region = null, ce
   let c = cell > 0 ? cell : Math.sqrt((W * H) / 40000);
   while ((W / c) * (H / c) > maxCells) c *= 2;
   out.cell = c;
-  const A = c * c, inPoly = (poly, x, y) => { let k = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const p = poly[i], q = poly[j]; if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) k = !k; } return k; };
+  const A = c * c, inPoly = (poly, x, y) => pointInPolygon(x, y, poly);
   const nx = Math.max(1, Math.round(W / c)), ny = Math.max(1, Math.round(H / c)), cx = W / nx, cy = H / ny, Acell = cx * cy;
   const base = [];
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {

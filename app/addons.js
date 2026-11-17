@@ -32,7 +32,8 @@
  *   entry        "./main.js" — inside the folder (no "..", no URL)
  *   permissions  ["commands", "objects", …] — shown in Settings (JS add-ons have the page's access; reviewed + signed)
  *   description, author, homepage, lang ("./lang/"), help ("./help/help.js") — optional
- *   kind         "lang" = a language add-on: no entry, no code; only langFor (docs/guides/addons/language-files.md)
+ *   kind         "lang" = a language add-on: no entry, no code; only langFor (docs/guides/addons/language-files.md); "addon" = an ordinary
+ *                code add-on (same as leaving kind out); anything else is refused
  *   langFor      [{addon: "<id>", lang: "./pid/"}] — language files laid over ANOTHER add-on's strings (adds a language, fixes
  *                words): only keys that add-on's en.json has, with the same {fills}. Any add-on may carry it; kind "lang" must.
  *                An add-on's strings = its own lang/, then the published pack layer (ccLangPacks), then these (loadStrings).
@@ -122,7 +123,8 @@ export function checkManifest(raw, { app, apiVersion }) {
   if (typeof raw.license !== 'string' || !SPDX_RE.test(raw.license)) return bad('manifest', 'license');
   m.license = raw.license;
   // A language add-on (kind "lang", docs/guides/addons/language-files.md) carries no code: no entry, only lang files for others (langFor).
-  if (raw.kind !== undefined && raw.kind !== 'lang') return bad('manifest', 'kind');
+  // kind "addon" is the ordinary code add-on (the same as no kind; the directory's upload check accepts it, so the loader must too).
+  if (raw.kind !== undefined && raw.kind !== 'lang' && raw.kind !== 'addon') return bad('manifest', 'kind');
   if (raw.kind === 'lang') {
     if (raw.entry !== undefined) return bad('manifest', 'entry');
     m.kind = 'lang';

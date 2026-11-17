@@ -1,63 +1,63 @@
 ---
-title: Panelləri təşkil edin və ikinci ekranda istifadə edin
-summary: Yan panelləri solda, sağda və ya aşağıda yerləşdirin, üst-üstə yığın, sekmə kimi qruplaşdırın, bərkidin və ya gizlədin, çertyojun üzərində üzdürün, tərtibatı sıxlaşdırın, alətlər panelinin neçə sətir istifadə edəcəyini seçin və ya onları digər ekrandakı öz pəncərəsinə köçürün.
-keywords: panel, yerləşdir, üzdür, paneli köçür, sürüklə, tərtibat, sekmə, sekmə qrupu, üst-üstə yığ, bərkit, avtomatik gizlət, paneli gizlət, paneli bağla, yığcam, tərtibat sıxlığı, sıx, alətlər paneli sətirləri, sarma, 1 sətir, 2 sətir, alətlər paneli xətləri, ikinci ekran, iki ekran, ikili monitor, çoxlu monitor, pəncərə, açılan pəncərə, tərtibatı sıfırla
-from: 32a8dae2
+title: Panelləri təşkil edin və ikinci monitordan istifadə edin
+summary: Yan panelləri solda, sağda və ya aşağıda yerləşdirin, üst-üstə yığın, sekmə kimi qruplaşdırın, bərkidin və ya gizlədin, çertyojun üzərində üzdürün, tərtibatı sıxlaşdırın, alət panelinin neçə sətir istifadə edəcəyini seçin və ya onları digər ekrandakı öz pəncərəsinə köçürün.
+keywords: panellər, yerləşdir, üzdür, panel köçür, sürüklə, tərtibat, sekmələr, sekmə qrupu, üst-üstə yığ, bərkit, avtomatik gizlət, paneli gizlət, paneli bağla, yığcam, tərtibat sıxlığı, sıx, alət paneli sətirləri, sarma, 1 sətir, 2 sətir, alət paneli sətirləri, ikinci monitor, iki ekran, ikili monitor, çoxlu monitor, pəncərə, açılan pəncərə, tərtibatı sıfırla
+from: 49530239
 ---
 
-Panellər çertyojun yanındakı panellərdir və onları köçürmək olar. Onları özünüzə uyğun yerə qoyun və ya ikinci monitorda öz pəncərəsi verin ki, çertyoj birincinin bütün sahəsini tutsun.
+Çertyojun yanındakı panellər yerini dəyişə bilər. Onları özünüzə uyğun yerə qoyun və ya ilk monitorun tamamı çertyoj üçün qalsın deyə ikinci monitorda onlara öz pəncərəsi verin.
 
 :::note
-Hər panelin başlıq zolağı var: panelin adı, {{ui:⋯}} menyusu, bərkitmə düyməsi və bağlama düyməsi olan nazik zolaq panelin yuxarısındadır. 0.7-dən əvvəlki versiyalarda yalnız ad və {{ui:⋯}} menyusu olur.
+Hər panelin başlıq zolağı var: panelin adı, {{ui:⋯}} menyusu, panelin yuxarısında bərkitmə düyməsi və bağlama düyməsi olan nazik zolaq. 0.7-dən əvvəlki versiyalarda yalnız ad və {{ui:⋯}} menyusu olur.
 :::
 
 ## Paneli pəncərədə köçürün
 
 1. Paneli yuxarıdakı adından tutub sürükləyin.
-2. Sürüklədiyiniz zaman çertyojun sol, sağ və aşağı tərəfində konturlu sahələr görünür. Paneli onlardan birinin üzərinə buraxın ki, orada yerləşsin. Üzərində olduğunuz sahə tünd rəngə keçir.
-3. Paneli çertyojun üzərində başqa yerə buraxın ki, üzsün.
+2. Siz sürüklədikcə çertyojun sol, sağ və aşağı tərəfində konturlu sahələr görünür. Paneli onlardan birinin üzərinə buraxın ki, orada yerləşsin. Üzərində olduğunuz sahə tünd görünür.
+3. Paneli çertyojun istənilən başqa yerində buraxın ki, üzsün.
 
-Panellər bir tərəfi paylaşa bilər: onlar üst-üstə yığılır və ikisi arasındakı hər xətt yeri bölmək üçün sürüklənir (xətt fokusda olanda ox düymələri onu hərəkət etdirir, ona ikiqat klik etsəniz yer bərabər bölünür). Yerləşdirilmiş tərəfin daxili kənarını sürükləyərək onu enli və ya dar edin; kənara ikiqat klik etsəniz geri qaytarılır.
+Panellər bir tərəfi paylaşa bilər: onlar üst-üstə yığılır və aralarındakı hər xətt boşluğu bölmək üçün sürüklənir (xətt seçilmişkən ox düymələri onu hərəkət etdirir, üzərinə iki dəfə klikləmək boşluğu bərabər bölür). Yerləşdirilmiş tərəfin daxili kənarını sürükləyib eni artırın və ya azaldın; kənara iki dəfə klikləyin ki, əvvəlki yerinə qayıtsın.
 
-Üzən panel çertyojun üzərində qalır. Onu adından tutub köçürün, sağ-aşağı küncündən sürükləyərək ölçüsünü dəyişin (və ya künca tab ilə keçib ox düymələrindən istifadə edin). Adına ikiqat klik etsəniz, əvvəl olduğu yerdə yenidən yerləşəcək.
+Üzən panel çertyojun üzərində qalır. Onu adından tutub köçürün, aşağı-sağ küncündən sürükləyərək ölçüsünü dəyişin (və ya küncə sekmə ilə keçib ox düymələri ilə). Yerləşdiyi yerə qaytarmaq üçün adına iki dəfə klikləyin.
 
 :::touch
-Panelin adını bir barmaqla sürükləyin. Üzən panelin sağ-aşağı küncünü bir barmaqla sürükləyərək ölçüsünü dəyişin; yerləşdirilmiş panellər arasındakı kənarları da eyni qaydada. Sürükləmədən üzdürmək və ya yerləşdirmək üçün {{ui:⋯}} menyusundan istifadə edin.
+Panelin adını bir barmaqla sürükləyin. Üzən panelin aşağı-sağ küncünü bir barmaqla sürükləyərək ölçüsünü dəyişin, yerləşdirilmiş panellər arasındakı kənarları da eyni qayda ilə. Sürükləmədən üzdürmək və ya yerləşdirmək üçün {{ui:⋯}} menyusundan istifadə edin.
 :::
 
 ## Panelləri sekmə kimi qruplaşdırın
 
-İki panel bir çərçivəni paylaşa və eyni anda birini göstərə bilər. Panelin adından tutub başqa panelin başlıq zolağının üzərinə sürükləyin (üzərində olduğunuz zaman zolaq konturlanır) və buraxın: çərçivənin başlıq zolağında hər panel üçün sekmə olur. Panelin göstərilməsi üçün sekmənin üzərinə klik edin. Sekmə fokusda olanda {{key:Left}} və {{key:Right}} sekmələri dəyişir, {{key:Home}} və {{key:End}} isə birinci və sonuncuya keçirir.
+İki panel bir çərçivəni paylaşıb eyni anda birini göstərə bilər. Panelin adından tutub başqa panelin başlıq zolağının üzərinə sürükləyin (üzərində olduğunuz zaman zolaq konturlanır) və buraxın: çərçivədə hər panel üçün başlıq zolağında sekmə olur. Həmin paneli göstərmək üçün sekmənin üzərinə klikləyin. Sekmə seçilmişkən {{key:Left}} və {{key:Right}} sekmələri dəyişir, {{key:Home}} və {{key:End}} isə birinciyə və sonuncuya keçirir.
 
-Paneli qrupdan çıxarmaq üçün onun {{ui:⋯}} menyusunda {{ui:Sekmə qrupundan çıxar}} seçin və ya onu başqa yerə sürükləyin. {{ui:Bununla sekmədə birləşdir}} seçin və panelin adını yazın ki, sürükləmədən qruplaşdırın.
+Paneli qrupdan çıxarmaq üçün onun {{ui:⋯}} menyusunda {{ui:Sekmə qrupundan çıxar}} seçin və ya onu başqa yerə sürükləyin. Sürükləmədən birləşdirmək üçün {{ui:Sekmədə birləşdir}} seçin və panelin adını göstərin.
 
-## Bərkitmək, gizlətmək və geri qaytarmaq
+## Bərkidin, gizlədin və geri qaytarın
 
-- Panelin başlıq zolağındakı bərkitmə düyməsi onu **avtomatik gizlət** rejiminə salır: panel yerləşdiyi yerdən çıxır və həmin kənarda kiçik sekmə olur. Sekmənin üzərinə gəlin, fokusa salın və ya klik edin, panel çertyojun üzərinə çıxır; kənara çəkildikdə (və ya {{key:Esc}} basdıqda) geri qayıdır. Bərkitmə düyməsinə yenidən basın və ya {{ui:Bərkitməni burax}} seçin ki, panel həmişəlik yerləşsin.
-- Bağlama düyməsi və ya menyudakı {{ui:Bu paneli gizlət}} paneli gizlədir və onun yerləşdiyi zolağı yığır. Kənardakı kəsikli sekmə onu geri gətirir: ona klik edin və ya fokusa salıb {{key:Enter}} basın.
+- Panelin başlıq zolağındakı bərkitmə düyməsi onu **avtomatik gizlətmə** rejiminə keçirir: panel yerləşdiyi yerdən ayrılır və həmin kənarda kiçik sekmə olur. Sekmənin üzərinə gələndə, ona fokus verəndə və ya klikləyəndə panel çertyojun üzərinə sürüşərək çıxır; kənarlaşdıqda (və ya {{key:Esc}} basdıqda) geri sürüşür. Bərkitmə düyməsinə yenidən basın və ya {{ui:Bərkitməni burax}} seçin ki, panel həmişəlik yerləşsin.
+- Bağlama düyməsi və ya menyudakı {{ui:Bu paneli gizlət}} paneli gizlədir və onun yerləşdiyi tərəfi yığır. Kənarda kəsik xətli sekmə onu geri qaytarır: ona klikləyin, ya da fokus verib {{key:Enter}} basın.
 
 ## Tərtibatı sıxlaşdırın
 
-{{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Tərtibat sıxlığı}} iki seçim verir. {{ui:Rahat}} standart seçimdir. {{ui:Yığcam}} həmin tətbiqdə sətir hündürlüklərini, panel boşluqlarını, alətlər paneli düymələrini və panel mətnini sıxlaşdırır ki, ekrana daha çox sığsın. Seçim hər tətbiq üçün saxlanılır. Sensor ekran hər ikisində böyük düymələrini saxlayır, telefon isə öz tərtibatını saxlayır. {{ui:Tərtibatı sıfırla}} sıxlığı təyin etdiyiniz kimi buraxır.
+{{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Tərtibat sıxlığı}} iki seçim verir. {{ui:Rahat}} standart seçimdir. {{ui:Yığcam}} həmin tətbiq üçün sətir hündürlüklərini, panel boşluqlarını, alət düymələrini və panel mətnini sıxlaşdırır ki, ekrana daha çox şey sığsın. Hər tətbiq üçün saxlanır. Sensor ekran hər ikisində böyük düymələrini saxlayır, telefon isə öz tərtibatını saxlayır. {{ui:Tərtibatı sıfırla}} sıxlığı seçdiyiniz kimi buraxır.
 
-## Alətlər panelinin neçə sətir istifadə edəcəyini seçin
+## Alət panelinin neçə sətir istifadə edəcəyini seçin
 
-{{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Alət paneli sətirləri}} üç seçim verir. {{ui:Sarma}} standartdır: hər alət qrupu lazım olan qədər sətirdə göstərilir. {{ui:2 sətir}} alətlər panelini iki sətirdə, {{ui:1 sətir}} isə bir sətirdə saxlayır ki, çertyoja hündürlük qalsın; sığmayan qruplar alətlər panelinin içində yana sürüşür (siçan çarxı, iki barmaqla sürüşdürmə və ya alətə {{key:Tab}} ilə keçid). Artıq iki sətirə sığan alətlər paneli {{ui:2 sətir}} altında olduğu kimi qalır, çünki sıralama onu yalnız hündürləşdirərdi. Seçim hər tətbiq üçün saxlanılır. Sensor ekran və telefon öz tərtibatını saxlayır. CadCraft-ın alətlər paneli üçün öz parametri var: {{ui:Parametrlər}} › {{ui:CadCraft}} altında.
+{{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Alət paneli sətirləri}} üç seçim verir. {{ui:Sarma}} standartdır: hər alət qrupu lazım olan qədər sətirdə göstərilir. {{ui:2 sətir}} alət panelini iki sətirdə, {{ui:1 sətir}} isə bir sətirdə saxlayır ki, çertyoj üçün hündürlük qalsın; sığmayan qruplar alət panelinin içində yana sürüşür (siçan təkərini, iki barmaqla sürüşdürməni və ya alətə keçmək üçün {{key:Tab}} istifadə edin). Artıq iki sətirdə sığan alət paneli {{ui:2 sətir}} altında olduğu kimi qalır, çünki şəbəkə onu yalnız uzadardı. Seçim hər tətbiq üçün saxlanır. Sensor ekran və telefon öz tərtibatını saxlayır. CadCraft-ın öz alət paneli üçün ayrıca parametri var: {{ui:Parametrlər}} › {{ui:CadCraft}} altında.
 
 ## Klaviaturadan istifadə edin
 
-Hər panelin {{ui:⋯}} düyməsi menyu açır: {{ui:Solda yerləşdir}}, {{ui:Sağda yerləşdir}}, {{ui:Aşağıda yerləşdir}}, {{ui:Çertyojun üzərində üzdür}}, {{ui:Kənara bərkit}}, {{ui:Bu paneli gizlət}}, başqa paneli {{ui:Bununla sekmədə birləşdir}}, {{ui:Yeni pəncərəyə köçür}} və {{ui:Geri qaytar}}. Düyməyə tab ilə keçin, {{key:Enter}} basın, ox düymələri ilə hərəkət edin və yenidən {{key:Enter}} basın. {{key:Esc}} menyunu bağlayır.
+Hər panelin {{ui:⋯}} düyməsi menyu açır: {{ui:Solda yerləşdir}}, {{ui:Sağda yerləşdir}}, {{ui:Aşağıda yerləşdir}}, {{ui:Çertyojun üzərində üzdür}}, {{ui:Kənara bərkit}}, {{ui:Bu paneli gizlət}}, digər panellə {{ui:Sekmədə birləşdir}}, {{ui:Yeni pəncərəyə köçür}} və {{ui:Geri qaytar}}. Düyməyə {{key:Tab}} ilə keçin, {{key:Enter}} basın, ox düymələri ilə hərəkət edin və yenidən {{key:Enter}} basın. {{key:Esc}} menyunu bağlayır.
 
-## Panelləri ikinci ekrana qoyun
+## Panelləri ikinci monitora köçürün
 
-1. Paneldə {{ui:⋯}} seçin, sonra {{ui:Bütün panelləri yeni pəncərəyə köçür}}. Həmçinin {{ui:Parametrlər}} daxilində {{ui:Panelləri yeni pəncərəyə köçür}} seçə bilərsiniz.
-2. Panellərlə kiçik pəncərə açılır. Onu digər monitorunuza sürükləyin və istədiyiniz qədər böyüdün.
-3. İşinizə davam edin: panellər əvvəlki kimi çertyojla işləyir və çertyoj əsas pəncərəni doldurur.
+1. Paneldə {{ui:⋯}} düyməsini seçin, sonra {{ui:Bütün panelləri yeni pəncərəyə köçür}}. Həmçinin {{ui:Parametrlər}}-də {{ui:Panelləri yeni pəncərəyə köçür}} seçə bilərsiniz.
+2. Panelləri ehtiva edən kiçik pəncərə açılır. Onu ikinci monitora sürükləyin və istədiyiniz qədər böyüdün.
+3. İşinizi davam etdirin: panellər əvvəlki kimi çertyoja təsir edir, çertyoj isə əsas pəncərəni doldurur.
 
-Panellər pəncərəsi önə çıxanda qısayollar işləməyə davam edir: orada basdığınız düymələr (qutuya yazmaqdan başqa) çertyoja çatır. Tətbiqin verdiyi suallar və dialoqlar hələ də əsas pəncərədə açılır, ona görə orada baxın. Mövzu və panel mətninin ölçüsü əsas pəncərəni izləyir.
+Panellər pəncərəsi önə çıxdıqda qısa yollar işləməyə davam edir: orada basdığınız düymələr (qutuda yazmaqdan başqa) çertyoja gedir. Tətbiqin soruşduğu suallar və dialoqlar hələ də əsas pəncərədə açılır, ona görə hər dəfə göründükdə orada baxın. Mövzu və panel mətninin ölçüsü əsas pəncərəni izləyir.
 
 :::chromium
-Chrome və Edge pəncərəni digər ekrana sizin üçün yerləşdirə bilər. İkinci ekran qoşulu olanda panellər pəncərəsində {{ui:Onu digər ekranıma köçür}} seçin (və ya paneldə {{ui:⋯}} menyusunda {{ui:Panelləri digər ekranıma köçür}}). Brauzer bir dəfə soruşur ki, bu sayt ekranlarınızı görə bilərmi; razılaşdıqdan sonra panellər pəncərəsi hər dəfə həmin ekranda açılır.
+Chrome və Edge pəncərəni sizin üçün digər ekrana yerləşdirə bilər. İkinci ekran qoşulu olduqda panellər pəncərəsində {{ui:Onu digər ekranıma köçür}} seçin (və ya paneldə {{ui:⋯}} menyusunda {{ui:Panelləri digər ekranıma köçür}}). Brauzer bir dəfə soruşur ki, bu sayt ekranlarınızı görə bilərmi; icazə verdikdən sonra panellər pəncərəsi hər dəfə həmin ekranda açılır.
 :::
 
 :::firefox safari
@@ -66,32 +66,36 @@ Panellər pəncərəsini digər monitora özünüz sürükləyin. Növbəti dəf
 
 ## Bir neçə panellər pəncərəsi
 
-Hər panelin öz pəncərəsi ola bilər: ən çox dörd panellər pəncərəsi, məsələn hər monitor üçün bir.
+Hər panelin öz pəncərəsi ola bilər: ən çoxu dörd panellər pəncərəsi, məsələn hər monitor üçün bir.
 
-- Panelin {{ui:⋯}} menyusunda {{ui:Yeni pəncərəyə köçür}} o panel üçün başqa pəncərə açır, {{ui:Panel pəncərəsi 2-yə köçür}} (və s.) isə onu artıq açıq olan pəncərəyə köçürür. İkinci pəncərə "panels 2" adlanır.
-- Paneli adından tutub bir pəncərədən digərinə sürükləyin: əsas pəncərədə buraxsanız, orada yerləşir (üzərinə gəldikdə konturlar görünür) və ya üzür; başqa panellər pəncərəsində buraxsanız, oraya köçür. Başqa yerdə buraxsanız, əvvəlki yerində qalır.
-- Panel qalmayan panellər pəncərəsi özü-özünə bağlanır.
+- Panelin {{ui:⋯}} menyusunda {{ui:Yeni pəncərəyə köçür}} həmin panel üçün başqa pəncərə açır, {{ui:Panellər pəncərəsi 2-yə köçür}} (və s.) isə onu artıq açıq olan pəncərəyə köçürür. İkinci pəncərə "panellər 2" adlanır.
+- Paneli adından tutub bir pəncərədən başqasına sürükləyin: əsas pəncərənin üzərində buraxsanız onu orada yerləşdirir (üzərində olduğunuz zaman konturlu sahələr görünür) və ya üzdürür; başqa panellər pəncərəsinin üzərində buraxsanız onu oraya köçürür. Başqa yerdə buraxsanız, əvvəlki yerində qalır.
+- Panelləri qalmayan panellər pəncərəsi özü-özünə bağlanır.
 
-Səhifə yenidən yükləndikdən sonra tətbiq panellər pəncərələrini yenidən təklif edir. Brauzerlər hər klikdə bir pəncərə açır, ona görə hər pəncərə üçün {{ui:Növbətini aç}} seçin.
+Səhifə yenidən yükləndikdən sonra tətbiq panellər pəncərələrinizi yenidən təklif edir. Brauzerlər hər klikə bir pəncərə açır, ona görə hər pəncərə üçün {{ui:Növbətini aç}} seçin.
+
+## Tərtibatın bütün hissələri üçün eyni qayda
+
+Lent, alətlər qutusu, alət sətirləri və status zolağı panel kimi öz pəncərəsinə çıxa bilər: hissədə {{ui:⋯}} menyusunu açın və {{ui:Yeni pəncərəyə köçür}} seçin; {{ui:Geri qaytar}} (və ya pəncərəni bağlamaq) onu yerinə qaytarır. Həmin pəncərədə basdığınız düymələr tətbiqə çatır, panellər pəncərəsindəki kimi. Hər hissənin belə bir menyusu var.
 
 ## Dialoqu köçürün
 
-Hər dialoqu çertyojun qarşısından kənara köçürmək olar: başlıq zolağından basıb sürükləyin. Dialoq yerini yadda saxlayır, hər dialoq öz yerini, və növbəti açılanda həmin yerə qayıdır. Yenidən mərkəzə qaytarmaq üçün başlıq zolağına ikiqat klik edin.
+Hər dialoqu çertyojun qarşısından kənara köçürmək olar: başlıq zolağını basıb sürükləyin. Dialoq hər biri öz başına, harada qoyduğunuzu yadda saxlayır və növbəti açılanda həmin yerə qayıdır. Onu mərkəzə qaytarmaq üçün başlıq zolağına iki dəfə klikləyin.
 
-Klaviaturadan: fokus dialoqun içindəkən {{key:Alt}}+{{key:Shift}} və ox düyməsi ilə onu 16 piksel addımla köçürün; {{key:Ctrl}} əlavə etsəniz 64 piksel. Kiçik pəncərədən və ya ekrandan sonra ekrandan kənara düşən dialoq geri gətirilir.
+Dialoq içində fokus olduqda klaviaturadan {{key:Alt}}+{{key:Shift}}+ox düyməsini basın ki, 16 piksel hərəkət etsin; {{key:Ctrl}} əlavə edin – o zaman 64 piksel. Kiçik pəncərədən və ya ekrandan sonra ekrandan kənarda qalan dialoq geri gətirilir.
 
-Telefonda dialoqlar tam enli vərəqlər olaraq qalır və köçürülmür.
+Telefonda dialoqlar tam en vərəqləri olaraq qalır və köçürülmür.
 
-CadCraft Studio-da, işləyərkən açıq saxlaya biləcəyiniz CadCraft-ın {{ui:PDF-ə çap et}} dialoqunun başlıq zolağında {{ui:Öz pəncərəsində aç}} düyməsi var. Dialoq öz pəncərəsinə keçir və onu digər monitora qoya bilərsiniz. Dialoqu bağlamaq pəncərəni bağlayır, pəncərəni bağlamaq isə dialoqu.
+CadCraft Studio-da CadCraft-ın {{ui:PDF-ə çap et}} dialoqu, onu işləyərkən açıq saxlaya bilərsiniz, başlıq zolağında {{ui:Öz pəncərəsində aç}} düyməsinə malikdir. Dialoq başqa monitorda qoya biləcəyiniz öz pəncərəsinə keçir. Dialoqu bağlamaq pəncərəni, pəncərəni bağlamaq isə dialoqu bağlayır.
 
 ## Panelləri geri qaytarın
 
-- Panellər pəncərəsində {{ui:Panelləri geri qaytar}} seçin və ya sadəcə onu bağlayın. Panellər əvvəlki yerinə qayıdır.
-- Əsas pəncərəni bağlamaq və ya yenidən yükləmək panellər pəncərəsini də bağlayır. Tətbiq yenidən açılanda deyir ki, panelləriniz öz pəncərəsində idi; pəncərəni geri gətirmək üçün {{ui:Aç}} seçin və ya {{ui:Burada saxla}} seçin.
+- Panellər pəncərəsində {{ui:Panelləri geri qaytar}} seçin və ya sadəcə bağlayın. Panellər əvvəl olduqları yerə qayıdır.
+- Əsas pəncərəni bağlamaq və ya yenidən yükləmək panellər pəncərəsini də bağlayır. Tətbiq yenidən açılanda panellərinizin öz pəncərəsində olduğunu deyir; pəncərəni geri gətirmək üçün {{ui:Aç}} seçin və ya {{ui:Burada saxla}}.
 - {{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Tərtibatı sıfırla}} hər paneli başladığı yerə qaytarır.
 
 :::tip
-Panelləri yeni pəncərəyə köçürəndə heç nə açılmırsa, brauzer açılan pəncərəni bloklayıb. Tətbiq bunu deyir və panelləri əvvəlki yerində saxlayır. getcadcraft.com üçün açılan pəncərələrə icazə verin, sonra yenidən cəhd edin.
+Panelləri yeni pəncərəyə köçürəndə heç nə açılmırsa, brauzer açılan pəncərəni blok edib. Tətbiq bunu deyir və panelləri əvvəlki yerində saxlayır. getcadcraft.com üçün açılan pəncərələrə icazə verin, sonra yenidən cəhd edin.
 :::
 
-Tərtibat bu brauzerdə hər tətbiq üçün, digər parametrlərinizlə birlikdə saxlanılır.
+Tərtibat bu brauzerdə hər tətbiq üçün, digər parametrlərinizlə birlikdə saxlanır.

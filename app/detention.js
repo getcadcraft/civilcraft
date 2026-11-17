@@ -97,7 +97,7 @@ export function groundStorage(ground, polygon, { bottom, top, step, cell } = {})
   let x0 = Infinity, y0 = Infinity, x1 = Infinity * -1, y1 = -Infinity;
   for (const p of polygon) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
   const c = cell > 0 ? cell : Math.sqrt(((x1 - x0) * (y1 - y0)) / 40000), A = c * c;
-  const inside = (x, y) => { let k = false; for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) { const p = polygon[i], q = polygon[j]; if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) k = !k; } return k; };
+  const inside = (x, y) => pointInPolygon(x, y, polygon);
   const zs = [];
   for (let y = y0 + c / 2; y < y1; y += c) for (let x = x0 + c / 2; x < x1; x += c) if (inside(x, y)) { const z = ground.elevationAt(x, y); if (z !== null && z !== undefined && Number.isFinite(z)) zs.push(z); }
   if (!zs.length) return [];
@@ -211,6 +211,7 @@ export function checkPond(res, { top = null, target = null, drawdownMax = 72 * 6
 // A pond as saved in the project file (state.ponds), in the project's units (ft: ft, ft², in, cfs | m: m, m², mm, m³/s)
 
 import { alternatingBlock } from './rain.js';
+import { pointInPolygon } from './geom2d.js';
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 const clampN = (v, d, lo, hi) => (fin(v) && v >= lo && v <= hi ? v : d);

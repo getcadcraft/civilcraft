@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* i18n-ignore-file: what a person reads goes through msg() (messages.js); the rest is internal diagnostics (the {why} of ccexr.damaged.chunk / ccexr.write.bad_image) and file-format text. */
 /**
- * zlib.js — zlib streams (RFC 1950) around deflate (RFC 1951), written from the RFCs. Synchronous, so an EXR block
+ * zlib.js — the one source (lib/zip/zlib.js; 0.10 PERF.73): lib/exr, lib/3dm and lib/chip/fmt carry byte copies made by tools/zip/sync.mjs, nobody edits a copy. zlib streams (RFC 1950) around deflate (RFC 1951), written from the RFCs. Synchronous, so an EXR block
  * unpacks inside the read loop, and capped: unpacking stops with an error the moment the output would pass the size the
  * caller expects (an EXR block always knows its unpacked size), so a "zip bomb" costs nothing.
  *
@@ -319,3 +319,16 @@ export function deflateZlib(src, { level = 1 } = {}) {
   o.b[o.pos++] = a >>> 24; o.b[o.pos++] = (a >>> 16) & 255; o.b[o.pos++] = (a >>> 8) & 255; o.b[o.pos++] = a & 255;
   return o.b.slice(0, o.pos);
 }
+
+// ---------------------------------------------------------------- raw deflate (no zlib header), added for OASIS CBLOCK (lib/chip/fmt, 0.9 HD.7)
+// Own code, written from the RFCs, so each lib that carries a copy stays self-contained when synced.
+
+/** Inflate a raw RFC 1951 stream into exactly `size` bytes (throws on anything else). */
+export function inflateRawSized(src, size) {
+  const out = new Uint8Array(size);
+  const end = inflateRaw(src, 0, out);
+  if (end.out !== size) throw new Error('unpacks to ' + end.out + ' bytes, not ' + size);
+  return out;
+}
+/** Deflate to a raw RFC 1951 stream (the zlib stream without its 2-byte header and Adler-32 trailer). */
+export function deflateRaw(src, opts) { const z = deflateZlib(src, opts); return z.slice(2, z.length - 4); }

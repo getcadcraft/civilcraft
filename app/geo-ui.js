@@ -127,6 +127,7 @@ export function createGeo(ctx) {
     c2d.save(); c2d.lineWidth = 1; c2d.lineJoin = 'round';
     const COL = { 'C-ROAD-EDGE': C.ink || '#444', 'C-ROAD-MARK-YELLOW': '#d4a017', 'C-ROAD-MARK-WHITE': C.muted || '#888', 'C-ROAD-XWALK': C.muted || '#888', 'C-ROAD-SIGN': '#2e8b57', 'C-RAIL-TURNOUT': '#c0392b', 'C-RAIL-MAIN': '#555' };
     for (const e of d.entities) {
+      if (e.layer === 'C-RAIL-TURNOUT' || e.layer === 'C-RAIL-MAIN') continue;   // CV.1 2026-11-12: the plan itself draws turnouts now (rail-turnouts.js, C-RAIL-TURN); the .dxf button still writes these
       c2d.strokeStyle = c2d.fillStyle = COL[e.layer] || '#666';
       if (e.type === 'poly') { c2d.beginPath(); e.pts.forEach((p, i) => { const q = S(p.x, p.y); i ? c2d.lineTo(q.x, q.y) : c2d.moveTo(q.x, q.y); }); if (e.closed) c2d.closePath(); c2d.stroke(); }
       else if (e.type === 'point') { const q = S(e.x, e.y); c2d.beginPath(); c2d.arc(q.x, q.y, 3, 0, 6.2832); c2d.fill(); }

@@ -12,7 +12,8 @@
  * (tools/lang/sync.mjs). Files in m3d/ that are no longer part of the kernel are removed. The list is written to
  * tools/modelcraft-test/m3d-files.json (bin/test-cadcraft-3d.mjs checks the copy against it). After copying, the
  * kernel's words are brought over with m3d-keys.mjs. --check only reports (exit 1 on any difference).
- * Only one level of folders below a build is mapped by the site (AppBuilds), so the kernel stays flat in dev/.
+ * Only one level of folders below a build is mapped by the site (AppBuilds), so the kernel stays flat in dev/. The one exception is the
+ * arcs import (OWNED_ELSEWHERE, REWRITES above): tools.js reads lib/arcs from dev/arcs/, kept by tools/arcs/sync.mjs.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -24,6 +25,17 @@ const APPS = path.join(ROOT, 'public_html/assets/apps');
 const MC = path.join(APPS, 'modelcraft/dev');
 export const ENTRY = ['vec.js', 'model.js', 'earcut.js', 'camera.js', 'infer.js', 'tools.js', 'collide.js', 'sun.js', 'units.js', 'view3d.js', 'io.js', 'xml.js', 'strokefont.js', 'viewcube.js', 'viewcube-camera.js', 'viewimage.js'];
 const NOT_OURS = new Set(['i18n.js']);
+// Imports of a folder that another sync tool owns (tools/arcs/sync.mjs puts lib/arcs in <app>/dev/arcs/). In ModelCraft the kernel imports
+// './arcs/arcs.js'; from dev/m3d/ the same file is '../arcs/arcs.js' (one level deep, so the released builds' import map still holds it).
+// The copy differs from the original by exactly that import line (0.10 FX.143: this was why the tool refused to run).
+export const OWNED_ELSEWHERE = new Set(['arcs/arcs.js']);
+export const REWRITES = { 'tools.js': [["from './arcs/arcs.js'", "from '../arcs/arcs.js'"]] };
+/** What the copy of `f` must hold: ModelCraft's file with the REWRITES applied. */
+export function kernelBytes(f, from = MC) {
+  let text = fs.readFileSync(path.join(from, f), 'utf8');
+  for (const [a, b] of REWRITES[f] || []) { if (!text.includes(a)) throw new Error(`modelcraft/dev/${f}: expected ${a}`); text = text.split(a).join(b); }
+  return Buffer.from(text, 'utf8');
+}
 
 /** The kernel's files (sorted): ENTRY and what they import, relative to modelcraft/dev. */
 export function kernelFiles() {
@@ -37,6 +49,7 @@ export function kernelFiles() {
     const src = fs.readFileSync(file, 'utf8');
     for (const m of src.matchAll(/(?:^|\n)\s*(?:import|export)\s[^;'"]*?from\s*['"]\.\/([^'"]+)['"]|(?:^|\n)\s*import\s*['"]\.\/([^'"]+)['"]/g)) {
       const dep = path.posix.normalize(m[1] || m[2]);
+      if (OWNED_ELSEWHERE.has(dep)) continue;
       if (dep.includes('/')) throw new Error(`modelcraft/dev/${f} imports ./${dep}: the kernel must stay flat (one folder level is mapped)`);
       todo.push(dep);
     }
@@ -59,13 +72,13 @@ if (isMain) {
   for (const app of apps) {
     const dir = path.join(APPS, app, 'dev/m3d');
     if (!fs.existsSync(dir)) { console.log(`${app}: no dev/m3d — skipped`); continue; }
-    const changed = files.filter((f) => !fs.existsSync(path.join(dir, f)) || !fs.readFileSync(path.join(dir, f)).equals(fs.readFileSync(path.join(MC, f))));
+    const changed = files.filter((f) => !fs.existsSync(path.join(dir, f)) || !fs.readFileSync(path.join(dir, f)).equals(kernelBytes(f)));
     const extra = fs.readdirSync(dir).filter((f) => f.endsWith('.js') && !files.includes(f) && !NOT_OURS.has(f));
     if (!changed.length && !extra.length) { console.log(`${app}: m3d/ in step (${files.length} files)`); continue; }
     bad++;
     console.log(`${app}: ${changed.length} to copy (${changed.join(', ')})${extra.length ? `, ${extra.length} to remove (${extra.join(', ')})` : ''}`);
     if (check) continue;
-    for (const f of changed) fs.copyFileSync(path.join(MC, f), path.join(dir, f));
+    for (const f of changed) fs.writeFileSync(path.join(dir, f), kernelBytes(f));
     for (const f of extra) fs.unlinkSync(path.join(dir, f));
     console.log(`${app}: re-copied`);
   }

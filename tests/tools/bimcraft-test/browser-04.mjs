@@ -91,6 +91,8 @@ const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbo
   browser.newPage = async (...a) => { const p = await np(...a); await p.addInitScript(pin2d); return p; };
 }
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, permissions: ['clipboard-read', 'clipboard-write'] });
+await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch (e) { /* private window */ } });
+await ctx.addInitScript(() => { try { performance.setResourceTimingBufferSize(5000); } catch (e) { /* old engine */ } });   // the page loads more than the default 250 resources: the worker script must still be listed   // tests-10: the side panel folds to one open section (shell, 2026-11-09); a page test clicks any section, so folding is off
 const problems = [];
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });

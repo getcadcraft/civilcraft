@@ -133,7 +133,7 @@ if (!class_exists('AppBuilds')) {
         public static function extraScript(string $key): string { return '/assets/js/app-' . $key . '.js'; }
         /** Workspace layouts (0.7 WS.6), as the site's AppBuilds::workspaces / workspaceAdapter / hasWorkspaces / workspaceConfig. */
         public const WORKSPACE_BUILTINS = ['docked', 'toolbox'];
-        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-icons.js', '/assets/js/app-workspace-vector.js', '/assets/js/app-workspace-arrange.js', '/assets/js/i18n.js'];
+        public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-windows.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-icons.js', '/assets/js/app-workspace-vector.js', '/assets/js/app-workspace-arrange.js', '/assets/js/app-state.js', '/assets/js/app-workspace-blocks.js', '/assets/js/app-workspace-overflow.js', '/assets/js/app-workspace-tools.js', '/assets/js/app-workspace-edit.js', '/assets/js/app-cmdline.js', '/assets/js/i18n.js'];
         public static function workspaces(array $build): array
         {
             $w = $build['manifest']['workspaces'] ?? [];

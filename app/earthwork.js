@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { pointInPolygon } from './geom2d.js';
 /**
  * earthwork.js — the earthwork balancer (0.8 EG.70): find the level (and, if you allow it, the tilt) of a pad or a graded area so the
  * cut just fills the fill, then say how the dirt moves: which cut goes to which fill, how far, and what is left over to take away or
@@ -25,7 +26,7 @@ export function cellsInside(ground, polygon, { cell } = {}) {
   for (const p of polygon) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
   if (!(x1 > x0 && y1 > y0)) return [];
   const c = cell > 0 ? cell : Math.sqrt(((x1 - x0) * (y1 - y0)) / 20000);
-  const inside = (x, y) => { let k = false; for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) { const p = polygon[i], q = polygon[j]; if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) k = !k; } return k; };
+  const inside = (x, y) => pointInPolygon(x, y, polygon);
   const out = [];
   for (let y = y0 + c / 2; y < y1; y += c) for (let x = x0 + c / 2; x < x1; x += c) {
     if (!inside(x, y)) continue;

@@ -15,7 +15,9 @@
  */
 
 import { t } from './i18n.js';
+import { PadDetector } from './wheel-pad.js';   // D7.56: a trackpad's two-finger swipe pans
 import { SectionView } from './section-view.js';
+import { snapSection } from './section-measure.js';   // CV.3 (#1534)
 import { SAMPLE_DEFAULTS, cleanSampling, sectionsCsv } from './sections.js';
 import { sectionSheets, SHEET_VEXES } from './section-sheets.js';   // 0.4 V17
 import { massHaulDialog } from './masshaul-ui.js';   // 0.4 V24
@@ -26,9 +28,9 @@ export function createSections(ctx) {
   const { root, el } = ctx;
   const $ = (s) => root.querySelector(s);
   const panel = $('[data-sections-panel]');
-  const ui = { al: $('[data-sec-al]'), sta: $('[data-sec-sta]'), prev: $('[data-sec-prev]'), next: $('[data-sec-next]'), ve: $('[data-sec-ve]'), read: $('[data-sec-read]'), csv: $('[data-sec-csv]'), close: $('[data-sec-close]'), cv: $('[data-sec]') };
+  const ui = { al: $('[data-sec-al]'), sta: $('[data-sec-sta]'), prev: $('[data-sec-prev]'), next: $('[data-sec-next]'), ve: $('[data-sec-ve]'), read: $('[data-sec-read]'), csv: $('[data-sec-csv]'), close: $('[data-sec-close]'), cv: $('[data-sec]'), measure: $('[data-sec-measure]'), fit: $('[data-sec-fit]'), basis: $('[data-sec-basis]') };
   const sv = new SectionView(ui.cv);
-  let want = null, idx = 0, ve = 0;
+  let want = null, idx = 0, ve = 0, meas = null, measuring = false, hoverSnap = null, pan = null;   // CV.3: meas = { a, b? } in the section's own offset / elevation
   const P = () => ctx.project();
   const U = () => ctx.units();
   const sta = (s) => formatStation(s, U());
@@ -66,19 +68,75 @@ export function createSections(ctx) {
     }
     const tot = set.totals;
     ui.read.textContent = t('sec.read', { cut: volumeText(tot.cut, U()), fill: volumeText(tot.fill, U()) });
-    sv.set({ section: sec, station: t('sec.station', { sta: sta(sec.sta) }), exaggeration: ve || null,
-      labels: { cut: t('sec.area.cut', { a: fixed(sec.cut, 2), u: areaU() }), fill: t('sec.area.fill', { a: fixed(sec.fill, 2), u: areaU() }), ve: t('sec.ve', { ve: sv.ve >= 10 ? Math.round(sv.ve) : fixed(sv.ve || 1, 1) }) } });
+    if (ui.basis) ui.basis.value = P().state.display?.secBasis === 'top' ? 'top' : 'bottom';
+    const U0 = unitOf(U());
+    sv.set({ section: sec, station: t('sec.station', { sta: sta(sec.sta) }), exaggeration: ve || null, snap: hoverSnap, measure: meas,
+      labels: { mh: (v) => t('sec.m.dh', { v: fixed(v, 2), u: U0.short }), mv: (v) => t('sec.m.dv', { v: fixed(v, 2), u: U0.short }), ms: (g) => (g === null ? '' : t('sec.m.slope', { g: fixed(g * 100, 2), r: Math.abs(g) > 1e-9 ? '1:' + fixed(1 / Math.abs(g), 1) : '—' })), md: (v) => t('sec.m.dist', { v: fixed(v, 2), u: U0.short }), cut: t('sec.area.cut', { a: fixed(sec.cut, 2), u: areaU() }), fill: t('sec.area.fill', { a: fixed(sec.fill, 2), u: areaU() }), ve: t('sec.ve', { ve: sv.ve >= 10 ? Math.round(sv.ve) : fixed(sv.ve || 1, 1) }) } });
     // the exaggeration is known only after fitting: draw the label again with it
     sv.data.labels.ve = t('sec.ve', { ve: sv.ve >= 10 ? Math.round(sv.ve) : fixed(sv.ve, 1) });
     sv.draw();
   }
-  function go(i) { const set = setOf(alignment()); if (!set) return; idx = Math.max(0, Math.min(set.sections.length - 1, i)); render(); ctx.redraw?.(); }
+  function go(i) { const set = setOf(alignment()); if (!set) return; meas = null; hoverSnap = null; idx = Math.max(0, Math.min(set.sections.length - 1, i)); render(); ctx.redraw?.(); }
 
   ui.al.addEventListener('change', () => { want = ui.al.value; idx = 0; ctx.focusAlignment?.(want); render(); });
   ui.sta.addEventListener('change', () => go(Number(ui.sta.value)));
   ui.prev.addEventListener('click', () => go(idx - 1));
   ui.next.addEventListener('click', () => go(idx + 1));
-  ui.ve.addEventListener('change', () => { ve = Number(ui.ve.value) || 0; render(); });
+  ui.ve.addEventListener('change', () => { ve = Number(ui.ve.value) || 0; sv.zoomed = false; render(); });
+  // CV.3 (#1534): zoom, pan, fit, measure (with endpoint snap), and the basis the volumes are measured to
+  const cvPos = (e) => { const r = ui.cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const redraw = () => { if (sv.data) { sv.data.snap = hoverSnap; sv.data.measure = meas; sv.draw(); } };
+  const pointAt = (e) => {   // the point under the pointer: snapped to a vertex (unless Alt is held), else the raw one
+    const p = cvPos(e), sec = sv.data?.section; if (!sec) return null;
+    const sn = e.altKey ? null : snapSection(sec, p.x, p.y, (o, z) => sv.toScreen(o, z), 10);
+    return sn ? { o: sn.o, z: sn.z, kind: sn.kind } : { ...sv.toData(p.x, p.y), kind: 'free' };
+  };
+  function setMeasuring(on) {
+    measuring = !!on; meas = null; hoverSnap = null;
+    ui.measure?.setAttribute('aria-pressed', String(measuring)); ui.cv.classList.toggle('is-measuring', measuring);
+    if (measuring) ctx.say(t('sec.m.hint'));
+    redraw();
+  }
+  ui.measure?.addEventListener('click', () => setMeasuring(!measuring));
+  ui.fit?.addEventListener('click', () => { sv.reset(); render(); });
+  ui.basis?.addEventListener('change', () => { P().setDisplay('secBasis', ui.basis.value === 'top' ? 'top' : 'bottom'); render(); ctx.say(t(ui.basis.value === 'top' ? 'sec.basis.said.top' : 'sec.basis.said.bottom')); });
+  const pad = new PadDetector();
+  ui.cv.addEventListener('wheel', (e) => {
+    if (!sv.data?.section) return;
+    e.preventDefault();
+    if (!e.shiftKey && !e.altKey && pad.isSwipe(e)) { sv.panBy(-e.deltaX, -e.deltaY); redraw(); return; }   // D7.56: two fingers pan; a pinch and a mouse wheel zoom (Shift / Alt keep their one-axis zoom)
+    const p = cvPos(e);
+    sv.zoomAt(p.x, p.y, Math.pow(1.0015, -e.deltaY * (e.deltaMode === 1 ? 16 : 1)), e.shiftKey ? 'x' : e.altKey ? 'y' : 'xy'); redraw();
+  }, { passive: false });
+  ui.cv.addEventListener('contextmenu', (e) => e.preventDefault());
+  ui.cv.addEventListener('dblclick', () => { if (!measuring) { sv.reset(); render(); } });
+  ui.cv.addEventListener('pointerdown', (e) => {
+    if (!sv.data?.section) return;
+    ui.cv.focus({ preventScroll: true });
+    if (measuring && e.button === 0) {
+      const q = pointAt(e); if (!q) return;
+      if (!meas || meas.b) meas = { a: q, b: null }; else { meas.b = q; ctx.say(t('sec.m.done')); }
+      redraw(); return;
+    }
+    pan = { x: e.clientX, y: e.clientY }; ui.cv.setPointerCapture(e.pointerId); e.preventDefault();   // drag (any button; with Measure on, the middle and right ones) moves the view
+  });
+  ui.cv.addEventListener('pointermove', (e) => {
+    if (pan) { sv.panBy(e.clientX - pan.x, e.clientY - pan.y); pan = { x: e.clientX, y: e.clientY }; redraw(); return; }
+    if (!measuring || !sv.data?.section) return;
+    const q = pointAt(e); hoverSnap = q && q.kind !== 'free' ? q : null;
+    if (meas && !meas.b && q) meas.live = q;
+    redraw();
+  });
+  ui.cv.addEventListener('pointerup', () => { pan = null; });
+  ui.cv.addEventListener('pointerleave', () => { if (hoverSnap) { hoverSnap = null; redraw(); } });
+  ui.cv.addEventListener('keydown', (e) => {
+    const c = sv.plot, cx = (c.x0 + c.x1) / 2, cy = (c.y0 + c.y1) / 2;
+    if (e.key === 'Escape' && (meas || measuring)) { e.preventDefault(); if (meas) { meas = null; redraw(); } else setMeasuring(false); }
+    else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); setMeasuring(!measuring); }
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); sv.zoomAt(cx, cy, 1.25); redraw(); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); sv.zoomAt(cx, cy, 0.8); redraw(); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); sv.reset(); render(); }
+  });
   ui.close.addEventListener('click', () => show(false));
   ui.csv.addEventListener('click', () => {
     const a = alignment(), set = setOf(a);

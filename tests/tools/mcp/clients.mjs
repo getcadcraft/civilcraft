@@ -42,6 +42,8 @@ export const CLIENTS = [
     file: 'mcp.json', install: 'https://code.visualstudio.com' },
   { id: 'codex', name: 'Codex CLI', kind: 'cli', format: 'toml', unverified: true,
     dirs: { win32: '{home}/.codex', darwin: '{home}/.codex', linux: '{home}/.codex' }, file: 'config.toml', cmd: 'codex', install: 'https://github.com/openai/codex' },
+  { id: 'antigravity', name: 'Google Antigravity', kind: 'editor', format: 'json', key: 'mcpServers', unverified: true,
+    dirs: { win32: '{home}/.gemini/config', darwin: '{home}/.gemini/config', linux: '{home}/.gemini/config' }, file: 'mcp_config.json', cmd: 'antigravity', install: 'https://antigravity.google' },
   { id: 'gemini', name: 'Gemini CLI', kind: 'cli', format: 'json', key: 'mcpServers', unverified: true,
     dirs: { win32: '{home}/.gemini', darwin: '{home}/.gemini', linux: '{home}/.gemini' }, file: 'settings.json', cmd: 'gemini', install: 'https://github.com/google-gemini/gemini-cli' },
 ];

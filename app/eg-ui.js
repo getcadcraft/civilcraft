@@ -458,6 +458,15 @@ export function createEg(ctx) {
     } else {
       const text = await file.text();
       for (const line of text.split(/\r?\n/)) { const m = line.trim().split(/[\s,;]+/).map(Number); if (m.length >= 3 && m.slice(-3).every(Number.isFinite)) { const [x, y, z] = m.slice(-3); pts.push({ x, y, z }); } if (pts.length > 2e6) break; }
+      // 0.10 BK.8 (units on import): a survey list that states its unit is converted and that is said; one that states none is asked
+      // about before it is used (the shell's one dialog, remembered per file). It was read in project units, unasked.
+      if (globalThis.ccImportUnits) {
+        const IU = globalThis.ccImportUnits;
+        const a = await IU.resolve({ file, format: t('eg.pg.unitformat'), stated: IU.statedInText(text), choices: ['ft', 'usft', 'm'], suggest: U(), say: (s) => ctx.say(s) });
+        if (!a) throw new Error(t('eg.pg.nounits', { file: file.name }));
+        const k = IU.MM_PER[a.unit] / IU.MM_PER[U()];
+        if (Math.abs(k - 1) > 1e-12) for (const p of pts) { p.x *= k; p.y *= k; p.z *= k; }
+      }
     }
     if (pts.length < 3) throw new Error(t('eg.pg.few'));
     const r = buildGround({ points: pts, spacing: 0 });

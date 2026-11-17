@@ -59,8 +59,10 @@ export function hardwarePayload({ facts, info, app, build = '', env = globalThis
 export async function shareHardware({ facts, info, app, build = '', env = globalThis, allowed = null, now = Date.now() }) {
   const shell = env.window?.ccShellHardware;
   const ok = shell ? shell.allowed() : allowed ?? !env.window?.cadcraftDesktop;
-  if (!ok) return 'off';
   const body = hardwarePayload({ facts, info, app, build, env });
+  // NET.1: Settings › Hardware specs › "See exactly what is sent" shows this object; keeping it here sends nothing
+  try { if (env.window) env.window.ccHardwarePreview = body; } catch (e) { /* read-only window */ }
+  if (!ok) return 'off';
   const sig = JSON.stringify([body.build, body.tier, body.facts, body.browser_major]);
   const key = 'cc-hw-sent:' + body.app;
   let last = null;

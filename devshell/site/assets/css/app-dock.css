@@ -1,0 +1,53 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* app-dock.css — the dock manager's palettes, the one head and the drop zones (0.10 UI.21 + UI.26; assets/js/app-dock.js).
+   Loaded by app-dock.js only while html[data-cc-ws-edit="1"]. Tokens only (pattern § 10): the chrome tokens, the app's --layer, literal colours
+   only as var() fallbacks; no shadows; rem (px for hairlines). */
+
+/* the one head: grip far left, name or tabs, collapse, close far right */
+.ws-head { display: flex; align-items: center; gap: .25rem; min-height: 1.625rem; padding: 0 .25rem; font-size: .75rem; font-weight: 600;
+  color: var(--ws-ink, var(--ink)); background: var(--ws-chrome, var(--sheet-2)); border-bottom: 1px solid var(--ws-line, var(--line)); }
+.ws-head-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-head-tabs { flex: 1 1 auto; overflow-x: auto; scrollbar-width: none; }   /* owner rule: a tab strip scrolls, it never wraps */
+.ws-head-tabs::-webkit-scrollbar { display: none; }
+.ws-head-grip, .ws-group-grip { cursor: grab; touch-action: none; }
+.ws-head-grip { order: -1; }
+.ws-head-close { margin-inline-start: auto; opacity: .4; }
+.ws-head-tabs + .ws-head-collapse, .ws-head-name + .ws-head-collapse { margin-inline-start: 0; }
+.ws-head-close:hover, .ws-head-close:focus-visible, .ws-head:hover .ws-head-close { opacity: 1; }
+.ws-ribbon-tabs > .ws-head-grip, .tr-toolrows > .ws-head-grip, .ws-statusbar > .ws-head-grip { align-self: center; flex: 0 0 auto; }
+/* in the tab strip the head's buttons are not tabs: no tab padding, and nothing may stick out (a strip a few px too wide set the shell's tab scroller flipping each frame) */
+.ws-ribbon-tabs > :is(.ws-head-grip, .ws-head-close) { padding: 0; min-width: 0; width: 1.6rem; overflow: hidden; border-bottom: 0; }
+.ws-ribbon-tabs > .ws-head-close { position: sticky; right: 0; align-self: center; background: var(--ws-chrome, var(--sheet-2)); }
+.tr-toolrows > .ws-head-close, .ws-statusbar > .ws-head-close { align-self: center; order: 99; }   /* far right even where a skin orders the bar's parts */
+.tr-toolrows > .ws-head-grip, .ws-statusbar > .ws-head-grip { order: -99; }
+.tr-toolrows:has(> .ws-head-grip) { display: flex; align-items: center; gap: .125rem; }   /* the tool rows' box is a block: with the head it is a row (grip, rows, close) */
+.tr-toolrows:has(> .ws-head-grip) > .tr-rows { flex: 1 1 auto; min-width: 0; }
+
+/* a group's grip: far left of the group's name */
+.ws-group-grip { width: 1.125rem; height: 1rem; margin-inline-end: .125rem; opacity: .55; vertical-align: middle; }
+.ws-group-grip:hover, .ws-group-grip:focus-visible, .ws-group-grip[aria-expanded="true"] { opacity: 1; }
+.ws-group-title .ws-group-grip { float: left; }
+.tr-group > .ws-group-grip { align-self: center; width: .875rem; }
+
+/* a palette: a unit docked in a side zone; the zone decides the orientation (a column) */
+.ws-dock-palette { display: flex; flex-direction: column; min-width: 0; background: var(--ws-panel-bg, var(--sheet)); border-bottom: 1px solid var(--ws-line, var(--line)); }
+.ws-dock-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.25rem, 1fr)); gap: .125rem; padding: .25rem; }
+.ws-dock-body[hidden] { display: none; }
+.ws-dock-palette .ws-dock-body .ws-tool { border: 1px solid transparent; border-radius: var(--radius, .25rem); }
+.ws-dock-palette .ws-dock-body .ws-tool:not([aria-pressed="true"]) { background: transparent; }   /* pattern § 6: the pressed tool keeps the engine's lit look */
+.ws-dock-palette .ws-dock-body .ws-tool:hover { border-color: var(--layer, var(--action)); }
+.ws-dock-body .ws-tool { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: .125rem; min-width: 0; padding: .25rem .125rem; font-size: .6875rem; line-height: 1.15; text-align: center; }
+.ws-dock-body .ws-tool > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-region.ws-stage-left > .ws-dock-palette, .ws-region.ws-stage-right > .ws-dock-palette { width: 9.5rem; }
+.ws-region.ws-stage-left > .ws-dock-palette .ws-dock-body, .ws-region.ws-stage-right > .ws-dock-palette .ws-dock-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* drop zones: the left and right panels, the drawing's columns, and (for a docked unit) its home bar */
+.ws-dock-zones { position: fixed; inset: 0; z-index: 1050; pointer-events: none; }
+.ws-dock-zones > .ws-dock-zone { position: fixed; }
+.ws-dock-zones > [data-dock-target="home"] { z-index: 1; }   /* drawn over a zone it lies in, as it wins the drop */
+.ws-dock-zones > .ws-dock-zone.is-hot { background: color-mix(in srgb, var(--layer, var(--action)) 25%, transparent); border-style: solid; }
+.ws-dock-zones.is-passive > .ws-dock-zone { background: transparent; opacity: .7; place-items: end center; padding-bottom: 2.75rem; }   /* Arrange mode: the name at the zone's foot, clear of the tools and above Arrange's bar */
+body.ws-dock-dragging, body.ws-dock-dragging * { cursor: grabbing !important; }
+
+/* "Restore my windows" (UI.3) sits where the panels window's own offer does */
+.ws-win-offer { z-index: 1040; }

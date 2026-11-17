@@ -676,7 +676,10 @@ class Host {
  * DOM-free, no imports. JSON-RPC 2.0; MCP methods + the JSON control channel's (§6.1).
  *
  *   const d = createDispatcher({ server: {name, title, version}, instructions, allowed: () => ['read'], info: () => ({…}),
- *                                log: (entry) => …, now: () => Date.now(), listChanged: true });
+ *                                log: (entry) => …, now: () => Date.now(), listChanged: true,
+ *                                outgoing: (value, { tool, group, client }) => ({ value, sent }), incoming: (args) => args });
+ *   (outgoing: the model-data-only filter every result passes before it leaves, BK.145; `sent` is kept on the log entry; incoming: its other
+ *   half, which puts back in the arguments what outgoing replaced in a path)
  *   (listChanged false: a transport that cannot push notifications, e.g. Streamable HTTP without a GET stream)
  *   d.tool({ name, group, title, description, inputSchema, run: async (args, ctx) => result });   → unregister()
  *   await d.handle(message, session)   → a JSON-RPC response, or null for a notification
@@ -704,7 +707,7 @@ const META_V = 'io.modelcontextprotocol/protocolVersion', META_C = 'io.modelcont
 const RAW = '__ccToolResult';
 
 /** The hub's app keys and tool names (AI-CONNECT-SPEC § 1.1): publicName('cadcraft', 'command_run') → 'cad_command_run'; a name that already starts with the key stays. */
-export const APP_KEYS = { cadcraft: 'cad', bimcraft: 'bim', modelcraft: 'model', markupcraft: 'markup', takeoffcraft: 'takeoff', civilcraft: 'civil', detailcraft: 'detail', partcraft: 'part' };
+export const APP_KEYS = { cadcraft: 'cad', bimcraft: 'bim', modelcraft: 'model', markupcraft: 'markup', takeoffcraft: 'takeoff', civilcraft: 'civil', detailcraft: 'detail', partcraft: 'part', supercadcraft: 'super' };
 export function publicName(app, local) {
   const k = APP_KEYS[app];
   if (!k) throw new Error('Unknown app: ' + app);
@@ -874,7 +877,15 @@ export function createDispatcher(opts = {}) {
       const client = (session.client && session.client.name) || session.clientName || null;
       const entry = { time: new Date(t0).toISOString(), client, tool: String(name), group: t ? t.group : null, args: logArgs(args || {}), outcome: 'ok', undo: null, ms: 0 };
       const finish = (res, outcome, message) => { entry.outcome = outcome; entry.ms = now() - t0; if (message) entry.message = String(message).slice(0, 300); d.log(entry); return res; };
+      // Model data only (opts.outgoing, assets/js/ai-model-only.js modelOnly): what a tool returns passes this filter before it leaves; the log keeps
+      // its short record (size, field names, what was held back), never the result. A filter that fails sends nothing rather than everything.
+      const leaving = (v, record = true) => {
+        if (!opts.outgoing) return v;
+        try { const o = opts.outgoing(v, { tool: String(name), group: t ? t.group : null, client }); if (record && o && o.sent) entry.sent = o.sent; return o && 'value' in o ? o.value : v; }
+        catch { return typeof v === 'string' ? '' : { held: 'This result could not be checked for personal data, so it was not sent.' }; }
+      };
       const fail = (msg, outcome = 'error', code = 'failed', extra = {}) => {
+        msg = leaving(String(msg), false);
         const error = { code: ERROR_CODES.includes(code) ? code : 'failed', message: String(msg), next: extra.next || [], retry: extra.retry || (code === 'busy' ? 'later' : 'never'), ...(extra.group ? { group: extra.group } : {}) };
         const text = error.message + (error.next.length ? ' Try: ' + error.next.join(' ') : '');
         return finish({ content: [{ type: 'text', text }], structuredContent: { isError: true, error }, isError: true }, outcome, msg);
@@ -885,7 +896,8 @@ export function createDispatcher(opts = {}) {
       if (!has(al, t.group)) return fail(t.name + ' needs the ' + t.group + ' permission, which is not allowed. ' + (opts.howToAllow ? opts.howToAllow(t.group) : ''), 'refused', 'permission_needed', { group: t.group, next: ['Ask the person to allow ' + t.group + ' in the Assistants settings.'] });
       const a = args === undefined || args === null ? {} : args;
       if (typeof a !== 'object' || Array.isArray(a)) return fail('arguments must be an object.', 'refused', 'invalid_argument');
-      const copy = JSON.parse(JSON.stringify(a));
+      let copy = JSON.parse(JSON.stringify(a));
+      if (opts.incoming) { try { copy = opts.incoming(copy, { tool: t.name }) || copy; } catch { /* the arguments as they came */ } }   // model data only: a path given out with "~" for the user's folder comes back whole
       const problems = checkSchema(schemaOf(t), copy);
       if (problems.length) return fail('Invalid arguments: ' + problems.slice(0, 8).join(' '), 'refused', 'invalid_argument', { next: ['Read this tool\'s inputSchema and call it again with the fields it lists.'] });
       const preview = copy.preview === true && !ownPreview(t);
@@ -893,12 +905,12 @@ export function createDispatcher(opts = {}) {
       if (preview) entry.preview = true;
       const wrapResult = (r) => {
         if (r && r[RAW]) {
-          const res = { content: r.content || [] };
-          if (r.structured !== undefined) res.structuredContent = r.structured;
+          const res = { content: (r.content || []).map((b) => (b && b.type === 'text' && typeof b.text === 'string' ? { ...b, text: leaving(b.text, false) } : b)) };
+          if (r.structured !== undefined) res.structuredContent = leaving(r.structured);
           if (r.structured && r.structured.undo) entry.undo = r.structured.undo;
           return res;
         }
-        const structured = r === undefined || r === null ? { ok: true } : typeof r === 'object' && !Array.isArray(r) ? r : { result: r };
+        const structured = leaving(r === undefined || r === null ? { ok: true } : typeof r === 'object' && !Array.isArray(r) ? r : { result: r });
         if (structured.undo) entry.undo = structured.undo;
         const text = JSON.stringify(structured, null, 1);
         return { structured, text, res: { content: [{ type: 'text', text }], structuredContent: structured } };
@@ -1061,7 +1073,7 @@ function ruleOf(st) {
 }
 
 function makeControl(host) {
-  const st = { enabled: false, groups: ['read'], folders: [], title: host.app, version: 'dev', info: null, undo: null, rollback: null, suggest: null, busy: null, channel: null, acting: [], save: null, open: null, rules: null };
+  const st = { enabled: false, groups: ['read'], folders: [], title: host.app, version: 'dev', info: null, undo: null, rollback: null, suggest: null, outgoing: null, incoming: null, busy: null, channel: null, acting: [], save: null, open: null, rules: null };
   const log = [];
   const ev = new Map();
   const emit = (type, detail) => { for (const fn of ev.get(type) || []) { try { fn(detail); } catch { /* a listener */ } } };
@@ -1075,6 +1087,8 @@ function makeControl(host) {
     allowed: () => (st.enabled ? ruleOf(st).groups : []),
     rollback: { available: () => !!st.rollback, begin: (c) => st.rollback.begin(c), rollback: (t, c) => st.rollback.rollback(t, c) },
     get suggest() { return st.suggest || undefined; },   // set by configure({ suggest }): without it Suggest-only assistants get 'unsupported'
+    get outgoing() { return st.outgoing || undefined; },
+    get incoming() { return st.incoming || undefined; },   // set by configure({ outgoing }): the model-data-only filter on every result (BK.145, ai-model-only.js)
     howToAllow: () => 'The person can allow it in ' + st.title + ': Settings › Assistants.',
     log: (e) => { log.push(e); if (log.length > CONTROL_LOG_MAX) log.shift(); emit('call', e); emit('change', 'call'); try { if (st.channel) st.channel.post('control.entry', e); } catch { /* closed */ } },   // the hub keeps one list across the windows (ai-activity.js merge)
     info: async () => ({ app: host.app, title: st.title, version: st.version, enabled: st.enabled, groups: st.enabled ? [...st.groups] : [], ...(st.info ? await st.info() : {}) }),
@@ -1188,6 +1202,8 @@ function makeControl(host) {
       if ('enabled' in o) { const was = st.enabled; st.enabled = !!o.enabled; if (was && !st.enabled) disconnect(); }
       if (Array.isArray(o.groups)) st.groups = o.groups.filter((x) => PERMISSION_LEVELS.includes(x));
       if ('rollback' in o) st.rollback = o.rollback && typeof o.rollback.begin === 'function' && typeof o.rollback.rollback === 'function' ? o.rollback : null;   // previews (AI-CONNECT-SPEC § 2.3)
+      if ('outgoing' in o) st.outgoing = typeof o.outgoing === 'function' ? o.outgoing : null;
+      if ('incoming' in o) st.incoming = typeof o.incoming === 'function' ? o.incoming : null;   // its other half: (args) → args with the "~" of a path put back   // BK.145: (value, { tool, group, client }) → { value, sent }
       if ('suggest' in o) st.suggest = typeof o.suggest === 'function' ? o.suggest : null;   // Suggest level: records a change set (ai-trust_PART_2)
       if (Array.isArray(o.folders)) st.folders = cleanFolders(o.folders);
       if ('rules' in o) st.rules = typeof o.rules === 'function' ? o.rules : null;   // () → { groups, folders } for the open file: assist-perms.js effective(record, projectKey), given by the Suggest module's attach (ai_PART_3)

@@ -1,34 +1,34 @@
 ---
-title: Järjestä oma asettelusi ja tallenna asetuskokonaisuutesi
-summary: Valitse, mikä paneeli näyttää projektiselaimen, Ominaisuudet tai paneelin oman sisällön, minne työkalupakki sijoitetaan ja mitä palkit sisältävät, tallenna se omaksi asetteluksesi ja säilytä kokonaisia asetuskokonaisuuksia nimellä, joiden välillä vaihdat.
-keywords: asettelu, työtila, järjestä, mukauta, oma asettelu, paneelit, editorit, projektiselain, ominaisuudet, työkalupakki, pikapalkki, tietoruutu, työympäristö, asetuskokonaisuus, profiili, tallenna asetukset, vaihda asetuksia, vie asetukset, tuo asetukset, ccenv
-from: 2a71af43
+title: Oman asettelun järjestäminen ja asetusten tallentaminen
+summary: Valitse, mikä paneeli näyttää projektiselaimen tai Ominaisuudet ja paneelin oman sisällön, mihin työkalupakki sijoitetaan ja mitä palkit pitävät, tallenna se omaksi asetteluksi ja säilytä koko asetukset nimettyinä, jotta niiden välillä voi vaihtaa.
+keywords: asettelu, työtila, järjestä, mukauta, oma asettelu, paneelit, muokkaimet, projektiselain, ominaisuudet, työkalupakki, pikapalkki, tietoruutu, työympäristö, asetus, profiili, tallenna asetus, vaihda asetus, vie asetus, tuo asetus, ccenv
+from: 6af528e0
 ---
 
-Kolmen sisäänrakennetun asettelun lisäksi voit järjestää oman, ja tallentaa koko asetuskokonaisuutesi nimellä, jotta voit palata siihen yhdellä vaiheella.
+Kolmen sisäänrakennetun asettelun lisäksi voi järjestää oman asettelun ja tallentaa koko asetuksen nimellä, jotta siihen voi palata yhdellä askeleella.
 
-## Järjestä oma asettelusi
+## Järjestä oma asettelu
 
-1. Avaa {{ui:Asetukset}} (hammasratas tai {{key:Mod+,}}), valitse {{ui:Yleinen}} ja sitten {{ui:Asettelu}}.
-2. Valitse {{ui:Järjestä oma asettelusi…}}. Valintaikkuna lähtee liikkeelle asettelusta, jota käytät nyt.
-3. Anna sille nimi ja valitse sitten:
-   - **Piirustuksen päällä:** sovelluksen työkalurivi, valintanauha tai ei kumpaakaan; otsikkopalkki; tietoruutu ja mitä säätimiä se sisältää.
-   - **Piirustuksen vieressä:** työkalupakki vasemmalla, oikealla tai ei lainkaan, {{ui:Omat työkalut}} mukana tai ilman; mikä paneeli sisältää paletit, mikä niistä on päällimmäisenä (esimerkiksi projektiselain tai Ominaisuudet) ja mitkä ovat sen alla välilehtinä.
-   - **Piirustusalue:** näkymävälilehdet, pikapalkki ja näkymäpalkki valitsemillasi säätimillä, muokkauspaletti, tilarivi.
-   - **Ulkoasu:** koko, painikkeiden reunat ja välilehtien tyyli.
-4. Valitse {{ui:Käytä tätä asettelua}}. Sovellus vaihtaa siihen heti, ja jokainen sovellus, jossa on asetteluja, käyttää sitä myös.
+1. Avaa {{ui:Asetukset}} (vaihde tai {{key:Mod+,}}), valitse {{ui:Yleinen}} ja sitten {{ui:Asettelu}}.
+2. Valitse {{ui:Järjestä oma asettelusi…}}. Valintaikkuna alkaa nykyisestä asettelusta.
+3. Anna sille nimi ja valitse:
+   - **Piirustuksen päällä:** sovelluksen työkalurivi, valintanauha tai ei kumpaakaan; otsikkopalkki; tietoruutu ja sen sisältämät säätimet.
+   - **Piirustuksen vieressä:** työkalupakki vasemmalla, oikealla tai ei lainkaan, {{ui:Omat työkalut}} mukana tai ilman; mikä paneeli pitää paletit, mikä on päällimmäisenä (esimerkiksi projektiselain tai {{ui:Ominaisuudet}}) ja mitkä ovat sen alla välilehtinä.
+   - **Piirustusalue:** näkymävälilehdet, pikapalkki ja näkymäpalkki valitsemillasi säätimillä, muokkauspaletti ja tilarivi.
+   - **Ulkoasu:** koko, painikkeiden reunat ja välilehtityyli.
+4. Valitse {{ui:Käytä tätä asettelua}}. Sovellus vaihtuu siihen heti, ja jokainen asetteluja käyttävä sovellus käyttää sitä myös.
 
-Tarjolla on vain se, mitä tässä sovelluksessa on. Asettelusi on luettelossa kohdassa {{ui:Lisäosista ja tiedostoista}}; {{ui:Vie tämä asettelu}} tallentaa sen tiedostoksi, jonka voit antaa työtoverille, ja poistopainike poistaa sen. Paneelit, jotka se täyttää, kiinnittyvät, kelluvat ja siirtyvät edelleen omiin ikkunoihinsa, kuten kohdassa [Järjestä paneelit](common:arrange-panels).
+Vain sovelluksen omat osat tarjotaan. Asettelu näkyy kohdassa {{ui:Lisäosista ja tiedostoista}}; {{ui:Vie tämä asettelu}} tallentaa sen tiedostoksi, jonka voi antaa työkaverille, ja {{ui:Poista}}-painike poistaa sen. Paneelit, joita asettelu täyttää, kiinnittyvät, kelluvat ja siirtyvät omiin ikkunoihinsa kuten kohdassa [Paneelien järjestäminen](common:arrange-panels).
 
-## Tallenna asetuskokonaisuutesi työympäristöksi
+## Tallenna asetuksesi työympäristönä
 
-Työympäristö on koko asetuskokonaisuutesi kaikille tämän selaimen sovelluksille: asettelu, valikkotyyli ja näppäimesi, työkalurivin tyyli, paneelit ja niiden koot sekä {{ui:Omat työkalut}}. Teema ja kieli eivät kuulu siihen.
+Työympäristö on koko asetuksesi kaikille tämän selaimen sovelluksille: asettelu, valikkotyyli ja näppäimet, työkalurivin tyyli, paneelit ja niiden koot sekä {{ui:Omat työkalut}}. Teema ja kieli eivät kuulu siihen.
 
-- **Tallenna:** kirjoita nimi kohtaan {{ui:Työympäristöt}} ja valitse {{ui:Tallenna asetukseni}}. Tallennus olemassa olevalla nimellä korvaa kyseisen kokonaisuuden.
-- **Vaihda:** valitse kokonaisuus luettelosta ja valitse {{ui:Vaihda siihen}}. Sovellus latautuu uudelleen kyseisellä kokonaisuudella; jos sinulla on tallentamatonta työtä, sovellus kysyy ensin, kuten missä tahansa uudelleenlatauksessa.
-- **Jaa:** {{ui:Vie}} tallentaa valitun kokonaisuuden `.ccenv.json`-tiedostoksi; {{ui:Tuo asetuskokonaisuus…}} lisää sellaisen tiedostosta. Tiedosto asettaa vain nämä valinnat, ei mitään muuta.
-- **Poista:** valitse kokonaisuus ja valitse {{ui:Poista}}.
+- **Tallenna:** kirjoita nimi kohtaan {{ui:Työympäristöt}} ja valitse {{ui:Tallenna asetukseni}}. Jos nimi on jo käytössä, tallennus korvaa sen asetuksen.
+- **Vaihda:** valitse asetus luettelosta ja valitse {{ui:Vaihda siihen}}. Sovellus latautuu uudelleen tähän asetukseen. Jos tallentamattomia muutoksia on, sovellus kysyy ensin, kuten missä tahansa uudelleenlatauksessa.
+- **Jaa:** {{ui:Vie}} tallentaa valitun asetuksen tiedostoksi `.ccenv.json`; {{ui:Tuo asetuskokonaisuus…}} lisää sen tiedostosta. Tiedosto asettaa vain nämä valinnat, ei mitään muuta.
+- **Poista:** valitse asetus ja valitse {{ui:Poista}}.
 
-Voit säilyttää enintään kaksitoista asetuskokonaisuutta.
+Voit säilyttää enintään kaksitoista asetusta.
 
-Jos haluat kokeilla ensin sisäänrakennettuja järjestelyjä, katso [työkalupakin ja tietoruudun asettelu](common:layout-toolbox) sekä [valintanauhan ja projektiselaimen asettelu](common:layout-ribbon).
+Asettelun muuttamiseen ilman valintaikkunaa (vedä lohkoa, napsauta työkalua hiiren oikealla) katso [Muuta asettelua näytöllä](common:layout-edit). Sisäänrakennettujen järjestelyjen kokeilemiseen katso ensin [työkalupakin ja tietoruudun asettelu](common:layout-toolbox), [valintanauhan ja projektiselaimen asettelu](common:layout-ribbon) ja [Piirustuksen asettelu](common:layout-drafting).

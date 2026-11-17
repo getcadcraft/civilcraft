@@ -31,6 +31,7 @@ const problems = [];
 try {
   const ctx = await browser.newContext({ viewport: { width: 1600, height: 1000 } });
   await ctx.addCookies([{ name: sess.name, value: sess.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true }]);
+  await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch { /* */ } });   // 2026-11-12: the shell folds Properties to one open section (2026-11-09); this test reads several at once
   const page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
   page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));

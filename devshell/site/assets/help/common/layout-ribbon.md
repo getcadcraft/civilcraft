@@ -51,3 +51,5 @@ On a phone, or in a window 760 pixels wide or narrower, the app uses its phone l
 :::
 
 To try another arrangement, see [the toolbox and info box layout](common:layout-toolbox).
+
+To change what this layout shows, see [Change a layout on the screen](common:layout-edit); for a dark, menu-bar-and-ribbon arrangement see [the Drafting layout](common:layout-drafting).

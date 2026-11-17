@@ -58,7 +58,10 @@ try {
   for (const slug of APPS) {
     console.log(`\n== ${slug}`);
     // 1. a roomy window
-    let ctx = await newCtx(1600, 1100);
+    // 2026-11-11 (bk-shell-10): was 1600 x 1100. With the interface at 1.4 CadCraft's toolbar wraps to 438 px there and the drawing keeps
+    // 351 px = 32 % of the height, under the 40 % at which the question is rightly asked. The frozen 0.9 build (/use/cadcraft) has the
+    // same bars at that size, so the window stopped being roomy before today; the measuring code is unchanged. A taller window is roomy.
+    let ctx = await newCtx(1600, 1700);
     let page = await open(ctx, slug);
     await sleep(3500);
     const roomy = await share(page);
@@ -71,6 +74,10 @@ try {
     await page.waitForFunction(() => !!document.querySelector('dialog.shell-fit[open]'), null, { timeout: 12000 }).catch(() => {});
     const before = await share(page), barsBefore = await bars(page);
     ok(await asking(page), `short window (drawing ${Math.round(before * 100)}% of the height): the question is asked`);
+    if (!(await asking(page))) {   // 2026-11-11: an app whose start page has no drawing yet (BimCraft before a model is open: no canvas, only the app bar) is never short, so there is no dialog to test; say so and go on instead of stopping the run on a missing dialog
+      console.log('  note ' + slug + ': the short window is not short for this app as it starts (no drawing canvas yet); the dialog checks are skipped');
+      await ctx.close(); continue;
+    }
     if (SHOT) await page.screenshot({ path: path.join(SHOT, `fit-${slug}-ask.png`) });
     const text = await page.evaluate(() => document.querySelector('dialog.shell-fit').innerText);
     ok(/%/.test(text) && !/shell\.fit\./.test(text), 'the words are real text (no bare keys), with the percentage');

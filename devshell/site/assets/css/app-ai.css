@@ -29,3 +29,21 @@
 .cct-ask-steps { gap: .15rem; font-size: .8125rem; color: var(--ink-2); }
 .cct-ask-step.is-bad { color: var(--layer-red); }
 .cct-ask-step.is-say { color: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* bk-r3-assistant-10: what went back to the assistant (BK.145), "Why did this happen?" (BK.147), the step card (BK.168) */
+.cct-ac-sent { flex-basis: 100%; font-size: .75rem; color: var(--ink-2); }
+.cct-ac-held { color: var(--layer-ochre); }
+.cct-ask-more { flex-wrap: wrap; }
+.cct-ask-why { padding: .375rem .5rem; border: var(--pen-1) solid var(--grid); border-radius: .25rem; display: grid; gap: .25rem; }
+.cct-ask-why .cct-ask-steps { list-style: decimal; padding-left: 1.25rem; }
+.cc-guide { position: fixed; inset: auto 1rem 3rem auto; margin: 0; width: min(22rem, calc(100vw - 2rem)); padding: .625rem .75rem; border: var(--pen-1, 1px) solid var(--ink, #222); border-radius: .375rem; background: var(--paper, #fff); color: var(--ink, #111); box-shadow: 0 .25rem 1rem rgba(0, 0, 0, .25); font-size: .875rem; }
+.cc-guide-head { display: flex; align-items: center; gap: .5rem; }
+.cc-guide-head strong { flex: 1; min-width: 0; }
+.cc-guide-n { font-size: .75rem; color: var(--ink-2, #555); white-space: nowrap; }
+.cc-guide-text { margin: .375rem 0 .25rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cc-guide-where { margin: 0; font-size: .75rem; color: var(--ink-2, #555); }
+.cc-guide-where.is-missing { color: var(--layer-ochre, #a66a00); }
+.cc-guide-mark { outline: .1875rem solid var(--layer-ochre, #e0a000); outline-offset: .125rem; }
+/* BK.60: the teacher's Back / Next under the step */
+.cc-guide-nav { display: flex; gap: .5rem; margin: .25rem 0; }
+.cct-ask-how { margin: .5rem 0; }

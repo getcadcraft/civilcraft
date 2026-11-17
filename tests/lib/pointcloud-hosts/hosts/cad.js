@@ -10,9 +10,10 @@ import * as las from '../../las.js';
 import { placement } from './common.js';
 
 export const ground = false;
-export const accept = '.las,.laz,.e57,.ply,.pcd,.ptx,.xyz,.pts';
+export const accept = '.las,.laz,.e57,.ply,.obj,.usdz,.pcd,.ptx,.xyz,.pts';
 export const engineDeps = () => ({ las });
 export const readers = () => import('../../pointcloud.js');
+export const e57 = () => import('../../e57.js');   // 0.10 PERF.25: its e57Detail reads the XML section for the page-by-page reader
 
 const wsOf = () => (window.cadcraft && window.cadcraft.host && window.cadcraft.host.ws3d) || null;
 let current = null;   // { view, host }

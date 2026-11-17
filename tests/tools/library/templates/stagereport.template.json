@@ -1,0 +1,13 @@
+{
+  "name": "Specification: Stage report",
+  "description": "A specification for presentation, filled from the open IFC model: quantities by type, tag values and schedules. Edit the text, then save the document as PDF or Word. Reads the model’s tags (the definitions are listed with the template).",
+  "template": {
+    "format": "cadcraft-doc-template",
+    "version": 1,
+    "key": "spec-stagereport",
+    "trade": "presentation",
+    "title": "Stage report",
+    "tags": [],
+    "text": "# Stage report: {{project}}\n\nStage: {{stage}}. File {{file}}, {{date}}.\n\n## Floor areas\n\n{{areas}}\n\n## Options\n\n{{options}}\n\n## Drawings and their revisions\n\n{{sheets}}\n\n## Issue history\n\n{{issues}}\n\n## Changed since the last issue\n\n{{changes}}\n\n## Doors\n\n{{schedule doors}}\n\n## Windows\n\n{{schedule windows}}\n"
+  }
+}

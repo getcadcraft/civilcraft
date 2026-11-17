@@ -59,7 +59,15 @@ async function open(bridgeInit) {
 const bridge = (accepts) => `(() => {
   const jobs = [];
   window.__jobs = jobs;
+  // 0.10 FX.311: the saves a Studio computer offers (host.js saveAs → saveDialog + writeFile) and a count of <a download> clicks,
+  // which must stay at zero: that path froze Studio on Linux.
+  window.__saves = []; window.__written = []; window.__anchorClicks = 0;
+  const click = HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click = function () { if (this.hasAttribute('download')) window.__anchorClicks++; return click.call(this); };
   window.cadcraftDesktop = { version: 1, readFile: async () => new Uint8Array(), launchFiles: async () => [], onOpenFiles() {},
+    saveDialog: async (o) => { window.__saves.push(o); return '/home/me/Plots/' + (o.defaultPath || 'file'); },
+    writeFile: async (p, u8) => { window.__written.push({ p, n: u8.length, head: Array.from(u8.slice(0, 5)) }); },
+    stat: async () => ({ size: 1, mtime: 0 }),
     printers: {
       list: async () => ({ accepts: ${JSON.stringify(accepts)}, printers: [
         { name: 'Office', default: false, papers: ['Letter', 'A4'] },
@@ -163,6 +171,28 @@ try {
     await page.waitForFunction(() => window.__printed === 1, null, { timeout: 8000 }).catch(() => {});
     const pr = await page.evaluate(() => ({ printed: window.__printed, size: window.__pdfSize, open: document.querySelector('dialog[data-plot]').open }));
     ok(pr.printed === 1 && pr.size > 500 && !pr.open && !problems.some((p) => /pageerror/.test(p)), 'Print in the browser makes the PDF, calls the frame\'s print and closes the dialog', JSON.stringify(pr));
+    await ctx.close();
+  }
+  console.log('\n== Studio on a computer: Download PDF, PNG and SVG go through the host\'s save dialog (0.10 FX.311, suggestion #1827)');
+  {
+    const { ctx, page } = await open(bridge('pdf'));
+    const again = async (btn) => { await page.evaluate(() => { window.cadcraft.engine.text('PLOT'); }); await page.waitForSelector('dialog[data-plot][open]'); await page.waitForFunction((b) => !document.querySelector(b).disabled, btn); };
+    const state = () => page.evaluate(() => ({ saves: window.__saves.map((s) => s.defaultPath), written: window.__written, clicks: window.__anchorClicks, open: document.querySelector('dialog[data-plot]').open }));
+    await page.click('[data-plot-save]');
+    await page.waitForFunction(() => window.__written.length === 1, null, { timeout: 30000 }).catch(() => {});
+    let s = await state();
+    ok(s.saves.length === 1 && /\.pdf$/.test(s.saves[0]) && s.written[0] && s.written[0].n > 500 && ascii(s.written[0].head) === '%PDF-' && !s.open,
+       'Download PDF: saveDialog with a .pdf name, the PDF bytes written there, the dialog closed', JSON.stringify({ saves: s.saves, written: s.written.map((w) => ({ p: w.p, n: w.n })) }));
+    await again('[data-plot-png]');
+    await page.click('[data-plot-png]');
+    await page.waitForFunction(() => window.__written.length === 2, null, { timeout: 30000 }).catch(() => {});
+    await again('[data-plot-svg]');
+    await page.click('[data-plot-svg]');
+    await page.waitForFunction(() => window.__written.length === 3, null, { timeout: 30000 }).catch(() => {});
+    s = await state();
+    ok(s.saves.length === 3 && /\.png$/.test(s.saves[1]) && s.written[1] && ascii(s.written[1].head.slice(1, 4)) === 'PNG', 'Download PNG: the same way, a .png', JSON.stringify(s.saves));
+    ok(/\.svg$/.test(s.saves[2] || '') && s.written[2] && ascii(s.written[2].head) === '<?xml', 'Download SVG: the same way, a .svg', JSON.stringify(s.saves));
+    ok(s.clicks === 0, 'no <a download> click at all on Studio (the path that froze the window on Linux)', String(s.clicks));
     await ctx.close();
   }
 } finally {

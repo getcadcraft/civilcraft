@@ -522,3 +522,12 @@ summary.cv-tool { position: relative; }
 .cv-ls-pick { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; width: 100%; text-align: left; font: inherit; font-size: .875rem; color: var(--ink); background: none; border: 0; border-bottom: var(--pen-1) solid var(--grid); padding: .3rem .2rem; cursor: pointer; }
 .cv-ls-pick small { color: var(--ink-2); }
 .cv-ls-pick:hover, .cv-ls-pick:focus-visible { background: var(--sheet); outline: none; }
+
+/* CV.3 (#1534): PVI table pick buttons, slope + lock, and the profile / section cursors */
+.cv-pickcell { white-space: nowrap; }
+.cv-pickcell .cv-input { width: calc(100% - 1.5rem); min-width: 4.4rem; display: inline-block; vertical-align: middle; }
+.cv-pvipick, .cv-lock { font-size: .8rem; padding: .1rem .25rem; line-height: 1; vertical-align: middle; }
+.cv-pvipick.is-on, .cv-lock.is-on { color: var(--action); background: color-mix(in srgb, var(--action) 14%, transparent); border-radius: .2rem; }
+.cv-prof-canvas canvas.is-picking, .cv-sec.is-picking, canvas.is-measuring { cursor: crosshair; }
+[data-prof], [data-sec] { touch-action: none; }
+.cv-sec-basis { max-width: 12rem; }

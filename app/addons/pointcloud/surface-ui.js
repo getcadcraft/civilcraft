@@ -186,7 +186,7 @@ export function mountSurface(ctx) {
     if (!proj) return;
     const v = Number(interval.value) || 1;
     if (proj.state.display.interval !== v) proj.change(t('pc.c.undo'), (s) => { s.display.interval = v; });
-    const lines = ctx.surface ? (ctx.surface.contours(v) || []) : proj.contours();
+    const lines = ctx.surface ? (proj.contoursOf ? proj.contoursOf(ctx.surface) : ctx.surface.contours(v) || []) : proj.contours();   // 0.9.1: smoothed as Display says
     const zs = lines.map((l) => l.z);
     drawContourPreview(lines, v);
     contourOut.textContent = lines.length ? t('pc.c.out', { n: fmtN(lines.length), lo: fmt(Math.min(...zs), 2), hi: fmt(Math.max(...zs), 2), step: fmt(v, 2) }) : t('pc.c.none');

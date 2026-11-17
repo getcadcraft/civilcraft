@@ -12,6 +12,7 @@ import { inside } from './planting.js';
 import { t } from '../i18n.js';
 import { fixed } from '../units.js';
 
+const FF_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };   // 0.10 BK.8: mm in one file unit, for the units a person can answer with
 export function createFfUi(ctx, { edit, LS, U }) {
   const { el } = ctx;
   const P = () => ctx.project();
@@ -25,7 +26,14 @@ export function createFfUi(ctx, { edit, LS, U }) {
     if (!f) return;
     if (f.size > 64 * 1024 * 1024) { ctx.say(t('ls.ff.big')); return; }
     try {
-      const scale = /\.json$/i.test(f.name) ? 1 : U() === 'm' ? 1000 : 304.8;   // a mesh file in the project's units (m or ft) → mm
+      // 0.10 BK.8 (units on import): an STL or OBJ states no units. Ask before it is placed (the shell's one dialog, remembered per
+      // file); it was read in the project's units (m or ft), unasked. A library item (.json) carries millimeters by its format.
+      let scale = /\.json$/i.test(f.name) ? 1 : U() === 'm' ? 1000 : 304.8;   // a mesh file in the project's units (m or ft) → mm
+      if (!/\.json$/i.test(f.name) && globalThis.ccImportUnits) {
+        const a = await globalThis.ccImportUnits.resolve({ file: f, format: /\.stl$/i.test(f.name) ? 'STL' : 'OBJ', stated: null, choices: Object.keys(FF_MM), suggest: U() === 'm' ? 'm' : 'ft', say: (s) => ctx.say(s) });
+        if (!a) return;
+        scale = FF_MM[a.unit];
+      }
       const mesh = /\.stl$/i.test(f.name) ? readStl(new Uint8Array(await f.arrayBuffer()), { scale }) : /\.obj$/i.test(f.name) ? readObj(await f.text(), { scale }) : meshFromItem(JSON.parse(await f.text()));
       if (!mesh) throw new Error('not-mesh');
       pending = { name: f.name.replace(/\.[^.]+$/, '').slice(0, 120), mesh };

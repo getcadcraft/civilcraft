@@ -21,7 +21,7 @@
  * Apps that load before this module wait for it: `window.ccDocInfo ? go() : addEventListener('cc-docinfo-ready', go, { once: true })`.
  * Words: shell.docinfo.* in assets/lang/shell.
  */
-import { createDocInfo, summarize, formatBytes, formatCount, docinfoTools, FIELDS, LIMITS } from './docinfo.js';
+import { createDocInfo, summarize, formatBytes, formatCount, docinfoTools, FIELDS, LIMITS, STAGES, SIGNOFF_KINDS } from './docinfo.js';
 import { T, h, readCfg, makePanel, palette, registerTools } from './app-tools-ui.js';
 
 const cfg = readCfg('cc-docinfo');
@@ -44,7 +44,7 @@ function boot() {
     clearTimeout(persistTimer);
     persistTimer = setTimeout(() => { try { adapter.persist(info.save()); } catch (e) { /* the app's own trouble */ } }, 250);
   }
-  info.on((why) => { if (why === 'set') queuePersist(); });
+  info.on((why) => { if (why === 'set' || why === 'signoff') queuePersist(); });
 
   const date = (ms) => { try { return new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(ms)); } catch { return new Date(ms).toISOString(); } };
   const row = (k, v) => (v === '' || v === null || v === undefined ? null : [h('dt', { text: k }), h('dd', { text: v })]);
@@ -75,6 +75,34 @@ function boot() {
     return h('div', { class: 'cct-f' }, h('label', { for: id, text: T(LABEL[k]) }), input);
   }
 
+  // BK.144: a person signs off an estimate or an audit (who and when stay in the file); no tool can. BK.143: the apps' unverified elements, which only a person clears.
+  function signoffBlock() {
+    const rows = SIGNOFF_KINDS.map((kind) => {
+      const st = info.signoff(kind);
+      const name = h('input', { class: 'cct-in', 'data-k': 'so-by-' + kind, value: who(), maxlength: String(LIMITS.by), 'aria-label': T('shell.docinfo.signoff.by') });
+      const note = h('input', { class: 'cct-in', 'data-k': 'so-note-' + kind, maxlength: String(LIMITS.note), placeholder: T('shell.docinfo.signoff.note'), 'aria-label': T('shell.docinfo.signoff.note') });
+      const line = !st.signed ? T('shell.docinfo.signoff.none') : T(st.stale ? 'shell.docinfo.signoff.stale' : 'shell.docinfo.signoff.done', { who: st.by, when: date(st.at) });
+      return h('div', { class: 'cct-f', 'data-k': 'signoff-' + kind },
+        h('strong', { text: T('shell.docinfo.signoff.' + kind) }),
+        h('p', { class: 'cct-snip ' + (st.signed && !st.stale ? 'is-ok' : 'is-warn'), 'data-k': 'so-line-' + kind, text: line }),
+        h('div', { class: 'cct-bar' }, name, note,
+          h('button', { type: 'button', class: 'cct-btn', 'data-k': 'so-sign-' + kind, onclick: () => { stepProxy(T('shell.docinfo.undo'), () => info.sign(kind, { by: name.value || who(), note: note.value })); render(); } }, T('shell.docinfo.signoff.sign')),
+          st.signed ? h('button', { type: 'button', class: 'cct-btn', 'data-k': 'so-undo-' + kind, onclick: () => { info.unsign(kind); render(); } }, T('shell.docinfo.signoff.take')) : null));
+    });
+    return h('section', { 'data-k': 'signoff' }, h('h3', { class: 'cct-sub', text: T('shell.docinfo.signoff.title') }), ...rows);
+  }
+  function unverifiedBlock() {
+    const u = window.ccUnverified;
+    let n = 0;
+    try { n = u && typeof u.count === 'function' ? u.count() | 0 : 0; } catch (e) { n = 0; }
+    if (!u) return null;
+    return h('section', { 'data-k': 'unverified' }, h('h3', { class: 'cct-sub', text: T('shell.docinfo.unverified.title') }),
+      h('p', { class: 'cct-snip ' + (n ? 'is-warn' : 'is-ok'), 'data-k': 'uv-line', text: n ? T('shell.docinfo.unverified.n', { n: formatCount(n, lang) }) : T('shell.docinfo.unverified.none') }),
+      n ? h('div', { class: 'cct-bar' },
+        typeof u.select === 'function' ? h('button', { type: 'button', class: 'cct-btn', 'data-k': 'uv-show', onclick: () => { try { u.select(); } catch (e) { /* the app's own trouble */ } } }, T('shell.docinfo.unverified.show')) : null,
+        typeof u.clear === 'function' ? h('button', { type: 'button', class: 'cct-btn', 'data-k': 'uv-clear', onclick: () => { try { u.clear(); } catch (e) { /* the app's own trouble */ } render(); } }, T('shell.docinfo.unverified.clear')) : null) : null);
+  }
+
   let factsEl = null;
   function render() {
     P.btn.dataset.has = info.empty() ? '' : '1';
@@ -84,13 +112,17 @@ function boot() {
     if (!attached) kids.push(h('p', { class: 'cct-note', text: T('shell.docinfo.unattached') }));
     const form = h('form', { class: 'cct-form', 'data-k': 'form', onsubmit: (e) => { e.preventDefault(); save(form); } },
       ...FIELDS.map((k) => field(k, p[k])),
+      // BK.168: the project stage, kept with the details in the file; an assistant reads it (stage_get) to pitch its help
+      h('div', { class: 'cct-f' }, h('label', { for: 'cct-di-stage', text: T('shell.docinfo.f.stage') }),
+        h('select', { id: 'cct-di-stage', class: 'cct-in', 'data-k': 'stage', title: T('shell.docinfo.f.stage.title') },
+          h('option', { value: '', selected: !p.stage, text: T('shell.docinfo.stage.none') }), ...STAGES.map((k) => h('option', { value: k, selected: p.stage === k, text: T('shell.docinfo.stage.' + k) })))),
       h('div', { class: 'cct-bar' },
         h('button', { type: 'submit', class: 'cct-btn cct-primary', 'data-k': 'save' }, T('shell.docinfo.save')),
         who() && !p.author ? h('button', { type: 'button', class: 'cct-btn', 'data-k': 'me', onclick: () => { form.querySelector('[data-k="author"]').value = who(); } }, T('shell.docinfo.me')) : null));
-    kids.push(form, h('h3', { class: 'cct-sub', text: T('shell.docinfo.facts') }));
+    kids.push(form, signoffBlock(), unverifiedBlock(), h('h3', { class: 'cct-sub', text: T('shell.docinfo.facts') }));
     factsEl = facts();
     kids.push(factsEl);
-    P.body.replaceChildren(...kids);
+    P.body.replaceChildren(...kids.filter(Boolean));
   }
   function renderFacts() {   // only the numbers: what the person is typing is never redrawn
     if (P.panel.hidden || !factsEl || !factsEl.isConnected) return;
@@ -106,7 +138,7 @@ function boot() {
 
   function save(form) {
     const val = (k) => form.querySelector('[data-k="' + k + '"]').value;
-    const patch = Object.fromEntries(FIELDS.map((k) => [k, val(k)]));
+    const patch = { ...Object.fromEntries(FIELDS.map((k) => [k, val(k)])), stage: val('stage') };
     stepProxy(T('shell.docinfo.undo'), () => info.set(patch, { by: who() }));
     render();
   }

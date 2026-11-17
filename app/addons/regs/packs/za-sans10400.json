@@ -6,71 +6,326 @@
   "jurisdiction": {
     "country": "ZA",
     "level": "country",
+    "region": "",
     "name": "South Africa"
   },
   "base": null,
-  "edition": "SANS 10400, parts by edition (XA:2021 ed. 2, O:2025 ed. 4); numbers not confirmed",
+  "edition": "SANS 10400, parts by edition (XA:2021 ed",
   "in_force": null,
   "review": {
     "state": "unchecked",
-    "note": "A sample, not a reference. These numbers were entered from memory and a study aid and have NOT been checked against the standard (SABS sells it). Several parts have newer editions (Part O edition 4 was published in 2025 and Part XA edition 2 in 2021 (eight energy zones, no SANS 204 reference)). Check every number against the current standard before relying on it. A rule the pack leaves out is simply not checked."
+    "note": "A sample, not a reference. These numbers were entered from memory and a study aid and have NOT been checked against the standard (SABS sells it). Several parts have newer editions (Part O edition 4 was published in 2025 and Part XA edition 2 in 2021 (eight energy zones, no SANS 204 reference)). Check every number against the current standard before relying on it. A rule the pack leaves out is simp"
   },
   "authority": "adopted-law",
   "source": {
     "name": "South African Bureau of Standards, SANS 10400 (Parts A to XA)",
     "url": "https://www.sabs.co.za/",
+    "date": "",
     "checked": "2026-10-27"
   },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
   "rules": [
     {
       "id": "stair.riser.max",
       "applies": "stair",
       "op": "<=",
-      "value": 200,
       "unit": "mm",
       "clause": "Part M",
       "label": "Riser height",
-      "note": "Private dwelling. Not confirmed."
+      "note": "Private dwelling. Not confirmed.",
+      "value": 200
     },
     {
       "id": "stair.tread.min",
       "applies": "stair",
       "op": ">=",
-      "value": 250,
       "unit": "mm",
       "clause": "Part M",
       "label": "Going (tread depth)",
-      "note": "Not confirmed."
+      "note": "Not confirmed.",
+      "value": 250
     },
     {
       "id": "room.ceiling.min",
       "applies": "room",
       "op": ">=",
-      "value": 2400,
       "unit": "mm",
       "clause": "Part C",
       "label": "Room height",
-      "note": "Habitable room. Not confirmed."
+      "note": "Habitable room. Not confirmed.",
+      "value": 2400
     },
     {
       "id": "room.light.min",
       "applies": "room",
       "op": ">=",
-      "value": 10,
       "unit": "pct",
       "clause": "Part O",
       "label": "Window area, share of floor area",
-      "note": "The common deemed-to-satisfy ratio. Not confirmed for the current edition."
+      "note": "The common deemed-to-satisfy ratio. Not confirmed for the current edition.",
+      "value": 10
     },
     {
       "id": "room.vent.min",
       "applies": "room",
       "op": ">=",
-      "value": 5,
       "unit": "pct",
       "clause": "Part O",
       "label": "Openable area, share of floor area",
-      "note": "The common deemed-to-satisfy ratio. Not confirmed: edition 4 changed how ventilation is worked out."
+      "note": "The common deemed-to-satisfy ratio. Not confirmed: edition 4 changed how ventilation is worked out.",
+      "value": 5
     }
-  ]
+  ],
+  "release": {
+    "version": "0.1.0",
+    "changelog": [
+      {
+        "version": "0.1.0",
+        "date": "2026-11-11",
+        "added": [
+          "Added: the approval process and submission lists (drawings and papers for a building plan, regulation A2), read from the published page on 2026-11-11; not confirmed by a practitioner"
+        ]
+      }
+    ]
+  },
+  "submission": {
+    "authority": "The local authority (municipality) where the building stands",
+    "summary": "Application for approval of building plans under the National Building Regulations and Building Standards Act 103 of 1977",
+    "sources": [
+      {
+        "title": "Regulations under the National Building Regulations and Building Standards Act, 1977 (Act No. 103 of 1977): Government Notice R.2378 of 12 October 1990 as amended, Part A, regulations A2, A6 and A7",
+        "url": "https://www.gov.za/documents/national-building-regulations-and-building-standards-act-regulations",
+        "fetched": "2026-11-11",
+        "licence": "Official text of a legislative nature (no copyright: Copyright Act 98 of 1978, section 12(8)(a)). Items are written in our own words."
+      }
+    ],
+    "drawings": [
+      {
+        "id": "site-plan",
+        "title": "Site plan",
+        "detail": "Where applicable it shows: the site's dimensions and boundaries, the dimensioned position of any building line, the position and width of any servitude or right of way, the site's registered number, true north (contours or corner levels if the authority asks), the street name, municipal services and connection points, existing drains and stormwater channels, the proposed building, existing buildings, buildings to be demolished, and the points of access from the street.",
+        "clause": "A2(1)(a), A6",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "site plan",
+              "site layout"
+            ]
+          }
+        ],
+        "site": true
+      },
+      {
+        "id": "layout-plans",
+        "title": "Layout drawings: plans",
+        "detail": "Plans of each level, with the occupancy classification, showing foundations, floors, walls, windows and ventilation, doors, stairs, sanitary fixtures, and the intended use and dimensions of rooms.",
+        "clause": "A2(1)(b), A7",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "view": [
+              "plan"
+            ]
+          },
+          {
+            "words": [
+              "floor plan",
+              "layout plan"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "layout-sections",
+        "title": "Layout drawings: sections",
+        "detail": "As many sections as are needed to show the building, with vertical dimensions, roofs and damp-proofing.",
+        "clause": "A2(1)(b), A7",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "view": [
+              "section"
+            ]
+          },
+          {
+            "words": [
+              "section"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "layout-elevations",
+        "title": "Layout drawings: elevations",
+        "detail": "As many elevations as are needed to show the building.",
+        "clause": "A2(1)(b), A7",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "view": [
+              "elevation"
+            ]
+          },
+          {
+            "words": [
+              "elevation"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "fire-installation",
+        "title": "Fire installation drawing",
+        "detail": "The fire installation, where the building has one.",
+        "clause": "A2(1)(c)",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "fire installation"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "drainage-installation",
+        "title": "Drainage installation drawing",
+        "detail": "The drainage installation.",
+        "clause": "A2(1)(d)",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "drainage",
+              "plumbing"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "structural",
+        "title": "General structural arrangements",
+        "detail": "Where the local authority requires them.",
+        "clause": "A2(1)(f)(i)",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "structural",
+              "foundation",
+              "framing"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "ventilation",
+        "title": "General arrangement of artificial ventilation",
+        "detail": "Where the local authority requires it.",
+        "clause": "A2(1)(f)(ii)",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "ventilation",
+              "mechanical"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "fire-protection",
+        "title": "Fire protection plan",
+        "detail": "Where the local authority requires one.",
+        "clause": "A2(1)(f)(iii), A9",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "fire protection",
+              "fire plan"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "energy",
+        "title": "Fenestration and insulation details for energy usage",
+        "detail": "Where provided, details of fenestration and insulation needed to satisfy the energy usage requirements of regulation XA, shown with the layout drawings.",
+        "clause": "A7(n)",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "schedule": [
+              "windows"
+            ]
+          },
+          {
+            "words": [
+              "energy",
+              "fenestration",
+              "xa"
+            ]
+          }
+        ],
+        "site": false
+      }
+    ],
+    "documents": [
+      {
+        "id": "form-declaration",
+        "title": "Application form with the professional's declaration",
+        "detail": "The application form, with the declaration by a registered professional in Form 1 of SANS 10400-A saying how the functional regulations will be satisfied.",
+        "clause": "A2(1)(g)",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "demolition",
+        "title": "Particulars of a building to be demolished",
+        "detail": "Particulars of any existing building to be demolished and the method of demolition.",
+        "clause": "A2(1)(e)",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "certificates",
+        "title": "Certificates, including any Agrement certificate",
+        "detail": "Any certificate the regulations call for, where the local authority requires it.",
+        "clause": "A2(1)(f)(iv)",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "other-particulars",
+        "title": "Particulars under other legislation, by-laws or SANS 10400",
+        "detail": "Whatever else applicable legislation, the municipality's by-laws or a part of SANS 10400 requires.",
+        "clause": "A2(1)(f)(v)",
+        "when": "if-applicable",
+        "source": 0
+      }
+    ]
+  }
 }

@@ -55,7 +55,7 @@ const err = (r, f) => {
 };
 
 section('the list');
-ok(G.METHODS.length === 17 && new Set(G.METHODS.map((m) => m.key)).size === 17, 'ten height methods, the kriging error and six data metrics');
+ok(G.METHODS.length === 18 && new Set(G.METHODS.map((m) => m.key)).size === 18, 'eleven height methods (ABOS added in 0.9.1), the kriging error and six data metrics');
 ok(G.gridSurface([], { method: 'idw' }).error === 'few', 'too few points is an error, not a throw');
 ok(G.gridSurface(scatter(10, plane), { method: 'nope' }).error === 'method', 'unknown method');
 
@@ -63,7 +63,7 @@ section('a plane');
 {
   const P = scatter(300, plane);
   // minimum curvature pins each point to its nearest node, so on a slope it is off by about half a cell × the slope
-  const tol = { polyreg: 1e-6, localpoly: 1e-4, rbf: 1e-3, natural: 1e-5, idw: 1.2, shepard: 1.2, movavg: 1.2, nearest: 1.5, mincurv: 1.0, kriging: 0.3 };
+  const tol = { polyreg: 1e-6, localpoly: 1e-4, rbf: 1e-3, natural: 1e-5, idw: 1.2, shepard: 1.2, movavg: 1.2, nearest: 1.5, mincurv: 1.0, kriging: 0.3, abos: 0.6 };   // abos: an approximation (1 % of the height range at the points), see bin/test-civilcraft-abos.mjs
   for (const m of G.METHODS.filter((q) => !/^(metric-|krigerr)/.test(q.key))) {
     const r = G.gridSurface(P, { method: m.key, order: 1, maxNodes: 20000 });
     if (r.error) { ok(false, `${m.key}: error ${r.error}`); continue; }

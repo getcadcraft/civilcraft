@@ -32,4 +32,4 @@ A work environment is your whole setup for every app in this browser: the layout
 
 You can keep up to twelve setups.
 
-To try the built-in arrangements first, see [the toolbox and info box layout](common:layout-toolbox) and [the ribbon and project browser layout](common:layout-ribbon).
+To change a layout without opening the dialog (drag a block, right-click a tool), see [Change a layout on the screen](common:layout-edit). To try the built-in arrangements first, see [the toolbox and info box layout](common:layout-toolbox), [the ribbon and project browser layout](common:layout-ribbon) and [the Drafting layout](common:layout-drafting).

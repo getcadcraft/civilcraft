@@ -7,7 +7,8 @@
  * Every pointing and button device a person may have, set up once for every app and, when wanted, differently in one app:
  *   trackpad    two-finger scroll (the app's own way, or pan / zoom / orbit), pinch (zoom or nothing), speed, invert
  *   mouse       the back and forward side buttons and the sideways wheel tilt
- *   pen         the side (barrel) button and the eraser end (app-phone.js § Pen and touch runs them)
+ *   pen         the side (barrel) button and the eraser end (app-phone.js § Pen and touch runs them); the Pencil's double-tap and
+ *               squeeze, the hover ring and the gestures (app-pen.js, 0.10 SU.1807)
  *   touch       two- and three-finger taps (app-phone.js)
  *   spacemouse  a 6-axis 3D mouse through WebHID: each axis to pan / zoom / orbit (or nothing), invert, speed, dead zone,
  *               the strongest axis only, its buttons to commands
@@ -47,7 +48,7 @@ const RANGES = { speed: [0.1, 5], dead: [0, 0.5] };
 export const DEFAULTS = Object.freeze({
   trackpad: { scroll: 'app', pinch: 'app', speed: 1, invert: false },
   mouse: { back: 'app', forward: 'app', tilt: 'app' },
-  pen: { side: 'app', eraser: 'app' },
+  pen: { side: 'app', eraser: 'app', double: 'app', squeeze: 'app', hover: true, gestures: false, scribble: 'off', circle: 'off' },
   touch: { tap2: 'cmd:edit.undo', tap3: 'cmd:edit.redo' },
   spacemouse: {
     on: true, speed: 1, dead: 0.06, dominant: false,
@@ -87,7 +88,9 @@ export function cleanProfile(p) {
   const ms = isObj(o.mouse) ? o.mouse : {};
   out.mouse = { back: cleanAction(ms.back, 'app'), forward: cleanAction(ms.forward, 'app'), tilt: pick(ms.tilt, TILT_ACTIONS, 'app') };
   const pn = isObj(o.pen) ? o.pen : {};
-  out.pen = { side: cleanAction(pn.side, 'app'), eraser: cleanAction(pn.eraser, 'app') };
+  // 0.10 SU.1807 (app-pen.js): the Pencil's double-tap / squeeze, the hover ring, pen gestures (scribble, circle) behind a setting
+  out.pen = { side: cleanAction(pn.side, 'app'), eraser: cleanAction(pn.eraser, 'app'), double: cleanAction(pn.double, 'app'), squeeze: cleanAction(pn.squeeze, 'app'),
+    hover: bool(pn.hover, true), gestures: bool(pn.gestures, false), scribble: cleanAction(pn.scribble, 'off', { app: false }), circle: cleanAction(pn.circle, 'off', { app: false }) };
   const tc = isObj(o.touch) ? o.touch : {};
   out.touch = { tap2: cleanAction(tc.tap2, D.touch.tap2, { app: false }), tap3: cleanAction(tc.tap3, D.touch.tap3, { app: false }) };
   const sm = isObj(o.spacemouse) ? o.spacemouse : {};

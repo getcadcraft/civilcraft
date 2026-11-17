@@ -55,7 +55,9 @@ export function createNative(ctx) {
         catch (err) { note = ' ' + t('ifc.pair.ifcfail', { ifc: stemOf(r.name) + '.ifc', why: err.message }); how = t('ifc.pair.how.side'); }
       } else {
         if (!folder && typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function') folder = await host.pickFolder({ write: true, id: 'civilcraft-project' }).catch(() => null);
-        if (folder) {
+        // a host that collects this save (SuperCad Studio's Save takes the folder picker away while it listens) must get the pair as downloads, also when a folder was chosen earlier
+        const collected = typeof window === 'undefined' || typeof window.showDirectoryPicker !== 'function';
+        if (folder && !collected) {
           await folder.write(w.jsonName, w.jsonText);
           await folder.write(w.ifcName, w.ifcText);
           how = folder.name ? t('ifc.pair.how.folder', { folder: folder.name }) : t('ifc.pair.how.chosen');
@@ -109,12 +111,26 @@ export function createNative(ctx) {
     return f ? { name: f.name, file: f } : null;
   }
 
+  /** Does a file contain this text? Read in 4 MB pieces (a piece overlaps the last by the key's length), so no big string is made. */
+  async function hasKey(file, key) {
+    const step = 4 * 1048576, keep = key.length - 1;
+    for (let at = 0; at < file.size; at += step) {
+      const piece = await file.slice(Math.max(0, at - keep), Math.min(file.size, at + step)).text();
+      if (piece.includes(key)) return true;
+    }
+    return false;
+  }
+
   async function openFiles(files, hostFiles = []) {
     const ifcF = files.find((f) => isIfc(f.name)), jsonF = files.find((f) => isJson(f.name));
     if (!ifcF && !jsonF) return false;
+    // 0.10 PERF.33: a project .json used to be read and parsed whole here just to look for `pair`, then parsed again by openProject (6.8 s and
+    // 751 MB for a 240 MB file that is then refused). Now the file is scanned in pieces for the key and only a file that names one is parsed.
+    const maybePair = jsonF && jsonF.size <= 200 * 1048576 ? await hasKey(jsonF, '"pair"') : false;   // over 200 MB: openFile refuses it, nothing to read here
+    if (!ifcF && !maybePair) return false;   // a project file from before the pair (or not ours): opened as before, by openFile, which reads and parses it once
     let jsonText = jsonF ? await jsonF.text() : null, jsonObj = null;
     if (jsonText !== null) { try { jsonObj = JSON.parse(jsonText); } catch { jsonObj = null; } }
-    if (!ifcF && !jsonObj?.pair) return false;   // a project file from before the pair (or not ours): opened as before
+    if (!ifcF && !jsonObj?.pair) return false;   // a file that has the word but not as the project's key
     let ifcBytes = ifcF ? new Uint8Array(await ifcF.arrayBuffer()) : null, ifcName = ifcF?.name || null;
     ctx.busy(t('cad.ui.reading', { file: (jsonF || ifcF).name }));
     let r = null;

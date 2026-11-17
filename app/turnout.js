@@ -58,7 +58,7 @@ export function curveAllowance({ radius, length, bogie }) { return { inside: (bo
 export function envelopeAt({ outline, radius = Infinity, cant = 0, base = 1500, length = 0, bogie = 0, curve = 'R', lowRail = null }) {
   const tilt = Math.asin(Math.min(1, cant / base)), cos = Math.cos(tilt), sin = Math.sin(tilt);
   // curve to the right: the cant raises the left rail, so the section tilts to the right (clockwise); the inside of the curve is the right
-  const sg = curve === 'R' ? 1 : -1, pivot = lowRail ?? (sg * base / 2);
+  const sg = curve === 'R' ? 1 : -1, pivot = lowRail ?? (sg * base / 2000);   // metres: the outline is in metres, base in mm (CV.1 2026-11-12: was base / 2, a pivot 750 m away)
   const al = Number.isFinite(radius) && length ? curveAllowance({ radius, length, bogie }) : { inside: 0, outside: 0 };
   return outline.map((p) => {
     const dx = p.o - pivot, ro = pivot + dx * cos + sg * p.z * sin, rz = p.z * cos - sg * dx * sin;

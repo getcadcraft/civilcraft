@@ -1,34 +1,34 @@
 ---
-title: Habee qaabeyntaada oo kaydi dejimahaaga
-summary: Dooro panelka ku tusaya baadhaha mashruuca, Guryaha ama waxa panelku leeyahay, meesha sanduuqa qalabka ku yaal iyo waxa barrarku haystaan, u kaydi qaabeyntaada, oo dejinta oo dhan magac hoosta ku kaydi si aad u beddesho.
-keywords: qaabeyn, meel shaqo, habee, qaabeyntayda, panelada, tafatirayaasha, baadhaha mashruuca, guryaha, sanduuqa qalabka, bar degdeg, sanduuqa macluumaadka, deegaanka shaqada, dejin, kaydi dejinta, beddel dejinta, dhoofi dejinta, soo deji dejinta, ccenv
-from: 2a71af43
+title: Habee qaabeyntaada oo kaydi habayntaada
+summary: Dooro panelka ku muujinaya baadhaha mashruuca, Properties ama waxa panelka u gaar ah, meesha sanduuqa qalabka ku jiro iyo waxa safafka ku jiro, kaydi sida qaabeyntaada, oo kaydi habayn oo dhan magac hoose oo aad ku beddesho.
+keywords: qaabeyn, meel shaqo, habee, u habee, qaabeyntayda, qaabeyntayda gaarka ah, panelada, tafatirayaasha, baadhaha mashruuca, properties, sanduuqa qalabka, safka degdega, sanduuqa macluumaadka, deegaanka shaqada, habayn, profile, kaydi habayn, beddel habayn, dhoofi habayn, soo deji habayn, ccenv
+from: 6af528e0
 ---
 
-Marka laga reebo saddexda qaabeyn ee dhismaha ku jira, waxaad habeyn kartaa qaabeyntaada, oo dejintaada oo dhan magac hoosta ku kaydin kartaa si aad hal tallaabo ugu soo noqon karto.
+Marka laga reebo qaabeynta dhisan ee saddexda ah, waxaad habaysan kartaa midkaaga, habaynta oo dhanna waad kaydin kartaa magac hoose si aad hal tallaabo ugu noqoto.
 
 ## Habee qaabeyntaada
 
-1. Fur {{ui:Dejinta}} (gear-ka, ama {{key:Mod+,}}), dooro {{ui:Caalami}}, kadibna {{ui:Qaabeynta}}.
-2. Dooro {{ui:Habee habeyntaada…}}. Sanduuqu wuxuu ka bilaabmaa qaabeynta aad hada isticmaashay.
-3. Magac sii, kadibna dooro:
-   - **Naqshadda korteeda:** qalabka app-ka, qaybta amarrada ama midkoodna; bar cinwaan; sanduuqa macluumaadka iyo badhamada uu hayo.
-   - **Naqshadda dhinacyadeeda:** sanduuqa qalabka bidix, midig ama midna, {{ui:Qalabkayga}} ku jira ama aan ku jirin; panelka palet-yada haya, kan kore (baadhaha mashruuca ama Guryaha, tusaale ahaan), iyo kuwa tab-yo ku ah hoostiisa.
-   - **Goobta naqshadda:** tab-yada muuqaalka, bar degdeg ah iyo bar muuqaal oo leh badhamada aad calaamadiso, palet tafatirka, bar xaalad.
-   - **Muuqaalka:** cabbirka, geesaha badhamada iyo qaabka tab-ka.
-4. Dooro {{ui:Isticmaal habeyntan}}. App-ku wuxuu isla markiiba ugu beddelaa, app kasta oo leh qaabeyn sidoo kale wuu isticmaalaa.
+1. Fur {{ui:Settings}} (gear-ka, ama {{key:Mod+,}}), dooro {{ui:Global}}, kadibna {{ui:Layout}}.
+2. Dooro {{ui:Arrange your own layout…}}. Wada-hadalku wuxuu ka bilaabmaa qaabeynta aad hadda isticmaasho.
+3. Ku sii magac, kadibna dooro:
+   - **Naqshadda dushiisa:** qalabka barnaamijka, ribbon ama midna; safka magaca; sanduuq macluumaad iyo gacan-ka-hayaasha uu hayo.
+   - **Naqshadda dhinaceeda:** sanduuqa qalabka dhinaca bidix, midig ama midna, iyo {{ui:My tools}} oo la socda ama aan la socon; panelka hayaa palet-yada, kan kor ku jira (baadhaha mashruuca ama Properties, tusaale ahaan), iyo kuwa ka mid ah tab-yada hoosteeda.
+   - **Meel naqshaddu:** tab-yada muuqaalka, safka degdega ah iyo safka muuqaalka oo leh gacan-ka-hayaasha aad calaamadiso, palet-ka wax-beddelka, safka xaaladda.
+   - **Muuqaalka:** cabbirka, geesaha badhanada iyo qaabka tab-ka.
+4. Dooro {{ui:Use this layout}}. Barnaamijku waa u beddelaa isla markiiba, barnaamij kasta oo leh qaabeyn ayaa sidoo kale isticmaalaya.
 
-Waxa kaliya ee la soo bandhigaa waa waxa app-kan leeyahay. Qaabeyntaadu waxay ku liiska tahay {{ui:Add-on-ada iyo faylasha}}; {{ui:Dhoofi habeyntan}} waxay u kaydinaysaa fayl aad u dhiibi karto shaqaale kale, badhanka {{ui:Ka saar}} wuu ka saaraa. Panelada ay buuxiyaan weli way ku xidhmaan, ku dhaafaan, oo u guuraan daaqadahooda gaarka ah, sida ku cad [Habee panelada](common:arrange-panels).
+Waxa barnaamijkan haysta oo keliya ayaa la soo bandhigaa. Qaabeyntaada waxay ku jirtaa {{ui:From add-ons and files}}; {{ui:Export this layout}} wuxuu kaydiyaa sida fayl aad saaxiibkaaga siin karto, badhanka ka saarista ayaa ka saaraa. Panelada ay buuxinayso wali way ku xirmaan, ku sabaan, u dhaqaaqaan daaqadahooda, sida ku qoran [Habee panelada](common:arrange-panels).
 
-## Dejintaada u kaydi sida deegaan shaqo
+## Kaydi dejintaada sida deegaan shaqo
 
-Deegaanka shaqadu waa dejintaada oo dhan app kasta browserkan: qaabeynta, qaabka menu-ga iyo furayaasha, qaabka qalabka, panelada iyo cabbirradooda, iyo {{ui:Qalabkayga}}. Mawduuca iyo luqadda ma ku jiraan.
+Deegaanka shaqada waa dejintaada oo dhan barnaamij kasta browser-kan: qaabeynta, habka menu-ga iyo furayaasha, qaabka safka qalabka, panelada iyo cabbirkooda, iyo {{ui:My tools}}. Muuqaalka iyo luuqadu ma qaybo ka mid ahan.
 
-- **Kaydi:** qor magac hoosta {{ui:Deegaanada shaqada}} kadibna dooro {{ui:Kaydi habayntayda}}. Kaydinta magac jira hoostiisa dejintaas ayaa beddelaysa.
-- **Beddel:** dooro dejin liiska ka mid ah oo dooro {{ui:U beddel}}. App-ku dejintaas ayuu dib u soo rogaa; haddii aad shaqo aan la kaydin haysato, app-ku marka hore wuu weydiin doonaa, sida uu ku sameeyo dib-u-cusboonaysiin kasta.
-- **La wadaag:** {{ui:Dhoofi}} wuxuu kaydiyaa dejinta la doortay fayl ahaan `.ccenv.json`; {{ui:Soo deji habayn…}} wuxuu mid ka soo daraa fayl. Fayl kaliya dooranta kuwaas ayuu dejiyaa, wax kale ma taabto.
-- **Ka saar:** dooro dejin oo dooro {{ui:Ka saar}}.
+- **Kaydi:** qor magac hoosta {{ui:Work environments}} oo dooro {{ui:Save my setup}}. Kaydinta magac jira ayaa beddelaysa dejintaas.
+- **Beddel:** dooro dejinta liiska, kadibna dooro {{ui:Switch to it}}. Barnaamijku wuu dib u furmaa dejintaas; haddii aad shaqo aan la kaydin haysid, barnaamijku marka hore wuu weydiiyaa, sida uu ku sameeyo dib-u-furasho kasta.
+- **Wadaag:** {{ui:Export}} wuxuu kaydiyaa dejinta la doortay sida fayl `.ccenv.json`; {{ui:Import a setup…}} wuxuu mid ka soo ceyn karaa fayl. Faylku wuxuu kaliya dejimaha kuwan dejin karaa, wax kale midna.
+- **Ka saar:** dooro dejin, kadibna dooro {{ui:Remove}}.
 
-Waxaad kaydin kartaa ilaa laba iyo toban dejin.
+Waxaad haysan kartaa ilaa laba iyo toban dejin.
 
-Haddii aad marka hore isku dayday qaabeynta dhismaha ku jirta, eeg [qaabeynta sanduuqa qalabka iyo sanduuqa macluumaadka](common:layout-toolbox) iyo [qaabeynta qaybta amarrada iyo baadhaha mashruuca](common:layout-ribbon).
+Si aad qaabeyn u beddesho adigoon wada-hadalka furin (jiid block, midig-riix qalab), eeg [Beddel qaabeynta shaashadda](common:layout-edit). Si aad marka hore u tijaabiso qaabeynada dhisan, eeg [qaabeynta sanduuqa qalabka iyo macluumaadka](common:layout-toolbox), [qaabeynta ribbon iyo baadhaha mashruuca](common:layout-ribbon) iyo [qaabeynta Drafting](common:layout-drafting).

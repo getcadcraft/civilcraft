@@ -10,8 +10,13 @@ const SPECS = {
   batten: { n: 1.2, lumens: 4000, watts: 32, width: 70, length: 1200, height: 0, ra: 80 },
   highbay: { n: 3.5, lumens: 15000, watts: 110, width: 350, length: 350, height: 0, ra: 80 },
   floodlight: { n: 9, lumens: 8000, watts: 80, width: 250, length: 300, height: 0, ra: 70 },
+  // 0.10 SU.1816, outdoor: synthetic like the rest (typical figures of the kind, not a maker's)
+  pole: { n: 2.2, lumens: 12000, watts: 100, width: 600, length: 300, height: 0, ra: 70 },
+  bollard: { n: 0.5, lumens: 600, watts: 8, width: 100, length: 100, height: 0, ra: 80 },
 };
-export const GENERIC_IDS = Object.keys(SPECS);
+export const GENERIC_IDS = ['downlight', 'panel', 'batten', 'highbay', 'floodlight'];
+/** The types offered when the design is outdoors (site lighting). */
+export const SITE_GENERIC_IDS = ['pole', 'bollard', 'floodlight'];
 
 /** photo for a generic id, or null. Vertical angles 0..90 every 2.5°, nothing above the horizon; one horizontal plane (rotationally symmetric). */
 export function genericPhoto(id) {

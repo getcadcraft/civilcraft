@@ -42,6 +42,7 @@ const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', adminPh
 
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch (e) { /* private window */ } });   // tests-10: the side panel folds to one open section (shell, 2026-11-09); a page test clicks any section, so folding is off
 const problems = [];
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -198,7 +199,7 @@ try {
     const yFace = 6000 - T6 / 2, IN = 25.4;
     const placeLib = async (query, x, y) => {
       await page.click('[data-rtab="library"]');
-      await page.click('.bc-lib-src:has-text("LibraryCraft")');
+      await page.click('.bc-lib-src:text-is("Library")');
       const search = page.locator('.bc-lib-filter input[type="search"], .bc-lib-filter input').first();
       await search.fill(query);
       await search.press('Enter');

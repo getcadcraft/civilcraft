@@ -114,7 +114,15 @@
   function save() {
     if (!navigator.onLine) { set(state, label.textContent, T('shell.offline.needs_net')); return; }
     set('saving', T('shell.offline.saving'), T('shell.offline.saving.title'), 'bi-cloud-arrow-down');
-    var urls = data.urls.concat(pageUrls(), extraUrls());
+    // 0.10 PERF.3: a page that carries only its size (#cc-offline list) fetches the file list now, when the person asks for the copy.
+    if (!data.urls && data.list) {
+      fetch(data.list, { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (j) { data.urls = j.urls || []; return null; })
+        .then(function () { send({ type: 'save', key: data.key, page: data.page, urls: data.urls.concat(pageUrls(), extraUrls()) }); })
+        .catch(function () { set('failed', T('shell.offline.failed'), T('shell.offline.failed.title', { n: 0 }), 'bi-exclamation-triangle'); });
+      return;
+    }
+    var urls = (data.urls || []).concat(pageUrls(), extraUrls());
     send({ type: 'save', key: data.key, page: data.page, urls: urls });
   }
 
@@ -162,6 +170,14 @@
   }).then(function (reg) {
     sw = reg.active;
     send({ type: 'status', key: data.key });
+    // 0.10 PERF.59: a worker registered with ?rt=1 keeps the versioned files this first visit already loaded
+    if (/[?&]rt=1/.test(swUrl)) {
+      var keep = function () {
+        var urls = performance.getEntriesByType('resource').map(function (r) { try { var x = new URL(r.name); return x.origin === location.origin ? x.pathname + x.search : null; } catch (e) { return null; } }).filter(Boolean);
+        send({ type: 'keep', urls: urls });
+      };
+      if (document.readyState === 'complete') setTimeout(keep, 3000); else window.addEventListener('load', function () { setTimeout(keep, 3000); });
+    }
   }).catch(function () {
     set('unavailable', T('shell.offline.unavailable'), T('shell.offline.unavailable.title'), 'bi-cloud-slash');
     btn.disabled = true;

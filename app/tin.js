@@ -65,9 +65,18 @@ function triangulate(points, breaklines, boundary, maxEdge, report) {
   for (const b of breaklines) for (const p of b.pts) { if (p.x < ox) ox = p.x; if (p.y < oy) oy = p.y; }
   if (!Number.isFinite(ox)) { report.errors.push(t('tin.err.noz')); return { surface: null, report }; }
   ox = Math.floor(ox); oy = Math.floor(oy);
-
+  // 0.10 PERF.33: the vertex key is one integer (a cell of SNAP) where the box allows it, not a "x,y" string per point (2.7 s of a 500k open);
+  // a cell outside the box (a crossing a little beyond the data) keeps the string, which never equals a number: the same cell always gets the same key
+  let mx = 0, my = 0;
+  for (const p of points) if (p.z !== null && p.z !== undefined && Number.isFinite(p.z)) { if (p.x - ox > mx) mx = p.x - ox; if (p.y - oy > my) my = p.y - oy; }
+  for (const b of breaklines) for (const p of b.pts) { if (p.x - ox > mx) mx = p.x - ox; if (p.y - oy > my) my = p.y - oy; }
+  const KO = 4, KM = Math.round(my / SNAP) + 2 * KO + 2, KX = Math.round(mx / SNAP) + 2 * KO + 2, INT = Number.isFinite(KM * KX) && KM * KX < 2 ** 52;
   const X = [], Y = [], Z = [], key = new Map();
-  const kOf = (x, y) => Math.round(x / SNAP) + ',' + Math.round(y / SNAP);
+  const kOf = (x, y) => {
+    const kx = Math.round(x / SNAP), ky = Math.round(y / SNAP);
+    if (INT && kx >= -KO && ky >= -KO && kx < KX - KO && ky < KM - KO) return (kx + KO) * KM + (ky + KO);
+    return kx + ',' + ky;
+  };
   const addV = (x, y, z, hard) => {
     const lx = x - ox, ly = y - oy, k = kOf(lx, ly);
     const at = key.get(k);
@@ -444,7 +453,7 @@ export class Surface {
     this.X = X; this.Y = Y; this.Z = Z; this.tris = tris; this.ox = ox; this.oy = oy;
     this.nT = tris.length / 3;
     this.constrainedEdges = [];
-    this._grid = null; this._stats = null;
+    this._grid = null; this._stats = null; this._outline = null;
   }
 
   /** Vertices used by triangles. */
@@ -561,7 +570,7 @@ export class Surface {
   }
 
   /** Contour polylines every `interval` (levels at base + k·interval), joined across triangles. */
-  contours(interval, { base = 0, maxLevels = 2000 } = {}) {
+  contours(interval, { base = 0, maxLevels = 2000, keys = false } = {}) {   // keys: each point also carries e:[i, j], the triangle edge (vertex indexes) it sits on (contour-smooth.js)
     if (!(interval > 0)) return [];
     const { X, Y, Z, tris, ox, oy } = this, s = this.stats();
     const k0 = Math.ceil((s.minZ - base) / interval - 1e-9), k1 = Math.floor((s.maxZ - base) / interval + 1e-9);
@@ -577,7 +586,7 @@ export class Surface {
         const zi = zv(i), zj = zv(j);
         if ((zi > L) === (zj > L)) return null;
         const t = (L - zi) / (zj - zi);
-        return { k: i < j ? i + '_' + j : j + '_' + i, x: X[i] + (X[j] - X[i]) * t, y: Y[i] + (Y[j] - Y[i]) * t };
+        return { k: i < j ? i + '_' + j : j + '_' + i, x: X[i] + (X[j] - X[i]) * t, y: Y[i] + (Y[j] - Y[i]) * t, i, j };
       };
       for (let t = 0; t < tris.length; t += 3) {
         const a = tris[t], b = tris[t + 1], c = tris[t + 2];
@@ -586,7 +595,7 @@ export class Surface {
         const hits = [cross(a, b), cross(b, c), cross(c, a)].filter(Boolean);
         if (hits.length === 2) segs.push(hits);
       }
-      for (const line of chain(segs)) if (extent(line.pts) > tiny) out.push({ z: L, pts: line.pts.map((p) => ({ x: p.x + ox, y: p.y + oy })), closed: line.closed });
+      for (const line of chain(segs)) if (extent(line.pts) > tiny) out.push({ z: L, pts: line.pts.map((p) => (keys ? { x: p.x + ox, y: p.y + oy, e: [p.i, p.j] } : { x: p.x + ox, y: p.y + oy })), closed: line.closed });
     }
     return out;
   }
@@ -629,15 +638,31 @@ export class Surface {
     return out;
   }
 
-  /** The outer edge(s) of the surface as closed loops (project coordinates). */
+  /**
+   * The outer edge(s) of the surface as closed loops (project coordinates). 0.10 PERF.31: integer edge lists instead of 3M string keys
+   * (20 to 30 s at 1 M triangles, 7 s in Node), and the answer is kept on the surface (like stats() and the grid) because the plan scene asks
+   * for it at every zoom step. The loops are the same, in the same order, as the string-keyed version gave. Do not change the returned arrays.
+   */
   outline() {
-    const { tris, X, Y, ox, oy } = this, count = new Map();
+    if (this._outline) return this._outline;
+    const { tris, X, Y, ox, oy } = this, nV = X.length;
+    // every directed edge a→b of every triangle, in triangle order, bucketed by its start vertex (CSR: start[], then the ends)
+    const start = new Int32Array(nV + 1);
+    for (let i = 0; i < tris.length; i++) start[tris[i] + 1]++;
+    for (let v = 0; v < nV; v++) start[v + 1] += start[v];
+    const fill = start.slice(0, nV), ends = new Int32Array(tris.length), slot = new Int32Array(tris.length);
     for (let t = 0; t < tris.length; t += 3) for (let k = 0; k < 3; k++) {
-      const a = tris[t + k], b = tris[t + (k + 1) % 3];
-      count.set(a + '_' + b, 1);
+      const a = tris[t + k], b = tris[t + (k + 1) % 3], s = fill[a]++;
+      ends[s] = b; slot[t + k] = s;
     }
-    const nextOf = new Map();
-    for (const k of count.keys()) { const [a, b] = k.split('_'); if (!count.has(b + '_' + a)) nextOf.set(+a, +b); }
+    const has = (a, b, upTo) => { for (let s = start[a]; s < upTo; s++) if (ends[s] === b) return true; return false; };   // is a→b among a's first edges
+    const nextOf = new Map();   // start → end of every edge whose reverse is missing (a later one from the same start wins, as before)
+    for (let t = 0; t < tris.length; t += 3) for (let k = 0; k < 3; k++) {
+      const a = tris[t + k], b = tris[t + (k + 1) % 3], s = slot[t + k];
+      if (has(a, b, s)) continue;   // the same directed edge twice (a bad mesh): only its first occurrence counts
+      if (has(b, a, start[b + 1])) continue;   // its reverse exists: an inner edge
+      nextOf.set(a, b);
+    }
     const loops = [];
     while (nextOf.size) {
       const [s] = nextOf.keys(); const loop = [];
@@ -645,7 +670,7 @@ export class Surface {
       for (let g = 0; g < 1e7 && nextOf.has(v); g++) { loop.push({ x: X[v] + ox, y: Y[v] + oy }); const n = nextOf.get(v); nextOf.delete(v); v = n; }
       if (loop.length >= 3) loops.push(loop);
     }
-    return loops;
+    return (this._outline = loops);
   }
 
   /** Vertices in project coordinates [{x,y,z}] and faces [[i,j,k]] (for LandXML). */

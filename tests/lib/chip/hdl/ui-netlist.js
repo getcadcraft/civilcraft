@@ -13,6 +13,7 @@ import { buildNetlist, netlistStats } from './netlist.js';
 import { layoutNetlist, renderSvg, checkWithEngine } from './schem.js';
 import { tr, h, ensureCss, reveal } from './ui-source.js';
 import { sortRows } from './problems.js';
+import { PadDetector } from './wheel-pad.js';   // D7.56: a trackpad's two-finger swipe pans
 
 export const NET_SOURCE = 'netlist';
 
@@ -83,7 +84,10 @@ function mountNetlist(el, ctx) {
     await ctx.files.write(name, kind === 'svg' ? svgFull : JSON.stringify(cur.netlist, null, 1));
     info.textContent = T('chip.net.saved', { name });
   };
-  view.addEventListener('wheel', (e) => { e.preventDefault(); const r = view.getBoundingClientRect(); zoom(e.deltaY > 0 ? 1.15 : 1 / 1.15, (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height); }, { passive: false });
+  const pad = new PadDetector();
+  view.addEventListener('wheel', (e) => { e.preventDefault(); const r = view.getBoundingClientRect();
+    if (pad.isSwipe(e)) { const svg = view.querySelector('svg'); if (!svg) return; const b = (svg.getAttribute('viewBox') || '0 0 100 100').split(/\s+/).map(Number); vb = [b[0] + e.deltaX * b[2] / r.width, b[1] + e.deltaY * b[3] / r.height, b[2], b[3]]; svg.setAttribute('viewBox', vb.join(' ')); return; }   // D7.56: two fingers pan, a pinch and a mouse wheel zoom
+    zoom((e.ctrlKey && e.deltaMode === 0 ? Math.exp(Math.max(-30, Math.min(30, e.deltaY)) * 0.01) : e.deltaY > 0 ? 1.15 : 1 / 1.15), (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height); }, { passive: false });
   let drag = null;
   view.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY, moved: false }; });
   view.addEventListener('pointermove', (e) => {

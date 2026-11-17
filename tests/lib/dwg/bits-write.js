@@ -13,21 +13,30 @@
  */
 
 const f64 = new Float64Array(1), f64b = new Uint8Array(f64.buffer);
+const HB = new Uint8Array(16);   // scratch for BitWriter.H
 
 /** Version codes in order, and helpers to compare them. */
 export const ORDER = ['AC1012', 'AC1014', 'AC1015', 'AC1018', 'AC1021', 'AC1024', 'AC1027', 'AC1032'];
 export const vIndex = (v) => ORDER.indexOf(v);
 export const atLeast = (v, min) => vIndex(v) >= vIndex(min);
 
+const FLAGS = new Map();   // version → [r2004, r2007, r2010, r2013, r2018] (a writer is made per object: PERF.5 no indexOf per writer)
+const flagsOf = (v) => {
+  let f = FLAGS.get(v);
+  if (!f) { f = [atLeast(v, 'AC1018'), atLeast(v, 'AC1021'), atLeast(v, 'AC1024'), atLeast(v, 'AC1027'), atLeast(v, 'AC1032')]; FLAGS.set(v, f); }
+  return f;
+};
+
 export class BitWriter {
   /** @param {string} version 'AC1015' … 'AC1032' */
   constructor(version = 'AC1015', size = 256) {
     this.version = version;
-    this.r2004 = atLeast(version, 'AC1018');
-    this.r2007 = atLeast(version, 'AC1021');
-    this.r2010 = atLeast(version, 'AC1024');
-    this.r2013 = atLeast(version, 'AC1027');
-    this.r2018 = atLeast(version, 'AC1032');
+    const f = flagsOf(version);
+    this.r2004 = f[0];
+    this.r2007 = f[1];
+    this.r2010 = f[2];
+    this.r2013 = f[3];
+    this.r2018 = f[4];
     this.buf = new Uint8Array(size);
     this.bit = 0;
   }
@@ -37,7 +46,11 @@ export class BitWriter {
   }
   B(v) { this.grow(1); if (v) this.buf[this.bit >> 3] |= 0x80 >> (this.bit & 7); this.bit++; }
   /** n plain bits, most significant first. */
-  bits(v, n) { for (let i = n - 1; i >= 0; i--) this.B((v >>> i) & 1); }
+  bits(v, n) {
+    this.grow(n);
+    const buf = this.buf;
+    for (let i = n - 1; i >= 0; i--) { if ((v >>> i) & 1) buf[this.bit >> 3] |= 0x80 >> (this.bit & 7); this.bit++; }
+  }
   BB(v) { this.bits(v & 3, 2); }
   /** 3B (2.1): 1–3 bits, stop at a zero bit. Encodes 0 ('0'), 2 ('10'), 6 ('110'), 7 ('111'). */
   B3(v) { if (v === 0) this.B(0); else if (v === 2) this.bits(2, 2); else if (v === 6) this.bits(6, 3); else this.bits(7, 3); }
@@ -133,9 +146,12 @@ export class BitWriter {
   }
   /** Handle reference (2.13): code nibble, byte count nibble, value bytes MSB first. */
   H(code, value = 0) {
-    const bytes = handleBytes(value);
-    this.RC(((code & 15) << 4) | bytes.length);
-    for (const b of bytes) this.RC(b);
+    let v = typeof value === 'string' ? parseInt(value, 16) || 0 : Math.max(0, Math.trunc(value || 0));
+    if (!(v > 0)) { this.RC((code & 15) << 4); return; }
+    let n = 0;
+    while (v > 0) { HB[n++] = v % 256; v = Math.floor(v / 256); }   // as handleBytes(), least significant first
+    this.RC(((code & 15) << 4) | n);
+    while (n > 0) this.RC(HB[--n]);
   }
   /** 8-bit code page text, R13–R2004 (T): BS length counting a closing NUL, then the bytes. */
   T8(s) {
@@ -156,6 +172,12 @@ export class BitWriter {
   /** Copy another writer's bits (n bits from bit 0). */
   append(w, n = w.bit) {
     let i = 0;
+    if (!(this.bit & 7) && n >= 8) {   // byte aligned: one copy
+      const k = n >> 3;
+      this.grow(k * 8);
+      this.buf.set(w.buf.subarray(0, k), this.bit >> 3);
+      this.bit += k * 8; i = k * 8;
+    }
     for (; i + 8 <= n; i += 8) this.RC(w.buf[i >> 3]);
     for (; i < n; i++) this.B((w.buf[i >> 3] >> (7 - (i & 7))) & 1);
   }

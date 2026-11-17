@@ -48,6 +48,8 @@ import { PLATE_MODES, plateTables } from './plate-draw.js';
 import { concretePanel } from './frame-concrete-panel.js';
 import { loadsPanel, cleanLoads } from './frame-loads-panel.js';      // 0.9 SU.1056b: Wind, Seismic site and ASCE 7 combinations blocks
 import { breakFrame } from './frame-breakit.js';
+import { checkWelds, weldTables, FEXX_E70 } from './frame-weld.js';      // 0.10 SU.1811: Weld checks block
+import { jointWelds } from './frame-members.js';
 import { dynamicsPanel, cleanDyn } from './frame-dynamics-panel.js';      // 0.9 SU.1056: Response spectrum, Time history and Pushover blocks
 
 export const MODES = ['deflected', 'My', 'Mz', 'N', 'Vz', 'Vy', 'T', 'off'];
@@ -175,6 +177,8 @@ export function framePanel(host) {
   let modeShown = 0;       // 0 = the ordinary results are drawn, k = mode k
   let design = null;       // { version, res } — the last member check, valid while the model is unchanged
   let brk = null;          // { version, res } — the last Break it, valid while the model is unchanged
+  let weld = null;         // { version, res } — the last weld check (0.10 SU.1811), valid while the model is unchanged
+  const wset = { size: 0, fexx: FEXX_E70 };      // the Welds block's own settings: leg in mm (0 = the wall, at most 8), AISC weld metal strength
   let liveCtl = null, liveOn = false, liveState = '';
   const designNow = () => (design && design.version === host.version() && design.res.ok ? design.res : null);
   const current = () => host.analysis() || defaultAnalysis(t);
@@ -228,6 +232,7 @@ export function framePanel(host) {
     if (conc) tables.push(...conc.tables());
     if (lp) tables.push(...lp.tables());
     if (dp) tables.push(...dp.tables());
+    if (weldNow()) tables.push(...weldTables(weldNow(), t));
     if (result.frame.model.plates?.length) tables.push(...plateTables(result.frame.model, result.sol, setKey, t));
     if (modalOk()) tables.push(...modalTables());
     return tables;
@@ -445,6 +450,40 @@ export function framePanel(host) {
     showUtil();
     rerender();
   }
+  // ---- weld checks (0.10 SU.1811; frame-weld.js, groups from frame-members.js jointWelds) ----
+  const weldNow = () => (weld && weld.version === host.version() && weld.res.ok ? weld.res : null);
+  function runWelds() {
+    const D = cleanDesign(current().design);
+    if (D.code === 'none') { host.print(t('frame.des.err.no-code')); return; }
+    if (!result || result.error || stale()) run();
+    if (!result || result.error) return;
+    const groups = jointWelds(result.frame.model, { size: wset.size > 0 ? wset.size : null });
+    if (!groups.length) { weld = null; host.print(t('frame.weld.err.no-joints')); rerender(); return; }
+    const res = checkWelds(result.frame.model, result.sol, groups, { code: D.code, grade: D.grade, na: D.na, fexx: wset.fexx });
+    weld = { version: host.version(), res };
+    if (!res.ok) { host.print(t('frame.weld.err.' + res.error)); rerender(); return; }
+    host.print(t('frame.weld.counts-text', { n: res.counts.groups - res.counts.notChecked, bad: res.counts.failed, skip: res.counts.notChecked, combos: res.counts.combos }));
+    rerender();
+  }
+  function weldBlock() {
+    if (!host.design) return null;
+    const D = cleanDesign(current().design);
+    const out = [head(t('frame.weld.h'), btn(t('frame.weld.run'), runWelds, { 'data-fa-weld-run': '', disabled: D.code === 'none' })), el('p', { className: 'fa-aid', 'data-fa-weld-aid': '' }, t('frame.weld.aid'))];
+    if (D.code === 'none') { out.push(note(t('frame.des.pick'))); return el('div', { className: C.block + ' fa-weld' }, ...out); }
+    out.push(el('div', { className: 'fa-row' },
+      field(t('frame.weld.f-size'), numIn(wset.size, (v) => { wset.size = Math.max(0, v); weld = null; rerender(); }, { 'data-fa-weld': 'size' })),
+      D.code === 'asce-aisc' ? field(t('frame.weld.f-fexx'), numIn(wset.fexx, (v) => { wset.fexx = v; weld = null; rerender(); }, { 'data-fa-weld': 'fexx' })) : null));
+    const res = weldNow();
+    if (!res) { out.push(note(weld && weld.version !== host.version() ? t('frame.des.stale') : t('frame.weld.none-yet'), { 'data-fa-weld-state': '' })); return el('div', { className: C.block + ' fa-weld' }, ...out); }
+    out.push(note(t('frame.weld.counts-text', { n: res.counts.groups - res.counts.notChecked, bad: res.counts.failed, skip: res.counts.notChecked, combos: res.counts.combos }), { 'data-fa-weld-summary': '' }));
+    const rows = [...res.groups].sort((x, y) => (y.util ?? -1) - (x.util ?? -1));
+    out.push(table([t('frame.weld.group'), t('frame.rep.member'), t('frame.weld.end'), t('frame.des.util'), t('frame.des.state'), t('frame.des.governs')], [3], rows.map((g) => el('tr', { 'data-fa-weld-row': g.status },
+      td(g.id), td(g.member), td(g.end), el('td', { className: 'n' }, pct(g.util)), td(t('frame.des.st.' + g.status)),
+      td(g.util === null ? t('frame.weld.why.' + g.why) : t('frame.weld.check.' + g.governs.check) + ' · ' + g.governs.clause + (g.setName ? ' · ' + g.setName : '')))), { 'data-fa-weld-table': '' }));
+    out.push(note(t('frame.weld.limits')));
+    return el('div', { className: C.block + ' fa-weld' }, ...out);
+  }
+
   // ---- what breaks first (0.8 round 3, EG.31) ----
   const brkNow = () => (brk && brk.version === host.version() && brk.res.ok ? brk.res : null);
   async function runBreak() {
@@ -677,9 +716,9 @@ export function framePanel(host) {
   const lp = host.concrete ? loadsPanel({ el, t, C, host, sel, btn, link, head, field, note, table, td, current, change, rerender, result: () => result, stale, run, version: () => host.version() }) : null;
 
   return {
-    panel() { return [el('p', { className: 'fa-aid', 'data-fa-aid': '' }, t('frame.ui.aid')), ...resultsBlock(), femBlock(), ...(dp ? dp.blocks() : []), designBlock(), breakBlock(), ...(conc ? conc.blocks() : []), ...(lp ? lp.blocks() : []), loadsBlock(), casesBlock(), settingsBlock()].filter(Boolean); },
+    panel() { return [el('p', { className: 'fa-aid', 'data-fa-aid': '' }, t('frame.ui.aid')), ...resultsBlock(), femBlock(), ...(dp ? dp.blocks() : []), designBlock(), weldBlock(), breakBlock(), ...(conc ? conc.blocks() : []), ...(lp ? lp.blocks() : []), loadsBlock(), casesBlock(), settingsBlock()].filter(Boolean); },
     modelChanged() { dp?.modelChanged(); if (modalRes && modalRes.version !== host.version()) { modalRes = null; modeShown = 0; } if (result && stale()) { host.hide(); host.showUtil?.(null, null); conc?.publish(); host.breakit?.setProblems?.([]); } if (liveOn && liveCtl) liveCtl.change(host.version()); },
-    clear() { result = null; modalRes = null; modeShown = 0; design = null; brk = null; liveCtl?.stop(); liveOn = false; host.hide(); host.showUtil?.(null, null); conc?.clear(); lp?.clear(); dp?.clear(); },
+    clear() { result = null; modalRes = null; modeShown = 0; design = null; weld = null; brk = null; liveCtl?.stop(); liveOn = false; host.hide(); host.showUtil?.(null, null); conc?.clear(); lp?.clear(); dp?.clear(); },
     get concrete() { return conc; },
     get design() { return designNow(); },
     get break() { return brkNow(); },

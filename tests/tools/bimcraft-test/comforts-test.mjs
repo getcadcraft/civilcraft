@@ -354,6 +354,17 @@ export async function comfortsMode({ APP, ROOT, WebIFC, IfcModel, quiet, require
     ok(G.walls.length === 3 && G.cut.length === 5, 'three walls (front with its gable, two cheeks) and a five-sided hole (up to the ridge)');
     ok(DM.dormerGeometry(rp.plan, south, { ...spec, kind: 'shed', pitch: 45 }).error === 'comforts.err.shedpitch', 'a shed dormer steeper than the roof: refused (comforts.err.shedpitch)');
     ok(DM.dormerGeometry(rp.plan, south, { ...spec, at: [800, 900], width: 3000 }).error === 'comforts.err.dormerfit', 'a dormer past the face\'s hip: refused (comforts.err.dormerfit)');
+    { // 0.10 BK.73: outside the usual sizes the generator still makes a valid dormer (so those sizes are advice, not a refusal)
+      const polyArea = (p) => Math.abs(p.reduce((n, q, i) => n + q[0] * p[(i + 1) % p.length][1] - p[(i + 1) % p.length][0] * q[1], 0)) / 2;
+      const tri3 = (p) => { let n = 0; for (let i = 1; i < p.length - 1; i++) { const u = [p[i][0] - p[0][0], p[i][1] - p[0][1], p[i][2] - p[0][2]], v = [p[i + 1][0] - p[0][0], p[i + 1][1] - p[0][1], p[i + 1][2] - p[0][2]]; n += Math.hypot(u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]) / 2; } return n; };
+      const valid = (g) => !g.error && polyArea(g.cut) > 1 && polyArea(g.footprint) > polyArea(g.cut) && g.faces.every((f) => f.pts.flat().every(Number.isFinite) && tri3(f.pts) > 1) && g.walls.every((w) => w.pts.flat().every(Number.isFinite)) && g.zp > g.zf && g.yBack > 0;
+      const odd = [['400 mm wide (usual: 600 or more)', { width: 400, wall: 60 }], ['a 150 mm front wall (usual: 300 or more)', { height: 150 }], ['a 1500 mm overhang (usual: up to 1 m)', { overhang: 1500 }], ['30 mm walls (usual: 50 or more)', { wall: 30 }], ['a shed dormer 450 wide', { kind: 'shed', pitch: 10, width: 450, wall: 60 }]];
+      for (const [name, ch] of odd) { const g = DM.dormerGeometry(rp.plan, south, { ...spec, ...ch }); ok(valid(g), 'BK.73 a dormer ' + name + ': valid geometry (roof planes with area, a hole inside its footprint, all finite)', g.error || ''); }
+      ok(DM.dormerGeometry(rp.plan, south, { ...spec, width: 250, wall: 140 }).error === 'comforts.err.dormersize', 'a dormer not wider than twice its walls: refused (its cheeks meet, the hole would turn inside out)');
+      ok(DM.dormerGeometry(rp.plan, south, { ...spec, height: 5 }).error === 'comforts.err.dormersize' && DM.dormerGeometry(rp.plan, south, { ...spec, overhang: -10 }).error === 'comforts.err.dormersize', 'no front wall (5 mm) or a negative overhang: refused');
+      const ADV = await import(path.join(APP, 'draw-advice.js'));
+      ok(ADV.dormerAdvice({ ...spec, width: 400 }).length === 1 && ADV.dormerAdvice(spec).length === 0, 'the 400 mm dormer is Drawing advice; the usual one is not');
+    }
     // place it: one step
     const roofOnly = ed.save();
     let n0 = ed.changes.length;
@@ -436,6 +447,24 @@ export async function comfortsMode({ APP, ROOT, WebIFC, IfcModel, quiet, require
     ok(/'Post',\$,IFCLENGTHMEASURE\(114\.3\)/.test(txt), 'CadCraft_Stair Post 114.3 (4½")');
     const m = await reopenModel(ed.save());
     ok(m.types.some((x) => x.name === 'IfcStairFlight') && m.types.some((x) => x.name === 'IfcMember'), 'cc-ifc builds the treads and the post');
+    { // 0.10 BK.73: a spiral outside the usual post and tread sizes is valid geometry, so it is made with advice
+      const area2 = (p) => p.reduce((n, q, i) => n + q[0] * p[(i + 1) % p.length][1] - p[(i + 1) % p.length][0] * q[1], 0) / 2;
+      for (const [name, ch] of [['a 20 mm post', { post: 20 }], ['a 600 mm post', { post: 600 }], ['80 mm treads', { tread: 80 }]]) {
+        const Lo = ST.stairLayout({ kind: 'spiral', start: [0, 0], angle: 0, height: 2800, turn: 'left', railings: 'both', railHeight: 900, ...ch });
+        const tr = Lo.pieces.flatMap((p) => p.treads || []);
+        ok(tr.length === Lo.treads && tr.length > 3 && tr.every((t) => t.poly.flat().every(Number.isFinite) && area2(t.poly) > 1) && tr.every((t, i) => i === 0 || t.z > tr[i - 1].z) && Lo.spiral.outer > Lo.spiral.post / 2,
+          'BK.73 a spiral stair with ' + name + ': ' + tr.length + ' wedge treads, each with area, rising in order (valid geometry)');
+      }
+      const ADV = await import(path.join(APP, 'draw-advice.js'));
+      ADV.clearAdvice(); let k2 = '';
+      try { ed.modelChange(ST.changeStair(S[0].guid, { post: 20, tread: 80 })); } catch (e) { k2 = e.key || String(e); }
+      const RA = await import(path.join(APP, 'draw-advice-model.js'));
+      const codes = RA.readAdvice(B.w()).map((a) => a.code);
+      ok(k2 === '' && codes.includes('advice.spiral.post') && codes.includes('advice.spiral.tread'), 'a spiral with a 20 mm post and 80 mm treads: made, and read back from the model as Drawing advice', k2 + ' ' + codes.join(','));
+      ed.undo(); ADV.clearAdvice();
+      k2 = ''; try { ed.modelChange(ST.changeStair(S[0].guid, { post: 5 })); } catch (e) { k2 = e.key; }
+      ok(k2 === 'comforts.err.spiral', 'a 5 mm post: refused (nothing to build)');
+    }
     ed.modelChange(ST.changeStair(S[0].guid, { turn: 'right', post: 150 }));
     const S2 = ST.readStairs(B.w())[0];
     ok(S2.turn === 'right' && near(S2.post, 150, 0.01) && S2.parts.length === S[0].parts.length, 'changed: winds the other way, a 150 mm post; made again with as many parts');

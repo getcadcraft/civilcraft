@@ -52,7 +52,8 @@ export async function run(h) {
   if (await page.locator('dialog[open] button', { hasText: 'Discard' }).count()) await page.click('dialog[open] button:has-text("Discard")');
   await built();
   const items = await page.evaluate(() => [...document.querySelectorAll('[data-features-menu] [data-cmd]')].map((b) => b.dataset.cmd).join());
-  ok(items.startsWith('revolve-cut,plane,axis,point,sweep,loft,draft'), `the Features group has a "More" menu: ${items}`);
+  const SEVEN = ['revolve-cut', 'plane', 'axis', 'point', 'sweep', 'loft', 'draft'];   // items added since (sketch from a photo, …) sit among them
+  ok(items.split(',').filter((x) => SEVEN.includes(x)).join() === SEVEN.join() && items.startsWith('revolve-cut,'), `the Features group has a "More" menu: ${items}`);
   ok((await rows()) === 1, 'the toolbar is still one row at 1440 px');
   // the top plane picked in the history, then More › Plane: offset from it
   await page.click('[data-tree] [data-plane="top"]');

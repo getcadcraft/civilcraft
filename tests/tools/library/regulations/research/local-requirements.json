@@ -1,0 +1,1488 @@
+{
+ "za-sans10400": {
+  "submission": {
+   "authority": "The local authority (municipality) where the building stands",
+   "summary": "Application for approval of building plans under the National Building Regulations and Building Standards Act 103 of 1977",
+   "sources": [
+    {
+     "title": "Regulations under the National Building Regulations and Building Standards Act, 1977 (Act No. 103 of 1977): Government Notice R.2378 of 12 October 1990 as amended, Part A, regulations A2, A6 and A7",
+     "url": "https://www.gov.za/documents/national-building-regulations-and-building-standards-act-regulations",
+     "fetched": "2026-11-11",
+     "licence": "Official text of a legislative nature (no copyright: Copyright Act 98 of 1978, section 12(8)(a)). Items are written in our own words."
+    }
+   ],
+   "drawings": [
+    {
+     "id": "site-plan",
+     "title": "Site plan",
+     "detail": "Where applicable it shows: the site's dimensions and boundaries, the dimensioned position of any building line, the position and width of any servitude or right of way, the site's registered number, true north (contours or corner levels if the authority asks), the street name, municipal services and connection points, existing drains and stormwater channels, the proposed building, existing buildings, buildings to be demolished, and the points of access from the street.",
+     "clause": "A2(1)(a), A6",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "site plan",
+        "site layout"
+       ]
+      }
+     ],
+     "site": true
+    },
+    {
+     "id": "layout-plans",
+     "title": "Layout drawings: plans",
+     "detail": "Plans of each level, with the occupancy classification, showing foundations, floors, walls, windows and ventilation, doors, stairs, sanitary fixtures, and the intended use and dimensions of rooms.",
+     "clause": "A2(1)(b), A7",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "view": [
+        "plan"
+       ]
+      },
+      {
+       "words": [
+        "floor plan",
+        "layout plan"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "layout-sections",
+     "title": "Layout drawings: sections",
+     "detail": "As many sections as are needed to show the building, with vertical dimensions, roofs and damp-proofing.",
+     "clause": "A2(1)(b), A7",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "view": [
+        "section"
+       ]
+      },
+      {
+       "words": [
+        "section"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "layout-elevations",
+     "title": "Layout drawings: elevations",
+     "detail": "As many elevations as are needed to show the building.",
+     "clause": "A2(1)(b), A7",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "view": [
+        "elevation"
+       ]
+      },
+      {
+       "words": [
+        "elevation"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "fire-installation",
+     "title": "Fire installation drawing",
+     "detail": "The fire installation, where the building has one.",
+     "clause": "A2(1)(c)",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "fire installation"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "drainage-installation",
+     "title": "Drainage installation drawing",
+     "detail": "The drainage installation.",
+     "clause": "A2(1)(d)",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "drainage",
+        "plumbing"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "structural",
+     "title": "General structural arrangements",
+     "detail": "Where the local authority requires them.",
+     "clause": "A2(1)(f)(i)",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "structural",
+        "foundation",
+        "framing"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "ventilation",
+     "title": "General arrangement of artificial ventilation",
+     "detail": "Where the local authority requires it.",
+     "clause": "A2(1)(f)(ii)",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "ventilation",
+        "mechanical"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "fire-protection",
+     "title": "Fire protection plan",
+     "detail": "Where the local authority requires one.",
+     "clause": "A2(1)(f)(iii), A9",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "fire protection",
+        "fire plan"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "energy",
+     "title": "Fenestration and insulation details for energy usage",
+     "detail": "Where provided, details of fenestration and insulation needed to satisfy the energy usage requirements of regulation XA, shown with the layout drawings.",
+     "clause": "A7(n)",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "schedule": [
+        "windows"
+       ]
+      },
+      {
+       "words": [
+        "energy",
+        "fenestration",
+        "XA"
+       ]
+      }
+     ]
+    }
+   ],
+   "documents": [
+    {
+     "id": "form-declaration",
+     "title": "Application form with the professional's declaration",
+     "detail": "The application form, with the declaration by a registered professional in Form 1 of SANS 10400-A saying how the functional regulations will be satisfied.",
+     "clause": "A2(1)(g)",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "demolition",
+     "title": "Particulars of a building to be demolished",
+     "detail": "Particulars of any existing building to be demolished and the method of demolition.",
+     "clause": "A2(1)(e)",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "certificates",
+     "title": "Certificates, including any Agrement certificate",
+     "detail": "Any certificate the regulations call for, where the local authority requires it.",
+     "clause": "A2(1)(f)(iv)",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "other-particulars",
+     "title": "Particulars under other legislation, by-laws or SANS 10400",
+     "detail": "Whatever else applicable legislation, the municipality's by-laws or a part of SANS 10400 requires.",
+     "clause": "A2(1)(f)(v)",
+     "when": "if-applicable",
+     "source": 0
+    }
+   ]
+  },
+  "release": {
+   "version": "0.1.0",
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-11",
+     "added": [
+      "Added: the approval process and submission lists (drawings and papers for a building plan, regulation A2), read from the published page on 2026-11-11; not confirmed by a practitioner"
+     ]
+    }
+   ]
+  }
+ },
+ "za-wc-cape-town": {
+  "process": {
+   "authority": "City of Cape Town, Building Development Management",
+   "summary": "Building plan applications are submitted and paid for through the City's e-Services; read from the two pages cited, 2026-11-11.",
+   "sources": [
+    {
+     "title": "City of Cape Town: Submit a building plan",
+     "url": "https://www.capetown.gov.za/city-connect/apply/planning-building-and-development/building-plan-applications/submit-a-building-plan/",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts (which documents are asked for) are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Cape Town: Building plan application documents",
+     "url": "https://www.capetown.gov.za/work-and-business/planning-portal/applications-and-submissions/building-plan-application-documents/",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts are listed here, in our own words; no text is copied."
+    }
+   ],
+   "steps": [
+    {
+     "id": "prerequisites",
+     "title": "Check the property and prerequisite approvals",
+     "who": "Owner",
+     "handIn": "Nothing yet: the property is registered and any departure or environmental approval is in hand",
+     "detail": "The page gives departure approval and environmental authorisation as examples.",
+     "clause": "Step 1",
+     "source": 0
+    },
+    {
+     "id": "gather",
+     "title": "Gather the property documents",
+     "who": "Owner or applicant",
+     "handIn": "Nothing yet",
+     "documents": [
+      "Title deed",
+      "Surveyor-General diagram",
+      "Zoning information",
+      "Previously approved plans"
+     ],
+     "clause": "Step 2",
+     "source": 0
+    },
+    {
+     "id": "register",
+     "title": "Register for e-Services",
+     "who": "Applicant",
+     "handIn": "Registration",
+     "clause": "Step 3",
+     "source": 0
+    },
+    {
+     "id": "submit",
+     "title": "Submit the building plan and pay",
+     "who": "Applicant (an owner, or an architect or draughtsperson with the A1(9) agreement)",
+     "handIn": "The building plan application with the documents that apply, and the scrutiny fee",
+     "documents": [
+      "SANS 10400 forms 1 and 2",
+      "Site plan",
+      "Layout plan",
+      "Application fee receipt"
+     ],
+     "detail": "Fees follow the City's official tariffs, are paid in full on submission and are not refundable if the application is refused. The tariff amounts are in a PDF that was not read.",
+     "clause": "Step 4 and the application documents page",
+     "source": 0
+    },
+    {
+     "id": "circulate",
+     "title": "Circulation for comment, then approval",
+     "who": "City officials",
+     "handIn": "Corrections, if the plan is sent back for amendment",
+     "detail": "The plan is circulated to the relevant officials once paid. Work may begin only after approval, with a notice of intention to commence work.",
+     "time": {
+      "text": "30 days for an area under 500 m2 and 60 days for an area over 500 m2, if the plan complies with all requirements",
+      "source": 1
+     },
+     "clause": "Time frames",
+     "source": 1
+    },
+    {
+     "id": "inspections",
+     "title": "Inspections and occupancy",
+     "who": "Owner and City inspectors",
+     "handIn": "Requests for the three inspections (commence or trench, sewer, completion), then an application for an occupancy certificate",
+     "detail": "The occupancy certificate is applied for before the building is occupied.",
+     "time": {
+      "text": "Occupancy certificate within 14 days of the request; inspection requests two days before the inspection",
+      "source": 1
+     },
+     "clause": "Time frames",
+     "source": 1
+    }
+   ]
+  },
+  "submission": {
+   "authority": "City of Cape Town, Building Development Management",
+   "summary": "Building plan application submitted online through the City's Development Application Management System",
+   "sources": [
+    {
+     "title": "City of Cape Town: Submit a building plan",
+     "url": "https://www.capetown.gov.za/city-connect/apply/planning-building-and-development/building-plan-applications/submit-a-building-plan/",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts (which documents are asked for) are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Cape Town: Building plan application documents",
+     "url": "https://www.capetown.gov.za/work-and-business/planning-portal/applications-and-submissions/building-plan-application-documents/",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts are listed here, in our own words; no text is copied."
+    }
+   ],
+   "drawings": [
+    {
+     "id": "site-plan",
+     "title": "Site plan",
+     "detail": "The site plan.",
+     "clause": "Step 4",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "site plan",
+        "site layout"
+       ]
+      }
+     ],
+     "site": true
+    },
+    {
+     "id": "layout-plan",
+     "title": "Layout plan",
+     "detail": "The layout plan (the building's plans).",
+     "clause": "Step 4",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "view": [
+        "plan"
+       ]
+      },
+      {
+       "words": [
+        "layout plan",
+        "floor plan"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "drainage",
+     "title": "Drainage installation drawings",
+     "detail": "If applicable.",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "drainage",
+        "plumbing"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "fire",
+     "title": "Fire protection plans",
+     "detail": "If applicable.",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "fire protection",
+        "fire plan"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "structural",
+     "title": "Structural engineer's drawings",
+     "detail": "If applicable.",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "structural",
+        "foundation",
+        "framing"
+       ]
+      }
+     ]
+    }
+   ],
+   "documents": [
+    {
+     "id": "title-deed",
+     "title": "Copy of the title deed",
+     "detail": "A copy of the property's title deed.",
+     "clause": "Steps 2 and 4",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "sg-diagram",
+     "title": "Surveyor-General's diagram or general plan",
+     "detail": "The registered survey diagram from the Surveyor-General's office.",
+     "clause": "Steps 2 and 4",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "zoning",
+     "title": "Zoning information or zoning extract",
+     "detail": "Correct zoning and development parameters for the property; a zoning extract (certificate) if applicable.",
+     "clause": "Steps 2 and 4",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "approved-plans",
+     "title": "Previously approved building plans",
+     "detail": "Any previously approved building plans the City holds.",
+     "clause": "Step 2",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "sans-forms",
+     "title": "SANS 10400 forms",
+     "detail": "Fully completed SANS 10400 forms (Forms 1 and 2 where applicable), signed. Form 3 where a competent person is appointed to design part of the building.",
+     "clause": "Step 4",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "a1-9",
+     "title": "Regulation A1(9) agreement form",
+     "detail": "When the application is submitted by someone other than the owner (the architect or draughtsperson).",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "fee",
+     "title": "Application fee or receipt",
+     "detail": "Scrutiny fees are paid in full on submission.",
+     "clause": "Step 4",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "party-wall",
+     "title": "Party wall consent",
+     "detail": "If applicable.",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "departure",
+     "title": "Letter of approval for a departure from the zoning scheme",
+     "detail": "If applicable.",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "compliance-certificate",
+     "title": "Architectural compliance certificate",
+     "detail": "The architectural compliance certificate.",
+     "clause": "Step 4",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "consent",
+     "title": "Consent from a neighbour, sectional title body corporate or home owners' association",
+     "detail": "If applicable.",
+     "clause": "Step 4",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "resolution",
+     "title": "Company resolution",
+     "detail": "Where the owner is a company, trust, close corporation or other juristic person: a resolution authorising the person who signs. Every owner signs when there is more than one.",
+     "clause": "Signing",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "iwmp",
+     "title": "Integrated waste management plan form for building waste",
+     "detail": "The form for building waste generators, completed and submitted with the application.",
+     "clause": "Documents page",
+     "when": "always",
+     "source": 1
+    }
+   ]
+  },
+  "release": {
+   "version": "0.1.0",
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-11",
+     "added": [
+      "Added: the approval steps and the stated time frames, and the documents list for a building plan application, read from the City pages on 2026-11-11"
+     ]
+    }
+   ]
+  }
+ },
+ "gb-eng-planning": {
+  "meta": {
+   "name": "England: planning application (national information requirements)",
+   "jurisdiction": {
+    "country": "GB",
+    "level": "country",
+    "region": "ENG",
+    "name": "England"
+   },
+   "edition": "national information requirements",
+   "review": {
+    "state": "unchecked",
+    "note": "Submission list only, no rules. Read from the published page on the date shown by whoever built it; not confirmed by a practitioner. The authority decides what it requires."
+   },
+   "authority": "community",
+   "source": {
+    "name": "The Town and Country Planning (Development Management Procedure) (England) Order 2015 (S.I. 2015/595), article 7",
+    "url": "https://www.legislation.gov.uk/uksi/2015/595/article/7",
+    "checked": "2026-11-11"
+   }
+  },
+  "submission": {
+   "authority": "The local planning authority",
+   "summary": "Application for planning permission: the national information requirements. The authority's own local list comes on top.",
+   "sources": [
+    {
+     "title": "The Town and Country Planning (Development Management Procedure) (England) Order 2015 (S.I. 2015/595), article 7",
+     "url": "https://www.legislation.gov.uk/uksi/2015/595/article/7",
+     "fetched": "2026-11-11",
+     "licence": "Contains public sector information licensed under the Open Government Licence v3.0. Items are written in our own words."
+    },
+    {
+     "title": "Planning practice guidance: Making an application (validation requirements, paragraphs 016 to 044), last updated 12 May 2025",
+     "url": "https://www.gov.uk/guidance/making-an-application",
+     "fetched": "2026-11-11",
+     "licence": "Contains public sector information licensed under the Open Government Licence v3.0. Items are written in our own words."
+    }
+   ],
+   "drawings": [
+    {
+     "id": "location-plan",
+     "title": "Location plan",
+     "detail": "A plan that identifies the land. Guidance: typically at 1:1250 or 1:2500 on A4 or A3, the site edged in red, other land the applicant owns nearby edged in blue, enough roads or buildings to make the location clear. Drawn to an identified scale and showing north.",
+     "clause": "Article 7(1)(c)(i) and 7(2); guidance paragraphs 023 and 024",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "words": [
+        "location plan"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "other-plans",
+     "title": "Other plans and drawings needed to describe the development",
+     "detail": "Any other plans, drawings and information necessary to describe the development, each drawn to an identified scale; plans show the direction of north.",
+     "clause": "Article 7(1)(c)(ii) and 7(2)",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "view": [
+        "plan",
+        "elevation",
+        "section"
+       ]
+      },
+      {
+       "words": [
+        "site plan",
+        "block plan",
+        "floor plan",
+        "elevation",
+        "section"
+       ]
+      }
+     ],
+     "site": true
+    }
+   ],
+   "documents": [
+    {
+     "id": "form",
+     "title": "Application form",
+     "detail": "Made in writing on the form published by the Secretary of State, with the particulars the form asks for.",
+     "clause": "Article 7(1)(a) and (b)",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "ownership",
+     "title": "Ownership certificate and agricultural land declaration",
+     "detail": "The relevant certificate (A, B, C or D) completed; the application is not valid without it.",
+     "clause": "Guidance paragraphs 025 to 028",
+     "when": "always",
+     "source": 1
+    },
+    {
+     "id": "fee",
+     "title": "The correct fee",
+     "detail": "A valid application needs the correct fee.",
+     "clause": "Guidance paragraph 016",
+     "when": "always",
+     "source": 1
+    },
+    {
+     "id": "das",
+     "title": "Design and access statement",
+     "detail": "For some applications, among them major development, and in a conservation area or World Heritage Site one or more dwellings or a building of 100 square metres or more.",
+     "clause": "Guidance paragraphs 029 and 030",
+     "when": "if-applicable",
+     "source": 1
+    },
+    {
+     "id": "fire-statement",
+     "title": "Fire statement",
+     "detail": "For some applications made on or after 1 August 2021.",
+     "clause": "Guidance paragraph 022",
+     "when": "if-applicable",
+     "source": 1
+    },
+    {
+     "id": "biodiversity",
+     "title": "Biodiversity gain information",
+     "detail": "Whether the biodiversity gain condition would apply and, if it would, the metric calculation and the habitat information the article lists.",
+     "clause": "Article 7(1)(c)(iia) and 7(1A)",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "local-list",
+     "title": "Local information requirements",
+     "detail": "Whatever the local planning authority's published local list asks for.",
+     "clause": "Guidance paragraphs 038 to 044",
+     "when": "if-applicable",
+     "source": 1
+    }
+   ]
+  },
+  "release": {
+   "version": "0.1.0",
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-11",
+     "added": [
+      "Added: the submission list for an English planning application (first version of this pack)"
+     ]
+    }
+   ]
+  }
+ },
+ "us-or-portland": {
+  "meta": {
+   "name": "Portland, Oregon: residential building permit (process, submission, conventions)",
+   "jurisdiction": {
+    "country": "US",
+    "level": "city",
+    "region": "OR",
+    "name": "City of Portland, Oregon"
+   },
+   "edition": "pages read 2026-11-11",
+   "review": {
+    "state": "draft",
+    "note": "Process, submission format and drawing conventions read on 2026-11-11 from the City of Portland pages cited, in our own words. Not confirmed by a Portland practitioner; the City decides what it requires. No building rules: Oregon's code is not in this pack. Sheet size, title block contents, maximum file size and fee amounts are not on the pages read and are left out."
+   },
+   "authority": "government",
+   "source": {
+    "name": "City of Portland, Portland Permitting & Development",
+    "url": "https://www.portland.gov/ppd/get-permit",
+    "checked": "2026-11-11"
+   }
+  },
+  "process": {
+   "authority": "City of Portland, Portland Permitting & Development",
+   "summary": "Residential building permit: apply online through the City's portal, review with correction sheets, pre-issuance check, then the permit is emailed.",
+   "sources": [
+    {
+     "title": "City of Portland, Portland Permitting & Development: Get a permit",
+     "url": "https://www.portland.gov/ppd/get-permit",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: Submit plans online (Single PDF Process)",
+     "url": "https://www.portland.gov/ppd/get-permit/submit-plans-online",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: Building permit plans for residential projects",
+     "url": "https://www.portland.gov/ppd/get-permit/building-permit-plans",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: File naming standards and preparing PDFs",
+     "url": "https://www.portland.gov/ppd/spp-file-naming-standards-preparing-pdfs",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    }
+   ],
+   "steps": [
+    {
+     "id": "research",
+     "title": "Research the property, zoning and codes",
+     "who": "Applicant",
+     "handIn": "Nothing",
+     "detail": "A free 15-minute appointment is offered.",
+     "clause": "Step 1",
+     "source": 0
+    },
+    {
+     "id": "prepare",
+     "title": "Prepare the application, plans and supporting documents",
+     "who": "Applicant",
+     "handIn": "Nothing yet",
+     "documents": [
+      "Building Permit Application PDF",
+      "Drawing set",
+      "Supporting documents"
+     ],
+     "clause": "Step 2",
+     "source": 0
+    },
+    {
+     "id": "apply",
+     "title": "Apply online and pass the intake check",
+     "who": "Applicant; a permit technician checks minimum standards",
+     "handIn": "The application, the drawings (one PDF) and the supporting documents (separate PDFs)",
+     "detail": "Applications of 35 pages and under may use the Single PDF Process; larger ones use another process the page does not describe. Paper plans may need an in-person appointment.",
+     "clause": "Steps 3; Single PDF Process: Intake",
+     "source": 1
+    },
+    {
+     "id": "intake-fees",
+     "title": "Pay the intake fees",
+     "who": "Applicant",
+     "handIn": "Intake fees, so reviews can start",
+     "fee": {
+      "text": "Fees are based on the estimated cost of construction and materials; no amounts are on the page",
+      "source": 0
+     },
+     "clause": "Step 4",
+     "source": 0
+    },
+    {
+     "id": "review",
+     "title": "Review and corrections",
+     "who": "City reviewers; applicant answers every checksheet item",
+     "handIn": "Revised drawings uploaded for each checksheet, repeated until every review is approved",
+     "detail": "The page points to a timelines page updated weekly and states no number of days.",
+     "clause": "Step 5; Single PDF Process: Corrections",
+     "source": 1
+    },
+    {
+     "id": "pre-issuance",
+     "title": "Final check before issuance",
+     "who": "City",
+     "handIn": "Outstanding fees",
+     "detail": "The City checks approval stamps, notes and fees.",
+     "clause": "Step 5",
+     "source": 0
+    },
+    {
+     "id": "issue",
+     "title": "Receive the permit and approved plans",
+     "who": "City emails; applicant prints",
+     "handIn": "Permit fees",
+     "detail": "The approved plans arrive as a link; the page says it is available for 60 days and that no printed set is provided. Permits expire 180 days after the Under Review date unless extended or reactivated.",
+     "clause": "Steps 6 and 7; Single PDF Process: Issuance",
+     "source": 1
+    }
+   ]
+  },
+  "submission": {
+   "authority": "City of Portland, Portland Permitting & Development",
+   "summary": "Plans for a residential building permit, uploaded through the City's online Single PDF Process.",
+   "sources": [
+    {
+     "title": "City of Portland, Portland Permitting & Development: Get a permit",
+     "url": "https://www.portland.gov/ppd/get-permit",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: Submit plans online (Single PDF Process)",
+     "url": "https://www.portland.gov/ppd/get-permit/submit-plans-online",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: Building permit plans for residential projects",
+     "url": "https://www.portland.gov/ppd/get-permit/building-permit-plans",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: File naming standards and preparing PDFs",
+     "url": "https://www.portland.gov/ppd/spp-file-naming-standards-preparing-pdfs",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    }
+   ],
+   "format": {
+    "orientation": "landscape",
+    "fileFormats": [
+     "pdf"
+    ],
+    "singleFile": true,
+    "fileNaming": "Under 50 characters, with no permit numbers, addresses or identifiers; calculation packets named Supplemental or Replacement.",
+    "copies": {
+     "paper": 4,
+     "electronic": 1,
+     "text": "One set online; four sets if submitted in person. One set is stamped and returned for the job site."
+    },
+    "stampSpace": "Leave room for the City stamp in the top-right or bottom-right corner of each drawing.",
+    "note": "Drawings in one PDF; application, calculations and other documents as separate PDFs. Disable font embedding; scans at 150 dpi; no digitally signed or permission-protected PDFs.",
+    "source": 3
+   },
+   "drawings": [
+    {
+     "id": "site-plan",
+     "title": "Site plan",
+     "detail": "The entire lot at a scale of at least 1 inch = 10 feet, showing where the building sits relative to the property lines and other buildings.",
+     "clause": "Site plan",
+     "when": "always",
+     "source": 2,
+     "satisfy": [
+      {
+       "words": [
+        "site plan"
+       ]
+      }
+     ],
+     "site": true,
+     "scale": {
+      "text": "at least 1 in = 10 ft (1:120 or larger)",
+      "maxDenominator": 120
+     }
+    },
+    {
+     "id": "floor-plans",
+     "title": "Floor plans",
+     "detail": "One for each level where work occurs, existing and proposed, at 1/4 inch = 1 foot: all walls, room sizes and uses, a north arrow, windows with size and type, stairs and smoke detectors; bearing walls, headers and beams here or on framing plans.",
+     "clause": "Floor plans",
+     "when": "always",
+     "source": 2,
+     "satisfy": [
+      {
+       "view": [
+        "plan"
+       ]
+      },
+      {
+       "words": [
+        "floor plan"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "roof-plan",
+     "title": "Roof plan",
+     "detail": "A roof plan.",
+     "clause": "Floor plans",
+     "when": "always",
+     "source": 2,
+     "satisfy": [
+      {
+       "words": [
+        "roof plan",
+        "roof"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "foundation",
+     "title": "Foundation plan",
+     "detail": "For new buildings and additions: layout, dimensions and details of slabs, footings and reinforcing steel, concrete strength, crawl space access and foundation vents.",
+     "clause": "Foundation plan",
+     "when": "if-applicable",
+     "source": 2,
+     "satisfy": [
+      {
+       "words": [
+        "foundation"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "sections",
+     "title": "Section drawings",
+     "detail": "Full sections usually at least 1/4 inch = 1 foot; wall sections and details at least 1/2 inch = 1 foot. Footings, foundation wall height, member sizes and spacing, coverings, insulation, ceiling heights; stair details for new or changed stairs.",
+     "clause": "Section drawings",
+     "when": "always",
+     "source": 2,
+     "satisfy": [
+      {
+       "view": [
+        "section"
+       ]
+      },
+      {
+       "words": [
+        "section"
+       ]
+      }
+     ],
+     "scale": {
+      "text": "full sections at least 1/4 in = 1 ft (1:48 or larger); wall sections and details at least 1/2 in = 1 ft (1:24)",
+      "maxDenominator": 48
+     }
+    },
+    {
+     "id": "elevations",
+     "title": "Building elevation drawings",
+     "detail": "For any exterior change, normally at 1/4 inch = 1 foot: ground level and slope at the building, windows and doors, siding and roofing, guardrails.",
+     "clause": "Building elevation drawings",
+     "when": "if-applicable",
+     "source": 2,
+     "satisfy": [
+      {
+       "view": [
+        "elevation"
+       ]
+      },
+      {
+       "words": [
+        "elevation"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "framing",
+     "title": "Framing plans and structural details",
+     "detail": "Separate framing plans where load-bearing members are not on the floor plans; structural sections or details for more complex work.",
+     "clause": "Floor plans; Section drawings",
+     "when": "if-applicable",
+     "source": 2,
+     "satisfy": [
+      {
+       "words": [
+        "framing",
+        "structural"
+       ]
+      }
+     ]
+    }
+   ],
+   "documents": [
+    {
+     "id": "application-form",
+     "title": "Building Permit Application (PDF form)",
+     "detail": "The completed application form; uploaded as its own PDF, not inside the drawing set.",
+     "clause": "Get a permit, step 2",
+     "when": "always",
+     "source": 0
+    },
+    {
+     "id": "structural-calcs",
+     "title": "Structural calculations",
+     "detail": "For projects that change structural elements; uploaded as a separate PDF.",
+     "clause": "Get a permit, step 2; Submit plans online",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "product-specs",
+     "title": "Product specifications",
+     "detail": "Listed among the supporting documents.",
+     "clause": "Get a permit, step 2",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "geotech",
+     "title": "Geotechnical report",
+     "detail": "Listed among the supporting documents.",
+     "clause": "Get a permit, step 2",
+     "when": "if-applicable",
+     "source": 0
+    },
+    {
+     "id": "property-line-survey",
+     "title": "Surveyed location of the property line",
+     "detail": "Listed among the supporting documents.",
+     "clause": "Get a permit, step 2",
+     "when": "if-applicable",
+     "source": 0
+    }
+   ]
+  },
+  "conventions": {
+   "sources": [
+    {
+     "title": "City of Portland: Building permit plans for residential projects",
+     "url": "https://www.portland.gov/ppd/get-permit/building-permit-plans",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    },
+    {
+     "title": "City of Portland: File naming standards and preparing PDFs",
+     "url": "https://www.portland.gov/ppd/spp-file-naming-standards-preparing-pdfs",
+     "fetched": "2026-11-11",
+     "licence": "Page copyright City of Portland. Only the facts are listed here, in our own words; no text is copied."
+    }
+   ],
+   "text": [
+    {
+     "id": "notes",
+     "use": "Notes",
+     "kind": "text",
+     "pt": 12,
+     "clause": "Plans you need: legibility",
+     "source": 0
+    },
+    {
+     "id": "dimensions",
+     "use": "Dimensions",
+     "kind": "dimension",
+     "pt": 12,
+     "clause": "Plans you need: legibility",
+     "source": 0
+    }
+   ],
+   "marks": [
+    {
+     "id": "north-arrow",
+     "label": "North arrow on floor plans",
+     "required": true,
+     "clause": "Floor plans",
+     "source": 0
+    },
+    {
+     "id": "scale",
+     "label": "Scale shown on each drawing; scale bar or reference scale on all drawings",
+     "required": true,
+     "clause": "Scale; PDF preparation",
+     "source": 1
+    },
+    {
+     "id": "no-colour",
+     "label": "Black line work only: drawings may not contain colour",
+     "required": true,
+     "clause": "Legibility",
+     "source": 0
+    },
+    {
+     "id": "stamp-space",
+     "label": "Space for the City stamp in a right-hand corner",
+     "required": true,
+     "clause": "PDF preparation",
+     "source": 1
+    }
+   ],
+   "note": "Line weights and standard notes are not stated on the pages read."
+  },
+  "release": {
+   "version": "0.1.0",
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-11",
+     "added": [
+      "Added: approval steps, submission format, required drawings with scales, supporting documents and drawing conventions for a Portland residential permit, read 2026-11-11 (first version of this pack)"
+     ]
+    }
+   ]
+  }
+ },
+ "za-sans10143": {
+  "conventions": {
+   "sources": [
+    {
+     "title": "South African Bureau of Standards, SANS 10143 (building drawing practice)",
+     "url": "https://www.sabs.co.za/",
+     "fetched": "2026-10-28",
+     "licence": "Not read: the standard is sold by SABS."
+    }
+   ],
+   "marks": [
+    {
+     "id": "scale-list",
+     "label": "Viewports at a scale from the pack's scale list",
+     "required": true,
+     "clause": "SANS 10143",
+     "rule": "draw.scale.listed",
+     "source": 0
+    },
+    {
+     "id": "metric-hatch",
+     "label": "Hatch patterns drawn in metric",
+     "required": true,
+     "clause": "SANS 10143",
+     "rule": "draw.hatch.metric",
+     "source": 0
+    },
+    {
+     "id": "title-block",
+     "label": "Title block fields on each sheet",
+     "required": true,
+     "clause": "SANS 10143",
+     "rule": "draw.titleblock.fields",
+     "source": 0
+    }
+   ],
+   "note": "Not confirmed against the standard; the checks are the pack's own draw.* rules."
+  },
+  "release": {
+   "version": "0.1.0",
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-11",
+     "added": [
+      "Added: drawing conventions as marks tied to the pack's own drawing rules"
+     ]
+    }
+   ]
+  }
+ },
+ "us-sample-practice": {
+  "meta": {
+   "name": "MADE-UP sample: drawing conventions and standard notes",
+   "jurisdiction": {
+    "country": "US",
+    "level": "country",
+    "name": "Nowhere (teaching sample)"
+   },
+   "edition": "made up",
+   "review": {
+    "state": "unchecked",
+    "note": "MADE-UP. Every number and every note in this pack was invented to show how conventions and standard notes work. It is not any office's, city's or code's practice. Replace it with a pack for your own place."
+   },
+   "authority": "community",
+   "source": {
+    "name": "Made up for teaching: no source",
+    "url": "https://example.com/made-up",
+    "checked": "2026-11-11"
+   }
+  },
+  "conventions": {
+   "sources": [
+    {
+     "title": "MADE-UP: no real source",
+     "url": "https://example.com/made-up",
+     "fetched": "2026-11-11",
+     "licence": "Invented for teaching."
+    }
+   ],
+   "text": [
+    {
+     "id": "notes",
+     "use": "General notes (MADE-UP)",
+     "mm": 3.0,
+     "min": true,
+     "clause": "MADE-UP 1",
+     "source": 0,
+     "kind": "text"
+    },
+    {
+     "id": "dimensions",
+     "use": "Dimensions (MADE-UP)",
+     "mm": 2.5,
+     "min": true,
+     "clause": "MADE-UP 2",
+     "source": 0,
+     "kind": "dimension"
+    },
+    {
+     "id": "titles",
+     "use": "View titles (MADE-UP)",
+     "mm": 5.0,
+     "clause": "MADE-UP 3",
+     "source": 0,
+     "kind": "title"
+    }
+   ],
+   "lines": [
+    {
+     "id": "cut",
+     "use": "Cut walls (MADE-UP)",
+     "mm": 0.5,
+     "clause": "MADE-UP 4",
+     "source": 0
+    },
+    {
+     "id": "visible",
+     "use": "Visible edges (MADE-UP)",
+     "mm": 0.25,
+     "clause": "MADE-UP 4",
+     "source": 0
+    },
+    {
+     "id": "hidden",
+     "use": "Hidden edges (MADE-UP)",
+     "mm": 0.13,
+     "clause": "MADE-UP 4",
+     "source": 0
+    }
+   ],
+   "penTable": {
+    "ref": "MADE-UP pen table: three weights, 0.13 / 0.25 / 0.5 mm",
+    "clause": "MADE-UP 5",
+    "source": 0
+   },
+   "marks": [
+    {
+     "id": "north",
+     "label": "North point on every plan (MADE-UP)",
+     "required": true,
+     "clause": "MADE-UP 6",
+     "source": 0
+    },
+    {
+     "id": "scalebar",
+     "label": "Graphic scale bar on every sheet (MADE-UP)",
+     "required": true,
+     "clause": "MADE-UP 7",
+     "source": 0
+    }
+   ],
+   "note": "MADE-UP teaching sample."
+  },
+  "notes": {
+   "sources": [
+    {
+     "title": "MADE-UP: no real source",
+     "url": "https://example.com/made-up",
+     "fetched": "2026-11-11",
+     "licence": "Invented for teaching."
+    }
+   ],
+   "items": [
+    {
+     "id": "gen-dimensions",
+     "region": "sample",
+     "discipline": "general",
+     "title": "Dimensions govern",
+     "text": "Do not scale the drawings. Written dimensions govern. Verify all dimensions on site before work starts and report differences to the designer.",
+     "clause": "MADE-UP G1"
+    },
+    {
+     "id": "gen-codes",
+     "region": "sample",
+     "discipline": "general",
+     "title": "Codes in force",
+     "text": "All work is to follow the codes and rules in force at the place of the building and the requirements of the approving authority.",
+     "clause": "MADE-UP G2"
+    },
+    {
+     "id": "gen-coord",
+     "region": "sample",
+     "discipline": "general",
+     "title": "Coordination",
+     "text": "The contractor coordinates the trades and checks these drawings against the engineers' drawings before ordering.",
+     "clause": "MADE-UP G3"
+    },
+    {
+     "id": "arch-fire",
+     "region": "sample",
+     "discipline": "architectural",
+     "title": "Fire-rated penetrations",
+     "text": "Seal every penetration of a fire-rated wall or floor with a system suited to that rating.",
+     "clause": "MADE-UP A1"
+    },
+    {
+     "id": "arch-finish",
+     "region": "sample",
+     "discipline": "architectural",
+     "title": "Finishes",
+     "text": "Finishes are shown for design intent; confirm selections with the owner before ordering.",
+     "clause": "MADE-UP A2"
+    },
+    {
+     "id": "str-verify",
+     "region": "sample",
+     "discipline": "structural",
+     "title": "Structure by the engineer",
+     "text": "Structural members are sized by the engineer's drawings; this sheet shows layout only.",
+     "clause": "MADE-UP S1"
+    },
+    {
+     "id": "elec-code",
+     "region": "sample",
+     "discipline": "electrical",
+     "title": "Electrical layout",
+     "text": "Outlet and light positions are indicative; the electrical contractor lays out circuits to the applicable code.",
+     "clause": "MADE-UP E1"
+    },
+    {
+     "id": "plumb-test",
+     "region": "sample",
+     "discipline": "plumbing",
+     "title": "Testing",
+     "text": "Pressure-test drainage and supply pipework and keep the test record for the inspector.",
+     "clause": "MADE-UP P1"
+    }
+   ]
+  },
+  "release": {
+   "version": "0.1.0",
+   "changelog": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-11",
+     "added": [
+      "Added: MADE-UP text heights, line weights, marks and standard notes to show how conventions and notes work (first version of this pack)",
+      "Added: a MADE-UP submission format"
+     ]
+    }
+   ]
+  },
+  "submission": {
+   "authority": "Nobody (MADE-UP)",
+   "summary": "MADE-UP submission format: invented to show how the permit package reads a pack. No authority asks for this.",
+   "sources": [
+    {
+     "title": "MADE-UP: no real source",
+     "url": "https://example.com/made-up",
+     "fetched": "2026-11-11",
+     "licence": "Invented for teaching."
+    }
+   ],
+   "format": {
+    "sheetSizes": [
+     "a1",
+     "a3"
+    ],
+    "orientation": "landscape",
+    "fileFormats": [
+     "pdf"
+    ],
+    "maxFileMB": 20,
+    "copies": {
+     "paper": 2,
+     "electronic": 1,
+     "text": "MADE-UP: two paper sets and one file"
+    },
+    "stampSpace": "MADE-UP: keep the top-right corner free",
+    "titleBlock": {
+     "fields": [
+      {
+       "key": "project",
+       "label": "Project",
+       "words": [
+        "project",
+        "job"
+       ]
+      },
+      {
+       "key": "drawnby",
+       "label": "Drawn by",
+       "words": [
+        "drawn",
+        "author"
+       ]
+      },
+      {
+       "key": "date",
+       "label": "Date",
+       "words": [
+        "date"
+       ]
+      }
+     ]
+    },
+    "note": "MADE-UP sample.",
+    "source": 0
+   },
+   "drawings": [
+    {
+     "id": "site-plan",
+     "title": "Site plan (MADE-UP)",
+     "detail": "MADE-UP: the lot and the building on it.",
+     "clause": "MADE-UP S1",
+     "when": "always",
+     "source": 0,
+     "scale": {
+      "text": "1:200 or larger (MADE-UP)",
+      "maxDenominator": 200
+     },
+     "satisfy": [
+      {
+       "words": [
+        "site plan"
+       ]
+      }
+     ],
+     "site": true
+    },
+    {
+     "id": "floor-plans",
+     "title": "Floor plans (MADE-UP)",
+     "detail": "MADE-UP: one plan per level.",
+     "clause": "MADE-UP S2",
+     "when": "always",
+     "source": 0,
+     "satisfy": [
+      {
+       "view": [
+        "plan"
+       ]
+      }
+     ]
+    }
+   ],
+   "documents": [
+    {
+     "id": "application-form",
+     "title": "Application form (MADE-UP)",
+     "detail": "MADE-UP: a form you fill in yourself.",
+     "clause": "MADE-UP S3",
+     "when": "always",
+     "source": 0
+    }
+   ]
+  }
+ }
+}

@@ -116,8 +116,11 @@ export class PlanView {
       } else if (it.kind === 'text') texts.push(it);
       else if (it.kind === 'point') points.push(it);
     }
+    // 0.10 PERF.32: the survey points as two typed arrays (500,000 point objects were walked, projected and stroked on every paint)
+    const pts = { n: points.length, x: new Float64Array(points.length), y: new Float64Array(points.length) };
+    for (let i = 0; i < points.length; i++) { pts.x[i] = points[i].x; pts.y[i] = points[i].y; }
     const layerToken = new Map(sc.layers.map((l) => [l.name, l.token]));
-    return { byLayer, texts, points, dashed, layerToken, order: sc.layers.map((l) => l.name) };
+    return { byLayer, texts, points: pts, dashed, layerToken, order: sc.layers.map((l) => l.name) };
   }
 
   paint() {
@@ -175,15 +178,32 @@ export class PlanView {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     const vb = this.viewBounds(), m = 40 / this.zoom;
     const inView = (x, y) => x >= vb.minX - m && x <= vb.maxX + m && y >= vb.minY - m && y <= vb.maxY + m;
-    if (P.points.length) {
+    if (P.points.n) {
       ctx.strokeStyle = this.colorOf('green'); ctx.lineWidth = 1.2;
       ctx.beginPath();
-      const k = P.points.length > 5000 && this.zoom < 0.5 ? 1.5 : 2.5;
-      for (const q of P.points) { if (!inView(q.x, q.y)) continue; const s = this.toScreen(q.x, q.y); ctx.moveTo(s.x - k, s.y - k); ctx.lineTo(s.x + k, s.y + k); ctx.moveTo(s.x - k, s.y + k); ctx.lineTo(s.x + k, s.y - k); }
+      const pp = P.points, k = pp.n > 5000 && this.zoom < 0.5 ? 1.5 : 2.5;
+      const z = this.zoom, hw = this.w / 2, hh = this.h / 2, cx = this.cx, cy = this.cy;
+      const lox = vb.minX - m, hix = vb.maxX + m, loy = vb.minY - m, hiy = vb.maxY + m;
+      let nIn = 0;
+      for (let i = 0; i < pp.n; i++) { const x = pp.x[i], y = pp.y[i]; if (x >= lox && x <= hix && y >= loy && y <= hiy) nIn++; }
+      // past 20,000 points in view they are a texture, not crosses: one cross per 4 px cell, only on the screen (a cross is 5 px wide)
+      const thin = nIn > 20000, cw = Math.ceil(this.w / 4) + 6, seen = thin ? new Uint8Array(cw * (Math.ceil(this.h / 4) + 6)) : null;
+      for (let i = 0; i < pp.n; i++) {
+        const x = pp.x[i], y = pp.y[i];
+        if (x < lox || x > hix || y < loy || y > hiy) continue;
+        const sx = (x - cx) * z + hw, sy = hh - (y - cy) * z;
+        if (thin) { if (sx < -10 || sy < -10 || sx > this.w + 10 || sy > this.h + 10) continue; const c = ((sy + 10) >> 2) * cw + ((sx + 10) >> 2); if (seen[c]) continue; seen[c] = 1; }
+        ctx.moveTo(sx - k, sy - k); ctx.lineTo(sx + k, sy + k); ctx.moveTo(sx - k, sy + k); ctx.lineTo(sx + k, sy - k);
+      }
       ctx.stroke();
     }
     ctx.textBaseline = 'alphabetic';
+    // 0.10 PERF.32: point labels only while fewer than 4,000 are in view (past that they are an unreadable smear and cost a text draw each)
+    let nodeText = 0;
+    for (const t of P.texts) if (t.layer === 'V-NODE-TEXT' && inView(t.x, t.y) && ++nodeText > 4000) break;
+    const skipNodeText = nodeText > 4000, widths = new Map();
     for (const t of P.texts) {
+      if (skipNodeText && t.layer === 'V-NODE-TEXT') continue;
       if (!inView(t.x, t.y)) continue;
       const s = this.toScreen(t.x, t.y), fs = t.mm * PX_PER_MM / 0.72;
       ctx.save();
@@ -192,7 +212,8 @@ export class PlanView {
       ctx.textAlign = t.align === 'center' ? 'center' : t.align === 'right' ? 'right' : 'left';
       const y = t.middle ? fs * 0.36 : 0;
       if (t.mask) {
-        const w = ctx.measureText(t.text).width, x0 = t.align === 'center' ? -w / 2 : t.align === 'right' ? -w : 0;
+        const wk = ctx.font + t.text; let w = widths.get(wk); if (w === undefined) widths.set(wk, (w = ctx.measureText(t.text).width));
+        const x0 = t.align === 'center' ? -w / 2 : t.align === 'right' ? -w : 0;
         ctx.fillStyle = this.colors.bg; ctx.fillRect(x0 - 2, y - fs * 0.8, w + 4, fs * 0.95);
       }
       ctx.fillStyle = this.colorOf(P.layerToken.get(t.layer));

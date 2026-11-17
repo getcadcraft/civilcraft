@@ -283,10 +283,10 @@ try {
   await page.click('[data-tour-skip]');
   await T(200);
   st = await tour();
-  ok(st && /Step 5 of 6/.test(st.n), 'Skip this step goes to the next', JSON.stringify(st));
+  ok(st && /Step 5 of 6/.test(st.n), 'Next goes to the next step', JSON.stringify(st));
   await page.click('[data-tour-skip-all]');
   await T(200);
-  ok((await tour()) === null && (await page.evaluate(() => localStorage.getItem('cadcraft.tour'))) === 'skipped', 'Skip the tour closes it and it will not start by itself again');
+  ok((await tour()) === null && (await page.evaluate(() => localStorage.getItem('cadcraft.tour'))) === 'skipped', 'the X closes it and it will not start by itself again');
   await run('TOUR');
   await T(300);
   ok((await tour()) !== null, 'TOUR starts it again whenever you want');

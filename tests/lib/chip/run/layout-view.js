@@ -8,6 +8,8 @@
  *   mountLayout(el, shapes, { t }) → { set(shapes), destroy() }
  */
 
+import { PadDetector } from './wheel-pad.js';   // D7.56: a trackpad's two-finger swipe pans
+
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const PALETTE = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c', '#0891b2', '#ca8a04', '#db2777'];
 
@@ -71,16 +73,19 @@ export function mountLayout(el, shapes, { t = (k) => k } = {}) {
     const cells = (cur.cells || []).length, wires = (cur.wires || []).length;
     legend.append(d.createTextNode(t('chip.layout.counts', { cells, wires, unknown: cur.unknownMacros || 0 })));
   };
+  const pad = new PadDetector();
   view.addEventListener('wheel', (e) => {
     e.preventDefault();
     const svg = view.firstChild; if (!svg) return;
-    const b = (vb || svg.getAttribute('viewBox').split(' ').map(Number)).slice(), f = e.deltaY > 0 ? 1.2 : 1 / 1.2, r = svg.getBoundingClientRect();
-    const px = b[0] + ((e.clientX - r.left) / r.width) * b[2], py = b[1] + ((e.clientY - r.top) / r.height) * b[3];
+    const b = (vb || svg.getAttribute('viewBox').split(' ').map(Number)).slice(), f = (e.ctrlKey && e.deltaMode === 0 ? Math.exp(Math.max(-30, Math.min(30, e.deltaY)) * 0.01) : e.deltaY > 0 ? 1.2 : 1 / 1.2), m = svg.getScreenCTM();   // a pinch zooms by its size
+    if (!m) return;   // the drawing is fitted inside the box ("meet"), so the scale and the point under the pointer come from the SVG's own matrix, not from the box's width
+    if (pad.isSwipe(e)) { vb = [b[0] + e.deltaX / m.a, b[1] + e.deltaY / m.d, b[2], b[3]]; svg.setAttribute('viewBox', vb.join(' ')); return; }   // D7.56: two fingers pan, a pinch and a mouse wheel zoom
+    const px = (e.clientX - m.e) / m.a, py = (e.clientY - m.f) / m.d;
     vb = [px - (px - b[0]) * f, py - (py - b[1]) * f, b[2] * f, b[3] * f]; svg.setAttribute('viewBox', vb.join(' '));
   }, { passive: false });
   let drag = null;
-  view.addEventListener('pointerdown', (e) => { const svg = view.firstChild; if (svg) drag = { x: e.clientX, y: e.clientY, b: (vb || svg.getAttribute('viewBox').split(' ').map(Number)).slice(), r: svg.getBoundingClientRect() }; });
-  view.addEventListener('pointermove', (e) => { if (!drag) return; const k = drag.b[2] / drag.r.width; vb = [drag.b[0] - (e.clientX - drag.x) * k, drag.b[1] - (e.clientY - drag.y) * k, drag.b[2], drag.b[3]]; view.firstChild.setAttribute('viewBox', vb.join(' ')); });
+  view.addEventListener('pointerdown', (e) => { const svg = view.firstChild; if (svg) drag = { x: e.clientX, y: e.clientY, b: (vb || svg.getAttribute('viewBox').split(' ').map(Number)).slice(), m: svg.getScreenCTM() }; });
+  view.addEventListener('pointermove', (e) => { if (!drag || !drag.m) return; vb = [drag.b[0] - (e.clientX - drag.x) / drag.m.a, drag.b[1] - (e.clientY - drag.y) / drag.m.d, drag.b[2], drag.b[3]]; view.firstChild.setAttribute('viewBox', vb.join(' ')); });
   view.addEventListener('pointerup', () => { drag = null; });
   const fit = Object.assign(d.createElement('button'), { type: 'button', className: 'chip-btn', textContent: t('chip.wave.fit') });
   fit.addEventListener('click', () => { vb = null; draw(); });

@@ -36,6 +36,7 @@ export function mountPanel(ctx, root, mounts) {
         [t('pc.info.extent'), fmt(info.max[0] - info.min[0], 1) + ' × ' + fmt(info.max[1] - info.min[1], 1) + ' × ' + fmt(info.max[2] - info.min[2], 1)],
         [t('pc.info.format'), (info.kind || '').toUpperCase() + ' ' + (info.version || '') + ' / ' + t('pc.info.pointformat', { n: info.format })],
         [t('pc.info.crs'), info.crs ? String(info.crs.name || info.code || info.crs) : t('pc.info.crs.none')],
+        [t('pc.info.units'), statedUnit(info) ? ctx.unitWord(statedUnit(info)) : t('pc.info.units.none')],   // 0.10 BK.8
         [t('pc.info.need'), bytesText(need)],
         [t('pc.info.free'), free == null ? t('pc.info.free.unknown') : bytesText(free)],
       ];
@@ -50,8 +51,18 @@ export function mountPanel(ctx, root, mounts) {
   });
 
   // ---- build
+  /** The unit the file itself states (its coordinate system's), or null. */
+  const statedUnit = (info) => info.unit || (info.crs && info.crs.unit && info.crs.unit !== 'deg' ? info.crs.unit : null);
   async function runBuild(resume) {
     if (!picked) return;
+    // 0.10 BK.8 (units on import): a file that states no unit is asked about before it is built (the shell's one dialog, remembered per
+    // file); the answer is kept with the cloud, so its numbers are labelled in the unit they are in (they were always labelled meters)
+    let unit = statedUnit(picked.info);
+    if (!unit && globalThis.ccImportUnits) {
+      const a = await globalThis.ccImportUnits.resolve({ file: picked.file, format: t('pc.units.format'), stated: null, choices: ['m', 'ft', 'usft'], suggest: 'm', say: (s) => ctx.status(s) });
+      if (!a) return;
+      unit = a.unit === 'usft' ? 'ftUS' : a.unit;
+    }
     ctl = new AbortController();
     buildBtn.disabled = true; resumeBtn.hidden = true;
     const id = resume && resumeId ? resumeId : 'c' + Date.now().toString(36);
@@ -60,7 +71,7 @@ export function mountPanel(ctx, root, mounts) {
     try {
       prog.set(0, t('pc.progress.start'));
       const cloud = await ctx.PC.buildCloud(picked.file, ctx.getStore(), {
-        id, name, resume: !!resume, signal: ctl.signal,
+        id, name, resume: !!resume, signal: ctl.signal, unit: unit || null,
         progress: (f, phase) => prog.set(f, t('pc.progress.' + phase) !== 'pc.progress.' + phase ? t('pc.progress.' + phase) + ' ' + Math.round(f * 100) + ' %' : Math.round(f * 100) + ' %'),
       });
       resumeId = null;
@@ -146,7 +157,7 @@ export function mountPanel(ctx, root, mounts) {
       ctx.status(t('pc.opening'));
       const cloud = await ctx.PC.openCloud(ctx.getStore(), id);
       await ctx.setCloud(cloud);
-      ctx.status(t('pc.opened', { name: cloud.meta.name || id, count: fmtN(cloud.count) }));
+      ctx.status(t('pc.opened', { name: cloud.meta.name || id, count: fmtN(cloud.count) }) + ' ' + t('pc.opened.units', { unit: ctx.unitWord() }));
       await refreshList();
     } catch (e) { ctx.status(ctx.err(e)); }
   }

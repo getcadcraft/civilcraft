@@ -1,51 +1,53 @@
 ---
-title: Työskentele työkalupakki- ja tietoruutuasettelulla
-summary: Vaihda sovellus työkalusarakkeeseen vasemmalla (omille työkaluille on paikat), tietoruutuun ylhäällä, joka seuraa käynnissä olevaa työkalua tai valitsemaasi, navigaattoriin oikealla, välilehteen jokaista näkymää kohti, pikavalintoihin ja muokkauspalettiin, ja palaa perinteiseen asetteluun milloin haluat.
-keywords: asettelu, työtila, työkalupakki, työkalusarake, tietoruutu, tietopalkki, navigaattori, projektikartta, pikapalkki, pikavalinnat, muokkauspaletti, omat työkalut, suosikkityökalut, näkymävälilehdet, työkalupakin ikkuna, perinteinen asettelu, vaihda asettelua
-from: 2f807c9c
+title: Työskentely työkalupakin ja tietoruudun asettelussa
+summary: Vaihda sovellus työkalusarakkeeseen vasemmalla, jossa on paikat omille työkaluille, tietoruutuun yläreunassa, joka seuraa käynnissä olevaa työkalua tai valittua kohdetta, navigaattoriin oikealla, välilehteen jokaiselle näkymälle, pikavaihtoehtoihin ja muokkauspalettiin, ja palaa klassiseen asetteluun milloin tahansa.
+keywords: asettelu, työtila, työkalupakki, työkalusarake, tietoruutu, tietopalkki, navigaattori, projektikartta, pikapalkki, pikavaihtoehdot, muokkauspaletti, paletti, omat työkalut, suosikkityökalut, näkymävälilehdet, työkalupakin ikkuna, klassinen asettelu, vaihda asettelu
+from: ec341666
 ---
 
-**Työkalupakki ja tietoruutu** on yksi sovelluksen kolmesta työtila-asettelusta. Piirustustyökalut ovat sarakkeessa vasemmalla, ylhäällä oleva tietoruutu näyttää, mitä käynnissä oleva työkalu tarvitsee tai mitä olet valinnut, jokaisella näkymällä on välilehti, ja piirustuksen alla oleva pikapalkki sisältää muutaman arkisen vaihtoehdon. Työkalut ovat sovelluksen omat: kaikki, minkä voit tehdä perinteisessä asettelussa, onnistuu myös täällä, ja piirustuksesi, valikkotyylisi ja näppäimesi pysyvät ennallaan.
+**Työkalupakki ja tietoruutu** on yksi sovelluksen kolmesta työtilan asettelusta. Piirustustyökalut ovat sarakkeessa vasemmalla, tietoruutu yläreunassa näyttää, mitä käynnissä oleva työkalu tarvitsee tai mitä on valittu, jokaisella näkymällä on välilehti ja piirustuksen alla on pikapalkki muutamille tavallisimmille vaihtoehdoille. Työkalut ovat sovelluksen omia: kaikki, mitä klassisessa asettelussa voi tehdä, toimii tässäkin, ja piirustus, valikkotyyli ja näppäimet pysyvät ennallaan.
 
 ## Valitse se
 
-1. Avaa {{ui:Asetukset}} (hammasratas tai {{key:Mod+,}}).
-2. Valitse {{ui:Yleinen}}-välilehti ja siirry kohtaan {{ui:Asettelu}} › {{ui:Työtila}}.
+1. Avaa {{ui:Asetukset}} (vaihde tai {{key:Mod+,}}).
+2. Valitse välilehti {{ui:Yleinen}} ja siirry kohtaan {{ui:Asettelu}} › {{ui:Työtila}}.
 3. Valitse {{ui:Työkalupakki ja tietoruutu}}.
 
-Asettelu vaihtuu heti. Valinta on yksi kaikille tämän selaimen sovelluksille: jokainen sovellus avautuu siitä lähtien siihen, ja se on paikallaan ennen kuin sivu piirretään, joten et koskaan näe perinteistä asettelua ensin.
+Asettelu vaihtuu heti. Valinta on yhteinen kaikille tämän selaimen sovelluksille: jokainen sovellus avautuu siihen tästä eteenpäin, ja se on paikallaan ennen sivun piirtymistä, joten klassista asettelua ei koskaan näy ensin.
 
-## Mikä on missä
+## Missä mikäkin on
 
-- **Työkalurivi:** sovelluksen oma työkalurivi pysyy piirustusalueen yläreunassa valikkoineen.
-- **Tietoruutu:** työkalurivin alla. Kun työkalu on käynnissä, se näyttää työkalun ja sen, mitä se kysyy. Kun valitset jotakin, se näyttää sen pääasetukset (seinälle: tyyppi, paksuus, pituus, sijaintiviiva ja korkeus), ja voit muuttaa niitä suoraan siinä: muutos siellä on sama kuin Ominaisuuksissa, ja {{key:Mod+Z}} kumoaa sen. Kun mitään ei ole valittuna, siinä lukee ”Mitään ei ole valittu”. Jokainen sovellus lisää tänne omia ruutujaan, kuten nykyisen tason tai kerroksen tai avoimen asiakirjan.
-- **Työkalupakki:** sarake vasemmalla, sovelluksen työkalut ryhmittäin. Napsauta ryhmän nimeä taittaaksesi sen tai avataksesi sen uudelleen. Käynnissä oleva työkalu palaa kirkkaana.
-- **Omat työkalut:** työkalupakin ensimmäinen ryhmä, kahdeksan tyhjää paikkaa useimmin käyttämillesi työkaluille. Napsauta tyhjää paikkaa valitaksesi minkä tahansa sovelluksen työkalun tai komennon; tai napsauta työkalua työkalupakissa hiiren oikealla painikkeella ja valitse {{ui:Lisää Omiin työkaluihin}}; tai vedä työkalu paikkaan. Napsauta paikkaa oikealla painikkeella muuttaaksesi tai tyhjentääksesi sen. Paikkasi tallentuvat kullekin sovellukselle tässä selaimessa.
-- **Navigaattori:** oikea paneeli. Sovelluksen projektiselain on ylhäällä (pohjapiirrokset, leikkaukset, julkisivut, 3D-näkymät, luettelot, arkit sen mukaan, mitä sovelluksessa on): avaa sellainen napsauttamalla. Sen alla ovat {{ui:Ominaisuudet}} ja välilehti oikean paneelin muulle sisällölle.
-- **Näkymävälilehdet:** välilehti jokaista avoimen tiedoston näkymää kohti (arkki, pohjapiirros, näkymä…) piirustuksen päällä.
-- **Pikapalkki:** piirustuksen alla sovelluksen näkymäasetukset ja arkiset vaihtoehdot, kuten mittakaava, tarkkuustaso, näkymäalue, sovitus, pohjapiirros, jako tai 3D, tartunnat ja yksiköt.
-- **Muokkauspaletti:** napsauta jotakin piirustuksessa, niin osoittimen viereen tulee pieni paletti, jossa ovat sovelluksen muokkauskomennot kyseiselle kohteelle, kuten siirrä, kopioi, kierrä, peilaa, monista tai poista, sekä {{ui:Ominaisuudet}}. {{key:Esc}}, hiiren rulla, toinen napsautus tai sen sulkupainike laittaa sen pois.
+- **Työkalurivi:** sovelluksen oma työkalurivi pysyy piirustusalueen yläreunassa valikoineen.
+- **Tietoruutu:** työkalurivin alla. Kun työkalu on käynnissä, se näyttää työkalun ja sen, mitä se pyytää. Kun valitset jotakin, se näyttää sen pääasetukset (seinälle: tyypin, paksuuden, pituuden, sijaintiviivan ja korkeuden), ja niitä voi muuttaa suoraan siellä: muutos on sama kuin Ominaisuudet-paletissa, ja {{key:Mod+Z}} kumoaa sen. Kun mitään ei ole valittu, siinä lukee ”Mitään ei ole valittu”. Kukin sovellus lisää tähän omia ruutujaan, kuten nykyisen tason tai kerroksen tai avoimen asiakirjan.
+- **Työkalupakki:** vasemmalla oleva sarake, jossa sovelluksen työkalut ovat ryhmissä. Napsauta ryhmän nimeä taittaaksesi sen tai avataksesi sen uudelleen. Käynnissä oleva työkalu on valaistu.
+- **Omat työkalut:** työkalupakin ensimmäinen ryhmä, kahdeksan tyhjää paikkaa eniten käytettyjä työkaluja varten. Napsauta tyhjää paikkaa, jos haluat valita minkä tahansa sovelluksen työkalun tai komennon; tai napsauta työkalua työkalupakissa hiiren oikealla ja valitse {{ui:Lisää Omiin työkaluihin}}; tai vedä työkalu paikkaan. Paikan voi vaihtaa tai tyhjentää napsauttamalla sitä hiiren oikealla. Paikat tallentuvat kullekin sovellukselle tähän selaimeen.
+- **Navigaattori:** oikea paneeli. Sovelluksen projektiselain on ylhäällä (pohjapiirrokset, leikkaukset, julkisivut, 3D-näkymät, luettelot, arkit, sovelluksessa olevien mukaan): napsauta yhtä avataksesi sen. Sen alla ovat {{ui:Ominaisuudet}} ja välilehti oikean paneelin muulle sisällölle.
+- **Näkymävälilehdet:** välilehti jokaiselle avoimen tiedoston näkymälle (arkki, pohjapiirros, kohtaus…) piirustuksen päällä.
+- **Pikapalkki:** piirustuksen alla näkymäasetukset ja sovelluksen tavanomaiset vaihtoehdot, kuten mittakaava, yksityiskohtaisuus, näkymäalue, sovitus, pohjapiirros, jakonäkymä tai 3D, tartunnat ja yksiköt.
+- **Muokkauspaletti:** napsauta jotakin piirustuksessa, ja osoittimen viereen tulee pieni paletti kyseisen kohteen muokkauskomennoilla, kuten siirto, kopiointi, kierto, peilaus, monistus tai poisto, sekä {{ui:Ominaisuudet}}. {{key:Esc}}, hiiren rulla, toinen napsautus tai sen sulkupainike piilottaa sen.
 
-Työkalu, jota ei voi ajaa juuri nyt, on harmaana, ja sen työkaluvihje kertoo syyn. Napsauta sitä tai paina sen kohdalla {{key:Enter}} lukeaksesi syyn ruudusta.
+Työkalu, jota ei voi käyttää juuri nyt, on harmaana, ja sen ohjeteksti kertoo syyn. Napsauta sitä tai paina {{key:Enter}} sen kohdalla, niin syy näkyy ruudussa.
 
-{{key:Esc}} lopettaa ensin käynnissä olevan työkalun, kuten perinteisessä asettelussa, ja kaikki pikanäppäimet sekä {{key:Ctrl+Shift+F}} (näyttötilat) toimivat entiseen tapaan.
+{{key:Esc}} lopettaa ensin käynnissä olevan työkalun, kuten klassisessa asettelussa, ja jokainen pikanäppäin sekä {{key:Ctrl+Shift+F}} (näyttötilat) toimivat kuten ennenkin.
 
 ## Anna työkalupakille oma ikkuna
 
-Työkalupakin yläreunassa olevassa {{ui:Siirrä työkalupakki}} -painikkeessa on {{ui:Siirrä uuteen ikkunaan}}: työkalupakki avautuu omaan kapeaan ikkunaansa, jonka voit sijoittaa sovelluksen viereen tai toiselle näytölle. Siellä painetut näppäimet saavuttavat sovelluksen. {{ui:Palauta työkalupakki}} tai ikkunan sulkeminen tuo sen kotiin.
+Työkalupakin yläreunan {{ui:Siirrä työkalupakki}}-painikkeessa on {{ui:Siirrä uuteen ikkunaan}}: työkalupakki avautuu kapeaan omaan ikkunaansa, jonka voi sijoittaa sovelluksen viereen tai toiselle näytölle. Siellä painetut näppäimet menevät sovellukseen. {{ui:Palauta työkalupakki}} tai ikkunan sulkeminen tuo sen takaisin.
 
 Työkalurivin asetukset koskevat myös työkalupakkia: {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Työkalurivi}} › {{ui:Kuvakkeet ja nimiöt}}, {{ui:Vain kuvakkeet}} tai {{ui:Vain nimiöt}}, sekä {{ui:Näytä ryhmien nimet (Tiedosto, Piirrä, …)}}.
 
-## Paneelisi pysyvät sinun
+## Paneelit pysyvät omina
 
-Vasen ja oikea paneeli säilyttävät kaiken, mitä kohdassa [Järjestä paneelit](common:arrange-panels) kuvataan: kiinnittäminen, kellutus, neulaus, piilotus, välilehdet, {{ui:Siirrä uuteen ikkunaan}} ja {{ui:Palauta asettelu}}.
+Vasen ja oikea paneeli säilyttävät kaiken kohdassa [Paneelien järjestäminen](common:arrange-panels) kuvatun: kiinnityksen, kellutuksen, nastan, piilotuksen, välilehdet, {{ui:Siirrä uuteen ikkunaan}} ja {{ui:Palauta asettelu}}.
 
-## Palaa perinteiseen asetteluun
+## Palaa klassiseen asetteluun
 
-Avaa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Asettelu}} › {{ui:Työtila}} ja valitse {{ui:CadCraft klassinen}}. Jokainen työkalurivi, välilehti ja paneeli palaa paikalleen.
+Avaa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Asettelu}} › {{ui:Työtila}} ja valitse {{ui:CadCraft klassinen}}. Jokainen työkalurivi, välilehti ja paneeli palaa entiseen paikkaansa.
 
 :::note
-Puhelimessa tai ikkunassa, joka on 760 kuvapistettä leveä tai kapeampi, sovellus käyttää puhelinasettelua valinnastasi riippumatta. Leveämpi ikkuna tuo asettelusi takaisin.
+Puhelimessa tai ikkunassa, joka on 760 pikseliä leveä tai kapeampi, sovellus käyttää puhelinasettelua valinnastasi riippumatta. Leveämpi ikkuna tuo asettelun takaisin.
 :::
 
-Jos haluat kokeilla toista järjestelyä, katso [valintanauhan ja projektiselaimen asettelu](common:layout-ribbon).
+Muun järjestelyn kokeilemiseen katso [valintanauhan ja projektiselaimen asettelu](common:layout-ribbon).
+
+Asettelun näytettävän sisällön muuttamiseen katso [Muuta asettelua näytöllä](common:layout-edit); tummaan järjestelyyn, jossa on valikkopalkki ja valintanauha, katso [Piirustuksen asettelu](common:layout-drafting).

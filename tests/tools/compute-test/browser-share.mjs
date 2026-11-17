@@ -28,10 +28,17 @@ async function session(init, fn, app = 'bimcraft') {
   if (init) await page.addInitScript(init);
   const sent = [];
   page.on('request', (r) => { if (r.url().includes('/api/v1/hardware') && r.method() === 'POST') sent.push({ body: r.postDataJSON(), cookie: r.headers().cookie || '' }); });
+  // a busy server: wait for each report POST to finish before a reload or close (else the reload re-sends and the close drops it)
+  let open = 0;
+  const isHw = (r) => r.url().includes('/api/v1/hardware') && r.method() === 'POST';
+  page.on('request', (r) => { if (isHw(r)) open++; });
+  page.on('requestfinished', (r) => { if (isHw(r)) open--; });
+  page.on('requestfailed', (r) => { if (isHw(r)) open--; });
+  page.settle = async () => { for (let i = 0; i < 300 && open > 0; i++) await new Promise((f) => setTimeout(f, 100)); };
   // the share waits for the page to settle (20 s): tests make the timers short
   await page.addInitScript(() => { const st = window.setTimeout; window.setTimeout = (f, ms, ...a) => st(f, ms === 20000 ? 300 : ms, ...a); });
-  await page.goto('https://getcadcraft.com/lab/' + app, { waitUntil: 'networkidle' });
-  try { await fn(page, sent); } finally { await ctx.close(); }
+  await page.goto('https://getcadcraft.com/lab/' + app, { waitUntil: 'load', timeout: 120000 }); await page.waitForTimeout(3000);
+  try { await fn(page, sent); } finally { await page.settle(); await ctx.close(); }
 }
 
 console.log('== the browser: shared by default, once');
@@ -41,7 +48,7 @@ await session(null, async (page, sent) => {
   const b = sent[0]?.body || {};
   ok(b.app === 'bimcraft' && b.surface === 'web' && 'facts' in b && typeof b.facts.cores === 'number' && b.screen?.w > 0, 'it carries the probe\'s facts, the app, the screen', JSON.stringify(b).slice(0, 160));
   ok(!sent[0]?.cookie && !JSON.stringify(b).includes('@') && !('user' in b) && !('email' in b), 'no cookies and nothing about the person');
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(3000);
+  await page.settle(); await page.reload({ waitUntil: 'load', timeout: 120000 }); await page.waitForTimeout(3000);
   ok(sent.length === 1, 'not again on the next visit (once a month)', sent.length);
   await page.evaluate(() => document.querySelector('[data-settings-open]').click()); await page.waitForSelector('dialog[data-app-settings][open]');
   await page.click('[data-settings-tab="general"]').catch(() => {});
@@ -64,7 +71,15 @@ await session(() => { window.cadcraftDesktop = { version: 'test' }; }, async (pa
   await page.evaluate(() => document.querySelector('[data-settings-open]').click()); await page.waitForSelector('dialog[data-app-settings][open]');
   await page.click('[data-settings-tab="general"]').catch(() => {});
   await page.click('.shell-sec-nav button:has-text("Hardware specs")').catch(() => {});
-  ok(await page.isChecked('[data-hw-noshare]') && /desktop app/.test(await page.textContent('[data-hw-default]')), '"Don\'t share my hardware specs" is ticked, and the line says why');
+  // NET.1 (lab): the desktop box is a plain opt-in — "Share my hardware specs", unticked — and the exact report can be read without sending it
+  ok(!(await page.isChecked('[data-hw-noshare]')) && /^Share my hardware specs/.test(await page.textContent('[data-hw-label]')) && /desktop app/.test(await page.textContent('[data-hw-default]')), '"Share my hardware specs" is unticked, and the line says nothing is sent unless ticked');
+  await page.click('[data-hw-preview] summary');
+  const shown = await page.textContent('[data-hw-json]').catch(() => '');
+  ok(/"surface": "desktop"/.test(shown) && /"facts"/.test(shown) && sent.length === 0, '"See exactly what is sent" shows the report, and showing it sends nothing', shown.slice(0, 120));
+  await page.click('[data-hw-noshare]');
+  ok(await page.evaluate(() => localStorage.getItem('cc-hw-share') === 'on' && window.ccShellHardware.allowed()), 'ticking it turns sharing on');
+  await page.click('[data-hw-noshare]');
+  ok(await page.evaluate(() => localStorage.getItem('cc-hw-share') === 'off'), 'unticking it turns it off again');
 });
 
 // 0.7 HW.2: the six apps without the compute engine send the same report through the shell (assets/js/app-hardware.js, light probe)
@@ -76,7 +91,7 @@ await session(null, async (page, sent) => {
   const b = sent[0]?.body || {};
   ok(b.app === 'cadcraft' && b.surface === 'web' && b.v === 1 && typeof b.facts?.cores === 'number' && b.facts.webgl2 === null && b.screen?.w > 0, 'the same report shape, light: no WebGL renderer', JSON.stringify(b).slice(0, 200));
   ok(!sent[0]?.cookie && !JSON.stringify(b).includes('@'), 'no cookies and nothing about the person');
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(3000);
+  await page.settle(); await page.reload({ waitUntil: 'load', timeout: 120000 }); await page.waitForTimeout(3000);
   ok(sent.length === 1, 'not again on the next visit (once a month)', sent.length);
 }, 'cadcraft');
 console.log('== CadCraft, "Don\'t share" ticked');

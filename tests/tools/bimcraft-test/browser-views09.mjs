@@ -44,6 +44,7 @@ let ctx = null, page = null;
 async function fresh() {
   if (ctx) await ctx.close();
   ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+  await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch (e) { /* private window */ } });   // tests-10: the side panel folds to one open section (shell, 2026-11-09); a page test clicks any section, so folding is off
   await ctx.addCookies([{ name: minted.name, value: minted.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
   page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -459,7 +460,7 @@ try {
     const svgText = '<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="594mm" viewBox="0 0 420 594"><rect x="10" y="10" width="400" height="574" fill="none" stroke="#000" stroke-width="0.5"/><rect x="250" y="530" width="160" height="54" fill="none" stroke="#000"/><text x="254" y="540" font-size="4">Company: {{company}}</text><text x="254" y="552" font-size="5" font-weight="bold">{{drawing-name}}</text><text x="254" y="578" font-size="6">{{number}}</text></svg>';
     const svgPath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bc-sheet-')), 'own-sheet.svg');
     fs.writeFileSync(svgPath, svgText);
-    await inPage(() => window.bimcraftViews.api.openSheet(window.bimcraftViews.state.sheets[0].id));
+    await inPage(() => window.bimcraftViews.api.openSheet(window.bimcraftViews.state.sheets.find((s) => s.paper === 'a2:p').id));   // 0.10 BK.74: sheets[0] is now the building's first sheet, A-101
     await page.waitForSelector('[data-sh-dialog][open]');
     await page.click('[data-sh-formats]');
     await page.waitForSelector('[data-sf-dialog][open]');

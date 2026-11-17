@@ -1,34 +1,34 @@
 ---
-title: Ordenar nde propio diseño ha guardar nde configuraciones
-summary: Eheja mbaʼépa panel ohechauka explorador de proyecto, Propiedades térã panel propio contenido, mboʼépa oiko caja de herramientas ha mbaʼépa barra oguereko, guardalo nde propio diseño ra'e, ha guarda configuración completa téra pumbyrýpe ojeheka hag̃ua.
-keywords: diseño, espacio de trabajo, ordenar, personalizar, mi diseño, diseño propio, paneles, editores, explorador de proyecto, propiedades, caja de herramientas, barra rápida, cuadro de información, entorno de trabajo, configuración, perfil, guardar configuración, cambiar configuración, exportar configuración, importar configuración, ccenv
-from: 2a71af43
+title: Emboheko mi diseño ha emboty mis configuraciones
+summary: Eiporu mba'e panel ojehechaukáta explorador de proyecto, Propiedades térã panel réra contenido, toolbox-pe mba'e tenda, barra mba'e ohupytýva, emoñepyrũ ikatu emboty tuichave diseño, ha emboty configuración ñemoñare rehegua emboguejy haguã.
+keywords: diseño, espacio de trabajo, organizar, personalizar, mi diseño, diseño propio, paneles, editores, explorador de proyecto, propiedades, caja de herramientas, barra rápida, cuadro de información, entorno de trabajo, configuración, perfil, guardar configuración, cambiar configuración, exportar configuración, importar configuración, ccenv
+from: 6af528e0
 ---
 
-Oĩ mbohapy diseño aplicación-pe, peteĩ ndéve ojapo ojeporu; ha nde configuración opaite peteĩ téra-pe guardar ikatu ojeheka peteĩ tembiapo-pe.
+Oĩ mbohapy diseño ojejapova'ekue; ikatu avei peteĩ nde reheja ojapo, ha nde configuración opavave ñemoñare rehegua omboty, upéicha emboguejy jey peteĩ mbohapy ojeporu.
 
-## Ojapo nde propio diseño
+## Emboheko mi diseño
 
-1. Eike {{ui:Configuración}} (rueda, térã {{key:Mod+,}}), eheja {{ui:Global}}, upéi {{ui:Diseño}}.
-2. Eheja {{ui:Organice su propio diseño…}}. Diálogo oñepyrũ ojeporúva ko diseño-gui.
-3. Emoĩ téra, upéi eheja:
-   - **Plano ryepý:** aplicación barra, cinta térã ndaipóri; título barra; cuadro de información ha mbaʼépa control ohasa.
-   - **Plano lado-pe:** caja de herramientas izquierda, derecha térã ndaipóri, {{ui:Mis herramientas}} ndive térã ndive; mboʼépa panel paleta ohasa, mboʼépa oiko ipoʼi (explorador de proyecto térã Propiedades, ejemplo), ha mboʼépa pestaña oĩ hatã.
-   - **Área plano:** vista pestaña, barra rápida ha vista barra eheja control ndive, edición paleta, barra estado.
-   - **Ojehechauka:** tamaño, botón línea ha pestaña estilo.
-4. Eheja {{ui:Usar este diseño}}. Aplicación oñemoambue, ha opaite aplicación layout ojeporúva ojeporu.
+1. Emboguejy {{ui:Settings}} (engranaje, térã {{key:Mod+,}}), eiporu {{ui:Global}}, upéi {{ui:Layout}}.
+2. Emboguejy {{ui:Organice su propio diseño…}}. Diálogo oñepyrũ ko diseño-gui ejeporúva ko'ẽrõ.
+3. Emoñemuĩ mba'e réra, upéi emboguejy:
+   - **Plano ári:** app barra de herramientas, cinta térã ni peteĩ; barra de título; cuadro de información ha mba'e controles oguerekova.
+   - **Plano rendápe:** caja de herramientas izquierda, derecha térã ni peteĩ, {{ui:Mis herramientas}} ndive térã ndive; mba'e panel oguerekova paletas, mba'e oĩva ári (explorador de proyecto térã {{ui:Propiedades}}, por ejemplo), ha mba'e pestaña iñuĩha.
+   - **Plano área:** pestañas de vista, barra rápida ha barra de vista controles reheséva, paleta de edición, barra de estado.
+   - **Apariencia:** tamaño, borde de botones ha estilo de pestaña.
+4. Emboguejy {{ui:Usar este diseño}}. App omoambue upe jave, ha app opavave oguerekova diseño ojeporu avei.
 
-Ko aplicación oguerekóva ojeporu. Nde diseño oĩ {{ui:De complementos y archivos}}-pe; {{ui:Exportar este diseño}} archivo ojapo colega-pe ome'ẽ hag̃ua, ha botón quitar oheja. Panel ojehasáva acoplar, flotar ha ventana ipropio ojeporu, [Ordenar panelekuéra](common:arrange-panels)-pe ojehechaicha.
+Ojehechauka hína mba'e app ipyhy. Nde diseño oĩ {{ui:De complementos y archivos}} rupi; {{ui:Exportar este diseño}} omboty peteĩ archivo ikatu omoñe'ẽ ryrapýpe, ha botón mboguejy oguejy chupe. Panel oñemoĩva ojoaju, oñemboja, ha ojeguereko ventana iporã, [Emboheko panelekuéra](common:arrange-panels) rehegua.
 
-## Guardar nde configuración entorno de trabajo-pe
+## Emboty nde configuración entorno de trabajo-pe
 
-Entorno de trabajo nde configuración opaite aplicación-pe ko navegador-pe: diseño, menú estilo ha teclas, barra estilo, panelekuéra ha tamañokuéra, ha {{ui:Mis herramientas}}. Tema ha idioma ndaha'éi parte.
+Entorno de trabajo ha'e nde configuración opavave app opavave-pe ko navegador-pe: diseño, menú estilo ha teclas, barra de herramientas estilo, panelekuéra ha tamaño, ha {{ui:Mis herramientas}}. Tema ha idioma ndaiporãi upépe.
 
-- **Guardar:** emboheʼa téra {{ui:Entornos de trabajo}} ryepýpe ha eheja {{ui:Guardar mi configuración}}. Téra oĩva ojehechaha ojepuráva ojejapo ha ojejapo heta.
-- **Cambiar:** eheja configuración lista-pe ha eheja {{ui:Cambiar a ella}}. Aplicación ojerecarga upe configuración-pe; ndaha'éi ojegueru jey mbaʼe ndojeruhaʼỹ, aplicación ojehecha ojerecargáramo.
-- **Compartir:** {{ui:Exportar}} ojeheja configuración `.ccenv.json` archivo-pe; {{ui:Importar una configuración…}} archivo-gui peteĩ ombohasa. Archivo ojapo ko esgoge anive.
-- **Quitar:** eheja configuración ha eheja {{ui:Quitar}}.
+- **Emboty:** emoĩ peteĩ mbyte {{ui:Entornos de trabajo}} rupi ha emboguejy {{ui:Guardar mi configuración}}. Mbyte oiko ramo ojeikuaa, configuración upe oguejy.
+- **Emboguejy:** emboguejy configuración lista-pe ha emboguejy {{ui:Cambiar a ella}}. App reload ojerure ko configuración-pe; trabajo ndoñeñongatuvéi ramo, app ojerure mbeʼe, reload opavave jave ojapóva.
+- **Emboty ryrapýpe:** {{ui:Exportar}} omboty configuración emboguejýva peteĩ archivo `.ccenv.json`; {{ui:Importar una configuración…}} omoĩ peteĩ archivo rupi. Archivo ojeikuaa ko'ã jeporu añoite, ambue ndaipóri.
+- **Mboguejy:** emboguejy configuración ha emboguejy {{ui:Quitar}}.
 
-Doce configuración ikatu oguereko.
+Ikatu emoaguanta 12 configuración peve.
 
-Mboyvy diseño ojeikuaaséva ojehechaukáramo, eheja [caja de herramientas ha cuadro de información](common:layout-toolbox) ha [cinta ha explorador de proyecto](common:layout-ribbon).
+Diseño ndoguejýiva diálogo-pe ojejapo (mba'e bloque ojapo, tool derecha botón ojapo), ehecha [Diseño pantalla-pe ojapo](common:layout-edit). Ikatu eñeha'ã ejekuaa ojeikuaáva diseño, ehecha [caja de herramientas ha cuadro de información diseño](common:layout-toolbox), [cinta ha explorador de proyecto diseño](common:layout-ribbon) ha [Drafting diseño](common:layout-drafting).

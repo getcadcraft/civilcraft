@@ -1,97 +1,101 @@
 ---
-title: Ordenar panelekuéra ha ojeporu ambue monitor
-summary: Acoplar panelekuéra izquierda, derecha térã abajo, apilar, agrupar pestañas-ramo, fijar térã ocultar, flotar plano ryepýpe, emoĩ diseño hetaveve, esgoge mboʼépa fila ojeporúta barra-pe térã omoĩ hendáre peteĩ ventana iñambue pantalla-pe.
-keywords: panel, acoplar, flotar, mover panel, arrastrar, diseño, pestañas, grupo de pestañas, apilar, fijar, ocultar automáticamente, ocultar panel, cerrar panel, compacto, densidad de diseño, denso, filas de la barra, ajustar, 1 fila, 2 filas, líneas de la barra, segundo monitor, dos pantallas, monitor dual, varios monitores, ventana, ventana emergente, restablecer diseño
-from: 32a8dae2
+title: Emboheko panelekuéra ha eipuru segunda pantalla
+summary: Emoĩ panelekuéra izquierda, derecha térã abajo-pe, apiló-lo, agrupá-lo pestaña-pe, fijá-lo térã ocultá-lo, flotá-lo plano ári, emyasãiterei diseño, eiporu líneas barra-pe térã emoĩ chupekuéra ijyvy ventana ambue pantalla-pe.
+keywords: panelekuéra, acoplar, flotar, mover panel, arrastrar, diseño, pestañas, grupo de pestañas, apilar, fijar, ocultación automática, ocultar panel, cerrar panel, compacto, densidad de diseño, denso, filas de la barra, ajustar, 1 fila, 2 filas, líneas de la barra, segunda pantalla, dos pantallas, doble pantalla, varias pantallas, ventana, emergente, restablecer diseño
+from: 49530239
 ---
 
-Panelekuéra oĩva plano akatúa ojeity hína. Emoĩ hendápe ojehayhápe, térã emoĩ peteĩ ventana iñambuégui ambue monitor-pe, plano ojupe hetaiterei pantalla ryepýpe.
+Pe plano rapykue oñemoveve panelekuéra. Emoĩ chupekuéra oporojojoha haguã, térã emoñepyrũ chupekuéra ijyvy ventana segunda pantalla-pe, ikatu haguã plano ojeguerekoha tuichave primera pantalla.
 
 :::note
-Peteĩ panel oguereko barra de título: peteĩ barra michĩ, panel rérape, menú {{ui:⋯}}, pin ha botón de cerrar panel ryepýpe. Versiones 0.7 renondépe oguereko réra ha menú {{ui:⋯}} añoite.
+Cada panel-pe oĩ barra de título: barra mbyky, panel-pe ojehecha réra, menú {{ui:⋯}}, pin ha botón de cerrar panel rapykue-pe. Versiones 0.7 renondépe ndaipóri ko'ã; oĩ avei réra ha menú {{ui:⋯}} añoite.
 :::
 
-## Mojoaju peteĩ panel ventanápe
+## Mové panel ventana-pe
 
-1. Ejapo panel rérape arrastrando.
-2. Arrastrando, plano ryepýpe izquierda, derecha ha abajo ojehechakuaáta área. Eheja panel peteĩ área-pe acoplarã hag̃ua. Área oĩva hendápe ohasa ojehechaha.
-3. Eheja panel ambue tendápe plano ryepýpe flotar hag̃ua.
+1. Emboguejy panel réra rupi, arrastrá.
+2. Arrastrándo, oñemoĩ área oñemarka izquierda, derecha ha abajo plano-pe. Emboguejy panel umi área-pe ojoaju haguã chupe acoplado. Área oĩha nde ári oñemoñareteĩ.
+3. Emboguejy panel plano ári ambue tenda-pe, ikatu haguã flotar.
 
-Panelekuéra peteĩ lado-pe ikatu oikoveha: ojeapila, ha línea oĩva mokõi panel jeguakárõ ojejoguaʼỹ hag̃ua espacio (línea ojehechaháme flechas ojemoveha, ha doble clic omboguejy ojoguaʼỹ). Arrastrá borde interno acoplado lado ipokatúvo térã ipotaiterei hag̃ua; doble clic borde-pe ombohasa jey.
+Panelekuéra ikatu oñemboja hetã lado-pe: oapilá, ha línea oĩva mokõi panel apytépe oñemboguejy ha ojoaju espacio. Línea enfocada-pe, flechas teclas omoveve chupe, ha doble clic omboja espacio tuichakue. Arrastrá borde interno acoplado lado-pe ikatu haguã tuicha térã mbyky; doble clic borde-pe omboguejy jey.
 
-Panel flotante oiko plano ryepýpe. Ojemoveha rérape, ha ohechauka ipokatu ryepý-ndive (térã tab ryepý-pe ha flechas). Doble clic ree rérape acoplarã jey umi tendápe oĩha.
+Panel flotando oñeguerekoha plano ári. Mové chupe réra rupi, ha omoambue tamaño arrastrando esquina ryguasu-pe (térã tab esquina-pe ha eipuru flechas). Doble clic réra-pe omoĩ jey acoplado umi tenda-pe.
 
 :::touch
-Arrastrá peteĩ dedo panel rérape. Arrastrá peteĩ dedo panel flotante ryepý-ndive ipokatu hag̃ua, ha borde acoplado mbojoapytépe la misma. Flotar térã acoplar arrastre gueteri ndahasaveiha, usá menú {{ui:⋯}}.
+Arrastrá mokõi pyrũ'ỹ panel réra-pe. Esquina ryguasu-pe panel flotando-pe arrastrá mokõi pyrũ'ỹ, ha borde umi panel acoplado-pe avei. Flotar térã acoplar arrastre gueteri ndaikatúi, eipuru menú {{ui:⋯}}.
 :::
 
-## Pestañas-ramo agrupar
+## Agrupá panelekuéra pestaña-pe
 
-Mokõi panel ikatu oñemoĩ peteĩ marco-pe ha peteĩ jey ohechauka. Arrastrá panel rérape ambue panel barra de título-pe (barra ohechaukáva ho'ahápe), ha ejerokẽ: marco-pe oguereko pestaña peteĩ panel-pe. Ejapo pestaña ohechauka hag̃ua chupe panel. Pestaña ojehechapyre ndive, {{key:Left}} ha {{key:Right}} ombohasa pestañas, ha {{key:Home}} ha {{key:End}} omoĩ primero ha último-pe.
+Mokõi panel ikatu oñeguereko marco mokõivéva ha oñehechauka peteĩ pe jave. Arrastrá panel réra rupi panel ambue barra de título-pe (barra oñemarka oĩrõ hi'ãva ryepy), ha emboguejy: marco-pe oĩta pestaña panel mbohapy-pe, barra de título-pe. Emboguejy pestaña ojehechauka haguã chupe panel. Pestaña enfocada-pe, {{key:Left}} ha {{key:Right}} omboguejy pestaña, ha {{key:Home}} ha {{key:End}} ohupa primera ha última-pe.
 
-Panel grupo guive omboguejy hag̃ua, eheja {{ui:Move out of the tab group}} menú {{ui:⋯}}-pe, térã arrastrá ambue tendápe. Eheja {{ui:Tab with}} ha panel rérape arrastrando ndaha'éi grupo-pe omoĩ hag̃ua.
+Panel grupo guive osẽ haguã, emboguejy {{ui:Move out of the tab group}} ibaja {{ui:⋯}} menú-pe, térã arrastrá ambue tenda-pe. Emboguejy {{ui:Tab with}} ha panel réra ojoaju haguã chupe grupo arrastre gueteri.
 
-## Fijar, ocultar ha tuicha jey
+## Fijá, ocultá ha emoĩ jey
 
-- Barra de título-pe pin oguereko panel **auto-hide**: panel oho hendápe ha oiko peteĩ pestaña michĩ borde-pe. Eñandu pestaña, ejerure térã eheja, panel oho plano ryepýpe; ejaʼe jave ha ohasa jey (térã {{key:Esc}} ejapo). Pin ojapo jey térã eheja {{ui:Unpin}} acoplar hag̃ua mbovymi.
-- Botón de cerrar térã {{ui:Hide this panel}} menú-pe ocultar panel ha cerrar hendápe. Pestaña punteada borde-pe tuicha jey: ejerure térã eheja focus ha eapreta {{key:Enter}}.
+- Pin barra de título-pe panel-pe ombojojáva **auto-hide**: panel ohasa acoplado tenda guive ha oikuaa peteĩ pestaña mbyky borde-pe. Eñemboja pestaña-pe, enfocá térã emboguejy, ha panel osẽ plano ári; emboguejy kuarahy, térã {{key:Esc}} ejapo, ha oguejy jey. Emboguejy pin jey, térã emboguejy {{ui:Unpin}}, acoplá haguã peve.
+- Botón de cerrar térã {{ui:Hide this panel}} menú-pe ocultáva panel ha omboguejy acoplado tenda. Pestaña punteada borde-pe omoĩ jey chupe: emboguejy, térã enfocá ha eimo {{key:Enter}}.
 
-## Emoĩ diseño hetaveve
+## Emyasãiterei diseño
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} oguereko mokõi esgoge. {{ui:Comfortable}} ha'e tekoháva. {{ui:Compact}} omboʼyryvo fila altura, panel relleno, barra botones ha panel texto, heta mbohasa pantalla-pe. Ojeporu peteĩ aplicación-pe jeʼõ. Pantalla touch-pe botones hetãva omoĩ ambuépe, ha teléfono ipropio diseño ombopaʼũ. {{ui:Reset layout}} ndojeheja density eŕemoĩva.
+{{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} oĩ mokõi jeporu. {{ui:Comfortable}} hína default. {{ui:Compact}} omyasãi mbyte tenda rapykue, panel padding, botón herramientas ha panel texto aplicación-pe, ikatu haguã hetave pantalla-pe. Oñemoĩ app-pe. Touch pantalla-pe hi'ãva ikatu botón tuicha ambuépe, ha teléfono-pe imba'e layout-pe. {{ui:Reset layout}} ndaiporãi densidad ojeporu ndoasai.
 
-## Esgoge mboʼépa fila ojeporúta barra-pe
+## Emboguejy barra-pe líneas mba'e
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} oguereko mbohapy esgoge. {{ui:Wrap}} ha'e tekoháva: heta tool grupo ohechauka, mboʼépa fila ojeporúva. {{ui:2 rows}} omoĩ barra mokõi fila-pe ha {{ui:1 row}} peteĩ fila-pe, plano ryepý ohupyty hag̃ua; grupo ndaikatúva oike ohasa pépe barra ryepýpe (eheja mouse ruedita, mokõi dedo ohasa, térã {{key:Tab}} tool-pe). Barra ojehasáva mokõi filápe {{ui:2 rows}} ndoipe'ãi ohasa, ndaha'éi grid ohasáva hag̃ua. Esgoge oñeñongatuha peteĩ aplicación-pe jeʼõ. Pantalla touch ha teléfono ipropio diseño ombopaʼũ. CadCraft-pe ipropio ajuste barra-pe, {{ui:Settings}} › {{ui:CadCraft}}-pe.
+{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} oĩ mbohapy jeporu. {{ui:Wrap}} hína default: grupo herramienta opavave ohechauka, línea hetave ikatuhápe. {{ui:2 rows}} ohechauka barra mokõi línea-pe ha {{ui:1 row}} peteĩ línea-pe, ikatu haguã plano altura; grupo ndoikeáiva ojapo desplazamiento costado-pe barra-pe (eipuru mouse rueda, mokõi dedo dedo-pe, térã {{key:Tab}} herramienta-pe). Barra mokõi línea-pe ojoaporãva ojekuaa {{ui:2 rows}} rupi, ndojejapói, ha grilla ojapo tuichave. Ojeporu oñemoĩ app-pe. Touch pantalla ha teléfono ojeguereko layout ijyvy. CadCraft-pe oĩ ijyvy setting barra-pe, {{ui:Settings}} › {{ui:CadCraft}} rupi.
 
-## Eporu teclado
+## Eipuru teclado
 
-Panel peteĩ {{ui:⋯}} botón ombojehechauka menú: {{ui:Anclá izquierda-pe}}, {{ui:Anclá derecha-pe}}, {{ui:Acoplar abajo}}, {{ui:Flotar sobre el dibujo}}, {{ui:Fijar al borde}}, {{ui:Ocultar este panel}}, {{ui:Agrupar con}} ambue panel, {{ui:Mover a una ventana nueva}} ha {{ui:Emoĩ jey}}. Tab-pe botón-pe, eapreta {{key:Enter}}, flechas-pe ejemove ha eapreta {{key:Enter}} jey. {{key:Esc}} omboguejy menú.
+Cada panel {{ui:⋯}} botón ohechauka menú: {{ui:Anclá izquierda-pe}}, {{ui:Anclá derecha-pe}}, {{ui:Acoplar abajo}}, {{ui:Flotar sobre el dibujo}}, {{ui:Fijar al borde}}, {{ui:Ocultar este panel}}, {{ui:Pestaña con}} ambue panel-pe, {{ui:Mover a una ventana nueva}} ha {{ui:Emoĩ jey}}. Tab botón-pe, eimo {{key:Enter}}, emoambue flechas teclas rupi ha eimo {{key:Enter}} jey. {{key:Esc}} omboguejy menú.
 
-## Emoĩ panelekuéra ambue pantalla-pe
+## Emoĩ panelekuéra segunda pantalla-pe
 
-1. Eheja {{ui:⋯}} panel-pe, ha upéi {{ui:Mover todos los paneles a una ventana nueva}}. Ikatu eheja avei {{ui:Mover paneles a una ventana nueva}} {{ui:Settings}}-pe.
-2. Peteĩ ventana michĩ ojejapo panelekuéra ndive. Arrastrá ambue monitor-pe ha emoĩ tuichave gustoímeha.
-3. Eguata ojapova: panelekuéra ojapo plano-pe jeʼõ, ha plano opaite ventana ryepýpe.
+1. Emboguejy {{ui:⋯}} panel-pe, upéi {{ui:Mover todos los paneles a una ventana nueva}}. Ikatu avei emboguejy {{ui:Mover paneles a una ventana nueva}} {{ui:Settings}}-pe.
+2. Ventana mbyky osẽ panelekuéra rapykue. Arrastrá segunda monitor-pe ha omoĩ tuicha nde ohaisepaite.
+3. Tesarái: panelekuéra ojapo plano-pe ko'ã áore ramo, ha plano oñemoĩ ventana ryguasu-pe.
 
-Atajo ojeporúta panel ventana ho'ápe: teclas oñemoĩva upépe, texto ndojuaiha ryepý-pe, ojeporu plano-pe. Aplicación pregunta térã diálogo oĩ ventana ryepýpe, upémarõ eheka ventana ryepýpe. Tema ha panel texto tamaño oñeñangareko ventana ryepý.
+Atajo teclas ojapo ventana panelekuéra ári: teclas embokáva upépe, caja-pe ndaporãi mba'e ndaijeporuvéi, oñeme'ẽ plano-pe. Diálogo ha pregunta app ojerure hína ventana ryguasu-pe, upévare eñangareko upégui. Tema ha panel texto tamaño ojejapo ventana ryguasu rehe.
 
 :::chromium
-Chrome ha Edge ikatu omoĩ ventana pantalla ambuépe. Peteĩ segundo pantalla conectado, eheja {{ui:Put it on my other screen}} paneles ventanápe (térã {{ui:Put the panels on my other screen}} panel {{ui:⋯}} menú-pe). Navegador peteĩ jey pregunta ndehe ko sitio ojehecha pantallakuéra; eñemoñepyrũ jave, panelekuéra ventana upe pantalla-pe ohasa opaite jey.
+Chrome ha Edge ikatu omoĩ ventana pantalla ambue-pe nde rovái. Pantalla mokõi konektado, emboguejy {{ui:Emoĩ ambue pantalla-pe}} panelekuéra ventana-pe (térã {{ui:Emoĩ panelekuéra ambue pantalla-pe}} panel {{ui:⋯}} menú-pe). Navegador peteĩ jey ojeporu: ¿ikatu sitio ohecha pantalla-kuéra? Emoaprobá rire, panelekuéra ventana oñemoĩ upe pantalla-pe opavave jey.
 :::
 
 :::firefox safari
-Arrastrá paneles ventana ambue monitor-pe nde ndive. Ohasa tenda ha tamaño upéicha jey upe ohasáva.
+Arrastrá panelekuéra ventana ambue monitor-pe nde reñondive. Ojejapo upe tenda ha tamaño ojehecha upéicha upe jave.
 :::
 
-## Heta paneles ventana
+## Hetave panelekuéra ventana
 
-Panel peteĩ ventana ipropio ikatu oguereko: cuatro paneles ventana peve, peteĩ monitor ha monitor-pe.
+Cada panel ikatu oguereko ventana iporã: ikatu cuatro panelekuéra ventana peve, por ejemplo peteĩ monitor-pe peteĩ.
 
-- Panel {{ui:⋯}} menú-pe, {{ui:Mover a una ventana nueva}} oipyrũ ambue ventana panel-pe, ha {{ui:Move to panels window 2}} (ha ambuéicha) oipyrũ ventana ojeipyrũva-pe. Segundo ventana oñembohéra "paneles 2".
-- Arrastrá panel rérape peteĩ ventanagui ambuépe: eheja ventana ryepýpe acoplar hag̃ua (área ohechaukáva) térã flotar, térã ambue paneles ventanápe omoĩ hag̃ua. Ambue tendápe ejerokẽ jave, ohasa oñemoĩ jey.
-- Panel ventana ndoguerekói panel jave, hendápe ojejoguaʼỹ.
+- Panel {{ui:⋯}} menú-pe, {{ui:Mover a una ventana nueva}} oporojojoha ambue ventana upe panel-pe, ha {{ui:Mover a la ventana de paneles 2}} (ha ambue) oñemoĩ chupe ventana oñeguerekovéva. Segunda ventana oñehenóihína "panels 2".
+- Arrastrá panel réra rupi ventana guive ambue-pe: emboguejy plano ryguasu-pe acoplado térã flotando-pe (borde ojehecha tuichave), térã ambue ventana panelekuéra-pe ojoaju haguã. Ambue tenda-pe emboguejy, oĩ upe rehegua.
+- Ventana panelekuéra ndaipóri panel mboyve oñemboguejy iñimbaʼeve.
 
-Aplicación recarga rire, ombohasa paneles ventanakuéra. Navegador peteĩ ventana peteĩ jeheja-pe ojapo, upévare eheja {{ui:Open the next one}} peteĩ jey peteĩ ventana-pe.
+Reload rire, app omoĩ jey nde panelekuéra ventana. Navegador peteĩ ventana peteĩ jey-pe ojapo, upévare emboguejy {{ui:Abrir la siguiente}} peteĩ peteĩ ventana-pe.
 
-## Mojoaju diálogo
+## Upe mba'e layout-pe opavave rehegua
 
-Opaite diálogo ikatu omoĩ plano-gui ambue tendápe: ejapo ha arrastrá título barra. Diálogo oñemanduʼa mbohasa tendápe, peteĩ peteĩ, ha omboguejy upéi tendápe ohasa jey ojepe. Doble clic título barra-pe ombojoguaʼỹ jey centro-pe.
+Cinta, caja de herramientas, herramienta líneas ha barra de estado ojeporu ventana iporã-pe panel ramo: emboguejy {{ui:⋯}} menú upe parte-pe ha emboguejy {{ui:Mover a una ventana nueva}}; {{ui:Emoĩ jey}} (térã ventana cerrar) omboguejy jey. Ventana upépe tecla embokáva app-pe oĩ, panelekuéra ventana ramo. Cada parte peteĩ menú upéicha oguereko.
 
-Teclado-gui, eapreta {{key:Alt}}+{{key:Shift}}+peteĩ flecha diálogo ryepýpe focus ha ombohasa 16 píxel jey; {{key:Ctrl}} ombojoaju 64 jey. Diálogo pantalla ndive oĩ ojejoguaʼỹ (ventana michĩve térã pantalla ambue) ombohasa ojuehe.
+## Diálogo omboguejy
 
-Teléfono-pe diálogo oĩ hoʼaiha hoʼa, ndaikatúi omoĩ.
+Cada diálogo ikatu omoĩ ambue tenda plano-pe: emboguejy ha arrastrá título barra. Diálogo oñemanduʼa mba'eichapa nde reheja, cada diálogo ijyvy, ha oguejy jey upe tenda ojejapo rire. Doble clic título barra-pe omoĩ jey centro-pe.
 
-CadCraft Studio-pe, CadCraft-pe diálogo {{ui:Imprimir a PDF}}, ejaʼe ndeve ojepe, ipy barra-pe botón oguereko, {{ui:Abrir en su propia ventana}}. Diálogo oho peteĩ ventana ipropio, ikatu omoĩ ambue monitor-pe. Diálogo ojejapo ventana oho, ha ventana ojejapo diálogo oho.
+Teclado rupi: {{key:Alt}}+{{key:Shift}}+flecha tecla diálogo ryepy-pe enfocado, omoambue 16 píxel peteĩ jey-pe; eme'ẽ {{key:Ctrl}} 64-pe. Diálogo oñemoĩvo pantalla ndive (ventana mbyky térã pantalla mbyky rire), oñemoĩ jey.
+
+Teléfono-pe diálogo oiko ancho tuicha, ndaikatúi omboguejy.
+
+CadCraft Studio-pe, CadCraft rehegua {{ui:Trazar a PDF}} diálogo, ikatu nde reheja plano ári ramo, oguereko botón título barra-pe: {{ui:Abrir en su propia ventana}}. Diálogo osẽ ventana iporã, ikatu omoĩ ambue pantalla-pe. Diálogo mboguejy ventana oñemboguejy, ha ventana mboguejy diálogo oñemboguejy.
 
 ## Emoĩ jey panelekuéra
 
-- Eheja {{ui:Emoĩ jey panelekuéra}} paneles ventanápe, térã ejapo ojejapo. Panelekuéra omboguejy hendápe ojehaicha.
-- Ojejapo térã ojerecarga ventana ryepý, paneles ventana oho. Aplicación ojeipyrũ jey, ohechauka panelekuéra peteĩ ventana ipropio-pe; eheja {{ui:Abrir}} ventana tuichaiterei, térã {{ui:Mantener aquí}}.
-- {{ui:Settings}} › {{ui:General}} › {{ui:Reset layout}} omboguejy opaite panel hendápe ohaicha.
+- Emboguejy {{ui:Emoĩ jey panelekuéra}} panelekuéra ventana-pe, térã eguejy chupe. Panelekuéra oguejy oho upe tenda-pe.
+- Mboguejy térã reload ventana ryguasu oguejy avei panelekuéra ventana. App ojehupyty jey rire ha he'i panelekuéra ojeikuaa ventana iporã-pe; emboguejy {{ui:Abrir}} ventana jey-pe, térã {{ui:Eguarda ko'ápe}}.
+- {{ui:Settings}} › {{ui:General}} › {{ui:Restablecer diseño}} omoĩ opavave panel upe tenda-pe ojepyrũva.
 
 :::tip
-Panel ventana-pe mboguejy jave ndojehechái, navegador ombotape'a ventana emergente. Aplicación ohechauka ha panelekuéra oĩ hendápe ojehaicha. Pop-ups tuichave getcadcraft.com-pe, upéi eñemboʼe jey.
+Panel ventana-pe mboguejy rire ndojehechakuaáiva, navegador ojoguáva emergente. App he'i ha panelekuéra oĩ jey upe tenda-pe. Emoaprobá emergente getcadcraft.com-pe, ha ejerure jey.
 :::
 
-Diseño oñeñangareko aplicación-pe ko navegadorpe, ambue ajuste ndive.
+Layout oñemboty app-pe ko navegador-pe, ambue configuración-kuéra ndive.

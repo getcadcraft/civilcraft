@@ -745,6 +745,56 @@ export function writeCivilIfc(model, { schema = 'IFC4X3_ADD2', now = new Date(),
     }
   }
 
+  // ---- utility networks (0.10 SU.1810): pipes (IfcPipeSegment) and cables (IfcCableSegment) under the ground, chambers, hydrants and valves, one system per service
+  const utl = model.utilities;
+  if (utl) {
+    const bySvc = new Map();
+    const extrudeU = (profile, at, depth) => w.ent('IfcExtrudedAreaSolid', { SweptArea: profile, Position: at, ExtrudedDirection: w.dir([0, 0, 1]), Depth: R(Math.max(depth, 1e-6)) });
+    const attr = utl.attribution ? [['Attribution', utl.attribution, 'label']] : [];
+    for (const p of utl.runs) {
+      const r = p.dia / 2, dx = p.b.x - p.a.x, dy = p.b.y - p.a.y, dz = p.b.z - p.a.z, L3 = Math.hypot(dx, dy, dz);
+      if (!(L3 > 1e-9)) continue;
+      const u = [dx / L3, dy / L3, dz / L3], hl = Math.hypot(u[0], u[1]) || 1, ref = [-u[1] / hl, u[0] / hl, 0];
+      const solid = extrudeU(w.ent('IfcCircleProfileDef', { ProfileType: '.AREA.', Position: ax2d0, Radius: R(r) }), w.ent('IfcAxis2Placement3D', { Location: w.pt([lx(p.a.x), ly(p.a.y), lz(p.a.z)]), Axis: w.dir(u), RefDirection: w.dir(ref) }), L3);
+      const ptag = 'util|' + p.id;
+      const el = element({ cls: p.cable ? 'IfcCableSegment' : 'IfcPipeSegment', pre: p.cable ? 'CABLESEGMENT' : 'RIGIDSEGMENT', name: p.name, label: p.service, tag: ptag, rep: shape([[cBody, 'Body', 'SweptSolid', [solid]]]) });   // i18n-ignore: IFC file data
+      put(site, el); (bySvc.get(p.service) || bySvc.set(p.service, []).get(p.service)).push(el); counts.pipes++;
+      pset([el], 'CadCraft_Utility', [['Service', p.service, 'label'], ['Material', p.material || '', 'label'], ['Owner', p.owner || '', 'label'], ['Cover', p.depth, 'len'], ['Source', p.source === 'osm' ? 'OpenStreetMap ' + p.osm : 'Drawn', 'label'], ...attr], ptag);   // i18n-ignore: IFC file data
+    }
+    const NK = { hydrant: ['IfcFireSuppressionTerminal', 'FIREHYDRANT'], manhole: ['IfcDistributionChamberElement', 'MANHOLE'], chamber: ['IfcDistributionChamberElement', 'INSPECTIONCHAMBER'], valve: ['IfcValve', 'ISOLATING'], cabinet: ['IfcDistributionChamberElement', 'FORMEDDUCT'] };
+    for (const n of utl.nodes) {
+      const k = NK[n.kind]; if (!k) continue;
+      const rr = unit === 'm' ? 0.4 : 1.3, ntag = 'util|' + n.id;
+      const el = element({ cls: k[0], pre: k[1], name: n.name, label: n.kind, tag: ntag, rep: shape([[cBody, 'Body', 'SweptSolid', [extrudeU(w.ent('IfcCircleProfileDef', { ProfileType: '.AREA.', Position: ax2d0, Radius: R(rr) }), w.ent('IfcAxis2Placement3D', { Location: w.pt([lx(n.x), ly(n.y), lz(n.z)]), Axis: w.dir([0, 0, 1]), RefDirection: w.dir([1, 0, 0]) }), 2 * rr)]]]) });   // i18n-ignore: IFC file data
+      put(site, el); (bySvc.get(n.service) || bySvc.set(n.service, []).get(n.service)).push(el); counts.pipes++;
+      pset([el], 'CadCraft_Utility', [['Service', n.service, 'label'], ['Owner', n.owner || '', 'label'], ['Source', n.source === 'osm' ? 'OpenStreetMap ' + n.osm : 'Drawn', 'label'], ...attr], ntag);   // i18n-ignore: IFC file data
+    }
+    const PT = { water: '.DOMESTICCOLDWATER.', sewer: '.SEWAGE.', storm: '.STORMWATER.', gas: '.GAS.', power: '.ELECTRICAL.', telecom: '.COMMUNICATION.' };
+    for (const [svc, members] of bySvc) {
+      const sys = root(w.has('IfcDistributionSystem') ? 'IfcDistributionSystem' : 'IfcSystem', 'system|util|' + svc, { Name: S(svc), ObjectType: S('Utility network'), PredefinedType: PT[svc] || '.NOTDEFINED.' });   // i18n-ignore: IFC file data
+      root('IfcRelAssignsToGroup', 'system|util|' + svc + '|members', { RelatedObjects: L(members), RelatingGroup: sys });
+    }
+  }
+
+  // ---- fences (0.10 SU.1814b, lib/fence): posts (IfcMember POST), panels (IfcRailing, user defined "Fence panel"), rails (IfcMember), gates (IfcDoor GATE), one system per fence
+  for (const fm of model.fences || []) {
+    const members = [], ptag = 'fence|' + fm.id, rect = (xd, yd) => w.ent('IfcRectangleProfileDef', { ProfileType: '.AREA.', Position: ax2d0, XDim: R(xd), YDim: R(yd) });
+    const solidAlong = (a, b, xd, yd, midUp) => {   // a rectangle xd by yd swept from a to b; the profile's Y runs up (perpendicular to the run in the vertical plane)
+      const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z, L3 = Math.hypot(dx, dy, dz); if (!(L3 > 1e-9)) return null;
+      const u = [dx / L3, dy / L3, dz / L3], hl = Math.hypot(u[0], u[1]) || 1, ref = [-u[1] / hl, u[0] / hl, 0];
+      return w.ent('IfcExtrudedAreaSolid', { SweptArea: rect(xd, yd), Position: w.ent('IfcAxis2Placement3D', { Location: w.pt([lx(a.x), ly(a.y), lz(a.z + midUp)]), Axis: w.dir(u), RefDirection: w.dir(ref) }), ExtrudedDirection: w.dir([0, 0, 1]), Depth: R(L3) });
+    };
+    const add = (spec, solid, kind, props) => { if (!solid) return; const el = element({ ...spec, rep: shape([[cBody, 'Body', 'SweptSolid', [solid]]]) }); put(site, el); members.push(el); counts.fences = (counts.fences || 0) + 1; pset([el], 'CadCraft_Fence', [['Fence', fm.name || fm.id, 'label'], ['Part', kind, 'label'], ['Type', fm.type || '', 'label'], ...props], spec.tag); };
+    for (const p of fm.posts) add({ cls: 'IfcMember', pre: 'POST', name: fm.name + ' post', label: 'Fence post', tag: ptag + '|' + p.id }, w.ent('IfcExtrudedAreaSolid', { SweptArea: rect(p.size, p.size), Position: w.ent('IfcAxis2Placement3D', { Location: w.pt([lx(p.x), ly(p.y), lz(p.base)]) }), ExtrudedDirection: w.dir([0, 0, 1]), Depth: R(p.top - p.base) }), 'post', [['PostKind', p.kind, 'label'], ['Length', p.top - p.base, 'len']]);   // i18n-ignore: IFC file data
+    for (const n of fm.panels) add({ cls: 'IfcRailing', pre: 'USERDEFINED', name: fm.name + ' panel', label: 'Fence panel', tag: ptag + '|' + n.id }, solidAlong(n.a, n.b, fm.panelThk || n.height * 0.02, n.height, n.height / 2), 'panel', [['Height', n.height, 'len'], ['Length', n.len, 'len']]);   // i18n-ignore: IFC file data
+    for (const r of fm.rails) add({ cls: 'IfcMember', pre: 'USERDEFINED', name: fm.name + ' rail', label: 'Fence rail', tag: ptag + '|' + r.id }, solidAlong(r.a, r.b, r.size, r.size, 0), 'rail', []);   // i18n-ignore: IFC file data
+    for (const g of fm.gates) add({ cls: 'IfcDoor', pre: 'GATE', name: g.name || fm.name + ' gate', label: 'Fence gate', tag: ptag + '|' + g.id, extra: { OverallHeight: R(g.height), OverallWidth: R(g.width) } }, solidAlong(g.a, g.b, fm.panelThk || g.height * 0.02, g.height, g.height / 2), 'gate', [['Width', g.width, 'len'], ['Leaves', g.leaves, 'int']]);   // i18n-ignore: IFC file data
+    if (members.length) {
+      const sys = root(w.has('IfcDistributionSystem') ? 'IfcDistributionSystem' : 'IfcSystem', 'system|' + ptag, { Name: S(fm.name || fm.id), ObjectType: S('Fence'), PredefinedType: '.NOTDEFINED.' });   // i18n-ignore: IFC file data
+      root('IfcRelAssignsToGroup', 'system|' + ptag + '|members', { RelatedObjects: L(members), RelatingGroup: sys });
+    }
+  }
+
   // ---- parcels (footprints)
   for (const r of model.parcels) {
     const ring = r.pts.map((q) => w.pt([lx(q.x), ly(q.y)]));

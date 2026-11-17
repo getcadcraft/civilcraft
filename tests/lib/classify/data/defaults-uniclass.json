@@ -1,0 +1,31 @@
+{
+ "format": "cadcraft-classification-defaults",
+ "version": 1,
+ "system": "uniclass",
+ "pack": "uniclass-ef",
+ "verified": false,
+ "note": "CadCraft's own starting codes for the generic element kinds, from the Elements/ functions table. Chosen by CadCraft, not by the publisher and not checked by a practitioner: check them against your project's standard.",
+ "classes": {
+  "IfcWall": "EF_25_10",
+  "IfcCurtainWall": "EF_25_10",
+  "IfcDoor": "EF_25_30",
+  "IfcWindow": "EF_25_30",
+  "IfcRailing": "EF_25_55",
+  "IfcRoof": "EF_30_10",
+  "IfcSlab": "EF_30_20",
+  "IfcSlab.FLOOR": "EF_30_20",
+  "IfcSlab.BASESLAB": "EF_30_20",
+  "IfcSlab.ROOF": "EF_30_10",
+  "IfcStair": "EF_35_10",
+  "IfcStairFlight": "EF_35_10",
+  "IfcRamp": "EF_35_20",
+  "IfcRampFlight": "EF_35_20",
+  "IfcColumn": "EF_20_10",
+  "IfcBeam": "EF_20_10",
+  "IfcMember": "EF_20_10",
+  "IfcFooting": "EF_20_05",
+  "IfcPile": "EF_20_05",
+  "IfcFurniture": "EF_40_30",
+  "IfcFurnishingElement": "EF_40_30"
+ }
+}

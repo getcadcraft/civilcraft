@@ -25,61 +25,73 @@
 
 // Distances stop at 0x8000: a DWG page holds at most 0x7400 bytes, and longer distances would need the
 // 0x18–0x1F opcodes whose meaning the spec and real readers disagree on (see the note above).
+let headS = new Int32Array(1 << 15), prevS = new Int32Array(0x7400), tokS = new Int32Array(3 * 1024), outS = new Uint8Array(0x8000);   // scratch (HASH_BITS = 15)
 const MIN_MATCH = 3, MAX_DIST = 0x3FFF + 0x3FFF + 1, HASH_BITS = 15, MAX_CHAIN = 64;
 
 /** Compress `src` (Uint8Array). `literalOnly` writes one literal run (useful for tests). */
 export function compressR2004(src, { literalOnly = false } = {}) {
   const n = src.length;
-  const out = new Out(n + (n >> 3) + 64);
+  const out = new Out(n + (n >> 3) + 64, true);
   if (n < 4) {   // the first literal run must be at least 4 bytes long: pad with zeros (readers take the logical size)
     const p = new Uint8Array(4); p.set(src); return compressR2004(p, { literalOnly });
   }
   if (literalOnly) { out.literalLength(n); out.bytes(src, 0, n); out.byte(0x11); return out.result(); }
 
-  const head = new Int32Array(1 << HASH_BITS).fill(-1);
-  const prev = new Int32Array(n).fill(-1);
-  const hash = (i) => (((src[i] << 16) | (src[i + 1] << 8) | src[i + 2]) * 2654435761 >>> (32 - HASH_BITS));
-  const insert = (i) => { if (i + 2 < n) { const h = hash(i); prev[i] = head[h]; head[h] = i; } };
+  // scratch tables are reused from page to page: a new typed array per 29 KB page, 2,600 times for a 75 MB drawing, made the
+  // garbage collector run a full collection of the whole (multi-GB) heap each few pages (PERF.5)
+  const head = headS; head.fill(-1);
+  if (prevS.length < n) prevS = new Int32Array(Math.max(n, prevS.length * 2));
+  const prev = prevS; prev.fill(-1, 0, n);
+  // tokens: start, length, distance of each match, in flat typed arrays (PERF.5: no array per match)
+  let tok = tokS, nTok = 0;
+  let mLen = 0, mDist = 0;                // result of best()
+  const last = n - 2;                     // insert() needs i + 2 < n
+  const insert = (i) => {
+    if (i < last) { const h = (((src[i] << 16) | (src[i + 1] << 8) | src[i + 2]) * 2654435761 >>> (32 - HASH_BITS)); prev[i] = head[h]; head[h] = i; }
+  };
 
   // find all matches greedily (with one-step lazy evaluation)
-  const tokens = [];                      // [start, length, distance] of each match
   let i = 4;                              // the first 4 bytes are always literal (see above)
   for (let k = 0; k < 4 && k < n; k++) insert(k);
+  // sets mLen / mDist; false when there is no match of MIN_MATCH or more
   const best = (pos) => {
-    if (pos + MIN_MATCH > n) return null;
-    let cand = head[hash(pos)], bestLen = 0, bestDist = 0, chain = 0;
-    const maxLen = n - pos;
+    mLen = 0; mDist = 0;
+    if (pos + MIN_MATCH > n) return false;
+    let cand = head[(((src[pos] << 16) | (src[pos + 1] << 8) | src[pos + 2]) * 2654435761 >>> (32 - HASH_BITS))], bestLen = 0, bestDist = 0, chain = 0;
+    const maxLen = n - pos, s0 = src[pos], s1 = src[pos + 1], s2 = src[pos + 2];
     while (cand >= 0 && chain++ < MAX_CHAIN) {
       const dist = pos - cand;
       if (dist > MAX_DIST) break;
-      if (src[cand + bestLen] === src[pos + bestLen] && src[cand] === src[pos]) {
+      // (a candidate shorter than 3 can never be taken - encodable() needs 3 - so bytes 1 and 2 are tested before the run is counted)
+      if (src[cand + bestLen] === src[pos + bestLen] && src[cand] === s0 && src[cand + 1] === s1 && src[cand + 2] === s2) {
         let l = 0;
         while (l < maxLen && src[cand + l] === src[pos + l]) l++;
         if (l > bestLen && encodable(l, dist)) { bestLen = l; bestDist = dist; if (l === maxLen) break; }
       }
       cand = prev[cand];
     }
-    return bestLen >= MIN_MATCH ? [bestLen, bestDist] : null;
+    if (bestLen < MIN_MATCH) return false;
+    mLen = bestLen; mDist = bestDist;
+    return true;
   };
   while (i < n) {
-    const m = best(i);
-    if (!m) { insert(i); i++; continue; }
+    if (!best(i)) { insert(i); i++; continue; }
     insert(i);
-    const m2 = i + 1 < n ? best(i + 1) : null;   // lazy: a longer match one byte later wins
-    let at = i, len = m[0], dist = m[1];
-    if (m2 && m2[0] > m[0]) { at = i + 1; len = m2[0]; dist = m2[1]; insert(at); }
-    tokens.push([at, len, dist]);
+    let at = i, len = mLen, dist = mDist;
+    if (i + 1 < n && best(i + 1) && mLen > len) { at = i + 1; len = mLen; dist = mDist; insert(at); }   // lazy: a longer match one byte later wins
+    if (nTok + 3 > tok.length) { const t2 = new Int32Array(tok.length * 2); t2.set(tok); tok = tokS = t2; }
+    tok[nTok++] = at; tok[nTok++] = len; tok[nTok++] = dist;
     for (let k = at + 1; k < at + len; k++) insert(k);
     i = at + len;
   }
 
   // emit
-  const first = tokens.length ? tokens[0][0] : n;
+  const first = nTok ? tok[0] : n;
   out.literalLength(first); out.bytes(src, 0, first);
-  for (let t = 0; t < tokens.length; t++) {
-    const [start, len, dist] = tokens[t];
+  for (let t = 0; t < nTok; t += 3) {
+    const start = tok[t], len = tok[t + 1], dist = tok[t + 2];
     const end = start + len;
-    const nextStart = t + 1 < tokens.length ? tokens[t + 1][0] : n;
+    const nextStart = t + 3 < nTok ? tok[t + 3] : n;
     const litCount = nextStart - end;
     out.match(len, dist, litCount);
     if (litCount > 3) out.literalLength(litCount);
@@ -98,10 +110,18 @@ function encodable(len, dist) {
 }
 
 class Out {
-  constructor(size) { this.buf = new Uint8Array(Math.max(64, size)); this.pos = 0; }
-  grow(k) { if (this.pos + k > this.buf.length) { const b = new Uint8Array(Math.max(this.pos + k, this.buf.length * 2)); b.set(this.buf); this.buf = b; } }
+  constructor(size, scratch = false) {
+    if (scratch) { if (outS.length < size) outS = new Uint8Array(size); outS.fill(0, 0, Math.min(outS.length, 64)); this.buf = outS; }   // the bytes are always written before they are read
+    else this.buf = new Uint8Array(Math.max(64, size));
+    this.pos = 0; this.scratch = scratch;
+  }
+  grow(k) { if (this.pos + k > this.buf.length) { const b = new Uint8Array(Math.max(this.pos + k, this.buf.length * 2)); b.set(this.buf); this.buf = b; if (this.scratch) outS = b; } }
   byte(v) { this.grow(1); this.buf[this.pos++] = v & 0xFF; }
-  bytes(src, a, b) { this.grow(b - a); this.buf.set(src.subarray(a, b), this.pos); this.pos += b - a; }
+  bytes(src, a, b) {
+    const k = b - a; this.grow(k);
+    if (k < 24) { const buf = this.buf; let p = this.pos; for (let j = a; j < b; j++) buf[p++] = src[j]; } else this.buf.set(src.subarray(a, b), this.pos);
+    this.pos += k;
+  }
   /** Literal Length (≥ 4). */
   literalLength(v) {
     if (v <= 0) return;

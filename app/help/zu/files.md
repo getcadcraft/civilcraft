@@ -1,113 +1,113 @@
 ---
-title: Amafayela ongawavula, ongawalondoloza nongawathumela
-summary: Amafayela wamaphoyinti, i-LandXML namaphrojekthi e-CivilCraft angenayo; amaphrojekthi, i-LandXML, i-DXF ne-PDF aphumayo; okugcinwa yifayela ngalinye, lapho amafayela aya khona, nokushintsha lapho ungaxhunyiwe.
-keywords: vula, londoloza, thumela, ngenisa, izinhlobo zamafayela, csv, txt, landxml, xml, dxf, pdf, json, landa, ifayela leprojekthi
-from: a7debb61
+title: Amafayela ongawavula, ongawalondoloza nongawathumela ngaphandle
+summary: Ngenisa amafayela amaphoyinti, amafayela e-LandXML namaprojekthi e-CivilCraft; amaprojekthi, i-LandXML, i-DXF ne-PDF aphuma; okugcinwayo ngamunye, lapho amafayela aya khona, nokushintsha ngaphandle kwe-inthanethi.
+keywords: vula, londoloza, thumela ngaphandle, ngenisa, amafomethi amafayela, csv, txt, landxml, xml, dxf, pdf, json, landa, ifayela leprojekthi
+from: 82bff559
 ---
 
-I-CivilCraft ivula amafayela asuka kukhompyutha yakho futhi iwalondoloza ngokuwalanda ibuyele kuwo. Akulayishwa lutho futhi akugcinwa lutho kuseva. Bheka futhi [Amafayela akho](common:your-files).
+I-CivilCraft ivula amafayela avela kwikhompyutha yakho futhi ilondoloza ngokulanda amafayela ababuyela kuyo. Akukho okulayishwa futhi akukho okugcinwa kuseva. Bheka futhi [Amafayela akho](common:your-files).
 
 ## Okuvulayo
 
-Chofoza {{ui:Open}} (noma cindezela {{key:Mod+O}}) bese ukhetha ifayela, noma hudula ifayela kusuka ku-{{pick:mac=Finder|windows=File Explorer|linux=isiphathi-mafayela sakho}} liye kupulani. Ifayela elilodwa ngesikhathi; amafayela angaphezu kwe-200 MB ayenqatshwa.
+Chofoza {{ui:Vula}} (noma cindezela {{key:Mod+O}}) bese ukhetha ifayela, noma hudula ifayela phezu kwepulani kusuka ohlelweni lwakho lwamafayela: {{pick:mac=Finder|windows=File Explorer|linux=isiphathi-mafayela sakho}}. Ifayela elilodwa ngesikhathi; amafayela angaphezu kuka-200 MB ayenqatshwa. Ifayela le-LandXML noma leprojekthi elingaphezu kuka-32 MB lifundwa ngezingxenye ezingu-4 MB cishe, hhayi njengombhalo owodwa; ngenkathi i-LandXML ivulwa, lindele ukuthi isebenzisa cishe izikhathi ezingu-13 ubukhulu balelo fayela enkumbulweni (ifayela le-69 MB lisebenzise cishe i-0.9 GB ekuhloleni kwethu).
 
 | Uhlobo | Amagama amafayela | Okwenzekayo |
 |---|---|---|
-| Ifayela lamaphoyinti | `.csv`, `.txt`, `.pnt`, `.xyz` (noma yiliphi ifayela lombhalo) | Ingxoxo **Ngenisa amaphoyinti** iyavuleka. Amaphoyinti afaka esikhundleni amaphoyinti ephrojekthi; imizila, amapedi namapayipi ahlala njengoba kunjalo. |
-| LandXML | `.xml`, `.landxml` | Kudalwa **iphrojekthi entsha** kusuka kulelifayela (uzobuzwa kuqala uma ephrojekthini wamanje kukhona **Ushintsho olungalondolozwanga**). |
-| Iphrojekthi ye-CivilCraft | `.civilcraft.json` (noma yiliphi `.json`) | Iphrojekthi ivuleka njengoba yalondolozwa (uzobuzwa kuqala uma ephrojekthini wamanje kukhona **Ushintsho olungalondolozwanga**). |
+| Ifayela lamaphoyinti | `.csv`, `.txt`, `.pnt`, `.xyz` (noma yimuphi ifayela lombhalo) | Ifasitela **Ngenisa amaphoyinti** liyavuleka. Amaphoyinti afaka esikhundleni samaphoyinti eprojekthi; ama-alignment, ama-pad namapayipi ayahlala. |
+| LandXML | `.xml`, `.landxml` | **Iprojekthi entsha** yenziwa kusuka kulelo fayela (uyabuzwa kuqala uma eyamanje inezinguquko ezingalondolozwanga). |
+| Iprojekthi ye-CivilCraft | `.civilcraft.json` (noma yimuphi `.json`) | Iprojekthi ivulwa njengoba yalondolozwa (uyabuzwa kuqala uma eyamanje inezinguquko ezingalondolozwanga). |
 
-I-CivilCraft inquma ngokwesiqedo sefayela, bese ngokuqala kwalo: umbhalo oqala nge-`{` ufundwa njengephrojekthi, owaqala nge-`<` njenge-LandXML, konke okunye njengefayela lamaphoyinti. Ifayela ebhokisi lokuvula elibe lifiphele lingalethwa kupulani.
+I-CivilCraft ikhetha ngokuphela kwefayela, bese ngezinhlamvu zalo zokuqala: umbhalo oqala nge-`{` ufundwa njengeprojekthi, owaqala nge-`<` njenge-LandXML, konke okunye njengefayela lamaphoyinti. Ifayela ibhokisi lokuvula elilikhanyisela ngemvi lingasalahlwa phezu kwepulani.
 
 :::note
-Ukungenisa ifayela lamaphoyinti kuphrojekthi esenamaphoyinti kuwashintsha ngaphandle kokubuza, futhi kuhlanze umlando wokuhlehlisa (ukuvula noma yiliphi ifayela kuba ukuqala okusha kokuhlehlisa). Uma umphezulu wavela ku-LandXML, ukungenisa amaphoyinti kuwubuyisela ube umphezulu owakhiwe kumaphoyinti. Londoloza kuqala uma usenokuthanda ukuba amaphoyinti endala abuyele.
+Ukungenisa ifayela lamaphoyinti kuprojekthi esenamaphoyinti kuwashintsha ngaphandle kokubuza, futhi kusula umlando wokubuyisela (ukuvula noma yiliphi ifayela kuqala kabusha umlando wokubuyisela). Uma uphawu lwendawo lwavela ku-LandXML, ukungenisa amaphoyinti kuyibuyisela ibe yindawo eyakhiwe kumaphoyinti. Londoloza kuqala uma ungase ufune amaphoyinti adala emuva.
 :::
 
-Imininingwane: [Izinhlobo zamafayela wamaphoyinti](topic:point-file-formats), [LandXML: okufundwayo nokubhalwayo](topic:landxml-reference).
+Imininingwane: [Amafomethi amafayela amaphoyinti](topic:point-file-formats), [LandXML: okufundwayo nokubhalwayo](topic:landxml-reference).
 
 ## Okulondolozayo
 
-{{ui:Save}} ({{key:Mod+S}}) ibhala amafayela amabili eceleni komunye, anesihloko segama elithi **Igama** kuphaneli yesobunxele: `<igama>.civilcraft.json`, iphrojekthi oqhubeka uyihlela, kanye no-`<igama>.ifc`, lo mklamo ofanayo ngesimo se-IFC 4.3 kwabanye bonke (bheka [Ukuthumela nokungenisa i-IFC](topic:ifc)). Ngayinye ilondoloza enye, futhi i-IFC iphinde ithwale ikhophi ecindezelwe yephrojekthi, ngakho i-IFC ethunyelwe yodwa isavula igcwele futhi ihlelekayo.
+{{ui:Londoloza}} ({{key:Mod+S}}) ibhala amafayela amabili aseceleni komunye, aqanjwe ngegama elithi **Igama** kwipaneli yesobunxele: `<name>.civilcraft.json`, iprojekthi oqhubeka uyihlela, kanye `<name>.ifc`, ukwakheka okufanayo njenge-IFC 4.3 kwabanye abasebenzisi (bheka [Ukuthumela nokungenisa i-IFC](topic:ifc)). Ifayela ngalinye lirekhoda elinye, futhi i-IFC iphinde ithwele ikhophi ecindezelwe yeprojekthi, ngakho i-IFC ethunyelwe yodwa isavulwa iphelele futhi ihleleka.
 
-- **Ku-Studio** zombili amafayela abhalwa eduze komunye, endaweni yawo.
-- **Ku-Chrome nakwi-Edge** ukulondoloza kokuqala kucela ifolda bese kubhalwa zombili kuyo; ukulondoloza okulandelayo kuya efoldeni efanayo. Khansela umbuzo wefolda ukuze ulande zombili kundawo.
-- **Kwamanye amabrawuza** zombili amafayela ayalandwa, iphrojekthi kuqala.
+- **Ku-Studio** amafayela amabili abhalwa eduze komunye, endaweni efanayo.
+- **Ku-Chrome ne-Edge** ukulondoloza kokuqala kubuza ifolda bese kubhala kokubili kuyo; ukulondoloza okulandelayo kuya endaweni efanayo. Khansela umbuzo wefolda ukuze ulande kokubili.
+- **Kwamanye amabhrawuza** kokubili kuyalandwa, iprojekthi ifayela kuqala.
 
-Ukuvula noma yiliphi lalawa mafayela kufuna enye. Vula zombili ndawonye (noma hudula zombili), noma vula eyodwa: ku-Studio enye itholakala efoldeni efanayo; kubrawuza i-CivilCraft ikucela ukuthi uyengeze, noma uqhubeke nalowo onawo. Uma i-IFC ishintshwe yenye inhlelo ngemva kokuthi i-CivilCraft iyilondoloze, noma elinye lamafayela liyindala kunelinye, iphrojekthi ivuleka kusuka ekwakhiweni okusha kakhulu futhi iphaneli Yezinkinga ichaza okwenzekile, nge-**Londoloza manje** (ibhala kabusha zombili) kanye ne-**Bonisa ijiyomethri ye-IFC njengesisekelo sokubheka**. I-IFC eyodwa eshintshwe yenye inhlelo ivula kusuka ekhophini yayo yephrojekthi nalokho okusahambisana nayo: imizila eshintshiwe ithatha ijiyomethri yayo, izinto ezisusiwe ziyekwa ngaphandle, nezinye izinguquko zidwetshwe kodwa azithathwa. Ifayela lephrojekthi elisuka ngaphambi kuka-0.7.1 livuleka njengakuqala.
+Ukuvula noma iyiphi kwalawa mafayela kufuna elinye. Vula bobabili ndawonye (noma yiyiphi kwawo), noma vula elilodwa: ku-Studio elinye litholakala kwifolda efanayo; ebhrawuzeni i-CivilCraft iyabuza ukuthi uyengeze, noma iqhubeke nalelo olinalo. Uma i-IFC ishintshwe yenye inhlelo ngemva kokuthi i-CivilCraft iyilondoloze, noma elinye lamafayela lidala kunelinye, iprojekthi ivulwa kusuka kwidizayini entsha, futhi i-**Iphaneli Yezinkinga** itshela okwenzekile, nge-**{{ui:Londoloza manje}}** (ibhala kabusha amafayela amabili) kanye ne-**Bonisa ijometri ye-IFC njengesisekelo**. I-IFC eyodwa eshintshwe yenye inhlelo ivulwa kusuka kwikhophi yayo yeprojekthi nalokho okusahambisana nakho: ama-alignment ashintshwe athatha ijometri yawo, izinto ezisusiwe ziyakhishwa, nezinye izinguquko zayo zibhalwe ohlwini, azithathwa. Ifayela leprojekthi elisuka ngaphambi kuka-0.7.1 livulwa njengakuqala.
 
-Ifayela lephrojekthi igcina:
+Ifayela leprojekthi ligcina:
 
-- wonke amaphoyinti (inombolo, amakhoordinethi, ukuphakama, incazelo) negama lefayela lamaphoyinti ayevela kulo
-- izilungiselelo zomphezulu: izinketho zamaqembu, imigqa yokwephula edwetshiwe, umngcele, umphetho wangaphandle omude kakhulu, nomnxantathu (TIN) ofundwe ku-LandXML
+- wonke amaphoyinti (inombolo, izixhumanisi, ukuphakama, incazelo) negama lefayela lamaphoyinti ayevela kulo
+- izilungiselelo zendawo: izinqumo zamaqembu, imigqa yokuhlukanisa eyedwetshwe, umngcele, eyona ngaphandle ende kakhulu, kanye ne-TIN efundwe kwi-LandXML
 - izilungiselelo zokubonisa
-- imizila nama-PI ayo, imisindo namabanga okuqala, amaphrofayili awo okuklama (ama-PVI namabanga wamajika) nezilungiselelo zekoridoro
-- amapedi nenethiwekhi yamapayipi namathuluzi ayo
+- ama-alignment nama-PI awo, iradiyasi nesiteshi sokuqala, amaphrofayili awo edizayini (ama-PVI nobude bamagoqo) kanye nezilungiselelo zekhorido
+- ama-pad nenethiwekhi yamapayipi nemithetho yayo
 
-Ayigcini umlando wokuhlehlisa. Imiphezulu, ama-contour, imigqa yokukhanya kwemini nemithamo ayigcinwa; ayakhiwa kabusha kusuka kokokufaka okulondoloziwe lapho iphrojekthi ivuleka. Ifayela lephrojekthi elisuka kwi-CivilCraft entsha kakhulu alamukelwa, kube kukhona umyalezo oqukethe inguqulo yalo.
+Ayigcini umlando wokubuyisela. Izindawo zendawo, amakhonturu, imigqa yemini nama-volumu azigcinwa; ziyakhiwa kabusha kusuka kokokufaka okulondoloziwe lapho iprojekthi ivulwa. Ifayela leprojekthi elisuka kwi-CivilCraft entsha liyenqatshwa ngomlayezo obhala inguqulo yalo.
 
 ## Okuthumelayo
 
 | Inkinobho | Ifayela | Okuqukethwe |
 |---|---|---|
-| {{ui:LandXML}} | `<igama>.xml` | LandXML 1.2: amaphoyinti, umhlaba okhona (nomphezulu oqhutshiwe uma ukhona) njengemiphezulu ye-TIN, imizila, amaphrofayili womhlaba nawokuklama, inethiwekhi yamapayipi |
-| {{ui:DXF}} | `<igama>.dxf` | I-R12 DXF yemigqa yepulani njengoba ibonakala, emagatsheni aqanjiwe |
-| {{ui:DWG}} | `<igama>.dwg` | Imigqa efanayo njengomdwebo we-DWG, ngefomethi okhetha kuyo (2000 kuya ku-2018) |
-| {{ui:PDF}} | `<igama>.pdf` | Ukuphrintwa kwepulani ngevekthali esiqeshini, ngesikali okhetha sona |
-| {{ui:GLB}} noma {{ui:OBJ}} (kwibha yombonopha we-3D) | `<igama>-3d.glb`, `<igama>-3d.obj` | Okubonwa yiwindi le-3D njengemodeli ye-3D: amamitha, u-Y uphezulu, isikali sangempela, kuzungezwe imvelaphi yendawo eqoshiwe |
+| {{ui:LandXML}} | `<name>.xml` | LandXML 1.2: amaphoyinti, umhlaba okhona (nomhlaba ohlelwe uma ukhona) njengezindawo ze-TIN, ama-alignment, amaphrofayili womhlaba nedizayini, inethiwekhi yamapayipi |
+| {{ui:DXF}} | `<name>.dxf` | I-DXF R12 yemigqa yepulani njengoba ibonakala, ezendaweni ezinamagama |
+| {{ui:DWG}} | `<name>.dwg` | Imigqa efanayo njengomdwebo we-DWG, ngefomethi okhetha yona (2000 kuya ku-2018) |
+| {{ui:PDF}} | `<name>.pdf` | Ipulothi ye-vector yepulani eshidini, ngesikali okhetha sona |
+| {{ui:GLB}} noma {{ui:OBJ}} (kubha yombono we-3D) | `<name>-3d.glb`, `<name>-3d.obj` | Okubonwa yimbono ye-3D njengemodeli ye-3D: mamitha, Y phezulu, isikali sangempela, kuzungezwe imvelaphi yendawo eqoshiwe |
 
-Okushiywa yilokho ngakunye: [LandXML ethengiselanayo](topic:landxml), [Thumela ipulani ibe yi-DXF](topic:dxf-export) (ne-DWG nayo), [Phrinta ipulani ibe yi-PDF](topic:plot-pdf), [Thumela indawo ibe ngo-3D](topic:export-3d).
+Okungafakiwe kwakho ngakunye: [Ukushintshana nge-LandXML](topic:landxml), [Thumela ipulani ku-DXF](topic:dxf-export) (ne-DWG futhi), [Hlaka ipulani ibe yi-PDF](topic:plot-pdf), [Thumela indawo ku-3D](topic:export-3d).
 
 ## Lapho amafayela aya khona
 
-Amafayela alondoloziwe nathunyelwe aya lapho isiphequluli sakho sibeka khona okulandiwe, ngokuvamile efolda yeZilandiwe. Ukuze ukhethe ifolda njalo lapho ulanda:
+Amafayela alondoliwe nathunyelwe aya lapho isiphequluli sakho sibeka khona okulandiwe, ngokuvamile kwi-Downloads. Ukuze ukhethe ifolda njalo:
 
 :::chromium
-Vula i-**Izilungiselelo** yesiphequluli, bese **Okulandiwe**, bese uvula i-**Buza ukuthi ulondoloze kuphi ifayela ngalinye ngaphambi kokulanda**.
+Vula **Izilungiselelo** zesiphequluli, bese **Okulandiwe**, bese uvula **Buza ukuthi ulondoloze kuphi yonke ifayela ngaphambi kokulanda**.
 :::
 
 :::firefox
-Vula **Izilungiselelo**, bese **Okujwayelekile**, bese ngaphansi kwe-**Amafayela nezinhlelo** khetha **Buza njalo ukuthi ulondoloze kuphi amafayela**.
+Vula **Izilungiselelo**, bese **Okuvamile**, bese ngaphansi kwe-**Amafayela nezinhlelo zokusebenza** khetha **Buza njalo ukuthi ulondoloze kuphi amafayela**.
 :::
 
 :::safari
-Vula **Safari > Izilungiselelo > Okujwayelekile** bese usetha **Indawo yokulanda ifayela** ibe **Buza ngokulandwa ngakunye**.
+Vula **Safari > Izilungiselelo > Okuvamile** bese usetha **Indawo yokulanda ifayela** ibe **Buza kokulandwa ngakunye**.
 :::
 
-Umaulondoloza kabili ngegama elifanayo, isiphequluli singase sengeze inombolo kwelesibili, isibonelo `Indawo (1).civilcraft.json`. Vula okusha kakhulu ngesikhathi esilandelayo.
+Uma ulondoloza kabili ngegama elifanayo, isiphequluli singase sengeze inombolo efayeleni lesibili, isibonelo `Site (1).civilcraft.json`. Vula elisha kakhulu ngesikhathi esilandelayo.
 
-## Ku-inthanethi nangaphandle kwe-inthanethi
+## Ku-inthanethi nangaphandle kwayo
 
-I-CivilCraft isebenza kukhompyutha yakho kunoma kanjani: ukuvula kufunda ifayela esiphequluleni, ukulondoloza kuyilanda. Ukuze uvule i-CivilCraft ngaphandle kokuxhumeka nakancane, yilondoloze ukuze isetshenziswe ngaphandle kwe-inthanethi kuqala:
+I-CivilCraft isebenza kuphela kwikhompyutha yakho kunoma ngabe kunjani: ukuvula kufunda ifayela kusiphequluli, ukulondoloza kulanda. Ukuze uvule i-CivilCraft ngaphandle kokuxhumeka:
 
-1. Uma usexhunyiwe, chofoza {{ui:Save for offline}} embhalweni ophezulu wohlelo.
-2. Inkinobho ibala ("Kulondolozwa 12 kwangu-30") bese ibonisa {{ui:Offline ready}}. I-CivilCraft incane (cishe ku-0.6 MB), ngakho lokhu kuthatha isikhashana. Ikhophi elondoloziwe ifaka lo siza nendawo yesampula.
-3. Uma ungaxhunyiwe, vula leli kheli (noma isikhonkwane salo). Konke kuyasebenza, kubandakanya {{ui:Open the sample site}}.
+1. Uxhunyiwe, chofoza {{ui:Londoloza ngaphandle kwe-inthanethi}} kubha yesicelo phezulu.
+2. Inkinobho ibala ikhuphuka ("Ilondoloza 12 kwangu-30") bese ibonisa {{ui:Ilungele ukusetshenziswa ngaphandle kwe-inthanethi}}. I-CivilCraft incane (cishe 0.6 MB), ngakho lokhu kuthatha isikhashana. Ikhophi elondoliwe lifaka lo msizo nesayithi sesampula.
+3. Ngaphandle kokuxhumeka, vula ikheli elifanayo (noma isimaki salo). Konke kuyasebenza, kubandakanya {{ui:Vula isayithi lesampula}}.
 
-Izimo ezinye zenkinobho:
+Ezinye izimo zenkinobho:
 
-- {{ui:Could not save}}: amanye amafayela awanqotshwanga. Hlola ukuxhumeka bese uyichofoza ukuze uzame futhi.
-- {{ui:Offline not available}}: lewindi lesiphequluli alikwazi ukugcina ikhophi yangaphandle (amawindi azimele nezinye izikhompyutha ezilawulwayo ziyayivimbela). Sebenzisa iwindi elijwayelekile.
+- {{ui:Akukwazanga ukulondoloza}}: amanye amafayela awazange alandwe. Hlola ukuxhumeka bese uchofoza ukuze uzame futhi.
+- {{ui:Ayikho ingaphandle kwe-inthanethi}}: leli windi lesiphequluli alikwazi ukugcina ikhophi engaphandle kwe-inthanethi (amawindi angasese namanye amakhompyutha alawulwayo ayivimbela). Sebenzisa iwindi elijwayelekile.
 
-Chofoza {{ui:Offline ready}} ukuze ubone lapho ikhophi yalondolozwa khona, ngezinketho ezimbili: {{ui:Save again (get the newest version)}} kanye {{ui:Remove the offline copy}}. Londoloza futhi ngaphambi kokuvakasha endaweni ukuze ikhophi ihambisane nenguqulo entsha kakhulu. Okwengeziwe ku-[Ngaphandle kwe-inthanethi](common:offline).
+Chofoza {{ui:Ilungele ukusetshenziswa ngaphandle kwe-inthanethi}} ukubona ukuthi ikhophi yalondolozwa nini, ngezinketho ezimbili: {{ui:Londoloza futhi (thola inguqulo entsha kakhulu)}} kanye {{ui:Susa ikopi engaphandle kwe-inthanethi}}. Londoloza futhi ngaphambi kokuvakasha esizeni ukuze ikhophi ihambisane nokwakhiwa kwamanje. Okwengeziwe ku-[Ngaphandle kwe-inthanethi](common:offline).
 
 :::offline
-Usangaphandle kwe-inthanethi manje. Uma i-CivilCraft yalondolozwa ukuze isetshenziswe ngaphandle kwe-inthanethi, konke kuyasebenza, kubandakanya indawo yesampula. Uma kungenjalo, qhubeka usebenza kule thebhu, kodwa ungayilayishi kabusha uze uxhumeke futhi; ngaphandle kwekhophi elondoloziwe, {{ui:Open the sample site}} iyehluleka ngokuthi "Isampula alikwazanga ukulayishwa".
+Usengaphandle kwe-inthanethi manje. Uma i-CivilCraft yalondolozelwa ukusetshenziswa ngaphandle kwe-inthanethi, konke kuyasebenza, kubandakanya isayithi lesampula. Uma kungenjalo, qhubeka usebenza kule thebhu, kodwa ungayilayishi kabusha uze uxhumeke kabusha; ngaphandle kwekhophi elondoliwe, {{ui:Vula isayithi lesampula}} yehluleka ngomlayezo othi "Isampula ayikwazanga ukulayishwa".
 :::
 
 :::tip
-Ukuze usebenze esiza, londoloza i-CivilCraft ukuze isetshenziswe ngaphandle kwe-inthanethi bese uletha amafayela wamaphoyinti wakho ekhompyutheni ye-laptop uqobo. Amaphrojekthi nokuthunyelwa kulondolozwa njengokulandwa ngaphandle kokuxhumeka, ngakho ungangenisa izinhlolo zosuku, uhlole umphezulu bese uyilondoloza iphrojekthi esizeni.
+Ngokusetshenziswa emkhakheni, londoloza i-CivilCraft ukuze isetshenziswe ngaphandle kwe-inthanethi bese ulethe amafayela amaphoyinti akho ku-laptop ngqo. Amaprojekthi nokuthunyelwa kulondolozwa njengokulandwa ngaphandle kokuxhumeka, ngakho ungangenisa izinkomba zosuku, uhlole umhlaba, bese ulondoloza iprojekthi esizeni.
 :::
 
-Ukulondoloza ku-inthanethi akukatholakali, nezinhlelo zedeskithophu azikakakhishwa. Njengamanje, amafayela olondoloza yiwona kopi yodwa: wagcine endaweni eqoqwa njalo.
+Ukugcinwa kwe-cloud akukatholakali, futhi amabhilidi e-desktop akakakhishwa. Njengamanje, amafayela olondoloza yiwona kuphela ikhophi: wagcine endaweni ene-backup.
 
-## Izinhlelo ezisetshenziswa yifayela
+## Izengezo ifayela elisebenzisayo
 
-Uma ulondoloza iphrojekthi enedatha evela kwinhlelo engeziwe (izihlahla zemithetho yezakhiwo, noma umthombo weKheli kuya esizeni), ifayelaliqopha izinhlelo ezingeziwe nezinguqulo zazo. Uma liveza kwikhompyutha engayinazo, ibha ephezu kwepulani iyasho lokho futhi ikunikeze ukuthi uyengeze kusuka kuhlu lwe-akhawunti yakho. Irekhodi liyinothi nje: ifayela liyavuleka noma kunjalo.
+Lapho ulondoloza iprojekthi enedatha evela kwisengezo (amabhokisi emithetho yokwakha, noma umthombo othi Ikheli kuya esizeni), ifayela lirekhoda izengezo namanguqulo awo. Uma uyivula kukhompyutha engenalo, ibha ephezu kwepulani iyasho lokho futhi ikunikeze ukuyengeza kusuka kuhlu lwe-akhawunti yakho. Irekhodi linguMbhalo nje; ifayela liyavuleka noma kunjalo.
 
-## Ukuhlehlisa kusuka ku-Studio
+## Ukubuyisela emuva kusuka ku-Studio
 
-Ngaphakathi ku-CadCraft Studio, isinyathelo ngasinye oqeda kwi-CivilCraft siyatshelwa i-Studio, ukuze ukuhlehlisa kwayo kwephrojekthi kukwazi ukuthatha emuva isinyathelo sakamuva phakathi kwezinhlelo. I-Studio ihlehlisa isinyathelo kuphela uma isitaki sokuhlehlisa se-CivilCraft sihlala kanjena ngemva kwaso; uma uvule elinye ifayela, iyakuhlehlisa leli windi.
+Ngaphakathi kwe-CadCraft Studio, isinyathelo ngasinye oqeda kuCivilCraft sitshelwa ku-Studio, ngakho ukubuyisela okusezingeni leprojekthi kungabuyisela isinyathelo sakamuva ngaphezu kwezinhlelo zokusebenza. Studio ibuyisela isinyathelo kuphela uma isitaki sokubuyisela se-CivilCraft sisemi ngendlela efanayo nalapho sisishiye khona; ngemva kokuvula elinye ifayela iwindi lalo liyadlulwa.
 
-## Ukuvala nokushintsha okungalondolozwanga
+## Ukuvala ngezinguquko ezingalondolozwanga
 
-Uma iphrojekthi inezinguquko ezingalondolozwanga bese uvala ithebhu, uyilayishe kabusha, noma uhamba ekhasini, isiphequluli sikubuza ukuthi ufuna ukuhamba. Umbhalo wawo nesimo sawo kungabo sesiphequluli, futhi i-CivilCraft ayikwazi ukuwushintsha. {{ui:New}}, nokuvula iphrojekthi noma ifayela le-LandXML, kubuza kwibhokisi le-CivilCraft **Ushintsho olungalondolozwanga**, ngo-{{ui:Cancel}}, {{ui:Don’t save}} kanye {{ui:Save a copy}}.
+Lapho iprojekthi inezinguquko ezingalondolozwanga bese uvala ithebhu, uyilayishe kabusha, noma ushiye ikhasi, isiphequluli sibuza ukuthi ufuna ukushiya. Umbhalo walo nokubukeka kwawo kungokwesiphequluli futhi akunakushintshwa yi-CivilCraft. {{ui:Entsha}}, nokuvula iprojekthi noma ifayela le-LandXML, kubuza ebhokisini le-CivilCraft elithi **Izinguquko ezingalondolozwanga**, elinazo {{ui:Khansela}}, {{ui:Ungalondolozi}} kanye {{ui:Londoloza ikhophi}}.

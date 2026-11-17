@@ -1,7 +1,7 @@
 {
   "name": "@getcadcraft/mcp",
   "mcpName": "com.getcadcraft/studio",
-  "version": "0.8.0",
+  "version": "0.9.1",
   "description": "CadCraft's tools for AI assistants and scripts: an MCP server (stdio) and the cadcraft command line, on the CadCraft apps' own modules. The apps contain no AI.",
   "license": "Apache-2.0",
   "type": "module",

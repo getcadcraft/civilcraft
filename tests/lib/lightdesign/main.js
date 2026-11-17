@@ -8,13 +8,14 @@
  *   erase() → n, count(), start(app). app (handed to host.start): run() → { ok, message, summary }, draw() → { n }, report(), csv().
  * Panel: Room → Luminaire → Layout (plan for a target | grid | rows) → Requirements → Calculate → result, map, checks → Draw / Report / CSV.
  */
-import { genericPhoto, GENERIC_IDS, parsePhotometry, gridLayout, rowLayout, planLayout, runDesign, PRESETS, presetById, REQUIREMENTS_NOTE, DEFAULT_ROOM, polyArea, scaleColor, reportHtml, reportCsv, cleanRoom, runDaylight, runEmergency, pickEmergency, cleanObstacles, checkWindows, windowsFromOpenings, EMERGENCY_NOTE, EMERGENCY_DEFAULTS, DEFAULT_EEXT } from './lib/index.js';
+import { genericPhoto, GENERIC_IDS, parsePhotometry, gridLayout, rowLayout, planLayout, runDesign, PRESETS, presetById, REQUIREMENTS_NOTE, DEFAULT_ROOM, polyArea, scaleColor, reportHtml, reportCsv, cleanRoom, runDaylight, runEmergency, pickEmergency, cleanObstacles, checkWindows, windowsFromOpenings, EMERGENCY_NOTE, EMERGENCY_DEFAULTS, DEFAULT_EEXT, SITE_GENERIC_IDS, inside as insidePoly, runSite, siteLuxAt, workplane, renderLamps, nightPreset, nightScene, renderNight, falseColour } from './lib/index.js';
 import * as hostMod from './host.js';
 
 const DEFAULTS = {
   outline: '0, 0\n6000, 0\n6000, 4000\n0, 4000', roomName: '', height: 2800, workplane: 800, margin: 500, rc: 0.7, rw: 0.5, rf: 0.2,
   lum: 'panel', fileName: '', fileText: '', mode: 'plan', targetLux: 500, planUo: 0.6, nx: 3, ny: 2, rows: 2, perRow: 4, along: 'x', suspension: 0, llf: 0.8,
   preset: 'office.writing', em: 500, uo: 0.6, ugr: 19, ra: 80, lpd: 0, spacing: 0, eyeHeight: 1200,
+  outdoor: false, cct: 3000, nightQ: 16, groundRho: 0.2,
   windows: '', eext: DEFAULT_EEXT, dfTarget: 0, obstacles: '', emOn: false, emEvery: 2, emShare: 100, emRoute: '', emOpen: true, emRouteMin: EMERGENCY_DEFAULTS.route.min, emRatio: EMERGENCY_DEFAULTS.route.ratio, emOpenMin: EMERGENCY_DEFAULTS.open.min,
 };
 
@@ -43,14 +44,15 @@ export function activate(api) {
       R.photo = r.photo; R.photoName = S.fileName;
       return R.photo;
     }
-    return genericPhoto(GENERIC_IDS.includes(S.lum) ? S.lum : 'panel');
+    const ids = S.outdoor ? SITE_GENERIC_IDS : GENERIC_IDS;
+    return genericPhoto(ids.includes(S.lum) ? S.lum : S.outdoor ? 'pole' : 'panel');
   }
   const reqOf = () => ({ em: num(S.em, 0), uo: num(S.uo, 0), ugr: num(S.ugr, 0), ra: num(S.ra, 0), lpd: num(S.lpd, 0) });
   const failure = (e) => (e && e.key ? t(e.key, e.vars || {}) : String((e && e.message) || e));
 
   function place() {
     const room = roomOf(), photo = photoOf(), z = room.height - Math.max(0, num(S.suspension, 0));
-    if (S.mode === 'plan') {
+    if (S.mode === 'plan' && !S.outdoor) {
       const p = planLayout({ room, photo, targetLux: num(S.targetLux, 0), llf: num(S.llf, 0.8), uo: num(S.planUo, 0), z });
       if (!p.ok) {
         if (p.best) { R.layout = { luminaires: p.best.luminaires, nx: p.best.nx, ny: p.best.ny, planned: false }; throw Object.assign(new Error('plan'), { key: p.key, vars: { n: p.best.count, em: Math.round(p.best.em) } }); }
@@ -78,14 +80,15 @@ export function activate(api) {
       const room = roomOf(), photo = photoOf(), obstacles = obstaclesOf();
       place();
       for (const L of R.layout.luminaires) L.photo = photo;
-      const res = runDesign({ room, luminaires: R.layout.luminaires, llf: num(S.llf, 0.8), spacing: num(S.spacing, 0), requirements: reqOf(), eyeHeight: num(S.eyeHeight, 1200), obstacles: obstacles.length ? obstacles : null });
+      const res = S.outdoor ? runSite({ room, luminaires: R.layout.luminaires, llf: num(S.llf, 0.8), spacing: num(S.spacing, 0), requirements: reqOf(), obstacles: obstacles.length ? obstacles : null }) : runDesign({ room, luminaires: R.layout.luminaires, llf: num(S.llf, 0.8), spacing: num(S.spacing, 0), requirements: reqOf(), eyeHeight: num(S.eyeHeight, 1200), obstacles: obstacles.length ? obstacles : null });
       res.luminaires = R.layout.luminaires; res.photo = photo;
-      if (obstacles.length) res.notes.push('note.obstruct');
+      if (obstacles.length && !res.notes.includes('note.obstruct')) res.notes.push('note.obstruct');
+      R.night = null;
       res.daylight = null; res.daylightError = ''; res.emergency = null; res.emergencyError = '';
-      if (windowsOf().length) {
+      if (windowsOf().length && !S.outdoor) {
         try { res.daylight = runDaylight({ room, windows: windowsOf(), eext: num(S.eext, DEFAULT_EEXT) || DEFAULT_EEXT, spacing: num(S.spacing, 0) }); } catch (e) { res.daylightError = failure(e); }
       }
-      if (S.emOn) {
+      if (S.emOn && !S.outdoor) {
         try {
           const em = pickEmergency(R.layout.luminaires, { every: num(S.emEvery, 1) });
           res.emergency = runEmergency({ room, luminaires: em, share: num(S.emShare, 100) / 100, route: routeOf(), openArea: !!S.emOpen, obstacles: obstacles.length ? obstacles : null, spacing: num(S.spacing, 0),
@@ -110,8 +113,10 @@ export function activate(api) {
   const fileBase = () => String(S.roomName || 'lighting').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'lighting';
   const app = {
     run: () => run(),
-    draw: () => (host && R.result ? host.draw({ luminaires: R.result.luminaires, result: R.result, room: R.result.room }) : { n: 0 }),
+    draw: () => (host && R.result ? host.draw({ luminaires: R.result.luminaires, result: R.result, room: R.result.room, cct: num(S.cct, 3000) || 3000 }) : { n: 0 }),
     report: () => { if (R.result) download(reportDoc(), fileBase() + '-report.html', 'text/html'); },
+    night: () => nightRun(),
+    nightPackage: () => nightPackage(),
     csv: () => { if (R.result) download('﻿' + reportCsv(R.result, { t, title: titleOf() }), fileBase() + '-lux.csv', 'text/csv'); },
   };
 
@@ -174,6 +179,68 @@ export function activate(api) {
     return cv;
   }
 
+  // ------------------------------------------------------------------------------------------------ the night view (0.10 SU.1816)
+  // The luminaires of the result become lamps of the path tracer (its CPU reference, here on this page) with their webs and colour temperature; beside the picture, a
+  // false-colour view of the workplane (or the ground) in lux from the same calculation as the table. The picture shows the room or the site the result is for, built
+  // from the outline: not the model. Without the renderer (CadCraft has none) only the false colour and the lamp package are offered.
+  const NW = 320, NH = 180;
+  let kitP = null;
+  const loadKit = () => (!(host && host.renderer) ? Promise.resolve(null) : kitP ||= Promise.all(['pt-pack.js', 'pt-ref.js', 'pt-sampler.js'].map((f) => import('../../render/' + f))).then(([PK, REF, SMP]) => ({ PK, REF, SMP })).catch(() => null));
+  function nightData(r) {
+    const outdoor = !!r.outdoor, axes = (host && host.axes) || 'z', llf = num(S.llf, 0.8), obs = obstaclesOf();
+    const rl = renderLamps(r.luminaires, { axes, llf, maintained: true, cct: num(S.cct, 3000) || 3000 }), rho = num(S.groundRho, 0.2);
+    const data = nightScene({ room: r.room, luminaires: r.luminaires, outdoor, obstacles: obs.length ? obs : null, axes, aspect: NW / NH, lamps: rl.lamps, ies: rl.ies, settings: { groundRho: rho } });
+    const settings = { ...data.settings, ...nightPreset({ lux: r.em, rho: outdoor ? rho : 0.3 }), mode: 'hq', ground: false, ies: rl.ies };
+    return { data, rl, settings, axes, outdoor, obstacles: obs.length ? obs : null, llf };
+  }
+  function luxAtFor(r, nd) {
+    const wp = r.room.workplane;
+    if (nd.outdoor) return (x, y) => siteLuxAt(r.luminaires, x, y, wp, { llf: nd.llf, obstacles: nd.obstacles });
+    return (x, y) => workplane(r.prep, r.sol, r.luminaires, [[x, y, wp]], [0, 0, 1], nd.obstacles)[0] * nd.llf;
+  }
+  async function nightRun() {
+    const r = R.result;
+    if (!r) return { ok: false };
+    const spp = Math.max(1, Math.min(96, num(S.nightQ, 16)));
+    R.night = { busy: true, done: 0, of: spp }; render();
+    try {
+      const kit = await loadKit(), nd = nightData(r);
+      let pic = null;
+      if (kit) {
+        const prog = (a) => { R.night.done = a; const el = pane && pane.querySelector('[data-ld-night-progress]'); if (el) el.textContent = t('night.busy', { a, b: spp }); };
+        pic = (await renderNight({ kit, data: nd.data, settings: nd.settings, w: NW, h: NH, spp, onProgress: prog, tick: () => new Promise((ok) => setTimeout(ok, 0)) })).bytes;
+      }
+      const poly = r.room.polygon, fc = falseColour({ w: NW, h: NH, camera: nd.data.camera, axes: nd.axes, planeZ: r.room.workplane, inside: (x, y) => insidePoly(poly, x, y), luxAt: luxAtFor(r, nd), base: pic });
+      R.night = { busy: false, w: NW, h: NH, pic, fc: fc.rgba, legend: fc.legend, range: fc.range, covered: fc.covered, kit: !!kit, exposure: nd.settings.exposure, lamps: nd.rl.lamps.length, webs: Object.keys(nd.rl.ies).length, notes: nd.rl.notes };
+    } catch (e) { R.night = { busy: false, error: failure(e) }; }
+    render();
+    return { ok: !R.night.error, night: R.night };
+  }
+  function nightPackage() {
+    const r = R.result;
+    if (!r) return '';
+    const nd = nightData(r);
+    return JSON.stringify({ format: 'cadcraft-night-lights', version: 1, units: 'metres', axes: nd.axes, lamps: nd.rl.lamps, ies: nd.rl.ies, settings: nightPreset({ lux: r.em }), camera: nd.data.camera }, null, 1);
+  }
+  function nightPanel(r) {
+    const N = R.night, kids = [h('h4', {}, t('sec.night')), h('p', { class: 'ld-note' }, t(r.outdoor ? 'night.note.site' : 'night.note.room'))];
+    kids.push(h('div', { class: 'ld-row' }, ...(r.outdoor ? [field('groundRho', t('f.groundrho'), { step: 0.05, min: 0.02, max: 0.95 })] : []),
+      choice('nightQ', t('night.quality'), [[8, t('night.q.draft')], [16, t('night.q.good')], [48, t('night.q.best')]]),
+      h('button', { type: 'button', class: 'btn-plot btn-sm-cc', 'data-ld': 'night', disabled: !!(N && N.busy), onclick: () => { nightRun(); } }, t('night.go')),
+      h('button', { type: 'button', class: 'btn-line btn-sm-cc', 'data-ld': 'nightpkg', onclick: () => download(nightPackage(), fileBase() + '-night.json', 'application/json') }, t('night.pkg'))));
+    if (N && N.busy) kids.push(h('p', { class: 'ld-note', 'data-ld-night-progress': '' }, t('night.busy', { a: N.done, b: N.of })));
+    if (N && N.error) kids.push(h('p', { class: 'ld-err', role: 'alert', 'data-ld-night-error': '' }, N.error));
+    if (N && !N.busy && !N.error) {
+      const cv = (name, bytes, label) => { const c = h('canvas', { width: N.w, height: N.h, 'data-ld-night-canvas': name, role: 'img', 'aria-label': label }); c.getContext('2d').putImageData(new ImageData(bytes, N.w, N.h), 0, 0); return h('figure', { style: 'margin:0' }, c, h('figcaption', { class: 'ld-note' }, label)); };
+      kids.push(h('p', { class: 'ld-note', 'data-ld-night-facts': '' }, t('night.facts', { n: N.lamps, w: N.webs, e: fmt(N.exposure, 1) })));
+      if (!N.kit) kids.push(h('p', { class: 'ld-warn', 'data-ld-night-nokit': '' }, t('night.nokit')));
+      kids.push(h('div', { class: 'ld-row', style: 'align-items:flex-start' }, N.pic ? cv('picture', N.pic, t('night.picture')) : null, cv('false', N.fc, t('night.false'))));
+      kids.push(h('div', { class: 'ld-row', 'data-ld-night-legend': '' }, N.legend.map((x) => h('span', { style: 'padding:.1rem .4rem;color:#fff;text-shadow:0 0 2px #000;background:rgb(' + x.rgb.join(',') + ')' }, fmt(x.lux, x.lux < 10 ? 1 : 0) + ' lx'))));
+      kids.push(h('ul', { class: 'ld-note' }, N.notes.map((k) => h('li', {}, t(k)))));
+    }
+    return h('div', { 'data-ld-night': '' }, kids);
+  }
+
   function render() {
     if (!pane) return;
     const kids = [];
@@ -186,18 +253,20 @@ export function activate(api) {
       kids.push(h('div', { class: 'ld-row' }, rooms.length ? h('label', {}, t('room.pick'), h('select', { 'data-ld': 'roompick', onchange: (e) => { if (e.target.value !== '') useRoom(Number(e.target.value)); } }, h('option', { value: '' }, t('room.choose')), rooms.map((r, i) => h('option', { value: String(i), selected: R.roomPick === i }, (r.name || t('room.unnamed', { n: i + 1 })) + ' · ' + fmt(r.area, 1) + ' m²')))) : h('span', { class: 'ld-note', 'data-ld-rooms': '' }, R.rooms === null ? t('room.reading') : t('room.none')),
         h('button', { type: 'button', class: 'btn-line btn-sm-cc', 'data-ld': 'reread', onclick: () => readRooms() }, t('room.reread'))));
     }
+    kids.push(h('div', { class: 'ld-row' }, h('label', {}, h('input', { type: 'checkbox', 'data-ld': 'outdoor', checked: !!S.outdoor, onchange: (e) => { S.outdoor = e.target.checked; if (S.outdoor) { if (S.mode === 'plan') S.mode = 'grid'; if (S.height === DEFAULTS.height) S.height = 6000; if (S.workplane === DEFAULTS.workplane) S.workplane = 0; if (S.margin === DEFAULTS.margin) S.margin = 0; if (!SITE_GENERIC_IDS.includes(S.lum) && S.lum !== 'file') S.lum = 'pole'; } else { if (S.height === 6000) S.height = DEFAULTS.height; if (S.workplane === 0) S.workplane = DEFAULTS.workplane; if (S.margin === 0) S.margin = DEFAULTS.margin; if (!GENERIC_IDS.includes(S.lum) && S.lum !== 'file') S.lum = 'panel'; } R.layout = null; R.result = null; R.night = null; save(); render(); } }), t('f.outdoor'))));
     kids.push(h('label', { style: 'display:block' }, t('room.outline'), h('textarea', { 'data-ld': 'outline', onchange: (e) => { S.outline = e.target.value; R.layout = null; R.result = null; save(); } }, S.outline)));
     kids.push(h('div', { class: 'ld-row' }, field('height', t('f.height'), { unit: 'mm', min: 500 }), field('workplane', t('f.workplane'), { unit: 'mm', min: 0 }), field('margin', t('f.margin'), { unit: 'mm', min: 0 })));
     kids.push(h('div', { class: 'ld-row' }, t('f.refl'), field('rc', t('f.rc'), { step: 0.05, min: 0, max: 0.95 }), field('rw', t('f.rw'), { step: 0.05, min: 0, max: 0.95 }), field('rf', t('f.rf'), { step: 0.05, min: 0, max: 0.95 })));
     // luminaire
     kids.push(h('h4', {}, t('sec.lum')));
-    kids.push(h('div', { class: 'ld-row' }, choice('lum', t('f.lum'), [...GENERIC_IDS.map((id) => [id, t('lum.' + id)]), ...(S.fileName ? [['file', S.fileName]] : [])], () => { R.layout = null; R.result = null; }),
+    kids.push(h('div', { class: 'ld-row' }, choice('lum', t('f.lum'), [...(S.outdoor ? SITE_GENERIC_IDS : GENERIC_IDS).map((id) => [id, t('lum.' + id)]), ...(S.fileName ? [['file', S.fileName]] : [])], () => { R.layout = null; R.result = null; }),
       h('label', {}, t('lum.load'), h('input', { type: 'file', accept: '.ies,.ldt,text/plain', 'data-ld': 'file', onchange: (e) => loadFile(e.target.files && e.target.files[0]) }))));
     let ph = null; try { ph = photoOf(); } catch { ph = null; }
     kids.push(h('p', { class: 'ld-note', 'data-ld-photo': '' }, ph ? t('lum.facts', { lm: fmt(ph.lumens), w: fmt(ph.watts), name: ph.name || '' }) + (ph.generic ? ' ' + t('lum.generic') : '') : t('lum.nofile')));
+    kids.push(h('div', { class: 'ld-row' }, field('cct', t('f.cct'), { unit: 'K', min: 1700, max: 12000, step: 100 })));
     // layout
     kids.push(h('h4', {}, t('sec.layout')));
-    kids.push(h('div', { class: 'ld-row ld-tabs' }, ['plan', 'grid', 'rows'].map((m) => h('button', { type: 'button', class: 'btn-line btn-sm-cc', 'aria-pressed': S.mode === m ? 'true' : 'false', 'data-ld-mode': m, onclick: () => { S.mode = m; R.layout = null; R.result = null; save(); render(); } }, t('mode.' + m)))));
+    kids.push(h('div', { class: 'ld-row ld-tabs' }, ['plan', 'grid', 'rows'].filter((m) => !(S.outdoor && m === 'plan')).map((m) => h('button', { type: 'button', class: 'btn-line btn-sm-cc', 'aria-pressed': S.mode === m ? 'true' : 'false', 'data-ld-mode': m, onclick: () => { S.mode = m; R.layout = null; R.result = null; save(); render(); } }, t('mode.' + m)))));
     kids.push(h('p', { class: 'ld-note' }, t('mode.' + S.mode + '.note')));
     if (S.mode === 'plan') kids.push(h('div', { class: 'ld-row' }, field('targetLux', t('f.target'), { unit: 'lx', min: 1 }), field('planUo', t('f.planuo'), { step: 0.05, min: 0, max: 1 })));
     else if (S.mode === 'grid') kids.push(h('div', { class: 'ld-row' }, field('nx', t('f.nx'), { step: 1, min: 1 }), field('ny', t('f.ny'), { step: 1, min: 1 })));
@@ -244,6 +313,7 @@ export function activate(api) {
       if (r.checks.length) kids.push(h('ul', { 'data-ld-checks': '' }, r.checks.map((c) => h('li', { class: c.ok ? 'ld-ok' : 'ld-warn', 'data-ld-check': c.key + (c.ok ? ':ok' : ':fail') }, (c.ok ? '✓ ' : '✗ ') + t('chk.' + c.key) + ' ' + (c.op === '>=' ? '≥' : '≤') + ' ' + fmt(c.req, c.key === 'uo' ? 2 : 0) + ' — ' + fmt(c.found, c.key === 'uo' ? 2 : c.key === 'ugr' ? 1 : 0)))));
       kids.push(h('p', { class: 'ld-note' }, t('map.note', { max: fmt(r.emax) })), mapCanvas(r));
       kids.push(h('ul', { class: 'ld-note' }, r.notes.map((k) => h('li', {}, t(k)))));
+      kids.push(nightPanel(r));
       if (r.daylightError) kids.push(h('p', { class: 'ld-err', role: 'alert', 'data-ld-day-error': '' }, r.daylightError));
       if (r.daylight) {
         const d = r.daylight, tgt = num(S.dfTarget, 0);

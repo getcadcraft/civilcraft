@@ -88,9 +88,8 @@ try {
     ok(apps.n === 8, 'all eight apps are listed');
     ok(apps.here && apps.pick === 'BimCraft', `this app is marked; the suggestion follows step 1 (${apps.pick})`);
     ok((await page.evaluate(() => document.querySelector('[data-newhere-next]').textContent)) === 'Next', 'the Next button has its words (no raw key)');
-    await press(page, '[data-newhere-back]');
-    ok((await title(page)) === 'Welcome', 'Back returns to step 1');
-    await press(page, '[data-newhere-next]'); await press(page, '[data-newhere-next]');
+    ok(await page.evaluate(() => [...document.querySelectorAll('.newhere .nh-foot button')].filter((b) => b.getClientRects().length).map((b) => b.dataset.newhereNext !== undefined).join() === 'true' && !!document.querySelector('[data-newhere-close]').getClientRects().length), 'one button, Next: no Back or Skip, the X closes (owner 2026-11-12)');
+    await press(page, '[data-newhere-next]');
     ok((await title(page)) === 'Settings', 'step 3: Settings');
     await page.evaluate(() => document.querySelector('.newhere .nh-check input').click());
     ok((await store(page, 'cc-tours')) === null, 'the tours checkbox (turned on) removes cc-tours');

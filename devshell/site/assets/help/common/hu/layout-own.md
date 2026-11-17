@@ -1,34 +1,34 @@
 ---
-title: Saját elrendezés kialakítása és beállításkészletek mentése
-summary: Válassza ki, melyik panel mutassa a projektböngészőt, a Tulajdonságokat vagy a panel saját tartalmát, hová kerüljön az eszközkészlet és mi legyen a sávokon, mentse saját elrendezésként, és tartson egész beállításkészleteket néven, hogy váltogathasson közöttük.
-keywords: elrendezés, munkaterület, kialakítás, testreszabás, saját elrendezés, panelek, szerkesztők, projektböngésző, tulajdonságok, eszközkészlet, gyorssáv, infódoboz, munkakörnyezet, beállításkészlet, profil, beállításkészlet mentése, beállításkészlet váltása, beállításkészlet exportálása, beállításkészlet importálása, ccenv
-from: 2a71af43
+title: Saját elrendezés kialakítása és a beállítások mentése
+summary: Válassza ki, melyik panel mutatja a projektböngészőt, a Tulajdonságokat vagy a panel saját tartalmát, hová kerül az eszközkészlet, és mit tartalmaznak a sávok; mentse el saját elrendezésként, és nevesítve tárolja a teljes beállításkészleteket, amelyek között váltani lehet.
+keywords: elrendezés, munkaterület, kialakítás, testreszabás, saját elrendezés, elrendezés, panelek, szerkesztők, projektböngésző, tulajdonságok, eszközkészlet, gyorssáv, infódoboz, munkakörnyezet, beállítás, profil, beállítás mentése, beállítás váltása, beállítás exportálása, beállítás importálása, ccenv
+from: 6af528e0
 ---
 
-A három beépített elrendezés mellett kialakíthat egy sajátot is, és az egész beállítását néven mentheti, hogy egyetlen lépéssel visszaválthasson rá.
+A három beépített elrendezés mellett kialakíthat egy sajátot is, és a teljes beállítását egy néven mentheti, hogy egy lépésben vissza lehessen váltani rá.
 
 ## Saját elrendezés kialakítása
 
-1. Nyissa meg a {{ui:Beállítások}} ablakot (a fogaskerék, vagy {{key:Mod+,}}), válassza a {{ui:Globális}} lapot, majd az {{ui:Elrendezés}} részt.
-2. Válassza a {{ui:Saját elrendezés kialakítása…}} parancsot. A párbeszédpanel az éppen használt elrendezésből indul ki.
-3. Adjon neki nevet, majd válasszon:
-   - **A rajz fölött:** az alkalmazás eszköztára, szalag vagy egyik sem; címsor; infódoboz, és hogy milyen vezérlőket tartalmazzon.
-   - **A rajz mellett:** az eszközkészlet balra, jobbra vagy egyáltalán nem, a {{ui:Saját eszközök}} megjelenítésével vagy anélkül; melyik panel tartalmazza a palettákat, melyik van legfelül (például a projektböngésző vagy a Tulajdonságok), és melyek a lapok alatta.
-   - **A rajzterület:** nézetlapok, gyorssáv és nézetsáv a kipipált vezérlőkkel, a szerkesztőpaletta, állapotsor.
+1. Nyissa meg a {{ui:Beállítások}} menüt (a fogaskerék, vagy a {{key:Mod+,}}), válassza a {{ui:Globális}} lapot, majd az {{ui:Elrendezés}} menüpontot.
+2. Válassza a {{ui:Saját elrendezés kialakítása…}} parancsot. A párbeszédpanel a jelenleg használt elrendezéssel indul.
+3. Adjon nevet, majd válassza ki:
+   - **A rajz fölött:** az alkalmazás eszköztárát, szalagot vagy egyiket sem; egy címsort; egy infódobozt és azt, hogy milyen vezérlőket tartalmaz.
+   - **A rajz mellett:** az eszközkészletet balra, jobbra vagy egyáltalán nem, a {{ui:Saját eszközök}} résszel vagy anélkül; melyik panel tartalmazza a palettákat, melyik legyen felül (például a projektböngésző vagy a Tulajdonságok), és melyek legyenek alatta lapok.
+   - **A rajzterület:** nézetlapok, gyorssáv és nézetsáv a bejelölt vezérlőkkel, a szerkesztőpaletta, állapotsor.
    - **Megjelenés:** méret, gombkeretek és lapstílus.
-4. Válassza az {{ui:Ennek az elrendezésnek a használata}} parancsot. Az alkalmazás azonnal átvált rá, és minden elrendezéseket támogató alkalmazás is ezt használja.
+4. Válassza az {{ui:Ennek az elrendezésnek a használata}} parancsot. Az alkalmazás azonnal átvált rá, és minden alkalmazás, amelynek vannak elrendezései, ezt is használja.
 
-Csak az szerepel a kínálatban, ami az adott alkalmazásban megvan. Az elrendezése a {{ui:Bővítményekből és fájlokból}} alatt szerepel; az {{ui:Az elrendezés exportálása}} fájlként menti, amelyet továbbadhat egy kollégának, az eltávolítás gomb pedig elveszi. A kitöltött panelek továbbra is dokkolhatók, lebeghetnek és saját ablakba költözhetnek, ahogy a [Panelek elrendezése](common:arrange-panels) leírja.
+Csak azok jelennek meg, amelyek ebben az alkalmazásban megvannak. Az elrendezése a {{ui:Bővítményekből és fájlokból}} alatt jelenik meg; az {{ui:Az elrendezés exportálása}} parancs fájlba menti, amelyet egy kollégának is átadhat, az eltávolítás gombbal pedig törölhető. A panelek, amelyeket kitölt, továbbra is dokkolhatók, lebeghetnek, és saját ablakba vihetők, ahogy a [Panelek elrendezése](common:arrange-panels) részben szerepel.
 
-## Beállításkészlet mentése munkakörnyezetként
+## A beállítás mentése munkakörnyezetként
 
-A munkakörnyezet az egész beállításkészlete minden alkalmazásra ebben a böngészőben: az elrendezés, a menüstílus és a billentyűi, az eszköztár stílusa, a panelek és méretük, valamint a {{ui:Saját eszközök}}. A téma és a nyelv nem része.
+A munkakörnyezet a teljes beállítása az összes alkalmazáshoz ebben a böngészőben: az elrendezés, a menüstílus és a billentyűk, az eszköztár stílusa, a panelek és méreteik, valamint a {{ui:Saját eszközök}}. A téma és a nyelv nem tartozik hozzá.
 
-- **Mentés:** írjon be egy nevet a {{ui:Munkakörnyezetek}} alatt, és válassza a {{ui:A beállításom mentése}} parancsot. A már létező néven mentés lecseréli az adott beállításkészletet.
-- **Váltás:** válasszon egy beállításkészletet a listából, és válassza a {{ui:Váltás rá}} parancsot. Az alkalmazás újratöltődik abban a beállításkészletben; ha nem mentett munkája van, az alkalmazás előbb rákérdez, mint minden újratöltésnél.
-- **Megosztás:** az {{ui:Exportálás}} a kiválasztott beállításkészletet `.ccenv.json` fájlként menti; a {{ui:Beállításkészlet importálása…}} egyet ad hozzá fájlból. A fájl csak ezeket a választásokat állítja be, mást semmit.
-- **Eltávolítás:** válasszon egy beállításkészletet, és válassza az {{ui:Eltávolítás}} parancsot.
+- **Mentés:** írjon nevet a {{ui:Munkakörnyezetek}} alá, és válassza a {{ui:A beállításom mentése}} parancsot. Már létező név alatt mentve a beállítás felülíródik.
+- **Váltás:** válasszon egy beállítást a listából, és válassza a {{ui:Váltás rá}} parancsot. Az alkalmazás újratöltődik az adott beállítással; ha van nem mentett munkája, az alkalmazás előbb rákérdez, ahogy bármilyen újratöltésnél.
+- **Megosztás:** az {{ui:Exportálás}} a kiválasztott beállítást `.ccenv.json` fájlba menti; a {{ui:Beállításkészlet importálása…}} parancs fájlból ad hozzá egyet. A fájl csak ezeket a beállításokat állítja be, mást nem.
+- **Eltávolítás:** válasszon egy beállítást, és válassza az {{ui:Eltávolítás}} parancsot.
 
-Legfeljebb tizenkét beállításkészletet tarthat.
+Legfeljebb tizenkét beállítást tarthat meg.
 
-A beépített elrendezések előzetes kipróbálásához lásd [az eszközkészlet és infódoboz elrendezést](common:layout-toolbox) és [a szalag és projektböngésző elrendezést](common:layout-ribbon).
+Az elrendezés megváltoztatásához a párbeszédpanel megnyitása nélkül (blokk húzása, eszköz jobb gombos kattintása), lásd [Elrendezés módosítása a képernyőn](common:layout-edit). A beépített elrendezések előzetes kipróbálásához lásd [az eszközkészlet és infódoboz elrendezését](common:layout-toolbox), [a szalag és projektböngésző elrendezését](common:layout-ribbon) és [a Rajzolás elrendezést](common:layout-drafting).

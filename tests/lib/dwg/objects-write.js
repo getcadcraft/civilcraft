@@ -66,9 +66,16 @@ export class ObjWriter extends BitWriter {
   constructor(version, inline = false) {
     super(version, 256);
     this.hnd = new BitWriter(version, 64);
-    this.str = new BitWriter(version, 64);
+    this._str = null;   // the string stream, made when the first TU string needs it (R2007+ only; PERF.5)
     this.hasStr = false;
     this.inline = inline;
+  }
+  get str() { return this._str || (this._str = new BitWriter(this.version, 64)); }
+  set str(v) { this._str = v; }
+  /** Back to an empty object (the buffers keep their size; the bits written are cleared, the writer being zero past its cursor). */
+  reset() {
+    for (const b of [this, this.hnd, this._str]) if (b) { b.buf.fill(0, 0, Math.min(b.buf.length, (b.bit >> 3) + 2)); b.bit = 0; }
+    this.hasStr = false; this.sizeAt = undefined;
   }
   TV(s) { if (this.r2007) { this.str.TU(s); this.hasStr = true; } else this.T8(s); }
   /** A handle in the handle stream (in the data stream when `inline`). */
@@ -103,19 +110,23 @@ function begin(w, type, rec) {
   writeEED(w, rec.eed);
 }
 /** Finish: patch the bit size, add the handle stream, frame with MS (+ R2010 handle-stream size) and CRC. */
-function finish(w) {
+let scratch = new Uint8Array(1 << 16);   // the framed bytes of the object being written, when the caller copies them at once (encodeObject(…, true))
+function finish(w, shared = false) {
   const endbit = w.endData();
   if (!w.r2010) w.patchRL(w.sizeAt, endbit);
   w.append(w.hnd);
-  const data = w.bytes();
-  const out = new ByteWriter(data.length + 8);
-  out.MS(data.length);
-  if (w.r2010) out.raw(umcBytes(data.length * 8 - endbit));
-  out.raw(data);
-  const all = out.bytes();
-  const crc = crc16(0xC0C1, all);
-  const res = new Uint8Array(all.length + 2);
-  res.set(all); res[all.length] = crc & 0xFF; res[all.length + 1] = crc >> 8;
+  const data = w.buf.subarray(0, (w.bit + 7) >> 3);   // no copy: the result below is the copy
+  const dl = data.length;
+  const hd = [];   // MS(len) and, from R2010, the handle-stream size
+  { let v = dl; for (;;) { const t = v & 0x7FFF; v = Math.floor(v / 32768); if (v === 0) { hd.push(t & 0xFF, t >> 8); break; } hd.push((t | 0x8000) & 0xFF, (t | 0x8000) >> 8); } }
+  if (w.r2010) for (const b of umcBytes(dl * 8 - endbit)) hd.push(b);
+  const total = hd.length + dl + 2;
+  let res;
+  if (shared) { if (scratch.length < total) scratch = new Uint8Array(Math.max(total, scratch.length * 2)); res = scratch.subarray(0, total); }   // a view: no buffer per object (PERF.5)
+  else res = new Uint8Array(total);
+  res.set(hd); res.set(data, hd.length);
+  const crc = crc16(0xC0C1, res, 0, hd.length + dl);
+  res[total - 2] = crc & 0xFF; res[total - 1] = crc >> 8;
   return res;
 }
 
@@ -572,9 +583,10 @@ function corners(w, r) {
 ENC.SOLID = corners; ENC.TRACE = corners;
 ENC['3DFACE'] = (w, r) => {
   entityCommon(w, r);
-  const p = [0, 1, 2, 3].map((i) => P(r.points[i] || r.points[r.points.length - 1]));
+  const pr = r.points, lastP = pr[pr.length - 1];
+  const p = [P(pr[0] || lastP), P(pr[1] || lastP), P(pr[2] || lastP), P(pr[3] || lastP)];
   const flags = r.invisibleEdges | 0;
-  const zz = p.every((q) => !q.z);
+  const zz = !p[0].z && !p[1].z && !p[2].z && !p[3].z;
   w.B(flags ? 0 : 1); w.B(zz ? 1 : 0);
   w.RD(p[0].x); w.RD(p[0].y); if (!zz) w.RD(p[0].z);
   for (let i = 1; i < 4; i++) { w.DD(p[i].x, p[i - 1].x); w.DD(p[i].y, p[i - 1].y); w.DD(p[i].z, p[i - 1].z); }
@@ -1001,18 +1013,35 @@ ENC.VIEWPORT = (w, r) => {
   if (w.r2007) { w.H(SOFT_PTR, 0); w.H(HARD_PTR, 0); w.H(SOFT_PTR, 0); w.H(HARD_OWN, 0); }
 };
 
+/**
+ * Encode a record that needs nothing from the rest of the drawing (a plain entity of a type that is not a registered class), or
+ * null when it is not one: write.js then encodes it later with the others. The bytes do not depend on when this runs (PERF.5).
+ */
+export function encodeEarly(rec, version) {
+  if (rec.encode || CLASSED[rec.t] || !ENC[rec.t] || TYPE[rec.t] === undefined) return null;
+  return encodeObject(rec, { version }, true);
+}
+
 /** Encode one record. Returns null for an unknown type. */
-export function encodeObject(rec, ctx) {
+/** `shared`: the result is a view of a buffer reused by the next call - copy it before encoding again (write.js hands it to the object store). */
+export function encodeObject(rec, ctx, shared = false) {
   if (rec.encode) return rec.encode(rec, ctx);   // records built by nongraphic-write.js / mleader-write.js / passthrough.js
   const enc = ENC[rec.t];
   if (!enc) return null;
   const type = CLASSED[rec.t] ? ctx.classNum(rec.t) : TYPE[rec.t];
   if (type === undefined) return null;
-  const w = new ObjWriter(ctx.version);
-  begin(w, type, rec);
-  enc(w, rec);
-  return finish(w);
+  // one writer is reused for every object (PERF.5); a re-entrant call gets a fresh one
+  const pooled = !poolBusy;
+  let w;
+  if (pooled) { if (!poolW || poolW.version !== ctx.version) poolW = new ObjWriter(ctx.version); else poolW.reset(); w = poolW; poolBusy = true; }
+  else w = new ObjWriter(ctx.version);
+  try {
+    begin(w, type, rec);
+    enc(w, rec);
+    return finish(w, shared && pooled);
+  } finally { if (pooled) poolBusy = false; }
 }
+let poolW = null, poolBusy = false;
 
 // ---------------------------------------------------------------- classes (ch. 10, 5.8)
 export function encodeClasses(classes, ctx) {

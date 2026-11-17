@@ -1,51 +1,53 @@
 ---
 title: Ka shaqee qaabeynta sanduuqa qalabka iyo sanduuqa macluumaadka
-summary: U beddel app-ka tiir qalab bidix ah oo meelo loogu talagalay kuwaaga, sanduuq macluumaad oo sare u socda oo raacaya qalabka socda ama waxa aad doortay, navigator midig, tab muuqaal kasta, bar degdeg ah iyo palet tafatir, oo dib ugu noqo qaabeynta caadiga ah markasta.
-keywords: qaabeyn, meel shaqo, sanduuqa qalabka, tiirka qalabka, sanduuqa macluumaadka, bar macluumaad, navigator, mapka mashruuca, bar degdeg, palet tafatir, qalabkayga, qalabka aad jeceshahay, tab-yada muuqaalka, daaqadda sanduuqa qalabka, qaabeynta caadiga ah, beddel qaabeyn
-from: 2f807c9c
+summary: Beddel barnaamijka tiir qalab ah oo dhinaca bidix ku jira, oo leh meel aad ku kaydiso qalabkaaga, sanduuq macluumaad oo naqshadda sare ku socda oo raacaya qalabka socda ama waxa aad dooratay, socodsiiye dhinaca midig, tab muuqaal kasta, degdeg dooro iyo palet wax-beddel, oo mar kasta ku noqo qaabeynta caadiga ah.
+keywords: qaabeyn, meel shaqo, sanduuqa qalabka, tiirka qalabka, sanduuqa macluumaadka, macluumaad, socodsiiye, khariidadda mashruuca, safka degdega ah, degdeg dooro, palet wax-beddel, palet pet, my tools, qalabkayga, tab-yada muuqaalka, daaqadda sanduuqa qalabka, qaabeynta caadiga ah, beddel qaabeyn
+from: ec341666
 ---
 
-**Sanduuqa qalabka iyo sanduuqa macluumaadka** waa mid ka mid ah saddexda qaabeyn ee meel shaqada app-ka. Qalabyada naqshadaynta waxay ku taagan yihiin tiir bidix, sanduuqa macluumaadku wuxuu sare u muujinayaa waxa qalabka socdo ku baahan yahay ama waxa aad doortay, muuqaal kastaa tab leeyahay, bar degdeg ahna wuxuu hoos naqshadda ku haya doorashooyin maalinlaha ah. Qalabyada waa kuwa app-ka: wax kasta oo aad ku samayn karto qaabeynta caadiga ah halkan sidoo kale way shaqeeyaan, naqshaddaadu, qaabka menu-ga iyo furayaasha waxay sii joogaan sidii ay yihiin.
+**Sanduuqa qalabka iyo sanduuqa macluumaadka** waa mid ka mid ah saddexda qaabeyn ee meel shaqo ee barnaamijka. Qalabka naqshaddu waxay taagan yihiin tiir dhinaca bidix, sanduuq macluumaad oo u dhex maraya sare ayaa muujinaya waxa qalabka socda ama waxa aad dooratay, muuqaal kasta wuxuu leeyahay tab, safka degdega ah ayaa hoosta naqshadda ku yaal oo wuxuu haya doorashooyin maalin walba loo isticmaalo. Qalabka waa kuwa barnaamijka laftiisa: wax kasta oo aad ku samayn karto qaabeynta caadiga ah halkaan ayay ku shaqeeyaan, naqshaddaadu, habka menu-ga iyo furayaasha aad ayay sidaas ku sii jiraan.
 
 ## Dooro
 
-1. Fur {{ui:Dejinta}} (gear-ka, ama {{key:Mod+,}}).
-2. Dooro tab-ka {{ui:Caalami}}, kadibna tag {{ui:Qaabeynta}} › {{ui:Meel shaqo}}.
-3. Dooro {{ui:Sanduuqa qalabka iyo sanduuqa macluumaadka}}.
+1. Fur {{ui:Settings}} (gear-ka, ama {{key:Mod+,}}).
+2. Dooro tab-ka {{ui:Global}}, kadibna gali {{ui:Layout}} › {{ui:Workspace}}.
+3. Dooro {{ui:Toolbox and info box}}.
 
-Qaabeyntu isla markiiba way beddelmaysaa. Doorashadu waa mid app kasta browserkan: app kasta marka xigta isla qaabeyntaas ayuu ku furmaa, waxayna meesha ku jirtaa ka hor inta bogga la sawirayo, sidaas darteed marna ma aragto qaabeynta caadiga ah marka hore.
+Qaabeynta waa isla markiiba beddelmaysa. Doorashadu waa mid barnaamij kasta browser-kan: barnaamij kasta wuxuu ka furmaa marka xiga, waxayna ku jirtaa ka hor inta bogga aan la sawirin, sidaas darteed qaabeynta caadiga ah ma aragto mar.
 
-## Waxa meesha ku yaal
+## Waxa meel kasta ku yaal
 
-- **Qalabka:** qalabka app-ka laftiisa ayuu sare ku sii jiraa goobta naqshadda, menu-yadiisa oo dhan.
-- **Sanduuqa macluumaadka:** qalabka hoostiisa. Qalab socda intuu socdo wuxuu muujinayaa qalabka iyo waxa uu weydiinayo. Marka aad wax doorato wuxuu muujinayaa dejimahooda ugu muhiimsan (darbi ahaan: noociisa, dhumucdiisa, dhererka, khadka goobta iyo joogga), oo waad beddeli kartaa halkaas: beddelka halkaas waa isku mid Guryaha, {{key:Mod+Z}} ayaa dib u celinaysa. Waxba la doorto ma jirto wuxuu leeyahay "Nothing selected". App kasta wuxuu ku daraa sanduuqyadiisa halkan, sida lakabka ama heerka hadda jira, ama dukumeentiga furan.
-- **Sanduuqa qalabka:** tiirka bidix, qalabyada app-ka kooxo ahaan. Guji magaca kooxda si aad u xidho ama mar kale u furto. Qalabka socda ayaa iftiimaya.
-- **Qalabkayga:** kooxda ugu horreysa ee sanduuqa qalabka, siddeed meel oo madhan oo qalabyada aad inta badan isticmaasho. Guji meel madhan si aad u doorato qalab ama amar kasta oo app-ka ah; ama midig-guji qalab sanduuqa qalabka ku jira oo dooro {{ui:Ku dar Qalabkayga}}; ama jiid qalab meel madhan. Midig-guji meel si aad u beddesho ama aad u madhiso. Meelahaaga waa lagu kaydiyaa app kasta browserkan.
-- **Navigator:** panelka midig. Baadhaha mashruuca app-ka ayaa sare (qorshayaasha, qaybaha, muuqaalka dhinacyada, muuqaalka 3D, jadwalada, xaashiyada, sida app-ku leeyahay): guji mid si aad u furto. Hoosteeda, {{ui:Guryaha}} iyo tab leh waxyaabaha kale ee panelka midig.
-- **Tab-yada muuqaalka:** tab muuqaal kasta oo faylka furan (xaashi, qorshe, muuqaal…), naqshadda kor.
-- **Bar degdeg:** naqshadda hoosteeda, dejimaha muuqaalka iyo doorashooyinka maalinlaha ah ee app-ku leeyahay, sida miisaanka, heerka faahfaahinta, kala duwanaanshaha muuqaalka, fit, plan, split ama 3D, snaps iyo units.
-- **Palet tafatir:** guji wax naqshadda ku jira palet yar ayaa u soo baxaa jiritaanka hareeraha, oo leh amarada tafatirka app-ka ee shayga, sida guuri (move), koobiyee (copy), leexi (rotate), mirror, nuqul (duplicate) ama tirtir, iyo {{ui:Guryaha}}. {{key:Esc}}, wheel-ka mouse-ka, guji kale ama badhanka xidhistiisa ayaa ridaya.
+- **Qalabka:** qalabka barnaamijka oo sare ku sugan naqshadda, menu-yadiisa.
+- **Sanduuqa macluumaadka:** hoosta qalabka. Intii qalabku socdo wuxuu muujiyaa qalabka iyo waxa uu kaa rabo. Markaad wax dooratid wuxuu muujiyaa dejintooda ugu muhiimsan (darbi ahaan: noociisa, cabbirka, dherer, khadka meesha iyo joogga), oo halkaas ayaad ka beddeli kartaa: beddelka halkaas waa isku mid sida Properties, {{key:Mod+Z}} ayaa ka soo celinaya. Wax la dooran waayo wuxuu leeyahay "Nothing selected". Barnaamij kasta wuxuu halkaan ku darayaa sanduuqyadiisa, sida layer-ka ama heerka hadda, ama dukumeentiga furan.
+- **Sanduuqa qalabka:** tiirka bidix, qalabka barnaamijka kooxo ku jira. Riix magaca kooxda si aad u qabsato ama dib u furto. Qalabka socda wuu iftiimaa.
+- **My tools:** kooxda ugu horeysa ee sanduuqa qalabka, siddeed godad madhan oo qalabka aad ugu badan isticmaashid. Riix godka madhan si aad u doorato qalab ama amar kasta oo barnaamijka ah; ama midig-riix qalab sanduuqa qalabka kuna dooro {{ui:Add to My tools}}; ama jiid qalab godka. Midig-riix godka si aad u beddesho ama u faaruq. Godyadaadu waa la kaydiyaa barnaamij kasta browser-kan.
+- **Socodsiiyaha:** panelka midig. Baadhaha mashruuca barnaamijka ayaa sare (xaashiyada, qorshayaasha, muuqaalka dhinacyada, muuqaalka 3D, jadwalada, xaashiyada, sida barnaamijku leeyahay): riix mid si aad u furto. Hoosteeda, {{ui:Properties}} iyo tab leh waxyaabaha kale ee panelka midig.
+- **Tab-yada muuqaalka:** tab muuqaal kasta oo faylka furan (xaashi, qorshe, muuqaal saddex-geesood...), naqshadda dushiisa.
+- **Safka degdega ah:** hoosta naqshadda, doorashooyinka muuqaalka iyo kuwa maalin walba loo isticmaalo ee barnaamijka, sida miisaanka, heerka faahfaahinta, kala duwanaanshaha muuqaalka, fit, plan, split ama 3D, snaps iyo unit-yada.
+- **Palet-ka wax-beddelka:** riix wax naqshadda ku jira, palet yar ayaa imanaya oo ku dhow mu'aashaaraha, leh amarrada wax-beddelka barnaamijka sida dhaqaajinta, koobiyeynta, jeedinta, muraayadda, koobiyada, iyo tirtirka, iyo {{ui:Properties}}. {{key:Esc}}, tuubbada mouse-ka, riix kale ama badhanka xidhka ayaa dhigaya.
 
-Qalab aan hadda shaqayn karin waa la madoobeeyay, habaynta tooltip-kiisu wuxuu sheegaa sababta. Guji, ama riix {{key:Enter}} isaga, si aad sababta sanduuq ku akhrido.
+Qalab aan hadda shaqayn karin ayaa lagu madoobeeyaa, sharaxaaddiisa ayaa sababta sheegta. Riix ama {{key:Enter}} si aad sababta uga akhrido sanduuq.
 
-{{key:Esc}} marka hore qalabka socda wuu joojiyaa, sida qaabeynta caadiga ah, gaadh kasta iyo {{key:Ctrl+Shift+F}} (qaabka shaashadda) sidii hore ayey u shaqeeyaan.
+{{key:Esc}} marka hore wuxuu joojiyaa qalabka socda, sida qaabeynta caadiga ah, dhammaan gaabinta iyo {{key:Ctrl+Shift+F}} (hababka shaashadda) sidii hore ayay u shaqeeyaan.
 
-## Sanduuqa qalabka u sii daaqad u gaar ah
+## Sanduuqa qalabka u gaar daaqad sii
 
-Badhanka {{ui:U dhaqaaq sanduuqa qalabka}} ee sare ee sanduuqa qalabka wuxuu leeyahay {{ui:U dhaqaaq daaqad cusub}}: sanduuqa qalabku wuxuu ku furmaa daaqad u gaar ah oo cidhiidhi ah oo app-ka dhinacdiisa ama shaashad labaad ku dhigi kartaa. Furayaasha halkaas la riixo waxay gaaraan app-ka. {{ui:Ku celi sanduuqa qalabka}}, ama xidhida daaqadaas, ayaa dib u soo celinaysa.
+Badhanka {{ui:Move the toolbox}} ee sare ee sanduuqa qalabka wuxuu leeyahay {{ui:Move to a new window}}: sanduuqa qalabka wuxuu furmaa daaqad yar oo gaar ah oo aad dhinaca barnaamijka ama shaashad labaad ku dhigi karto. Furayaasha lagu riixo halkaas waxay gaaraan barnaamijka. {{ui:Put the toolbox back}}, ama xidhida daaqadda, ayaa soo celinaya.
 
-Dejinta qalabka waxay sidoo kale khusaysaa sanduuqa qalabka: {{ui:Dejinta}} › {{ui:Caalami}} › {{ui:Qalabka}} › {{ui:Calaamado iyo magacyo}}, {{ui:Calaamado keliya}} ama {{ui:Magacyo keliya}}, iyo {{ui:Muuji magacyada kooxaha (Fayl, Naqshad, …)}}.
+Dejinta qalabka waxay ku dhacaysaa sanduuqa qalabka sidoo kale: {{ui:Settings}} › {{ui:Global}} › {{ui:Toolbar}} › {{ui:Icons and labels}}, {{ui:Icons only}} ama {{ui:Labels only}}, iyo {{ui:Show group names (File, Draw, …)}}.
 
-## Panelkaagu wuu sii yahay kaagii
+## Panelada aad leedahay way sii haysaan
 
-Panelada bidix iyo midig waxay sii hayaan wax kasta oo lagu sharxay [Habee panelada](common:arrange-panels): ku xidh, ku dhaaf, pin, qari, tab-yo, {{ui:U dhaqaaq daaqad cusub}} iyo {{ui:Dib u deji qaabka}}.
+Panelada bidix iyo midig waxay haystaan wax kasta oo lagu sharaxay [Habee panelada](common:arrange-panels): xirid, dhaqaaq, pin, qari, tab-yo, {{ui:Move to a new window}} iyo {{ui:Reset layout}}.
 
 ## Ku noqo qaabeynta caadiga ah
 
-Fur {{ui:Dejinta}} › {{ui:Caalami}} › {{ui:Qaabeynta}} › {{ui:Meel shaqo}} oo dooro {{ui:CadCraft classic}}. Qalab kasta, tab kasta iyo panel kasta waxay ku laabanayaan meeshii ay ahaayeen.
+Fur {{ui:Settings}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} oo dooro {{ui:CadCraft classic}}. Safaf kasta, tab kasta iyo panel kasta waxay ku noqonayaan meeshii ay ka ahaayeen.
 
 :::note
-Telefoonka, ama daaqad 760 pixel ballaadhkeedu yahay ama ka yar, app-ku wuxuu isticmaalaa qaabeynta telefoonka sida aad dooratay. Daaqad ballaadhan ayaa qaabeyntaada soo celisa.
+Taleefan ama daaqad 760 pixel ama ka yar ballaadhka ah, barnaamijku wuxuu isticmaalaa qaabeynta taleefanka ima doorateen. Daaqad ballaaran ayaa qaabeyntaada soo celinaysa.
 :::
 
-Si aad u isku daydo habayn kale, eeg [qaabeynta qaybta amarrada iyo baadhaha mashruuca](common:layout-ribbon).
+Si aad qaabeyn kale isku daydo, eeg [qaabeynta ribbon iyo baadhaha mashruuca](common:layout-ribbon).
+
+Si aad u beddesho waxa qaabeyntani muujinayso, eeg [Beddel qaabeynta shaashadda](common:layout-edit); habka madow, menu-bar iyo ribbon, eeg [qaabeynta Drafting](common:layout-drafting).

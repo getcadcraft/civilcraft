@@ -322,11 +322,15 @@ export function readPartsText(text) {
   return out.length ? out : null;
 }
 
+/** BK.96: every item names its IFC class. A vehicle is a transport element, a plant or a rock a geographic element; IFC has no class for a person, so a proxy. */
+const ENTOURAGE_IFC = { 'site/vehicles': 'IfcTransportElement', 'site/landscape': 'IfcGeographicElement', 'people/entourage': 'IfcBuildingElementProxy' };
+
 export function libraryItem(e) {
   const m = merged(e);
   return {
     format: 'cadcraft-library-item', format_version: 1,
     name: e.name, kind: 'furniture', category: e.cat, description: e.description, maker: '', model: '',
+    ifc: { class: ENTOURAGE_IFC[e.cat] || 'IfcBuildingElementProxy', predefined: 'NOTDEFINED' },
     plan: e.plan,
     body: { type: 'mesh', positions: m.positions, indices: m.indices },
     clearances: [],

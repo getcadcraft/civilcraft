@@ -21,7 +21,8 @@
  */
 import { msg } from './messages.js';
 import { encode1252, atLeast, cleanText } from './bits-write.js';
-import { encodeObject, encodeHeader, encodeClasses, CLASSED, julian } from './objects-write.js';
+import { encodeObject, encodeEarly, encodeHeader, encodeClasses, CLASSED, julian } from './objects-write.js';
+import { ObjectStore } from './object-store.js';
 import * as CW from './container-write.js';
 import { layoutR2000, layoutR2004, VERSION_INFO } from './container-write.js';
 import { layoutR2007 } from './r2007-write.js';
@@ -52,7 +53,11 @@ const SYSTEM_LAYERS = /^\*(LayerNameForDynamicConstraint|ADSK_CONSTRAINTS|ADSK_S
 const HARD_OWN_CODE = 3;
 const fin = (...v) => v.every(Number.isFinite);
 const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
-const hexKey = (h) => (h === undefined || h === null ? null : String(typeof h === 'number' ? h.toString(16) : h).toUpperCase().replace(/^0+(?=.)/, ''));
+const hexKey = (h) => {   // same result as String(h in hex).toUpperCase() with leading zeros cut, without the regex for the usual keys (PERF.5)
+  if (h === undefined || h === null) return null;
+  const s = String(typeof h === 'number' ? h.toString(16) : h).toUpperCase();
+  return s.length > 1 && s.charCodeAt(0) === 48 ? s.replace(/^0+(?=.)/, '') : s;
+};
 
 /** Supported model entity types (others are skipped with a note). */
 const DIM_TYPES = { 0: 'DIMENSION_LINEAR', 1: 'DIMENSION_ALIGNED', 2: 'DIMENSION_ANG2LN', 3: 'DIMENSION_DIAMETER', 4: 'DIMENSION_RADIUS', 5: 'DIMENSION_ANG3PT', 6: 'DIMENSION_ORDINATE' };
@@ -100,7 +105,14 @@ export function writeDwg(model = {}, opts = {}) {
     'mlstyle', 'vport']) H[k] = next();
   if (!r2004) { /* the viewport entity table exists only up to R2000 */ }
   const srcMap = new Map();                        // model handle → new handle
-  const mapSrc = (src, h) => { const k = hexKey(src); if (k) { srcMap.set(k, h); report.handles[k] = h.toString(16).toUpperCase(); } };
+  const mapSrc = (src, h) => { const k = hexKey(src); if (k) srcMap.set(k, h); };
+  // report.handles (source handle → written handle, hex) is built from srcMap the first time it is read: a million-key object
+  // made one key at a time was a third of a big drawing's write time (PERF.5)
+  Object.defineProperty(report, 'handles', {
+    enumerable: true, configurable: true,
+    get() { const o = {}; for (const [k, v] of srcMap) o[k] = v.toString(16).toUpperCase(); Object.defineProperty(report, 'handles', { value: o, enumerable: true, writable: true, configurable: true }); return o; },
+    set(v) { Object.defineProperty(report, 'handles', { value: v, enumerable: true, writable: true, configurable: true }); },
+  });
 
   // ---------------------------------------------------------------- names
   const usedNames = new Map();                     // table → Set(UPPER)
@@ -372,16 +384,16 @@ export function writeDwg(model = {}, opts = {}) {
     switch (type) {
       case 'LINE':
         if (!okP(e.start) || !okP(e.end)) return null;
-        return [{ ...c('LINE'), start: P3(e.start), end: P3(e.end), thickness: num(e.thickness), extrusion: e.extrusion }];
+        { const r = c('LINE'); r.start = P3(e.start); r.end = P3(e.end); r.thickness = num(e.thickness); r.extrusion = e.extrusion; return [r]; }   // fields added in place: no spread copy (PERF.5)
       case 'POINT':
         if (!okP(e.position)) return null;
         return [{ ...c('POINT'), position: P3(e.position), thickness: num(e.thickness), extrusion: e.extrusion, xAxisAngle: num(e.xAxisAngle) }];
       case 'CIRCLE':
         if (!okP(e.center) || !(e.radius > 0)) return null;
-        return [{ ...c('CIRCLE'), center: P3(e.center), radius: e.radius, thickness: num(e.thickness), extrusion: e.extrusion }];
+        { const r = c('CIRCLE'); r.center = P3(e.center); r.radius = e.radius; r.thickness = num(e.thickness); r.extrusion = e.extrusion; return [r]; }
       case 'ARC':
         if (!okP(e.center) || !(e.radius > 0) || !fin(e.startAngle, e.endAngle)) return null;
-        return [{ ...c('ARC'), center: P3(e.center), radius: e.radius, startAngle: e.startAngle, endAngle: e.endAngle, thickness: num(e.thickness), extrusion: e.extrusion }];
+        { const r = c('ARC'); r.center = P3(e.center); r.radius = e.radius; r.startAngle = e.startAngle; r.endAngle = e.endAngle; r.thickness = num(e.thickness); r.extrusion = e.extrusion; return [r]; }
       case 'ELLIPSE': {
         if (!okP(e.center) || !okP(e.majorAxis) || !(e.ratio > 0)) return null;
         let { majorAxis: maj, ratio, startParam: s = 0, endParam: en = 2 * Math.PI } = e;
@@ -399,10 +411,13 @@ export function writeDwg(model = {}, opts = {}) {
         return [{ ...c(type), start: P3(e.start), direction: { x: d.x / n, y: d.y / n, z: d.z / n } }];   // a unit vector, as DXF 11 is
       }
       case 'SOLID': case 'TRACE': case '3DFACE': {
-        const pts = (e.points || []).filter(okP).map(P3);
+        const pts = [];
+        for (const p of e.points || []) if (okP(p)) pts.push(P3(p));
         if (pts.length < 3) return null;
         while (pts.length < 4) pts.push(pts[pts.length - 1]);
-        return [{ ...c(type), points: pts, thickness: num(e.thickness), extrusion: e.extrusion, invisibleEdges: e.invisibleEdges | 0, elevation: num(e.elevation, pts[0].z) }];
+        const r = c(type);
+        r.points = pts; r.thickness = num(e.thickness); r.extrusion = e.extrusion; r.invisibleEdges = e.invisibleEdges | 0; r.elevation = num(e.elevation, pts[0].z);
+        return [r];
       }
       case 'LWPOLYLINE': {
         const v = (e.vertices || []).filter(okP);
@@ -606,6 +621,34 @@ export function writeDwg(model = {}, opts = {}) {
     return rec;
   };
 
+  // extents of model space: the accumulators and the per-record rule (hoisted: the plain entities are added as they are made)
+  let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
+  const g = (p, r = 0) => { if (!p || !fin(p.x, p.y)) return; const z = num(p.z); minX = Math.min(minX, p.x - r); maxX = Math.max(maxX, p.x + r); minY = Math.min(minY, p.y - r); maxY = Math.max(maxY, p.y + r); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); };
+  const he0 = hdrIn.EXTMIN, hx0 = hdrIn.EXTMAX;
+  const hdrExt = !!(he0 && hx0 && fin(he0.x, he0.y, hx0.x, hx0.y) && he0.x <= hx0.x && he0.y <= hx0.y && Math.abs(he0.x) < 1e19);
+  const extAdd = (list) => {
+    const r = list[0];
+    switch (r.t) {
+      case 'LINE': g(r.start); g(r.end); break;
+      case 'CIRCLE': case 'ARC': g(r.center, r.radius); break;
+      case 'ELLIPSE': g(r.center, Math.hypot(r.majorAxis.x, r.majorAxis.y)); break;
+      case 'LWPOLYLINE': for (const p of r.vertices) g({ x: p.x, y: p.y, z: r.elevation }); break;
+      case 'POLYLINE_2D': case 'POLYLINE_3D': case 'POLYLINE_PFACE': case 'POLYLINE_MESH': for (const v of list.slice(1)) if (v.point) g(v.point); break;
+      case 'POINT': g(r.position); break;
+      case 'TEXT': case 'MTEXT': case 'INSERT': case 'MINSERT': g(r.insert); break;
+      case 'SOLID': case 'TRACE': case '3DFACE': for (const p of r.points) g(p); break;
+      case 'HATCH': for (const l of r.loops) { if (l.polyline) for (const p of l.polyline.vertices) g(p); } break;
+      case 'SPLINE': for (const p of r.control.length ? r.control : r.fit) g(p); break;
+      default: if (r.defPoint) g(r.defPoint);
+    }
+  };
+  // Plain entities (a LINE, an ARC, a 3DFACE …: no extension data, no reactors, a type that is not a registered class) are encoded
+  // as soon as they are made and only a stub { t, h, pre } is kept: the 1.3 million records of a big drawing were the garbage
+  // collector's work (PERF.5). R2004 and later only (R2000 links neighbours, which are not known yet). The bytes are the same.
+  const store = new ObjectStore();
+  const storeSeq = [];
+  const EARLY = r2004 ? new Set(['LINE', 'CIRCLE', 'ARC', 'POINT', '3DFACE', 'SOLID', 'TRACE', 'LWPOLYLINE', 'ELLIPSE', 'TEXT', 'RAY', 'XLINE']) : null;
+  const earlyOK = (e, r) => EARLY.has(r.t) && !r.eed && !e.extDict && !(e.reactors && e.reactors.length) && !e.xdic;
   // allocate block handles and convert their entities, block by block (header, BLOCK, contents, ENDBLK)
   let invalid = 0;
   for (const B of blocks) {
@@ -620,6 +663,15 @@ export function writeDwg(model = {}, opts = {}) {
       out[0].mode = mode;
       if (!mode) out[0].owner = B.hdr;
       mapSrc(e.handle, out[0].h);
+      if (EARLY && out.length === 1 && earlyOK(e, out[0])) {
+        const rec = out[0], data = encodeEarly(rec, version);
+        if (data) {
+          if (B === MS && !hdrExt) extAdd(out);
+          B.ents.push([{ t: rec.t, h: rec.h, pre: store.add(rec.h, data) }]);
+          count(rec.t);
+          continue;
+        }
+      }
       B.ents.push(out);
       count(out[0].t);
     }
@@ -638,29 +690,9 @@ export function writeDwg(model = {}, opts = {}) {
 
   // ---------------------------------------------------------------- extents (model space)
   let ext = null;
-  {
-    let minX = Infinity, minY = Infinity, minZ = Infinity, maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity;
-    const g = (p, r = 0) => { if (!p || !fin(p.x, p.y)) return; const z = num(p.z); minX = Math.min(minX, p.x - r); maxX = Math.max(maxX, p.x + r); minY = Math.min(minY, p.y - r); maxY = Math.max(maxY, p.y + r); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); };
-    const he = hdrIn.EXTMIN, hx = hdrIn.EXTMAX;
-    if (he && hx && fin(he.x, he.y, hx.x, hx.y) && he.x <= hx.x && he.y <= hx.y && Math.abs(he.x) < 1e19) { g(he); g(hx); }
-    else for (const list of MS.ents) {
-      const r = list[0];
-      switch (r.t) {
-        case 'LINE': g(r.start); g(r.end); break;
-        case 'CIRCLE': case 'ARC': g(r.center, r.radius); break;
-        case 'ELLIPSE': g(r.center, Math.hypot(r.majorAxis.x, r.majorAxis.y)); break;
-        case 'LWPOLYLINE': for (const p of r.vertices) g({ x: p.x, y: p.y, z: r.elevation }); break;
-        case 'POLYLINE_2D': case 'POLYLINE_3D': case 'POLYLINE_PFACE': case 'POLYLINE_MESH': for (const v of list.slice(1)) if (v.point) g(v.point); break;
-        case 'POINT': g(r.position); break;
-        case 'TEXT': case 'MTEXT': case 'INSERT': case 'MINSERT': g(r.insert); break;
-        case 'SOLID': case 'TRACE': case '3DFACE': for (const p of r.points) g(p); break;
-        case 'HATCH': for (const l of r.loops) { if (l.polyline) for (const p of l.polyline.vertices) g(p); } break;
-        case 'SPLINE': for (const p of r.control.length ? r.control : r.fit) g(p); break;
-        default: if (r.defPoint) g(r.defPoint);
-      }
-    }
-    if (Number.isFinite(minX)) ext = { min: { x: minX, y: minY, z: minZ }, max: { x: maxX, y: maxY, z: maxZ } };
-  }
+  if (hdrExt) { g(hdrIn.EXTMIN); g(hdrIn.EXTMAX); }
+  else for (const list of MS.ents) if (list[0].pre === undefined) extAdd(list);   // the plain entities encoded early were added as they were made
+  if (Number.isFinite(minX)) ext = { min: { x: minX, y: minY, z: minZ }, max: { x: maxX, y: maxY, z: maxZ } };
 
   // ---------------------------------------------------------------- records for the fixed objects
   const classes = [];
@@ -814,15 +846,15 @@ export function writeDwg(model = {}, opts = {}) {
     if (!r.eed.length) delete r.eed;
   }
   if (droppedEed) report.notes.push(msg('ccdwg.write.eed_dropped', { n: droppedEed }));
-  const objects = [];
   let entities = 0;
   for (const r of recs) {
-    const data = encodeObject(r, ctx);
+    if (r.pre !== undefined) { storeSeq.push(r.pre); entities++; continue; }   // encoded when it was made (a plain entity)
+    const data = encodeObject(r, ctx, true);   // a view of a reused buffer: the store copies it at once
     if (!data) { report.notes.push(`internal: no encoder for ${r.t}`); continue; }
-    objects.push({ handle: r.h, data });
+    storeSeq.push(store.add(r.h, data));
     if (!/CONTROL|^LAYER$|^STYLE$|^LTYPE$|^APPID$|^DIMSTYLE$|^VPORT$|^VIEW$|DICTIONARY|PLACEHOLDER|MLINESTYLE|LAYOUT|BLOCK_HEADER/.test(r.t)) entities++;
   }
-  objects.sort((a, b) => a.handle - b.handle);
+  const objects = store.seal(storeSeq);   // iterates as the { handle, data } list, in handle order
   const hv = { ...hdrIn };
   if (hv.INSUNITS === undefined) hv.INSUNITS = 0;
   if (hv.LUPREC === undefined) hv.LUPREC = ctx.metric ? 3 : 2;

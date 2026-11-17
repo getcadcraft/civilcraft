@@ -101,7 +101,7 @@ try {
 
   console.log('== Typed coordinates, a LibraryCraft item');
   await page.click('[data-rtab="library"]');
-  await page.click('.bc-lib-src:has-text("LibraryCraft")');
+  await page.click('.bc-lib-src:text-is("Library")');
   await page.waitForSelector('.bc-lib-card', { timeout: 15000 });
   await page.click('.bc-lib-card >> nth=0');
   const libPlace = await page.waitForSelector('[data-lib-place], .bc-lib-detail .bc-input-err', { timeout: 15000 });

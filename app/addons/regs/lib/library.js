@@ -23,7 +23,50 @@ export function apiBase() {
   try { if (/^https?:$/.test(location.protocol) && /(^|\.)getcadcraft\.com$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) return location.origin; } catch (e) { /* not a page */ }
   return 'https://getcadcraft.com';
 }
-const defaultFetch = (url) => fetch(url, { credentials: 'omit' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+/* NET.2 (Lucas, Discord 2026-11-12): every Library answer has a deadline that covers the body too and a size cap, so a server that
+ * misbehaves (hangs, trickles, or sends far too much) costs a clear "failed" instead of memory or a stuck install. A region list is a
+ * few KB and a pack ~4 KB today; 2 MB per answer leaves room and refuses anything past it. */
+export const MAX_ANSWER_BYTES = 2 * 1024 * 1024;
+export const TIMEOUT_MS = 15000;
+
+/** The body as text, never more than `max` bytes (Content-Length checked first; the stream is cancelled once it passes the cap). */
+export async function readCapped(r, max = MAX_ANSWER_BYTES) {
+  const len = Number(r.headers && typeof r.headers.get === 'function' ? r.headers.get('content-length') : NaN);
+  if (Number.isFinite(len) && len > max) { try { await r.body?.cancel?.(); } catch (e) { /* gone */ } throw new Error('answer too big'); }
+  if (!r.body || typeof r.body.getReader !== 'function') {
+    const t = await r.text();
+    if (t.length > max) throw new Error('answer too big');
+    return t;
+  }
+  const reader = r.body.getReader(), parts = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    n += value.byteLength;
+    if (n > max) { try { await reader.cancel(); } catch (e) { /* gone */ } throw new Error('answer too big'); }
+    parts.push(value);
+  }
+  const all = new Uint8Array(n);
+  let at = 0;
+  for (const p of parts) { all.set(p, at); at += p.byteLength; }
+  return new TextDecoder().decode(all);
+}
+
+export async function boundedJson(url, { fetchFn = (u, o) => fetch(u, o), timeoutMs = TIMEOUT_MS, max = MAX_ANSWER_BYTES } = {}) {
+  const ac = typeof AbortController === 'function' ? new AbortController() : null;
+  let timer = null;
+  const slow = new Promise((_, no) => { timer = setTimeout(() => { if (ac) ac.abort(); no(new Error('timed out')); }, timeoutMs); });
+  slow.catch(() => {});
+  try {
+    return await Promise.race([(async () => {
+      const r = await fetchFn(url, { credentials: 'omit', ...(ac ? { signal: ac.signal } : {}) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return JSON.parse(await readCapped(r, max));
+    })(), slow]);
+  } finally { clearTimeout(timer); }
+}
+const defaultFetch = (url) => boundedJson(url);
 
 let mem = null;   // when localStorage is not there (a test, a locked-down browser): this session only
 function load() {

@@ -15,6 +15,7 @@ import { createCloudView } from './cloud-view.js';
 import { mountPanel } from './cloud-panel.js';
 import { mountClean } from './clean-ui.js';
 import { mountSection } from './section-strip.js';
+import { mountCompare } from './compare-ui.js';   // 0.10 SU.1809: mounted only for a host that can hand over its model (model())
 
 export async function activate(api) {
   PC0.configure(hostMod.engineDeps());
@@ -37,7 +38,7 @@ export async function activate(api) {
   ctx.on('edited', () => ctx.view.reload());
 
   const classifyMod = hostMod.ground ? await import('./classify-ui.js') : null;   // only the apps that carry the ground modules have this file
-  const folds = [mountClean(ctx), classifyMod ? classifyMod.mountClassify(ctx) : null, mountSection(ctx)].filter(Boolean);
+  const folds = [mountClean(ctx), classifyMod ? classifyMod.mountClassify(ctx) : null, mountSection(ctx), typeof hostMod.model === 'function' ? mountCompare(ctx, hostMod) : null].filter(Boolean);
   api.ui.panelTab({
     id: 'pointcloud', title: api.t('pc.name'),
     render: (body) => {

@@ -15,6 +15,7 @@ import { HYDRO_DEFAULTS, cleanHydro, catchmentArea, rationalFlows, sizePipes, hy
 import { DIA_UNIT } from './pipes.js';
 import { createRoute } from './storm-route-ui.js';   // 0.8 LC.16
 import { fixed } from './units.js';
+import { pointInPolygon } from './geom2d.js';
 
 export function createDrainage(ctx) {
   const { el } = ctx;
@@ -209,11 +210,4 @@ export function createDrainage(ctx) {
   return { block, structureRows, pipeRows, props, finish, pick, overlay, remove, results, find: findC };
 }
 
-function inPoly(x, y, pts) {
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j];
-    if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
-  }
-  return inside;
-}
+function inPoly(x, y, pts) { return pointInPolygon(x, y, pts); }

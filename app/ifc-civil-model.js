@@ -48,6 +48,8 @@ import { hardElements } from './landscape/hardscape.js';
 import { freeformElements } from './landscape/freeform.js';
 import { cleanWater } from './water.js';   // 0.8 LC.16 rest + CV.2: water mains in the IFC
 import { layout } from './water-objects.js';
+import { ifcModel as utilIfcModel } from './utilnet.js';   // 0.10 SU.1810
+import * as Fence from './fence/index.js';   // 0.10 SU.1814b
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 
@@ -401,6 +403,19 @@ export function civilIfcModel(project, { species = null, lat = null, lon = null 
     model.network = { name: net.name, type: net.type, structures, pipes, rules: net.rules || {} };
   }
 
+  // 0.10 SU.1810: utility networks (utilnet.js): pipes and cables under the ground, chambers and hydrants
+  if (s.utilities && (s.utilities.runs.length || s.utilities.nodes.length)) {
+    const ground = project.graded().surface || project.eg().surface;
+    const um = utilIfcModel(s.utilities, units === 'm' ? 'm' : 'ft', { zAt: (x, y) => { const z = ground?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } });
+    if (um) model.utilities = um;
+  }
+
+  // 0.10 SU.1814b: fences (lib/fence): posts, panels, rails and gates on the finished ground
+  if ((s.fences || []).length) {
+    const ground = project.graded().surface || project.eg().surface, zAt = (x, y) => { const z = ground?.elevationAt(x, y); return Number.isFinite(z) ? z : null; };
+    model.fences = s.fences.map((rec) => { const lay = Fence.build(rec, { zAt, units: units === 'm' ? 'm' : 'ft' }); return { id: rec.id, name: rec.name, type: rec.type, panelThk: rec.panelThk, posts: lay.posts, panels: lay.panels, rails: lay.rails, gates: lay.gates }; }).filter((f) => f.posts.length);
+  }
+
   // 0.8 LC.16 rest + CV.2 (civil_PART_3): the water mains as pipes under the ground with their hydrants, valves and fittings (water-objects.js)
   if (s.water?.pipes?.length) {
     const wat = cleanWater(s.water, units), per = DIA_UNIT[units === 'm' ? 'm' : 'ft'].perUnit, ground = project.graded().surface || project.eg().surface;
@@ -439,5 +454,5 @@ export function civilIfcModel(project, { species = null, lat = null, lon = null 
 
 /** Nothing to write? */
 export function modelEmpty(m) {
-  return !m.alignments.length && !m.corridors.length && !m.surfaces.length && !m.pads.length && !m.network && !m.water && !m.parcels.length && !m.landscape.length && !m.masses.length;
+  return !m.alignments.length && !m.corridors.length && !m.surfaces.length && !m.pads.length && !m.network && !m.water && !m.utilities && !(m.fences || []).length && !m.parcels.length && !m.landscape.length && !m.masses.length;
 }

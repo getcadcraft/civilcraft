@@ -1,0 +1,13 @@
+{
+  "name": "Specification: Specification",
+  "description": "A specification for working drawings, filled from the open IFC model: quantities by type, tag values and schedules. Edit the text, then save the document as PDF or Word. Reads the model’s tags (the definitions are listed with the template).",
+  "template": {
+    "format": "cadcraft-doc-template",
+    "version": 1,
+    "key": "spec-spec",
+    "trade": "working drawings",
+    "title": "Specification",
+    "tags": [],
+    "text": "# Specification: {{project}}\n\nFile {{file}}, {{date}}.\n\n{{specification}}\n"
+  }
+}

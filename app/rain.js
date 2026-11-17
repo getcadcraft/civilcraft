@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { pointInPolygon } from './geom2d.js';
 /**
  * rain.js — "Make it rain" (0.8 EG.69): 2D overland flow on the graded ground. Rain falls on a grid made from the ground surface;
  * the water runs downhill, collects in low spots (ponding), spills over rims (overtopping) and leaves at the edges, with the
@@ -64,7 +65,7 @@ export function demFromSurface(surface, { cell, units = 'ft', bounds = null, max
   return dem;
 }
 
-const inPoly = (poly, x, y) => { let k = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const p = poly[i], q = poly[j]; if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) k = !k; } return k; };
+const inPoly = (poly, x, y) => pointInPolygon(x, y, poly);
 
 export function paint(dem, polys, field, value) {
   if (!['block', 'n', 'loss'].includes(field)) return 0;

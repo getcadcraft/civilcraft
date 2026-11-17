@@ -163,6 +163,33 @@ args = ["-y","@getcadcraft/mcp","connect"]
 This path comes from the AI app's public guides. If it does not match your install, use Studio's Connect, which looks first.
 :::
 
+### Google Antigravity
+
+1. Open ~/.gemini/config/mcp_config.json (it is made if it does not exist; keep anything already in it).
+2. Add the CadCraft entry below (inside "mcpServers" if the file has one).
+3. Start Google Antigravity and ask it the test prompt.
+
+```json
+{
+  "mcpServers": {
+    "cadcraft": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@getcadcraft/mcp",
+        "connect"
+      ]
+    }
+  }
+}
+```
+
+**Undo:** Delete the "cadcraft" entry from ~/.gemini/config/mcp_config.json.
+
+:::tip
+This path comes from the AI app's public guides. If it does not match your install, use Studio's Connect, which looks first.
+:::
+
 ### Gemini CLI
 
 1. Open ~/.gemini/settings.json (it is made if it does not exist; keep anything already in it).

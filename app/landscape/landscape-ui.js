@@ -115,13 +115,17 @@ export function createLandscape(ctx) {
 
   // ---- the seed list (loaded once, beside this module) ----
   let from = { source: '', collection: null };
-  const ready = (async () => {
+  // 0.10 PERF.57: the plant list is fetched, parsed and cleaned when something needs it (the workspace opens, a project with plants is drawn,
+  // the species index is asked for) or when the page is idle, not in the start-up task of every CivilCraft page (about 40 ms cold and a fetch)
+  let started = null;
+  const start = () => (started ||= load());
+  async function load() {
     try {
       const r = await fetch(new URL('./plants-seed.json', import.meta.url));
       seed = readPlants(await r.json()).library.species;
     } catch (e) { seed = []; ctx.say(t('ls.seed.failed', { why: String(e.message || e) })); }
     idxCache.key = '';
-    if (on) { renderPlants(); ctx.refresh(); }
+    if (on) { renderPlants(); ctx.refresh(); } else if (P().state.landscape) ctx.refresh();   // a project with plants was drawn without the list: draw it again
     // 0.8 LD.1: then the Library's plants over the bundled list, live; the bundled list stands if the Library is empty or unreachable
     try {
       const live = await loadPlants({ seed, app: 'civilcraft' });
@@ -129,7 +133,8 @@ export function createLandscape(ctx) {
       from = { source: live.source, collection: live.collection ? await loadDefaultCollection('civilcraft') : null };   // where the plants came from, said in the panel
       if (live.source === 'library' && on) { renderPlants(); ctx.refresh(); } else if (on) renderPlants();
     } catch (e) { /* the bundled list stands */ }
-  })();
+  }
+  (globalThis.requestIdleCallback ? (f) => globalThis.requestIdleCallback(f, { timeout: 8000 }) : (f) => setTimeout(f, 3000))(() => start());
   useSpeciesIndex(() => (seed.length ? index() : null));   // 0.7.1: project.js toJSON keeps each bed's and hedge's spacing as filled
   /** 0.7.1: "Spacing from an older plant list" + Update (one undo step) for a bed or hedge filled from an older list. */
   function staleNote(kind, it, idx) {
@@ -138,6 +143,7 @@ export function createLandscape(ctx) {
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-spacing-update': it.id, onclick: () => { edit(t('ls.undo.respace'), () => dropSpacing(find(kind, it.id))); ctx.refresh(); } }, t('ls.b.spacing.update')));
   }
   function index() {
+    start();
     const pal = LS().palette || [];
     const key = seed.length + '|' + JSON.stringify(pal);
     if (idxCache.key !== key) idxCache = { key, idx: speciesIndex(seed, pal) };
@@ -321,6 +327,7 @@ export function createLandscape(ctx) {
   // ---- the workspace ----
   function setActive(v) {
     on = !!v;
+    if (on) start();
     // 0.7 PL: the select has a third choice (Power lines, powerline-ui.js): turning Landscape off leaves another workspace's choice alone
     try { if (on) localStorage.setItem(WS_KEY, 'landscape'); else if (localStorage.getItem(WS_KEY) === 'landscape' || !localStorage.getItem(WS_KEY)) localStorage.setItem(WS_KEY, 'civil'); } catch { /* private window */ }
     if (on) wsSel.value = 'landscape'; else if (wsSel.value === 'landscape') wsSel.value = 'civil';
@@ -646,6 +653,7 @@ export function createLandscape(ctx) {
     lk.watch();   // 0.8 LA.2: follow linked lines on every change of the project in use
     const l = P().state.landscape;
     if (!l) return [];
+    start();
     const plantsOut = !seed.length && !(l.palette || []).length ? [] : plantItems(l, index(), U(), { unitPerMm, lang: lang(), level: forcedLevel });
     return [...gr.sceneItems(unitPerMm), ...hd.sceneItems(unitPerMm), ...ff.sceneItems(unitPerMm), ...plantsOut, ...ir.sceneItems(unitPerMm), ...st.sceneItems(unitPerMm), ...sec.sceneItems(unitPerMm)];
   }
@@ -685,7 +693,7 @@ export function createLandscape(ctx) {
   return {
     active: () => on, setActive, command, ownsTool: (tl) => TOOLS.includes(tl), click, finish, closedTool: (tl) => tl === 'ls-bed' || gr.closed.has(tl) || hd.closed.has(tl) || pa.closed.has(tl),
     hints: { 'ls-plant': 'ls.hint.plant', 'ls-bed': 'ls.hint.bed', 'ls-hedge': 'ls.hint.hedge', ...gr.hints, ...hd.hints, ...ir.hints, ...ff.hints, ...pa.hints, ...st.hints, ...lk.hints, ...sec.hints },
-    isMine, props, remove, pick, grip, grade: gr, hard: hd, areas: pa, stack: st, plantTable: pt, worksheets: ws, sections: sec, linkNotes: () => lk.notes(), linkSource: (ref, pts) => lk.linkSource(ref, pts), fromSource: (ref, pts) => lk.fromSource(ref, pts), linkBlock: (sel) => lk.linkBlock(sel), links: () => lk.links(), syncLinks: () => lk.sync(), irrigation: ir, seedSpecies: () => seed, sceneItems, overlay, updateTools, ready, index,
+    isMine, props, remove, pick, grip, grade: gr, hard: hd, areas: pa, stack: st, plantTable: pt, worksheets: ws, sections: sec, linkNotes: () => lk.notes(), linkSource: (ref, pts) => lk.linkSource(ref, pts), fromSource: (ref, pts) => lk.fromSource(ref, pts), linkBlock: (sel) => lk.linkBlock(sel), links: () => lk.links(), syncLinks: () => lk.sync(), irrigation: ir, seedSpecies: () => { start(); return seed; }, sceneItems, overlay, updateTools, get ready() { return start(); }, index,
     schedule: () => schedule(LS(), index(), U(), lang()), get current() { return cur; }, set current(k) { cur = k; if (on) renderPlants(); },
     inside,
   };

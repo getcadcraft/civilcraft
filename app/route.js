@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { pointInPolygon } from './geom2d.js';
 /**
  * route.js — best route across the terrain (0.8 EG.71): the least-cost path between two points on the ground, for a road, a pipe, a trail or a
  * power line, that keeps to a steepest grade and a tightest curve, goes round places you forbid, avoids places you dislike and counts the
@@ -35,7 +36,7 @@ class Heap {
 }
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
-const inPoly = (poly, x, y) => { let k = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const p = poly[i], q = poly[j]; if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) k = !k; } return k; };
+const inPoly = (poly, x, y) => pointInPolygon(x, y, poly);
 
 export function directions(K) {
   const out = [];

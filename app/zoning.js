@@ -33,6 +33,7 @@
  */
 
 import { offsetFeature } from './featureline.js';
+import { mitreInset } from './sitelines/sitelines.js';
 import { courses } from './parcels.js';
 import { triangulate, signedArea, massArea, massGfa, massHeight } from './massing.js';
 
@@ -119,31 +120,8 @@ export function envelope(parcel, zone) {
   return { ...base, poly, area: poly ? Math.abs(signedArea(poly)) : 0, problem, uniform };
 }
 
-/** Per-edge mitre: edge i (ring[i] → ring[i+1]) moved in (to its left) by per[i]; corner i = where edges i−1 and i meet. */
-export function mitreInset(ring, per) {
-  const n = ring.length, E = [];
-  for (let i = 0; i < n; i++) {
-    const a = ring[i], b = ring[(i + 1) % n], L = Math.hypot(b.x - a.x, b.y - a.y);
-    if (L < 1e-12) return { poly: null, problem: 'repeat' };
-    const ux = (b.x - a.x) / L, uy = (b.y - a.y) / L, nx = -uy, ny = ux;
-    E.push({ px: a.x + nx * per[i], py: a.y + ny * per[i], ux, uy, nx, ny });   // a point on the moved line and its direction
-  }
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    const p = E[(i + n - 1) % n], q = E[i], cr = p.ux * q.uy - p.uy * q.ux;
-    if (Math.abs(cr) < 1e-9) {   // collinear lines: a straight continuation (two different distances on one straight line step; take the later)
-      if (Math.abs((q.px - p.px) * p.nx + (q.py - p.py) * p.ny) > 1e-9) return { poly: null, problem: 'step' };
-      out.push({ x: q.px, y: q.py }); continue;
-    }
-    // p.p + s p.u = q.p + t q.u
-    const dx = q.px - p.px, dy = q.py - p.py, s = (dx * q.uy - dy * q.ux) / cr;
-    if (Math.abs(s) > 1e7) return { poly: null, problem: 'sharp' };
-    out.push({ x: p.px + s * p.ux, y: p.py + s * p.uy });
-  }
-  // every moved edge must keep its direction (a line that turned round has folded over)
-  for (let i = 0; i < n; i++) { const a = out[i], b = out[(i + 1) % n]; if ((b.x - a.x) * E[i].ux + (b.y - a.y) * E[i].uy <= 1e-12) return { poly: null, problem: 'fold' }; }
-  return { poly: out, problem: null };
-}
+// Per-edge mitre: one copy of the setback rule, shared with BimCraft's building lines (lib/sitelines, BK.104; node tools/sitelines/sync.mjs)
+export { mitreInset };
 
 function inside(p, poly) {
   let c = false;

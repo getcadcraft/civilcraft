@@ -124,7 +124,10 @@ html.cc-phone .cc-in-ctl, html.cc-phone .cc-in-pmore { display: none; }
 /* Settings › <App> › Menus, keys and mouse: style cards with a sketch of where each style puts things */
 .cc-in-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); gap: .5rem; }
 .cc-in-card { position: relative; display: grid; gap: .3rem; padding: .4rem; border: var(--pen-1) solid var(--line); border-radius: var(--radius); cursor: pointer; }
-.cc-in-card:has(input:checked) { border: var(--pen-2) solid var(--action); padding: calc(.4rem - var(--pen-1)); }
+/* the chosen card must be unmistakable (owner 2026-11-12: "need stronger frame to identify selection"): a heavy frame, a tinted ground and a tick in the corner */
+.cc-in-card:has(input:checked) { border: 3px solid var(--action); padding: calc(.4rem - 3px + var(--pen-1)); background: color-mix(in srgb, var(--action) 10%, transparent); }
+.cc-in-card:has(input:checked)::after { content: "\2713"; position: absolute; top: -.55rem; right: -.55rem; display: grid; place-items: center; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--action); color: var(--on-action, #fff); font-size: .8rem; font-weight: 700; line-height: 1; border: var(--pen-2) solid var(--sheet-2, #fff); }
+.cc-in-card:has(input:checked) .cc-in-cname { font-weight: 700; }
 .cc-in-card:has(input:focus-visible) { outline: var(--pen-3) solid var(--action); outline-offset: 2px; }
 .cc-in-card input { position: absolute; opacity: 0; pointer-events: none; }
 .cc-in-cname { font-weight: 600; line-height: 1.2; }

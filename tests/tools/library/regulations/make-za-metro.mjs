@@ -29,6 +29,10 @@ const pack = {
   source: { name: cut(web.authority_body + ', Municipal Planning By-law, 2015', 120), url: web.url, date: '2020-02-03', checked: r.checked },
   rules: limits.map((l) => ({ id: l.rule, applies: R.RULES[l.rule]?.applies, op: l.op, ...(l.op === 'between' ? { min: l.min, max: l.max } : { value: l.value }), unit: l.unit, clause: l.clause, label: l.rule, note: cut(l.note, 300) })),
 };
+// BK.67/156: the optional local-requirement sections come from research/local-requirements.json (make-local-requirements.mjs)
+const extra = JSON.parse(fs.readFileSync(path.join(HERE, 'research/local-requirements.json'), 'utf8'))[pack.id] || {};
+R.setReleaseCheck((await import(path.join(HERE, '../../../public_html/assets/apps/bimcraft/dev/packver.js'))).validatePackVersion);
+for (const k of ['process', 'submission', 'conventions', 'notes', 'release']) if (extra[k]) pack[k] = extra[k];
 const c = R.cleanPack(pack);
 if (!c.ok) { console.error('  ! ' + pack.id + ': ' + c.errors.join('; ')); process.exit(1); }
 const file = path.join(HERE, 'world', pack.id + '.json'), text = JSON.stringify(c.pack, null, 2) + '\n';

@@ -1,34 +1,34 @@
 ---
 title: Kendi düzeninizi oluşturun ve kurulumlarınızı kaydedin
-summary: Proje tarayıcısını, Özellikler'i ya da panelin kendi içeriğini hangi panelin göstereceğini, araç kutusunun nereye gideceğini ve çubukların neleri tutacağını seçin, bunu kendi düzeniniz olarak kaydedin ve tüm kurulumları bir ad altında saklayıp aralarında geçiş yapın.
+summary: Proje tarayıcısının, Özellikler'in ya da panelin kendi içeriğinin hangi panelde görüneceğini, araç kutusunun nereye geleceğini ve çubukların neleri tutacağını seçin; bunu kendi düzeniniz olarak kaydedin ve tüm kurulumları bir adla saklayıp aralarında tek adımda geçiş yapın.
 keywords: düzen, çalışma alanı, düzenle, özelleştir, düzenim, kendi düzenim, paneller, düzenleyiciler, proje tarayıcısı, özellikler, araç kutusu, hızlı çubuk, bilgi kutusu, çalışma ortamı, kurulum, profil, kurulumu kaydet, kurulum değiştir, kurulumu dışa aktar, kurulumu içe aktar, ccenv
-from: 2a71af43
+from: 6af528e0
 ---
 
-Üç yerleşik düzenin yanında kendinize ait bir düzen oluşturabilir ve tüm kurulumunuzu bir ad altında kaydedip tek adımda ona geri dönebilirsiniz.
+Yerleşik üç düzenin yanında kendi düzeninizi de oluşturabilir, tüm kurulumunuzu bir adla kaydedip tek adımda ona geri dönebilirsiniz.
 
 ## Kendi düzeninizi oluşturun
 
-1. {{ui:Ayarlar}} penceresini açın (dişli simgesi ya da {{key:Mod+,}}), {{ui:Genel}} sekmesini seçin, ardından {{ui:Düzen}} bölümüne gidin.
-2. {{ui:Kendi düzeninizi oluşturun…}} öğesini seçin. İletişim kutusu şu an kullandığınız düzenle başlar.
-3. Ona bir ad verin, ardından seçin:
-   - **Çizimin üstünde:** uygulamanın araç çubuğu, bir şerit ya da hiçbiri; bir başlık çubuğu; bir bilgi kutusu ve içinde hangi denetimlerin olacağı.
-   - **Çizimin yanında:** solda, sağda ya da hiç araç kutusu, {{ui:Araçlarım}} ile ya da onsuz; paletleri hangi panelin tutacağı, hangisinin üstte olacağı (örneğin proje tarayıcısı ya da Özellikler) ve hangilerinin altında sekme olacağı.
-   - **Çizim alanı:** görünüm sekmeleri, işaretlediğiniz denetimlerle bir hızlı çubuk ve bir görünüm çubuğu, düzenleme paleti, bir durum çubuğu.
+1. {{ui:Ayarlar}} simgesini açın (dişli simgesi ya da {{key:Mod+,}}), {{ui:Genel}} seçin, sonra {{ui:Düzen}}.
+2. {{ui:Kendi düzeninizi oluşturun…}} seçin. İletişim kutusu şu an kullandığınız düzenden başlar.
+3. Bir ad verin, sonra şunları seçin:
+   - **Çizimin üstünde:** uygulamanın araç çubuğu, bir şerit ya da hiçbiri; bir başlık çubuğu; bir bilgi kutusu ve içerdiği denetimler.
+   - **Çizimin yanında:** araç kutusu solda, sağda ya da hiç yok, {{ui:Araçlarım}} ile ya da onsuz; paletleri hangi panelin tuttuğu, hangisinin üstte olduğu (örneğin proje tarayıcısı ya da {{ui:Özellikler}}) ve altındaki sekmelerin hangileri olduğu.
+   - **Çizim alanı:** görünüm sekmeleri, hızlı çubuk ve işaretlediğiniz denetimlerle bir görünüm çubuğu, düzenleme paleti, bir durum çubuğu.
    - **Görünüm:** boyut, düğme çerçeveleri ve sekme stili.
-4. {{ui:Bu düzeni kullan}} öğesini seçin. Uygulama hemen ona geçer ve düzenleri olan her uygulama da onu kullanır.
+4. {{ui:Bu düzeni kullan}} seçin. Uygulama hemen buna geçer ve düzenleri olan her uygulama da onu kullanır.
 
-Yalnızca bu uygulamada olanlar sunulur. Düzeniniz {{ui:Eklentilerden ve dosyalardan}} altında listelenir; {{ui:Bu düzeni dışa aktar}} onu bir iş arkadaşınıza verebileceğiniz bir dosya olarak kaydeder, kaldır düğmesi ise onu siler. Doldurduğu paneller yine yerleşir, yüzer ve [Panelleri düzenleyin](common:arrange-panels) konusundaki gibi kendi pencerelerine taşınır.
+Yalnızca bu uygulamada bulunanlar sunulur. Düzeniniz {{ui:Eklentilerden ve dosyalardan}} altında listelenir; {{ui:Bu düzeni dışa aktar}} onu bir meslektaşınıza verebileceğiniz bir dosya olarak kaydeder; kaldırma düğmesi onu siler. Doldurduğu paneller, [Panelleri düzenleme ve ikinci monitörü kullanma](common:arrange-panels) bölümünde anlatıldığı gibi yine yerleştirilebilir, yüzebilir ve kendi pencerelerine taşınabilir.
 
 ## Kurulumunuzu çalışma ortamı olarak kaydedin
 
-Çalışma ortamı, bu tarayıcıdaki her uygulama için tüm kurulumunuzdur: düzen, menü stili ve tuşlarınız, araç çubuğu stili, paneller ve boyutları ile {{ui:Araçlarım}}. Tema ve dil buna dahil değildir.
+Çalışma ortamı, bu tarayıcıdaki her uygulama için tüm kurulumunuzdur: düzen, menü stili ve kısayollarınız, araç çubuğu stili, paneller ve boyutları ile {{ui:Araçlarım}}. Tema ve dil bunun parçası değildir.
 
-- **Kaydet:** {{ui:Çalışma ortamları}} altına bir ad yazın ve {{ui:Kurulumumu kaydet}} öğesini seçin. Var olan bir adla kaydetmek o kurulumun yerine geçer.
-- **Geçiş yap:** listeden bir kurulum seçin ve {{ui:Ona geç}} öğesini seçin. Uygulama o kurulumla yeniden yüklenir; kaydedilmemiş çalışmanız varsa uygulama, her yeniden yüklemede olduğu gibi önce sorar.
-- **Paylaş:** {{ui:Dışa aktar}} seçili kurulumu bir `.ccenv.json` dosyası olarak kaydeder; {{ui:Kurulum içe aktar…}} bir dosyadan bir tane ekler. Bir dosya yalnızca bu seçimleri belirler, başka hiçbir şeyi değil.
-- **Kaldır:** bir kurulum seçin ve {{ui:Kaldır}} öğesini seçin.
+- **Kaydet:** {{ui:Çalışma ortamları}} altına bir ad yazın ve {{ui:Kurulumumu kaydet}} seçin. Var olan bir adla kaydetmek o kurulumun yerine geçer.
+- **Geçiş yap:** listeden bir kurulum seçin ve {{ui:Ona geç}} seçin. Uygulama o kurulumla yeniden yüklenir; kaydedilmemiş işiniz varsa, herhangi bir yeniden yüklemede olduğu gibi, uygulama önce sorar.
+- **Paylaş:** {{ui:Dışa aktar}} seçili kurulumu bir `.ccenv.json` dosyası olarak kaydeder; {{ui:Kurulum içe aktar…}} bir dosyadan kurulum ekler. Dosya yalnızca bu seçenekleri ayarlar, başka hiçbir şeyi değil.
+- **Kaldır:** bir kurulum seçin ve {{ui:Kaldır}} seçin.
 
-On ikiye kadar kurulum saklayabilirsiniz.
+En fazla on iki kurulum tutabilirsiniz.
 
-Önce yerleşik düzenleri denemek için bkz. [araç kutusu ve bilgi kutusu düzeni](common:layout-toolbox) ile [şerit ve proje tarayıcısı düzeni](common:layout-ribbon).
+İletişim kutusunu açmadan düzeni değiştirmek için (bir bloğu sürükleyin, bir araca sağ tıklayın), [Ekranda düzeni değiştirme](common:layout-edit) bölümüne bakın. Yerleşik düzenleri önce denemek için [araç kutusu ve bilgi kutusu düzenine](common:layout-toolbox), [şerit ve proje tarayıcısı düzenine](common:layout-ribbon) ve [Çizim düzenine](common:layout-drafting) bakın.

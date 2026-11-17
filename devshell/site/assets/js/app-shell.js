@@ -419,6 +419,7 @@
     if (!doc.body) doc.documentElement.appendChild(doc.createElement('body'));
     var vp = doc.createElement('meta'); vp.name = 'viewport'; vp.content = 'width=device-width, initial-scale=1'; doc.head.appendChild(vp);
     doc.title = title;
+    try { window.ccTooltips && window.ccTooltips.attach(w); } catch (e) { /* the window keeps the browser's own tips */ }
     document.querySelectorAll('head link[rel~="stylesheet"][href], head style').forEach(function (node) {
       var c;
       if (node.tagName === 'LINK') { c = doc.createElement('link'); c.rel = 'stylesheet'; c.href = node.href; } else { c = doc.createElement('style'); c.textContent = node.textContent; }
@@ -492,12 +493,7 @@
 /* 0.9 FX.86: the "Starting up…" indicator lives in assets/js/app-boot.js, a plain script placed right after the chip in app-bar.inc so it runs
  * during parsing, not after it (a deferred script started about 2 s late). */
 
-/* 0.9 FX.87: the version / lab build is a Bootstrap tooltip on the area badge (app-bar.inc). */
-(function () {
-  var el = document.querySelector('.app-bar-area[data-bs-toggle="tooltip"]');
-  if (!el || !window.bootstrap || !bootstrap.Tooltip) return;
-  try { new bootstrap.Tooltip(el, { trigger: 'hover focus', container: 'body' }); /* i18n-ignore (Bootstrap option) */ } catch (e) { /* the title stays in data-bs-title only */ }
-})();
+/* 0.9 FX.87: the version / lab build is the title of the area badge (app-bar.inc); app-tooltips.js shows it as the one Bootstrap tooltip. */
 
 /* 2026-11-09 (owner): ONE function sets the tab title for every app. The page's own title (app-shell.inc) is "<App> | CadCraft" on /use and "<App> — Lab | CadCraft" on /lab;
  * with a document open it becomes  [• ]<document name> — <App>[ — Lab] | CadCraft : the unsaved mark first, a long document name cut in its own text (never the app name or the

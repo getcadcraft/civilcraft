@@ -120,10 +120,11 @@ async function openApp(app, search = '?space=paper') {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, serviceWorkers: 'block' });
   const [cn, ...cv] = String(minted.cookie).split('=');
   await ctx.addCookies([{ name: cn, value: cv.join('='), domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
+  await ctx.addInitScript(() => { try { localStorage.setItem('cc-tours', 'off'); } catch (e) { /* none */ } });   // the tour toast would sit over the canvas, under the pointer
   const page = await ctx.newPage();
   page.setDefaultTimeout(30000);
   const problems = [];
-  page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
+  page.on('console', (m) => { if (m.type() === 'error' && !/status of 429/.test(m.text())) problems.push('console: ' + m.text()); });   // 429: the shared test account's rate limit after many runs, not the view
   page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
   await page.goto(`${BASE}/lab/${app}${search}`, { waitUntil: 'networkidle' });
   if (await page.waitForSelector('[data-autosave-dialog][open]', { timeout: 1500 }).catch(() => null)) {

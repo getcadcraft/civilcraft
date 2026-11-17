@@ -32,7 +32,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { exactInit, haveOcct } from './browser-harness.mjs';
+import { exactInit, haveOcct, quietInit } from './browser-harness.mjs';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const BASE = 'https://getcadcraft.com';
@@ -62,6 +62,7 @@ let ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acc
 // section "0.4 default" below checks the page as it ships.
 if (!haveOcct()) { console.log('skip: OpenCascade (a test-only oracle) is not in this checkout; these checks need it'); process.exit(0); }
 await exactInit(ctx);
+await quietInit(ctx);
 // the host adapter (0.4 W.2) opens with Chromium's File System Access picker, which Playwright cannot drive: hide it so the
 // adapter uses its <input type=file> fallback, which raises the filechooser event these checks wait for
 await ctx.addInitScript(() => { window.showOpenFilePicker = undefined; });
@@ -707,7 +708,8 @@ g = GProp_GProps(); BRepGProp.VolumeProperties_s(s, g); print(g.Mass(), BRepChec
   {
     const rows = await page.evaluate(() => new Set([...document.querySelectorAll('.pc-tools [role=group]')].filter((g) => !g.hidden).map((g) => g.offsetTop)).size);
     const editTools = await page.$$eval('.pc-tools [role=group][aria-label="Edit"] .pc-tool-row > *', (n) => n.map((x) => x.dataset.cmd || (x.matches('[data-edit-menu]') ? 'more' : '?')));
-    ok(rows === 1 && editTools.join(',') === 'undo,redo,copy,paste,more', `Edit group = Undo, Redo, Copy, Paste, More (${editTools.join(', ')}); the toolbar is one row at 1440 px`);
+    const editAt = await page.evaluate(() => { const g = document.querySelector('.pc-tools [role=group][aria-label="Edit"]'), row = g.querySelector('.pc-tool-row'); return { top: g.offsetTop, oneLine: new Set([...row.children].filter((x) => x.offsetWidth).map((x) => x.offsetTop)).size === 1 }; });
+    ok(rows === 1 && editAt.top === 0 && editAt.oneLine && editTools.join(',') === 'undo,redo,copy,paste,more', `Edit group = Undo, Redo, Copy, Paste, More (${editTools.join(', ')}); the toolbar is one row at 1440 px`);
     await page.click('[data-edit-menu] > summary');
     const items = await page.$$eval('[data-edit-menu] [role=menuitem]', (n) => n.map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
     ok(items.join(' | ') === 'Cut Ctrl+X | Copy Ctrl+C | Paste Ctrl+V | Paste in place Ctrl+Shift+V | Duplicate Ctrl+D | Delete Delete | Select all Ctrl+A | Select none Esc', 'More lists cut, copy, paste, paste in place, duplicate, delete, select all, select none with their keys');
@@ -837,9 +839,21 @@ g = GProp_GProps(); BRepGProp.VolumeProperties_s(s, g); print(g.Mass(), BRepChec
     await page.click('[data-settings-tab="app"]');
     ok(await page.isChecked('input[name="pcOrbit"][value="left"]') && await page.isChecked('input[name="pcScroll"][value="auto"]') && await page.isChecked('input[name="pcAutoRel"]'), 'the PartCraft tab opens on the defaults: left button, work it out, relations on');
     await shot('18-settings');
-    await page.click('label:has(input[name="pcOrbit"][value="middle"])');
-    await page.click('label:has(input[name="pcScroll"][value="trackpad"])');
-    await page.click('label:has(input[name="pcAutoRel"])');
+    // Settings shows one section at a time (0.7): pick the section in the list on the left, as a person does, then click the option
+    const inSection = async (sel) => {
+      const picked = await page.evaluate((sel) => {
+        const fs = document.querySelector(sel).closest('[data-settings-pane] > *');
+        const b = [...document.querySelectorAll('dialog[data-app-settings] .shell-sec-nav button')].find((x) => x.ccSet === fs);
+        document.querySelectorAll('[data-test-sec]').forEach((x) => x.removeAttribute('data-test-sec'));
+        if (b) b.setAttribute('data-test-sec', '');
+        return !!b;
+      }, sel);
+      if (picked) await page.click('dialog[data-app-settings] .shell-sec-nav [data-test-sec]');
+      await page.click(sel);
+    };
+    await inSection('label:has(input[name="pcOrbit"][value="middle"])');
+    await inSection('label:has(input[name="pcScroll"][value="trackpad"])');
+    await inSection('label:has(input[name="pcAutoRel"])');
     const st = await pc(() => [window.partcraft.view.controls.mouseButtons.LEFT, window.partcraft.view.controls.mouseButtons.MIDDLE, window.partcraft.editor.autoRelations, JSON.parse(localStorage.getItem('partcraft.settings'))]);
     ok(st[0] === null && st[1] === 0 && st[2] === false && st[3].orbit === 'middle' && st[3].scroll === 'trackpad' && st[3].autoRel === false, 'clicked: the middle button orbits (left only picks), trackpad scrolling, no automatic relations — stored in partcraft.settings');
     await page.click('dialog[data-app-settings] button[type="submit"].btn-plot');
@@ -965,7 +979,7 @@ g = GProp_GProps(); BRepGProp.VolumeProperties_s(s, g); print(g.Mass(), BRepChec
     await p2.evaluate((t) => window.partcraft.openText(t, 'Flange.partcraft.json'), JSON.stringify(F.flange().part));
     await p2.evaluate(() => window.partcraft.built());
     const st = await p2.evaluate(() => [window.partcraft.regen.exact === true, window.partcraft.regen.stats.volume, document.querySelector('[data-kernel]').textContent, document.querySelector('[data-cmd="fillet"]').disabled, document.querySelector('[data-cmd="export-step"]').disabled]);
-    ok(!st[0] && nearRel(st[1], F.facetFactor(64) * 302160, 1e-8) && /Mesh kernel only/.test(st[2]) && st[3] && st[4], `the flange builds faceted (k·302160 = ${st[1].toFixed(3)}); the chip says "Mesh kernel only"; Fillet and exact STEP are disabled`);
+    ok(!st[0] && nearRel(st[1], F.facetFactor(64) * 302160, 1e-8) && /Mesh kernel only/.test(st[2]) && st[3] && !st[4], `the flange builds faceted (k·302160 = ${st[1].toFixed(3)}); the chip says "Mesh kernel only"; Fillet is disabled; exact STEP is not (0.9.1: written from the mesh kernel, step-exact.js)`);
     ok(errs.length === 0, 'no page errors without OpenCascade' + (errs.length ? ': ' + errs.join('; ') : ''));
     await p2.close();
   }

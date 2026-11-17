@@ -13,6 +13,8 @@
  *   log.words(entry)     { who, verb, what, status, kind, text } — one plain sentence about it ("Claude added 3 objects in CadCraft.")
  *   log.list(filter)     newest first; filter { client, app, tool, outcome, group, kind: 'changes'|'reads'|'all', since, until, q, document, live: true|false }
  *   log.link(entry)      { undo, undoIndex, document, version } — what the panel needs to take a change back or open the file's history
+ *   log.sent(entry)      { text, fields, held: [{ path, why }], bytes } | null — what went back to the assistant for that call, in words (BK.145):
+ *                        the size, the names of the fields, and what the model-data-only filter held back (ai-model-only.js). Never the values.
  *   log.export(format, filter)   'csv' | 'json' | 'txt' → { name, type, text }
  *   log.merge(other)     fold another window's entries in (the hub), without doubling any
  *   log.save() / log.load(text)
@@ -37,6 +39,25 @@ const VERBS = [
 ];
 const PAST = { add: 'added', create: 'created', insert: 'inserted', place: 'placed', draw: 'drew', make: 'made', new: 'made', start: 'started', apply: 'applied', run: 'ran', set: 'changed', move: 'moved', rotate: 'rotated', scale: 'scaled', update: 'updated', rename: 'renamed', change: 'changed', edit: 'edited', mirror: 'mirrored', copy: 'copied', offset: 'offset', trim: 'trimmed', extend: 'extended', fillet: 'filleted', accept: 'accepted' };
 const APP_NAMES = { cad: 'CadCraft', bim: 'BimCraft', model: 'ModelCraft', markup: 'MarkupCraft', takeoff: 'TakeoffCraft', civil: 'CivilCraft', detail: 'DetailCraft', part: 'PartCraft', studio: 'Studio' };
+
+const SENT_WHY = { person: "a person's name", contact: 'contact details', account: 'account or company details', licence: 'a licence, key or password', computer: "the computer's identity", email: 'an email address', folder: "a folder with a user's name", deep: 'nested too deep to check' };
+/** The dispatcher's `sent` record (ai-model-only.js sentRecord), bounded: it came over a channel in Studio. */
+function cleanSent(x) {
+  if (!x || typeof x !== 'object' || Array.isArray(x)) return null;
+  const fields = (Array.isArray(x.fields) ? x.fields : []).slice(0, 16).map((f) => ({ name: clean(f && f.name, 40), kind: clean(f && f.kind, 12), ...(f && Number.isFinite(f.n) ? { n: Math.max(0, f.n | 0) } : {}) }));
+  const held = (Array.isArray(x.held) ? x.held : []).slice(0, 20).map((h) => ({ path: clean(h && h.path, 120), why: SENT_WHY[h && h.why] ? h.why : 'person' }));
+  return { bytes: Math.max(0, Math.round(+x.bytes) || 0), fields, more: Math.max(0, x.more | 0), held, heldCount: Math.max(held.length, x.heldCount | 0) };
+}
+/** What went back, in words: "Sent back 1.2 KB: count, items (25). Held back 2: info.author (a person's name), path (a folder with a user's name)." */
+export function sentWords(sent) {
+  const s = cleanSent(sent);
+  if (!s) return null;
+  const size = s.bytes >= 1024 ? (Math.round(s.bytes / 102.4) / 10) + ' KB' : s.bytes + ' bytes';
+  const names = s.fields.filter((f) => f.name).map((f) => f.name + (f.n !== undefined ? ' (' + f.n + ')' : ''));
+  const what = names.length ? names.join(', ') + (s.more ? ' and ' + s.more + ' more' : '') : s.fields[0] ? 'one ' + s.fields[0].kind : 'nothing';
+  const heldText = s.heldCount ? ' Held back ' + s.heldCount + ': ' + s.held.map((h) => h.path + ' (' + SENT_WHY[h.why] + ')').join(', ') + (s.heldCount > s.held.length ? ' and ' + (s.heldCount - s.held.length) + ' more' : '') + '.' : '';
+  return { text: 'Sent back ' + size + ': ' + what + '.' + heldText, bytes: s.bytes, fields: s.fields, held: s.held, heldCount: s.heldCount };
+}
 
 /** Split a public tool name into app key, area words and verb: `cad_wall_add` → { app: 'cad', area: 'wall', verb: 'add' }. */
 export function splitTool(tool) {
@@ -98,6 +119,7 @@ export function createActivityLog(o = {}) {
       args: e.args && typeof e.args === 'object' ? e.args : e.args ? clean(e.args, LIMITS.args) : null,
       files: (Array.isArray(e.files) ? e.files : []).slice(0, LIMITS.files).map((f) => clean(f, 200)),
       added: 0, changed: 0, removed: 0,
+      sent: cleanSent(e.sent),
     };
     const s = e.summary && typeof e.summary === 'object' ? e.summary : null;
     if (s) { row.added = Math.max(0, s.added | 0); row.changed = Math.max(0, s.changed | 0); row.removed = Math.max(0, s.removed | 0); }
@@ -194,6 +216,9 @@ export function createActivityLog(o = {}) {
       return { undo: changed ? r.undo : null, undoIndex: changed ? r.undoIndex : null, document: r.document, version: r.version, canUndo: changed && !!r.undo };
     },
 
+    /** What went back to the assistant for this call (BK.145), or null when the entry has no record (an older entry, a refusal before the tool ran). */
+    sent(entry) { return sentWords(entry && entry.sent); },
+
     /** Which entries belong to one undo step (the panel marks them when the step is undone). */
     byUndo(label) { return rows.filter((r) => r.undo === label).slice().reverse(); },
 
@@ -213,13 +238,13 @@ export function createActivityLog(o = {}) {
         return { name: 'assistant-activity-' + stamp + '.json', type: 'application/json', text: JSON.stringify({ format: FORMAT, version: 1, exported: new Date(now()).toISOString(), entries: l.map(({ n, ...r }) => ({ ...r, words: api.words({ n, ...r }).text })) }, null, 1) };
       }
       if (format === 'txt') {
-        const text = l.map((r) => r.time.replace('T', ' ').slice(0, 19) + '  ' + api.words(r).text + (r.undo && api.link(r).canUndo ? ' (undo step: ' + r.undo + ')' : '')).join('\n') + (l.length ? '\n' : '');
+        const text = l.map((r) => r.time.replace('T', ' ').slice(0, 19) + '  ' + api.words(r).text + (r.undo && api.link(r).canUndo ? ' (undo step: ' + r.undo + ')' : '') + (r.sent ? '\n                     ' + sentWords(r.sent).text : '')).join('\n') + (l.length ? '\n' : '');
         return { name: 'assistant-activity-' + stamp + '.txt', type: 'text/plain', text };
       }
-      const cols = ['time', 'app', 'assistant', 'what happened', 'result', 'tool', 'permission', 'undo step', 'file', 'file version', 'change set', 'live session', 'milliseconds'];
+      const cols = ['time', 'app', 'assistant', 'what happened', 'result', 'tool', 'permission', 'undo step', 'file', 'file version', 'change set', 'live session', 'milliseconds', 'sent back', 'held back'];
       const cell = (v) => { let s = v === null || v === undefined ? '' : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
       const lines = [cols.join(',')];
-      for (const r of l) { const w = api.words(r); lines.push([r.time, r.app || '', r.client || '', w.text, w.status || r.outcome, r.tool, r.group || '', api.link(r).canUndo ? r.undo : '', r.document || '', r.version || '', r.changeSet || '', r.live ? (r.live.as || '') + (r.live.role ? ' (' + r.live.role + ')' : '') + (r.live.session ? ' ' + r.live.session : '') : '', r.ms ?? ''].map(cell).join(',')); }
+      for (const r of l) { const w = api.words(r); lines.push([r.time, r.app || '', r.client || '', w.text, w.status || r.outcome, r.tool, r.group || '', api.link(r).canUndo ? r.undo : '', r.document || '', r.version || '', r.changeSet || '', r.live ? (r.live.as || '') + (r.live.role ? ' (' + r.live.role + ')' : '') + (r.live.session ? ' ' + r.live.session : '') : '', r.ms ?? '', r.sent ? r.sent.bytes + ' bytes: ' + r.sent.fields.map((f) => f.name || f.kind).join(' ') : '', r.sent && r.sent.heldCount ? r.sent.held.map((h) => h.path + ' (' + SENT_WHY[h.why] + ')').join('; ') : ''].map(cell).join(',')); }
       return { name: 'assistant-activity-' + stamp + '.csv', type: 'text/csv', text: lines.join('\r\n') + '\r\n' };
     },
 

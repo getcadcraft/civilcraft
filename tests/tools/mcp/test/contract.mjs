@@ -106,7 +106,7 @@ levels = ['read', 'edit', 'save', 'export'];
 // ---- hub names + checker
 ok(publicName('cadcraft', 'command_run') === 'cad_command_run' && publicName('takeoffcraft', 'takeoff_quantities') === 'takeoff_quantities' && publicName('partcraft', 'mass_properties') === 'part_mass_properties', 'publicName');
 ok(localName('bim_elements_find').app === 'bimcraft' && localName('bim_elements_find').name === 'elements_find' && localName('nonsense') === null, 'localName');
-ok(new Set(Object.values(APP_KEYS)).size === 8, 'eight distinct app keys');
+ok(new Set(Object.values(APP_KEYS)).size === 9 && APP_KEYS.supercadcraft === 'super', 'nine distinct hub keys: the eight apps and Super (the host, BK.59)');
 const good = checkTool({ name: 'wall_add', group: 'edit', title: 'Add a wall', description: 'Add a wall between two points as one undo step. Returns its id.', inputSchema: sch({ a: { type: 'array', items: { type: 'number' }, maxItems: 3, description: 'Start.' } }), rollbackPreview: true, outputSchema: { type: 'object' } }, { app: 'bimcraft' });
 ok(good.errors.length === 0 && good.preview === 'rollback', 'checkTool accepts a contract-shaped tool', good);
 const worst = checkTool({ name: 'Bad Name', group: 'edit', description: 'x', inputSchema: { type: 'object', properties: { s: { type: 'string' } } } });

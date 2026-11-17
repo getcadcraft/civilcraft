@@ -28,6 +28,7 @@ import { findSheet, unwarpSheet } from '../photosketch/photosketch.js';
 import { scaleFromTwo, scaleFromStated, gtFromScale, fitPoints, record } from './place.js';
 import { convertImage } from './convert.js';
 import { scan as esclScan } from './escl.js';
+import { PadDetector } from './wheel-pad.js';   // D7.56: a trackpad's two-finger swipe pans
 
 export const MAX_SIDE = 7000;          // the sheet is worked at no more than this many pixels a side (≈ 23 in at 300 dpi)
 export const MAX_BLOB = 24 * 1048576;  // what a host keeps with the project (CivilCraft: 25 MB a picture)
@@ -145,6 +146,7 @@ export async function scanStart(host, input = null) {
     const cv = el('canvas', { className: 'cv-scanin-view', width: 720, height: 460, tabIndex: 0, 'aria-label': t('scanin.view.label'), 'data-scanin-view': '' });
     cv.style.cssText = 'width:100%;max-width:720px;aspect-ratio:720/460;border:1px solid var(--cc-line,#999);touch-action:none;cursor:crosshair;background:#fff';
     let bmp = null, view = { s: 1, x: 0, y: 0 };
+    Object.defineProperty(cv, 'view', { get: () => ({ ...view }) });   // tests read the pan/zoom (a copy: nothing outside moves the view)
     async function makeBitmap() {
       bmp?.close?.();
       const oc = new OffscreenCanvas(sheet.w, sheet.h);
@@ -187,9 +189,11 @@ export async function scanStart(host, input = null) {
       else return;
       render();
     });
+    const pad = new PadDetector();
     cv.addEventListener('wheel', (e) => {
       e.preventDefault();
-      const p = toPx(e), f = e.deltaY < 0 ? 1.25 : 0.8, s = Math.min(Math.max(view.s * f, 0.02), 16);
+      if (pad.isSwipe(e)) { const r = cv.getBoundingClientRect(); view.x -= e.deltaX * cv.width / r.width; view.y -= e.deltaY * cv.height / r.height; paint(); return; }   // D7.56: two fingers pan, a pinch and a mouse wheel zoom
+      const p = toPx(e), f = (e.ctrlKey && e.deltaMode === 0 ? Math.exp(-Math.max(-30, Math.min(30, e.deltaY)) * 0.01) : e.deltaY < 0 ? 1.25 : 0.8), s = Math.min(Math.max(view.s * f, 0.02), 16);
       view.x = p.cx - p.x * s; view.y = p.cy - p.y * s; view.s = s; paint();
     }, { passive: false });
 

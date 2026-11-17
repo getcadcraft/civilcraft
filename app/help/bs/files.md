@@ -1,113 +1,113 @@
 ---
-title: Datoteke koje možete otvoriti, spasiti i izvesti
-summary: Ulaz: datoteke tačaka, LandXML i CivilCraft projekti; izlaz: projekti, LandXML, DXF i PDF; šta se čuva, gdje datoteke idu i šta se mijenja van mreže.
-keywords: otvori, spasi, izvezi, uvezi, formati datoteka, csv, txt, landxml, xml, dxf, pdf, json, preuzimanje, datoteka projekta
-from: a7debb61
+title: Datoteke koje možeš otvoriti, spasiti i izvesti
+summary: Ulazne datoteke: tačke, LandXML i projekti CivilCraft; izlazne: projekti, LandXML, DXF i PDF; šta se čuva, gdje završavaju datoteke i šta se mijenja van mreže.
+keywords: otvori, spasi, izvezi, uvezi, formati datoteka, csv, txt, landxml, xml, dxf, pdf, json, preuzmi, datoteka projekta
+from: 82bff559
 ---
 
-CivilCraft otvara datoteke sa vašeg računara i čuva ih preuzimanjem nazad na računar. Ništa se ne otprema i ništa se ne čuva na serveru. Pogledajte i [Vaše datoteke](common:your-files).
+CivilCraft otvara datoteke sa tvog računara, a spašava ih tako što ih preuzima nazad na računar. Ništa se ne šalje i ništa se ne čuva na serveru. Vidi i [Tvoje datoteke](common:your-files).
 
 ## Šta otvara
 
-Kliknite {{ui:Otvori}} (ili pritisnite {{key:Mod+O}}) i odaberite datoteku, ili prevucite datoteku iz {{pick:mac=Finder|windows=File Explorer|linux=vašeg upravljača datotekama}} na plan. Jedna datoteka u jednom trenutku; datoteke veće od 200 MB se odbijaju.
+Klikni {{ui:Open}} (ili pritisni {{key:Mod+O}}) i odaberi datoteku, ili prevuci datoteku iz {{pick:mac=Finder|windows=File Explorer|linux=tvoj upravitelj datoteka}} na plan. Jedna po jedna datoteka; datoteke veće od 200 MB se odbijaju. LandXML ili datoteka projekta veća od 32 MB čita se u dijelovima od oko 4 MB, nikad kao jedan blok teksta. Dok se LandXML otvara, očekuj da koristi otprilike 13 puta veću memoriju od veličine datoteke (datoteka od 69 MB koristila je oko 0,9 GB u našem testu).
 
 | Vrsta | Nazivi datoteka | Šta se dešava |
 |---|---|---|
-| Datoteka tačaka | `.csv`, `.txt`, `.pnt`, `.xyz` (bilo koja tekstualna datoteka) | Otvara se dijalog **Uvezi tačke**. Tačke zamjenjuju tačke projekta; trase, platoi i cijevi ostaju. |
-| LandXML | `.xml`, `.landxml` | Iz datoteke se pravi **novi projekat** (prvo se pita ako trenutni ima nespašene promjene). |
-| CivilCraft projekat | `.civilcraft.json` (bilo koji `.json`) | Projekat se otvara onakav kakav je spašen (prvo se pita ako trenutni ima nespašene promjene). |
+| Datoteka tačaka | `.csv`, `.txt`, `.pnt`, `.xyz` (bilo koja tekstualna datoteka) | Otvara se dijalog **Uvoz tačaka**. Tačke zamjenjuju tačke projekta; osi trase, platoi i cijevi ostaju. |
+| LandXML | `.xml`, `.landxml` | Iz datoteke se pravi **novi projekat** (prvo ćeš biti upitan ako trenutni ima nespašene promjene). |
+| Projekat CivilCraft | `.civilcraft.json` (bilo koji `.json`) | Projekat se otvara onako kako je spašen (prvo ćeš biti upitan ako trenutni ima nespašene promjene). |
 
-CivilCraft odlučuje prema nastavku datoteke, pa zatim prema prvim znakovima: tekst koji počinje sa `{` čita se kao projekat, tekst koji počinje sa `<` kao LandXML, a sve ostalo kao datoteka tačaka. Datoteka koju prozor za otvaranje sivi i dalje se može prevući na plan.
+CivilCraft odlučuje prema nastavku datoteke, pa prema prvim znakovima: tekst koji počinje znakom `{` čita se kao projekat, tekst koji počinje znakom `<` kao LandXML, a sve ostalo kao datoteka tačaka. Datoteka koju birač otvaranja sivi i dalje se može prevući na plan.
 
 :::note
-Uvoz datoteke tačaka u projekat koji već ima tačke zamjenjuje ih bez pitanja i briše istoriju poništavanja (otvaranje bilo koje datoteke je nov početak za poništavanje). Ako je površina došla iz LandXML-a, uvoz tačaka je vraća na površinu izgrađenu iz tačaka. Prvo spasite ako biste možda htjeli stare tačke nazad.
+Uvoz datoteke tačaka u projekat koji već ima tačke zamjenjuje ih bez pitanja i briše istoriju poništavanja (otvaranje bilo koje datoteke je novi početak za poništavanje). Ako je površ nastala iz LandXML-a, uvoz tačaka je vraća na površ izgrađenu iz tačaka. Prvo spasi ako bi možda htio stare tačke nazad.
 :::
 
 Detalji: [Formati datoteka tačaka](topic:point-file-formats), [LandXML: šta se čita i piše](topic:landxml-reference).
 
-## Šta se čuva
+## Šta spašava
 
-{{ui:Spasi}} ({{key:Mod+S}}) upisuje dvije datoteke jednu pored druge, nazvane prema polju **Naziv** u lijevom panelu: `<naziv>.civilcraft.json`, projekat koji nastavljate da uređujete, i `<naziv>.ifc`, isti projekat kao IFC 4.3 za sve ostale (vidi [IFC izvoz i uvoz](topic:ifc)). Svaka datoteka pamti drugu, a IFC takođe nosi kompresovanu kopiju projekta, pa se IFC poslan samostalno i dalje može otvoriti kao potpuno izmjenjiv.
+{{ui:Save}} ({{key:Mod+S}}) piše dvije datoteke jednu uz drugu, nazvane po **Naziv** u lijevom panelu: `<naziv>.civilcraft.json`, projekat koji nastavljaš uređivati, i `<naziv>.ifc`, isti projekat u IFC 4.3 za sve ostale (vidi [IFC izvoz i uvoz](topic:ifc)). Svaka datoteka pamti drugu, a IFC također nosi komprimiranu kopiju projekta, pa se IFC poslan sam za sebe i dalje može otvoriti u punoj mogućnosti uređivanja.
 
-- **U Studio-u** obje datoteke se upisuju jedna pored druge, na istom mjestu.
-- **U Chrome-u i Edge-u** prvo spašavanje traži folder i upisuje obje datoteke u njega; kasnija spašavanja idu u isti folder. Otkažite pitanje o folderu da biste umjesto toga preuzeli obje datoteke.
-- **U drugim pregledačima** obje datoteke se preuzimaju, prvo datoteka projekta.
+- **U CadCraft Studiju** obje datoteke se pišu jedna pored druge, na istom mjestu.
+- **U Chrome i Edge** prvo spašavanje traži folder i u njega piše obje datoteke; sljedeća spašavanja idu u isti folder. Otkaži pitanje o folderu da bi se obje umjesto toga preuzele.
+- **U drugim preglednicima** obje datoteke se preuzimaju, prvo datoteka projekta.
 
-Otvaranje bilo koje datoteke traži drugu. Otvorite obje zajedno (ili ih obje prevucite) ili otvorite jednu: u Studio-u se druga pronalazi u istom folderu; u pregledaču CivilCraft vas pita da je dodate ili da nastavite s onom koju imate. Ako je IFC promijenio drugi program nakon što ga je CivilCraft spasio, ili je jedna datoteka starija od druge, projekat se otvara iz novijeg projekta, a panel **Problemi** kaže šta se desilo, uz **Spasi odmah** (ponovo upisuje obje datoteke) i **Prikaži geometriju IFC-a kao referencu**. IFC koji je sam promijenio drugi program otvara se iz svoje kopije projekta sa onim što se još slaže: trase koje je promijenio uzimaju njegovu geometriju, objekti koje je uklonio su izostavljeni, a ostale promjene su navedene, ali se ne preuzimaju. Datoteka projekta starija od 0.7.1 otvara se kao i ranije.
+Otvaranje bilo koje od njih traži drugu. Otvori obje zajedno (ili ih prevuci obje) ili otvori jednu: u Studiju se druga nalazi u istom folderu; u pregledniku CivilCraft te pita da je dodaš ili da nastaviš s onom koju imaš. Ako je IFC promijenio drugi program nakon što ga je CivilCraft spasio, ili je jedna datoteka starija od druge, projekat se otvara iz novijeg nacrta, a panel **Problemi** kaže šta se desilo, uz **Spasi sada** (piše obje datoteke ponovo) i **Prikaži geometriju IFC-a kao referencu**. IFC koji je sam promijenio drugi program otvara se iz svoje kopije projekta sa onim što i dalje odgovara: osi trase koje je promijenio uzimaju njegovu geometriju, objekti koje je uklonio se izostavljaju, a ostale promjene su navedene, ali se ne preuzimaju. Datoteka projekta starija od 0.7.1 otvara se kao i ranije.
 
 Datoteka projekta čuva:
 
-- svaku tačku (broj, koordinate, kotu, opis) i naziv datoteke tačaka iz koje potiče
-- postavke površine: izbor grupa, nacrtane prelomne linije, granicu, najduži vanjski rub i TIN pročitan iz LandXML-a
+- svaku tačku (broj, koordinate, kotu, opis) i naziv datoteke tačaka iz koje potiču
+- postavke površi: izbore grupa, nacrtane linije loma, granicu, najdužu vanjsku ivicu i TIN pročitan iz LandXML-a
 - postavke prikaza
-- trase sa njihovim PI tačkama, radijusima i početnom stacionažom, njihove projektovane profile (PVI i dužine krivina) i postavke koridora
+- osi trase sa njihovim PI-jevima, radijusima i početnom stacionažom, njihove projektovane profile (PVI-jevi i dužine krivina) i postavke koridora
 - platoe i mrežu cijevi sa njenim pravilima
 
-Ne čuva istoriju poništavanja. Površine, izohipse, linije presjeka s terenom i zapremine se ne čuvaju; ponovo se grade iz spašenih ulaza kada se projekat otvori. Datoteka projekta iz novijeg CivilCraft-a se odbija uz poruku koja navodi njegovu verziju.
+Ne čuva istoriju poništavanja. Površi, konture, linije dnevnog svjetla i zapremine se ne čuvaju; ponovo se grade iz spašenih ulaza kad se projekat otvori. Datoteka projekta iz novijeg CivilCraft-a se odbija uz poruku koja navodi njenu verziju.
 
-## Šta se izvozi
+## Šta izvozi
 
 | Dugme | Datoteka | Sadržaj |
 |---|---|---|
-| {{ui:LandXML}} | `<naziv>.xml` | LandXML 1.2: tačke, postojeći teren (i nivelisana površina kada postoji) kao TIN površine, trase, profili terena i projektovani profili, mreža cijevi |
-| {{ui:DXF}} | `<naziv>.dxf` | R12 DXF linija plana onako kako je prikazan, na imenovanim slojevima |
-| {{ui:DWG}} | `<naziv>.dwg` | Iste linije kao DWG crtež, u formatu koji odaberete (2000 do 2018) |
-| {{ui:PDF}} | `<naziv>.pdf` | Vektorski ispis plana na listu, u razmjeri koju odaberete |
-| {{ui:GLB}} ili {{ui:OBJ}} (na traci 3D prikaza) | `<naziv>-3d.glb`, `<naziv>-3d.obj` | Ono što 3D prikaz pokazuje kao 3D model: metri, Y prema gore, prava razmjera, oko zabilježenog lokalnog početka |
+| {{ui:LandXML}} | `<naziv>.xml` | LandXML 1.2: tačke, postojeći teren (i izgrađena površ kad postoji) kao TIN površi, osi trase, teren i projektovani profili, mreža cijevi |
+| {{ui:DXF}} | `<naziv>.dxf` | R12 DXF linija plana kakve se prikazuju, na imenovanim slojevima |
+| {{ui:DWG}} | `<naziv>.dwg` | Iste linije kao DWG crtež, u formatu koji odabereš (2000 do 2018) |
+| {{ui:PDF}} | `<naziv>.pdf` | Vektorski ispis plana na listu, u razmjeri koju odabereš |
+| {{ui:GLB}} ili {{ui:OBJ}} (na traci 3D pogleda) | `<naziv>-3d.glb`, `<naziv>-3d.obj` | Ono što 3D pogled prikazuje kao 3D model: metri, Y prema gore, prava razmjera, oko zabilježenog lokalnog ishodišta |
 
-Šta svaki od njih izostavlja: [Razmjena LandXML-a](topic:landxml), [Izvoz plana u DXF](topic:dxf-export) (DWG takođe), [Iscrtavanje plana u PDF](topic:plot-pdf), [Izvoz lokacije u 3D](topic:export-3d).
+Šta svaki izostavlja: [Razmjena LandXML](topic:landxml), [Izvoz plana u DXF](topic:dxf-export) (DWG također), [Ispis plana u PDF](topic:plot-pdf), [Izvoz lokacije u 3D](topic:export-3d).
 
-## Gdje idu datoteke
+## Gdje završavaju datoteke
 
-Spašene i izvezene datoteke idu tamo gdje pregledač smješta preuzimanja, obično u folder Preuzimanja. Da biste svaki put birali folder:
+Spašene i izvezene datoteke idu gdje tvoj preglednik stavlja preuzimanja, obično u folder Preuzimanja. Da svaki put odabereš folder:
 
 :::chromium
-Otvorite **Postavke** pregledača, zatim **Preuzimanja**, i uključite **Pitaj gdje da spasim svaku datoteku prije preuzimanja**.
+Otvori **Postavke** preglednika, zatim **Preuzimanja**, i uključi **Pitaj gdje da spasim svaku datoteku prije preuzimanja**.
 :::
 
 :::firefox
-Otvorite **Postavke**, zatim **Općenito**, i pod **Datoteke i aplikacije** odaberite **Uvijek me pitaj gdje da spasim datoteke**.
+Otvori **Postavke**, zatim **Općenito**, i pod **Datoteke i aplikacije** odaberi **Uvijek pitaj gdje da spasim datoteke**.
 :::
 
 :::safari
-Otvorite **Safari > Postavke > Općenito** i postavite **Lokacija za preuzimanje datoteka** na **Pitaj za svako preuzimanje**.
+Otvori **Safari > Postavke > Općenito** i postavi **Lokacija preuzimanja datoteka** na **Pitaj za svako preuzimanje**.
 :::
 
-Ako spasite dva puta s istim nazivom, pregledač može dodati broj drugoj datoteci, na primjer `Site (1).civilcraft.json`. Sljedeći put otvorite najnoviju.
+Ako spašavaš dvaput istim nazivom, preglednik može dodati broj drugoj datoteci, na primjer `Lokacija (1).civilcraft.json`. Sljedeći put otvori najnoviju.
 
-## Na mreži i van mreže
+## Online i offline
 
-CivilCraft u svakom slučaju radi samo na vašem računaru: otvaranje čita datoteku u pregledaču, spašavanje je preuzima. Da biste otvorili CivilCraft bez ikakve veze, prvo ga spasite za rad van mreže:
+CivilCraft u oba slučaja radi samo na tvom računaru: otvaranje čita datoteku u pregledniku, a spašavanje je preuzima. Da otvoriš CivilCraft bez ikakve veze, prvo ga spasi za rad van mreže:
 
-1. Dok ste na mreži, kliknite {{ui:Spasi za rad van mreže}} na traci aplikacije na vrhu.
-2. Dugme broji ("Spašavanje 12 od 30") i zatim prikazuje {{ui:Spremno za rad van mreže}}. CivilCraft je mali (oko 0.6 MB), pa ovo traje trenutak. Spašena kopija uključuje ovu pomoć i primjer lokacije.
-3. Bez veze otvorite istu adresu (ili njenu oznaku). Sve radi, uključujući {{ui:Otvori primjer lokacije}}.
+1. Dok si na mreži, klikni {{ui:Save for offline}} na traci aplikacije na vrhu.
+2. Dugme broji ("Spašavanje 12 od 30") i zatim prikazuje {{ui:Offline ready}}. CivilCraft je mali (oko 0,6 MB), pa to traje tren. Spašena kopija uključuje ovu pomoć i primjer lokacije.
+3. Bez veze otvori istu adresu (ili oznaku te adrese). Sve radi, uključujući {{ui:Open the sample site}}.
 
 Ostala stanja dugmeta:
 
-- {{ui:Nije moguće spasiti}}: neke datoteke nisu preuzete. Provjerite vezu i kliknite da pokušate ponovo.
-- {{ui:Rad van mreže nije dostupan}}: ovaj prozor pregledača ne može sačuvati kopiju za rad van mreže (privatni prozori i neki upravljani računari to blokiraju). Koristite običan prozor.
+- {{ui:Could not save}}: neke datoteke se nisu preuzele. Provjeri vezu i klikni da pokušaš ponovo.
+- {{ui:Offline not available}}: ovaj prozor preglednika ne može čuvati kopiju za rad van mreže (privatni prozori i neki upravljani računari to blokiraju). Koristi običan prozor.
 
-Kliknite {{ui:Spremno za rad van mreže}} da vidite kada je kopija spašena, uz dva izbora: {{ui:Spasi ponovo (preuzmi najnoviju verziju)}} i {{ui:Ukloni kopiju za rad van mreže}}. Spasite ponovo prije posjete lokaciji da kopija odgovara najnovijoj verziji. Više u [Van mreže](common:offline).
+Klikni {{ui:Offline ready}} da vidiš kad je kopija spašena, uz dva izbora: {{ui:Save again (get the newest version)}} i {{ui:Remove the offline copy}}. Spasi ponovo prije posjete lokaciji da kopija odgovara najnovijoj verziji. Više u [Rad van mreže](common:offline).
 
 :::offline
-Trenutno ste van mreže. Ako je CivilCraft spašen za rad van mreže, sve radi, uključujući primjer lokacije. Ako nije, nastavite raditi u ovoj kartici, ali je ne ponovo učitavajte dok ne budete ponovo na mreži; bez spašene kopije, {{ui:Otvori primjer lokacije}} ne uspijeva uz poruku "Uzorak nije mogao biti učitan".
+Van mreže si sada. Ako je CivilCraft spašen za rad van mreže, sve radi, uključujući primjer lokacije. Ako nije, nastavi raditi u ovoj kartici, ali je ne ponovo učitavaj dok nisi ponovo na mreži; bez spašene kopije, {{ui:Open the sample site}} ne uspijeva s porukom "Primjer lokacije nije mogao biti učitan".
 :::
 
 :::tip
-Za rad na terenu spasite CivilCraft za rad van mreže i nosite datoteke tačaka na samom laptopu. Projekti i izvozi se spašavaju kao preuzimanja bez veze, pa možete uvesti mjerenja jednog dana, provjeriti površinu i spasiti projekat na terenu.
+Za rad na terenu spasi CivilCraft za rad van mreže i nosi datoteke tačaka na sam laptop. Projekti i izvozi se bez veze spašavaju kao preuzimanja, pa možeš uvesti snimke jednog dana, provjeriti površ i spasiti projekat na terenu.
 :::
 
-Spašavanje u oblaku još nije dostupno, a desktop verzije još nisu objavljene. Za sada su datoteke koje spasite jedina kopija: čuvajte ih negdje gdje se pravi rezervna kopija.
+Spašavanje u oblaku još nije dostupno, a desktop verzije još nisu izašle. Za sada su datoteke koje spasiš jedina kopija: čuvaj ih negdje gdje se pravi sigurnosna kopija.
 
 ## Dodaci koje datoteka koristi
 
-Kada spasite projekat koji sadrži podatke iz dodatka (oznake Građevinskih propisa ili izvor Adresa do lokacije), datoteka bilježi koji dodaci i koje verzije. Kada je otvorite na računaru koji ga nema, traka iznad plana to kaže i nudi da ga dodate s liste vašeg računa. Zapis je samo napomena: datoteka se otvara u svakom slučaju.
+Kad spasiš projekat koji sadrži podatke iz dodatka (kvačice Građevinski propisi ili izvor Adresa do lokacije), datoteka bilježi koji su dodaci i koje verzije. Otvori je na računaru koji nema neki od njih i traka iznad plana to kaže i nudi da ga doda sa liste tvog računa. Zapis je samo bilješka: datoteka se otvara u svakom slučaju.
 
-## Poništavanje iz Studio-a
+## Poništavanje iz Studija
 
-Unutar CadCraft Studio-a, svaki korak koji završite u CivilCraft-u se javlja Studio-u, pa njegovo poništavanje na nivou projekta može vratiti posljednji korak preko svih aplikacija. Studio poništava korak samo kada je sam stek poništavanja CivilCraft-a tačno u stanju u kojem ga je taj korak ostavio; nakon što otvorite drugu datoteku, preskače ovaj prozor.
+Unutar CadCraft Studija svaki korak koji završiš u CivilCraftu javlja se Studiju, pa njegovo poništavanje na nivou projekta može poništiti posljednji korak u svim aplikacijama. Studio poništava korak samo kad je CivilCraftov stog poništavanja tačno u stanju u kojem ga je taj korak ostavio; nakon što otvoriš drugu datoteku, preskače ovaj prozor.
 
 ## Zatvaranje sa nespašenim promjenama
 
-Kada projekat ima nespašene promjene i zatvorite karticu, ponovo učitate stranicu ili napustite stranicu, pregledač pita želite li da odete. Tekst i izgled pripadaju pregledaču i CivilCraft ih ne može promijeniti. {{ui:Novo}}, kao i otvaranje projekta ili LandXML datoteke, pitaju umjesto toga u CivilCraft-ovom okviru **Nespašene promjene**, sa {{ui:Otkaži}}, {{ui:Ne spašavaj}} i {{ui:Spasi kopiju}}.
+Kad projekat ima nespašene promjene, a ti zatvoriš karticu, osvježiš stranicu ili napustiš stranicu, preglednik pita želiš li otići. Njegov tekst i izgled pripadaju pregledniku i CivilCraft ih ne može mijenjati. {{ui:New}} i otvaranje projekta ili LandXML datoteke pitaju u CivilCraftovom vlastitom okviru **Nespašene promjene**, s dugmadima {{ui:Cancel}}, {{ui:Don’t save}} i {{ui:Save a copy}}.

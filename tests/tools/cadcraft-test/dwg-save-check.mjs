@@ -100,10 +100,16 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
       // libdxfrw's dwg2dxf writes a dimension as what its block draws (lines, text), never as a DIMENSION: the same for
       // AutoCAD's own files (example_2000.dwg: 9 DIMENSIONs in, none out); the dimension checks below use the other two
       if (reader.name.startsWith('libdxfrw')) delete want.DIMENSION;
+      // ORS.6: ... and the same for the two newer dimension objects CadCraft now writes as themselves (arc length, jogged
+      // radius): libdxfrw has no reader for them; LibreDWG and the ODA converter read them and are checked
+      if (reader.name.startsWith('libdxfrw')) { delete want.ARC_DIMENSION; delete want.LARGE_RADIAL_DIMENSION; }
       // ... and no MULTILEADER either (AutoCAD's example_2000.dwg: 1 in, none out)
       if (reader.name.startsWith('libdxfrw')) delete want.MULTILEADER;
       // ... nor XLINE / RAY (AutoCAD's example_2018.dwg: one of each in, none out; ODA keeps both) — 0.5 DR.7
       if (reader.name.startsWith('libdxfrw')) { delete want.XLINE; delete want.RAY; }
+      // ORS.1: a table is now saved as a real table object (before: the reference to the block that draws it). libdxfrw has no
+      // reader for tables: its dwg2dxf writes the table's block reference; the ODA converter reads the table and is checked
+      if (reader.name.startsWith('libdxfrw') && want.ACAD_TABLE) { want.INSERT = (want.INSERT || 0) + want.ACAD_TABLE; delete want.ACAD_TABLE; }
       const have = s.model;
       const diff = Object.keys({ ...want, ...have }).filter((k) => (want[k] || 0) !== (have[k] || 0));
       ok(!diff.length, label + ': model space as written (' + Object.values(want).reduce((a, b) => a + b, 0) + ' objects)', diff.map((k) => k + ' want ' + (want[k] || 0) + ' got ' + (have[k] || 0)).join(', '));
@@ -135,8 +141,11 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
       if (!dxfrw) ok(s.blocks.Site?.xref === 'X-Refs\\Site.dwg' && s.inserts.some((i) => i.block === 'Site'), r + ': a linked drawing (xref) with its path, and its reference', JSON.stringify(s.blocks.Site));
       if (!dxfrw) {
         const d = s.dims[0];
-        ok(s.dims.length === 1 && d.type === 0 && s.blocks[d.block]?.entities.LINE >= 3 && String(d.p13) === '0,700' && String(d.p14) === '100,700',
+        ok(s.dims.length === 2 && d.type === 0 && s.blocks[d.block]?.entities.LINE >= 3 && String(d.p13) === '0,700' && String(d.p14) === '100,700',   // ORS.6: 2 = the linear one and the ordinate one below
           r + ': the dimension is a real DIMENSION (linear, its points) with the block that draws it', JSON.stringify(s.dims) + ' ' + JSON.stringify(d && s.blocks[d.block]));
+        const o = s.dims[1];   // ORS.6
+        ok(!!o && o.type === 6 && String(o.p13) === '300,700' && String(o.p14) === '304,730' && s.blocks[o.block]?.entities.LINE >= 1,
+          r + ': the ordinate dimension is a real DIMENSION (ordinate: its feature and leader end) with the block that draws it', JSON.stringify(o) + ' ' + JSON.stringify(o && s.blocks[o.block]));
       }
       ok(s.texts.some((t) => t.s === 'Left baseline' && t.h === 0 && t.v === 0) && s.texts.some((t) => t.s === 'Centred middle' && t.h === 1 && t.v === 2 && Math.abs(t.wf - 0.8) < 1e-9) && s.texts.some((t) => t.s === 'Right top' && t.h === 2 && t.v === 3),
         r + ': text alignment and width factor', JSON.stringify(s.texts));
@@ -148,7 +157,7 @@ export async function runDwgSaveChecks({ ok, root = path.resolve(HERE, '../..'),
       const pat = s.hatches.find((h) => !h.solid);
       ok(s.model.SOLID >= 1 && s.hatches.filter((h) => h.solid).length === 1 && pat && pat.pattern === 'ANSI31' && pat.lines === 1 && Math.abs(pat.scale - 2) < 1e-9,
         r + ': a solid fill with a hole as HATCH, a three-cornered one as SOLID, a patterned one as HATCH ANSI31 with its line', JSON.stringify(s.hatches));
-      if (!dxfrw) ok(s.model.MULTILEADER === 1, r + ': the multileader is a MULTILEADER', JSON.stringify(s.model));
+      if (!dxfrw) ok(s.model.MULTILEADER === 3, r + ': the multileaders are MULTILEADERs (ORS.15: also one with three leader lines and one with a block)', JSON.stringify(s.model));
       ok(L.Hidden?.linetype?.toUpperCase() === 'HIDDEN' && s.ltypes.includes('HIDDEN') && s.ltypes.includes('DASHED') && (s.entity_ltypes.DASHED || 0) === 1 && (dxfrw || (L.Hidden.lineweight === 35 && (s.entity_lweights['50'] || 0) === 1)),
         r + ': linetypes (layer HIDDEN, object DASHED, both in the table)' + (dxfrw ? '' : ' and lineweights (0.35, 0.5 mm)'), JSON.stringify([L.Hidden, s.ltypes, s.entity_ltypes, s.entity_lweights]));
       if (!dxfrw) ok(L.Hidden?.newvp === true && L.Walls?.newvp === false, r + ': HIDDEN frozen in new viewports (layer flag 2), WALLS not (0.5 VP.2)', JSON.stringify([L.Hidden?.newvp, L.Walls?.newvp]));
@@ -299,6 +308,13 @@ export function fixture(Doc, attdef) {
     add({ type: 'hatch', layer: 'Walls', solid: false, pattern: 'ANSI31', pscale: 2, pangle: Math.PI / 12, piso: true, loops: [[200, 600, 250, 600, 250, 650, 200, 650, 200, 600]], island: 'outer', bg: 3, ox: 5, oy: 7 });
     add({ type: 'dim', layer: 'Walls', kind: 'linear', p1: { x: 0, y: 700 }, p2: { x: 100, y: 700 }, loc: { x: 100, y: 720 }, rot: 0, text: '', st: { txt: 3.5, lunit: 4, dec: 3, blk1: 'ARCHTICK', blk2: 'ARCHTICK', tih: true, pre: 'L=', tol: 'sym', tp: 0.5, tm: 0.5 }, dimstyle: 'Arch', trot: Math.PI / 12 });
     add({ type: 'mleader', layer: 'Walls', color: null, pts: [{ x: 600, y: 0 }, { x: 650, y: 50 }], dir: 1, s: 'Note', h: 5 });
+    // ORS.15: a multileader with three leader lines, and one whose content is a block
+    add({ type: 'mleader', layer: 'Walls', color: null, pts: [{ x: 700, y: 0 }, { x: 750, y: 50 }], more: [[{ x: 800, y: 0 }], [{ x: 690, y: 80 }, { x: 720, y: 70 }]], dir: 1, s: 'Three lines', h: 5 });
+    add({ type: 'mleader', layer: 'Walls', color: null, pts: [{ x: 900, y: 0 }, { x: 950, y: 50 }], dir: 1, s: '', h: 5, blk: { name: 'Outer', sx: 1, dx: 5, dy: 0 } });
+    // ORS.6: an ordinate, an arc length and a jogged radius dimension (written as DIMENSION ordinate, ARC_DIMENSION, LARGE_RADIAL_DIMENSION)
+    add({ type: 'dim', layer: 'Walls', color: null, kind: 'ordinate', c: { x: 0, y: 0 }, p1: { x: 300, y: 700 }, loc: { x: 304, y: 730 }, axis: 'x', rot: 0, text: '', st: {} });
+    add({ type: 'dim', layer: 'Walls', color: null, kind: 'arc', c: { x: 400, y: 700 }, p1: { x: 420, y: 700 }, p2: { x: 400, y: 720 }, loc: { x: 418, y: 718 }, text: '', st: {} });
+    add({ type: 'dim', layer: 'Walls', color: null, kind: 'jogged', c: { x: 500, y: 600 }, p1: { x: 500, y: 700 }, p2: { x: 520, y: 640 }, loc: { x: 508, y: 670 }, text: '', st: {} });
     add({ type: 'xline', layer: 'Walls', color: null, x: 0, y: 1000, dx: Math.SQRT1_2, dy: Math.SQRT1_2 });   // construction lines (0.5 DR.7)
     add({ type: 'ray', layer: 'Walls', color: null, x: 10, y: 1000, dx: 1, dy: 0 });
     // a linked drawing CadCraft did not load (0.4 C35): saved as a link to its file

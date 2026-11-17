@@ -11,7 +11,7 @@
  *   locationOf(guid, mime) → 'pictures/<guid>.<ext>'      the relative name inside the bundle (what IfcDocumentReference.Location holds)
  *   isLocation(text) → boolean                            a safe relative name in pictures/
  *   zip(entries, { deflate }) → Promise<Uint8Array>        entries: [{ name, data: Uint8Array, deflate?: boolean }]
- *   bundle({ ifc, modelFile, name, schema, pictures: [{ loc, bytes }], deflate, now }) → Promise<Uint8Array>
+ *   bundle({ ifc, modelFile, name, schema, pictures: [{ loc, bytes }], handover: [{ loc, bytes }], deflate, now }) → Promise<Uint8Array>
  *        a `cadcraft-project-bundle` v1 (the format lib/bundle/read.js opens): manifest.json + the model + pictures/…; stories / views empty
  */
 const TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
@@ -64,7 +64,11 @@ export async function zip(entries, { deflate = null, now = new Date() } = {}) {
 }
 
 /** The bundle file: manifest.json (the format lib/bundle/read.js checks), the model, the pictures. */
-export async function bundle({ ifc, modelFile = 'model.ifc', name = 'model', schema = '', pictures = [], deflate = null, now = new Date() }) {
+/** A safe relative name in handover/ (BK.114: a handover document's attached file, handover-docs.js safeName): no folders, no '..'. */
+export function isHandoverLocation(s) {
+  return typeof s === 'string' && /^handover\/[\w .()-]{1,120}$/.test(s) && !/^handover\/[. ]/.test(s) && !s.includes('..');
+}
+export async function bundle({ ifc, modelFile = 'model.ifc', name = 'model', schema = '', pictures = [], handover = [], deflate = null, now = new Date() }) {
   const manifest = {
     format: 'cadcraft-project-bundle', version: 1,
     generator: { name: 'BimCraft' },
@@ -75,5 +79,6 @@ export async function bundle({ ifc, modelFile = 'model.ifc', name = 'model', sch
   const entries = [{ name: 'manifest.json', data: utf8(JSON.stringify(manifest, null, 1)), deflate: true }, { name: modelFile, data: ifc, deflate: true }];
   const seen = new Set();
   for (const p of pictures) if (isLocation(p.loc) && !seen.has(p.loc) && p.bytes?.length) { seen.add(p.loc); entries.push({ name: p.loc, data: p.bytes, deflate: false }); }
+  for (const h of handover || []) if (isHandoverLocation(h.loc) && !seen.has(h.loc) && h.bytes?.length) { seen.add(h.loc); entries.push({ name: h.loc, data: h.bytes, deflate: false }); }   // BK.114: handover/ beside pictures/
   return zip(entries, { deflate, now });
 }

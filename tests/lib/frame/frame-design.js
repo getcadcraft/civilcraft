@@ -26,6 +26,7 @@ import { diagram } from './frame-solve.js';
 import { cleanNA } from './frame-combos.js';
 import * as AISC from './frame-design-aisc.js';
 import * as EN from './frame-design-en.js';
+import * as HS from './frame-design-hollow.js';        // 0.10 SU.1811: rectangular and round hollow sections
 
 export const GRADES = Object.freeze({
   'asce-aisc': Object.freeze({ A992: { fy: 345, fu: 450 }, A36: { fy: 250, fu: 400 }, 'A572 Gr 50': { fy: 345, fu: 450 }, 'A913 Gr 65': { fy: 450, fu: 550 } }),
@@ -106,18 +107,19 @@ function memberSetup(model, prep, k, design, E, G) {
   const sec = model.sections.find((s) => s.id === m.section);
   const ov = design.overrides[m.id] || {};
   const base = { id: m.id, ref: m.from?.ref || '', section: sec?.name || m.section };
-  const shape = shapeOf(sec);
+  const hollow = shapeOf(sec) ? null : HS.hollowShape(sec);
+  const shape = shapeOf(sec) || hollow;
   if (!shape) return { ...base, skip: 'no-shape' };
   if (shape.welded) return { ...base, skip: 'welded' };
   const grade = ov.grade || design.grade;
-  const g = gradeProps(design.code, grade, Math.max(shape.tf, shape.tw));
+  const g = gradeProps(design.code, grade, hollow ? hollow.t : Math.max(shape.tf, shape.tw));
   if (!g) return { ...base, skip: 'no-grade' };
   const L = prep.mem[k].ax.L;
   const lb = Math.min(L, ov.lb ?? design.lbRatio * L);
   const nseg = Math.max(1, Math.ceil(L / lb - 1e-9));
   const bounds = Array.from({ length: nseg + 1 }, (_, i) => Math.min(L, i * lb));
   const ky = ov.ky ?? design.ky, kz = ov.kz ?? design.kz;
-  return { ...base, shape, sec, L, lb, bounds, ky, kz, grade, fy: g.fy, fu: g.fu, E, G, Lcy: ky * L, Lcz: kz * lb, Lt: lb };
+  return { ...base, shape, hollow: !!hollow, sec, L, lb, bounds, ky, kz, grade, fy: g.fy, fu: g.fu, E, G, Lcy: ky * L, Lcz: kz * lb, Lt: lb };
 }
 
 function checkAISC(S, d, R, design) {
@@ -216,6 +218,88 @@ function checkEN(S, d, R, design, hasPoint) {
   }
   return { checks: out, partial, info: { class: cls, classes: cl, Wpl: p.Wply, chi: bk.chi, mode: bk.mode, curves: bk.curves, segs, fy: S.fy, NbRd: bk.NbRd } };
 }
+
+/** Hollow sections (RHS, CHS), AISC 360-16: tension, flexural compression, flexure of compact walls, shear, H1. Same result shape as checkAISC. */
+function checkAISCHollow(S, d) {
+  const p = HS.props(S.shape, S.sec);
+  const sl = HS.AISC.slender(p, S.fy, S.E);
+  const skipComp = sl.compression && Math.min(...d.N) < -1;
+  if (sl.bending && Math.max(maxAbs(d.My), maxAbs(d.Mz)) > 1000) return { skip: sl.bending.why, clause: 'AISC 360-16 §' + sl.bending.clause };
+  const out = [];
+  const add = (id, clause, demand, capacity, unit, x = null) => out.push({ id, clause, demand, capacity, ratio: capacity > 0 ? demand / capacity : Infinity, unit, x });
+  const Nmax = Math.max(...d.N), Nmin = Math.min(...d.N);
+  const t = HS.AISC.tension(p, S.fy), c = HS.AISC.compression(p, S.fy, S.E, S.Lcy, S.Lcz);
+  if (Nmax > 0) add('tension', 'AISC 360-16 §' + t.clause, Nmax, t.phiPn, 'N');
+  if (Nmin < 0 && !skipComp) add('compression', 'AISC 360-16 §E3', -Nmin, c.phiPn, 'N');
+  const V = HS.AISC.shear(p, S.fy, S.E);
+  add('shear-z', 'AISC 360-16 §' + V.z.clause, maxAbs(d.Vz), V.z.phiVn, 'N');
+  add('shear-y', 'AISC 360-16 §' + V.y.clause, maxAbs(d.Vy), V.y.phiVn, 'N');
+  const fl = HS.AISC.flexure(p, S.fy, S.E, S.lb), partial = skipComp ? [sl.compression.why] : [];
+  if (fl.ltb && maxAbs(d.My) > 1000) partial.push(fl.ltb.why);
+  add('bending-z', 'AISC 360-16 §' + (p.kind === 'CHS' ? 'F8' : 'F7'), maxAbs(d.Mz), fl.minor.phiMn, 'N·mm');
+  const segs = [];
+  for (let s = 0; s + 1 < S.bounds.length; s++) {
+    const sg = segment(d, S.bounds[s], S.bounds[s + 1], ['My', 'Mz', 'N']);
+    add('bending-y', 'AISC 360-16 §' + (p.kind === 'CHS' ? 'F8' : 'F7'), maxAbs(sg.My), fl.major.phiMn, 'N·mm', sg.x[0]);
+    let worst = { ratio: -1 };
+    sg.x.forEach((x, k) => {
+      const N = sg.N[k], Pc = N < 0 ? c.phiPn : t.phiPn;
+      if (N < 0 && skipComp) return;
+      const h = AISC.interaction(Math.abs(N), Pc, Math.abs(sg.My[k]), fl.major.phiMn, Math.abs(sg.Mz[k]), fl.minor.phiMn);
+      if (h.ratio > worst.ratio) worst = { ...h, x };
+    });
+    if (worst.ratio >= 0) add('interaction', 'AISC 360-16 §' + worst.eq, worst.ratio, 1, '', worst.x);
+    segs.push({ Lb: S.bounds[s + 1] - S.bounds[s], phiMn: fl.major.phiMn });
+  }
+  return { checks: out, partial, info: { Zx: p.Zx, Zy: p.Zy, phiPnc: c.phiPn, KLry: c.KLry, KLrz: c.KLrz, segs, Fy: S.fy } };
+}
+
+/** Hollow sections (RHS, CHS), EN 1993-1-1. Same result shape as checkEN. */
+function checkENHollow(S, d, R, design, hasPoint) {
+  const na = design.na.steel, p = HS.props(S.shape, S.sec), cl = HS.EN.classify(p, S.fy);
+  const hasN = Math.min(...d.N) < -1, hasM = Math.max(maxAbs(d.My), maxAbs(d.Mz)) > 1000;
+  if (hasM && cl.bending === 4) return { skip: 'class-4', clause: 'EN 1993-1-1 Table 5.2' };
+  const skipComp = hasN && cl.compression === 4;
+  const cls = Math.max(hasM ? cl.bending : 1, hasN && !skipComp ? cl.compression : 1);
+  const out = [];
+  const add = (id, clause, demand, capacity, unit, x = null) => out.push({ id, clause, demand, capacity, ratio: capacity > 0 ? demand / capacity : Infinity, unit, x });
+  const Nmax = Math.max(...d.N), Nmin = Math.min(...d.N);
+  const rs = HS.EN.resist(p, S.fy, na, cls), bk = HS.EN.buckling(p, S.fy, S.E, S.Lcy, S.Lcz, na, !!S.shape.hot);
+  if (Nmax > 0) add('tension', 'EN 1993-1-1 §6.2.3(2)a', Nmax, rs.Npl, 'N');
+  if (Nmin < 0 && !skipComp) {
+    add('compression-section', 'EN 1993-1-1 §6.2.4', -Nmin, rs.Npl, 'N');
+    add('compression', 'EN 1993-1-1 §6.3.1.1', -Nmin, bk.NbRd, 'N');
+  }
+  add('shear-z', 'EN 1993-1-1 §6.2.6', maxAbs(d.Vz), rs.VzRd, 'N');
+  add('shear-y', 'EN 1993-1-1 §6.2.6', maxAbs(d.Vy), rs.VyRd, 'N');
+  const partial = skipComp ? ['class-4'] : [];
+  if (maxAbs(d.Vz) > 0.5 * rs.VzRd || maxAbs(d.Vy) > 0.5 * rs.VyRd) partial.push('high-shear-hss');      // 6.2.8 for hollow sections is not built
+  add('bending-z', 'EN 1993-1-1 §6.2.5', maxAbs(d.Mz), rs.MzRd, 'N·mm');
+  const lt = { chiLT: 1 }, R2 = { NRk: p.A * S.fy, MyRk: (cls <= 2 ? p.Zx : p.Sx) * S.fy, MzRk: (cls <= 2 ? p.Zy : p.Sy) * S.fy };
+  const bkI = { chiY: bk.chiY, chiZ: bk.chiZ, lamY: bk.lamY, lamZ: bk.lamZ };
+  const segs = [];
+  for (let s = 0; s + 1 < S.bounds.length; s++) {
+    const sg = segment(d, S.bounds[s], S.bounds[s + 1], ['My', 'Mz', 'N']);
+    add('bending-section', 'EN 1993-1-1 §6.2.5', maxAbs(sg.My), rs.MyRd, 'N·mm', sg.x[0]);
+    const cmY = EN.cm(sg.x, sg.My, hasPoint), cmZ = EN.cm(sg.x, sg.Mz, hasPoint);
+    let wCS = { ratio: -1 }, wI = { r: -1 };
+    sg.x.forEach((x, k) => {
+      const N = sg.N[k], My_ = Math.abs(sg.My[k]), Mz_ = Math.abs(sg.Mz[k]);
+      if (N < 0 && skipComp) return;
+      const ma = HS.EN.momentAxial(p, S.fy, na, cls, N, My_, Mz_);
+      if (ma.ratio > wCS.ratio) wCS = { ...ma, x };
+      if (N < 0) {
+        const it = EN.interaction({ NEd: -N, My: My_, Mz: Mz_ }, R2, bkI, lt, { y: cmY, z: cmZ, LT: cmY }, cls, na, true);   // Table B.1: not susceptible to torsional deformation
+        const r = Math.max(it.r1, it.r2);
+        if (r > wI.r) wI = { r, x, which: it.r1 >= it.r2 ? '6.61' : '6.62' };
+      }
+    });
+    if (wCS.ratio >= 0) add('moment-axial', 'EN 1993-1-1 §6.2.9' + (cls === 3 ? '.2' : '.1'), wCS.ratio, 1, '', wCS.x);
+    if (wI.r >= 0) add('interaction', 'EN 1993-1-1 §6.3.3 (' + wI.which + ')', wI.r, 1, '', wI.x);
+    segs.push({ Lb: S.bounds[s + 1] - S.bounds[s], cmY, cmZ });
+  }
+  return { checks: out, partial, info: { class: cls, classes: cl, Wpl: p.Zx, chi: Math.min(bk.chiY, bk.chiZ), curves: { y: bk.curve, z: bk.curve }, segs, fy: S.fy, NbRd: bk.NbRd } };
+}
 const AISCCb = (sg) => AISC.cb(quart(sg.x, sg.My));      // C1 of the moment diagram: the same quartile expression (see frame-design-en.js header)
 
 // ---------------------------------------------------------------------------------------------------------------- frame
@@ -244,7 +328,7 @@ export function checkFrame(model, sol, design, { n = 48 } = {}) {
       const d = diagram(prep, R, k, n);
       maxT = Math.max(maxT, maxAbs(d.T));
       const hasPoint = (R.loads[k] || []).some((l) => l.kind === 'point');
-      const r = D.code === 'en' ? checkEN(S, d, R, D, hasPoint) : checkAISC(S, d, R, D);
+      const r = S.hollow ? (D.code === 'en' ? checkENHollow(S, d, R, D, hasPoint) : checkAISCHollow(S, d)) : D.code === 'en' ? checkEN(S, d, R, D, hasPoint) : checkAISC(S, d, R, D);
       if (r.skip) { skipped = r; break; }
       for (const w of r.partial) partial.add(w);
       const worst = r.checks.reduce((a, b) => (b.ratio > a.ratio ? b : a), { ratio: -1 });

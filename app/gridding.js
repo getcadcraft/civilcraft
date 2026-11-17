@@ -3,7 +3,8 @@
  * gridding.js — choose how scattered survey points become a ground surface (0.9 D9.6, from /suggest #1237).
  * No DOM, no strings (notes are codes with data), no dependencies but tin.js. Written from the published maths
  * (Shepard 1968, Franke–Little weights, Hardy multiquadrics, Matheron/ordinary kriging, Briggs 1974 minimum curvature,
- * Sibson/Laplace natural neighbours); no code taken from any other program. Tested by bin/test-civilcraft-gridding.mjs.
+ * Sibson/Laplace natural neighbours; ABOS from M. Dressler's description, see abos() below); no code taken from any other
+ * program. Tested by bin/test-civilcraft-gridding.mjs and bin/test-civilcraft-abos.mjs.
  *
  *   METHODS                      [{ key, exact, local }]  the methods this file does
  *   gridSurface(points, { method, step, power, order, radius, neighbours, maxNodes }) →
@@ -24,6 +25,9 @@
  *   mincurv    minimum curvature (Briggs): the smoothest surface through the data; the grid is limited to 40000 nodes
  *   kriging    ordinary kriging, spherical variogram fitted to the points, nearest 16; also returns sigma (the kriging error)
  *   krigerr    the kriging error itself as the surface (how little the points say about each place; 0 at a point)
+ *   abos       ABOS, approximation based on smoothing (Dressler): nearest-point fill, tensioning, smoothing, repeated on what is
+ *              left over until the points are met to `abosAccuracy` % of the height range (default 1); `abosQ` is the smoothness
+ *              (default 0.5; lower = smoother), `abosLes` true limits smoothing near points; the grid is limited to 90000 nodes
  *   metric-*   data metrics: count, mean, min, max, range, std of the points within `radius` (default 2.5 × mean spacing) of each node
  *
  *   options also: lines [[{x,y,z}…]] (breaklines: their vertices and points along them every grid step become data),
@@ -37,13 +41,14 @@ export const METHODS = [
   { key: 'shepard', exact: true, local: true }, { key: 'natural', exact: true, local: true }, { key: 'polyreg', exact: false, local: false },
   { key: 'localpoly', exact: false, local: true }, { key: 'rbf', exact: true, local: false }, { key: 'mincurv', exact: true, local: false },
   { key: 'kriging', exact: true, local: true }, { key: 'krigerr', exact: false, local: true },
+  { key: 'abos', exact: false, local: false },
   // data metrics (what the points are like, not a height): each is a surface of its own
   ...['count', 'mean', 'min', 'max', 'range', 'std'].map((m) => ({ key: 'metric-' + m, exact: false, local: true, metric: m })),
 ];
 
 const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const MAX_NODES = 250000;
-const NODE_CAP = { mincurv: 40000, kriging: 40000, rbf: 90000 };
+const NODE_CAP = { mincurv: 40000, kriging: 40000, rbf: 90000, abos: 90000 };
 
 /** Solve A x = b (n×n, row arrays) by Gaussian elimination with partial pivoting; null when singular. */
 function solve(A, b) {
@@ -383,14 +388,14 @@ export function gridSurface(points, opts = {}) {
 
   // grid spacing: the caller's, else about 2 nodes per mean point spacing, limited so there are at most maxNodes nodes
   const cap = Math.min(opts.maxNodes || MAX_NODES, NODE_CAP[method] || MAX_NODES);
-  let step = opts.step > 0 ? opts.step : spacing / 2;
+  let step = opts.step > 0 ? opts.step : spacing / (method === 'abos' ? 8 : 2);   // ABOS needs nodes near the points to meet them (its paper sizes the grid from the closest pair of points)
   const nodes = (s) => (Math.floor(w2 / s) + 2) * (Math.floor(h2 / s) + 2);
   if (nodes(step) > cap) { const was = step; while (nodes(step) > cap) step *= 1.05; notes.push({ code: 'step.raised', from: was, to: step, nodes: nodes(step) }); }
   const nx = Math.floor(w2 / step) + 2, ny = Math.floor(h2 / step) + 2;
   const x0 = minX - (nx * step - w2) / 2, y0 = minY - (ny * step - h2) / 2;
 
   const ix = makeIndex(C, bounds);
-  const make = def.metric ? est_metric : method === 'krigerr' ? est_kriging : { idw: est_idw, nearest: est_nearest, movavg: est_movavg, shepard: est_shepard, natural: est_natural, polyreg: est_polyreg, localpoly: est_localpoly, rbf: est_rbf, mincurv: null, kriging: est_kriging }[method];
+  const make = def.metric ? est_metric : method === 'krigerr' ? est_kriging : { idw: est_idw, nearest: est_nearest, movavg: est_movavg, shepard: est_shepard, natural: est_natural, polyreg: est_polyreg, localpoly: est_localpoly, rbf: est_rbf, mincurv: null, abos: null, kriging: est_kriging }[method];
   const z = new Float64Array(nx * ny).fill(NaN);
   const inside = new Uint8Array(nx * ny);
   const bnd = Array.isArray(opts.boundary) && opts.boundary.length >= 3 ? opts.boundary.filter((q) => q && finite(q.x) && finite(q.y)).map((q) => ({ x: q.x - cx, y: q.y - cy })) : null;
@@ -398,6 +403,7 @@ export function gridSurface(points, opts = {}) {
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) inside[j * nx + i] = pointInPoly(x0 + i * step, y0 + j * step, hull2) && (!bnd || pointInPoly(x0 + i * step, y0 + j * step, bnd)) ? 1 : 0;
   let sigma = null;
   if (method === 'mincurv') minCurv(C, { nx, ny, x0, y0, step, inside, z }, notes);
+  else if (method === 'abos') abos(C, { nx, ny, x0, y0, step, inside, z }, opts, notes);
   else {
     const f0 = make(C, ix, def.metric ? { ...opts, metric: def.metric } : opts, spacing, notes);
     if (!f0) return { error: 'fit', notes };
@@ -460,4 +466,142 @@ function minCurv(C, G, notes) {
   }
   notes.push({ code: 'mincurv.iter', n: it, converged: delta <= tol });
   for (let k = 0; k < v.length; k++) if (inside[k]) z[k] = v[k];
+}
+
+/**
+ * ABOS (Approximation Based On Smoothing), written from the author's own description and from nothing else:
+ *   M. Dressler, "Interpolační metody pro konstrukci ploch" (Interpolation methods for construction of surfaces), doctoral
+ *   thesis abstract, Technical University of Liberec, 2007, chapter 4 "The ABOS method", sections 4.1 to 4.2.8 (in English);
+ *   the same method the author's later text "Art of Surface Interpolation" (2009) describes.
+ * Steps, with the paper's section numbers:
+ *   4.2.1  filtering: two points closer than the resolution RS in both x and y become one point at their average
+ *   4.2.3  NB = the nearest point of each node, K = its distance in grid units (a whole number), Kmax = the largest K
+ *   4.2.4  fill: P = DZ[NB] (each node takes its nearest point's value; the first time DZ is the points' z)
+ *   4.2.5  tensioning, for N = max(4, Kmax/2 + 2) down to 1: P(i,j) = mean of the four nodes k = min(K, N) away along the axes
+ *   4.2.6  linear tensioning (degree 1), same loop: P = (Q·(P(i+u,j+v) + P(i−u,j−v)) + P(i−v,j+u) + P(i+v,j−u)) / (2Q + 2)
+ *          for K > 0, (u, v) = the vector to the nearest point's node (cut to length N), Q = L·(Kmax − K)²,
+ *          L = 1 / ((0.107·Kmax − 0.714)·Kmax)
+ *   4.2.7  smoothing, for N = max(4, Kmax²/16) down to 1: P = (sum of the 8 neighbours + q·t·P) / (q·t + 8); t is 0 in the
+ *          first pass, then the sum of squared differences to the 5 × 5 neighbours scaled to 0…100; q defaults to 0.5.
+ *          "LES" smoothing (an option) leaves a node alone while N > K + 1
+ *   4.2.8  a·P + b fitted to what is left at the points (least squares), P = P + DP, DZ = z − f(x, y) (bilinear); finished when
+ *          max |DZ| < accuracy % of (zmax − zmin) (default 1 %), or when the largest difference stops getting smaller;
+ *          else DP = P and again from 4.2.4 with DZ
+ * Where the paper is silent or cannot be followed here (our choices, not the paper's):
+ *   - the grid is this file's grid (square cells; the person's spacing, or one eighth of the mean point spacing, limited to
+ *     90000 nodes) and RS is one grid step, in place of the paper's Filter parameter and its grid-size rule (4.2.2, which
+ *     sizes the grid from the closest pair of points); the text read gives no default for Filter
+ *   - a node asked for outside the grid is the nearest node on the edge
+ *   - each tensioning and smoothing pass reads the values of the pass before (not half-updated ones)
+ *   - L is negative or huge for Kmax under 7 (the paper's constant is for larger grids): Kmax is taken as 10 in L when smaller
+ *   - when a cycle makes the largest difference worse, the grid of the cycle before is kept
+ *   - NB and K are found with this file's nearest-point search, not the paper's "circulation" (same result)
+ */
+function abos(C, G, o, notes) {
+  const { nx, ny, x0, y0, step, inside, z } = G;
+  const q = finite(o.abosQ) && o.abosQ > 0 ? o.abosQ : 0.5;
+  const acc = finite(o.abosAccuracy) && o.abosAccuracy >= 0 ? o.abosAccuracy : 1;
+  const les = !!o.abosLes;
+  // 4.2.1 filtering (points sorted by x, as the paper suggests)
+  const F = C.map((p) => ({ x: p.x, y: p.y, z: p.z })).sort((a, b) => a.x - b.x);
+  let merged = 0;
+  for (let i = 0; i < F.length; i++) {
+    if (!F[i]) continue;
+    for (let j = i + 1; j < F.length && (!F[j] || Math.abs(F[j].x - F[i].x) < step); j++) {
+      if (!F[j] || Math.abs(F[j].y - F[i].y) >= step) continue;
+      F[i] = { x: (F[i].x + F[j].x) / 2, y: (F[i].y + F[j].y) / 2, z: (F[i].z + F[j].z) / 2 }; F[j] = null; merged++;
+    }
+  }
+  const D = F.filter(Boolean), n = D.length, N = nx * ny;
+  let z1 = Infinity, z2 = -Infinity, bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+  for (const p of D) { z1 = Math.min(z1, p.z); z2 = Math.max(z2, p.z); bx0 = Math.min(bx0, p.x); by0 = Math.min(by0, p.y); bx1 = Math.max(bx1, p.x); by1 = Math.max(by1, p.y); }
+  // 4.2.3 NB, K and the vector (u, v) from each node to its nearest point's node
+  const ix = makeIndex(D, { minX: bx0, minY: by0, maxX: bx1, maxY: by1 });
+  const NB = new Int32Array(N), K = new Int32Array(N), U = new Int32Array(N), V = new Int32Array(N);
+  let Kmax = 0;
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const m = j * nx + i, r = ix.nearest(x0 + i * step, y0 + j * step, 1)[0];
+    NB[m] = r.q; K[m] = Math.round(r.d / step); if (K[m] > Kmax) Kmax = K[m];
+    U[m] = Math.round((D[r.q].x - x0) / step) - i; V[m] = Math.round((D[r.q].y - y0) / step) - j;
+  }
+  const kl = Math.max(Kmax, 10), Lc = 1 / ((0.107 * kl - 0.714) * kl);
+  const cl = (v, hi) => (v < 0 ? 0 : v > hi ? hi : v);
+  let P = new Float64Array(N), T = new Float64Array(N), W = new Float64Array(N);
+  const g = (A, i, j) => A[cl(j, ny - 1) * nx + cl(i, nx - 1)];
+  const bil = (A, x, y) => {
+    const fx = (x - x0) / step, fy = (y - y0) / step, i = Math.min(nx - 2, Math.max(0, Math.floor(fx))), j = Math.min(ny - 2, Math.max(0, Math.floor(fy)));
+    const tx = fx - i, ty = fy - j;
+    return A[j * nx + i] * (1 - tx) * (1 - ty) + A[j * nx + i + 1] * tx * (1 - ty) + A[(j + 1) * nx + i] * (1 - tx) * ty + A[(j + 1) * nx + i + 1] * tx * ty;
+  };
+  const DZ = D.map((p) => p.z);
+  let DP = new Float64Array(N), prevMax = Infinity, cycles = 0, converged = false, maxDiff = Infinity, stalled = false;
+  const tol = acc * (z2 - z1) / 100;
+  const nTen = Math.max(4, Math.floor(Kmax / 2) + 2), nSm = Math.max(4, Math.floor(Kmax * Kmax / 16));
+  for (; cycles < 200;) {
+    cycles++;
+    for (let m = 0; m < N; m++) P[m] = DZ[NB[m]];   // 4.2.4
+    for (let Nn = nTen; Nn >= 1; Nn--) {   // 4.2.5
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const m = j * nx + i, k = Math.min(K[m], Nn);
+        T[m] = k ? (g(P, i + k, j) + g(P, i, j + k) + g(P, i - k, j) + g(P, i, j - k)) / 4 : P[m];
+      }
+      [P, T] = [T, P];
+    }
+    for (let Nn = nTen; Nn >= 1; Nn--) {   // 4.2.6
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const m = j * nx + i;
+        if (!K[m]) { T[m] = P[m]; continue; }
+        let u = U[m], v = V[m];
+        const len = Math.hypot(u, v);
+        if (len > Nn) { u = Math.round(u * Nn / len); v = Math.round(v * Nn / len); }
+        if (!u && !v) { T[m] = P[m]; continue; }
+        const Q = Lc * (Kmax - K[m]) ** 2;
+        T[m] = (Q * (g(P, i + u, j + v) + g(P, i - u, j - v)) + g(P, i - v, j + u) + g(P, i + v, j - u)) / (2 * Q + 2);
+      }
+      [P, T] = [T, P];
+    }
+    let first = true;
+    for (let Nn = nSm; Nn >= 1; Nn--) {   // 4.2.7
+      if (first) W.fill(0);
+      else {
+        let wmax = 0;
+        for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+          const m = j * nx + i, c = P[m];
+          let s = 0;
+          for (let b = -2; b <= 2; b++) for (let a = -2; a <= 2; a++) { const d = c - g(P, i + a, j + b); s += d * d; }
+          W[m] = s; if (s > wmax) wmax = s;
+        }
+        if (wmax > 0) for (let m = 0; m < N; m++) W[m] = W[m] * 100 / wmax;
+      }
+      first = false;
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const m = j * nx + i;
+        if (les && Nn > K[m] + 1) { T[m] = P[m]; continue; }
+        let s = 0;
+        for (let b = -1; b <= 1; b++) for (let a = -1; a <= 1; a++) if (a || b) s += g(P, i + a, j + b);
+        const qt = q * W[m];
+        T[m] = (s + qt * P[m]) / (qt + 8);
+      }
+      [P, T] = [T, P];
+    }
+    // 4.2.8: a·P + b closest to what is left at the points
+    {
+      let sf = 0, sd = 0, sff = 0, sfd = 0;
+      for (let k = 0; k < n; k++) { const f = bil(P, D[k].x, D[k].y); sf += f; sd += DZ[k]; sff += f * f; sfd += f * DZ[k]; }
+      const den = n * sff - sf * sf;
+      if (Math.abs(den) > 1e-12 * (Math.abs(n * sff) + 1e-300)) {
+        const a = (n * sfd - sf * sd) / den, b = (sd - a * sf) / n;
+        if (Number.isFinite(a) && Number.isFinite(b)) for (let m = 0; m < N; m++) P[m] = a * P[m] + b;
+      }
+    }
+    for (let m = 0; m < N; m++) P[m] += DP[m];
+    maxDiff = 0;
+    for (let k = 0; k < n; k++) { DZ[k] = D[k].z - bil(P, D[k].x, D[k].y); maxDiff = Math.max(maxDiff, Math.abs(DZ[k])); }
+    if (maxDiff <= tol && (acc > 0 || maxDiff === 0)) { converged = true; break; }
+    if (!(maxDiff < prevMax)) { stalled = true; if (maxDiff > prevMax) { P.set(DP); maxDiff = prevMax; } break; }
+    prevMax = maxDiff;
+    DP.set(P);
+  }
+  notes.push({ code: 'abos.iter', n: cycles, converged, stalled, max: maxDiff, tol, merged, kmax: Kmax, q, accuracy: acc });
+  for (let m = 0; m < N; m++) if (inside[m]) z[m] = P[m];
 }

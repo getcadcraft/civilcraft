@@ -136,6 +136,58 @@ export function zAt(runs, o) {
   return null;
 }
 
+/** CV.3: the section's heights at both ends of the interval [o0, o1], from the segment of `runs` that covers its middle (so a step in a
+ *  line, two points at one offset, is read from the side the interval lies on), or null where the runs do not reach. */
+export function segValues(runs, o0, o1) {
+  const om = (o0 + o1) / 2;
+  for (const r of runs) {
+    if (om < r[0].o - 1e-12 || om > r[r.length - 1].o + 1e-12) continue;
+    for (let i = 1; i < r.length; i++) {
+      const p = r[i - 1], q = r[i], w = q.o - p.o;
+      if (!(w > 0) || om > q.o + 1e-12 || om < p.o - 1e-12) continue;
+      const k = (q.z - p.z) / w;
+      return [p.z + k * (o0 - p.o), p.z + k * (o1 - p.o)];
+    }
+  }
+  return null;
+}
+
+/** CV.3 (#1534): the lowest surface through the section: the design's top, and under it every component line (pavement courses,
+ *  template components, track), taken as the lower envelope of all of them across the design's reach. A step where a component starts
+ *  is two runs, so the areas read the right side of it. `layers` are the section's `{ a: {o, z}, b: {o, z} }` lines. */
+export function bottomSurface(design, layers) {
+  const segs = [];
+  for (const r of design) for (let i = 1; i < r.length; i++) if (r[i].o - r[i - 1].o > 1e-9) segs.push([r[i - 1].o, r[i - 1].z, r[i].o, r[i].z]);
+  const nd = segs.length;
+  for (const L of layers || []) {
+    const a = L.a.o <= L.b.o ? L.a : L.b, b = L.a.o <= L.b.o ? L.b : L.a;
+    if (b.o - a.o > 1e-9 && Number.isFinite(a.z) && Number.isFinite(b.z)) segs.push([a.o, a.z, b.o, b.z]);
+  }
+  if (segs.length === nd) return design;   // nothing under the top
+  const xs = new Set();
+  for (const g of segs) { xs.add(g[0]); xs.add(g[2]); }
+  for (let i = 0; i < segs.length; i++) for (let j = i + 1; j < segs.length; j++) {
+    const A = segs[i], B = segs[j], ka = (A[3] - A[1]) / (A[2] - A[0]), kb = (B[3] - B[1]) / (B[2] - B[0]);
+    if (Math.abs(ka - kb) < 1e-12) continue;
+    const o = (B[1] - kb * B[0] - (A[1] - ka * A[0])) / (ka - kb);
+    if (o > Math.max(A[0], B[0]) + 1e-9 && o < Math.min(A[2], B[2]) - 1e-9) xs.add(o);
+  }
+  const bp = [...xs].sort((m, n) => m - n), covered = (o) => design.some((r) => o >= r[0].o - 1e-12 && o <= r[r.length - 1].o + 1e-12);
+  const out = [];
+  let cur = null;
+  for (let i = 1; i < bp.length; i++) {
+    const o0 = bp[i - 1], o1 = bp[i], om = (o0 + o1) / 2;
+    if (o1 - o0 < 1e-9 || !covered(om)) { cur = null; continue; }
+    let best = null, bz = Infinity;
+    for (const g of segs) if (om >= g[0] && om <= g[2]) { const z = g[1] + ((g[3] - g[1]) * (om - g[0])) / (g[2] - g[0]); if (z < bz) { bz = z; best = g; } }
+    if (!best) { cur = null; continue; }
+    const k = (best[3] - best[1]) / (best[2] - best[0]), z0 = best[1] + k * (o0 - best[0]), z1 = best[1] + k * (o1 - best[0]);
+    if (cur && Math.abs(cur[cur.length - 1].o - o0) < 1e-9 && Math.abs(cur[cur.length - 1].z - z0) < 1e-9) cur.push({ o: o1, z: z1 });
+    else { cur = [{ o: o0, z: z0 }, { o: o1, z: z1 }]; out.push(cur); }
+  }
+  return out.length ? out : design;
+}
+
 export function cutFill(ground, design) {
   const os = new Set();
   for (const r of [...ground, ...design]) for (const p of r) os.add(p.o);
@@ -150,9 +202,9 @@ export function cutFill(ground, design) {
   };
   for (let i = 1; i < xs.length; i++) {
     const o0 = xs[i - 1], o1 = xs[i], om = (o0 + o1) / 2;
-    if (zAt(ground, om) === null || zAt(design, om) === null) continue;
-    const g0 = zAt(ground, o0), g1 = zAt(ground, o1), d0 = zAt(design, o0), d1 = zAt(design, o1);
-    if ([g0, g1, d0, d1].some((v) => v === null)) continue;
+    const gv = segValues(ground, o0, o1), dv = segValues(design, o0, o1);
+    if (!gv || !dv) continue;
+    const [g0, g1] = gv, [d0, d1] = dv;
     const e0 = d0 - g0, e1 = d1 - g1, w = o1 - o0;
     if (e0 >= 0 && e1 >= 0) push(o0, o1, 'fill', ((e0 + e1) / 2) * w);
     else if (e0 <= 0 && e1 <= 0) push(o0, o1, 'cut', ((-e0 - e1) / 2) * w);
@@ -254,7 +306,10 @@ export function trackMarks(track, sta) {
   return out;
 }
 
-export function buildSections({ alignment, ground, design, regions = null, corridor = null, courses = null, track = null, sampling, from, to }) {
+/** CV.3: `volumeBasis` 'bottom' (default) measures cut and fill to the lowest surface under the design (bottomSurface: pavement courses,
+ *  template components, track), 'top' to the design's top as before; `extraLayers(sta)` adds more component lines (the templates'). Each section
+ *  keeps both: `cut`/`fill`/`parts` follow the basis, `cutTop`/`fillTop` are always the top surface's, `basis` the runs measured to. */
+export function buildSections({ alignment, ground, design, regions = null, corridor = null, courses = null, track = null, sampling, from, to, volumeBasis = 'bottom', extraLayers = null }) {
   const smp = sampling || SAMPLE_DEFAULTS();
   const stations = sampleStations(alignment, { step: smp.step, extra: smp.extra, from, to });
   const sections = stations.map((sta) => {
@@ -262,8 +317,10 @@ export function buildSections({ alignment, ground, design, regions = null, corri
     const g = surfaceSection(ground, line.a, line.b, -smp.left, smp.right);
     let d = design && design !== ground ? surfaceSection(design, line.a, line.b, -smp.left, smp.right) : g;
     if (d !== g && regions) d = clipRuns(d, regionSpans(line, regions));
-    const cf = cutFill(g, d);
-    return { sta, a: line.a, b: line.b, c: line.c, left: smp.left, right: smp.right, ground: g, design: d, cut: cf.cut, fill: cf.fill, parts: cf.parts, marks: corridor ? featureMarks(corridor, line) : [], layers: [...(courses?.length ? layerMarks(courses, line) : []), ...(track ? trackMarks(track, sta) : [])] };   // track: 0.7.1 71.26
+    const layers = [...(courses?.length ? layerMarks(courses, line) : []), ...(track ? trackMarks(track, sta) : []), ...(extraLayers ? extraLayers(sta) : [])];
+    const top = cutFill(g, d);
+    const basis = d !== g && volumeBasis !== 'top' ? bottomSurface(d, layers) : d, cf = basis === d ? top : cutFill(g, basis);
+    return { sta, a: line.a, b: line.b, c: line.c, left: smp.left, right: smp.right, ground: g, design: d, basis, cut: cf.cut, fill: cf.fill, cutTop: top.cut, fillTop: top.fill, parts: cf.parts, marks: corridor ? featureMarks(corridor, line) : [], layers };   // track: 0.7.1 71.26
   });
   const rows = [];
   let cumCut = 0, cumFill = 0;
@@ -273,7 +330,7 @@ export function buildSections({ alignment, ground, design, regions = null, corri
     cumCut += cutVol; cumFill += fillVol;
     rows.push({ sta: s.sta, cut: s.cut, fill: s.fill, cutVol, fillVol, cumCut, cumFill });
   });
-  return { sections, rows, totals: { cut: cumCut, fill: cumFill } };
+  return { sections, rows, totals: { cut: cumCut, fill: cumFill }, volumeBasis: volumeBasis === 'top' ? 'top' : 'bottom' };
 }
 
 const csvCell = (v) => { const s = String(v); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };

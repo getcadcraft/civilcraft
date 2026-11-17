@@ -25,6 +25,7 @@
 
 import { cutSection, lineLength, locateOn } from './terrain-section.js';
 import { cutFill, clipRuns } from './sections.js';
+import { pointInPolygon } from './geom2d.js';
 
 // ---------------------------------------------------------------------------
 // Cut and fill map
@@ -44,7 +45,7 @@ export function depthMap(ground, design, { cell, region = null, bounds = null, m
   let c = cell > 0 ? cell : Math.sqrt((W * H) / 40000);
   while ((W / c) * (H / c) > maxCells) c *= 2;
   out.cell = c;
-  const inPoly = (poly, x, y) => { let k = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const p = poly[i], q = poly[j]; if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) k = !k; } return k; };
+  const inPoly = (poly, x, y) => pointInPolygon(x, y, poly);
   const i0 = Math.floor(b.minX / c), i1 = Math.ceil(b.maxX / c), j0 = Math.floor(b.minY / c), j1 = Math.ceil(b.maxY / c), A = c * c;
   for (let j = j0; j < j1; j++) for (let i = i0; i < i1; i++) {
     const x = (i + 0.5) * c, y = (j + 0.5) * c;

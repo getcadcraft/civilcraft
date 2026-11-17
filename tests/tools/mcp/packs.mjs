@@ -9,6 +9,8 @@
  *     extra    optional prompts of our own besides the packs' (see BUILTIN_PROMPTS)
  *     standards  optional { get() → the firm's cleaned standards | null, text(standards, app) → Markdown } (ai-standards.js, AC.14): when set they go
  *              in front of every starter and are the resource cadcraft://standards/firm; read on every call, so an edit applies at once
+ *     more     optional { list() → [resource], read(uri) → Promise<{ uri, mimeType, text } | null> }: further resources served beside the packs'
+ *              (the knowledge pack's documents, assets/js/knowledge-pack.js knowledgeResources; BK.57)
  *   → { off() }
  *
  * What is added to the dispatcher (tools/mcp/core.mjs):
@@ -39,7 +41,7 @@ export const BUILTIN_PROMPTS = [
 
 export const promptName = (pack, prompt) => pack.id + '.' + prompt.id;
 
-export function mountPacks(d, { packs = [], enabled = null, extra = BUILTIN_PROMPTS, standards = null } = {}) {
+export function mountPacks(d, { packs = [], enabled = null, extra = BUILTIN_PROMPTS, standards = null, more = null } = {}) {
   const visible = () => packs.filter((p) => !enabled || enabled(p.app));
   const skillUri = (p) => RESOURCE_BASE + p.id + '/skill';
   const find = (name) => {
@@ -81,6 +83,7 @@ export function mountPacks(d, { packs = [], enabled = null, extra = BUILTIN_PROM
       ...(firm(null) ? [{ uri: STANDARDS_URI, name: 'firm-standards', title: 'Firm standards', description: 'The house standards the person set for their firm.', mimeType: 'text/markdown' }] : []),
       { uri: RESOURCE_BASE + 'index', name: 'skill-packs', title: 'CadCraft skill packs', description: 'Which skill packs and prompt starters there are.', mimeType: 'application/json' },
       ...visible().map((p) => ({ uri: skillUri(p), name: p.id + '-skill', title: p.title, description: p.summary, mimeType: 'text/markdown' })),
+      ...(more ? more.list() : []),
     ],
   }));
   methods.set('resources/templates/list', async () => ({ resourceTemplates: [] }));
@@ -89,6 +92,7 @@ export function mountPacks(d, { packs = [], enabled = null, extra = BUILTIN_PROM
     if (uri === RESOURCE_BASE + 'index') return { contents: [{ uri, mimeType: 'application/json', text: JSON.stringify({ packs: visible().map((p) => ({ id: p.id, app: p.app, discipline: p.discipline, title: p.title, summary: p.summary, prompts: p.prompts.map((x) => promptName(p, x)) })) }, null, 1) }] };
     if (uri === STANDARDS_URI) { const f = firm(null); if (!f) throw rpc(-32602, 'Resource not found: ' + uri, { uri }); return { contents: [{ uri, mimeType: 'text/markdown', text: f.text }] }; }
     const p = visible().find((x) => skillUri(x) === uri);
+    if (!p && more) { const c = await more.read(uri); if (c) return { contents: [c] }; }
     if (!p) throw rpc(-32602, 'Resource not found: ' + clean(uri, 120), { uri });
     return { contents: [{ uri, mimeType: 'text/markdown', text: p.skill }] };
   });

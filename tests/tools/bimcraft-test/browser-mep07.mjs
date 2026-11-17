@@ -80,7 +80,7 @@ try {
     await newBuilding('MEP 07');
     await page.click('[data-res-tools] summary');
     await page.click('[data-mtool="equip"]');
-    ok(await page.isVisible('[data-mopts="equip"]') && await page.$eval('[data-eq-kind]', (x) => x.options.length) === 9, 'Build › Equipment: the bar lists the nine kinds');
+    ok(await page.isVisible('[data-mopts="equip"]') && await page.$eval('[data-eq-kind]', (x) => x.options.length) >= 9, 'Build › Equipment: the bar lists the nine kinds (and the packs added since: split / VRF, radiator, convector, family)');
     await page.selectOption('[data-eq-kind]', 'pump');
     await page.selectOption('[data-eq-f="size"]', '2');
     await page.selectOption('[data-eq-f="system"]', 'chw');

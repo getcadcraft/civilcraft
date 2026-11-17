@@ -33,6 +33,17 @@
   var main = document.querySelector('body.app-shell > main');
   var dlg = document.querySelector('[data-app-settings]');
   if (!main || !dlg || !body.classList.contains('app-shell')) return;
+  // 0.10 UI.14 (lab builds only): the icon set in the panel chrome. blockIcon / wireGlyphs live in app-workspace-icons.js (an ES module: they can arrive after the
+  // first panels are built, so the chrome built before that is wired when the module announces itself with 'cc-icon-set').
+  var WIRE_LATER = [];
+  function wg(node) { if (window.ccWireGlyphs) window.ccWireGlyphs(node, 'panels'); else WIRE_LATER.push(node); return node; }
+  window.addEventListener('cc-icon-set', function () { WIRE_LATER.splice(0).forEach(function (n) { if (window.ccWireGlyphs) window.ccWireGlyphs(n, 'panels'); }); });
+  function setGlyph(btn, bi) {
+    if (!btn.firstChild || btn.getAttribute('data-glyph') === bi) return;
+    btn.setAttribute('data-glyph', bi);
+    if (window.ccBlockIcon) btn.firstChild.replaceWith(window.ccBlockIcon({ bi: bi, block: 'panels' }));
+    else btn.firstChild.className = 'bi ' + bi;
+  }
 
   var FEAT = (dlg.getAttribute('data-panels') || '').split(/\s+/);   // app-settings.inc, from AppBuilds::panels()
   var CAN_MOVE = FEAT.indexOf('move') !== -1;
@@ -66,6 +77,10 @@
   function round(n) { return Math.round(n * 4) / 4; }
   function say(t) { if (window.ccShellScreen && ccShellScreen.say) ccShellScreen.say(t); }
   function T(k, v) { return window.ccShellT ? window.ccShellT(k, v) : k; }
+  /* 0.10 UI.2 (session ui-dock2-10): with the owner's switch (html[data-cc-ws-edit="1"], off; rule 62) the panels window is a caller of the one window service
+   * (app-windows.js, window.ccWindows): it opens through ccWindows.openWindow, draws its grip menu with ccWindows.menu and is listed in ccWindows.units().
+   * Without the switch, or before the service has loaded, everything below runs as it always did. */
+  function viaService() { return root.getAttribute('data-cc-ws-edit') === '1' && !!window.ccWindows && typeof window.ccWindows.openWindow === 'function'; }
 
   /* ---------------- The panels ---------------- */
   var panels = [];   // {id (home side), el, name, homeArea, grip, mo}
@@ -702,6 +717,7 @@
     hd.className = 'shell-grip-handle';
     hd.title = CAN_MOVE ? T('shell.panels.grip.title') : '';
     hd.innerHTML = '<i class="bi bi-grip-vertical" aria-hidden="true"></i>';
+    wg(hd);
     var nm = d.createElement('span');
     nm.className = 'shell-grip-name';
     nm.textContent = p.name;
@@ -715,18 +731,21 @@
     mb.title = T('shell.panels.menu.title');
     mb.classList.add('shell-grip-btn');
     mb.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i>';
+    wg(mb);
     // 0.7 PANEL-COMPACT item 2: pin (auto-hide to an edge tab) and close (hide; the edge tab or the menu brings it back)
     var pb = d.createElement('button');
     pb.type = 'button';
     pb.className = 'shell-grip-btn shell-grip-pin';
     pb.setAttribute('aria-pressed', 'false');
     pb.innerHTML = '<i class="bi bi-pin-angle" aria-hidden="true"></i>';
+    wg(pb);
     var cb = d.createElement('button');
     cb.type = 'button';
     cb.className = 'shell-grip-btn shell-grip-close';
     cb.setAttribute('aria-label', T('shell.panels.close.aria', { panel: p.name }));
     cb.title = T('shell.panels.close.title');
     cb.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
+    wg(cb);
     pb.addEventListener('click', function (e) { e.stopPropagation(); setPinned(p, !S.p[p.id].pinned, true); });
     cb.addEventListener('click', function (e) { e.stopPropagation(); setHidden(p, true, true); });
     [pb, cb].forEach(function (b) {
@@ -755,6 +774,7 @@
     if (!menu) return;
     var m = menu;
     menu = null;
+    if (m.close) { m.close(); if (focusBack) m.btn.focus(); return; }   // the window service's menu (switch on)
     m.btn.setAttribute('aria-expanded', 'false');
     m.el.remove();
     m.doc.removeEventListener('pointerdown', m.away, true);
@@ -799,6 +819,12 @@
     var again = menu && menu.btn === btn;
     closeMenu(false);
     if (again) return;
+    if (viaService()) {   // UI.2: the one "…" menu, same entries in the same order
+      var sm = window.ccWindows.menu(btn, T('shell.panels.menu.aria', { panel: p.name }), menuItems(p).map(function (it) { return [it.label, it.icon, it.run]; }));
+      menu = { el: sm.ul, btn: btn, doc: btn.ownerDocument, close: sm.close };
+      sm.onClose = function () { if (menu && menu.el === sm.ul) menu = null; };
+      return;
+    }
     var d = btn.ownerDocument;
     var ul = d.createElement('ul');
     ul.className = 'shell-panel-menu';
@@ -812,6 +838,7 @@
       b.setAttribute('role', 'menuitem');
       b.tabIndex = -1;
       b.innerHTML = '<i class="bi ' + it.icon + '" aria-hidden="true"></i>';
+      wg(b);
       b.appendChild(d.createTextNode(' ' + it.label));
       b.addEventListener('click', function (e) { e.stopPropagation(); closeMenu(false); it.run(); });
       li.appendChild(b);
@@ -1053,8 +1080,13 @@
         t.setAttribute('data-shell-dock', side);
         t.setAttribute('aria-label', T(pin ? 'shell.panels.tab.pinned' : 'shell.panels.tab.hidden', { panel: p.name }));
         if (pin) t.setAttribute('aria-expanded', openPin === p ? 'true' : 'false'); else t.removeAttribute('aria-expanded');
-        t.innerHTML = '<i class="bi ' + (pin ? 'bi-pin-angle' : 'bi-eye') + '" aria-hidden="true"></i><span></span>';
+        // BK.35: in the compact bar the tab is an icon alone (app-shell.css), so each panel has its own icon (data-shell-icon on the panel,
+        // else by its home side) and the name is its tooltip; a hidden panel keeps the eye and the dashed frame
+        var pic = p.el.getAttribute('data-shell-icon') || (p.id === 'left' ? 'bi-layout-sidebar-inset' : p.id === 'right' ? 'bi-layout-sidebar-inset-reverse' : 'bi-pin-angle');
+        t.innerHTML = '<i class="bi ' + (pin ? (/^bi-[a-z0-9-]+$/.test(pic) ? pic : 'bi-pin-angle') : 'bi-eye') + '" aria-hidden="true"></i><span></span>';
+        wg(t);
         t.lastChild.textContent = p.name;
+        t.title = t.getAttribute('aria-label');
         var box = tabBox(side);
         if (t.parentNode !== box) box.appendChild(t);
         seen[side] = true;
@@ -1065,7 +1097,7 @@
         p.pinBtn.setAttribute('aria-pressed', st.pinned ? 'true' : 'false');
         p.pinBtn.setAttribute('aria-label', T(st.pinned ? 'shell.panels.unpin.aria' : 'shell.panels.pin.aria', { panel: p.name }));
         p.pinBtn.title = T(st.pinned ? 'shell.panels.unpin' : 'shell.panels.pin');
-        p.pinBtn.firstChild.className = 'bi ' + (st.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle');
+        setGlyph(p.pinBtn, st.pinned ? 'bi-pin-angle-fill' : 'bi-pin-angle');
       }
       if (p.closeBtn) p.closeBtn.hidden = !here;
     });
@@ -1347,7 +1379,7 @@
     if (!w) {
       if (n === 'new' || !n) n = nextNum();
       if (!n) { say(T('shell.panels.max_windows', { n: MAX_WINS })); return false; }
-      w = window.open('', 'cc-panels-' + SLUG + (n > 1 ? '-' + n : ''), features(n));
+      w = viaService() ? window.ccWindows.openWindow('cc-panels-' + SLUG + (n > 1 ? '-' + n : ''), features(n)) : window.open('', 'cc-panels-' + SLUG + (n > 1 ? '-' + n : ''), features(n));
       if (!w) {
         say(T('shell.panels.blocked'));
         announce(T('shell.panels.blocked.short'));
@@ -1396,6 +1428,7 @@
     vp.content = 'width=device-width, initial-scale=1';
     d.head.appendChild(vp);
     d.title = winTitle(n);
+    try { window.ccTooltips && window.ccTooltips.attach(w); } catch (e) { /* the window keeps the browser's own tips */ }
     var de = d.documentElement;
     de.lang = root.lang || 'en';
     document.querySelectorAll('head link[rel~="stylesheet"][href], head style').forEach(function (node) {
@@ -1683,6 +1716,20 @@
     if (!CAN_WIN) winBtn.hidden = true;
     winBtn.addEventListener('click', function () { dlg.close(); toWindow(panels, false, 'new'); });
   }
+
+  /* UI.2 (switch on): the panels window joins the window service's registry, so "what is out" has one answer (ccWindows.units()). The service is an
+   * ES module and may load after this script: it says so with the event cc-windows. */
+  function joinService() {
+    if (!CAN_WIN || !viaService()) return;
+    window.ccWindows.register('panels-' + SLUG, {
+      open: function () { return openWins().length ? (winOf(openWins()[0]).focus(), true) : toWindow(panels, false, 'new') === true; },
+      back: function () { closeWindow(); },
+      isOpen: function () { return openWins().length > 0; },
+      title: function () { return winTitle(1); }
+    });
+  }
+  joinService();
+  window.addEventListener('cc-windows', joinService);
 
   /* ---------------- Start ---------------- */
   body.classList.add('shell-panels');

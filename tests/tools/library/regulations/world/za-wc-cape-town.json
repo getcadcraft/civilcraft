@@ -27,5 +27,332 @@
   "price": null,
   "criteria": {},
   "tables": {},
-  "rules": []
+  "rules": [],
+  "release": {
+    "version": "0.1.0",
+    "changelog": [
+      {
+        "version": "0.1.0",
+        "date": "2026-11-11",
+        "added": [
+          "Added: the approval steps and the stated time frames, and the documents list for a building plan application, read from the City pages on 2026-11-11"
+        ]
+      }
+    ]
+  },
+  "process": {
+    "authority": "City of Cape Town, Building Development Management",
+    "summary": "Building plan applications are submitted and paid for through the City's e-Services; read from the two pages cited, 2026-11-11.",
+    "sources": [
+      {
+        "title": "City of Cape Town: Submit a building plan",
+        "url": "https://www.capetown.gov.za/city-connect/apply/planning-building-and-development/building-plan-applications/submit-a-building-plan/",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts (which documents are asked for) are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Cape Town: Building plan application documents",
+        "url": "https://www.capetown.gov.za/work-and-business/planning-portal/applications-and-submissions/building-plan-application-documents/",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts are listed here, in our own words; no text is copied."
+      }
+    ],
+    "steps": [
+      {
+        "id": "prerequisites",
+        "title": "Check the property and prerequisite approvals",
+        "who": "Owner",
+        "handIn": "Nothing yet: the property is registered and any departure or environmental approval is in hand",
+        "documents": [],
+        "detail": "The page gives departure approval and environmental authorisation as examples.",
+        "clause": "Step 1",
+        "source": 0
+      },
+      {
+        "id": "gather",
+        "title": "Gather the property documents",
+        "who": "Owner or applicant",
+        "handIn": "Nothing yet",
+        "documents": [
+          "Title deed",
+          "Surveyor-General diagram",
+          "Zoning information",
+          "Previously approved plans"
+        ],
+        "detail": "",
+        "clause": "Step 2",
+        "source": 0
+      },
+      {
+        "id": "register",
+        "title": "Register for e-Services",
+        "who": "Applicant",
+        "handIn": "Registration",
+        "documents": [],
+        "detail": "",
+        "clause": "Step 3",
+        "source": 0
+      },
+      {
+        "id": "submit",
+        "title": "Submit the building plan and pay",
+        "who": "Applicant (an owner, or an architect or draughtsperson with the A1(9) agreement)",
+        "handIn": "The building plan application with the documents that apply, and the scrutiny fee",
+        "documents": [
+          "SANS 10400 forms 1 and 2",
+          "Site plan",
+          "Layout plan",
+          "Application fee receipt"
+        ],
+        "detail": "Fees follow the City's official tariffs, are paid in full on submission and are not refundable if the application is refused. The tariff amounts are in a PDF that was not read.",
+        "clause": "Step 4 and the application documents page",
+        "source": 0
+      },
+      {
+        "id": "circulate",
+        "title": "Circulation for comment, then approval",
+        "who": "City officials",
+        "handIn": "Corrections, if the plan is sent back for amendment",
+        "documents": [],
+        "detail": "The plan is circulated to the relevant officials once paid. Work may begin only after approval, with a notice of intention to commence work.",
+        "clause": "Time frames",
+        "source": 1,
+        "time": {
+          "text": "30 days for an area under 500 m2 and 60 days for an area over 500 m2, if the plan complies with all requirements",
+          "source": 1
+        }
+      },
+      {
+        "id": "inspections",
+        "title": "Inspections and occupancy",
+        "who": "Owner and City inspectors",
+        "handIn": "Requests for the three inspections (commence or trench, sewer, completion), then an application for an occupancy certificate",
+        "documents": [],
+        "detail": "The occupancy certificate is applied for before the building is occupied.",
+        "clause": "Time frames",
+        "source": 1,
+        "time": {
+          "text": "Occupancy certificate within 14 days of the request; inspection requests two days before the inspection",
+          "source": 1
+        }
+      }
+    ]
+  },
+  "submission": {
+    "authority": "City of Cape Town, Building Development Management",
+    "summary": "Building plan application submitted online through the City's Development Application Management System",
+    "sources": [
+      {
+        "title": "City of Cape Town: Submit a building plan",
+        "url": "https://www.capetown.gov.za/city-connect/apply/planning-building-and-development/building-plan-applications/submit-a-building-plan/",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts (which documents are asked for) are listed here, in our own words; no text is copied."
+      },
+      {
+        "title": "City of Cape Town: Building plan application documents",
+        "url": "https://www.capetown.gov.za/work-and-business/planning-portal/applications-and-submissions/building-plan-application-documents/",
+        "fetched": "2026-11-11",
+        "licence": "Page copyright City of Cape Town, all rights reserved. Only the facts are listed here, in our own words; no text is copied."
+      }
+    ],
+    "drawings": [
+      {
+        "id": "site-plan",
+        "title": "Site plan",
+        "detail": "The site plan.",
+        "clause": "Step 4",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "site plan",
+              "site layout"
+            ]
+          }
+        ],
+        "site": true
+      },
+      {
+        "id": "layout-plan",
+        "title": "Layout plan",
+        "detail": "The layout plan (the building's plans).",
+        "clause": "Step 4",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "view": [
+              "plan"
+            ]
+          },
+          {
+            "words": [
+              "layout plan",
+              "floor plan"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "drainage",
+        "title": "Drainage installation drawings",
+        "detail": "If applicable.",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "drainage",
+              "plumbing"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "fire",
+        "title": "Fire protection plans",
+        "detail": "If applicable.",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "fire protection",
+              "fire plan"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "structural",
+        "title": "Structural engineer's drawings",
+        "detail": "If applicable.",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "structural",
+              "foundation",
+              "framing"
+            ]
+          }
+        ],
+        "site": false
+      }
+    ],
+    "documents": [
+      {
+        "id": "title-deed",
+        "title": "Copy of the title deed",
+        "detail": "A copy of the property's title deed.",
+        "clause": "Steps 2 and 4",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "sg-diagram",
+        "title": "Surveyor-General's diagram or general plan",
+        "detail": "The registered survey diagram from the Surveyor-General's office.",
+        "clause": "Steps 2 and 4",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "zoning",
+        "title": "Zoning information or zoning extract",
+        "detail": "Correct zoning and development parameters for the property; a zoning extract (certificate) if applicable.",
+        "clause": "Steps 2 and 4",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "approved-plans",
+        "title": "Previously approved building plans",
+        "detail": "Any previously approved building plans the City holds.",
+        "clause": "Step 2",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "sans-forms",
+        "title": "SANS 10400 forms",
+        "detail": "Fully completed SANS 10400 forms (Forms 1 and 2 where applicable), signed. Form 3 where a competent person is appointed to design part of the building.",
+        "clause": "Step 4",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "a1-9",
+        "title": "Regulation A1(9) agreement form",
+        "detail": "When the application is submitted by someone other than the owner (the architect or draughtsperson).",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "fee",
+        "title": "Application fee or receipt",
+        "detail": "Scrutiny fees are paid in full on submission.",
+        "clause": "Step 4",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "party-wall",
+        "title": "Party wall consent",
+        "detail": "If applicable.",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "departure",
+        "title": "Letter of approval for a departure from the zoning scheme",
+        "detail": "If applicable.",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "compliance-certificate",
+        "title": "Architectural compliance certificate",
+        "detail": "The architectural compliance certificate.",
+        "clause": "Step 4",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "consent",
+        "title": "Consent from a neighbour, sectional title body corporate or home owners' association",
+        "detail": "If applicable.",
+        "clause": "Step 4",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "resolution",
+        "title": "Company resolution",
+        "detail": "Where the owner is a company, trust, close corporation or other juristic person: a resolution authorising the person who signs. Every owner signs when there is more than one.",
+        "clause": "Signing",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "iwmp",
+        "title": "Integrated waste management plan form for building waste",
+        "detail": "The form for building waste generators, completed and submitted with the application.",
+        "clause": "Documents page",
+        "when": "always",
+        "source": 1
+      }
+    ]
+  }
 }

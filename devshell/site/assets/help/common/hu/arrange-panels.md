@@ -1,97 +1,101 @@
 ---
-title: A panelek elrendezése és második monitor használata
-summary: Dokkolja az oldalsó paneleket balra, jobbra vagy alulra, rakja őket egymás alá, csoportosítsa lapokként, rögzítse vagy rejtse el őket, lebegtesse a rajz fölött, tegye sűrűbbé az elrendezést, válassza ki, hány sort használjon az eszköztár, vagy helyezze őket saját ablakba egy másik képernyőn.
-keywords: panelek, dokkolás, lebegtetés, panel mozgatása, húzás, elrendezés, lapok, lapcsoport, egymás alá, rögzítés, automatikus elrejtés, panel elrejtése, panel bezárása, kompakt, elrendezés sűrűsége, sűrű, eszköztársorok, tördelés, 1 sor, 2 sor, eszköztár sorai, második monitor, két képernyő, két monitor, több monitor, ablak, felugró ablak, elrendezés visszaállítása
-from: 32a8dae2
+title: Panelek elrendezése és második monitor használata
+summary: Dokkolja az oldalsó paneleket balra, jobbra vagy alulra, halmozza őket, csoportosítsa lapokként, rögzítse vagy rejtse el őket, lebegtesse a rajz fölött, sűrítse az elrendezést, adja meg, hány sorban legyen az eszköztár, vagy helyezze őket saját ablakba egy másik képernyőn.
+keywords: panelek, dokkolás, lebegtetés, panel áthelyezése, húzás, elrendezés, lapok, lapcsoport, halmozás, rögzítés, automatikus elrejtés, panel elrejtése, panel bezárása, kompakt, elrendezés sűrűsége, sűrű, eszköztársorok, tördelés, 1 sor, 2 sor, eszköztársak, második monitor, két képernyő, kettős monitor, több monitor, ablak, felugró ablak, elrendezés visszaállítása
+from: 49530239
 ---
 
-A rajz melletti panelek mozgathatók. Helyezze őket oda, ahol a legjobban megfelelnek, vagy adjon nekik saját ablakot egy második monitoron, hogy a rajz az első monitor teljes területét megkapja.
+A rajz melletti panelek áthelyezhetők. Helyezze őket oda, ahol jól használhatók, vagy adjon nekik saját ablakot egy második monitoron, hogy a rajz az első monitor teljes területét megkapja.
 
 :::note
-Minden panelnek van címsora: egy keskeny sáv a panel nevével, egy {{ui:⋯}} menüvel, egy rögzítőgombbal és egy bezárógombbal a panel tetején. A 0.7 előtti verziókban csak a név és a {{ui:⋯}} menü van meg.
+Minden panelnek van címsora: vékony sáv a panel nevével, egy {{ui:⋯}} menüvel, rögzítő gombbal és bezáró gombbal a panel tetején. A 0.7 előtti verziókban csak a név és a {{ui:⋯}} menü található.
 :::
 
-## Panel mozgatása az ablakon belül
+## Panel mozgatása az ablakban
 
-1. Húzza a panelt a tetején látható nevénél fogva.
-2. Húzás közben körvonalas területek jelennek meg a rajz bal és jobb oldalán, valamint alul. Ejtse a panelt valamelyikre, hogy ott dokkolódjon. Az a terület, amely fölött van, besötétedik.
-3. Ha máshol ejti a rajz fölé, a panel lebegni fog.
+1. Húzza a panelt a nevénél fogva a tetején.
+2. Húzás közben a rajz bal, jobb és alsó szélén körvonalú területek jelennek meg. Engedje el a panelt valamelyiken, hogy ott dokkolódjon. A terület, amely fölött van, sötétebb lesz.
+3. Engedje el a rajz bármely más pontja fölött, hogy lebegjen.
 
-A panelek megoszthatnak egy oldalt: egymás alá kerülnek, és a köztük lévő vonal húzásával oszthatja el a helyet (fókuszált vonalnál a nyílbillentyűk mozgatják, a dupla kattintás egyenlő arányban osztja el a helyet). Húzza a dokkolt oldal belső szélét, hogy szélesebb vagy keskenyebb legyen; dupla kattintással a szél visszaáll.
+A panelek osztozhatnak egy oldalon: egymásra halmozódnak, és a két panel közötti minden vonal húzásával elosztható a hely (ha a vonal fókuszban van, a nyílbillentyűk mozgatják, a dupla kattintás pedig egyenlően osztja el a helyet). A dokkolt oldal belső szélének húzásával szélesíthető vagy keskenyíthető; a szél dupla kattintásával visszaáll.
 
-A lebegő panel a rajz fölött marad. Mozgassa a nevénél fogva, és a jobb alsó sarkának húzásával méretezze át (vagy lépjen a sarokra a Tab billentyűvel, és használja a nyílbillentyűket). A nevére duplán kattintva ismét dokkolódik oda, ahol volt.
+A lebegő panel a rajz fölött marad. Nevénél fogva mozgassa, méretét a jobb alsó sarkának húzásával változtassa (vagy lépjen a sarokhoz a {{key:Tab}} billentyűvel, és használja a nyílbillentyűket). A nevére duplán kattintva visszadokkolhatja oda, ahol volt.
 
 :::touch
-Egy ujjal húzza a panel nevét. A lebegő panel jobb alsó sarkát egy ujjal húzva méretezheti át, a dokkolt panelek közötti széleket ugyanígy. Ha húzás nélkül szeretné lebegtetni vagy dokkolni, használja a {{ui:⋯}} menüt.
+Egy ujjal húzza a panel nevénél fogva. Egy lebegő panel jobb alsó sarkát egy ujjal húzva méretezheti át, a dokkolt panelek közötti szegélyeket ugyanígy. Dokkoláshoz vagy lebegtetéshez húzás nélkül használja a {{ui:⋯}} menüt.
 :::
 
 ## Panelek csoportosítása lapokként
 
-Két panel osztozhat egy kereten, és egyszerre csak az egyiket mutatja. Húzza az egyik panelt a nevénél fogva egy másik panel címsorára (a sáv körvonalas lesz, amíg fölötte van), és engedje el: a keretben ezután minden panelnek van egy lapja a címsorban. Egy lapra kattintva az a panel jelenik meg. Fókuszált lapnál a {{key:Left}} és a {{key:Right}} lapot vált, a {{key:Home}} és az {{key:End}} az elsőre, illetve az utolsóra ugrik.
+Két panel is osztozhat egy kereten, és egyszerre csak az egyik látszik. Húzza a panelt a nevénél fogva egy másik panel címsorára (a sáv körvonalat kap, amíg fölötte van), majd engedje el: a keret címsorában minden panelhez lap tartozik. Kattintson egy lapra a panel megjelenítéséhez. Ha egy lap fókuszban van, a {{key:Left}} és {{key:Right}} billentyűk váltanak lapot, a {{key:Home}} és {{key:End}} pedig az első, illetve az utolsó lapra ugrik.
 
-Ha ki szeretne venni egy panelt a csoportból, válassza a {{ui:Kivétel a lapcsoportból}} parancsot a {{ui:⋯}} menüjében, vagy húzza máshová. A {{ui:Lap a következővel}} paranccsal és egy panel nevével húzás nélkül csoportosíthatja őket.
+A panelt a csoportból a panel {{ui:⋯}} menüjében a {{ui:Kivétel a lapcsoportból}} parancsával veheti ki, vagy húzhatja máshová. A {{ui:Lapként csoportosítás}} parancs és egy panel nevének kiválasztásával húzás nélkül csoportosíthatja őket.
 
 ## Rögzítés, elrejtés és visszahozás
 
-- A panel címsorában lévő rögzítőgomb **automatikusan elrejtővé** teszi: a panel elhagyja a dokkját, és kis lap lesz a szélen. Mutasson a lapra, fókuszáljon rá, vagy kattintson rá, és a panel kicsúszik a rajz fölé; ha elmozdul róla (vagy megnyomja az {{key:Esc}} billentyűt), visszacsúszik. Nyomja meg ismét a rögzítőgombot, vagy válassza a {{ui:Rögzítés feloldása}} parancsot, hogy végleg dokkolódjon.
-- A bezárógomb vagy a menü {{ui:A panel elrejtése}} parancsa elrejti a panelt, és összezárja a dokkját. A szélen látható szaggatott lap visszahozza: kattintson rá, vagy fókuszáljon rá, és nyomja meg az {{key:Enter}} billentyűt.
+- A panel címsorában lévő rögzítő gomb **automatikus elrejtést** kapcsol be: a panel elhagyja a dokkolt helyét, és a szélen egy kis lapként marad. Vigye rá az egeret a laphoz, fókuszálja vagy kattintson rá, és a panel a rajz fölé csúszik; ha elmozdul tőle (vagy megnyomja az {{key:Esc}} billentyűt), visszacsúszik. A rögzítő gombot újra megnyomva vagy a {{ui:Rögzítés feloldása}} parancs kiválasztásával véglegesen dokkolhatja.
+- A bezáró gomb, vagy a menüben a {{ui:A panel elrejtése}} parancs elrejti a panelt, és összecsukja a dokkja helyét. A szélen egy szaggatott lap hozza vissza: kattintson rá, vagy fókuszálja, és nyomja meg az {{key:Enter}} billentyűt.
 
-## Sűrűbb elrendezés
+## Az elrendezés sűrítése
 
-A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés sűrűsége}} két lehetőséget kínál. A {{ui:Kényelmes}} az alapértelmezett. A {{ui:Kompakt}} szűkíti az adott alkalmazás sormagasságait, panelkitöltését, eszköztárgombjait és paneleinek szövegét, hogy több minden elférjen a képernyőn. Az érték alkalmazásonként megmarad. Az érintőképernyő mindkettőnél megtartja a nagy gombjait, a telefon pedig a saját elrendezését. Az {{ui:Elrendezés visszaállítása}} a sűrűséget úgy hagyja, ahogy beállította.
+{{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés sűrűsége}} két lehetőséget kínál. Az alapértelmezett a {{ui:Kényelmes}}. A {{ui:Kompakt}} szűkíti a sorok magasságát, a panelek belső margóit, az eszköztár gombjait és a panelszöveget az adott alkalmazásban, hogy több férjen a képernyőre. A beállítás alkalmazásonként marad meg. Érintőképernyőn mindkét esetben megmaradnak a nagy gombok, a telefon pedig a saját elrendezését tartja meg. Az {{ui:Elrendezés visszaállítása}} nem változtatja meg a beállított sűrűséget.
 
-## Az eszköztár sorainak száma
+## Az eszköztár sorainak számának megadása
 
-A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Eszköztársorok}} három lehetőséget kínál. A {{ui:Tördelés}} az alapértelmezett: minden eszközcsoport látszik, annyi sorban, amennyi kell. A {{ui:2 sor}} két sorra, az {{ui:1 sor}} egy sorra korlátozza az eszköztárat, így a rajz több magasságot kap; a nem elférő csoportok oldalirányban görgethetők az eszköztáron belül (használja az egér görgőjét, kétujjas húzást, vagy lépjen egy eszközre a {{key:Tab}} billentyűvel). A két sorban már elférő eszköztár a {{ui:2 sor}} esetén változatlan marad, mert a rács csak magasabbá tenné. A választás alkalmazásonként megmarad. Az érintőképernyő és a telefon a saját elrendezését tartja meg. A CadCraftnak saját beállítása van az eszköztárához a {{ui:Beállítások}} › {{ui:CadCraft}} alatt.
+{{ui:Beállítások}} › {{ui:Általános}} › {{ui:Eszköztársorok}} három lehetőséget kínál. Az alapértelmezett a {{ui:Tördelés}}: minden eszközcsoport megjelenik, annyi sorban, amennyi szükséges. A {{ui:2 sor}} az eszköztárat két sorra korlátozza, az {{ui:1 sor}} egy sorra, így a rajznak több magasság jut; a nem férő csoportok az eszköztáron belül oldalra görgethetők (az egér görgőjével, kétujjas húzással vagy a {{key:Tab}} billentyűvel egy eszközig). Az az eszköztár, amely két sorban már elfér, a {{ui:2 sor}} beállítás mellett nem változik, mert a rács csak magasabbá tenné. A beállítás alkalmazásonként marad meg. Az érintőképernyő és a telefon a saját elrendezését tartja meg. A CadCraft az eszköztárához külön beállítással rendelkezik, a {{ui:Beállítások}} › {{ui:CadCraft}} alatt.
 
-## Használat billentyűzettel
+## Billentyűzet használata
 
-Minden panel {{ui:⋯}} gombja egy menüt nyit meg: {{ui:Dokkolás balra}}, {{ui:Dokkolás jobbra}}, {{ui:Dokkolás alulra}}, {{ui:Lebegtetés a rajz fölött}}, {{ui:Rögzítés a szélére}}, {{ui:A panel elrejtése}}, {{ui:Lap a következővel}} egy másik panellel, {{ui:Áthelyezés új ablakba}} és {{ui:Visszahelyezés}}. Lépjen a gombra a Tab billentyűvel, nyomja meg az {{key:Enter}} billentyűt, mozogjon a nyílbillentyűkkel, és nyomja meg ismét az {{key:Enter}} billentyűt. Az {{key:Esc}} bezárja a menüt.
+Minden panel {{ui:⋯}} gombja menüt nyit: {{ui:Dokkolás balra}}, {{ui:Dokkolás jobbra}}, {{ui:Dokkolás alulra}}, {{ui:Lebegtetés a rajz fölött}}, {{ui:Rögzítés a szélhez}}, {{ui:A panel elrejtése}}, {{ui:Lapként csoportosítás}} egy másik panellel, {{ui:Áthelyezés új ablakba}} és {{ui:Visszahelyezés}}. Lépjen a gombra a {{key:Tab}} billentyűvel, nyomja meg az {{key:Enter}} billentyűt, mozogjon a nyílbillentyűkkel, majd nyomja meg újra az {{key:Enter}} billentyűt. Az {{key:Esc}} bezárja a menüt.
 
-## Panelek áthelyezése egy második monitorra
+## A panelek második monitorra helyezése
 
-1. Válassza a {{ui:⋯}} gombot egy panelen, majd a {{ui:Minden panel áthelyezése új ablakba}} parancsot. A {{ui:Panelek áthelyezése új ablakba}} parancs a {{ui:Beállítások}} között is megtalálható.
-2. Egy kis ablak nyílik meg a panelekkel. Húzza át a másik monitorra, és tegye akkora méretűvé, amekkorát szeretne.
-3. Dolgozzon tovább: a panelek a korábbiak szerint hatnak a rajzra, a rajz pedig kitölti a főablakot.
+1. Válassza egy panel {{ui:⋯}} gombját, majd a {{ui:Minden panel áthelyezése új ablakba}} parancsot. A {{ui:Beállítások}} menüben is választhatja a {{ui:Panelek áthelyezése új ablakba}} parancsot.
+2. Kis ablak nyílik meg a panelekkel. Húzza a másik monitorra, és tegye akkorára, amekkorára szeretné.
+3. Dolgozzon tovább: a panelek ugyanúgy hatnak a rajzra, a rajz pedig a főablakot tölti ki.
 
-A billentyűparancsok akkor is működnek, amikor a panelek ablaka van elöl: az ott lenyomott billentyűk, a mezőbe gépelést kivéve, a rajzhoz jutnak. Az alkalmazás kérdései és párbeszédpanelei továbbra is a főablakban nyílnak meg, ezért oda nézzen, amikor egy megjelenik. A téma és a panelek szövegmérete a főablakot követi.
+A gyorsbillentyűk a panelablak előterében is működnek: a panelablakban leütött billentyűk a rajzhoz jutnak, kivéve, ha szövegdobozba írnak. Az alkalmazás kérdései és párbeszédpanelei továbbra is a főablakban nyílnak meg, ezért nézzen oda, ha megjelenik egy. A téma és a panelek szövegmérete a főablakot követi.
 
 :::chromium
-A Chrome és az Edge a másik képernyőre is el tudja helyezni az ablakot. Ha csatlakoztatott egy második képernyőt, válassza az {{ui:Áthelyezés a másik képernyőmre}} parancsot a panelek ablakában (vagy a {{ui:A panelek a másik képernyőmre}} parancsot egy panel {{ui:⋯}} menüjében). A böngésző egyszer megkérdezi, hogy az oldal láthatja-e a képernyőit; ha engedélyezi, a panelek ablaka ezután mindig azon a képernyőn nyílik meg.
+A Chrome és az Edge maga is elhelyezheti az ablakot a másik képernyőn. Ha van csatlakoztatott második képernyő, a panelablakban válassza a {{ui:Áthelyezés a másik képernyőmre}} parancsot (vagy a panel {{ui:⋯}} menüjében a {{ui:A panelek a másik képernyőmre}} parancsot). A böngésző egyszer megkérdezi, hogy az oldal láthatja-e a képernyőit; ha engedélyezi, a panelablak minden alkalommal azon a képernyőn nyílik meg.
 :::
 
 :::firefox safari
-Húzza át a panelek ablakát saját kezűleg a másik monitorra. Legközelebb ugyanott és ugyanakkora méretben nyílik meg.
+Húzza a panelablakot a másik monitorra magától. Legközelebb ugyanazon a helyen és ugyanekkora méretben nyílik meg.
 :::
 
 ## Több panelablak
 
-Minden panelnek lehet saját ablaka: legfeljebb négy panelablak, például monitoronként egy.
+Minden panelnek lehet saját ablaka: legfeljebb négy panelablak van, például monitoronként egy.
 
-- Egy panel {{ui:⋯}} menüjében az {{ui:Áthelyezés új ablakba}} új ablakot nyit az adott panelnek, az {{ui:Áthelyezés a(z) 2. panelablakba}} (és így tovább) pedig egy már megnyitott ablakba helyezi át. A második ablak neve „panelek 2”.
-- Húzzon egy panelt a nevénél fogva egyik ablakból a másikba: ha a főablak fölött engedi el, ott dokkolódik (a körvonalas területek addig látszanak, amíg fölötte van) vagy lebegni kezd; ha egy másik panelablak fölött engedi el, beköltözik oda. Ha bárhol máshol engedi el, marad ott, ahol volt.
+- A panel {{ui:⋯}} menüjében a {{ui:Áthelyezés új ablakba}} parancs új ablakot nyit az adott panelnek, az {{ui:Áthelyezés a 2. panelablakba}} (és így tovább) pedig egy már nyitott ablakba helyezi át. A második ablak neve „panels 2”.
+- Húzza a panelt a nevénél fogva egyik ablakból a másikba: ha a főablak fölött engedi el, ott dokkolódik (a körvonalas területek látszanak, amíg fölötte van), vagy lebeg; ha egy másik panelablak fölött engedi el, oda kerül át. Bárhol máshol elengedve a panel marad, ahol volt.
 - Az a panelablak, amelyben már nincs panel, magától bezárul.
 
-Újratöltés után az alkalmazás újra felkínálja a panelablakait. A böngészők kattintásonként egy ablakot nyitnak meg, ezért minden ablakhoz egyszer válassza az {{ui:A következő megnyitása}} parancsot.
+Újratöltés után az alkalmazás újra felajánlja a panelablakait. A böngészők kattintásonként egy ablakot nyitnak meg, ezért minden ablakhoz egyszer válassza az {{ui:A következő megnyitása}} parancsot.
+
+## Az elrendezés minden részére ugyanígy
+
+A szalag, az eszközkészlet, az eszköztársorok és az állapotsor ugyanúgy kap saját ablakot, mint egy panel: nyissa meg a részen lévő {{ui:⋯}} menüt, és válassza az {{ui:Áthelyezés új ablakba}} parancsot. A {{ui:Visszahelyezés}} (vagy az ablak bezárása) visszahozza a helyére. A rész ablakában leütött billentyűk az alkalmazáshoz jutnak, ahogy a panelablakból is. Minden résznek egy ilyen menüje van.
 
 ## Párbeszédpanel mozgatása
 
-Minden párbeszédpanel arrébb tehető a rajz elől: nyomja meg és húzza a címsorát. A párbeszédpanel megjegyzi, hol hagyta, mindegyik külön-külön, és legközelebb ugyanoda tér vissza. Dupla kattintással a címsoron ismét középre kerül.
+Minden párbeszédpanel kimozdítható a rajz elől: nyomja meg és húzza a címsorát. A párbeszédpanel megjegyzi, hol hagyta, mindegyik külön, és a következő megnyitáskor oda tér vissza. A címsorára duplán kattintva újra középre kerül.
 
-Billentyűzetről nyomja meg az {{key:Alt}}+{{key:Shift}}+egy nyílbillentyű kombinációt, miközben a fókusz a párbeszédpanelen belül van, hogy egyszerre 16 képponttal mozgassa; a {{key:Ctrl}} hozzáadásával 64-gyel. A képernyőn kívülre került párbeszédpanelt (kisebb ablak vagy képernyő után) a program visszahozza.
+A billentyűzetről, ha a fókusz a párbeszédpanelen van, nyomja meg az {{key:Alt}}+{{key:Shift}} és egy nyílbillentyű kombinációját: így 16 pixelenként mozog. Az {{key:Ctrl}} hozzáadásával 64 pixelenként. A képernyőn kívülre került párbeszédpanel (kisebb ablak vagy képernyő után) visszakerül.
 
 Telefonon a párbeszédpanelek teljes szélességű lapok maradnak, és nem mozgathatók.
 
-A CadCraft Studióban a CadCraft {{ui:Plottolás PDF-be}} párbeszédpanelje, amelyet munka közben nyitva tarthat, a címsorában egy gombot kap: {{ui:Megnyitás saját ablakban}}. A párbeszédpanel saját ablakba költözik, amelyet egy másik monitorra is tehet. A párbeszédpanel bezárása bezárja az ablakot, az ablak bezárása pedig a párbeszédpanelt.
+A CadCraft Studio-ban a CadCraft {{ui:Plottolás PDF-be}} párbeszédpanelének, amelyet munka közben nyitva tarthat, van egy gombja a címsorában: {{ui:Megnyitás saját ablakban}}. A párbeszédpanel saját ablakba kerül, amelyet egy másik monitorra tehet. A párbeszédpanel bezárása bezárja az ablakot, az ablak bezárása pedig a párbeszédpanelt.
 
 ## A panelek visszahelyezése
 
-- Válassza a {{ui:A panelek visszahelyezése}} parancsot a panelek ablakában, vagy egyszerűen zárja be. A panelek visszakerülnek oda, ahol voltak.
-- A főablak bezárása vagy újratöltése a panelek ablakát is bezárja. Amikor az alkalmazás újra megnyílik, jelzi, hogy a panelei saját ablakban voltak; válassza a {{ui:Megnyitás}} parancsot az ablak visszahozásához, vagy a {{ui:Maradjanak itt}} lehetőséget.
-- A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés visszaállítása}} minden panelt visszahelyez a kiindulási helyére.
+- Válassza a {{ui:A panelek visszahelyezése}} parancsot a panelablakban, vagy egyszerűen zárja be. A panelek visszakerülnek a helyükre.
+- A főablak bezárása vagy újratöltése a panelablakot is bezárja. Amikor az alkalmazás újra megnyílik, jelzi, hogy a panelek saját ablakban voltak; válassza a {{ui:Megnyitás}} parancsot az ablak visszahozásához, vagy a {{ui:Maradjanak itt}} parancsot.
+- A {{ui:Beállítások}} › {{ui:Általános}} › {{ui:Elrendezés visszaállítása}} minden panelt oda helyez vissza, ahol kezdetben volt.
 
 :::tip
-Ha semmi sem nyílik meg, amikor a paneleket új ablakba helyezi, a böngésző letiltotta a felugró ablakot. Az alkalmazás ezt jelzi, és a paneleket ott hagyja, ahol voltak. Engedélyezze a felugró ablakokat a getcadcraft.com oldalnál, majd próbálja újra.
+Ha a panelek új ablakba helyezésekor nem nyílik meg semmi, a böngésző blokkolta a felugró ablakot. Az alkalmazás jelzi ezt, és a panelek a helyükön maradnak. Engedélyezze a felugró ablakokat a getcadcraft.com oldalon, majd próbálja újra.
 :::
 
-Az elrendezés alkalmazásonként megmarad ebben a böngészőben, a többi beállításával együtt.
+Az elrendezés alkalmazásonként, ebben a böngészőben marad meg a többi beállítással együtt.

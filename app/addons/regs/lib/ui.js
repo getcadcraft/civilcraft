@@ -23,6 +23,7 @@ import { loadPacks, listPacks, setActivePacks, activeIds, listedIds, setMode, mo
 import { pinStatus, keepPins, ruleSource, reportMarkdown } from './report.js';
 import * as LIB from './library.js';
 import { ruleBounds, LEVELS } from './regs.js';
+import { makeLocal } from './local.js';   // BK.67/156/157: what the apps read from a pack's process, submission, conventions and notes
 
 const UPLOAD_MAX = 256 * 1024;   // a pack is a few kB; anything this big is not one
 
@@ -258,6 +259,7 @@ export function mountRegsUi(api, host) {
           [t('regs.meta.sourcedate'), p.source && p.source.date],
           [t('regs.meta.checked'), p.source && p.source.checked],
           [t('regs.meta.maker'), p.maker && p.maker.name],
+          [t('regs.meta.also'), (() => { const k = Object.keys((packProfile(p.id) || {}).sections || {}); return k.length ? k.map((x) => t('regs.sec.' + x)).join(', ') : ''; })()],   // BK.67/156/157: what else the pack holds
           [t('regs.meta.base'), p.base ? (listPacks().find((x) => x.id === p.base) || { name: p.base }).name : ''],
           [t('regs.meta.price'), p.price ? h('span', {}, money(p.price), ' · ', h('a', { href: p.price.url, target: '_blank', rel: 'noopener', 'data-regs-buy': p.id }, t('regs.buy'))) : ''],
         ].filter(([, v]) => v);
@@ -564,6 +566,8 @@ export function mountRegsUi(api, host) {
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
   window.ccRegsSheet = () => sheetHtml();   // tests read the sheet without a download
+  window.ccRegsLocal = makeLocal({ list: () => listPacks({ all: true, local: true }), profile: (id) => packProfile(id), active: () => activeIds() });   // the one door for the permit package, the sheet tools and the annotation standard
+  onRegsChange(() => { try { window.dispatchEvent(new Event('cc-regs-local-changed')); } catch (e) { /* no window */ } });
 
   // ---- The Regulations panel (right panel tab): the listed packs, each ticked or not for THIS drawing, opening to its rules
   let panePaint = null;

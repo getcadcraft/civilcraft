@@ -22,6 +22,7 @@ import { writeStil } from './stil.js';
 import { layerRows, hierarchyRows, defaultTop, libraryRows, constraintRows, parasiticRows, delayRows, stilSignals, parseVectors } from './panels-model.js';
 import { checkSdc } from './sdc.js';
 import { PATH, pathOutline } from './layout.js';
+import { PadDetector } from '../run/wheel-pad.js';   // D7.56: a trackpad's two-finger swipe pans
 
 // ---------------------------------------------------------------- words
 let EN = null;
@@ -103,7 +104,10 @@ async function mountLayout(el, ctx) {
   cv.addEventListener('pointerdown', (e) => { if (!st.view) return; drag = { x: e.clientX, y: e.clientY, v: st.view }; cv.setPointerCapture(e.pointerId); });
   cv.addEventListener('pointermove', (e) => { if (!drag) return; const k = cv.width / cv.getBoundingClientRect().width / drag.v.scale, dx = (e.clientX - drag.x) * k, dy = (e.clientY - drag.y) * k; st.view = { ...drag.v, x0: drag.v.x0 - dx, x1: drag.v.x1 - dx, y0: drag.v.y0 + dy, y1: drag.v.y1 + dy }; draw(); });
   cv.addEventListener('pointerup', () => { drag = null; });
-  cv.addEventListener('wheel', (e) => { if (!st.view) return; e.preventDefault(); const r = cv.getBoundingClientRect(), px = st.view.x0 + (e.clientX - r.left) / r.width * (st.view.x1 - st.view.x0), py = st.view.y1 - (e.clientY - r.top) / r.height * (st.view.y1 - st.view.y0); st.view = zoomView(st.view, e.deltaY < 0 ? 1.25 : 0.8, px, py); draw(); }, { passive: false });
+  const pad = new PadDetector();
+  cv.addEventListener('wheel', (e) => { if (!st.view) return; e.preventDefault(); const r = cv.getBoundingClientRect();
+    if (pad.isSwipe(e)) { const v = st.view, kx = (v.x1 - v.x0) / r.width, ky = (v.y1 - v.y0) / r.height; st.view = { ...v, x0: v.x0 + e.deltaX * kx, x1: v.x1 + e.deltaX * kx, y0: v.y0 - e.deltaY * ky, y1: v.y1 - e.deltaY * ky }; draw(); return; }   // D7.56: two fingers pan, a pinch and a mouse wheel zoom
+    const px = st.view.x0 + (e.clientX - r.left) / r.width * (st.view.x1 - st.view.x0), py = st.view.y1 - (e.clientY - r.top) / r.height * (st.view.y1 - st.view.y0); st.view = zoomView(st.view, (e.ctrlKey && e.deltaMode === 0 ? Math.exp(-Math.max(-30, Math.min(30, e.deltaY)) * 0.01) : e.deltaY < 0 ? 1.25 : 0.8), px, py); draw(); }, { passive: false });
   root.append(
     h('div', { class: 'row' }, fileSelect(t, list, ['gds', 'gds2', 'gdsii', 'oas', 'oasis'], open, t('chip.lay.file')), fileSelect(t, list, ['map', 'json', 'layermap', 'lyrmap'], loadMap, t('chip.lay.map')),
       h('button', { type: 'button', onclick: fit }, t('chip.lay.fit')), h('button', { type: 'button', onclick: () => save('gds') }, t('chip.lay.savegds')), h('button', { type: 'button', onclick: () => save('oasis') }, t('chip.lay.saveoas'))),

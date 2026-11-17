@@ -14,6 +14,10 @@
  * apply) as a blob: module. The caller's bytes are copied into the worker and the copy comes back with the index (both
  * transferred, never cloned twice); the caller's own buffer is left alone. No Worker, a blocked blob: URL or a worker
  * that fails → the scan runs here, and later ones too.
+ *
+ *   openIfcAsync(bytes, { transfer: true })   0.10 PERF.23: no copy. The caller's buffer goes to the worker (the caller's Uint8Array is empty
+ *                                            from then on) and the same memory comes back inside the IfcFile: a 200 MB file is held once, not
+ *                                            twice while it is read. Only for bytes the caller has no other use for (a file just read).
  */
 
 import { scanStep } from './step.js';
@@ -30,10 +34,11 @@ export async function openIfcAsync(bytes, opts = {}) {
   const data = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   const w = opts.worker === false ? null : await startWorker();
   if (!w) { state = 'main'; return new IfcFile(data, scanStep(data)); }
-  const copy = data.slice();
+  const copy = opts.transfer && data.byteOffset === 0 && data.byteLength === data.buffer.byteLength ? data : data.slice();
+  const moved = copy === data;
   return new Promise((resolve, reject) => {
     const id = ++seq;
-    pending.set(id, { resolve, reject, data });
+    pending.set(id, { resolve, reject, data: moved ? null : data });
     w.postMessage({ id, bytes: copy.buffer }, [copy.buffer]);
   });
 }
@@ -73,7 +78,7 @@ self.postMessage({ ready: true });`;
       });
       w.addEventListener('error', () => {
         worker = Promise.resolve(null);
-        for (const [id, p] of pending) { pending.delete(id); try { state = 'main'; p.resolve(new IfcFile(p.data, scanStep(p.data))); } catch (err) { p.reject(err); } }
+        for (const [id, p] of pending) { pending.delete(id); if (!p.data) { p.reject(new Error('the IFC worker failed while it held the file')); continue; } try { state = 'main'; p.resolve(new IfcFile(p.data, scanStep(p.data))); } catch (err) { p.reject(err); } }
       });
       return w;
     } catch (err) {

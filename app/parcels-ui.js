@@ -14,6 +14,7 @@
 import { t } from './i18n.js';
 import { parseCalls, runCalls, courses, parcelArea, perimeter, legalDescription, parcelLabels, areaWords } from './parcels.js';
 import { bearing, dms, fixed, grouped } from './units.js';
+import { pointInPolygon } from './geom2d.js';
 
 export function createParcels(ctx) {
   const { el } = ctx;
@@ -203,11 +204,4 @@ export function createParcels(ctx) {
   return { block, props, finish, pick, overlay, sceneItems, remove, find, openCalls, addParcel };
 }
 
-function inPoly(x, y, pts) {
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j];
-    if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
-  }
-  return inside;
-}
+function inPoly(x, y, pts) { return pointInPolygon(x, y, pts); }

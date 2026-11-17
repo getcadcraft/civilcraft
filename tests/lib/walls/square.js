@@ -11,6 +11,7 @@
  *                                         the joined wall, so that wall keeps its angle and the room stays square
  *   moveJoined(walls, moves)              the Move tool: walls move by [dx, dy]; every wall joined to them follows and stays joined
  *   squareUp(walls, guid)                 the connected walls within SQUARE_TOL of a right angle to the main direction go to it
+ *   offSquare(walls, guid)                degrees (0-45) this wall is off the main direction of the walls connected to it
  *   setAngle(walls, guid, deg)            this wall at deg to the wall joined at its start (else its end; else from east)
  *   setLength(walls, guid, mm, from)      the far end's joined wall moves square, so it follows and stays at its angle
  *   setLengthGrow(walls, guid, mm, from, fixed)   the same with the end (start | end | centre) that holds
@@ -172,13 +173,18 @@ export function moveJoined(allWalls, moves) {
     for (const end of ['a', 'b']) {
       const p = w[end], np = moved(p), all = joinedAt(level, p, g), outside = all.filter((j) => !keys.has(j.w.guid)), together = all.length > outside.length;
       let to = np;
-      if (!w.bulge && !together) {
+      // walls-join-10 (FX.62, Align and Distribute): a wall joined here that moves too, but by ANOTHER vector, keeps the corner: it goes where the two moved lines meet
+      const differs = (o) => { const vo = S.get(o); return Math.abs(vo[0] - v[0]) + Math.abs(vo[1] - v[1]) > 1e-9; };
+      const apart = w.bulge ? null : all.find((j) => keys.has(j.w.guid) && !j.w.bulge && differs(j.w.guid) && Math.abs(cross(u, along(j.w))) >= PARALLEL);
+      if (apart) { const vo = S.get(apart.w.guid); to = meetAt(np, u, [p[0] + vo[0], p[1] + vo[1]], along(apart.w)) || np; }
+      else if (!w.bulge && !together) {
         const guide = outside.filter((j) => !j.w.bulge && Math.abs(cross(u, along(j.w))) >= PARALLEL)
           .sort((x, y) => Math.abs(cross(u, along(y.w))) - Math.abs(cross(u, along(x.w))))[0];
         if (guide) to = meetAt(np, u, p, awayFrom(guide)) || np;
         else if (!outside.length) {   // a T end: it stays on the wall it butts into
           const h = hostOf(level, p, g);
           if (h && !keys.has(h.guid) && Math.abs(cross(u, along(h))) >= PARALLEL) to = meetAt(np, u, h.a, along(h)) || np;
+          else if (h && keys.has(h.guid) && differs(h.guid) && Math.abs(cross(u, along(h))) >= PARALLEL) { const vh = S.get(h.guid); to = meetAt(np, u, [h.a[0] + vh[0], h.a[1] + vh[1]], along(h)) || np; }   // its host moves by another vector: it stays on the moved host
         }
       }
       for (const j of outside) { if (!j.w.bulge) keepsDirection(otherEnd(j), p, to); put(plan, j.w, j.end, to); }
@@ -286,6 +292,15 @@ export function squareUp(allWalls, guid, { tol = SQUARE_TOL } = {}) {
   // a curved wall on a corner comes with it
   for (const w of list) for (const end of ['a', 'b']) for (const j of joinedAt(level, w[end], w.guid)) if (j.w.bulge) put(plan, j.w, j.end, plan.get(w.guid)[end]);
   return plan;
+}
+
+/** How far a straight wall is off square (0.10 BK.33, the plan's rollover): degrees, 0 to 45, from the main direction of the walls
+ *  it is connected to, read as squareUp reads it. 0 for a curved wall and for a wall on its own. */
+export function offSquare(allWalls, guid) {
+  const wall = find(allWalls, guid);
+  if (wall.bulge) return 0;
+  const u = along(wall);
+  return off90(Math.atan2(u[1], u[0]) / D2R, mainDirection(connected(sameLevel(allWalls, wall), wall), wall));
 }
 
 // ------------------------------------------------------------------------------------------------------------------ angle

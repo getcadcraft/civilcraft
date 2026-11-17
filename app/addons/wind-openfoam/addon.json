@@ -7,6 +7,7 @@
   ],
   "api": "1.0",
   "license": "GPL-3.0-or-later",
+  "imports": { "node": ["child_process", "crypto", "fs", "http", "os", "path", "url"] },
   "entry": "./main.js",
   "permissions": [
     "network"

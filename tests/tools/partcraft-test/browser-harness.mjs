@@ -30,6 +30,18 @@ export const OCCT_URL = '/assets/vendor/replicad-opencascadejs/current/replicad_
 export const haveOcct = () => fs.existsSync(path.join(REPO, 'public_html', OCCT_URL));
 export const exactInit = (ctx) => ctx.addInitScript((u) => { try { localStorage.setItem('partcraft.exactKernel', u); } catch { /* no storage */ } }, OCCT_URL);
 
+/** What every PartCraft page check starts from: a person who has used the app before (no "I'm new" offer over the panels), and the core app
+ *  without the 3D print add-on, which is on by default and adds a toolbar group of its own. The toolbar checks here are about the core groups
+ *  (one row at 1440 px, each workspace's own groups); the add-on has its own checks (tools/print-stage-test). */
+export const quietInit = (ctx) => ctx.addInitScript(() => {
+  try {
+    localStorage.setItem('cc-newhere', 'skipped');
+    const k = 'cc-addons:partcraft', p = JSON.parse(localStorage.getItem(k) || '{}');
+    p.off = { ...(p.off || {}), print3d: 'user' }; if (p.on) delete p.on.print3d;
+    localStorage.setItem(k, JSON.stringify(p));
+  } catch { /* no storage */ }
+});
+
 export async function startHarness({ state = DEFAULT_STATE, out = path.join(REPO, 'tmp/shots/partcraft'), width = 1440, height = 900, exact = process.env.PC_EXACT !== '0' } = {}) {
   fs.mkdirSync(out, { recursive: true });
   fs.mkdirSync(path.dirname(state), { recursive: true });
@@ -42,6 +54,7 @@ export async function startHarness({ state = DEFAULT_STATE, out = path.join(REPO
   const exe = ['chrome-linux64/chrome', 'chrome-linux/chrome'].map((s) => path.join(cacheDir, build, s)).find((p) => fs.existsSync(p));
   const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const ctx = await browser.newContext({ viewport: { width, height }, acceptDownloads: true, ...(fs.existsSync(state) ? { storageState: state } : {}) });
+  await quietInit(ctx);
   if (exact) await exactInit(ctx);
   else await ctx.addInitScript(() => { try { localStorage.removeItem('partcraft.exactKernel'); } catch { /* no storage */ } });
   // 0.7 WS.14: PC_WORKSPACE=docked|toolbox runs the checks with that layout on (Settings › Global › Layout); unset = classic

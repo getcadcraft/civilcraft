@@ -22,7 +22,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const APPS = process.env.REGS_APPS_DIR || path.join(ROOT, 'public_html/assets/apps');
 const SRC = path.join(APPS, 'bimcraft/dev/addons/regs');
 export const TARGETS = ['cadcraft', 'civilcraft', 'detailcraft'];
-export const ENGINE = ['LICENSE', 'lib/regs.js', 'lib/active.js', 'lib/library.js', 'lib/problems.js', 'lib/report.js', 'lib/ui.js', 'lib/rows.js', 'lib/adapter.js'];
+export const ENGINE = ['LICENSE', 'lib/regs.js', 'lib/sections.js', 'lib/local.js', 'lib/active.js', 'lib/library.js', 'lib/problems.js', 'lib/report.js', 'lib/ui.js', 'lib/rows.js', 'lib/adapter.js'];
 
 const walk = (dir, rel = '') => (fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => (d.isDirectory() ? walk(path.join(dir, d.name), rel + d.name + '/') : [rel + d.name])).sort() : []);
 /** The files every copy carries: the engine, the packs, and the add-on's strings. */

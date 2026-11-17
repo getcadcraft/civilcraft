@@ -262,6 +262,9 @@ const PAGE_DATA = 0x4163043B, PAGE_MAP = 0x41630E3B, SECTION_MAP = 0x4163003B;
  * parts as for layoutR2000. Returns the file bytes.
  * Sections (name, data, compressed?, page size) in the section-map order of 4.5; written in the stream order.
  */
+const PAGE_BUFS = new Map();
+const pageBuf = (size) => { let b = PAGE_BUFS.get(size); if (!b) PAGE_BUFS.set(size, b = new Uint8Array(size)); return b; };
+
 export function layoutR2004(parts, version) {
   const { code, maint } = VERSION_INFO[version];
   const CODEPAGE = 30;
@@ -301,7 +304,7 @@ export function layoutR2004(parts, version) {
     const desc = { name, size: data.length, maxSize, compressed, id, pages: [] };
     for (let start = 0; start < Math.max(1, data.length); start += maxSize) {
       const logical = data.subarray(start, Math.min(data.length, start + maxSize));
-      const full = new Uint8Array(maxSize); full.set(logical);   // pages are stored / compressed whole (spec 4.5)
+      const full = pageBuf(maxSize); full.fill(0); full.set(logical);   // pages are stored / compressed whole (spec 4.5); the buffer is reused (PERF.5)
       const payload = compressed === 2 ? compressR2004(full, { literalOnly: !!globalThis.__LZ_LITERAL }) : full;
       const addr = out.pos;
       const pageSize = (32 + payload.length + 0x1F) & ~0x1F;

@@ -66,7 +66,9 @@ export function val(v) {
 const PREFIX = { EXA: 1e21, PETA: 1e18, TERA: 1e15, GIGA: 1e12, MEGA: 1e9, KILO: 1e6, HECTO: 1e5, DECA: 1e4, DECI: 100, CENTI: 10, MILLI: 1, MICRO: 1e-3, NANO: 1e-6 };
 
 /** mm per length unit of the file (project units; SI metre with prefix, or a conversion-based unit). */
-export function lengthUnitMm(api, mid) {
+export function lengthUnitMm(api, mid) { return lengthUnitOf(api, mid).mm; }
+/** 0.10 BK.8 (units on import): the same, with whether the file itself states a length unit: { mm, stated }. */
+export function lengthUnitOf(api, mid) {
   const proj = ids(api, mid, 'IFCPROJECT')[0];
   let assign = null;
   if (proj) {
@@ -76,9 +78,9 @@ export function lengthUnitMm(api, mid) {
   if (!assign) { const a = ids(api, mid, 'IFCUNITASSIGNMENT')[0]; if (a) assign = api.GetLine(mid, a, true); }
   for (const u of assign?.Units || []) {
     if (!u || val(u.UnitType) !== 'LENGTHUNIT') continue;
-    return unitMm(u);
+    return { mm: unitMm(u), stated: true };
   }
-  return 1000;   // IFC's default length unit is the metre
+  return { mm: 1000, stated: false };   // IFC's default length unit is the metre
 }
 export function unitMm(u) {
   if (!u) return 1000;

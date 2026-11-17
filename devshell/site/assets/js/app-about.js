@@ -34,7 +34,35 @@ if (dlg) {
     form.hidden = true; $('[data-about-offline]').hidden = false;
   }
 
-  const say = (msg, bad) => { status.hidden = !msg; status.textContent = msg || ''; status.dataset.state = bad ? 'error' : 'ok'; };
+  const say = (msg, bad) => { status.hidden = !msg; status.textContent = msg || ''; status.dataset.state = bad ? 'error' : 'ok'; if (followed) followed.hidden = true; };
+
+  // BK.148 (lab builds): the report written from this window's history (window.ccAssist, app-ai-assist.js): the steps the person took, the
+  // version, and a model excerpt only when they tick it. Such a report goes through the one intake (/api/suggest), where they can follow it.
+  const assistBox = $('[data-about-assist]'), stepsOn = $('[data-about-steps]'), excerptOn = $('[data-about-excerpt]'), followed = $('[data-about-followed]');
+  const assist = () => (assistBox && window.ccAssist && typeof window.ccAssist.reportParts === 'function' ? window.ccAssist : null);
+  const wantsAssist = () => !!assist() && ((stepsOn && stepsOn.checked) || (excerptOn && excerptOn.checked));
+  function preview() {
+    const a = assist();
+    if (assistBox) assistBox.hidden = !a;
+    if (!a) return;
+    const p = a.reportParts({ what: '', steps: true, excerpt: false }).preview;
+    const sv = $('[data-about-steps-view]'), ev = $('[data-about-excerpt-view]');
+    if (sv) sv.textContent = p.steps;
+    if (ev) ev.textContent = p.excerpt;
+  }
+  async function sendToIntake(text) {
+    const parts = assist().reportParts({ what: text, steps: !!(stepsOn && stepsOn.checked), excerpt: !!(excerptOn && excerptOn.checked) });
+    const fd = new FormData();
+    for (const name of ['_csrf', 'website']) { const el = form.querySelector('[name="' + name + '"]'); if (el) fd.set(name, el.value); }
+    fd.set('form_id', 'sg'); fd.set('return', '/suggest'); fd.set('confirm_new', '1');
+    fd.set('tool_name', parts.title); fd.set('why', parts.body); fd.set('email', form.email.value.trim()); fd.set('app', dlg.dataset.app || '');
+    if (parts.file) { fd.set('share_file', parts.file, parts.file.name); fd.set('share_days', '14'); fd.set('share_agree', '1'); }   // ticked = the consent the box states
+    const r = await fetch('/api/suggest', { method: 'POST', body: fd, credentials: 'same-origin' });
+    const url = new URL(r.url, location.href);
+    if (r.redirected && url.pathname === '/suggest-sent') return { ok: true, url: url.pathname + url.search };   // the intake sends people there only once the submission is saved
+    const doc = new DOMParser().parseFromString(await r.text(), 'text/html');
+    return { ok: false, message: doc.querySelector('.field-error, .flash p')?.textContent.trim() || '' };
+  }
   const draw = () => {
     thumbs.replaceChildren(...list.map((f, i) => {
       const li = document.createElement('li'), img = document.createElement('img'), b = document.createElement('button');
@@ -71,6 +99,18 @@ if (dlg) {
     if (sending) return;
     const text = $('[data-about-text]').value.trim();
     if (!text || !form.name.value.trim() || !form.email.value.trim()) { say(T('shell.about.need'), true); return; }
+    if (wantsAssist()) {
+      sending = true; $('[data-about-send]').disabled = true; say(T('shell.about.sending'));
+      let res = { ok: false, message: '' };
+      try { res = await sendToIntake(text); } catch (_) { /* offline: the failed line below */ }
+      sending = false; $('[data-about-send]').disabled = false;
+      if (res.ok) {
+        say(T('shell.about.assist.sent'));
+        if (followed) { followed.querySelector('[data-about-follow]').setAttribute('href', res.url); followed.hidden = false; }
+        list = []; sync(); $('[data-about-text]').value = '';
+      } else say(res.message || T('shell.about.failed'), true);
+      return;
+    }
     const f = facts();
     $('[data-about-message]').value = text + '\n\n— ' + T('shell.about.diag') + '\n' + f.app + ' · ' + f.edition + ' · ' + f.version + '\n' + navigator.userAgent;
     sending = true; $('[data-about-send]').disabled = true; say(T('shell.about.sending'));
@@ -87,10 +127,13 @@ if (dlg) {
   });
 
   // (not named `open`: a function declared in this block lands on window and replaced window.open, so every pop-out in every app opened About)
-  function openAbout() {
-    if (dlg.open) return;
+  function openAbout(opts) {   // opts (BK.124, BK.148): { text } = a draft for the What happened box (the Ask box, an assistant's problem_report)
+    const draft = opts && typeof opts === 'object' && typeof opts.text === 'string' ? opts.text.slice(0, 4200) : '';
+    if (dlg.open) { if (draft) $('[data-about-text]').value = draft; return; }
     returnFocus = document.activeElement;
     $('[data-about-edition]').textContent = edition(); say('');
+    if (draft) $('[data-about-text]').value = draft;
+    preview();
     dlg.showModal(); (dlg.querySelector('[data-about-text]') || dlg).focus?.({ preventScroll: true });
   }
   const close = () => { if (dlg.open) dlg.close(); };

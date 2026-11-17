@@ -23,6 +23,24 @@ A new project starts at 1 unit with every 5th contour major. Contours bend at br
 Contours are drawn only when there are no more than 2,000 levels between the lowest and highest point. On a site with a lot of relief and a very small interval, the plan shows no contours at all: choose a larger interval.
 :::
 
+## Smooth the contours
+
+Contours are traced as straight pieces, one across each triangle of the surface, so they turn a small corner at every triangle edge. **Contour smoothing** under **Display** rounds those corners:
+
+- **None (straight pieces)**: the traced lines as they are. This is what a new or older drawing shows.
+- **Light**: corners rounded a little. A line never moves more than 10% of the way toward the next contour, and never farther from its straight piece than one sixth of that piece's length.
+- **Strong**: a flowing curve. A line never moves more than 25% of the way toward the next contour, and never farther from its straight piece than one third of that piece's length.
+
+With either choice a smoothed contour still crosses every triangle edge at the same point as the traced one, stays inside the triangle each piece crosses, and so can never cross or touch another contour. Where a contour crosses a breakline or the boundary it keeps its sharp bend. The smoothed lines are the ones plotted and exported (DXF, DWG, PDF, GIS and 3D), with more vertices than the traced lines.
+
+Smoothing changes only the drawn lines. Elevations, volumes, profiles and sections are still read from the surface itself. A contour that passes exactly through survey points (a point at 250.00 on the 250 contour) keeps a small corner at each such point.
+
+## How the surface behind the contours is made
+
+Contours follow the surface, and the surface follows the **Contouring method** under **Surface** in the left panel. The default, **Triangulation with linear interpolation**, joins your points into triangles and keeps every point and breakline exactly. The other methods fit a regular grid to the points first (kriging, minimum curvature, natural neighbor, inverse distance and others), which gives rounder contours between points but does not pass exactly through every point; the surface report under **Surface** says how far off the result is at your points.
+
+**ABOS (approximation based on smoothing)** is one of the gridded methods. It has two settings of its own: **Smoothness** (0.5 to start; lower is smoother) and **Accuracy** (1 to start: the surface is brought to within 1% of the site's height range at your points; type a smaller number for a closer fit). If it cannot reach the accuracy on the grid it has, the surface report says so: type a smaller **Grid spacing**.
+
 ## Read an elevation anywhere
 
 Move the pointer over the plan. The status bar shows:

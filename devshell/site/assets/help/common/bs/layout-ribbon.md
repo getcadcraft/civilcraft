@@ -1,52 +1,54 @@
 ---
-title: Radi s trakom i pregledom projekta
-summary: Prebaci aplikaciju na traku kartica iznad crteža, s Svojstvima i pregledom projekta lijevo i karticom za svaki otvoreni pogled, a vrati se na klasični raspored kad god želiš.
-keywords: raspored, radni prostor, traka, kartice trake, pregled projekta, pregledač, palete, panel svojstava, kartice pogleda, statusna traka, brzi pristup, sklopi traku, minimiziraj traku, prozor trake, klasični raspored, promijeni raspored, prebaci raspored, prikačen
-from: c1a6eccc
+title: Radi u rasporedu trake i pregleda projekta
+summary: Prebaci aplikaciju na traku kartica preko crteža, s Svojstvima i pregledom projekta lijevo i karticom za svaki otvoreni pogled, i vrati se na klasični raspored kad god želiš.
+keywords: raspored, radni prostor, traka, kartice trake, pregled projekta, pregledavač, palete, paleta svojstava, kartice pogleda, statusna traka, brzi pristup, sklopi traku, minimiziraj traku, prozor trake, klasični raspored, promijeni raspored, prebaci raspored, prikačeno
+from: 93700102
 ---
 
-**Traka i pregled projekta** je jedan od tri radna rasporeda aplikacije. Traka kartica prolazi preko vrha, Svojstva i pregled projekta dijele lijevi panel, svaki otvoreni pogled dobija karticu iznad crteža, a statusna traka je na dnu. Alati su same aplikacije: sve što možeš raditi u klasičnom rasporedu radi i ovdje, a tvoj crtež, stil menija i prečice ostaju isti.
+**Traka i pregled projekta** je jedan od tri radna rasporeda aplikacije. Traka kartica ide preko vrha, Svojstva i pregled projekta dijele lijevi panel, svaki pogled koji otvoriš dobija karticu preko crteža, a statusna traka je na dnu. Alati su aplikacijini: sve što možeš raditi u klasičnom rasporedu radi i ovdje, a tvoj crtež, stil menija i tasteri ostaju kakvi jesu.
 
-## Izaberi ga
+## Odaberi ga
 
 1. Otvori {{ui:Postavke}} (zupčanik ili {{key:Mod+,}}).
-2. Izaberi karticu {{ui:Globalno}}, pa idi na {{ui:Raspored}} › {{ui:Radni prostor}}.
-3. Izaberi {{ui:Traka i pregled projekta}}.
+2. Odaberi karticu {{ui:Globalno}}, pa idi na {{ui:Raspored}} › {{ui:Radni prostor}}.
+3. Odaberi {{ui:Traka i pregled projekta}}.
 
-Raspored se odmah mijenja. Izbor važi za svaku aplikaciju u ovom pregledaču: svaka aplikacija se od tada otvara u njemu, i on je na mjestu prije nego što se stranica iscrta, pa nikad ne vidiš klasični raspored prvi.
+Raspored se odmah mijenja. Izbor vrijedi za svaku aplikaciju u ovom pregledniku: svaka aplikacija se od tada otvara u njemu, i on je na mjestu prije nego se stranica iscrta, pa nikad ne vidiš klasični raspored prvi.
 
 ## Šta je gdje
 
-- **Naslovna traka:** naziv aplikacije, dugmad brzog pristupa (otvori, spasi, poništi, ponovi), naziv otvorene datoteke, {{ui:Šta ovdje radi svaki alat}} (spisak svakog alata s poljem za pretragu, koji su spremni sada i zašto ostali nisu), cijeli ekran, {{ui:Pomoć}} i {{ui:Postavke}}. U ovom rasporedu naslovna traka zauzima mjesto trake aplikacije.
-- **Traka:** alati aplikacije u karticama, svaka kartica u grupama. {{ui:Datoteka}} lijevo otvara, spašava i ostalo. Neke aplikacije dodaju vlastitu karticu dok radiš u nekom posebnom režimu ili radnom prostoru; ona svijetli dok važi, pa nestaje.
-- **Traka opcija:** ispod trake, ono što aktivni alat traži od tebe, ili šta je izabrano.
-- **Lijevi panel:** {{ui:Svojstva}} iznad, a ispod njih palete (pregled projekta i vlastiti sadržaj panela) kao kartice. Prevuci liniju između njih da podijeliš prostor.
-- **Kartice pogleda:** jedna kartica za svaki pogled koji si otvorio (list, osnova, scena…). Zatvori ga dugmetom za zatvaranje; datoteka ostaje otvorena.
+- **Naslovna traka:** naziv aplikacije, dugmad brzog pristupa (otvori, sačuvaj, poništi, ponovi), naziv otvorene datoteke, {{ui:Šta ovdje radi svaki alat}} (spisak svakog alata s poljem za pretragu, koji su spremni sada i zašto ostali nisu), puni ekran, {{ui:Pomoć}} i {{ui:Postavke}}. U ovom rasporedu naslovna traka zauzima mjesto trake aplikacije.
+- **Traka:** alati aplikacije u karticama, svaka kartica u grupama. {{ui:Datoteka}} na lijevom kraju otvara, čuva i ostalo. Neke aplikacije dodaju svoju karticu dok radiš u određenom režimu ili radnom prostoru; ona svijetli dok važi i nestaje poslije.
+- **Traka opcija:** ispod trake, ono što aktivni alat traži od tebe, ili šta je odabrano.
+- **Lijevi panel:** {{ui:Svojstva}} iznad, a ispod njega palete (pregled projekta i sadržaj samog panela) kao kartice. Prevuci liniju između njih da podijeliš prostor.
+- **Kartice pogleda:** jedna kartica po pogledu koji si otvorio (list, plan, scena…). Zatvori jednu njenim dugmetom za zatvaranje; datoteka ostaje otvorena.
 - **Traka pogleda i statusna traka:** ispod crteža, kontrole samog pogleda (razmjera, zum); na dnu, poruke aplikacije.
 
-Alat koji ne može trenutno da radi je zasivljen, a njegov opis kaže zašto (na primjer „Prvo otvori datoteku“, ili da aplikacija još nema taj alat). Klikni na njega, ili pritisni {{key:Enter}} na njemu, da pročitaš razlog u okviru.
+Alat koji sada ne može raditi je zasivljen, a njegov opis kaže zašto (na primjer „Prvo otvori datoteku“, ili da aplikacija još nema taj alat). Klikni ga, ili pritisni {{key:Enter}} na njemu, da pročitaš razlog u okviru.
 
 ## Koristi traku s tastature
 
-Kad je kartica trake u fokusu, {{key:Left}} i {{key:Right}} se kreću među karticama, a {{key:Home}} i {{key:End}} idu na prvu i posljednju. {{key:Esc}} prvo prekida aktivni alat, kao u klasičnom rasporedu, a svaka prečica i {{key:Ctrl+Shift+F}} (režimi ekrana) rade kao prije.
+Kad je kartica trake u fokusu, {{key:Left}} i {{key:Right}} prelaze između kartica, a {{key:Home}} i {{key:End}} idu na prvu i posljednju. {{key:Esc}} prvo prekida aktivni alat, kao u klasičnom rasporedu, a svaka prečica i {{key:Ctrl+Shift+F}} (režimi ekrana) rade kao prije.
 
 ## Sklopi traku ili joj daj vlastiti prozor
 
-- Dvoklik na karticu trake sklapa traku na njene kartice; klik na karticu tada prikazuje njene alate, sve dok ne pređeš dalje. Ponovni dvoklik drži traku otvorenom. Dugme {{ui:Premjesti traku}} na desnom kraju trake ima i {{ui:Sklopi traku}} i {{ui:Drži traku otvorenom}}. Svaka aplikacija to pamti.
-- {{ui:Premjesti traku}} › {{ui:Premjesti u novi prozor}} stavlja traku u vlastiti prozor, na primjer na drugom monitoru. Tipke pritisnute tamo stižu aplikaciji. {{ui:Vrati traku}}, ili zatvaranje tog prozora, vraća je kući.
+- Dvostruki klik na karticu trake sklapa traku na njene kartice; klik na karticu tada prikazuje njene alate dok ne pređeš dalje. Ponovo dvostruki klik je drži otvorenom. Dugme {{ui:Premjesti traku}} na desnom kraju trake ima i {{ui:Sklopi traku}} i {{ui:Drži traku otvorenom}}. Svaka aplikacija to pamti.
+- {{ui:Premjesti traku}} › {{ui:Premjesti u novi prozor}} stavlja traku u vlastiti prozor, na primjer na drugi monitor. Tipke pritisnute tamo stižu do aplikacije. {{ui:Vrati traku}}, ili zatvaranje tog prozora, je vraća kući.
 
-Postavke alatne trake važe i za traku: {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Traka s alatima}} › {{ui:Ikone i oznake}}, {{ui:Samo ikone}} (traka tada prikazuje dva reda sitnih ikona po grupi) ili {{ui:Samo oznake}}, i {{ui:Prikaži nazive grupa (Datoteka, Crtanje, …)}}.
+Postavke alatne trake važe za traku: {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Traka s alatima}} › {{ui:Ikone i oznake}}, {{ui:Samo ikone}} (traka tada prikazuje dva reda sitnih ikona po grupi) ili {{ui:Samo oznake}}, i {{ui:Prikaži nazive grupa (Datoteka, Crtanje, …)}}.
 
 ## Tvoji paneli ostaju tvoji
 
-Lijevi i desni paneli zadržavaju sve što je opisano u [Složi panele](common:arrange-panels): prikačivanje, lebdenje, učvršćivanje, sakrivanje, kartice, {{ui:Premjesti u novi prozor}} i {{ui:Vrati raspored}}.
+Lijevi i desni paneli zadržavaju sve što je opisano u [Složi panele i koristi drugi monitor](common:arrange-panels): prikačivanje, lebdenje, učvršćivanje, sakrivanje, kartice, {{ui:Premjesti u novi prozor}} i {{ui:Vrati raspored}}.
 
-## Vrati se na klasični raspored
+## Vrati klasični raspored
 
-Otvori {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Raspored}} › {{ui:Radni prostor}} i izaberi {{ui:CadCraft klasični}}. Svaka traka, kartica i panel vraća se na mjesto gdje je bio.
+Otvori {{ui:Postavke}} › {{ui:Globalno}} › {{ui:Raspored}} › {{ui:Radni prostor}} i odaberi {{ui:CadCraft klasični}}. Svaka traka, kartica i panel vraćaju se gdje su bili.
 
 :::note
-Na telefonu, ili u prozoru širine 760 piksela ili manjem, aplikacija koristi telefonski raspored bez obzira na to što si izabrao. Širi prozor vraća tvoj raspored.
+Na telefonu, ili u prozoru širine 760 piksela ili manje, aplikacija koristi raspored za telefon, šta god da si odabrao. Širi prozor vraća tvoj raspored.
 :::
 
-Za drugi raspored pogledaj [raspored s alatnicom i info okvirom](common:layout-toolbox).
+Da isprobaš drugi raspored, vidi [Radi u rasporedu alatnice i info okvira](common:layout-toolbox).
+
+Da promijeniš šta ovaj raspored prikazuje, vidi [Promijeni raspored na ekranu](common:layout-edit); za tamni raspored s trakom menija i trakom kartica vidi [raspored Drafting](common:layout-drafting).

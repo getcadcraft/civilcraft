@@ -1,0 +1,4 @@
+- A civil or site engineer checking that a truck, a bus or a fire engine can turn a corner, use a driveway or get round a roundabout.
+- A designer of a parking lot, depot or loading yard who needs to see where a vehicle goes and how many bays fit.
+- An airport or tram planner who wants a first look at a taxi turn or a light rail curve before the specialist tools.
+- A student or small consultancy who needs swept path checks without a per-seat licence.

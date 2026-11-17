@@ -54,6 +54,7 @@ let ctx = null, page = null;
 async function fresh() {
   if (ctx) await ctx.close();
   ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+  await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch (e) { /* private window */ } });   // tests-10: the side panel folds to one open section (shell, 2026-11-09); a page test clicks any section, so folding is off
   await ctx.addCookies([{ name: minted.name, value: minted.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
   page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -170,7 +171,7 @@ try {
     await page.mouse.move(box.x, box.y, { steps: 3 });
     await page.waitForFunction(() => !document.querySelector('[data-coords="3d"]').hidden, null, { timeout: 5000 });
     const r3 = await page.evaluate(() => [...document.querySelectorAll('[data-coords="3d"] [data-coords-lines] span')].map((s) => s.textContent));
-    ok(r3.length >= 2 && /^Level [12], /.test(r3[0]) && /^X -?\d+ {2}Y -?\d+ {2}Z -?\d+$/.test(r3[1]), 'the pointer over the model: its level and X Y Z in millimetres', r3.join(' | '));
+    ok(r3.length >= 2 && /^Level [12], /.test(r3[0]) && /^X -?\d+ mm {2}Y -?\d+ mm {2}Z -?\d+ mm$/.test(r3[1]), 'the pointer over the model: its level and X Y Z in millimetres', r3.join(' | '));
     await shot(page, 'df15-01-3d');
     // the plan: the level in its corner, the pointer's X and Y from the project origin
     await page.click('[data-model-toggle]');
@@ -178,11 +179,11 @@ try {
     await settled();
     const planLines = () => page.evaluate(() => [...document.querySelectorAll('[data-coords="plan"] [data-coords-lines] span')].map((s) => s.textContent));
     let pl = await planLines();
-    ok(pl[0] === 'Level 1 (floor at 0)', 'Draw on: the plan names its level in the corner', pl.join(' | '));
+    ok(pl[0] === 'Level 1 (floor at 0 mm)', 'Draw on: the plan names its level in the corner', pl.join(' | '));
     const [px, py] = await at(1000, 2000);
     await page.mouse.move(px, py, { steps: 2 });
     pl = await planLines();
-    ok(pl[1] === 'X 6000  Y 2000', 'the pointer at plan point (1000, 2000) of a site moved 5 m east: X 6000  Y 2000 from the project origin', pl.join(' | '));
+    ok(pl[1] === 'X 6000 mm  Y 2000 mm', 'the pointer at plan point (1000, 2000) of a site moved 5 m east: X 6000  Y 2000 from the project origin', pl.join(' | '));
     const pm = await page.evaluate(() => window.bimcraftPlan.view.markers.map((m) => m.kind + '@' + m.p.map(Math.round).join(',')));
     ok(pm.join(' ') === 'origin@-5000,0 survey@0,0', 'the plan draws the origin 5 m west of the survey point (the storey sits on the site)', pm.join(' '));
     await shot(page, 'df15-02-plan');
@@ -196,7 +197,7 @@ try {
     await page.mouse.move(box.x + 3, box.y + 2, { steps: 2 });
     await page.waitForFunction(() => !document.querySelector('[data-coords="3d"]').hidden, null, { timeout: 5000 });
     const r3m = await page.evaluate(() => [...document.querySelectorAll('[data-coords="3d"] [data-coords-lines] span')].map((s) => s.textContent));
-    ok(r3m.length === 3 && /^E 33\d \d{3}\.\d{3} {2}N 6 25\d \d{3}\.\d{3} m$/.test(r3m[2]), 'a map conversion: the readout adds eastings and northings on the map grid', r3m.join(' | '));
+    ok(r3m.length === 3 && /^E 33\d{7}(\.\d+)? {2}N 6\d{9}(\.\d+)? mm \(meters\)$/.test(r3m[2]), 'a map conversion: the readout adds eastings and northings on the map grid', r3m.join(' | '));
     ok(await page.evaluate(() => document.querySelectorAll('[data-coords-mark]').length === 1 && document.querySelector('[data-coords-mark]').dataset.coordsMark === 'both'), 'the site on the project origin: one marker for both');
     await shot(page, 'df15-03-map');
   }
@@ -916,11 +917,12 @@ try {
     await shot(page, 'df19-02-sheet');
     await page.click('[data-sh-save]');
     await settled();
-    const sh = await page.evaluate(() => window.bimcraftViews.state.sheets);
+    const shAll = await page.evaluate(() => window.bimcraftViews.state.sheets);
+    const sh = shAll.filter((x) => x.number === 'A-601');   // 0.10 BK.74: a new building comes with sheet A-101 (sheet-1), so this one is beside it
     const pw = 420 / 2;   // a3 for mm drawings: the plan started in the middle
-    ok(sh.length === 1 && sh[0].number === 'A-601' && sh[0].views.length === 1 && sh[0].views[0].ratio === 100 && sh[0].views[0].x < pw - 20, 'Save the sheet: one sheet in the model, its plan at 1:100 where it was dragged', JSON.stringify(sh));
-    ok(await page.isVisible('[data-pb-sheet="sheet-1"]'), 'listed under Sheets in the browser');
-    await page.click('[data-pb-sheet="sheet-1"]');
+    ok(sh.length === 1 && shAll.length === 2 && shAll.some((x) => x.number === 'A-101') && sh[0].views.length === 1 && sh[0].views[0].ratio === 100 && sh[0].views[0].x < pw - 20, 'Save the sheet: it is in the model beside the building\'s first sheet, its plan at 1:100 where it was dragged', JSON.stringify(shAll));
+    ok(await page.isVisible(`[data-pb-sheet="${sh[0].id}"]`), 'listed under Sheets in the browser');
+    await page.click(`[data-pb-sheet="${sh[0].id}"]`);
     await page.waitForSelector('[data-sh-dialog][open]');
     const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 15000 }), page.click('[data-sh-pdf]')]);
     const pdfPath = await dl.path();

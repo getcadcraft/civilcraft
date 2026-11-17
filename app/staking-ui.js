@@ -14,6 +14,7 @@ import { t } from './i18n.js';
 import { stakeStations, stakeRows, pointRows, parseOffsets, stakingCsv, stakingSheets, cutFillText, offsetText } from './staking.js';
 import { toPdfPages, PAPERS } from './plot.js';
 import { formatStation, parseStation, fixed } from './units.js';
+import { pointInPolygon } from './geom2d.js';
 
 export function createStaking(ctx) {
   const { el } = ctx;
@@ -134,11 +135,4 @@ export function createStaking(ctx) {
   return { button, open };
 }
 
-function inPoly(x, y, pts) {
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j];
-    if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
-  }
-  return inside;
-}
+function inPoly(x, y, pts) { return pointInPolygon(x, y, pts); }

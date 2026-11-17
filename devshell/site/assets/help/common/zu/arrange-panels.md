@@ -1,97 +1,101 @@
 ---
-title: Hlela amaphaneli futhi usebenzise isikrini sesibili
-summary: Faka amaphaneli ohlangothini ngakwesobunxele, ngakwesokudla noma ngaphansi, uwabeke phezu kwawo, uwahlanganise njengamathebhu, uwabophe noma uwafihle, uwantante phezu komdwebo, wenze isakhiwo sicindezelekile, khetha imigqa yebha yamathuluzi esebenzisa, noma uwahambisele iwindi lawo esikrinini esinye.
-keywords: amaphaneli, faka, ntanta, hambisa iphaneli, hudula, isakhiwo, amathebhu, ithebhu, qoqa ngamathebhu, beka phezu kwenye, bopha, fihla ngokuzenzakalelayo, fihla iphaneli, vala iphaneli, okuhlangene, ubukhulu besakhiwo, icindezelekile, imigqa yebha yamathuluzi, phindisela, umugqa owodwa, imigqa emi-2, isikrini sesibili, izikrini ezimbili, izikrini eziningi, iwindi, iwindi elivelayo, setha kabusha isakhiwo
-from: 32a8dae2
+title: Hlela amaphaneli bese usebenzisa isikrini sesibili
+summary: Faka amaphaneli ohlangothini lwesobunxele, lwesokudla noma ngaphansi, uwabeke phezu kwawanye, uwahlanganise njengamathebhu, uwabambe noma uwafihle, uwantante phezu komdwebo, wenze isakhiwo sihlangane kakhulu, khetha imigqa yethuluzi osebenzisa, noma uwahambise ewindini lawo esikrinini esinye.
+keywords: amaphaneli, faka, ntanta, hambisa iphaneli, donsa, isakhiwo, amathebhu, eqenjini lethebhu, beka phezulu, bopha, fihla ngokuzenzakalela, fihla iphaneli, vala iphaneli, okuhlangene, ubukhulu besakhiwo, okuhlangene kakhulu, imigqa yebha yamathuluzi, phindisela, umugqa owodwa, imigqa emi-2, imigqa yethuluzi, isikrini sesibili, izikrini ezimbili, isikrini esingaphezulu, iwindi, i-pop-up, setha kabusha isakhiwo
+from: 49530239
 ---
 
-Amaphaneli aseduze komdwebo angahanjiswa. Wabeke lapho akulungele khona, noma uwanikeze iwindi lawo esikrinini sesibili ukuze umdwebo uthole sonke isikrini sokuqala.
+Amaphaneli aseceleni komdwebo angahanjiswa. Wabeke lapho akulungele khona, noma uwanike iwindi lawo esikrinini sesibili ukuze umdwebo uthole sonke isikrini sokuqala.
 
 :::note
-Iphaneli ngalinye linebha yesihloko: ibha encane enegama lephaneli, imenyu {{ui:⋯}}, ipini kanye nenkinobho yokuvala phezulu kwephaneli. Izinguqulo ezingaphambi kwe-0.7 zinegama kanye nemenyu {{ui:⋯}} kuphela.
+Iphaneli ngalinye linebha yesihloko: ibha emincane enegama lephaneli, imenyu ye-{{ui:⋯}}, isikhonkwane nenkinobho yokuvala phezulu kwephaneli. Izinguqulo ezingaphambi kuka-0.7 zinegama nemenyu ye-{{ui:⋯}} kuphela.
 :::
 
 ## Hambisa iphaneli ewindini
 
-1. Hudula iphaneli ngegama layo phezulu.
-2. Lapho uhudula, izindawo ezinemigqa zivela ngakwesobunxele, ngakwesokudla nangaphansi komdwebo. Yehlisa iphaneli kwenye yazo ukuze uyifake lapho. Indawo oyiphezulu iyafiphala.
-3. Yehlisa kunoma iyiphi enye indawo phezu komdwebo ukuze iphaneli intante.
+1. Donsa iphaneli ngegama lalo phezulu.
+2. Lapho udonsa, izindawo ezinemigqa zivela ngakwesobunxele, ngakwesokudla nangaphansi komdwebo. Liyeke kwenye yazo ukuze ulifake lapho. Indawo oyiphezu kwayo iyafiphala.
+3. Liyeke noma yiphi enye indawo phezu komdwebo ukuze libe ntanta.
 
-Amaphaneli angabelana ngohlangothi olulodwa: ayabekwa phezu kwenye, futhi umugqa ophakathi kwamabili ngamabili uyahudulwa ukuze wabelane ngendawo (uma umugqa ugxilile, izinkinobho zomcibisholo ziwuhambisa, futhi ukuchofoza kabili kuwo kuwabelanisa ngokulinganayo). Hudula umphetho ongaphakathi walolohlangothi olufakiwe ukuze wenze liba banzi noma lincane; chofoza kabili emphethweni ukuze ulibuyisele.
+Amaphaneli angabelana ngohlangothi olulodwa: ayabekwa phezulu komunye, futhi umugqa ophakathi kwawo ngamunye ungadonswa ukuze wabelane ngendawo (uma umugqa ugxilile, izinkinobho zomcibisholo ziwuhambisa, nokuchofoza kabili kuwo kwabelana ngendawo ngokulinganayo). Donsa umphetho wangaphakathi wohlangothi olufakiwe ukuze wenze lube banzi noma libe mncane; chofoza kabili umphetho ukuze ubuyisele.
 
-Iphaneli elintantayo lihlala phezu komdwebo. Lihambise ngegama lalo, bese ulilungisa ngosayizi ngokuhudula ikhona yalo eliphansi ngakwesokudla (noma ufinyelele ekhoneni ngokhiye we-Tab usebenzise izinkinobho zomcibisholo). Chofoza kabili egameni lalo ukuze liphinde lifakwe lapho lase lihlala khona.
+Iphaneli elintantayo lihlala phezu komdwebo. Liyihambise ngegama lalo, bese ulungisa usayizi walo ngokudonsa ikhona lalo eliphansi nangakwesokudla (noma ubhodle uye ekhoneni usebenzise izinkinobho zomcibisholo). Chofoza kabili igama lalo ukuze ulifake futhi endaweni yalo.
 
 :::touch
-Hudula ngomunwe owodwa egameni lephaneli. Hudula ikhona eliphansi ngakwesokudla lephaneli eliyintante ngomunwe owodwa ukuze uliphinde ngosayizi, nemiphetho phakathi kwamaphaneli afakiwe ngendlela efanayo. Ukuze uyintante noma ufake ngaphandle kokuhudula, sebenzisa imenyu {{ui:⋯}}.
+Donsa ngomunwe owodwa egameni lephaneli. Donsa ikhona eliphansi nangakwesokudla lephaneli entantayo ngomunwe owodwa ukuze uliguqule usayizi, namaphethelo phakathi kwamaphaneli afakiwe ngendlela efanayo. Ukuze ntanta noma ufake ngaphandle kokudonsa, sebenzisa imenyu ye-{{ui:⋯}}.
 :::
 
 ## Hlanganisa amaphaneli njengamathebhu
 
-Amaphaneli amabili angabelana ngerafu eyodwa futhi abonise eyodwa ngesikhathi. Hudula iphaneli ngegama lalo uliyise ebhareni yesihloko yephaneli elinye (ibha iyagxilwa lapho uphezu kwayo) bese uyayeka: manje irafu inethebhu ngalinye lephaneli, ebhareni yayo yesihloko. Chofoza ithebhu ukuze ubonise lelo phaneli. Uma ithebhu igxilile, {{key:Left}} kanye {{key:Right}} ziguqula amathebhu, futhi {{key:Home}} kanye {{key:End}} ziya kokuqala nokokugcina.
+Amaphaneli amabili angabelana ngerempe eyodwa futhi abonise eyodwa ngesikhathi. Donsa iphaneli ngegama lalo uliyise phezu kwebha yesihloko yephaneli elinye (ibha inemigqa lapho useduze kwayo) bese uyeka: manje irempe linethebhu yephaneli ngalinye, ebhalweni yesihloko. Chofoza ithebhu ukuze ubonise leyo phaneli. Uma ithebhu igxilile, {{key:Left}} no-{{key:Right}} ashintsha amathebhu, futhi {{key:Home}} no-{{key:End}} aya kowokuqala nowokugcina.
 
-Ukuze uphume iphaneli eqenjini, khetha {{ui:Phuma eqenjini lethebhu}} emenyuni yayo {{ui:⋯}}, noma uyihudule uyiyise kwenye indawo. Khetha {{ui:Hlanganisa nephaneli ngethebhu}} negama lephaneli ukuze uwahlanganise ngaphandle kokuhudula.
+Ukuze uphume iphaneli eqenjini, khetha {{ui:Phuma eqenjini lethebhu}} kumenyu yalo ye-{{ui:⋯}}, noma uyidonse iye kwenye indawo. Khetha {{ui:Hlanganisa ngethebhu ne}} negama lephaneli ukuze uwahlanganise ngaphandle kokudonsa.
 
-## Bopha, fihla futhi ubuyise
+## Bopha, fihla futhi uyibuyisele
 
-- Ipini ebhareni yesihloko yephaneli liyenza **lifihle ngokuzenzakalelayo**: iphaneli liphuma endaweni yalo yokufakwa libe yithebhu encane ngalolo mphetho. Beka umbhoshongo kuthebhu, ugxile kuyo noma uyichofoze, bese iphaneli liphuma liphume phezu komdwebo; suka (noma ucindezele {{key:Esc}}) libuyele ngemuva. Cindezela ipini futhi, noma khetha {{ui:Khipha ipini}}, ukuze uyifake ngokuphelele.
-- Inkinobho yokuvala, noma {{ui:Fihla lo phaneli}} emenyuni, ifihla iphaneli ivale nendawo yalo yokufakwa. Ithebhu elinemigqa eyimichilo ohlangothini liyibuyisela: chofoza kuyo, noma ugxile kuyo bese ucindezela {{key:Enter}}.
+- Isikhonkwane esebhalweni yesihloko yephaneli simenza libe **lifihla ngokuzenzakalela**: iphaneli liphuma endaweni yalo ifakwe, libe ithebhu encane kuleyo mphetho. Yelekelela ithebhu, uyigxilisele noma uyichofoze, bese iphaneli liphuma liye phezu komdwebo; hambela eceleni (noma cindezela {{key:Esc}}) bese libuyela ngasemuva. Cindezela isikhonkwane futhi, noma khetha {{ui:Khipha isikhonkwane}}, ukuze ulifake ngokuphelele.
+- Inkinobho yokuvala, noma {{ui:Fihla lo phaneli}} emenyuwini, ifihla iphaneli ibuye ivale indawo yalo efakiwe. Ithebhu enemigqa ephukile ngaleyo mphetho iyibuyisa: chofoza kuyo, noma ugxilise bese ucindezela {{key:Enter}}.
 
-## Yenza isakhiwo sicindezelekile
+## Yenza isakhiwo sihlangane kakhulu
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Layout density}} inezinketho ezimbili. {{ui:Comfortable}} ingokuzenzakalelayo. {{ui:Compact}} inciphisa amakhulu emigqa, ukuvikelwa kwamaphaneli, izinkinobho zebha yamathuluzi kanye nombhalo wamaphaneli walolo hlelo ukuze kwaneliswe okwengeziwe esikrinini. Ikhunjulwa ngohlelo ngalunye. Isikrini sokuthinta sigcina izinkinobho zaso ezinkulu kuzo zombili, nefoni igcina isakhiwo sayo. {{ui:Reset layout}} ishiya ubukhulu njengoba ukusethile.
+{{ui:Izilungiselelo}} › {{ui:Okujwayelekile}} › {{ui:Ubukhulu besakhiwo}} unezinketho ezimbili. {{ui:Okulula}} yisimo esizenzakalelayo. {{ui:Okuhlangene}} unciphisa ukuphakama kwemigqa, ukuhlanganiswa kwephaneli, izinkinobho zethuluzi nombhalo wephaneli walolo hlelo ukuze kufake okwengeziwe esikrinini. Igcinwa ngohlelo ngalunye. Isikrini sokuthinta sigcina izinkinobho zaso ezinkulu kokubili, nefoni igcina isakhiwo sayo. {{ui:Setha kabusha isakhiwo}} ishiya ubukhulu obuwukhethile.
 
-## Khetha imigqa ebha yamathuluzi esebenzisa
+## Khetha imigqa ethuluzi lisebenzisa
 
-{{ui:Settings}} › {{ui:General}} › {{ui:Toolbar rows}} inezinketho ezintathu. {{ui:Wrap}} ingokuzenzakalelayo: wonke amaqembu ethuluzi ayavela, emigqeni eminingi njengoba kudingeka. {{ui:2 rows}} igcina ibha yamathuluzi ibe yimigqa emi-2, {{ui:1 row}} ibe yomugqa owodwa, ukuze umdwebo uthole ukuphakama; amaqembu angafaneli ahamba ngokuthi ngaseceleni ngaphakathi kwebha yamathuluzi (sebenzisa ivili le-mouse, ukuswayiphela ngeminwe emibili, noma {{key:Tab}} uye kwithuluzi). Ibha yamathuluzi esivele ifaneleke ngemigqa emi-2 ihlala njengoba iyunjalo ngaphansi kwe-{{ui:2 rows}}, ngoba igridi izoyenza ide kakhulu kuphela. Inketho igcinwa ngohlelo ngalunye. Isikrini sokuthinta nefoni zigcina isakhiwo sazo. I-CadCraft inezilungiselelo zayo zebha yamathuluzi, ngaphansi kwe-{{ui:Settings}} › {{ui:CadCraft}}.
+{{ui:Izilungiselelo}} › {{ui:Okujwayelekile}} › {{ui:Imigqa yebha yamathuluzi}} unezinketho ezintathu. {{ui:Phindisela emugqeni olandelayo}} yisimo esizenzakalelayo: wonke amaqembu ethuluzi ayabonakala, emigqeni eminingi njengoba kudingeka. {{ui:Imigqa emi-2}} igcina ithuluzi ngemigqa emibili, {{ui:Umugqa owodwa}} ibe umugqa owodwa, ukuze umdwebo uthole ubude; amaqembu angafaneli ahamba ecaleni ngaphakathi kwethuluzi (sebenzisa ivili le-mouse, ukuswayiphela ngeminwe emibili, noma {{key:Tab}} ufike kwethuluzi). Ithuluzi elisevele lifaneleka ezigabeni ezimbili lihlala njengoba linjalo ngaphansi kwe-{{ui:Imigqa emi-2}}, ngoba igridi izonenza ilule kakhulu kuphela. Ukukhetha kugcinwa ngohlelo ngalunye. Isikrini sokuthinta nefoni zigcina isakhiwo sazo. I-CadCraft inezilungiselelo zayo zethuluzi layo, ngaphansi kwe-{{ui:Izilungiselelo}} › {{ui:CadCraft}}.
 
 ## Sebenzisa ikhibhodi
 
-Inkinobho {{ui:⋯}} yephaneli ngalinye ivula imenyu: {{ui:Faka ngakwesobunxele}}, {{ui:Faka ngakwesokudla}}, {{ui:Faka ngaphansi}}, {{ui:Ntanta phezu komdwebo}}, {{ui:Bopha ekuphetheleni}}, {{ui:Fihla lo phaneli}}, {{ui:Hlanganisa nephaneli ngethebhu}} elinye iphaneli, {{ui:Hambisa uye kwewindi elisha}} kanye {{ui:Yibuyisele}}. Finyelela kwinkinobho nge-{{key:Tab}}, cindezela {{key:Enter}}, hambisa ngezinkinobho zomcibisholo bese ucindezela {{key:Enter}} futhi. {{key:Esc}} ivala imenyu.
+Inkinobho ye-{{ui:⋯}} yalo lonke iphaneli ivula imenyu: {{ui:Faka ngakwesobunxele}}, {{ui:Faka ngakwesokudla}}, {{ui:Faka ngaphansi}}, {{ui:Ntanta phezu komdwebo}}, {{ui:Bopha emphethweni}}, {{ui:Fihla lo phaneli}}, {{ui:Hlanganisa ngethebhu ne}} elinye iphaneli, {{ui:Hambisa uye kwewindi elisha}} nakwe-{{ui:Yibuyisele}}. Gxilisela kwinkinobho, cindezela {{key:Enter}}, hambisa ngezinkinobho zomcibisholo bese ucindezela {{key:Enter}} futhi. {{key:Esc}} ivala imenyu.
 
 ## Beka amaphaneli esikrinini sesibili
 
-1. Khetha {{ui:⋯}} kuphaneli, bese {{ui:Hambisa wonke amaphaneli kuwindi elisha}}. Ungakhetha futhi {{ui:Hambisa amaphaneli ewindini elisha}} ku-{{ui:Izilungiselelo}}.
-2. Iwindi elincane livula linamaphaneli kulo. Hudula kuwo esikrinini sakho sesibili bese uwenza mkhulu njengoba ufuna.
-3. Qhubeka usebenza: amaphaneli asebenza komdwebo njengakuqala, futhi umdwebo ugcwalisa iwindi elikhulu.
+1. Khetha {{ui:⋯}} kwiphaneli, bese {{ui:Hambisa wonke amaphaneli kuwindi elisha}}. Ungakhetha futhi {{ui:Hambisa amaphaneli ewindini elisha}} ku-{{ui:Izilungiselelo}}.
+2. Iwindi elincane livula linamaphaneli kuwo. Lidonse esikrinini sakho sesibili bese ulenza likhule njengoba ufisa.
+3. Qhubeka usebenza: amaphaneli asebenza komdwebo njengakuqala, nomdwebo ugcwalisa iwindi elikhulu.
 
-Izinqamulelo ziqhubeka zisebenza lapho iwindi lamaphaneli liphambili: okhiye oyicindezelayo lapho, ngaphandle kokubhala ebhokisini, aya komdwebo. Imibuzo nezingxoxo uhlelo oluzibuzayo kusavulela eWindini elikhulu, ngakho zibheke lapho kuvela eyodwa. Itimu nosayizi wombhalo wamaphaneli alandela iwindi elikhulu.
+Izinqamuleli zisasebenza uma iwindi lamaphaneli liphambili: izinkinobho ocindezela zona lapho, ngaphandle kokubhala kubhokisi, ziya komdwebo. Imibuzo nezingxoxo ohlelo oluzibuzayo zisavula ewindini elikhulu, ngakho bheka khona lapho okuvela khona. Itimu nobukhulu bombhalo wephaneli kulandela iwindi elikhulu.
 
 :::chromium
-I-Chrome ne-Edge zingabeka iwindi esikrinini esinye ngawe. Uma kuxhunyiwe isikrini sesibili, khetha {{ui:Yibeke esikrinini sami sesibili}} kwiwindi lamaphaneli (noma {{ui:Beka amaphaneli esikrinini sami sesibili}} emenyuni {{ui:⋯}} yephaneli). Isiphequluli sibuza kanye ukuthi lesi sayithi singabona yini izikrini zakho; uma uvumela, iwindi lamaphaneli livula kuleso sikrini njalo.
+I-Chrome ne-Edge zingabeka iwindi esikrinini esinye ngawe. Uma kuxhunyiwe isikrini sesibili, khetha {{ui:Yibeke esikrinini sami sesibili}} kwiwindi lamaphaneli (noma {{ui:Beka amaphaneli esikrinini sami sesibili}} kumenyu ye-{{ui:⋯}} yephaneli). Isiphequluli sibuza kanye ukuthi lesi sayithi singabona yini izikrini zakho; uma uvumela, iwindi lamaphaneli livula kuleso sikrini njalo.
 :::
 
 :::firefox safari
-Hudula iwindi lamaphaneli esikrinini sesibili ngokwakho. Livula endaweni nosayizi ofanayo ngesikhathi esilandelayo.
+Donsa iwindi lamaphaneli kwesinye isikrini ngokwakho. Livula endaweni efanayo nangosayizi ofanayo ngesikhathi esilandelayo.
 :::
 
 ## Amawindi amaningi amaphaneli
 
-Iphaneli ngalinye lingaba neliwindi lalo: kuze kube ngamawindi amaphaneli amane, njengesibonelo elilodwa esikrinini ngasinye.
+Iphaneli ngalinye lingaba neliwindi lalo: kuya kumawindi amane amaphaneli, isibonelo elilodwa ngesikrini ngasinye.
 
-- Emenyuni {{ui:⋯}} yephaneli, {{ui:Hambisa uye kwewindi elisha}} ivula elinye iwindi lalelo phaneli, kanti {{ui:Hambisa kuwindi lamaphaneli 2}} (njalo) ilihambisela kuwindi elivuliwe. Iwindi lesibili libizwa ngokuthi "amaphaneli 2".
-- Hudula iphaneli ngegama lalo usuka kwelinye iwindi uye kwelinye: yeka phezu kwewindi elikhulu ukuze uyifake khona (izindawo ezinemigqa zibonakala lapho uphezu kwazo) noma uyintante, futhi phezu kwelinye iwindi lamaphaneli ukuze uyihambisele ngaphakathi. Yeka noma kuphi kwenye indawo bese ihlala lapho ibe khona.
+- Kumenyu ye-{{ui:⋯}} yephaneli, {{ui:Hambisa uye kwewindi elisha}} livula iwindi elihlukile lalelo phaneli, futhi {{ui:Hambisa kwiwindi lamaphaneli 2}} (njalo) iyihambisela kwelivuliwe. Iwindi lesibili libizwa ngokuthi "panels 2".
+- Donsa iphaneli ngegama lalo kusuka kwelinye iwindi uye kwelinye: liyeke phezu kwewindi elikhulu ukuze liyifake lapho (izindawo ezinemigqa zivela lapho useduze kwazo) noma ukuze libe ntanta, nephezu kwelinye iwindi lamaphaneli ukuze lihanjiswe kulo. Liyeke noma yiphi enye indawo bese lihlala lapho lalikhona.
 - Iwindi lamaphaneli elingasekho namaphaneli livala lodwa.
 
-Ngemva kokulayisha kabusha, uhlelo luphinde lunikeze amawindi akho amaphaneli. Izisebenzi zesiphequluli zivula iwindi elilodwa ngokuchofoza ngakunye, ngakho khetha {{ui:Vula elilandelayo}} kanye kwiwindi ngalinye.
+Ngemva kokulayisha kabusha, uhlelo luphinda luhlinze amawindi akho amaphaneli. Iziphequluli zivula iwindi elilodwa ngokuchofoza ngakunye, ngakho khetha {{ui:Vula okulandelayo}} kanye ngalowo wewindi ngalinye.
+
+## Ngendlela efanayo kuzo zonke izingxenye zesakhiwo
+
+Iribhoni, ibhokisi lamathuluzi, imigqa yamathuluzi nebha yesimo ziphuma ziye kwiwindi lazo ngendlela efanayo nephaneli: vula imenyu ye-{{ui:⋯}} kwingxenye bese ukhetha {{ui:Hambisa uye kwewindi elisha}}; {{ui:Yibuyisele}} (noma ukuvala iwindi) iyibuyisela ekhaya. Izinkinobho ocindezela zona kulelo windi ziyafinyelela kuhlelo, njengakwiwindi lamaphaneli. Ingxenye ngayinye inemenyu enjalo eyodwa.
 
 ## Hambisa ingxoxo
 
-Yonke ingxoxo ingahanjiswa ukuze ingavimbi umdwebo: cindezela bese uhudula ibha yayo yesihloko. Ingxoxo ikhumbula lapho uyishiye khona, ingxoxo ngayinye ngokwayo, futhi ibuyela kuleso sikhundla ngesikhathi esilandelayo ivula. Chofoza kabili ebhareni yesihloko ukuze iphinde ibekwe emaphakathi.
+Yonke ingxoxo ingahanjiswa ukuze ingavimbi komdwebo: cindezela bese udonsa ibha yesihloko sayo. Ingxoxo ikhumbula lapho uyishiye khona, ingxoxo ngayinye ngokwayo, futhi ibuyela kuleyo ndawo ngesikhathi esilandelayo evulwa ngalo. Chofoza kabili ibha yesihloko ukuze uyibuyisele maphakathi.
 
-Ngekhibhodi, cindezela {{key:Alt}}+{{key:Shift}}+inkinobho yomcibisholo ngenkathi ugxile ngaphakathi kwengxoxo ukuze uyihambise ngama-pixel angu-16 ngesikhathi; engeza {{key:Ctrl}} ukuze ube ngu-64. Ingxoxo esuke ingaphandle kwesikrini (ngemva kewindi noma isikrini esincane) iyabuyiselwa.
+Ukusuka ekhibhodini, cindezela {{key:Alt}}+{{key:Shift}}+inkinobho yomcibisholo ugxile ngaphakathi kwengxoxo ukuze uyihambise ngamapheseli ayi-16 ngesikhathi; engeza {{key:Ctrl}} ukuze uthole ayi-64. Ingxoxo esuka esikrinini (ngemva kwewindi noma isikrini esincane) iyabuyiswa.
 
-Efonini, izingxoxo zihlala ziyizinkundla ezigcwele ububanzi futhi azihanjiswa.
+Efonini, izingxoxo zihlala zingamashidi agcwele ububanzi futhi azihanjiswa.
 
-Ku-CadCraft Studio, ingxoxo ye-CadCraft {{ui:Hlela ku-PDF}}, okungenzeka uyigcine ivuliwe ngenkathi usebenza, inenkinobho ebhareni yayo yesihloko, {{ui:Vula ngewindi layo}}. Ingxoxo ingena kwiwindi layo, owungawubeka esikrinini esinye. Ukuvala ingxoxo kuvala iwindi, nokuvala iwindi kuvala ingxoxo.
+Ku-CadCraft Studio, ingxoxo ye-{{ui:Phrinta ku-PDF}} ye-CadCraft, oyingenela ukuthi uyigcine ivulekile ngesikhathi usebenza, inenkinobho ebhalweni yayo yesihloko, {{ui:Vula ngewindi layo}}. Ingxoxo ihamba ibe iwindi layo elihlukile elingabekwa kwesinye isikrini. Ukuvala ingxoxo kuvala iwindi, nokuvala iwindi kuvala ingxoxo.
 
 ## Buyisela amaphaneli
 
 - Khetha {{ui:Buyisela amaphaneli}} kwiwindi lamaphaneli, noma uvale kuphela. Amaphaneli abuyela lapho ayekhona khona.
-- Ukuvala noma ukulayisha kabusha iwindi elikhulu nakho kuvala iwindi lamaphaneli. Uma uhlelo luvula futhi, luthi amaphaneli akho ayesewindini lawo; khetha {{ui:Vula lona}} ukuze ubuyisele iwindi, noma {{ui:Gcina lapha}}.
-- {{ui:Settings}} › {{ui:General}} › {{ui:Reset layout}} ibuyisela wonke amaphaneli endaweni ayeqale kuyo.
+- Ukuvala noma ukulayisha kabusha iwindi elikhulu nakho kuvala iwindi lamaphaneli. Uma uhlelo lusivulwa futhi lithi amaphaneli akho ayewindini layo; khetha {{ui:Vula}} ukuze ubuyisele iwindi, noma {{ui:Gcina lapha}}.
+- {{ui:Izilungiselelo}} › {{ui:Okujwayelekile}} › {{ui:Setha kabusha isakhiwo}} ibuyisela wonke amaphaneli endaweni ayeqale kuyo.
 
 :::tip
-Uma kungavuleki lutho lapho uhambisa amaphaneli kuwindi elisha, isiphequluli sivinjelwe iwindi elivelayo. Uhlelo luyasho lokho futhi ligcina amaphaneli lapho ayekhona khona. Vumela amawindi avelayo ku-getcadcraft.com, bese uzama futhi.
+Uma akukho okuvulayo lapho uhambisa amaphaneli kuwindi elisha, isiphequluli sivimbe i-pop-up. Uhlelo luyasho lokho futhi ligcine amaphaneli lapho ayekhona khona. Vumela ama-pop-up ye-getcadcraft.com, bese uzama futhi.
 :::
 
-Isakhiwo sigcinwa ngohlelo ngalunye kulesi siphequluli, kanye nezinye izilungiselelo zakho.
+Isakhiwo sigcinwa ngohlelo ngalunye kulo isiphequluli, kanye nezinye izilungiselelo zakho.

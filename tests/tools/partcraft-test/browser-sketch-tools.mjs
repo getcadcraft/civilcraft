@@ -41,7 +41,9 @@ export async function run(h) {
   await openSketch('front');
   const menu = await page.$$eval('[data-sketch-menu] [data-cmd]', (n) => n.map((b) => b.dataset.cmd));
   ok((await rows()) === 1 && await page.isVisible('[data-cmd="tool-spline"]') && await page.isVisible('[data-cmd="tool-trim"]') && await page.isVisible('[data-sketch-menu] > summary'), 'in a sketch: Spline, Trim and More show, and the toolbar is one row at 1440 px');
-  ok(menu.join() === 'tool-cspline,tool-extend,tool-offset,tool-mirror,tool-polygon,tool-slot,tool-lpattern,tool-cpattern,tool-project', `More holds ${menu.length} tools: control-point spline, extend, offset, mirror, polygon, slot, linear and circular patterns, project edge`);
+  // tools added to More since (arcs, text, …) have their own checks: these nine are there, in this order
+  const NINE = ['tool-cspline', 'tool-extend', 'tool-offset', 'tool-mirror', 'tool-polygon', 'tool-slot', 'tool-lpattern', 'tool-cpattern', 'tool-project'];
+  ok(menu.filter((m) => NINE.includes(m)).join() === NINE.join(), `More holds ${menu.length} tools, among them, in order: control-point spline, extend, offset, mirror, polygon, slot, linear and circular patterns, project edge (${menu.join(', ')})`);
 
   console.log('\n== sketch tools: a closed spline by clicks, extruded exactly');
   await page.keyboard.press('b');

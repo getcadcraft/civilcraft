@@ -56,7 +56,7 @@ for (const slug of APPS) {
   await page.evaluate((j) => ccDocInfo.load(j), { title: 'Other', author: 'Else' });
   ok(await page.evaluate(() => ccDocInfo.info.get().title === 'Other' && ccDocInfo.info.get().created === 0), 'load() replaces what the panel holds');
   const tools = await page.evaluate(() => ccDocInfo.tools().map((t) => t.name).join());
-  ok(tools === 'docinfo_get,docinfo_set', 'the two assistant tools');
+  ok(tools === 'docinfo_get,docinfo_set,stage_get', 'the three assistant tools (stage_get since BK.168)');
   ok(problems.length === 0, 'no page errors' + (problems.length ? ': ' + problems.join('; ') : ''));
 }
 await browser.close();

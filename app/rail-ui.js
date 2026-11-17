@@ -11,6 +11,7 @@
  */
 
 import { STANDARDS } from './rail-standard.js';   // 0.8 CV.1
+import { railLineLimits, railLineProps } from './rail-line-ui.js';   // CV.1 2026-11-12: track geometry limits, turnouts, the clearance envelope
 import { t } from './i18n.js';
 import { GAUGES, RAIL_PROFILES, SLEEPERS, PIVOTS, MAX_TRACKS, railDefaults, cleanRail, baseOf, cantAt } from './rail.js';
 import { TRANSITIONS } from './alignment.js';
@@ -90,7 +91,8 @@ export function railProps(ctx, a, plan, item) {
     ...field(t('rail.lim.def'), 'cv-rail-lim-def', String(L.deficiency), 'mm', pos(0, 400), (rr, x) => { rr.limits.deficiency = x; }, t('rail.undo.limit')),
     ...field(t('rail.lim.exc'), 'cv-rail-lim-exc', String(L.excess), 'mm', pos(0, 400), (rr, x) => { rr.limits.excess = x; }, t('rail.undo.limit')),
     ...field(t('rail.lim.grad'), 'cv-rail-lim-grad', String(L.gradient), 'mm/m', pos(0.1, 20), (rr, x) => { rr.limits.gradient = x; }, t('rail.undo.limit')),
-    ...field(t('rail.lim.rate'), 'cv-rail-lim-rate', String(L.rate), 'mm/s', pos(1, 500), (rr, x) => { rr.limits.rate = x; }, t('rail.undo.limit'))));
+    ...field(t('rail.lim.rate'), 'cv-rail-lim-rate', String(L.rate), 'mm/s', pos(1, 500), (rr, x) => { rr.limits.rate = x; }, t('rail.undo.limit')),
+    ...railLineLimits(ctx, a, field)));   // CV.1 2026-11-12
   out.push(el('p', { className: 'cv-note' }, t('rail.limits.note')));
   // 0.8 CV.1 (civil_PART_4): the standard these placeholders are for, and the clause the person enters beside each (nothing from a standard is built in)
   out.push(el('h3', { className: 'cv-h3' }, t('rail.std')), el('p', { className: 'cv-note' }, t('rail.std.note')),
@@ -99,12 +101,15 @@ export function railProps(ctx, a, plan, item) {
     out.push(el('ul', { className: 'cv-plainlist', 'data-rail-std-docs': '' }, ...STANDARDS.eu.docs.map((d) => el('li', {}, el('strong', {}, d.ref), ' ' + d.title))));
     const cite = (key, label) => { const inp = el('input', { type: 'text', className: 'cv-input', id: 'cv-rail-cite-' + key, maxLength: 120, value: (r.cites || {})[key] || '', placeholder: t('rail.cite.empty'), 'aria-label': label });
       inp.addEventListener('change', () => set(t('rail.undo.std'), (rr) => { rr.cites ||= {}; if (inp.value.trim()) rr.cites[key] = inp.value.trim().slice(0, 120); else delete rr.cites[key]; })); return ctx.row(label, inp, 'cv-rail-cite-' + key); };
-    out.push(el('div', { className: 'cv-props', 'data-rail-cites': '' }, ...cite('cant', t('rail.lim.cant')), ...cite('deficiency', t('rail.lim.def')), ...cite('excess', t('rail.lim.exc')), ...cite('gradient', t('rail.lim.grad')), ...cite('rate', t('rail.lim.rate')), ...cite('turnout', t('rail.cite.turnout')), ...cite('gauge', t('rail.cite.gauge'))));
+    out.push(el('div', { className: 'cv-props', 'data-rail-cites': '' }, ...cite('cant', t('rail.lim.cant')), ...cite('deficiency', t('rail.lim.def')), ...cite('excess', t('rail.lim.exc')), ...cite('gradient', t('rail.lim.grad')), ...cite('rate', t('rail.lim.rate')), ...cite('grade', t('rail.lim.grade')), ...cite('vertical', t('rail.lim.vradius')), ...cite('radius', t('rail.lim.radius')), ...cite('element', t('rail.lim.element')), ...cite('defrate', t('rail.lim.defrate')), ...cite('turnout', t('rail.cite.turnout')), ...cite('gauge', t('rail.cite.gauge'))));
     out.push(el('p', { className: 'cv-note', 'data-rail-placeholder': '' }, t('rail.std.placeholder')));
   }
 
-  // ---- warnings
-  const ws = plan?.warnings || [];
+  // ---- CV.1 2026-11-12: what the geometry checks measured, the turnouts on this line, the clearance envelope
+  const line = railLineProps(ctx, a);
+
+  // ---- warnings (the cant's, and since CV.1 the geometry checks', the turnouts' and the envelope's)
+  const ws = P.railWarnings().find((x) => x.id === a.id)?.warnings || plan?.warnings || [];
   if (ws.length) out.push(el('div', { className: 'cv-report' + (ws.some((w) => w.severity !== 'note') ? ' is-error' : ''), 'data-rail-warnings': '' }, el('ul', {}, ...ws.map((w) => el('li', { 'data-rail-warning': w.code }, w.text)))));
 
   // ---- the cant diagram
@@ -113,6 +118,8 @@ export function railProps(ctx, a, plan, item) {
     out.push(el('h3', { className: 'cv-h3' }, t('rail.diagram')), cv);
     requestAnimationFrame(() => drawCant(cv, plan, { start: al.start, end: al.end, units: U }));
   }
+
+  out.push(...line);
 
   // ---- sleepers, ballast, sub-ballast
   const S = r.sleeper, B = r.ballast, SB = r.sub;

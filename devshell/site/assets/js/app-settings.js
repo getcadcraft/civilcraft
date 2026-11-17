@@ -800,23 +800,17 @@
   }
   function hideTip() {
     clearTimeout(tipTimer);
-    if (tip) { try { tip.dispose(); } catch (e) {} }
-    tip = null;
+    if (tipEl && window.ccTooltips) window.ccTooltips.hide();
     tipEl = null;
   }
   function showTip(el) {
-    if (!window.bootstrap || !bootstrap.Tooltip || !el.isConnected) return;
+    if (!window.ccTooltips || !el.isConnected) return;
     var text = (el.textContent || '').replace(/\s+/g, ' ').trim();
-    var title = (el.getAttribute('title') || '').trim();
+    var title = (el.getAttribute('title') || el.getAttribute('data-bs-title') || '').trim();
     if (title && title !== text && text.indexOf(title) === -1) text = title.indexOf(text) !== -1 ? title : text + ' — ' + title;
     if (!text) return;
-    hideTip();
     tipEl = el;
-    tip = new bootstrap.Tooltip(el, {
-      title: text, trigger: 'manual', container: 'body', placement: 'top',
-      fallbackPlacements: ['bottom', 'right', 'left'], customClass: 'shell-tip', animation: false
-    });
-    tip.show();
+    window.ccTooltips.showText(el, text, 0);   // the one tooltip engine (app-tooltips.js)
   }
   function consider(target, delay) {
     if (!s.tips) return;
@@ -849,6 +843,40 @@
   var TOURS_KEY = 'cc-tours';
   function toursOn() { try { return localStorage.getItem(TOURS_KEY) !== 'off'; } catch (e) { return true; } }
   function setToursOn(on) { try { if (on) localStorage.removeItem(TOURS_KEY); else localStorage.setItem(TOURS_KEY, 'off'); } catch (e) {} }
+  /* Start tip (2026-11-12): per app, the same key app-start-tip.js writes ('Don't show this again'); no entry = shown. */
+  function hintKey() { return 'cc-hint-closed:' + (dlg.getAttribute('data-app') || 'app'); }
+  function hintOn() { try { return localStorage.getItem(hintKey()) !== '1'; } catch (e) { return true; } }
+  function setHintOn(on) { if (window.ccStartTip) { window.dispatchEvent(new CustomEvent('cc-start-tip-set', { detail: { on: on } })); return; } try { if (on) localStorage.removeItem(hintKey()); else localStorage.setItem(hintKey(), '1'); } catch (e) {} }
+  /* Messages you hid (2026-11-12, lab: app-settings.inc prints [data-hidden-set] for dev builds only). Each "Don't show this again" /
+   * "Don't ask again" the shell remembers, read from the keys their own files write; Show again forgets that choice:
+   *   cc-hint-closed:<app> = '1'  the start card (app-start-tip.js; this app through setHintOn, other apps by key)
+   *   cc-newhere = done|skipped  the "I'm new" offer (app-newhere.js)
+   *   cc-fit = 'never'           the "menus too tall" question (app-fit.js; window.ccFit.reset() when loaded) */
+  function hiddenItems() {
+    var out = [], me = hintKey(), others = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('cc-hint-closed:') === 0 && k !== me && localStorage.getItem(k) === '1') others.push(k); }
+      if (!hintOn()) out.push({ id: 'start', label: T('shell.hidden.start', { app: dlg.getAttribute('data-app-name') || '' }), undo: function () { setHintOn(true); if (form.elements.startTips) form.elements.startTips.checked = true; } });
+      if (others.length) out.push({ id: 'start-other', label: T('shell.hidden.start_other', { n: others.length }), undo: function () { others.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} }); } });
+      if (localStorage.getItem('cc-newhere')) out.push({ id: 'newhere', label: T('shell.hidden.newhere'), undo: function () { try { localStorage.removeItem('cc-newhere'); } catch (e) {} } });
+      if (localStorage.getItem('cc-fit') === 'never') out.push({ id: 'fit', label: T('shell.hidden.fit'), undo: function () { if (window.ccFit && window.ccFit.reset) window.ccFit.reset(); else try { localStorage.removeItem('cc-fit'); } catch (e) {} } });
+    } catch (e) { /* storage blocked: nothing remembered, nothing to list */ }
+    return out;
+  }
+  function hiddenRender() {
+    var set = form.querySelector('[data-hidden-set]'); if (!set) return;
+    var ul = set.querySelector('[data-hidden-list]'), none = set.querySelector('[data-hidden-none]'), all = set.querySelector('[data-hidden-all]'), items = hiddenItems();
+    ul.textContent = '';
+    items.forEach(function (it) {
+      var li = document.createElement('li'); li.className = 'shell-hidden-row';
+      var sp = document.createElement('span'); sp.textContent = it.label;
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn-line btn-sm-cc'; b.textContent = T('shell.hidden.again');
+      b.addEventListener('click', function () { it.undo(); hiddenRender(); if (window.ccShellScreen) ccShellScreen.say(T('shell.hidden.done', { what: it.label })); });
+      li.appendChild(sp); li.appendChild(b); ul.appendChild(li);
+    });
+    ul.hidden = !items.length; none.hidden = !!items.length; all.hidden = items.length < 2;
+    if (!all.__wired) { all.__wired = true; all.addEventListener('click', function () { hiddenItems().forEach(function (it) { it.undo(); }); hiddenRender(); if (window.ccShellScreen) ccShellScreen.say(T('shell.hidden.done_all')); }); }
+  }
   /* Workspace layout (0.7, owner 2026-10-24): one choice for every app, like the theme (localStorage cc-workspace: standard | docked |
    * toolbox; no entry = standard). An app that has the chosen layout (manifest "workspaces") listens for 'cc-workspace' on window
    * and reads window.ccShellWorkspace.get(); one without it keeps its standard layout. Another window's change arrives too. */
@@ -1135,8 +1163,14 @@
   function hwAllowed() { try { var v = localStorage.getItem(HW_KEY); if (v === 'on') return true; if (v === 'off') return false; } catch (e) {} return !hwDesktop(); }
   function setHw(on) { try { localStorage.setItem(HW_KEY, on ? 'on' : 'off'); } catch (e) {} syncHw(); }
   function syncHw() {
-    var box = form.querySelector('[data-hw-noshare]'); if (box) box.checked = !hwAllowed();
-    var d = form.querySelector('[data-hw-default]'); if (d) d.textContent = T(hwDesktop() ? 'shell.hw.default.desktop' : 'shell.hw.default.web');
+    // NET.1: on the desktop (opt in) the box says "Share …" and is ticked only when sharing; in the browser (opt out) it stays "Don't share …".
+    // The positive label only where the lab markup brings its span, so released pages keep their wording.
+    var lbl = form.querySelector('[data-hw-label]'), optIn = hwDesktop() && !!lbl && !!form.querySelector('[data-hw-preview]');
+    var box = form.querySelector('[data-hw-noshare]'); if (box) { box.checked = optIn ? hwAllowed() : !hwAllowed(); box.setAttribute('data-hw-optin', optIn ? '1' : '0'); }
+    if (lbl && optIn) lbl.textContent = T('shell.hw.share');
+    var d = form.querySelector('[data-hw-default]'); if (d) d.textContent = T(optIn ? 'shell.hw.default.optin' : hwDesktop() ? 'shell.hw.default.desktop' : 'shell.hw.default.web');
+    var pre = form.querySelector('[data-hw-json]'), none = form.querySelector('[data-hw-preview-none]'), body = window.ccHardwarePreview;
+    if (pre) { pre.hidden = !body; if (none) none.hidden = !!body; if (body) { try { pre.textContent = JSON.stringify(body, null, 2); } catch (e) { pre.hidden = true; } } }
   }
   window.ccShellHardware = { allowed: hwAllowed, set: setHw, desktop: hwDesktop };
   window.addEventListener('storage', function (e) { if (e.key === IC_KEY) { icApply(); icMark(); window.dispatchEvent(new CustomEvent('cc-icons')); } if (e.key === WS_KEY) { wsMark(); wsTell(); } if (e.key === 'cc-workspace-files') wsRender(); });
@@ -1144,6 +1178,8 @@
     wsRender();
     if (wsApi && wsApi.notice && wsApi.notice()) wsSay(wsApi.notice());   // a layout that could not be used: why
     if (form.elements.toursAll) form.elements.toursAll.checked = toursOn();
+    if (form.elements.startTips) form.elements.startTips.checked = hintOn();
+    hiddenRender();
     syncHw();
     wsMark();
     icMark();
@@ -1352,11 +1388,12 @@
     var t = e.target;
     if (t.name === 'theme') setTheme(t.value);
     else if (t.name === 'workspace') setWs(t.value);
-    else if (t.name === 'hwNoShare') setHw(!t.checked);
+    else if (t.name === 'hwNoShare') setHw(t.getAttribute('data-hw-optin') === '1' ? t.checked : !t.checked);
     else if (t.name === 'zoom') { s.zoom = parseFloat(t.value) || 1; applyZoom(); requestAnimationFrame(placeHandles); save(); }
     else if (t.name === 'ui') { var u = parseFloat(t.value); s.ui = u >= 0.8 && u <= 1.4 ? u : 1; applyUi(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.ui.now', { pct: Math.round(s.ui * 100) })); }
     else if (t.name === 'density') { s.density = t.value === 'compact' ? 'compact' : 'comfortable'; applyDensity(); save(); if (window.ccShellScreen) ccShellScreen.say(T('shell.settings.density.now', { density: (s.density === 'compact' ? T('shell.settings.density.compact') : T('shell.settings.density.comfortable')) })); }
     else if (t.name === 'toursAll') setToursOn(t.checked);
+    else if (t.name === 'startTips') { setHintOn(t.checked); hiddenRender(); }
     else if (t.name === 'autofocus') { try { localStorage.setItem('cc-autofocus', t.checked ? 'on' : 'off'); } catch (e) { /* this visit only */ } window.dispatchEvent(new Event('cc-autofocus-changed')); }
     else if (t.name === 'tips') { s.tips = t.checked; if (!s.tips) hideTip(); save(); }
     else if (t.name === 'screen') { s.screen = t.value; save(); }

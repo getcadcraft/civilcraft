@@ -132,7 +132,9 @@ function build() {
       el('p', { class: 'help-title', id: 'help-title' }, el('i', { class: 'bi bi-question-circle', 'aria-hidden': 'true' }), ' ' + T('shell.help.title')),
       ui.back, ui.home, ui.close),
     el('div', { class: 'help-tools' }, ui.search),
-    el('div', { class: 'help-about' }, document.querySelector('[data-newhere]') ? el('button', { type: 'button', class: 'help-link', 'data-newhere-open': '' }, el('i', { class: 'bi bi-signpost-split', 'aria-hidden': 'true' }), ' ' + T('shell.newhere.title')) : null, ' ', el('button', { type: 'button', class: 'help-link', 'data-about-open': '' }, el('i', { class: 'bi bi-info-circle', 'aria-hidden': 'true' }), ' ' + T('shell.about.title', { app: document.querySelector('[data-about]')?.dataset.name || '' }))),
+    el('div', { class: 'help-about' }, document.querySelector('[data-newhere]') ? el('button', { type: 'button', class: 'help-link', 'data-newhere-open': '' }, el('i', { class: 'bi bi-signpost-split', 'aria-hidden': 'true' }), ' ' + T('shell.newhere.title')) : null, ' ', el('button', { type: 'button', class: 'help-link', 'data-about-open': '' }, el('i', { class: 'bi bi-info-circle', 'aria-hidden': 'true' }), ' ' + T('shell.about.title', { app: document.querySelector('[data-about]')?.dataset.name || '' })),
+      // BK.124: Help opens the assistant (the Ask box; app-ai-ask.js shows the button once the app attached it and answers the click)
+      ' ', el('button', { type: 'button', class: 'help-link', 'data-ask-open': '', hidden: !(window.ccAsk && window.ccAsk.state && window.ccAsk.state().attached) }, el('i', { class: 'bi bi-chat-dots', 'aria-hidden': 'true' }), ' ' + T('shell.assist.help'))),
     ui.ctxLine,
     ui.body,
   );
@@ -270,7 +272,7 @@ function renderTopic(st) {
   const list = topicsOf(t.scope);
   const i = list.indexOf(t);
   const prev = list[i - 1], next = list[i + 1];
-  ui.body.append(
+  ui.body.append(...[   // a list filtered of its empty places: append() writes a bare null as the word "null" (FX.267)
     el('p', { class: 'help-crumb', text: (t.scope === help.common ? T('shell.help.basics.short') : isAddon(t.scope) ? T('shell.help.addon', { name: extra.find((x) => x.scope === t.scope).name }) : help.name) + (sec ? ' · ' + sec : '') }),
     el('h2', { class: 'help-h', text: t.title }),
     t.lang && primary(t.lang) !== primary(LOCALE) && LOCALE !== 'en-XA' ? el('p', { class: 'help-untranslated', lang: 'en', text: T('shell.help.untranslated') }) : null,
@@ -281,7 +283,7 @@ function renderTopic(st) {
     isAddon(t.scope) ? null : el('p', { class: 'help-web' },
       el('a', { href: siteHref('/tutorials/' + t.scope + '/' + t.slug), target: '_blank', rel: 'noopener' }, T('shell.help.web')),
       el('span', { class: 'help-web-off', text: T('shell.help.web.offline') })),
-  );
+  ].filter(Boolean));
 }
 
 function wireLinks(scopeEl) {
@@ -337,7 +339,12 @@ function close() {
   if (f && document.contains(f) && f !== document.body) { f.blur(); f.focus({ preventScroll: true }); }
 }
 
-function toggle() { root.hidden ? open() : close(); }
+// An app may say where the person is: window.ccHelpContext() → a topic slug (SuperCad Studio's workspaces and Home pages). Used only when the
+// panel is opened with no topic of its own; an app that does not define it behaves as before.
+function contextTopic() {
+  try { const f = window.ccHelpContext; const s = typeof f === 'function' ? f() : null; return typeof s === 'string' && /^[a-z0-9-]+$/.test(s) ? s : undefined; } catch (_) { return undefined; }
+}
+function toggle() { root.hidden ? open(contextTopic()) : close(); }
 
 if (root) {
   for (const b of openers) {
@@ -354,7 +361,7 @@ if (root) {
   }, true);
   // Esc with nothing focused (focus fell back to the page) closes the panel too; Esc in the app stays the app's.
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !root.hidden && (document.activeElement === document.body || document.activeElement === null)) {
+    if (e.key === 'Escape' && !root.hidden && (document.activeElement === document.body || document.activeElement === null) && !document.querySelector('dialog[open]')) {   // an open dialog (About, Settings) takes its own Esc
       e.preventDefault();
       e.stopImmediatePropagation();
       close();

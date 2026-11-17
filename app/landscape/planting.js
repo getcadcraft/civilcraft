@@ -47,6 +47,7 @@ import { LEVELS, levelForScale, simpleSymbol, placeSymbol } from './symbols.js';
 import { WS_SOURCES } from './ws-sources.js';
 import { cleanSections } from './section-ls.js';   // 0.8 LA.9   // 0.8 LA.4: the modifier order and the live level labels
 import './layers.js';
+import { pointInPolygon } from '../geom2d.js';
 
 export const MAX_PLANTS = 20000;          // single plants in a project
 export const MAX_BEDS = 2000;
@@ -122,14 +123,7 @@ export function cleanLandscape(obj, units, cleanPalette = null) {
 
 // ---- geometry ----
 function area(pts) { let a = 0; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) a += (pts[j].x + pts[i].x) * (pts[j].y - pts[i].y); return Math.abs(a) / 2; }
-export function inside(x, y, pts) {
-  let c = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const a = pts[i], b = pts[j];
-    if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) c = !c;
-  }
-  return c;
-}
+export function inside(x, y, pts) { return pointInPolygon(x, y, pts); }
 function segDist(x, y, a, b) {
   const dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy;
   const t0 = L ? Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / L)) : 0;

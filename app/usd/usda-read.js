@@ -23,12 +23,26 @@ const PUNCT = new Set(['(', ')', '[', ']', '{', '}', '=', ',', ';', ':', '.', '&
 const NUM = /[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/y;
 const ID = /[A-Za-z_][A-Za-z0-9_]*(?::[A-Za-z_][A-Za-z0-9_]*)*/y;
 
-function tokenize(src, limits) {
+/**
+ * 0.10 PERF.20: `parts` is the text as a list of strings that each end at a line feed (the last may not): the tokens never run over
+ * a line end except a triple-quoted string or an @@@ asset path, which read on into the next part; so no string is the file's size.
+ */
+function tokenize(parts, limits) {
   const out = [];
-  let i = 0, line = 1;
-  const n = src.length;
+  let i = 0, line = 1, pi = 1;
+  let src = parts.length ? parts[0] : '';
+  let n = src.length;
+  /** The next part joined on (inside a token that has not ended), or false at the end of the text. */
+  const more = () => { while (pi < parts.length && !parts[pi]) pi++; if (pi >= parts.length) return false; src += parts[pi++]; n = src.length; return true; };
   const err = (what) => damaged('ccusd.damaged.syntax', { line, what });
-  while (i < n) {
+  for (;;) {
+    if (i >= n) {
+      // at a token boundary: the part is used up, the next one replaces it
+      while (pi < parts.length && !parts[pi]) pi++;
+      if (pi >= parts.length) break;
+      src = parts[pi++]; n = src.length; i = 0;
+      continue;
+    }
     const c = src[i];
     if (c === '\n') { line++; i++; continue; }
     if (c === ' ' || c === '\t' || c === '\r' || c === '\f') { i++; continue; }
@@ -39,7 +53,7 @@ function tokenize(src, limits) {
       const q = triple ? c + c + c : c;
       let j = i + q.length, s = '';
       for (;;) {
-        if (j >= n) throw err(msg('ccusd.syntax.end', { what: msg('ccusd.part.string') }));
+        if (j >= n && !more()) throw err(msg('ccusd.syntax.end', { what: msg('ccusd.part.string') }));
         if (src.startsWith(q, j)) { j += q.length; break; }
         const ch = src[j];
         if (ch === '\n') { if (!triple) throw err(msg('ccusd.syntax.end', { what: msg('ccusd.part.string') })); line++; }
@@ -58,7 +72,8 @@ function tokenize(src, limits) {
     }
     if (c === '@') {
       if (src.startsWith('@@@', i)) {
-        const j = src.indexOf('@@@', i + 3);
+        let j = src.indexOf('@@@', i + 3);
+        while (j < 0 && more()) j = src.indexOf('@@@', i + 3);
         if (j < 0) throw err(msg('ccusd.syntax.end', { what: msg('ccusd.part.asset') }));
         out.push({ k: 'asset', v: src.slice(i + 3, j), line: at }); i = j + 3; continue;
       }
@@ -130,12 +145,32 @@ const PROP_META = {
   displayUnit: ['displayUnit', 'token'],
 };
 
+const PART_BYTES = 4 << 20;
+/** bytes → strings of about 4 MB, each ending right after a line feed (0x0A is never inside a UTF-8 multibyte character). */
+function utf8parts(bytes) {
+  const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  if (u8.length <= PART_BYTES) return [utf8decode(u8)];
+  const out = [];
+  for (let a = 0; a < u8.length;) {
+    const k = a + PART_BYTES >= u8.length ? -1 : u8.indexOf(10, a + PART_BYTES);
+    const b = k < 0 ? u8.length : k + 1;
+    out.push(utf8decode(u8.subarray(a, b)));
+    a = b;
+  }
+  return out;
+}
+
 export function readUsda(input, opts = {}) {
   const limits = limitsOf(opts);
-  const text = typeof input === 'string' ? input : utf8decode(input);
-  if (text.length > limits.textBytes) throw new UsdError('too_big', msg('ccusd.too_big', { what: Math.round(text.length / 1048576) + ' MB' }));
+  // 0.10 PERF.20: bytes are decoded in parts of about 4 MB (a part ends at a line feed), never as one string; a string, or the
+  // `.parts` of a text another reader made, is read the same way
+  const parts = typeof input === 'string' ? [input] : Array.isArray(input) ? input : input && Array.isArray(input.parts) ? input.parts : utf8parts(input);
+  const total = parts.reduce((a, x) => a + x.length, 0);
+  if (total > limits.textBytes) throw new UsdError('too_big', msg('ccusd.too_big', { what: Math.round(total / 1048576) + ' MB' }));
+  const text = parts[0] || '';   // the header is in the first part
   if (!/^#usda\s+1\.\d/.test(text)) throw text.startsWith('#usda') ? damaged('ccusd.damaged.syntax', { line: 1, what: msg('ccusd.syntax.header') }) : new UsdError('not_usd', msg('ccusd.not_usd'));
-  const toks = tokenize(text.slice(text.indexOf('\n') + 1 || text.length), limits);
+  const body = text.slice(text.indexOf('\n') + 1 || text.length);
+  const toks = tokenize([body, ...parts.slice(1)], limits);
   for (const t of toks) t.line++;
   const p = new Parser(toks, limits);
   const layer = new Layer();

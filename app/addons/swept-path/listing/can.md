@@ -1,0 +1,8 @@
+- Run a road vehicle, with up to three trailers, forward or reversing, along an alignment or a line, and see its envelope, wheel tracks, largest steering and articulation angle, and a warning when it needs more than its steering lock or hitch limit allows. Swept path tab, Run along a path. {#sp-road}
+- Run an aircraft on the ground along a taxi line: the nose gear steers, and the wing tips, tail and engine points are traced as the aircraft turns. A pushback is a reverse run. Swept path tab, Run along a path. {#sp-air}
+- Run a light rail car or a coupled consist along a track line and see how far the body swings off the track at the middle and at the ends. Swept path tab, Run along a path. {#sp-rail}
+- Check a run against the kerbs, buildings, parcels and lines you tick, with a margin: each conflict lists where along the path it first happens, and goes to Problems. Swept path tab, Clearance. {#sp-clear}
+- Draw a roundabout and run every entry and exit of a road vehicle through it, marking the movements that need more than the steering lock or ride over the island. Swept path tab, Roundabout. {#sp-round}
+- Lay out parking bays inside a closed line at any angle and count them, then check how a vehicle pulls into the hardest bay. Swept path tab, Parking. {#sp-park}
+- Draw the result into the project as plain lines, in one undo step, and save the report as a CSV that a spreadsheet opens without running a name as a formula. Draw into the project, Save report as CSV. {#sp-report}
+- Keep your own vehicles: copy a vehicle, change its figures, save it. Your copy is marked unverified until you check it. Swept path tab, Vehicle.

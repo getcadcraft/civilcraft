@@ -1,51 +1,53 @@
 ---
 title: Alətlər qutusu və məlumat qutusu tərtibatında işləyin
-summary: Tətbiqi solda öz yuvaları olan alət sütununa, çertyojun yuxarısında hal-hazırda işləyən alətə və ya seçdiyinizə uyğun məlumat qutusuna, sağda naviqatora, hər görünüş üçün sekmələrə, sürətli seçimlərə və redaktə palitrasına keçirin; istədiyiniz vaxt klassik tərtibata qayıdın.
-keywords: tərtibat, iş sahəsi, alətlər qutusu, alət sütunu, məlumat qutusu, məlumat zolağı, naviqator, layihə xəritəsi, sürətli zolaq, sürətli seçimlər, redaktə palitrası, pet palette, mənim alətlərim, sevimli alətlər, görünüş sekmələri, alətlər qutusu pəncərəsi, klassik tərtibat, tərtibatı dəyiş
-from: 2f807c9c
+summary: Tətbiqi solda öz alətləriniz üçün yuvaları olan alət sütununa, çertyojun yuxarısında işləyən aləti və ya seçdiyinizi izləyən məlumat qutusuna, sağda naviqatora, hər görünüş üçün sekmə, sürətli seçimlər və redaktə palitrasına keçirin və istənilən vaxt klassik tərtibata qayıdın.
+keywords: tərtibat, iş sahəsi, alətlər qutusu, alət sütunu, məlumat qutusu, məlumat zolağı, naviqator, layihə xəritəsi, sürətli çubuq, sürətli seçimlər, redaktə palitrası, palitra, mənim alətlərim, sevimli alətlər, görünüş sekmələri, alətlər qutusu pəncərəsi, klassik tərtibat, tərtibatı dəyiş, quruluşu dəyiş
+from: ec341666
 ---
 
-**Alətlər qutusu və məlumat qutusu** tətbiqin üç iş sahəsi tərtibatından biridir. Çertyoj alətləri solda sütunda durur, yuxarıdakı məlumat qutusu işləyən alətin nə istədiyini və ya seçdiyinizi göstərir, hər görünüşün sekmesi var, və çertyojun altındakı sürətli zolaqda bir neçə gündəlik seçim saxlanılır. Alətlər tətbiqin öz alətləridir: klassik tərtibatda edə biləcəyiniz hər şey burada da işləyir, çertyojunuz, menyu üslubunuz və qısayollarınız isə olduğu kimi qalır.
+**Alətlər qutusu və məlumat qutusu** tətbiqin üç iş sahəsi tərtibatından biridir. Çertyoj alətləri solda sütunda durur, çertyojun yuxarısındakı məlumat qutusu işləyən aləti tələb etdiyini və ya seçdiyinizi göstərir, hər görünüşün sekmə var, çertyojun altındakı sürətli çubuqda bir neçə gündəlik seçim saxlanır. Alətlər tətbiqin öz alətləridir: klassik tərtibatda edə biləcəyiniz hər şey burada da işləyir, çertyojunuz, menyu üslubunuz və qısa yollarınız dəyişmir.
 
 ## Seçin
 
-1. {{ui:Parametrlər}} açın (dişli, və ya {{key:Mod+,}}).
-2. {{ui:Qlobal}} sekmesini seçin, sonra {{ui:Tərtibat}} › {{ui:İş sahəsi}} bölməsinə keçin.
+1. {{ui:Parametrlər}} açın (dişli, ya {{key:Mod+,}}).
+2. {{ui:Qlobal}} sekməsini seçin, sonra {{ui:Tərtibat}} › {{ui:İş sahəsi}}-ə keçin.
 3. {{ui:Alətlər qutusu və məlumat qutusu}} seçin.
 
-Tərtibat dərhal dəyişir. Seçim bu brauzerdəki hər tətbiq üçün birdir: hər tətbiq ondan sonra bu tərtibatla açılır və səhifə çəkilməzdən əvvəl hazır olur, ona görə klassik tərtibatı heç vaxt görmürsünüz.
+Tərtibat dərhal dəyişir. Seçim bu brauzerdəki hər tətbiq üçün birdir: hər tətbiq bundan sonra onda açılır və səhifə çəkilməzdən əvvəl hazır olur, ona görə klassik tərtibatı heç vaxt görmürsünüz.
 
-## Nə harada yerləşir
+## Nəyin harada olduğu
 
-- **Alətlər paneli:** tətbiqin öz alətlər paneli çertyojun sahəsinin yuxarısında menyuları ilə qalır.
-- **Məlumat qutusu:** alətlər panelinin altında. Alət işləyərkən o aləti və ondan nə istədiyini göstərir. Bir şey seçəndə onun əsas parametrlərini göstərir (divar üçün: növü, qalınlığı, uzunluğu, yer xətti və hündürlüyü) və onları orada dəyişə bilərsiniz: orada edilən dəyişiklik Xüsusiyyətlərdəkilə eynidir və {{key:Mod+Z}} onu geri qaytarır. Heç nə seçilmədikdə "Heç nə seçilməyib" yazır. Hər tətbiq burada öz qutularını əlavə edir, məsələn cari qat və ya səviyyə, ya da açıq sənəd.
-- **Alətlər qutusu:** solda sütun, tətbiqin alətləri qruplarda. Qrupun adına klik edərək onu bükün və ya yenidən açın. İşləyən alət işıqlanır.
-- **Mənim alətlərim:** alətlər qutusunun birinci qrupu, ən çox istifadə etdiyiniz alətlər üçün səkkiz boş yuva. Boş yuvaya klik edin və tətbiqin istənilən alətini və ya əmrini seçin; ya da alətlər qutusunda alətə sağ klik edib {{ui:Mənim alətlərimə əlavə et}} seçin; ya da aləti yuvaya sürükləyin. Yuvanı dəyişmək və ya boşaltmaq üçün yuvaya sağ klik edin. Yuvalarınız bu brauzerdə hər tətbiq üçün saxlanılır.
-- **Naviqator:** sağ panel. Tətbiqin layihə brauzeri üstdədir (planlar, kəsiklər, fasadlar, 3D görünüşlər, cədvəllər, vərəqlər, tətbiqdə olanlar kimi): birinə klik edib onu açın. Onun altında {{ui:Xüsusiyyətlər}} və sağ panelin digər məzmunu olan sekmə.
-- **Görünüş sekmələri:** açıq faylın hər görünüşü üçün sekmə (vərəq, plan, səhnə…), çertyojun üstündə.
-- **Sürətli zolaq:** çertyojun altında, tətbiqdə olan görünüş parametrləri və gündəlik seçimlər, məsələn miqyas, detal səviyyəsi, görünüş diapazonu, sığdır, plan, bölmə və ya 3D, tutmalar və vahidlər.
-- **Redaktə palitrası:** çertyojda bir şeyə klik edəndə yanında kiçik palitra açılır, həmin şey üçün tətbiqin redaktə əmrləri ilə: köçür, kopyala, fırlat, əks etdir, dublikat et və ya sil, həmçinin {{ui:Xüsusiyyətlər}}. {{key:Esc}}, siçan çarxı, başqa klik və ya onun bağlama düyməsi onu gizlədir.
+- **Alət paneli:** tətbiqin öz alət paneli çertyojun sahəsinin yuxarısında, menyuları ilə birlikdə qalır.
+- **Məlumat qutusu:** alət paneli altında. Alət işləyərkən aləti və nə tələb etdiyini göstərir. Bir şey seçdikdə əsas parametrlərini göstərir (divar üçün: növü, qalınlığı, uzunluğu, yer xətti və hündürlüyü) və onları elə orada dəyişə bilərsiniz: orada edilən dəyişiklik {{ui:Xüsusiyyətlər}}-dəki ilə eynidir və {{key:Mod+Z}} onu geri qaytarır. Heç nə seçilməyibsə "Heç nə seçilməyib" yazır. Hər tətbiq burada öz qutularını əlavə edir, məsələn cari qatı və ya səviyyəni, ya da açıq sənədi.
+- **Alətlər qutusu:** soldakı sütun, tətbiqin alətləri qruplarda. Qrupun adına klikləyərək onu yığın və ya yenidən açın. İşləyən alət işıqlanır.
+- **Mənim alətlərim:** alətlər qutusunun ilk qrupu, ən çox istifadə etdiyiniz alətlər üçün səkkiz boş yuva. Boş yuvaya klikləyərək tətbiqin istənilən aləti və ya əmrini seçin; ya da alətlər qutusunda aləti sağ düymə ilə klikləyib {{ui:Mənim alətlərimə əlavə et}} seçin; ya da aləti yuvaya sürükləyin. Yuvanı dəyişmək və ya boşaltmaq üçün ona sağ düymə ilə klikləyin. Yuvalarınız bu brauzerdə hər tətbiq üçün saxlanır.
+- **Naviqator:** sağ panel. Tətbiqin layihə brauzeri yuxarıdadır (planlar, kəsiklər, fasadlar, 3D görünüşlər, cədvəllər, vərəqlər – tətbiqdə nə varsa); açmaq üçün birinə klikləyin. Altında {{ui:Xüsusiyyətlər}} və sağ panelin digər məzmunu olan sekmə.
+- **Görünüş sekmələri:** açılmış faylın hər görünüşü üçün sekmə (vərəq, plan, səhnə…), çertyojun üzərində.
+- **Sürətli çubuq:** çertyojun altında – görünüş parametrləri və tətbiqin gündəlik seçimləri, məsələn miqyas, detal səviyyəsi, görünüş diapazonu, sığdır, plan, bölmə və ya 3D, tutma və vahidlər.
+- **Redaktə palitrası:** çertyojda bir şeyə klikləyin və göstəricinin yanında kiçik palitra çıxır, həmin şey üçün tətbiqin redaktə əmrləri ilə, məsələn köçür, kopyala, fırlat, güzgü, təkrarla və ya sil, və {{ui:Xüsusiyyətlər}}. {{key:Esc}}, siçan təkəri, başqa klik və ya onun bağlama düyməsi onu yığır.
 
-Hal-hazırda işləməyən alət boz rəngdə olur və ipucu səbəbini göstərir. Ona klik edin və ya üzərində {{key:Enter}} basın ki, səbəbi qutuda oxuyasınız.
+İndi işləyə bilməyən alət boz olur və ipucu səbəbini göstərir. Ona klikləyin, ya da üzərində {{key:Enter}} basın ki, səbəbi qutuda oxuyasınız.
 
-{{key:Esc}} əvvəl işləyən aləti bitirir, klassik tərtibatda olduğu kimi; hər qısayol və {{key:Ctrl+Shift+F}} (ekran rejimləri) əvvəlki kimi işləyir.
+{{key:Esc}} əvvəlcə işləyən aləti bitirir, klassik tərtibatda olduğu kimi, və hər qısa yol və {{key:Ctrl+Shift+F}} (ekran rejimləri) əvvəlki kimi işləyir.
 
-## Alətlər qutusuna öz pəncərəsi verin
+## Alətlər qutusuna öz pəncərəsini verin
 
-{{ui:Alətlər qutusunu köçür}} düyməsinin, alətlər qutusunun yuxarısında {{ui:Yeni pəncərəyə köçür}} seçimi var: alətlər qutusu tətbiqin yanında və ya ikinci ekranda qoyula biləcək dar pəncərədə açılır. Həmin pəncərədə basılan düymələr tətbiqə çatır. {{ui:Alətlər qutusunu yerinə qaytar}} və ya həmin pəncərəni bağlamaq onu evinə geri gətirir.
+Alətlər qutusunun yuxarısındakı {{ui:Alətlər qutusunu köçür}} düyməsində {{ui:Yeni pəncərəyə köçür}} var: alətlər qutusu tətbiqin yanında və ya ikinci monitorda qoya biləcəyiniz dar öz pəncərəsində açılır. Orada basılan düymələr tətbiqə çatır. {{ui:Alətlər qutusunu yerinə qaytar}} və ya həmin pəncərəni bağlamaq onu evə qaytarır.
 
-Alətlər paneli parametrləri alətlər qutusuna da aiddir: {{ui:Parametrlər}} › {{ui:Qlobal}} › {{ui:Alətlər paneli}} › {{ui:İkonlar və adlar}}, {{ui:Yalnız ikonlar}} və ya {{ui:Yalnız adlar}}, və {{ui:Qrup adlarını göstər (Fayl, Çək, …)}}.
+Alət parametrləri alətlər qutusuna da aiddir: {{ui:Parametrlər}} › {{ui:Qlobal}} › {{ui:Alətlər paneli}} › {{ui:İkonlar və adlar}}, {{ui:Yalnız ikonlar}} və ya {{ui:Yalnız adlar}}, və {{ui:Qrup adlarını göstər (Fayl, Çək, …)}}.
 
-## Panelləriniz sizin olaraq qalır
+## Panelləriniz sizindir
 
-Sol və sağ panellər [Panelləri təşkil edin](common:arrange-panels) bölməsində təsvir olunan hər şeyi saxlayır: yerləşdirmə, üzdürmə, bərkitmə, gizlətmə, sekmələr, {{ui:Yeni pəncərəyə köçür}} və {{ui:Tərtibatı sıfırla}}.
+Sol və sağ panellər [Panelləri təşkil edin](common:arrange-panels) bölməsində təsvir olunanların hamısını saxlayır: yerləşdirmə, üzdürmə, bərkitmə, gizlətmə, sekmələr, {{ui:Yeni pəncərəyə köçür}} və {{ui:Tərtibatı sıfırla}}.
 
 ## Klassik tərtibata qayıdın
 
-{{ui:Parametrlər}} › {{ui:Qlobal}} › {{ui:Tərtibat}} › {{ui:İş sahəsi}} açın və {{ui:CadCraft klassik}} seçin. Hər alətlər zolağı, sekmə və panel əvvəl olduğu yerə qayıdır.
+{{ui:Parametrlər}} › {{ui:Qlobal}} › {{ui:Tərtibat}} › {{ui:İş sahəsi}}-ni açın və {{ui:CadCraft klassik}} seçin. Hər alət paneli, sekmə və panel olduğu yerə qayıdır.
 
 :::note
-Telefonda, ya da 760 piksel və ya daha dar pəncərədə tətbiq nə seçdiyinizdən asılı olmayaraq telefon tərtibatını istifadə edir. Daha geniş pəncərə sizin tərtibatınızı geri gətirir.
+Telefonda və ya 760 pikseldən dar pəncərədə tətbiq seçdiyinizdən asılı olmayaraq telefon tərtibatını istifadə edir. Daha geniş pəncərə tərtibatınızı geri gətirir.
 :::
 
-Başqa tərtibatı sınamaq üçün bax [lent və layihə brauzeri tərtibatı](common:layout-ribbon).
+Başqa tərtibatı sınamaq üçün bax: [Lent və layihə brauzeri tərtibatı](common:layout-ribbon).
+
+Bu tərtibatın nəyi göstərdiyini dəyişmək üçün bax: [Tərtibatı ekranda dəyişin](common:layout-edit); qaranlıq, menyu-zolağı və lentli tərtibat üçün bax: [Drafting tərtibatı](common:layout-drafting).

@@ -76,6 +76,7 @@ export async function fromInput({ app, root, stage, panels = {}, status = null, 
     hide: [], toolbar: toolbarEl,
     ribbon: style ? ribbon : null, toolbox,
     tool(id) { const c = byId.get(cid(id)); return { label: label(cid(id)), icon: c?.icon || 'bi-dot', built: !!target(c) }; },
+    source: (id) => target(byId.get(cid(id))) || null,   // 0.10 BK.33: the command's own button (the tooltip engine reads its description)
     can(id) {
       const c = byId.get(cid(id)), b = target(c);
       if (!b) return { enabled: false, reason: T('shell.ws.why.notbuilt', { app: document.querySelector('[data-app-settings]')?.dataset.appName || app }) };

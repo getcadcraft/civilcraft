@@ -48,6 +48,7 @@ let ctx = null, page = null;
 async function fresh() {
   if (ctx) await ctx.close();
   ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
+  await ctx.addInitScript(() => { try { localStorage.setItem('cc-autofocus', 'off'); } catch (e) { /* private window */ } });   // tests-10: the side panel folds to one open section (shell, 2026-11-09); a page test clicks any section, so folding is off
   await ctx.addCookies([{ name: minted.name, value: minted.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
   page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });

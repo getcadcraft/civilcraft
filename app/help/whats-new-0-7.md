@@ -2,7 +2,7 @@
 title: What's new in 0.7 (earlier)
 summary: CivilCraft 0.7 adds a Power lines workspace (overhead lines and underground cables with your own libraries, sag and tension, clearance and strength checks, stringing tables, quantities, sheets and GIS), a Landscape workspace (a plant list, planting plans and schedules, landscape grading, paving, walls and steps, an irrigation calculation aid, landscape sheets and freeform objects), building masses with zoning limits you type and sun hours, clothoid spirals, corridors built from parts on each side, USD export and more tools for AI assistants.
 section: start
-order: 6
+order: 7
 keywords: whats new 0.7, earlier release, release notes, changelog, changes, 0.7, version, new features, landscape, landscape workspace, plant list, plants, planting, plant schedule, bed, hedge, grading, platform, berm, swale, spot elevation, slope analysis, ponding, hardscape, paving, path, wall, kerb, ramp, steps, irrigation, sprinkler, drip, landscape sheets, freeform object, building mass, massing, gross floor area, zoning, setback, envelope, sky plane, floor area ratio, coverage, sun hours, shadow, ifc, develop in bimcraft, spiral, clothoid, transition, assembly, curb, gutter, sidewalk, usd, assistants, units, portuguese
 ---
 

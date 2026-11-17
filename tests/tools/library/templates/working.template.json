@@ -1,0 +1,13 @@
+{
+  "name": "Specification: Working drawing schedules",
+  "description": "A specification for working drawings, filled from the open IFC model: quantities by type, tag values and schedules. Edit the text, then save the document as PDF or Word. Reads the model’s tags (the definitions are listed with the template).",
+  "template": {
+    "format": "cadcraft-doc-template",
+    "version": 1,
+    "key": "spec-working",
+    "trade": "working drawings",
+    "title": "Working drawing schedules",
+    "tags": [],
+    "text": "# Working drawing schedules: {{project}}\n\nFile {{file}}, {{date}}.\n\n## Doors\n\n{{schedule doors}}\n\n## Windows\n\n{{schedule windows}}\n\n## Finishes by room\n\n{{schedule roomfinishes}}\n\n## Finish quantities\n\n{{schedule finishtotals}}\n"
+  }
+}

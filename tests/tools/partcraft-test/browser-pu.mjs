@@ -257,7 +257,8 @@ export async function run(h) {
     const ci = s.entities.find((e) => e.type === 'circle');
     ok(ci && h.near(ci.r, 6, 1e-9) && dims(s, 'diameter').includes(12), 'Circle: Diameter 12 → radius 6 with a diameter dimension');
     // an arc: centre (-50, 0), radius 10 typed toward +X, then 90° typed after turning the pointer anticlockwise
-    await page.keyboard.press('a');
+    // the Arc key keeps the method used last (0.9 FX.136), and the arc checks that run before these leave another one: pick Center, Start, End
+    await pc(() => document.querySelector('[data-cmd="tool-arc-cse"]').click());
     await at(-50, 0);
     await at(-45, 0, false);
     await page.keyboard.type('10'); await page.keyboard.press('Enter');

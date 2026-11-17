@@ -1,11 +1,11 @@
 ---
-title: Lavorare nel layout con casella degli strumenti e riquadro informazioni
-summary: Passare l'app a una colonna di strumenti a sinistra con posti per i propri, un riquadro informazioni in alto che segue lo strumento in uso o ciò che si è scelto, un navigatore a destra, una scheda per ogni vista, opzioni rapide e una palette di modifica, e tornare al layout classico quando si vuole.
-keywords: layout, area di lavoro, casella degli strumenti, colonna degli strumenti, riquadro informazioni, barra informazioni, navigatore, mappa del progetto, barra rapida, opzioni rapide, palette di modifica, palette accanto al puntatore, strumenti personali, strumenti preferiti, schede delle viste, finestra della casella degli strumenti, layout classico, cambiare layout, passare a un altro layout
-from: 2f807c9c
+title: Lavorare nel layout a casella degli strumenti e riquadro informazioni
+summary: Passare l'app a una colonna di strumenti a sinistra con spazi per i propri, un riquadro informazioni in alto che segue lo strumento in esecuzione o ciò che si è selezionato, un navigatore a destra, una scheda per ogni vista, opzioni rapide e una tavolozza di modifica, e tornare al layout classico quando si desidera.
+keywords: layout, area di lavoro, casella degli strumenti, colonna degli strumenti, riquadro informazioni, barra informazioni, navigatore, mappa di progetto, barra rapida, opzioni rapide, tavolozza di modifica, pet palette, strumenti personali, strumenti preferiti, schede delle viste, finestra della casella degli strumenti, layout classico, cambia layout, passa layout
+from: ec341666
 ---
 
-**Casella degli strumenti e riquadro informazioni** è uno dei tre layout dell'area di lavoro dell'app. Gli strumenti di disegno stanno in una colonna a sinistra, un riquadro informazioni in alto mostra ciò che lo strumento in uso richiede o ciò che è selezionato, ogni vista ha una scheda e una barra rapida sotto il disegno contiene alcune opzioni di uso quotidiano. Gli strumenti sono quelli dell'app: tutto ciò che si può fare nel layout classico funziona anche qui, e il disegno, lo stile dei menu e i tasti restano invariati.
+**Casella degli strumenti e riquadro informazioni** è uno dei tre layout di area di lavoro dell'app. Gli strumenti di disegno stanno in colonna a sinistra, un riquadro informazioni in alto mostra ciò che richiede lo strumento in esecuzione o ciò che si è selezionato, ogni vista ha una scheda, e una barra rapida sotto il disegno raccoglie alcune opzioni di uso quotidiano. Gli strumenti sono quelli dell'app: tutto ciò che si può fare nel layout classico funziona anche qui, e il disegno, lo stile dei menu e i tasti restano come sono.
 
 ## Sceglierlo
 
@@ -13,39 +13,41 @@ from: 2f807c9c
 2. Scegliere la scheda {{ui:Globali}}, poi andare a {{ui:Layout}} › {{ui:Area di lavoro}}.
 3. Scegliere {{ui:Casella degli strumenti e riquadro informazioni}}.
 
-Il layout cambia subito. La scelta vale per tutte le app in questo browser: da quel momento ogni app si apre con esso, ed è già attivo prima che la pagina venga disegnata, quindi il layout classico non compare mai per primo.
+Il layout cambia subito. La scelta vale per ogni app in questo browser: ciascuna app si apre in esso da quel momento, ed è già attivo prima che la pagina venga disegnata, così non si vede mai prima il layout classico.
 
 ## Che cosa c'è dove
 
-- **Barra degli strumenti:** la barra degli strumenti dell'app resta in alto nell'area di disegno, con i suoi menu.
-- **Riquadro informazioni:** sotto la barra degli strumenti. Mentre uno strumento è in esecuzione mostra lo strumento e ciò che richiede. Quando si sceglie un elemento ne mostra le impostazioni principali (per un muro: tipo, spessore, lunghezza, linea di posizione e altezza), che si possono modificare direttamente lì: una modifica lì equivale a una nelle Proprietà e {{key:Mod+Z}} la annulla. Senza alcuna selezione riporta "Nessuna selezione". Ogni app aggiunge qui i propri riquadri, come il layer o il livello corrente, oppure il documento aperto.
-- **Casella degli strumenti:** la colonna a sinistra, con gli strumenti dell'app in gruppi. Fare clic sul nome di un gruppo per comprimerlo o riaprirlo. Lo strumento in esecuzione è acceso.
-- **Strumenti personali:** il primo gruppo della casella degli strumenti, otto posti vuoti per gli strumenti usati più spesso. Fare clic su un posto vuoto per scegliere uno qualsiasi degli strumenti o dei comandi dell'app; oppure fare clic con il pulsante destro su uno strumento nella casella e scegliere {{ui:Aggiungi a Strumenti personali}}; oppure trascinare uno strumento su un posto. Fare clic con il pulsante destro su un posto per cambiarlo o svuotarlo. I posti vengono conservati per ogni app in questo browser.
-- **Navigatore:** il pannello destro. In alto c'è il browser di progetto dell'app (piante, sezioni, prospetti, viste 3D, abachi, tavole, secondo ciò che l'app prevede): fare clic su uno per aprirlo. Sotto, {{ui:Proprietà}} e una scheda con gli altri contenuti del pannello destro.
+- **Barra degli strumenti:** la barra propria dell'app resta in alto nell'area del disegno, con i suoi menu.
+- **Riquadro informazioni:** sotto la barra degli strumenti. Mentre uno strumento è in esecuzione mostra lo strumento e ciò che richiede. Quando si sceglie qualcosa, mostra le sue impostazioni principali (per un muro: tipo, spessore, lunghezza, linea di posizione e altezza), che si possono modificare lì direttamente: una modifica lì equivale a quella in Proprietà, e {{key:Mod+Z}} la annulla. Senza nulla di selezionato mostra "Nessun oggetto selezionato.". Ogni app aggiunge qui i propri riquadri, come il layer corrente o il livello corrente, oppure il documento aperto.
+- **Casella degli strumenti:** la colonna a sinistra, con gli strumenti dell'app in gruppi. Fare clic sul nome di un gruppo per comprimerlo o aprirlo di nuovo. Lo strumento in esecuzione è evidenziato.
+- **Strumenti personali:** il primo gruppo della casella degli strumenti, con otto spazi vuoti per gli strumenti più usati. Fare clic su uno spazio vuoto per scegliere un qualsiasi strumento o comando dell'app; oppure fare clic destro su uno strumento nella casella e scegliere {{ui:Aggiungi a Strumenti personali}}; oppure trascinare uno strumento su uno spazio. Fare clic destro su uno spazio per cambiarlo o svuotarlo. Gli spazi sono conservati per ciascuna app in questo browser.
+- **Navigatore:** il pannello di destra. In cima sta il browser di progetto dell'app (piante, sezioni, prospetti, viste 3D, abachi, tavole, come l'app li prevede): fare clic su uno di essi per aprirlo. Sotto, {{ui:Proprietà}} e una scheda con gli altri contenuti del pannello di destra.
 - **Schede delle viste:** una scheda per ogni vista del file aperto (una tavola, una pianta, una scena…), sopra il disegno.
-- **Barra rapida:** sotto il disegno, le impostazioni della vista e le opzioni di uso quotidiano dell'app, come la scala, il livello di dettaglio, l'intervallo della vista, adatta, pianta, divisione o 3D, snap e unità.
-- **Palette di modifica:** facendo clic su un elemento del disegno compare accanto al puntatore una piccola palette con i comandi di modifica dell'app per quell'elemento, come sposta, copia, ruota, specchio, duplica o elimina, e {{ui:Proprietà}}. {{key:Esc}}, la rotellina del mouse, un altro clic o il suo pulsante di chiusura la fanno sparire.
+- **Barra rapida:** sotto il disegno, le impostazioni della vista e le opzioni di uso quotidiano che l'app offre, come la scala, il livello di dettaglio, l'intervallo di vista, adatta, pianta, dividi o 3D, snap e unità.
+- **Tavolozza di modifica:** fare clic su qualcosa nel disegno e accanto al puntatore compare una piccola tavolozza con i comandi di modifica dell'app per quell'elemento, come sposta, copia, ruota, specchio, duplica o elimina, oppure {{ui:Proprietà}}. {{key:Esc}}, la rotella del mouse, un altro clic o il suo pulsante di chiusura la fanno sparire.
 
-Uno strumento che al momento non può essere eseguito è in grigio e la sua descrizione ne spiega il motivo. Fare clic su di esso, o premere {{key:Enter}}, per leggere il motivo in una finestra.
+Uno strumento che non può funzionare in questo momento è in grigio, e il suo suggerimento spiega perché. Fare clic su di esso, o premere {{key:Enter}} su di esso, per leggere il motivo in una casella.
 
-{{key:Esc}} termina prima lo strumento in uso, come nel layout classico, e tutte le scorciatoie e {{key:Ctrl+Shift+F}} (modalità schermo) funzionano come prima.
+{{key:Esc}} termina prima lo strumento in esecuzione, come nel layout classico, e ogni scorciatoia e {{key:Ctrl+Shift+F}} (modalità schermo) funzionano come prima.
 
 ## Dare alla casella degli strumenti una finestra propria
 
-Il pulsante {{ui:Sposta la casella degli strumenti}} in alto nella casella contiene {{ui:Sposta in una nuova finestra}}: la casella degli strumenti si apre in una stretta finestra propria, da affiancare all'app o da mettere su un secondo monitor. I tasti premuti lì raggiungono l'app. {{ui:Riporta la casella degli strumenti al suo posto}}, o la chiusura di quella finestra, la riporta nella finestra principale.
+Il pulsante {{ui:Sposta la casella degli strumenti}} in cima alla casella ha {{ui:Sposta in una nuova finestra}}: la casella si apre in una finestra stretta propria, che si può mettere accanto all'app o su un secondo monitor. I tasti premuti lì raggiungono l'app. {{ui:Riporta la casella degli strumenti al suo posto}}, oppure chiudere quella finestra, la riporta a casa.
 
 Le impostazioni della barra degli strumenti valgono anche per la casella: {{ui:Impostazioni}} › {{ui:Globali}} › {{ui:Barra degli strumenti}} › {{ui:Icone ed etichette}}, {{ui:Solo icone}} oppure {{ui:Solo etichette}}, e {{ui:Mostra i nomi dei gruppi (File, Disegna, …)}}.
 
-## I pannelli restano i propri
+## I pannelli conservano il loro comportamento
 
-I pannelli sinistro e destro mantengono tutto ciò che è descritto in [Disporre i pannelli](common:arrange-panels): ancorare, rendere mobili, fissare, nascondere, schede, {{ui:Sposta in una nuova finestra}} e {{ui:Reimposta layout}}.
+I pannelli di sinistra e di destra conservano tutto quanto descritto in [Disponi i pannelli](common:arrange-panels): ancoraggio, mobilità, fissaggio, nascondimento, schede, {{ui:Sposta in una nuova finestra}} e {{ui:Reimposta layout}}.
 
 ## Tornare al layout classico
 
-Aprire {{ui:Impostazioni}} › {{ui:Globali}} › {{ui:Layout}} › {{ui:Area di lavoro}} e scegliere {{ui:CadCraft classico}}. Ogni barra degli strumenti, scheda e pannello torna dov'era.
+Aprire {{ui:Impostazioni}} › {{ui:Globali}} › {{ui:Layout}} › {{ui:Area di lavoro}} e scegliere {{ui:CadCraft classico}}. Ogni barra, scheda e pannello torna dov'era.
 
 :::note
-Su un telefono, o in una finestra larga 760 pixel o meno, l'app usa il layout per telefono qualunque cosa sia stata scelta. Una finestra più larga ripristina il layout scelto.
+Su un telefono, o in una finestra larga 760 pixel o meno, l'app usa il layout per telefono qualunque sia la scelta. Una finestra più larga ripristina il proprio layout.
 :::
 
-Per provare un'altra disposizione, vedere [il layout con barra multifunzione e browser di progetto](common:layout-ribbon).
+Per provare un'altra disposizione, vedere [il layout a barra multifunzione e browser di progetto](common:layout-ribbon).
+
+Per cambiare che cosa mostra questo layout, vedere [Cambiare un layout sullo schermo](common:layout-edit); per una disposizione scura con barra dei menu e barra multifunzione, vedere [il layout Disegno](common:layout-drafting).

@@ -502,8 +502,17 @@ export async function resMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, arg
     ok(/\.QUARTER_WINDING_STAIR\./.test(txt) && /\.WINDER\.\)/.test(txt), 'with winders: an IfcStairFlight .WINDER. in place of the landing');
     ed.undo();
     ok(/\.QUARTER_TURN_STAIR\./.test(txtOf(ed)), 'undo: the landing again');
-    let kk = ''; try { ed.modelChange(ST.changeStair(S[0].guid, { width: 100 })); } catch (e) { kk = e.key; }
-    ok(kk === 'res.err.stairwidth', 'a 100 mm wide stair: refused');
+    let kk = ''; try { ed.modelChange(ST.changeStair(S[0].guid, { width: 5 })); } catch (e) { kk = e.key; }
+    ok(kk === 'res.err.stairwidth', 'a 5 mm wide stair: refused (it cannot be built)');
+    { // 0.10 BK.73: a stair outside the usual sizes is made as asked, with advice, and undo puts the old one back
+      const ADV = await import(new URL('../../public_html/assets/apps/bimcraft/dev/draw-advice.js', import.meta.url).href);
+      ADV.clearAdvice(); kk = '';
+      try { ed.modelChange(ST.changeStair(S[0].guid, { width: 400, riserMax: 320 })); } catch (e) { kk = e.key || String(e); }
+      const adv = ADV.advice().map((a) => a.code).sort();
+      ok(kk === '' && adv.includes('advice.stair.width') && adv.includes('advice.stair.riser'), 'a stair 400 mm wide with 320 mm risers: made, with advice for width and riser (BK.73)', kk + ' ' + adv.join(','));
+      ok(/IFCSTAIRFLIGHT\(/.test(txtOf(ed)), 'and it is in the file as a stair with flights');
+      ed.undo(); ADV.clearAdvice();
+    }
     saved.stair = ed.save();
     // a guard round the stairwell on Level 2
     ed.modelChange(RL.placeRailing({ level: levels[1].guid, points: [[1000, 2000], [3000, 2000], [3000, 800]], kind: 'guard' }));
@@ -695,6 +704,22 @@ export async function resMode({ APP, ROOT, WebIFC, IfcModel, quiet, require, arg
     trn = TR.readTerrain(wr());
     ok(TR.readPads(wr()).length === 1 && trn.cut > 1 && trn.fill > 1, 'a building pad: cut on the uphill side, fill downhill (' + trn.cut.toFixed(1) + ' / ' + trn.fill.toFixed(1) + ' m³)');
     ok(near(TR.groundAt(wr(), 0, 0), -8 * IN, 1) && near(TR.groundAt(wr(), 4000 + 5 * 304.8 - 10, 0), -8 * IN, 2), 'the finished grade is flat 8" under the floor out to the pad\'s edge');
+    { // 0.10 BK.73: side slopes outside 1:1 to 10:1 still grade to a valid surface (so they are advice); only under 0.1 or over 100 is refused
+      const pd0 = TR.readPads(wr())[0];
+      for (const sl of [0.5, 20]) {
+        let kp = ''; try { ed.modelChange(TR.changePad(pd0.guid, { slope: sl })); } catch (e) { kp = e.key || String(e); }
+        const t2 = TR.readTerrain(wr());
+        const zs = [[0, 0], [9000, 0], [-9000, 500], [0, 12000]].map(([x, y]) => TR.groundAt(wr(), x, y));
+        ok(kp === '' && near(TR.readPads(wr())[0].slope, sl, 1e-6) && t2.pts.length > 3 && t2.faces.length > 1 && Number.isFinite(t2.cut) && Number.isFinite(t2.fill) && zs.every(Number.isFinite) && near(zs[0], -8 * IN, 1),
+          'BK.73 a pad with ' + sl + ':1 side slopes: made, the ground is a finite surface (' + t2.faces.length + ' faces), still flat under the house', kp);
+        const RA = await import(new URL('../../public_html/assets/apps/bimcraft/dev/draw-advice-model.js', import.meta.url).href);
+        ok(RA.readAdvice(wr()).some((a) => a.code === 'advice.pad.slope' && a.vars.is === sl), 'and it is Drawing advice read from the model');
+        ed.undo();
+      }
+      let kp = ''; try { ed.modelChange(TR.changePad(pd0.guid, { slope: 0.01 })); } catch (e) { kp = e.key; }
+      let kq = ''; try { ed.modelChange(TR.changePad(pd0.guid, { slope: 500 })); } catch (e) { kq = e.key; }
+      ok(kp === 'res.err.padslope' && kq === 'res.err.padslope', 'a 0.01:1 bank (a wall, not ground) and a 500:1 slope (grading without end): refused');
+    }
     // the east wall moves out 1000: the pad follows
     const east = OPS.snapshotModel(ed).walls.find((w2) => near(w2.a[0], 4000, 1) && near(w2.b[0], 4000, 1));
     ed.modelChange(OPS.changeWall(east.guid, { a: [5000, east.a[1]], b: [5000, east.b[1]] }));

@@ -32,7 +32,7 @@ import { t } from "./i18n.js";
 import { parseXml, kids, kid, textOf, esc } from './xml.js';
 import { METRES_PER } from './units.js';
 import { groupKey } from './points.js';
-import { cubicParamFor } from './alignment.js';   // 0.7.1 71.26: rail transitions in and out
+import { cubicParamFor, buildAlignment } from './alignment.js';   // 0.7.1 71.26: rail transitions in and out; CV.1: the curves' stations for a Cant read back
 
 /** 0.7.1 71.26: LandXML spiType ↔ alignment.js transition kinds (other spiral types are named and skipped on reading). */
 export const SPI_TYPES = { clothoid: 'clothoid', cubic: 'cubicParabola', bloss: 'bloss', helmert: 'biquadratic', sinehalf: 'cosine', sine: 'sinusoid' };
@@ -46,6 +46,34 @@ const num = (v, d = 6) => {
 };
 const ne = (p, d) => num(p.y, d) + ' ' + num(p.x, d);
 const nez = (p, d) => ne(p, d) + ' ' + num(p.z, d);
+
+/**
+ * CV.1 2026-11-12: a railway alignment's cant as LandXML 1.2 <Cant> (rail.js cantPlan). Metric files carry the cant in mm and the gauge in
+ * metres, imperial ones inches and feet (the schema's words). One CantStation where each cant ramp starts and ends: applied cant, the
+ * curve's direction, the transition's type when the ramp lies on one, and on the curve itself the equilibrium cant and the deficiency.
+ * rotationPoint: the low / inner rail → insideRail, the centre → center. '' when no curve has cant.
+ */
+export function cantXml({ name = '', plan, rail, units = 'm', speed = null, speedUnit = null, alignment = null }) {
+  const cs = (plan?.curves || []).filter((c) => c.cant && c.rampIn && c.rampOut);
+  if (!cs.length || !rail) return '';
+  const m = units === 'm', mm = (v) => num(m ? v : v / 25.4, 3), gauge = m ? rail.gauge / 1000 : rail.gauge / 1000 / (1200 / 3937);
+  const lo = alignment?.start ?? -Infinity, hi = alignment?.end ?? Infinity, L = [];
+  L.push(`      <Cant name="${esc(name)}" gauge="${num(gauge, 4)}" rotationPoint="${rail.pivot === 'centre' ? 'center' : 'insideRail'}">`);
+  if (speed > 0) L.push(`        <SpeedStation station="${num(Number.isFinite(lo) ? lo : cs[0].rampIn.from)}" speed="${num(m || speedUnit === 'km/h' ? speed : speed / 1.609344, 2)}"/>`);
+  for (const c of cs) {
+    const rot = c.dir === 'left' ? 'ccw' : 'cw', adverse = c.cant < 0 ? ' adverse="true"' : '';
+    const st = (sta, e, ramp, full) => {
+      if (sta < lo - 1e-9 || sta > hi + 1e-9) return;
+      const tt = ramp?.onTransition && SPI_TYPES[c.tr] ? ` transitionType="${SPI_TYPES[c.tr]}"` : '';
+      const eq = full && c.eq !== null ? ` equilibriumCant="${mm(c.eq)}" cantDeficiency="${mm(c.deficiency)}"${c.excess !== null ? ` cantExcess="${mm(c.excess)}"` : ''}` : '';
+      const grad = full && ramp && Number.isFinite(ramp.gradient) ? ` rateOfChangeOfAppliedCantOverLength="${num(m ? ramp.gradient : (ramp.gradient / 25.4) * (1200 / 3937), 4)}"${ramp.rate !== null ? ` rateOfChangeOfAppliedCantOverTime="${mm(ramp.rate)}"` : ''}` : '';
+      L.push(`        <CantStation station="${num(sta)}" appliedCant="${mm(Math.abs(e))}"${eq}${grad}${tt} curvature="${rot}"${adverse}/>`);
+    };
+    st(c.rampIn.from, 0, c.rampIn, false); st(c.rampIn.to, c.cant, c.rampIn, true); st(c.rampOut.from, c.cant, c.rampOut, true); st(c.rampOut.to, 0, c.rampOut, false);
+  }
+  L.push('      </Cant>');
+  return L.join('\n');
+}
 
 // i18n-ignore: the default <Project name> written into the file (file content)
 export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points = [], surfaces = [], alignments = [], networks = [], features = [], date = new Date(), crs = null }) {
@@ -100,6 +128,7 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
         }
       }
       L.push('      </CoordGeom>');
+      if (a.cant?.plan) { const cx = cantXml({ name: a.name, plan: a.cant.plan, rail: a.cant.rail, units, speed: a.cant.speed, alignment: al }); if (cx) L.push(cx); }   // CV.1 2026-11-12: a railway's cant (the schema's place: after CoordGeom)
       const eg = a.eg, fg = a.profile;
       if ((eg && eg.pts?.length) || fg?.profile?.pvis?.length) {
         L.push(`      <Profile name="${esc(a.name)}">`);
@@ -326,6 +355,19 @@ export function readLandXml(text) {
     if (!pis || pis.length < 2) { note(t('lx.al.unread', { name })); continue; }
     const start = Number(a.attrs.staStart) || 0;
     const rec = { name, start, pis, profiles: [], surfProfiles: [] };
+    // CV.1 2026-11-12: a railway's <Cant>: the gauge (→ mm), the pivot, the speed, and each curve's applied cant (the largest CantStation on it) on its PI
+    const cantEl = kid(a, 'Cant');
+    if (cantEl) {
+      const metric = out.units !== 'ft', g = Number(cantEl.attrs.gauge), gmm = Number.isFinite(g) && g > 0 ? Math.round((metric ? g : g * (1200 / 3937)) * 1000) : null;
+      const sp = kids(cantEl, 'SpeedStation').map((x) => Number(x.attrs.speed)).filter((v) => v > 0);
+      rec.cant = { gauge: gmm, pivot: String(cantEl.attrs.rotationPoint || '').toLowerCase() === 'center' ? 'centre' : 'low', speed: sp.length ? Math.max(...sp) : null, speedUnit: metric ? 'km/h' : 'mph' };
+      const stations = kids(cantEl, 'CantStation').map((x) => ({ sta: Number(x.attrs.station), e: Number(x.attrs.appliedCant) * (metric ? 1 : 25.4) * (String(x.attrs.adverse) === 'true' ? -1 : 1) })).filter((x) => Number.isFinite(x.sta) && Number.isFinite(x.e));
+      const built = buildAlignment({ pis, start });
+      if (built.ok) for (const c of built.curves) {
+        let best = 0; for (const q of stations) if (q.sta >= c.ts - 1e-3 && q.sta <= c.st + 1e-3 && Math.abs(q.e) > Math.abs(best)) best = q.e;
+        if (best && Math.abs(best) <= 300) pis[c.piIndex].cant = Math.round(best * 1000) / 1000;
+      }
+    }
     for (const pr of kids(a, 'Profile')) {
       for (const pa of kids(pr, 'ProfAlign')) {
         const pvis = [];

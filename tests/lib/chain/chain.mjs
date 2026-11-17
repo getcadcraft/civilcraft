@@ -191,7 +191,7 @@ export function sprocketItem(row, N, o = {}) {
     description: 'Roller chain sprocket for chain ' + row.chain + ' (pitch ' + f(row.pitch) + ' mm, roller ' + f(row.roller) + ' mm), ' + N + ' teeth. Pitch diameter ' + f(g.D) +
       ' mm, root ' + f(g.Df) + ' mm, tip ' + f(g.Dt) + ' mm, tooth width ' + f(g.toothWidth) + ' mm, bore ' + f(bore) + ' mm, hub ' + f(hubDia) + ' x ' + f(hubLen) +
       ' mm. Face view drawn tooth by tooth: the seating curve and flank are computed from the chain geometry (seat radius ' + f(g.rs) + ' mm), see lib/chain. Chain numbers from ' + (o.standardTitle || 'the owner\'s chain table') + '.',
-    maker: '', model: '',
+    maker: '', model: '', ifc: { class: 'IfcDiscreteAccessory', predefined: 'NOTDEFINED' },   // BK.96: every item names its IFC class
     plan: {
       layers: [L('PART', 7), L('PART-THIN', 8), L('PART-CENTER', 1)],
       entities: [

@@ -32,11 +32,17 @@
  * My tools, the pet palette and the info box's fields live in app-workspace-extras.js (WS.20–WS.22).
  */
 import * as F from './app-workspace-format.js';
-import { popout, menuButton } from './app-workspace-popout.js';
+import { popout, menuButton, windows, openMenu } from './app-workspace-popout.js';
+import { ccState } from './app-state.js';
+import { KINDS as EXTRA_KINDS, blockHost, mountExtra, refreshExtras, destroyExtras } from './app-workspace-blocks.js';
+import { foldBar } from './app-workspace-overflow.js';
+import { shapeRibbon, shapeToolbox, stacksToPalettes, toolIds, withCommands } from './app-workspace-tools.js';
 import { myTools, petPalette, infoFields, fieldsIn, regTool, iconFor } from './app-workspace-extras.js';
-import { iconKey, iconNode, iconStyle, applyIcons } from './app-workspace-icons.js';
+import { iconKey, iconNode, iconStyle, applyIcons, blockIcon } from './app-workspace-icons.js';
 import { showSeq } from './app-input.js';
 import { arrangeDialog } from './app-workspace-arrange.js';
+import { layoutEditor } from './app-workspace-edit.js';
+import { dockedCommandLine } from './app-cmdline.js';
 import { menubar as vectorMenubar, toolpalette as vectorPalette } from './app-workspace-vector.js';
 import { t as i18nT, has as i18nHas } from './i18n.js';
 
@@ -80,7 +86,20 @@ export function availableLayouts(cfg = config()) {
 }
 export const layoutName = (l) => (l.nameKey && HAS(l.nameKey) ? ST(l.nameKey) : l.name);
 
-export function mountWorkspaces(A) {
+/** 0.10 UI.5 / UI.6 / UI.7 (rule 62: this file serves released builds too): the editing and switching parts are on in the lab build and off elsewhere, until the owner turns them on
+ *  with html[data-cc-ws-edit="1"] (an .env switch printed by app-shell.inc, off); "0" forces them off even in the lab. Layout files of format v2 are read everywhere: they are opt-in files. */
+const editOn = () => { try { const w = document.documentElement.getAttribute('data-cc-ws-edit'); return w === '0' ? false : w === '1' || !!document.body?.classList.contains('shell-lab'); } catch (e) { return false; } };
+/** 0.10 UI.21 / UI.26 / UI.3 (session ui-dock2-10; owner 2026-11-15: the PRO layouts, Arrange mode and the block set do not change by default): the dock manager, the one head
+ *  and the remembered windows are on only with html[data-cc-ws-edit="1"] itself, not in every lab page, so a lab page without the switch looks and behaves as before. */
+const dockOn = () => { try { return document.documentElement.getAttribute('data-cc-ws-edit') === '1'; } catch (e) { return false; } };
+
+export function mountWorkspaces(A0) {
+  // 0.10 UI.6: a layout may name `+cmd:<registry id>` tools; the adapter is taught to show, grey and run them through the input registry
+  const A = withCommands(A0, {
+    tool: (id) => regTool(id),
+    can: (id) => { const w = window.ccInput?.why ? window.ccInput.why(id) : ''; return { enabled: !w, reason: w === 'no-registry' ? '' : w || '' }; },
+    run: (id) => window.ccInput?.run?.(id),
+  });
   const cfg = config();
   // A guest: an app mounted inside another app's page (SuperCad Studio's panels) finds that page's #cc-workspace, made for the host app.
   // The host's engine lays out the page; a guest's engine always keeps its app classic and never registers with the page's Settings
@@ -95,16 +114,18 @@ export function mountWorkspaces(A) {
   const root = A.root, stage = A.stage;
   const left = A.panels?.left || null, right = A.panels?.right || null;
   let cur = null;   // {key, layout, blocks: Map(block → opts), parts: {}}
+  let D = null;     // UI.21 / UI.26 (switch on only): the dock manager of the mounted layout (app-dock.js), else null
   let frame = 0, retry = 0, told = '', notice = '';   // notice: the last fallback message (Settings shows it too)
   let waiting = null;   // the layout asked for while the app is busy ('standard' = classic): it changes once the app is done
   const caps = () => ({
-    ribbon: !!A.ribbon, toolbox: !!A.toolbox, views: !!A.views, toolbar: !!(A.toolbar && A.toolbar()),
+    ribbon: !!A.ribbon, toolbox: !!A.toolbox, views: !!A.views, viewports: !!A.viewports, view3d: !!A.viewports, toolbar: !!(A.toolbar && A.toolbar()),
     slots: Object.keys(A.slots || {}), palettes: Object.keys(A.palettes || {}), actions: A.actions || F.ACTIONS,
+    tools: (() => { try { return toolIds(A.ribbon ? A.ribbon() : [], A.toolbox ? A.toolbox() : []); } catch (e) { return null; } })(), commands: (window.ccInput?.commands || []).map((c) => c.id),   // v2: tool and command ids a layout may name
   });
   const state = () => ({ document: null, name: '', dirty: false, busy: false, selection: [], tool: null, ...(A.state ? A.state() : {}) });
   const ctx = {
     get layout() { return cur ? cur.key : null; }, has: (b) => !!cur?.blocks.has(b), block: (b) => cur?.blocks.get(b) || null,
-    view: () => openView(), open: (id) => goView(id), palette: (n) => showLower(n), refresh: soon, say, T, el, tool: (id, block, compact) => tool(id, block, compact),
+    state: ccState, select: (ids) => ccState.select(ids), view: () => openView(), open: (id) => goView(id), palette: (n) => showLower(n), refresh: soon, say, T, el, tool: (id, block, compact) => tool(id, block, compact),
   };
 
   // ---- moving the app's own nodes in and back: a stack of homes, restored in reverse ----
@@ -178,6 +199,22 @@ export function mountWorkspaces(A) {
     const w = (p) => { const r = regions.get(p); return r && !r.classList.contains('ws-out') ? r.getBoundingClientRect().width : 0; };
     for (const [v, n] of [['--ws-st', h('stage-top')], ['--ws-sb', h('stage-bottom')], ['--ws-vt', h('view-top')], ['--ws-vb', h('view-bottom')], ['--ws-sl', w('stage-left')], ['--ws-sr', w('stage-right')]]) stage.style.setProperty(v, n + 'px');
   }
+  /** A skinned layout hides the scroll bars of its bars (the ribbon, the tool rows, the tab strips): the wheel scrolls them sideways and an edge
+   *  with more behind it is marked (data-ws-more = left | right | both) so the paint can fade it. Layouts without a skin are untouched. */
+  const SCROLLERS = '.ws-ribbon, .ws-ribbon-tabs, .tr-row, .ws-drawing-tabs, .ws-view-controls, .tbx-quick, .ws-options, .tbx-info';
+  function edges() {
+    if (!cur?.layout.look.skin) return;
+    for (const n of all(SCROLLERS)) {
+      const l = n.scrollLeft > 1, r = n.scrollLeft + n.clientWidth < n.scrollWidth - 1, v = l && r ? 'both' : l ? 'left' : r ? 'right' : '';
+      if ((n.dataset.wsMore || '') !== v) { if (v) n.dataset.wsMore = v; else delete n.dataset.wsMore; }
+    }
+  }
+  document.addEventListener('wheel', (e) => {
+    if (!cur?.layout.look.skin || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    const n = e.target.closest?.(SCROLLERS); if (!n || n.scrollWidth <= n.clientWidth + 1 || e.target.closest('select, input, textarea, .tr-more-list')) return;
+    n.scrollLeft += e.deltaY; e.preventDefault(); edges();
+  }, { passive: false });
+  document.addEventListener('scroll', (e) => { if (cur?.layout.look.skin && e.target.matches?.(SCROLLERS)) edges(); }, true);
   function markFill() {
     if (!cur) return;
     for (const c of stage.children) {
@@ -190,12 +227,19 @@ export function mountWorkspaces(A) {
   // ---- shared parts: tool buttons, tooltip, explain dialog ----
   const tool = (id, block, compact = false) => {
     const t = A.tool ? A.tool(id, block) : { label: id };
-    const ic = typeof t.icon === 'string' ? el('i', { className: 'bi ' + t.icon + ' ws-icon-bi', 'aria-hidden': 'true' }) : t.icon ? t.icon.cloneNode(true) : el('i', { className: 'bi bi-square ws-icon-bi', 'aria-hidden': 'true' });
+    const ic = blockIcon({ id, label: t.label, bi: typeof t.icon === 'string' ? t.icon : '', own: typeof t.icon === 'string' ? null : t.icon, block, cls: 'ws-icon-bi' });   // 0.10 UI.14: the set first in lab builds
     return el('button', { type: 'button', className: 'ws-tool' + (compact ? ' ws-compact' : ''), 'data-ws-command': id, 'data-ws-block': block, 'aria-label': t.label }, ic, el('span', {}, t.label));
   };
-  const can = (id, block) => (A.can ? A.can(id, block, state()) : { enabled: true, reason: '' });
+  /** The layout's declaration for a tool (UI.25): { enabled, visible } as booleans read against the one state, or null when it has none. */
+  const declared = (id, block) => {
+    const w = cur?.blocks.get(block === 'file' || block === 'titlebar' ? 'ribbon' : block)?.when?.[id]; if (!w) return null;
+    return { enabled: ccState.test(w.enabled), visible: ccState.test(w.visible) };
+  };
+  const can = (id, block) => {
+    const a = A.can ? A.can(id, block, state()) : { enabled: true, reason: '' }, d = declared(id, block);
+    return d && !d.enabled && a.enabled ? { enabled: false, reason: T('shell.state.off') } : a;
+  };
   const built = (id, block) => (A.tool ? A.tool(id, block).built !== false : true);
-  const tooltip = el('div', { className: 'ws-tooltip', id: 'ws-tool-explanation', role: 'tooltip', hidden: true });
   function explain(label, reason) {
     const dlg = el('dialog', { className: 'ws-dialog ws-explain', 'aria-label': label }, el('h2', {}, label), el('p', {}, reason || T('shell.ws.ready')),
       el('div', { className: 'ws-dialog-actions' }, btn(T('shell.ws.close'), { 'data-ws-dismiss': '' })));
@@ -211,18 +255,26 @@ export function mountWorkspaces(A) {
   // =========================================================== blocks ===========================================================
   const P = {};   // the mounted parts of the current layout
   // the parts in app-workspace-extras.js get the engine's helpers; made once, used by every layout that has them
-  const E = { A, app: A.app, T, el, btn, can, tool, runTool: (id, block, b) => runTool(id, block, b), explain, say, soon: () => soon(), state, stage,
+  const E = { A, declared: (id, block) => declared(id, block), toolboxData: (b) => toolboxData(b), app: A.app, T, el, btn, can, tool, runTool: (id, block, b) => runTool(id, block, b), explain, say, soon: () => soon(), state, stage,
     redraw: () => { if (P.toolbox) { P.toolbox.sig = null; renderToolbox(); refreshToolbox(state()); } } };
   const mine = myTools(E), pet = petPalette(E), fields = infoFields(E), vmenu = vectorMenubar(E), vpal = vectorPalette(E);
 
+  // owner 2026-11-15: no layout picker in any layout's chrome (it was UI.7's switcher): the interface style is chosen in Settings › Global › Layout only.
+
   // ---- titlebar ----
   // the app's logo mark and name: EVERY layout shows them (owner rule 2026-11-05), so the title bar and the Vector menu bar both build them here
+  // owner 2026-11-15: the "Starting up…" chip (app-boot.js, FX.86) sits in the classic app bar, which a layout with a title or menu bar hides. While such a layout
+  // is up the same chip (one node, so app-boot.js keeps driving it) sits right after the layout's brand; leave() puts it back where it came from.
+  let bootHome = null;
+  const bootTo = (brand) => { if (!editOn()) return; const c = document.querySelector('[data-boot]'); if (!c || !brand) return;   // lab only until the owner's go (shared asset serves /use)
+    if (!bootHome && c.closest('.app-bar')) bootHome = [c.parentNode, c.nextSibling]; brand.after(c); };
+  const bootBack = () => { const c = document.querySelector('[data-boot]'); if (c && bootHome && c.parentNode !== bootHome[0]) bootHome[0].insertBefore(c, bootHome[1]?.parentNode === bootHome[0] ? bootHome[1] : null); };
   const brandEl = () => { const bar = document.querySelector('.app-bar'); return el('span', { className: 'ws-brand', 'data-ws-brand': '' }, bar?.querySelector('.app-bar-mark')?.cloneNode(true) || null, bar?.querySelector('.app-bar-name > .layer-swatch')?.cloneNode(true) || null, el('span', {}, appName)); };
   function mountTitlebar(o) {
     const fsSrc = document.querySelector('[data-fs-cycle]');
-    const shellBtn = (sel, cls, label) => el('button', { type: 'button', className: 'ws-shell-btn', 'data-ws-shell': sel, 'aria-label': label, title: label }, el('i', { className: 'bi ' + cls, 'aria-hidden': 'true' }));
-    const fsBtn = el('button', { type: 'button', className: 'ws-shell-btn', 'data-ws-shell': '[data-fs-cycle]', hidden: !fsSrc }, el('i', { className: 'bi bi-fullscreen', 'aria-hidden': 'true' }));
-    const fsSync = () => { if (!fsSrc) return; fsBtn.hidden = fsSrc.hidden; fsBtn.title = fsSrc.title; fsBtn.setAttribute('aria-label', fsSrc.getAttribute('aria-label') || fsSrc.title); fsBtn.setAttribute('aria-pressed', fsSrc.getAttribute('aria-pressed') || 'false'); const i = fsSrc.querySelector('i.bi'); if (i) fsBtn.firstChild.className = i.className; };
+    const shellBtn = (sel, cls, label) => el('button', { type: 'button', className: 'ws-shell-btn', 'data-ws-shell': sel, 'aria-label': label, title: label }, blockIcon({ bi: cls, block: 'titlebar' }));
+    const fsBtn = el('button', { type: 'button', className: 'ws-shell-btn', 'data-ws-shell': '[data-fs-cycle]', hidden: !fsSrc }, blockIcon({ bi: 'bi-fullscreen', block: 'titlebar' }));
+    const fsSync = () => { if (!fsSrc) return; fsBtn.hidden = fsSrc.hidden; fsBtn.title = fsSrc.title; fsBtn.setAttribute('aria-label', fsSrc.getAttribute('aria-label') || fsSrc.title); fsBtn.setAttribute('aria-pressed', fsSrc.getAttribute('aria-pressed') || 'false'); const i = fsSrc.querySelector('i.bi'); if (i) { const g = [...i.classList].find((c) => c.startsWith('bi-')); if (g && fsBtn.dataset.fsGlyph !== g) { fsBtn.dataset.fsGlyph = g; fsBtn.firstChild.replaceWith(blockIcon({ bi: g, block: 'titlebar' })); } } };
     let fsObs = null; if (fsSrc) { fsSync(); fsObs = new MutationObserver(fsSync); fsObs.observe(fsSrc, { attributes: true, subtree: true, childList: true }); }
     const brand = brandEl();
     const title = el('span', { className: 'ws-project' });
@@ -230,13 +282,13 @@ export function mountWorkspaces(A) {
       quickIds(o).length ? el('div', { className: 'ws-quick', 'aria-label': T('shell.ws.quick') }, quickIds(o).map((id) => tool(id, 'titlebar', true))) : null, title,
       o.inventory ? btn(T('shell.ws.inventory'), { 'data-ws-inventory': '' }) : null,
       fsBtn, shellBtn('[data-help-open]', 'bi-question-circle', T('shell.ws.help')), shellBtn('[data-settings-open]', 'bi-gear', T('shell.ws.settings')));
-    region(o.place).append(h);
+    region(o.place).append(h); bootTo(brand);
     P.titlebar = { el: h, title, off: () => fsObs?.disconnect() };
+    dropMenubarDuplicates();
   }
 
   // ---- ribbon ----
-  let tab = null, collapsed = false, peeking = false, rwin = null, rbox = null, rsync = null, rmenu = null;
-  const ribbonHome = document.createComment('workspace: ribbon home');   // i18n-ignore: a comment node
+  let tab = null, collapsed = false, peeking = false, rmenu = null;
   const COLLAPSE_KEY = 'cc-ws-ribbon:' + A.app;
   function mountRibbon(o) {
     const tabsEl = el('nav', { className: 'ws-ribbon-tabs ws-block', 'data-ws-blk': 'ribbon', role: 'tablist', 'aria-label': T('shell.ws.ribbon') });
@@ -246,12 +298,17 @@ export function mountWorkspaces(A) {
     collapsed = !!o.collapse && (() => { try { const v = localStorage.getItem(COLLAPSE_KEY); return v ? v === 'collapsed' : !!o.collapsed; } catch (e) { return !!o.collapsed; } })();
     r.classList.toggle('ws-collapsed', collapsed);
     P.ribbon = { tabs: tabsEl, ribbon, region: r, o };
-    renderRibbonTabs();
+    renderRibbonTabs(); ribbonExtras(o); startChrome();
   }
-  const ribbonData = () => (A.ribbon ? A.ribbon() : []);
+  const ribbonRaw = () => (A.ribbon ? A.ribbon() : []);
+  // UI.21 (switch on): a group docked as a palette (app-dock.js) is left out of its bar; with no dock manager these are the layout's own lists
+  const ribbonAll = () => shapeRibbon(ribbonRaw(), cur?.blocks.get('ribbon')?.tools);
+  const ribbonData = () => (D ? ribbonAll().map((t) => ({ ...t, groups: t.groups.filter((g) => !D.isDocked('ribbon:' + t.tab + ':' + g.id)) })) : ribbonAll());
+  const toolboxAll = (block = 'toolbox') => shapeToolbox(A.toolbox ? A.toolbox() : [], cur?.blocks.get(block)?.tools);   // what the layout says the block holds (v2)
+  const toolboxData = (block = 'toolbox') => (D ? toolboxAll(block).filter((g) => !D.isDocked(block + ':' + g.id)) : toolboxAll(block));
   function tabsShown() {
     const ctxTab = A.contextTab ? A.contextTab(state()) : null;
-    return ribbonData().filter((t) => (t.context ? t.tab === ctxTab : true) && t.groups.some((g) => [...g.large, ...g.stacks.flat()].some((id) => id !== 'select' && built(id, 'ribbon'))));
+    return ribbonData().filter((t) => (t.context ? t.tab === ctxTab : true) && (!t.show || ccState.test(t.show)) && t.groups.some((g) => [...g.large, ...g.stacks.flat()].some((id) => id !== 'select' && built(id, 'ribbon'))));
   }
   function renderRibbonTabs() {
     const R = P.ribbon; if (!R) return;
@@ -265,18 +322,20 @@ export function mountWorkspaces(A) {
       ...shown.map((t) => btn(t.label, { role: 'tab', id: 'ws-tab-' + t.tab, 'aria-selected': String(t.tab === tab), 'aria-controls': 'ws-ribbon-panel',
         tabindex: t.tab === tab ? 0 : -1, 'data-ws-tab': t.tab, className: t.context ? 'ws-context-tab' : '' })),
       R.o.tearOff || R.o.collapse ? el('button', { type: 'button', className: 'ws-tear shell-grip-btn', 'data-ws-ribbon-menu': '', 'aria-haspopup': 'menu', 'aria-expanded': 'false', title: T('shell.ws.ribbon.menu'), 'aria-label': T('shell.ws.ribbon.menu') },
-        el('i', { className: 'bi bi-three-dots', 'aria-hidden': 'true' })) : null].filter(Boolean));   // never a null to replaceChildren: it prints "null"
+        blockIcon({ bi: 'bi-three-dots', block: 'ribbon' })) : null].filter(Boolean));   // never a null to replaceChildren: it prints "null"
     R.sig = JSON.stringify([shown.map((t) => t.tab), tab]);
+    D?.decorate('ribbon-tabs', R.tabs);   // UI.26: the one head takes the tear handle's place
     renderRibbon();
   }
   function renderRibbon() {
     const R = P.ribbon; if (!R) return;
     const t = ribbonData().find((x) => x.tab === tab);
-    R.ribbon.setAttribute('aria-label', t?.label || '');
-    R.ribbon.replaceChildren(...(t?.groups || []).map((g) => el('section', { className: 'ws-group', 'aria-label': g.label },
+    R.ribbon.setAttribute('aria-label', t?.label || ''); R.ribbon.dataset.wsTabId = t?.tab || '';
+    R.ribbon.replaceChildren(...(t?.groups || []).map((g) => el('section', { className: 'ws-group', 'aria-label': g.label, 'data-ws-group': g.id },
       el('div', { className: 'ws-group-tools' }, g.large.map((id) => tool(id, 'ribbon')), g.stacks.map((ids) => el('div', { className: 'ws-stack' }, ids.map((id) => tool(id, 'ribbon'))))),
       el('span', { className: 'ws-group-title' }, g.label))));
-    refreshTools();
+    D?.decorate('ribbon', R.ribbon);   // UI.21: a grip on each group
+    refreshTools(); P.ribbon.x?.decorate?.();
   }
   function setCollapsed(on) {
     const R = P.ribbon; if (!R) return;
@@ -301,8 +360,8 @@ export function mountWorkspaces(A) {
     const again = fmenu?.btn === b; closeFileMenu(); if (again) return;
     const d = b.ownerDocument, I = window.ccInput;
     const keyOf = (id) => { const k = I?.keysOf?.(id)?.[0]; return k ? showSeq(k) : ''; };
-    const row = (attrs, icon, label, keys, off, why) => {
-      const ic = typeof icon === 'string' ? el('i', { className: 'bi ' + icon, 'aria-hidden': 'true' }) : icon ? icon.cloneNode(true) : el('i', { className: 'bi bi-dot', 'aria-hidden': 'true' });
+    const row = (attrs, icon, label, keys, off, why, id = '') => {
+      const ic = blockIcon({ id, label, bi: typeof icon === 'string' ? icon : '', own: typeof icon === 'string' ? null : icon, block: 'file', fallbackBi: 'bi-dot' });
       return el('button', { type: 'button', role: 'menuitem', tabindex: -1, className: 'ws-file-item', 'aria-disabled': off ? 'true' : 'false', title: off ? why : label, ...attrs },
         ic, el('span', { className: 'ws-file-label' }, label), keys ? el('kbd', {}, keys) : null);
     };
@@ -310,11 +369,11 @@ export function mountWorkspaces(A) {
     for (const id of P.ribbon.o.file || []) {
       const t = A.tool ? A.tool(id, 'file') : { label: id }, a = can(id, 'file');
       seen.add(t.label.toLowerCase());
-      rows.push(row({ 'data-ws-file-action': id }, t.icon, t.label, keyOf('file.' + id) || keyOf(id), !a.enabled, a.reason));
+      rows.push(row({ 'data-ws-file-action': id }, t.icon, t.label, keyOf('file.' + id) || keyOf(id), !a.enabled, a.reason, id));
     }
     const more = (I?.commands || []).filter((c) => c.group === 'file').map((c) => [c.id, regTool(c.id)]).filter(([, t]) => t.built && !seen.has(t.label.toLowerCase()));
     if (more.length && rows.length) rows.push(el('div', { className: 'ws-file-sep', role: 'separator' }));
-    for (const [id, t] of more) { const w = I.why ? I.why(id) : ''; rows.push(row({ 'data-ws-file-cmd': id }, t.icon, t.label, keyOf(id), !!w, w)); }
+    for (const [id, t] of more) { const w = I.why ? I.why(id) : ''; rows.push(row({ 'data-ws-file-cmd': id }, t.icon, t.label, keyOf(id), !!w, w, id)); }
     const box = el('div', { className: 'ws-file-menu', role: 'menu', 'aria-label': T('shell.ws.file') }, rows);
     d.body.append(box);
     const r = b.getBoundingClientRect(), vw = d.defaultView.innerWidth, vh = d.defaultView.innerHeight;
@@ -343,7 +402,7 @@ export function mountWorkspaces(A) {
   function closeRibbonMenu() { if (!rmenu) return; rmenu.ul.remove(); rmenu.btn.setAttribute('aria-expanded', 'false'); rmenu.d.removeEventListener('pointerdown', rmenu.away, true); rmenu = null; }
   function ribbonMenu(b) {
     const again = rmenu?.btn === b; closeRibbonMenu(); if (again) return;
-    const R = P.ribbon, d = b.ownerDocument, torn = !!rwin && !rwin.closed;
+    const R = P.ribbon, d = b.ownerDocument, torn = rpop.isOpen();
     const items = torn ? [[T('shell.ws.tear.back'), 'bi-box-arrow-in-down-left', () => dockRibbon()]]
       : [R.o.tearOff ? [T('shell.ws.tear'), 'bi-window-plus', () => tearOff()] : null,
         R.o.collapse ? (collapsed ? [T('shell.ws.ribbon.pin'), 'bi-pin-angle', () => setCollapsed(false)] : [T('shell.ws.ribbon.collapse'), 'bi-arrows-collapse', () => setCollapsed(true)]) : null].filter(Boolean);
@@ -351,7 +410,7 @@ export function mountWorkspaces(A) {
     for (const [label, ic, run] of items) {
       const li = d.createElement('li'); li.setAttribute('role', 'none');
       const m = d.createElement('button'); m.type = 'button'; m.setAttribute('role', 'menuitem'); m.tabIndex = -1;
-      const i = d.createElement('i'); i.className = 'bi ' + ic; i.setAttribute('aria-hidden', 'true'); m.append(i, ' ' + label);
+      m.append(blockIcon({ bi: ic, block: 'ribbonmenu' }), ' ' + label);
       m.addEventListener('click', (e) => { e.stopPropagation(); closeRibbonMenu(); run(); });   // a click: the window may open (a pop-up needs one)
       li.append(m); ul.append(li);
     }
@@ -368,48 +427,29 @@ export function mountWorkspaces(A) {
     d.addEventListener('pointerdown', away, true);
     rmenu = { ul, btn: b, d, away }; b.setAttribute('aria-expanded', 'true'); list[0]?.focus();
   }
-  /** The ribbon in its own window: one same-origin pop-up opened inside the click; the tab row and the ribbon move into it (their nodes,
-   *  so handlers and state go along); stylesheets, theme, interface size and toolbar style copied and kept in step; keys reach the app. */
+  /** The ribbon in its own window (UI.2: the same window service as every other unit, app-workspace-popout.js). The tab row and the
+   *  ribbon move into it (their nodes, so handlers and state go along); stylesheets, theme and interface size are copied and kept in step;
+   *  keys reach the app. */
+  const ribbonNodes = [];
+  let ribbonWin = null;   // made on first use: `listeners` is declared further down
+  const rpop = { isOpen: () => !!ribbonWin?.isOpen(), back: () => ribbonWin?.back(), get box() { return ribbonWin?.box; } };
+  const makeRibbonWin = () => popout({ name: 'ribbon-' + A.app, nodes: ribbonNodes, cls: 'ws-ribbon-window', boxCls: 'ws-ribbon-box', skipKeys: '.ws-ribbon-tabs [role="tab"]', listeners,
+    title: () => T('shell.ws.tear.title', { app: appName }),
+    size: () => ({ w: Math.min(screen.availWidth || 1400, 1400), h: Math.round(13.5 * parseFloat(getComputedStyle(document.documentElement).fontSize)) }),
+    onChange: (open) => {
+      const R = P.ribbon;
+      closeRibbonMenu();
+      if (open) { renderRibbonTabs(); resized(); say(T('shell.ws.tear.done')); return; }
+      if (R) renderRibbonTabs();
+      resized();
+    } });
+  function ribbonMake() { const R = P.ribbon; ribbonNodes.splice(0, ribbonNodes.length, R.tabs, R.ribbon); if (!ribbonWin) ribbonWin = makeRibbonWin(); return ribbonWin; }
   function tearOff() {
     closeRibbonMenu();
-    const R = P.ribbon;
-    const w = window.open('', 'cc-ribbon-' + A.app, 'popup,width=' + Math.min(screen.availWidth || 1400, 1400) + ',height=' + Math.round(13.5 * parseFloat(getComputedStyle(document.documentElement).fontSize)));
-    if (!w) { say(T('shell.ws.tear.blocked'), true); return; }
-    rwin = w;
-    const d = w.document;
-    d.open(); d.write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head><body></body></html>'); d.close();   // i18n-ignore: markup
-    d.title = T('shell.ws.tear.title', { app: appName });
-    for (const l of document.querySelectorAll('link[rel="stylesheet"], style')) { const c = d.importNode(l, true); if (l.href) c.href = l.href; d.head.append(c); }
-    const sync = () => {
-      for (const a of ['data-space', 'data-theme', 'style', 'lang', 'dir']) { const v = document.documentElement.getAttribute(a); if (v === null) d.documentElement.removeAttribute(a); else d.documentElement.setAttribute(a, v); }
-      d.body.className = document.body.className + ' ws-ribbon-window';
-      for (const a of ['data-shell-tb', 'data-shell-tb-touch']) { const v = document.body.getAttribute(a); if (v === null) d.body.removeAttribute(a); else d.body.setAttribute(a, v); }
-    };
-    sync(); rsync = new MutationObserver(sync); rsync.observe(document.body, { attributes: true }); rsync.observe(document.documentElement, { attributes: true });
-    rbox = el('div', { className: 'ws-ribbon-box' });
-    for (const [type, fn, capture] of listeners) rbox.addEventListener(type, fn, capture);
-    R.tabs.before(ribbonHome);
-    d.body.append(rbox); rbox.append(R.tabs, R.ribbon);
-    d.addEventListener('keydown', (e) => {
-      if (isTyping(e.target) || e.target.closest?.('.ws-ribbon-tabs [role="tab"]')) return;
-      const ev = new KeyboardEvent('keydown', { key: e.key, code: e.code, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey, metaKey: e.metaKey, bubbles: true, cancelable: true });
-      document.body.dispatchEvent(ev); if (ev.defaultPrevented) e.preventDefault();
-    });
-    w.addEventListener('pagehide', () => dockRibbon(true));
-    renderRibbonTabs(); resized();
-    say(T('shell.ws.tear.done'));
+    if (!ribbonMake().open()) { say(T('shell.ws.tear.blocked'), true); return false; }
+    return true;
   }
-  function dockRibbon(closing = false) {
-    if (!rbox) return;
-    closeRibbonMenu(); rsync?.disconnect(); rsync = null;
-    const R = P.ribbon;
-    if (ribbonHome.parentNode && R) { ribbonHome.after(R.tabs, R.ribbon); ribbonHome.remove(); }
-    const w = rwin; rwin = null; rbox = null;
-    if (!closing && w && !w.closed) w.close();
-    if (R) renderRibbonTabs();
-    resized();
-  }
-  window.addEventListener('pagehide', () => { if (rwin && !rwin.closed) rwin.close(); });
+  function dockRibbon() { rpop.back(); }
 
   // ---- options bar ----
   function mountOptions(o) {
@@ -436,7 +476,11 @@ export function mountWorkspaces(A) {
   // ---- the app's own toolbar ----
   function mountToolbar(o) {
     const tb = A.toolbar(); if (!tb) return;
-    if (o.place === 'none') { tb.classList.add('ws-hide'); P.toolbar = { el: tb, hidden: true }; return; }
+    // Never the same tools twice (owner 2026-11-11, "smaller toolbars is better"): an app whose toolbox column carries every tool of its toolbar
+    // says so (adapter.toolbarIn: ['toolbox']), and in a layout that has that block the toolbar steps aside as if the layout had left it out.
+    // The mark on the toolbar (data-ws-in) lets the app's adapter list in that block the tools the toolbar kept under its More menus.
+    const dup = o.place === 'none' ? null : (A.toolbarIn || []).find((b) => cur.blocks.has(b) && cur.blocks.get(b).place !== 'none') || null;
+    if (o.place === 'none' || dup) { tb.classList.add('ws-hide'); if (dup) tb.dataset.wsIn = dup; P.toolbar = { el: tb, hidden: true }; return; }
     move(tb, region(o.place)); tb.classList.add('ws-toolbar-strip');
     P.toolbar = { el: tb };
   }
@@ -453,7 +497,7 @@ export function mountWorkspaces(A) {
     }
     region(o.place).append(box);
     const selNote = el('span', { className: 'tbx-sel' });
-    const props = A.showProperties ? el('button', { type: 'button', className: 'ws-props-btn', 'data-ws-props': '' }, el('i', { className: 'bi bi-card-list', 'aria-hidden': 'true' }), el('span', {}, T('shell.ws.props'))) : null;
+    const props = A.showProperties ? el('button', { type: 'button', className: 'ws-props-btn', 'data-ws-props': '' }, blockIcon({ bi: 'bi-card-list', block: 'infobox' }), el('span', {}, T('shell.ws.props'))) : null;
     P.infobox = { el: box, tool: parts.tool || null, selNote, props };
   }
   function refreshInfobox(s) {
@@ -485,13 +529,14 @@ export function mountWorkspaces(A) {
     P.toolbox = { el: box, list, o };
     renderToolbox();
   }
-  function tbOpen() {
+  function tbMake() {
     const reg = regions.get(cur.blocks.get('toolbox').place);
     if (!tbPop) tbPop = popout({ name: 'toolbox-' + A.app, nodes: [P.toolbox.el], cls: 'tbx-popout', listeners,
       title: () => T('shell.ws.toolbox.window', { app: appName }), size: () => ({ w: 300, h: Math.min(screen.availHeight || 900, 900) }),
       onChange: (open) => { reg?.classList.toggle('ws-out', open); measure(); soon(); } });
-    return tbPop.open();
+    return tbPop;
   }
+  function tbOpen() { return tbMake().open(); }
   // Auto-focus panel (Settings › Global): the groups close each other, and an app can link a group to a section of another panel (window.ccAutoFocus.get('tbx-<app>'))
   let tbxAfCtl = null;
   function tbxAf() {
@@ -504,24 +549,32 @@ export function mountWorkspaces(A) {
    *  a group an add-on adds), as the ribbon redraws on its tab signature; folded groups stay folded and the focused tool keeps the focus. */
   function renderToolbox() {
     const X = P.toolbox; if (!X) return;
-    const groups = A.toolbox().map((g) => ({ ...g, tools: g.tools.filter((id) => built(id, 'toolbox')) }));
-    const sig = JSON.stringify([groups.map((g) => [g.id, g.label, g.tools]), X.o.mine ? mine.sig() : null]);
+    // a group may carry `more`: tools that sit behind a More button of the group, as a named list beside the column (an app whose toolbar
+    // stepped aside for the toolbox lists its More menus' tools there, so every tool is still one click and a pick away: 0.10)
+    const groups = toolboxData('toolbox').map((g) => ({ ...g, tools: g.tools.filter((id) => built(id, 'toolbox')), more: (g.more || []).filter((id) => built(id, 'toolbox')) }));
+    const sig = JSON.stringify([groups.map((g) => [g.id, g.label, g.tools, g.more]), X.o.mine ? mine.sig() : null]);
     if (sig === X.sig) return;
     X.sig = sig;
     const shut = new Set([...X.list.querySelectorAll('details.tbx-group:not([open])')].map((d) => d.dataset.tbxGroup));
     const focused = X.list.contains(X.list.ownerDocument.activeElement) ? X.list.ownerDocument.activeElement.dataset?.tbxTool : null;
     X.list.replaceChildren(...groups.map((g) => {
-      const tools = g.tools.map((id) => {
+      const mk = (id) => {
         const t = A.tool(id, 'toolbox');
-        const ic = typeof t.icon === 'string' ? el('i', { className: 'bi ' + t.icon, 'aria-hidden': 'true' }) : t.icon ? t.icon.cloneNode(true) : el('i', { className: 'bi bi-square', 'aria-hidden': 'true' });
+        const ic = blockIcon({ id, label: t.label, bi: typeof t.icon === 'string' ? t.icon : '', own: typeof t.icon === 'string' ? null : t.icon, block: 'toolbox' });
         return el('button', { type: 'button', className: 'tbx-tool', 'data-tbx-tool': id, 'aria-pressed': 'false', title: t.label, draggable: X.o.mine ? 'true' : null }, ic, el('span', {}, t.label));
-      });
-      if (!tools.length) return null;
-      const body = el('div', { className: 'tbx-tools' }, tools);
+      };
+      const tools = g.tools.map(mk);
+      if (!tools.length && !g.more.length) return null;
+      const moreTitle = T('shell.ws.tbx.more.title', { group: g.label });
+      const more = g.more.length ? el('details', { className: 'tr-more tbx-more', 'data-tbx-more': g.id },
+        el('summary', { className: 'tbx-tool', 'aria-label': moreTitle, title: moreTitle }, blockIcon({ bi: 'bi-three-dots', block: 'toolbox' }), el('span', {}, T('shell.ws.tbx.more'))),
+        el('div', { className: 'tr-more-list', role: 'group', 'aria-label': moreTitle }, g.more.map(mk))) : null;
+      const body = el('div', { className: 'tbx-tools' }, tools, more);
       return X.o.collapse ? el('details', { className: 'tbx-group', open: !shut.has(g.id), 'data-tbx-group': g.id }, el('summary', {}, g.label), body)
         : el('section', { className: 'tbx-group', 'data-tbx-group': g.id }, el('div', { className: 'tbx-group-title' }, g.label), body);
     }).filter(Boolean));
     if (X.o.mine) X.list.prepend(mine.group(X.o, shut));
+    D?.decorate('toolbox-list', X.list);
     if (focused) X.list.querySelector('[data-tbx-tool="' + CSS.escape(focused) + '"]')?.focus();
     tbxAf()?.refresh();
   }
@@ -531,6 +584,7 @@ export function mountWorkspaces(A) {
       const id = b.dataset.tbxTool, a = can(id, 'toolbox');
       b.setAttribute('aria-pressed', A.pressed && A.pressed(id, 'toolbox') ? 'true' : 'false');
       b.setAttribute('aria-disabled', a.enabled ? 'false' : 'true');
+      { const d = declared(id, 'toolbox'); b.hidden = !!d && !d.visible; }
       b.title = A.tool(id, 'toolbox').label + (a.enabled ? '' : ' — ' + a.reason);
     }
     if (X.o.mine) mine.refresh(X.list);
@@ -549,16 +603,20 @@ export function mountWorkspaces(A) {
     P.toolrows = { el: box, rows, o };
     renderToolrows();
   }
-  function trOpen() {
+  function trMake() {
     if (!trPop) trPop = popout({ name: 'toolrows-' + A.app, nodes: [P.toolrows.el], cls: 'tr-popout', listeners,
       title: () => T('shell.ws.toolrows.window', { app: appName }), size: () => ({ w: Math.min(screen.availWidth || 1200, 1100), h: 190 }),
       onChange: () => { measure(); soon(); } });
-    return trPop.open();
+    return trPop;
   }
+  function trOpen() { return trMake().open(); }
   function renderToolrows() {
     const X = P.toolrows; if (!X) return;
-    const groups = A.toolbox().map((g) => ({ ...g, tools: g.tools.filter((id) => built(id, 'toolrows')) })).filter((g) => g.tools.length);
-    const sig = JSON.stringify(groups.map((g) => [g.id, g.label, g.tools]));
+    // BK.32 (additive): an adapter may say how many of a group's tools are in the row (`visible`, e.g. a person's own arrangement, app-toolrows-arrange.js)
+    // and which row the group is in (`row` 1 | 2); a group without them is laid out as before (the layout's `visible` and `split`).
+    const groups = toolboxData('toolrows').map((g) => ({ ...g, tools: g.tools.filter((id) => built(id, 'toolrows')),
+      ...(Number.isInteger(g.visible) ? { visible: g.tools.slice(0, g.visible).filter((id) => built(id, 'toolrows')).length } : {}) })).filter((g) => g.tools.length);
+    const sig = JSON.stringify(groups.map((g) => [g.id, g.label, g.tools, g.visible ?? null, g.row ?? null]));
     if (sig === X.sig) return;
     X.sig = sig;
     const split = X.o.split || Math.ceil(groups.length / 2), visible = X.o.visible || 7;
@@ -573,13 +631,16 @@ export function mountWorkspaces(A) {
       return b;
     };
     const grp = (g) => {
-      const shown = g.tools.slice(0, visible), more = g.tools.slice(visible);
+      const n = Number.isInteger(g.visible) ? g.visible : visible, shown = g.tools.slice(0, n), more = g.tools.slice(n);
       return el('div', { className: 'tr-group', role: 'group', 'data-tr-group': g.id, 'aria-label': g.label },
         shown.map((id) => mk(id)),
         more.length ? el('details', { className: 'tr-more' }, el('summary', { 'aria-label': T('shell.ws.toolrows.more', { group: g.label }), title: g.label }, '▾'), el('div', { className: 'tr-more-list' }, more.map((id) => mk(id, true)))) : null);
     };
     closeMore(null);
-    X.rows.replaceChildren(el('div', { className: 'tr-row', 'data-tr-row': '1' }, groups.slice(0, split).map(grp)), el('div', { className: 'tr-row', 'data-tr-row': '2' }, groups.slice(split).map(grp)));
+    const byRow = groups.some((g) => g.row === 1 || g.row === 2);
+    X.rows.replaceChildren(el('div', { className: 'tr-row', 'data-tr-row': '1' }, (byRow ? groups.filter((g) => g.row !== 2) : groups.slice(0, split)).map(grp)),
+      el('div', { className: 'tr-row', 'data-tr-row': '2' }, (byRow ? groups.filter((g) => g.row === 2) : groups.slice(split)).map(grp)));
+    D?.decorate('toolrows-rows', X.rows);
   }
 
   // the ▾ menu floats over the drawing (position: fixed at the ▾): the rows scroll sideways, so an absolute menu would be clipped to a scroll bar
@@ -590,6 +651,14 @@ export function mountWorkspaces(A) {
     const d = e.target; if (!d.matches?.('details.tr-more') || !d.open) return;
     closeMore(d);
     const list = d.querySelector('.tr-more-list'), r = d.getBoundingClientRect(), win = d.ownerDocument.defaultView;
+    if (d.classList.contains('tbx-more')) {   // a toolbox group's More list opens beside the column, as tall as the window allows
+      list.style.maxHeight = Math.max(160, win.innerHeight - 16) + 'px';
+      const c = (d.closest('.tbx-toolbox') || d).getBoundingClientRect();   // the whole column, its scroll bar included
+      const h = Math.min(list.scrollHeight, win.innerHeight - 16), onRight = c.right + list.offsetWidth + 6 <= win.innerWidth;
+      list.style.top = Math.round(Math.max(8, Math.min(r.top, win.innerHeight - h - 8))) + 'px';
+      list.style.left = Math.round(onRight ? c.right + 2 : Math.max(4, c.left - list.offsetWidth - 2)) + 'px';
+      return;
+    }
     list.style.top = Math.round(r.bottom) + 'px';
     list.style.left = Math.round(Math.max(4, Math.min(r.left, win.innerWidth - list.offsetWidth - 4))) + 'px';
     list.style.maxHeight = Math.max(120, win.innerHeight - r.bottom - 8) + 'px';
@@ -598,7 +667,14 @@ export function mountWorkspaces(A) {
   window.addEventListener('resize', () => closeMore(null));
 
   // ---- Vector (0.9 VEC.1): the menu bar and the left tool palettes (app-workspace-vector.js) ----
-  function mountMenubar(o) { P.menubar = vmenu.mount(o, region(o.place)); P.menubar.el.prepend(brandEl()); }
+  // 0.10 UI.17: the app's mark and name show once in a layout's chrome (pattern 11). A layout with a title bar block carries both there;
+  // the menu bar then leaves its own out, whichever of the two blocks is mounted first.
+  const dropMenubarDuplicates = () => { P.menubar?.el.querySelectorAll(':scope > .ws-brand').forEach((n) => n.remove()); };
+  function mountMenubar(o) {
+    P.menubar = vmenu.mount(o, region(o.place));
+    if (P.titlebar) return;
+    const brand = brandEl(); P.menubar.el.prepend(brand); bootTo(brand);
+  }
   function mountToolpalette(o) { P.toolpalette = vpal.mount(o, region(o.place)); }
   window.addEventListener('cc-vector-palette', (e) => { if (cur && P.palettes) { if (P.palettes.rail) showRail(e.detail); else showLower(e.detail); } });   // Window menu › a palette
 
@@ -613,6 +689,7 @@ export function mountWorkspaces(A) {
     const panelLabel = () => (typeof pal.panel?.label === 'function' ? pal.panel.label(o.place) : o.place === 'right-panel' ? T('shell.ws.panel.right') : pal.panel?.label);
     const label = (n) => (n === 'panel' ? panelLabel() || T('shell.ws.panel') : named(pal[n]?.label) || n);
     const dom = (n) => (n === 'panel' ? 'model' : n);   // the host panel's own content keeps the DOM name it had in BimCraft (tests, styles)
+    o = { ...o, ...stacksToPalettes(o) };   // v2: two stacks fill the panel's upper palette and its tabs
     let upper = null;
     if (o.upper) {
       const p = pal[o.upper];
@@ -643,7 +720,7 @@ export function mountWorkspaces(A) {
     if (o.rail) {
       const names = [o.upper, ...lower].filter(Boolean), ICON = { properties: 'bi-sliders', browser: 'bi-list-nested', panel: 'bi-layers' };
       rail = el('div', { className: 'ws-rail', role: 'tablist', 'aria-orientation': 'vertical', 'aria-label': T('shell.ws.rail') },
-        names.map((n, i) => el('button', { type: 'button', className: 'ws-rail-btn', role: 'tab', 'data-ws-rail': n, 'aria-selected': String(i === 0), title: label(n), 'aria-label': label(n) }, el('i', { className: 'bi ' + (ICON[n] || 'bi-square'), 'aria-hidden': 'true' }))));
+        names.map((n, i) => el('button', { type: 'button', className: 'ws-rail-btn', role: 'tab', 'data-ws-rail': n, 'aria-selected': String(i === 0), title: label(n), 'aria-label': label(n) }, blockIcon({ bi: ICON[n] || 'bi-square', block: 'rail' }))));
       palettes.classList.add('ws-railed'); palettes.prepend(rail);
     }
     P.palettes = { el: palettes, host, slots, lower, tabs, hints, kids, upper, upperName: o.upper || null, rail, label, dom, name: [o.upper ? label(o.upper) : null, lower[0] ? label(lower[0]) : null].filter(Boolean).join(' · ') };
@@ -732,7 +809,7 @@ export function mountWorkspaces(A) {
       if (sig !== V.sig) {
         V.sig = sig;
         V.el.replaceChildren(...opened.map((id) => { const v = list.find((x) => x.id === id); return el('div', { className: 'ws-drawing-tab', role: 'presentation' },
-          btn([el('i', { className: 'bi ' + (v.icon || 'bi-square'), 'aria-hidden': 'true' }), ' ' + v.name], { role: 'tab', 'data-ws-drawing': id, 'aria-selected': String(active === id) }),
+          btn([blockIcon({ bi: v.icon || 'bi-square', key: !v.icon || v.icon === 'bi-square' ? 'viewport' : '', block: 'views' }), ' ' + v.name], { role: 'tab', 'data-ws-drawing': id, 'aria-selected': String(active === id) }),
           btn('×', { 'aria-label': T('shell.ws.close.view', { name: v.name }), 'data-ws-close': id })); }));   // i18n-ignore: a close glyph
       }
       stage.classList.toggle('ws-no-view', !!s.document && !active);
@@ -742,7 +819,7 @@ export function mountWorkspaces(A) {
       const sig = JSON.stringify([list.map((v) => [v.id, v.name]), now]);
       if (sig !== V.sig) {
         V.sig = sig;
-        V.el.replaceChildren(...list.map((v) => btn([el('i', { className: 'bi ' + (v.icon || 'bi-square'), 'aria-hidden': 'true' }), el('span', {}, v.name)],
+        V.el.replaceChildren(...list.map((v) => btn([blockIcon({ bi: v.icon || 'bi-square', key: !v.icon || v.icon === 'bi-square' ? 'viewport' : '', block: 'views' }), el('span', {}, v.name)],
           { role: 'tab', className: 'tbx-tab', 'data-ws-view': v.id, 'aria-selected': String(v.id === now), tabindex: v.id === now ? 0 : -1 })));
         V.el.hidden = !list.length;
       }
@@ -759,40 +836,138 @@ export function mountWorkspaces(A) {
   }
   function mountStatusbar(o) {
     const slot = el('span', { className: 'ws-status-slot' });
-    const cmd = o.command ? el('form', { className: 'ws-cmdline', role: 'search', 'aria-label': T('shell.ws.cmd') }, el('span', { 'aria-hidden': 'true' }, '›'),
-      el('input', { type: 'text', className: 'ws-cmd-input', 'data-ws-cmd': '', autocomplete: 'off', spellcheck: 'false', placeholder: T('shell.ws.cmd.placeholder'), 'aria-label': T('shell.ws.cmd') })) : null;
+    const cmd = o.command && !(editOn() && document.querySelector('[data-cmd-bar]')) ? dockedCommandLine({ t: T, app: A.app }) : null;   // UI.17 (lab only): an app with its own command bar (CadCraft) keeps that one, never two fields;   // 0.10 BK.34 (app-cmdline.js): the one docked command line: type anywhere, history on focus
     const bar = el('footer', { className: 'ws-statusbar ws-block', 'data-ws-blk': 'statusbar' }, cmd, el('span', { className: 'ws-layout-label' }, layoutName(cur.layout)), el('span', { 'data-ws-selection': '' }), slot);
     if (o.tearOff) bar.append(menuButton({ t: T, label: T('shell.ws.status.menu'), backLabel: T('shell.ws.status.back'), isOpen: () => !!sbPop?.isOpen(),
       open: () => { if (!sbOpen()) say(T('shell.ws.tear.blocked'), true); }, back: () => sbPop?.back() }));
-    if (cmd) cmd.addEventListener('submit', (e) => {   // the command line hands what was typed to the command finder, which runs the best match
-      e.preventDefault(); const field = cmd.querySelector('input'), q = field.value.trim(); if (!q || !window.ccPalette?.open) return;
-      field.value = ''; window.ccPalette.open();
-      const box = document.querySelector('.shell-palette-input'); if (box) { box.value = q; box.dispatchEvent(new Event('input', { bubbles: true })); }
-    });
     region(o.place).append(bar);
     if (A.status) move(A.status, slot);
     P.statusbar = { el: bar };
   }
-  function sbOpen() {
+  function sbMake() {
     if (!sbPop) sbPop = popout({ name: 'status-' + A.app, nodes: [P.statusbar.el], cls: 'sb-popout', listeners,
       title: () => T('shell.ws.status.window', { app: appName }), size: () => ({ w: 760, h: 120 }), onChange: () => { measure(); soon(); } });
-    return sbPop.open();
+    return sbPop;
+  }
+  function sbOpen() { return sbMake().open(); }
+
+  // =========================================================== UI.21 / UI.26 / UI.3: the dock manager (switch on only) ===========================================================
+  /** What app-dock.js needs from the engine: the blocks that may leave for a window, the groups that may dock, the zones, the one menu. */
+  const blocked = () => say(T('shell.ws.tear.blocked'), true);
+  function dockHost() {
+    const b = (kind, label, tear, isOpen, open, back, extra = () => []) => (P[kind] && (kind !== 'ribbon' || P.ribbon.tabs) ? { label, tear: !!tear, isOpen, open: () => { const ok = open(); if (!ok) blocked(); return ok; }, back, extra } : null);
+    const blocks = {
+      ribbon: P.ribbon ? b('ribbon', T('shell.ws.ribbon'), P.ribbon.o.tearOff, () => rpop.isOpen(), () => ribbonMake().open(), () => dockRibbon(),
+        () => (P.ribbon.o.collapse && !rpop.isOpen() ? [collapsed ? [T('shell.ws.ribbon.pin'), 'bi-pin-angle', () => setCollapsed(false)] : [T('shell.ws.ribbon.collapse'), 'bi-arrows-collapse', () => setCollapsed(true)]] : [])) : null,
+      toolbox: P.toolbox ? b('toolbox', T('shell.ws.tbx'), P.toolbox.o.tearOff, () => !!tbPop?.isOpen(), () => tbOpen(), () => tbPop?.back(),
+        () => (P.toolbox.o.collapse ? [[T('shell.ws.tbx.collapse'), 'bi-chevron-double-up', () => { for (const d of P.toolbox.list.querySelectorAll('details.tbx-group')) d.open = false; }], [T('shell.ws.tbx.expand'), 'bi-chevron-double-down', () => { for (const d of P.toolbox.list.querySelectorAll('details.tbx-group')) d.open = true; }]] : [])) : null,
+      toolrows: P.toolrows ? b('toolrows', T('shell.ws.toolrows'), P.toolrows.o.tearOff, () => !!trPop?.isOpen(), () => trOpen(), () => trPop?.back()) : null,
+      statusbar: P.statusbar ? b('statusbar', T('shell.dock.block.statusbar'), cur.blocks.get('statusbar')?.tearOff, () => !!sbPop?.isOpen(), () => sbOpen(), () => sbPop?.back()) : null,
+    };
+    for (const k of Object.keys(blocks)) if (!blocks[k]) delete blocks[k];
+    const groups = (kind) => (kind === 'ribbon' ? (P.ribbon ? ribbonAll().flatMap((t) => t.groups.map((g) => ({ key: 'ribbon:' + t.tab + ':' + g.id, id: g.id, tab: t.tab, label: g.label, tools: [...g.large, ...g.stacks.flat()] }))) : [])
+      : P[kind] ? toolboxAll(kind).map((g) => ({ key: kind + ':' + g.id, id: g.id, label: g.label, tools: [...g.tools, ...(g.more || [])] })) : []);
+    return { app: A.app, layout: () => cur?.key || null, T, el, say, stage, doc: document, blocks, groups,
+      tool: (id, block) => tool(id, block), built: (id, block) => built(id, block), region: (p) => region(p), host: (p) => (p === 'left-panel' ? left : p === 'right-panel' ? right : null),
+      menu: (btn, label, items) => openMenu(btn, label, items), hide: (kind) => editor.moveBlock(kind, 'none'),
+      redraw: () => { if (P.ribbon) renderRibbonTabs(); if (P.toolbox) { P.toolbox.sig = null; renderToolbox(); } if (P.toolrows) { P.toolrows.sig = null; renderToolrows(); } refreshTools(); measure(); soon(); } };
+  }
+  /** On entering a layout with the switch on: load the dock manager, draw the heads, the palettes, and offer to restore the windows that were out (UI.3). */
+  function startDock() {
+    if (!dockOn() || guest || !cur) return;
+    const at = cur.key;
+    windows.remember(() => (cur && !guest ? 'cc-ws-windows:' + A.app + ':' + cur.key : null));
+    if (!document.getElementById('cc-app-dock-css')) { const l = document.createElement('link'); l.id = 'cc-app-dock-css'; l.rel = 'stylesheet'; l.href = '/assets/css/app-dock.css'; document.head.append(l); }
+    import('./app-dock.js').then((m) => {
+      if (!cur || cur.key !== at || D) return;
+      D = m.dockManager(dockHost());
+      for (const k of ['toolbox', 'toolrows', 'statusbar']) if (P[k]?.el) D.decorate(k, P[k].el);
+      if (P.ribbon) ribbonMake(); if (P.toolbox?.o.tearOff) tbMake(); if (P.toolrows?.o.tearOff) trMake(); if (cur.blocks.get('statusbar')?.tearOff && P.statusbar) sbMake();   // so a remembered window can be restored before its first use
+      dockHost().redraw(); D.refresh(); winOffer();
+    }).catch((e) => console.error('dock', e));
+  }
+  function stopDock() { if (!D) return; D.destroy(); D = null; winOffer(true); }
+  /** UI.3: "Restore my windows" in one click (a browser opens windows only inside a click), where the panels window offers its own. */
+  let offer = null;
+  function winOffer(hide = false) {
+    const n = hide ? 0 : windows.pending().length;
+    if (!n) { offer?.remove(); offer = null; return; }
+    if (!offer) {
+      offer = el('div', { className: 'shell-pw-offer ws-win-offer', role: 'region', 'aria-label': T('shell.dock.restore.aria') },
+        el('p', {}, el('span', { 'data-ws-win-text': '' })), btn(T('shell.dock.restore'), { className: 'btn-plot btn-sm-cc', 'data-ws-win-restore': '' }), btn(T('shell.panels.offer.keep'), { className: 'btn-line btn-sm-cc', 'data-ws-win-keep': '' }));
+      offer.addEventListener('click', (e) => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.hasAttribute('data-ws-win-restore')) { const r = windows.restore(); if (r.blocked) { say(T('shell.dock.restore.more', { n: r.blocked }), true); winOffer(); return; } }
+        else windows.forget();
+        winOffer(true);
+      });
+      document.body.append(offer);
+    }
+    offer.querySelector('[data-ws-win-text]').textContent = T('shell.dock.restore.text', { n });
   }
 
   // =========================================================== enter / leave ===========================================================
   const MOUNT = { titlebar: mountTitlebar, ribbon: mountRibbon, options: mountOptions, toolbar: mountToolbar, infobox: mountInfobox, toolbox: mountToolbox, toolrows: mountToolrows,
+    viewports: (o) => { P.viewports = { o }; A.viewports.set(o.layout || 'four'); },
     palettes: mountPalettes, menubar: mountMenubar, toolpalette: mountToolpalette, viewtabs: mountViewtabs, viewbar: (o) => { P.viewbar = mountSlotsBar(o, 'ws-view-controls', T('shell.ws.viewcontrols')); },
     quickbar: (o) => { P.quickbar = mountSlotsBar(o, 'tbx-quick', T('shell.ws.quickbar')); }, statusbar: mountStatusbar,
     petpalette: () => { pet.hide(); stage.append(pet.el); P.petpalette = { el: pet.el, float: true }; } };
-  const bodyCls = () => ['ws-on', 'ws-layout-' + cur.layout.id, 'ws-look-' + cur.layout.look.outline, 'ws-tabs-' + cur.layout.look.tabs, cur.layout.look.density === 'compact' ? 'ws-dense' : null,
+  // the interface blocks of ui-blocks-10 (UI.9 to UI.11): mounted by app-workspace-blocks.js through the host the engine builds for them
+  const extras = [];
+  const extraEnv = () => ({ A, T, say, stage, appName, region, state, ribbon: () => ribbonData(), soon, layouts: () => api.layouts().filter((l) => l.ok).map((l) => ({ key: l.key, name: l.name })),
+    layout: () => (cur ? cur.key : 'standard'), setLayout: (key) => { if (window.ccShellWorkspace) window.ccShellWorkspace.set(key); else { try { localStorage.setItem('cc-workspace', key); } catch (e) { /* this page only */ } decide(true); } } });
+  for (const k of EXTRA_KINDS) MOUNT[k] = (o) => { extras.push(mountExtra(extraEnv(), k, o)); };
+  /** UI.11: the ribbon's own extras (a group's ▾ more, slot controls moved into the groups, the contextual tab's label, Alt letters) from app-block-ribbonx.js, once the ribbon is built. */
+  function ribbonExtras(o) {
+    if (!(o.more || o.slots || o.contextual)) return;
+    import('./app-block-ribbonx.js').then((m) => { const R = P.ribbon; if (!R || R.x || !cur) return; const ln = document.getElementById('cc-app-block-css') || (() => { const l = document.createElement('link'); l.id = 'cc-app-block-css'; l.rel = 'stylesheet'; l.href = '/assets/css/app-block.css'; document.head.append(l); return l; })();
+      R.x = m.enhance(blockHost(extraEnv()), R.tabs, R.ribbon); R.x.decorate?.(); }).catch((e) => console.error('ribbonx', e));
+  }
+  /** UI.29 + BK.123 (lab only until the owner's switch): density steps, the presentation mode and labels under icons, started once. */
+  let chrome = null;
+  function startChrome() {
+    if (chrome || !editOn() || guest) return;
+    chrome = {};
+    Promise.all([import('./app-block-density.js'), import('./app-block-labels.js')]).then(([d, l]) => { chrome.density = d.createDensity({ app: A.app }); chrome.labels = l.createLabels({ app: A.app, T }); }).catch((e) => console.error('chrome', e));
+  }
+  const bodyCls = () => ['ws-on', 'ws-layout-' + cur.layout.id, 'ws-look-' + cur.layout.look.outline, cur.layout.look.names === 'above' ? 'ws-names-above' : null, 'ws-tabs-' + cur.layout.look.tabs, cur.layout.look.density === 'compact' ? 'ws-dense' : null, cur.layout.look.skin ? 'ws-skin-' + cur.layout.look.skin : null,
     ...[...cur.blocks.keys()].map((b) => 'ws-b-' + b), cur.blocks.has('titlebar') || cur.blocks.has('menubar') ? 'has-live-workspace' : null, cur.blocks.has('toolbox') ? 'has-toolbox' : null,
     top || bottom ? 'ws-chrome-on' : null].filter(Boolean);
+  // look (v2): names above / below, a zone's own choice, tone, and what a bar does when it is too narrow
+  const folds = [];
+  function applyLook() {
+    const L = cur.layout.look, zones = L.zones || {};
+    const host = { top, bottom, 'left-panel': left, 'right-panel': right, ...Object.fromEntries(regions) };
+    for (const [place, z] of Object.entries(zones)) if (host[place]) host[place].dataset.wsNames = z.names;
+    if (L.tone && L.tone !== 'theme') document.documentElement.dataset.wsTone = L.tone;
+    if (L.overflow) document.body.dataset.wsOverflow = L.overflow;
+    refold();
+  }
+  function clearLook() {
+    for (const h of [top, bottom, left, right, ...regions.values()]) if (h) delete h.dataset.wsNames;
+    delete document.documentElement.dataset.wsTone; delete document.body.dataset.wsOverflow;
+    for (const f of folds.splice(0)) f.destroy();
+  }
+  /** (Re)attach the fold to the bars that exist now; run() on every call, so a resize or a redraw folds again. */
+  function refold() {
+    if (!cur) return;
+    if (!editOn() && !cur.layout.look.overflow) return;   // a released build keeps its bars as they were; a layout that asks (look.overflow, v2) gets it everywhere
+    const mode = cur.layout.look.overflow || 'more';
+    const want = [];
+    if (P.menubar) want.push([P.menubar.menus, () => [...P.menubar.menus.querySelectorAll(':scope > .vw-menu')]]);
+    for (const r of P.toolrows?.rows?.querySelectorAll('.tr-row') || []) want.push([r, () => [...r.querySelectorAll(':scope > .tr-group')]]);
+    for (const f of folds.splice(0)) f.destroy();
+    for (const [bar, items] of want) { const f = foldBar(bar, { items, mode, label: T('shell.ws.more') }); folds.push(f); f.run(); }
+  }
+  window.addEventListener('resize', () => { if (cur) refold(); });
   function enter(next) {
     cur = next;
     for (const s of A.hide || []) for (const n of document.querySelectorAll(s)) n.classList.add('ws-hide');
     stage.classList.add('ws-stage'); root.classList.add('ws-host');
-    root.append(tooltip);
-    for (const b of cur.list) if (b.place !== 'none' || b.block === 'toolbar') MOUNT[b.block](b);
+    for (const b of cur.list) if (b.place !== 'none' || b.block === 'toolbar' || b.block === 'viewports') MOUNT[b.block](b);
+    // 0.10 UI.17: a version 2 layout lists what it shows, so a toolbar it does not name is left out (the app's own strip would otherwise sit under the ribbon). Version 1 files
+    // (every released layout, and anyone's old file) behave as before.
+    if (cur.layout?.version >= 2 && !cur.blocks.has('toolbar') && A.toolbar?.()) MOUNT.toolbar({ block: 'toolbar', place: 'none', order: 99 });
     // the order inside each region follows the layout (mounting goes block by block; re-append by order)
     for (const r of [top, bottom, ...regions.values()].filter(Boolean)) {
       const items = cur.list.filter((b) => b.place !== 'none').map((b) => ({ b, n: partEl(b.block) })).filter((x) => x.n && [].concat(x.n)[0].parentNode === r);
@@ -800,10 +975,11 @@ export function mountWorkspaces(A) {
     }
     root.classList.add('ws-on'); root.dataset.wsLayout = cur.key;
     root.classList.toggle('ws-active', cur.blocks.has('titlebar') || cur.blocks.has('menubar')); root.classList.toggle('tbx-active', cur.blocks.has('toolbox'));
-    cur.cls = bodyCls(); document.body.classList.add(...cur.cls);
+    cur.cls = bodyCls(); document.body.classList.add(...cur.cls); applyLook();
     stageObs.observe(stage, { childList: true }); markFill();
     A.entered?.(ctx);
     resized(); measure();
+    startDock();   // UI.21 / UI.26 / UI.3: nothing unless html[data-cc-ws-edit="1"]
   }
   function partEl(block) {
     const p = P[block]; if (!p || p.float) return null;
@@ -812,13 +988,18 @@ export function mountWorkspaces(A) {
     return p.el || null;
   }
   function leave() {
+    stopDock();
+    clearLook(); destroyExtras(extras.splice(0)); if (P.ribbon?.x) { try { P.ribbon.x.destroy(); } catch (e) { /* gone */ } P.ribbon.x = null; }
+    for (const n of stage.querySelectorAll(':scope > [data-corner]')) if (!n.children.length) n.remove();   // the corner stacks a block made and left empty
     A.leaving?.(ctx);
+    if (P.viewports) A.viewports.set('single');   // the drawing area goes back to one view
     dockRibbon(); closeRibbonMenu(); closeFileMenu(); tbPop?.back(); tbPop = null; trPop?.back(); trPop = null; sbPop?.back(); sbPop = null; toolOptions(true);
     mine.closeMenu(); fields.clear(); pet.hide(); pet.el.remove();
+    bootBack();
     if (P.titlebar) P.titlebar.off();
     if (P.menubar) vmenu.destroy(P.menubar);
     if (P.toolpalette) vpal.clear();
-    if (P.toolbar?.el) P.toolbar.el.classList.remove('ws-toolbar-strip', 'ws-hide');
+    if (P.toolbar?.el) { P.toolbar.el.classList.remove('ws-toolbar-strip', 'ws-hide'); delete P.toolbar.el.dataset.wsIn; }
     if (P.palettes) { for (const k of P.palettes.kids) k.classList.remove('ws-hide'); }
     restoreAll();
     if (P.palettes) {
@@ -830,7 +1011,7 @@ export function mountWorkspaces(A) {
     top?.remove(); bottom?.remove(); top = bottom = null;
     for (const n of document.querySelectorAll('.ws-hide')) n.classList.remove('ws-hide');
     for (const c of stage.children) c.classList.remove('ws-fill', 'ws-flow');
-    stageObs.disconnect(); tooltip.remove(); tooltip.hidden = true;
+    stageObs.disconnect();
     for (const v of ['--ws-st', '--ws-sb', '--ws-vt', '--ws-vb', '--ws-sl', '--ws-sr']) stage.style.removeProperty(v);
     document.body.classList.remove(...cur.cls);
     root.classList.remove('ws-on', 'ws-active', 'tbx-active', 'ws-other', 'ws-host'); stage.classList.remove('ws-stage', 'ws-no-view'); delete root.dataset.wsLayout;
@@ -839,13 +1020,22 @@ export function mountWorkspaces(A) {
     A.left?.({ ...ctx, was: was.key });
     resized();
   }
-  function resized() { requestAnimationFrame(() => { A.resized?.(); measure(); }); }
+  function resized() { requestAnimationFrame(() => { A.resized?.(); measure(); edges(); }); }
 
   // =========================================================== refresh ===========================================================
   function soon() { if (!frame) frame = requestAnimationFrame(() => { frame = 0; refresh(); }); }
+  /** The engine is the one writer of the shared state for what the adapter's state() says (selection, tool, dirty, document); an app that knows more
+   *  (kinds, mode, view, layer, problems) publishes it itself through ccState.publish. */
+  function publishState(s) {
+    const ids = (s.selection || []).map((x) => (typeof x === 'object' && x ? String(x.id ?? x.key ?? '') : String(x)));
+    ccState.publish({ selection: { ids, count: ids.length, ...(s.kinds ? { kinds: s.kinds, kind: s.kinds[0] || '' } : {}) }, tool: s.tool ? String(s.tool) : '', dirty: !!s.dirty, document: !!s.document }, 'workspace');
+  }
+  if (!guest) { ccState.subscribe(() => { if (cur) soon(); }); if (A0.select || A0.reveal) ccState.registerHost({ select: (ids) => A0.select?.(ids), reveal: (ids) => (A0.reveal || A0.select)?.(ids), highlight: (ids) => (A0.highlight || A0.select)?.(ids) }); }
+  let foldSig = '';
   function refresh() {
     if (!cur) return;
-    const s = state();
+    { const m = P.menubar?.menus, rows = P.toolrows?.rows, sig = [m?.querySelectorAll(':scope > .vw-menu').length, m?.clientWidth, rows?.querySelectorAll('.tr-group').length, rows?.clientWidth].join(); if (sig !== foldSig) { foldSig = sig; refold(); } }
+    const s = state(); publishState(s); refreshExtras(extras, s);
     root.classList.toggle('ws-other', !!s.other);
     if (P.titlebar) { P.titlebar.title.textContent = (s.name || '') + (s.dirty ? ' *' : ''); P.titlebar.el.title = s.name || ''; }
     if (P.ribbon) { const sig = JSON.stringify([tabsShown().map((t) => t.tab), A.contextTab ? A.contextTab(s) : null]); if (sig !== P.ribbon.lastSig) { P.ribbon.lastSig = sig; renderRibbonTabs(); } }
@@ -863,12 +1053,13 @@ export function mountWorkspaces(A) {
     refreshPalettes(); refreshInfobox(s); renderToolbox(); refreshToolbox(s); renderToolrows();
     if (P.petpalette) pet.refresh(s);
     A.refresh?.(ctx);
-    refreshTools(); toolOptions(); markFill(); measure();
+    refreshTools(); toolOptions(); markFill(); measure(); edges();
   }
   function refreshTools() {
     for (const b of all('[data-ws-command]')) {
       const id = b.dataset.wsCommand, block = b.dataset.wsBlock || 'ribbon', a = can(id, block), t = A.tool ? A.tool(id, block) : { label: id };
       b.setAttribute('aria-disabled', a.enabled ? 'false' : 'true');
+      { const d = declared(id, block); b.hidden = !!d && !d.visible; }
       b.title = t.label + (a.enabled ? '' : ': ' + a.reason);
       b.classList.toggle('ws-notbuilt', t.built === false);
       // the running tool or an on/off command is lit as in the toolbox (ribbon, quick bar, view bar, title bar, options bar); a button
@@ -880,7 +1071,7 @@ export function mountWorkspaces(A) {
   }
 
   // =========================================================== events ===========================================================
-  const scopes = () => [...new Set([top, bottom, root, P.palettes && P.palettes.el.ownerDocument !== document ? P.palettes.el : null, rbox, tbPop?.box, trPop?.box, sbPop?.box].filter(Boolean))];
+  const scopes = () => [...new Set([top, bottom, root, P.palettes && P.palettes.el.ownerDocument !== document ? P.palettes.el : null, rpop.box, tbPop?.box, trPop?.box, sbPop?.box].filter(Boolean))];
   const all = (sel) => scopes().flatMap((n) => [...n.querySelectorAll(sel)]);
   const listeners = [];
   function listen(type, fn, capture = false) {
@@ -908,10 +1099,10 @@ export function mountWorkspaces(A) {
       // the same tab buttons, re-marked (rebuilding them would split a double-click across two elements)
       for (const x of P.ribbon.tabs.querySelectorAll('[data-ws-tab]')) { const on = x.dataset.wsTab === tab; x.setAttribute('aria-selected', on ? 'true' : 'false'); x.tabIndex = on ? 0 : -1; }
       renderRibbon(); b.focus();
-      if (collapsed && !(rwin && !rwin.closed)) peek(!(same && peeking));   // collapsed: a tab shows its tools over the drawing; again hides them
+      if (collapsed && !rpop.isOpen()) peek(!(same && peeking));   // collapsed: a tab shows its tools over the drawing; again hides them
       return;
     }
-    if (b.dataset.tbxTool) { runTool(b.dataset.tbxTool, 'toolbox', b); return; }
+    if (b.dataset.tbxTool) { runTool(b.dataset.tbxTool, 'toolbox', b); if (b.closest('.tbx-more')) closeMore(null); return; }   // a pick from a group's More list closes the list
     if (peeking && b.dataset.wsCommand && P.ribbon?.ribbon.contains(b)) setTimeout(() => peek(false), 0);   // a command picked from the peeked ribbon
     if (b.dataset.wsCommand) { runTool(b.dataset.wsCommand, b.dataset.wsBlock || 'ribbon', b); return; }
     if (b.dataset.wsDrawing) { goView(b.dataset.wsDrawing); return; }
@@ -921,7 +1112,7 @@ export function mountWorkspaces(A) {
   });
   wireMore();
   // My tools: right-click a tool to add it, drag one onto a slot (the toolbox's own window too: these go through listen())
-  for (const type of ['contextmenu', 'dragstart', 'dragover', 'drop']) listen(type, (e) => { if (P.toolbox?.o.mine && P.toolbox.el.contains(e.target)) mine.on[type](e); });
+  for (const type of ['contextmenu', 'dragstart', 'dragover', 'drop']) listen(type, (e) => { if (type === 'contextmenu' && cur && !guest && editOn() && editor.contextmenu(e)) return; if (P.toolbox?.o.mine && P.toolbox.el.contains(e.target)) mine.on[type](e); });
   // the pet palette: a click in the drawing (no drag) with something picked brings it by the pointer; the wheel or another click puts it away
   for (const type of ['pointerdown', 'pointerup']) stage.addEventListener(type, (e) => { if (cur && P.petpalette) pet.on[type](e); }, true);
   stage.addEventListener('wheel', () => { if (cur && P.petpalette) pet.on.wheel(); }, { capture: true, passive: true });
@@ -934,7 +1125,7 @@ export function mountWorkspaces(A) {
     if (isTyping(e.target) || document.querySelector('dialog[open]')) return;
     if (A.escape && A.escape(e, ctx)) { e.preventDefault(); e.stopImmediatePropagation(); soon(); toolOptions(); }
   }, true);
-  document.addEventListener('dblclick', (e) => { if (cur && P.ribbon && e.target.closest?.('[data-ws-tab]') && P.ribbon.o.collapse && !(rwin && !rwin.closed)) setCollapsed(!collapsed); });
+  document.addEventListener('dblclick', (e) => { if (cur && P.ribbon && e.target.closest?.('[data-ws-tab]') && P.ribbon.o.collapse && !rpop.isOpen()) setCollapsed(!collapsed); });
   listen('keydown', (e) => {
     const b = e.target;
     if (b.dataset?.wsTab && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
@@ -944,15 +1135,8 @@ export function mountWorkspaces(A) {
     }
     if (e.key === 'Enter' && !isTyping(b) && b.dataset?.wsReason && !b.matches('button')) { e.preventDefault(); explain(T('shell.ws.tool'), b.dataset.wsReason); }
   }, true);
-  function showTooltip(e) {
-    if (e.view && e.view !== window) return;   // another window shows the native tooltip
-    const b = e.target.closest?.('[data-ws-command], [data-tbx-tool], [aria-disabled="true"], [data-ws-reason]'); if (!b || !(top?.contains(b) || bottom?.contains(b) || root.contains(b))) return;
-    const why = b.dataset.wsReason || b.title; if (!why) return;
-    tooltip.textContent = why; tooltip.hidden = false; b.setAttribute('aria-describedby', tooltip.id);
-    const r = b.getBoundingClientRect(); tooltip.style.left = Math.max(8, Math.min(r.left, window.innerWidth - 350)) + 'px'; tooltip.style.top = Math.min(r.bottom + 5, window.innerHeight - 150) + 'px';
-  }
-  for (const t of ['pointerover', 'focusin']) document.addEventListener(t, (e) => { if (cur) showTooltip(e); });
-  for (const t of ['pointerout', 'focusout']) document.addEventListener(t, () => { if (cur) { tooltip.hidden = true; if (t === 'focusout') soon(); } });
+  // Tooltips (and the reason a tool is unavailable, data-ws-reason) are drawn by app-tooltips.js, the one Bootstrap tooltip engine; this only restores focus work.
+  document.addEventListener('focusout', () => { if (cur) soon(); });
   // bars hidden: the top slides away with the app's bars; the shell's reveal brings it back while the pointer is on it
   document.addEventListener('pointermove', (e) => { if (cur && top?.contains(e.target) && document.body.classList.contains('shell-autohide')) window.ccShellScreen?.reveal(true); });
 
@@ -989,7 +1173,7 @@ export function mountWorkspaces(A) {
   function tearable({ key, host, name, self = false, onChange = () => {} }) {
     const nm = el('span', { className: 'shell-grip-name' }, name);
     const grip = el('div', { className: 'shell-grip ws-grip', 'data-ws-grip': key },
-      el('span', { className: 'shell-grip-handle' }, el('i', { className: 'bi bi-grip-vertical', 'aria-hidden': 'true' }), nm));
+      el('span', { className: 'shell-grip-handle' }, blockIcon({ bi: 'bi-grip-vertical', block: 'grip' }), nm));
     host.prepend(grip);
     const nodes = [];
     const pop = popout({ name: 'panel-' + A.app + '-' + key, nodes, cls: 'panel-popout',
@@ -1001,20 +1185,59 @@ export function mountWorkspaces(A) {
     return { grip, pop, name: nm, setName: (text) => { if (nm.textContent !== text) nm.textContent = text; }, destroy() { pop.back(); grip.remove(); } };
   }
 
+  // Right-click a tool, and Arrange mode (UI.5, UI.6): both end in a layout of the person's own (app-workspace-edit.js)
+  const editor = layoutEditor({ F, T, el, say, root,
+    current: () => (cur ? { key: cur.key, layout: cur.layout } : null),
+    builtin: (id) => availableLayouts(cfg).find((x) => x.key === id && x.ok && x.source === 'builtin') || null,
+    importText: (text) => api.importText(text),
+    use: (key) => { if (window.ccShellWorkspace) window.ccShellWorkspace.set(key); else { try { localStorage.setItem('cc-workspace', key); } catch (e) { /* this page only */ } decide(true); } },
+    reload: () => { use(null, true); decide(true); },
+    remove: (key) => api.remove(key),
+    caps: () => caps(),
+    dataFor: (kind) => (kind === 'ribbon' ? ribbonRaw().map((t) => ({ ...t, groups: t.groups.map((g) => ({ ...g, large: g.large.filter((id) => built(id, 'ribbon')), stacks: g.stacks.map((st) => st.filter((id) => built(id, 'ribbon'))).filter((st) => st.length) })) }))
+      : (A.toolbox ? A.toolbox() : []).map((g) => ({ ...g, tools: g.tools.filter((id) => built(id, kind)) }))),
+    label: (id, block) => (A.tool ? A.tool(id, block === 'toolbox' ? 'toolbox' : block).label : id),
+    openMenu: (e, items) => mine.openMenu(e, items),
+    commands: () => (window.ccInput?.commands || []).map((c) => ({ id: c.id, label: regTool(c.id).label, built: regTool(c.id).built })).filter((c) => c.built),
+    extra: (b) => (b.dataset.tbxTool && P.toolbox?.o.mine ? [[T('shell.ws.mine.add'), () => mine.add('tbx:' + b.dataset.tbxTool)]] : []) });
+
   // =========================================================== the shell's Settings ===========================================================
   const api = {
     tearable,
+    /** 0.10 UI.21 (switch on only; null otherwise): the dock manager of the mounted layout. units(kind) lists the groups that may dock ({ key, label, docked }),
+     *  zones() the side zones this page has, dock(key, place) / undock(key) move one, state() what is remembered under cc-ws-dock:<app>:<layout>. */
+    get dock() {
+      if (!D) return null;
+      const H = dockHost();
+      return { zones: () => D.zones(), state: () => D.state(), dock: (k, p) => D.dock(k, p), undock: (k) => D.undock(k), collapse: (p, on) => D.collapse(p, on),
+        units: (kind) => H.groups(kind).map((g) => ({ key: g.key, label: g.label, docked: D.isDocked(g.key) })), blocks: () => Object.keys(H.blocks) };
+    },
     /** Settings › Global › Layout › Arrange your own layout… */
-    arrange: () => arranger.open(),
+    arrange: () => { if (cur && !guest && editOn()) { document.querySelector('dialog[data-app-settings][open]')?.close(); editor.arrange(true); } else arranger.open(); },
+    /** The layout editor (UI.5 / UI.6): arrange mode, undo, reset, the edits the right-click menu makes. */
+    editor,
+    form: () => arranger.open(),
     get layout() { return cur ? cur.key : null; }, has: (b) => !!cur?.blocks.has(b), refresh: soon, decide, view: openView,
     notes: () => (cur ? cur.notes.slice() : []),
+    /** BK.126: every tool button the layout made (data-ws-command, data-tbx-tool) and whether the app has a typed command behind it
+        (the adapter's tool(id, block).built; a click goes to the adapter's run(id, block), never to code of the layout's own). */
+    /** 0.10 BK.33: the app's own control behind a layout's tool button (the adapter's source(id, block)), so its tooltip can say what the command's own button says. */
+    sourceOf: (id, block) => (A.source ? A.source(id, block) : null) || null,
+    buttons: () => all('[data-ws-command], [data-tbx-tool]').map((b) => { const id = b.dataset.wsCommand || b.dataset.tbxTool, block = b.dataset.tbxTool ? 'toolbox' : b.dataset.wsBlock || 'ribbon';
+      return { id, block, built: !!(A.tool && A.tool(id, block).built !== false && typeof A.run === 'function'), label: b.getAttribute('aria-label') || b.textContent.trim() }; }),
+    /** BK.35: the layout's ribbon, folded to its tab names or open ({on: a ribbon that can fold is mounted, collapsed}); setRibbon(true) folds it (app-fit.js room()). */
+    ribbon: () => ({ on: !!(P.ribbon && P.ribbon.o.collapse), collapsed: !!(P.ribbon && collapsed) }),
+    setRibbon: (on) => { if (P.ribbon && P.ribbon.o.collapse && !rpop.isOpen()) setCollapsed(!!on); },
+    /** What this app can fill (resolveLayout's caps), read only: tools/workspace-check/harvest.mjs records it for the layout checker (2026-11-10). */
+    caps: () => { const c = JSON.parse(JSON.stringify(caps())); delete c.tools; delete c.commands; return c; },   // the shape caps.json keeps: tool and command ids are asked for through toolIds()
+    toolIds: () => ({ tools: caps().tools, commands: caps().commands }),
     /** Each region and the blocks in it, in DOM order (the conformance test checks the layout's order). */
     order: () => [top, bottom, ...regions.values()].filter(Boolean).map((r) => ({ region: r === top ? 'top' : r === bottom ? 'bottom' : r.dataset.wsRegion,
       blocks: [...r.children].map((n) => n.dataset.wsBlk || (n.classList.contains('ws-toolbar-strip') ? 'toolbar' : null)).filter(Boolean) })),
     inspect: () => ({ layout: cur?.key || null, blocks: cur ? [...cur.blocks.keys()] : [], notes: cur?.notes || [], phone: phone(), view: openView()?.id || null, notice,
       busy: !!state().busy, waiting,
       // the conformance test compares what the adapter says now with what is on screen: the toolbox's tools, the lit commands
-      toolbox: P.toolbox ? { said: A.toolbox().flatMap((g) => g.tools.filter((id) => built(id, 'toolbox'))), shown: [...P.toolbox.list.querySelectorAll('[data-tbx-tool]')].map((b) => b.dataset.tbxTool) } : null,
+      toolbox: P.toolbox ? { said: toolboxData('toolbox').flatMap((g) => [...g.tools, ...(g.more || [])].filter((id) => built(id, 'toolbox'))), shown: [...P.toolbox.list.querySelectorAll('[data-tbx-tool]')].map((b) => b.dataset.tbxTool) } : null,
       pressed: A.pressed ? [...new Set(all('[data-ws-command]').map((b) => b.dataset.wsCommand + ' ' + (b.dataset.wsBlock || 'ribbon')))].filter((k) => A.pressed(...k.split(' '))) : [] }),
     notice: () => notice,
     /** Every layout this page offers (Settings lists them): [{key, name, hint, source, ok, error, notes}] */
@@ -1046,5 +1269,10 @@ export function mountWorkspaces(A) {
   window.addEventListener('storage', (e) => { if (e.key === FILES_KEY) decide(); });
   if (window.matchMedia) matchMedia(PHONE).addEventListener?.('change', () => decide());
   decide();
+  // UI.3 (studio-10): in Studio, each block that was out when this app window last closed goes back to its own window, on the screen the shell remembers (once each)
+  if (!guest) setTimeout(async () => {
+    try { const titles = await window.cadcraftDesktop?.popups?.restore?.(); if (Array.isArray(titles)) for (const t of titles) windows.openByTitle(String(t)); } catch (e) { /* not Studio, or nothing to restore */ }
+  }, 1200);
+  if (editOn() && !guest && new URLSearchParams(location.search).get('arrange') === '1') setTimeout(() => { if (cur) editor.arrange(true); }, 900);   // /developers/layouts › Design it in the app
   return api;
 }

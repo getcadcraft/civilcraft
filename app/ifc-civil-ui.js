@@ -57,9 +57,10 @@ export function installIfc(ctx) {
     sel.focus();
   }
 
-  async function write() {
-    const p = ctx.project(), schema = $(dlg, '[data-ifc-schema]').value;
-    dlg.close();
+  /** `asked` = the schema given by a caller that has no dialog up (the export set's entry, exportNow); else the dialog's choice. */
+  async function write(asked = null) {
+    const p = ctx.project(), schema = SCHEMAS.includes(asked) ? asked : $(dlg, '[data-ifc-schema]').value;
+    if (dlg.open) dlg.close();
     if (!model || modelEmpty(model)) { ctx.say(t('cv.export.none')); return; }
     ctx.busy(t('ifc.busy'));
     try {
@@ -127,5 +128,12 @@ export function installIfc(ctx) {
     if (e.target.closest('[data-close]')) { pending = null; inDlg.close(); } else if (e.target.closest('[data-ifc-in-ok]')) apply();
   });
   inDlg.addEventListener('close', () => ctx.refocus());
-  return { exportDialog, importFile };
+  /** The project as IFC without the dialog: the schema asked for, else the one last chosen here, else IFC 4.3. Same writer and download as the dialog's button. */
+  async function exportNow(schema = null) {
+    model = civilIfcModel(ctx.project(), { species: ctx.species?.() || null });
+    let saved = null;
+    try { saved = localStorage.getItem(KEY); } catch { /* storage blocked */ }
+    return write(SCHEMAS.includes(schema) ? schema : SCHEMAS.includes(saved) ? saved : 'IFC4X3_ADD2');
+  }
+  return { exportDialog, exportNow, importFile };
 }

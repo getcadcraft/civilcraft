@@ -4,11 +4,12 @@
  *
  * Every placed Library item keeps its license and credit line in its own file (an IFC property set `CadCraft_LibraryItem`; CC-* block attributes in a
  * drawing), so credits need no network. Two ways in:
- *   - a file: fromFile(name, bytes) reads IFC and text DXF;
+ *   - a file: fromFile(name, bytes, { dxfText }) reads IFC and text DXF; a binary DXF too when the host hands in dxfText(bytes) → the file as DXF text
+ *     (1.0 ORS.18: CadCraft's dxf-open.js dxfTextOf(bytes).text), else a binary DXF is reported as not checked;
  *   - an open app: entries it reports itself (window.ccLibraryCreditSources, see gather), the only way to read a DWG.
  *
  *   entry   { uuid, version, name, license, attribution, url, sources: [file names] }
- *   gather({ members: [{ app, name, bytes }], live: [{ app, source, items: [entry] }] }) → { items: [entry], unchecked: [file name] }
+ *   gather({ members: [{ app, name, bytes }], live: [{ app, source, items: [entry] }], dxfText? }) → { items: [entry], unchecked: [file name] }
  *   split(items) → { required, welcome }     welcome = CC0 or no license recorded; every other license keeps its credit with the work
  *   line(entry) → the credit as text
  *   creditRows(items, { wrap }) → [[license, credit text]], one row per wrapped line of each credit (a continuation row has '' for its license), required credits first
@@ -90,12 +91,15 @@ export function fromDxfText(text, source = '') {
 }
 
 /** What a file can tell. → { entries, checked }: checked is false for a kind that can hold placed items but cannot be read here. */
-export function fromFile(name, bytes) {
+export function fromFile(name, bytes, { dxfText = null } = {}) {
   const x = extOf(name);
   if (x === 'dwg') return { entries: [], checked: false };
   if (x !== 'ifc' && x !== 'dxf') return { entries: [], checked: true };
   if (!bytes || bytes.length > MAX_SCAN_BYTES) return { entries: [], checked: false };
-  if (x === 'dxf' && dec.decode(bytes.subarray(0, 22)).startsWith('AutoCAD Binary DXF')) return { entries: [], checked: false };
+  if (x === 'dxf' && dec.decode(bytes.subarray(0, 22)).startsWith('AutoCAD Binary DXF')) {   // ORS.18: read through the host's converter when it has one
+    if (typeof dxfText !== 'function') return { entries: [], checked: false };
+    try { return { entries: fromDxfText(String(dxfText(bytes)), name), checked: true }; } catch { return { entries: [], checked: false }; }
+  }
   const text = dec.decode(bytes);
   return { entries: x === 'ifc' ? fromIfcText(text, name) : fromDxfText(text, name), checked: true };
 }
@@ -126,10 +130,10 @@ export function split(items) {
   return { required: items.filter(e => !free(e)), welcome: items.filter(free) };
 }
 
-export function gather({ members = [], live = [] } = {}) {
+export function gather({ members = [], live = [], dxfText = null } = {}) {
   const liveApps = new Set(live.map(l => l.app)), lists = live.map(l => (l.items || []).map(i => ({ ...i, source: i.source || l.source }))), unchecked = [];
   for (const m of members) {
-    const r = fromFile(m.name, m.bytes);
+    const r = fromFile(m.name, m.bytes, { dxfText });
     lists.push(r.entries);
     if (!r.checked && !liveApps.has(m.app)) unchecked.push(m.name);
   }

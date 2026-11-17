@@ -1,0 +1,166 @@
+#!/usr/bin/env node
+/* SPDX-License-Identifier: Apache-2.0 */
+/**
+ * browser-issues.mjs: BK.46 / BK.48 issues and revisions, BK.63 / BK.170 the client pack, in the real page, /lab, headless (session bk-r3-stages-10):
+ *   nice -n 10 timeout 600 node tools/bimcraft-test/browser-issues.mjs [--shots <dir>]      run as root (a test admin session)
+ * Issues and revisions: record an issue with a copy of the model, edit, see what changed per sheet and per element, add a site
+ * instruction, read the changelog, save the CSV and the history; then build the client pack (a real zip, unpacked here).
+ */
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const BASE = 'https://getcadcraft.com';
+const si = process.argv.indexOf('--shots');
+const SHOTS = si > 0 ? process.argv[si + 1] : null;
+if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
+let pass = 0, fail = 0;
+const ok = (c, m, d = '') => { if (c) { pass++; console.log('  ok   ' + m); } else { fail++; console.log('  FAIL ' + m + (d !== '' ? ' (' + JSON.stringify(d) + ')' : '')); } };
+const shot = async (name) => { if (SHOTS) await page.screenshot({ path: path.join(SHOTS, name + '.png'), fullPage: false }); };
+const { chromium } = await import('playwright-core');
+const cacheDir = path.join(process.env.HOME || '/root', '.cache/ms-playwright');
+const build = fs.readdirSync(cacheDir).filter((d) => /^chromium-\d+$/.test(d)).sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1]))[0];
+const exe = ['chrome-linux64/chrome', 'chrome-linux/chrome'].map((s) => path.join(cacheDir, build, s)).find((p) => fs.existsSync(p));
+const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', path.join(REPO, 'tools/cadcraft-test/admin.php'), 'session', 'bimissues'], { encoding: 'utf8' }));
+const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const problems = [];
+const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 }, acceptDownloads: true });
+await ctx.addCookies([{ name: minted.name, value: minted.value, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
+const page = await ctx.newPage();
+page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
+page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
+const throttled = new Set();
+page.on('response', (r) => { if (r.status() === 429) throttled.add(r.url()); });
+const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'bim-issues-'));
+const statusText = () => page.textContent('[data-status]');
+const noOffer = () => page.evaluate(() => document.querySelector('.nh-offer [data-k="no"]')?.click());
+try {
+  await page.goto(BASE + '/lab/bimcraft?space=paper', { waitUntil: 'networkidle' });
+  await page.click('[data-empty] [data-new]');
+  await page.waitForSelector('dialog.bc-new');
+  await page.fill('[data-new-name]', 'Issue house'); await page.fill('[data-new-levels]', '1'); await page.fill('[data-new-height]', '3000 mm');
+  await page.click('[data-new-ok]');
+  await page.waitForSelector('[data-plan-wrap]:not([hidden])');
+  await page.waitForTimeout(1200); await noOffer();
+  const draw = (segs) => page.evaluate(async (segs) => { const OPS = await import('/assets/apps/bimcraft/dev/model-ops.js'); const A = window.bimcraftRes.api; const L = OPS.snapshotModel(A.ed()).levels[0]; A.commit(OPS.drawWalls({ storey: L.guid, segs, typeKey: 'ext-2x6', height: 2700 }), { label: 'Walls' }); }, segs);
+  await draw([{ a: [0, 0], b: [6000, 0] }, { a: [6000, 0], b: [6000, 4000] }]);
+  await page.waitForTimeout(1500);
+
+  console.log('== Issues and revisions');
+  await page.evaluate(() => { const d = document.querySelector('[data-issues-details]'); d.open = true; d.scrollIntoView({ block: 'start' }); });
+  await page.waitForSelector('[data-il]');
+  ok(/Issues and revisions/.test(await page.textContent('[data-issues-details] summary')) && !!(await page.$('[data-il-none]')) && /Nothing has been issued yet/.test(await page.textContent('[data-il-none]')), 'the section is there and says nothing has been issued yet');
+  await page.click('[data-il-issue]');
+  await page.waitForSelector('[data-il-form]');
+  const form = await page.evaluate(() => ({ code: document.querySelector('[data-il-code]').value, sheets: [...document.querySelectorAll('[data-il-sheet]')].map((c) => c.checked), states: [...document.querySelectorAll('[data-il-sheetstate]')].map((s) => s.dataset.ilSheetstate), snap: document.querySelector('[data-il-snapshot]')?.checked }));
+  ok(form.code === 'A' && form.sheets.length >= 1 && form.sheets.every(Boolean) && form.states.every((s) => s === 'first') && form.snap === true, 'the form offers revision A, every sheet ticked and "not issued yet", and a copy of the model', form);
+  await page.selectOption('[data-il-purpose]', 'submission');
+  await page.fill('[data-il-name]', 'Council'); await page.fill('[data-il-by]', 'DP');
+  const [snapDl] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), page.click('[data-il-issue-go]')]);
+  const snapFile = path.join(TMP, 'issued.ifc'); await snapDl.saveAs(snapFile);
+  await page.waitForSelector('[data-il-issue-row]');
+  ok(/-issue-A\.ifc$/.test(snapDl.suggestedFilename()) && /^ISO-10303-21/.test(fs.readFileSync(snapFile, 'utf8').slice(0, 12)), 'recording saves the copy of the model as issued: ' + snapDl.suggestedFilename());
+  const row1 = await page.evaluate(() => { const r = document.querySelector('[data-il-issue-row]'); return [...r.children].map((c) => c.textContent.trim()); });
+  ok(row1[0] === 'A' && row1[2] === 'Submission' && /Council, DP/.test(row1[3]) && /first issue/.test(row1[4]) && /Issue A recorded/.test(await page.textContent('[data-il-msg]')), 'the issue is listed: A, Submission, to Council by DP', row1);
+  const stored = await page.evaluate(async () => { const IS = await import('/assets/apps/bimcraft/dev/issue-set.js'), V = await import('/assets/apps/bimcraft/dev/views-model.js'), { ModelWriter } = await import('/assets/apps/bimcraft/dev/model-write.js'); const e = window.bimcraftRes.api.ed(), w = new ModelWriter(e.W, e.api, e.mid); const h = IS.readIssues(w); return { n: h.issues.length, snap: h.issues[0].snapshot, els: h.issues[0].elements, prints: IS.readPrints(w, h.issues[0].id).size, revs: V.readSheets(w).map((s) => s.fields.revision || ''), sheets: h.issues[0].sheets.length }; });
+  ok(stored.n === 1 && stored.els === 2 && stored.prints === 2 && stored.snap && /^[0-9a-f]{64}$/.test(stored.snap.sha256) && stored.snap.bytes === fs.statSync(snapFile).size && stored.revs.every((r) => r === 'A'), 'kept in the IFC: two elements printed, the copy\'s size and SHA-256, every sheet\'s title block at revision A', stored);
+  await page.click('[data-il-changes-btn]');
+  await page.waitForSelector('[data-il-changes]');
+  ok((await page.$$eval('[data-il-ch-sheet]', (r) => r.map((x) => x.dataset.ilChState))).every((s) => s === 'same') && /2 the same/.test(await page.textContent('[data-il-els]')), 'changes since: nothing yet, every sheet the same');
+
+  console.log('== an edit after the issue');
+  await draw([{ a: [0, 4000], b: [6000, 4000] }]);
+  await page.waitForTimeout(1500);
+  await page.click('[data-il-changes-btn]');
+  await page.waitForSelector('[data-il-changes]');
+  const ch = await page.evaluate(() => ({ els: document.querySelector('[data-il-els]').textContent, states: [...document.querySelectorAll('[data-il-ch-sheet]')].map((x) => x.dataset.ilChState), added: document.querySelector('[data-il-ch-added]')?.textContent, msg: document.querySelector('[data-il-msg]').textContent }));
+  ok(/1 added/.test(ch.els) && ch.states.includes('changed') && /Added 1/.test(ch.added || '') && /1 sheets changed|sheets changed/.test(ch.msg), 'a wall drawn after the issue: one element added, the plan sheet changed', ch);
+  await page.click('[data-il-sel-added]');
+  await page.waitForTimeout(400);
+  const sel = await page.evaluate(() => window.bimcraftIssueLog.panel && [...(window.bimcraftRes.api.host.viewer()?.selection || [])].length);
+  ok(sel === 1, 'clicking "Added 1" selects the new wall in the model', sel);
+  await shot('1-changes');
+  await page.click('[data-il-issue]');
+  await page.waitForSelector('[data-il-form]');
+  const st2 = await page.$$eval('[data-il-sheetstate]', (s) => s.map((x) => x.dataset.ilSheetstate));
+  ok((await page.inputValue('[data-il-code]')) === 'B' && st2.includes('revised'), 'the next issue is offered as revision B and the plan sheet reads "changed since revision A"', st2);
+  await page.fill('[data-il-code]', 'A'); await page.evaluate(() => { const c = document.querySelector('[data-il-snapshot]'); if (c.checked) c.click(); });
+  await page.click('[data-il-issue-go]');
+  ok(/already used/.test(await page.textContent('[data-il-msg="error"]')), 'a revision already used is refused');
+  await page.selectOption('[data-il-purpose]', 'tender'); await page.fill('[data-il-code]', 'B');
+  await page.evaluate(() => { const c = document.querySelector('[data-il-snapshot]'); if (c.checked) c.click(); });
+  await page.click('[data-il-issue-go]');
+  await page.waitForFunction(() => document.querySelectorAll('[data-il-issue-row]').length === 2);
+  ok(true, 'issue B recorded without a copy of the model');
+
+  console.log('== a site instruction against the issue, the changelog');
+  await page.click('[data-il-record]');
+  await page.waitForSelector('[data-il-rform]');
+  ok((await page.inputValue('[data-il-rref]')) === 'SI-001' && (await page.$$eval('[data-il-rkind] option', (o) => o.map((x) => x.textContent))).join() === 'Site instruction,Shop drawing,Markup set,Linked model,Note', 'the record form: site instruction SI-001; shop drawing, markup set, linked model and note are the other kinds');
+  await page.click('[data-il-rsave]');
+  ok(/Give the record a title/.test(await page.textContent('[data-il-msg="error"]')), 'a record without a title is refused');
+  await page.fill('[data-il-rtitle]', 'Move the north wall 200 mm'); await page.fill('[data-il-rsheets]', 'A-101');
+  await page.click('[data-il-rsave]');
+  await page.waitForSelector('[data-il-record-row]');
+  await page.click('[data-il-record]');
+  await page.selectOption('[data-il-rkind]', 'linked-model');
+  ok((await page.inputValue('[data-il-rref]')) === 'LM-001', 'choosing "Linked model" renumbers the reference: LM-001');
+  await page.fill('[data-il-rtitle]', 'Steel fabricator\'s model'); await page.fill('[data-il-rlink]', 'steel-shop.ifc'); await page.selectOption('[data-il-rstatus]', 'approved-as-noted');
+  await page.setInputFiles('[data-il-rfile]', snapFile);
+  await page.click('[data-il-rsave]');
+  await page.waitForFunction(() => document.querySelectorAll('[data-il-record-row]').length === 2);
+  const recs = await page.$$eval('[data-il-record-row]', (r) => r.map((x) => [...x.children].slice(0, 6).map((c) => c.textContent.trim())));
+  ok(recs[0][0] === 'SI-001' && recs[0][1] === 'Site instruction' && recs[0][2] === 'B' && recs[1][0] === 'LM-001' && /issued\.ifc/.test(recs[1][4]) && recs[1][5] === 'Approved as noted', 'both records are listed against issue B; the linked model keeps its file\'s name', recs);
+  const log = await page.evaluate(() => ({ head: [...document.querySelectorAll('[data-il-log] th')].map((x) => x.textContent), rows: [...document.querySelectorAll('[data-il-log] tbody tr')].map((r) => [...r.children].map((c) => c.textContent)) }));
+  ok(log.head.length === 5 && /^A /.test(log.head[2]) && /^B /.test(log.head[3]) && log.rows.some((r) => r[2] === 'A' && r[3] === 'B' && r[4] === 'B'), 'the drawing changelog: the plan sheet went A then B', log);
+  const [csvDl] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.click('[data-il-csv]')]);
+  const csvFile = path.join(TMP, 'log.csv'); await csvDl.saveAs(csvFile);
+  const csv = fs.readFileSync(csvFile, 'utf8');
+  ok(/-changelog\.csv$/.test(csvDl.suggestedFilename()) && /SI-001,Site instruction,B,/.test(csv) && /Issue,Date,Issued for/.test(csv), 'the changelog CSV has the issues, the sheet table and the records');
+  const [jsDl] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.click('[data-il-export]')]);
+  const jsFile = path.join(TMP, 'h.json'); await jsDl.saveAs(jsFile);
+  const hist = JSON.parse(fs.readFileSync(jsFile, 'utf8'));
+  ok(/\.issues\.json$/.test(jsDl.suggestedFilename()) && hist.format === 'cadcraft-issues' && hist.issues.length === 2 && hist.records.length === 2 && Object.keys(hist.prints || {}).length === 2, 'the issue history file (for MarkupCraft, TakeoffCraft, DetailCraft): two issues, two records, the element prints');
+  await page.keyboard.press('Control+z'); await page.waitForTimeout(700);
+  ok((await page.$$('[data-il-record-row]')).length === 1, 'Undo takes the last record back and the panel follows');
+  await page.keyboard.press('Control+y'); await page.waitForTimeout(700);
+  await shot('2-log');
+
+  console.log('== Client pack and stage report');
+  await page.evaluate(() => { const d = document.querySelector('[data-pack-details]'); d.open = true; d.scrollIntoView({ block: 'start' }); });
+  await page.waitForSelector('[data-pack-build="clientpack"]');
+  await page.click('[data-pack-open="stagereport"]');
+  await page.waitForSelector('[data-sx-docs-out]', { timeout: 20000 }).catch(() => {});
+  const md = await page.evaluate(() => window.bimcraftPack.md('issues') + '|' + window.bimcraftPack.md('sheets') + '|' + window.bimcraftPack.md('options') + '|' + window.bimcraftPack.md('stage') + '|' + window.bimcraftPack.md('changes'));
+  ok(/\| A \| .* \| Submission \|/.test(md) && /\| SI-001 \|/.test(md) && /Revision/.test(md) && /No massing options are kept/.test(md) && /not set/.test(md) && /What changed since issue B/.test(md), 'the fields print the issue history, the sheets with revisions, the options note, the stage and the changes since B');
+  const [zipDl] = await Promise.all([page.waitForEvent('download', { timeout: 60000 }), page.click('[data-pack-build="stagereport"]')]);
+  const zipFile = path.join(TMP, 'pack.zip'); await zipDl.saveAs(zipFile);
+  const out = path.join(TMP, 'pack'); execFileSync('unzip', ['-q', '-o', zipFile, '-d', out]);
+  const files = fs.readdirSync(out).sort();
+  ok(/-stagereport\.zip$/.test(zipDl.suggestedFilename()) && files.includes('01-stagereport.pdf') && files.includes('02-figures.csv') && files.includes('README.md'), 'Build the pack saves a zip: ' + files.join(', '));
+  ok(fs.readFileSync(path.join(out, '01-stagereport.pdf')).subarray(0, 5).toString() === '%PDF-' && fs.statSync(path.join(out, '01-stagereport.pdf')).size > 1500, 'the report is a PDF');
+  ok(!files.includes('03-view.png') || fs.readFileSync(path.join(out, '03-view.png')).subarray(1, 4).toString() === 'PNG', 'the 3D view picture, when the view is up, is a PNG' + (files.includes('03-view.png') ? '' : ' (no 3D view in this run)'));
+  ok(/^.?Table,Row,Column,Figure,GlobalIds/.test(fs.readFileSync(path.join(out, '02-figures.csv'), 'utf8')), 'figures.csv has its heading');
+  console.log('== options compared on area and cost (BK.170)');
+  const opt = async () => page.evaluate(() => window.bimcraftPack.md('options'));
+  await page.evaluate(async () => { const MO = await import('/assets/apps/bimcraft/dev/mass-options.js'); const A = window.bimcraftRes.api;
+    A.commit(MO.addMassOption({ set: 'Scheme 1', name: 'Bar', pts: [[20000, 0], [40000, 0], [40000, 10000], [20000, 10000]], floors: 3, floorHeight: 3000, use: '' }), { label: 'Bar' });
+    A.commit(MO.addMassOption({ set: 'Scheme 1', name: 'Tower', pts: [[50000, 0], [60000, 0], [60000, 10000], [50000, 10000]], floors: 4, floorHeight: 3000, use: '' }), { label: 'Tower' }); });
+  await page.waitForTimeout(1500);
+  let om = await opt();
+  ok(/Options: Scheme 1/.test(om) && /\| Bar[^|]*\| 3 \|/.test(om) && /\| Tower[^|]*\| 4 \|/.test(om) && (om.match(/No rate/g) || []).length >= 6 && /no row for building masses/.test(om), 'two kept options side by side on area; with no price row every cost reads "No rate"', om.slice(0, 400));
+  await page.evaluate(async () => { const C5 = await import('/assets/apps/bimcraft/dev/cost5d.js'); window.bimcraftRes.api.commit(C5.setCostSettings({ rows: [{ id: 'gfa', match: 'gross floor area', classes: 'IFCBUILDINGELEMENTPROXY', unit: 'm2', mat: 1000, lab: 200 }], currency: 'ZAR' }), { label: 'Prices' }); });
+  await page.waitForTimeout(800);
+  om = await opt();
+  const digits = (x) => x.replace(/[^0-9|A-Za-z ]/g, '');
+  ok(!/No rate/.test(om) && /720000/.test(digits(om)) && /480000/.test(digits(om)) && /rows: gfa/.test(om) && /ZAR/.test(om), 'with a gross floor area row at 1200 a m2 in the price table: 600 m2 → 720 000 and 400 m2 → 480 000, the row and currency named', om.slice(0, 500));
+  const real = problems.filter((p) => !(/429/.test(p) && [...throttled].some((u) => /hardware/.test(u))));
+  ok(real.length === 0, 'no console errors', real.slice(0, 5));
+} catch (e) {
+  fail++; console.log('  FAIL stopped: ' + (e.stack || e.message || e).toString().slice(0, 900));
+  if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'stopped.png') }).catch(() => {});
+} finally { await browser.close(); fs.rmSync(TMP, { recursive: true, force: true }); }
+console.log(`\n${pass} passed, ${fail} failed`);
+process.exit(fail ? 1 : 0);

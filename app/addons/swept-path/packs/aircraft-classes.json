@@ -1,0 +1,8 @@
+{"format":"cadcraft-vehicle-pack","version":1,"id":"aircraft-classes","name":"Aircraft classes (placeholders)",
+ "source":{"title":"Generic aircraft size classes","note":"PLACEHOLDERS. Rounded sizes of a narrow-body airliner class and a regional airliner class, not a named aircraft. Every entry says verified: false. Take the real figures for an aircraft from its manufacturer's airport planning document, enter them as a copy, and check the wing tip and tail points against it before relying on a result."},
+ "vehicles":[
+  {"key":"narrow-body-class","name":"Narrow-body airliner (class)","kind":"aircraft","verified":false,"source":"generic class, rounded","length":37.5,"span":34,"noseToMain":12.5,"noseToNose":1.5,"track":7.6,"fuselage":4,"maxNoseSteer":78,
+   "points":[{"name":"wing tip left","ahead":-2.0,"side":17},{"name":"wing tip right","ahead":-2.0,"side":-17},{"name":"engine left","ahead":3.0,"side":5.8},{"name":"engine right","ahead":3.0,"side":-5.8}]},
+  {"key":"regional-class","name":"Regional airliner (class)","kind":"aircraft","verified":false,"source":"generic class, rounded","length":27,"span":28,"noseToMain":9.5,"noseToNose":1.2,"track":5.2,"fuselage":3,"maxNoseSteer":75,
+   "points":[{"name":"wing tip left","ahead":-1.0,"side":14},{"name":"wing tip right","ahead":-1.0,"side":-14}]}
+ ]}

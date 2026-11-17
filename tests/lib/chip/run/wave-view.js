@@ -8,6 +8,7 @@
  *   mountWaves(el, vcd, { t = (k) => k, height = 22 }) → { setVcd(vcd), fit(), cursor(time), destroy() }
  */
 import { valueAt, formatValue } from './vcd.js';
+import { PadDetector } from './wheel-pad.js';   // D7.56: a trackpad's two-finger swipe pans
 
 export function waveSegments(sig, t0, t1) {
   const out = [];
@@ -87,7 +88,16 @@ export function mountWaves(el, vcd, { t = (k) => k, height = 22 } = {}) {
     a = Math.max(0, Math.min(end - span, a)); state.t0 = a; state.t1 = a + span; draw();
   };
   const fit = () => { state.t0 = 0; state.t1 = Math.max(1, state.vcd?.end || 1); draw(); };
-  canvas.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.25 : 0.8, timeAt(e.offsetX)); }, { passive: false });
+  const pad = new PadDetector();
+  canvas.addEventListener('wheel', (e) => { e.preventDefault();
+    if (pad.isSwipe(e)) {   // D7.56: two fingers slide the time axis (sideways part only), a pinch and a mouse wheel zoom
+      const span = state.t1 - state.t0, end = Math.max(1, state.vcd?.end || 1), per = span / Math.max(1, canvas.clientWidth - NAME_W() - VAL_W);
+      const a = Math.max(0, Math.min(end - span, state.t0 + e.deltaX * per)); state.t0 = a; state.t1 = a + span;
+      // the up-and-down part scrolls the signal list (the nearest box that scrolls), as it would without this handler
+      if (e.deltaY) for (let p = canvas.parentElement; p; p = p.parentElement) { if (p.scrollHeight > p.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(p).overflowY)) { p.scrollTop += e.deltaY; break; } }
+      draw(); return;
+    }
+    zoom((e.ctrlKey && e.deltaMode === 0 ? Math.exp(Math.max(-30, Math.min(30, e.deltaY)) * 0.01) : e.deltaY > 0 ? 1.25 : 0.8), timeAt(e.offsetX)); }, { passive: false });
   let drag = null;
   canvas.addEventListener('pointerdown', (e) => { drag = { x: e.offsetX, t0: state.t0, t1: state.t1, moved: false }; canvas.setPointerCapture?.(e.pointerId); });
   canvas.addEventListener('pointermove', (e) => {
@@ -105,6 +115,7 @@ export function mountWaves(el, vcd, { t = (k) => k, height = 22 } = {}) {
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => draw()) : null;
   ro?.observe(wrap);
   draw();
+  el._chip = { state: () => ({ t0: state.t0, t1: state.t1, cursor: state.cursor, rows: state.rows.length, end: Math.max(1, state.vcd?.end || 1) }), timeAt };   // for tests in the host page (read-only)
   return {
     setVcd(v) { state.vcd = v; state.cursor = null; fit(); },
     fit, cursor(time) { state.cursor = time; draw(); }, state: () => ({ t0: state.t0, t1: state.t1, cursor: state.cursor, rows: state.rows.length }),

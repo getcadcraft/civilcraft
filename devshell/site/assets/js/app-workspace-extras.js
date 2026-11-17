@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { blockIcon } from './app-workspace-icons.js';
 /**
  * app-workspace-extras.js — three parts of the workspace layout engine (assets/js/app-workspace.js) asked for by Discord, 2026-10-24
  * (0.7 part 9, WS.20–WS.22; map docs/apps/app-workspace.md): the parts of the "Toolbox and info box" way of working that the engine
@@ -67,15 +68,15 @@ export function myTools(E) {
     if (kind === 'tbx') { if (!toolboxIds().has(id)) return null; const t = E.A.tool(id, 'toolbox'); return t.built === false ? null : { kind, id, label: t.label, icon: t.icon, built: true }; }
     const t = regTool(id); return t.built ? { kind, id, ...t } : null;
   }
-  const icon = (ic) => (typeof ic === 'string' ? E.el('i', { className: 'bi ' + ic, 'aria-hidden': 'true' }) : ic ? ic.cloneNode(true) : E.el('i', { className: 'bi bi-square', 'aria-hidden': 'true' }));
+  const icon = (ic, id = '', label = '') => blockIcon({ id, label, bi: typeof ic === 'string' ? ic : '', own: typeof ic === 'string' ? null : ic, block: 'mine' });   // 0.10 UI.14
   const sig = () => JSON.stringify(slots().map((r) => (entry(r) ? r : null)));
   /** The group, drawn with the toolbox (o.collapse: a <details> like the others). */
   function group(o, shut) {
     const buttons = slots().map((ref, i) => {
       const x = entry(ref);
       if (!x) return E.el('button', { type: 'button', className: 'tbx-tool tbx-empty', 'data-tbx-mine': i, 'data-mine-empty': '', title: E.T('shell.ws.mine.add.hint') },
-        E.el('i', { className: 'bi bi-plus-square-dotted', 'aria-hidden': 'true' }), E.el('span', {}, E.T('shell.ws.mine.empty')));
-      return E.el('button', { type: 'button', className: 'tbx-tool', 'data-tbx-mine': i, 'data-mine-ref': ref, 'aria-pressed': 'false', draggable: 'true', title: x.label }, icon(x.icon), E.el('span', {}, x.label));
+        blockIcon({ bi: 'bi-plus-square-dotted', block: 'mine' }), E.el('span', {}, E.T('shell.ws.mine.empty')));
+      return E.el('button', { type: 'button', className: 'tbx-tool', 'data-tbx-mine': i, 'data-mine-ref': ref, 'aria-pressed': 'false', draggable: 'true', title: x.label }, icon(x.icon, x.id, x.label), E.el('span', {}, x.label));
     });
     const body = E.el('div', { className: 'tbx-tools tbx-mine' }, buttons);
     const label = E.T('shell.ws.mine');
@@ -121,7 +122,7 @@ export function myTools(E) {
     const render = () => {
       const q = query.value.trim().toLowerCase();
       list.replaceChildren(...items.filter((it) => !q || it.x.label.toLowerCase().includes(q) || it.group.toLowerCase().includes(q)).slice(0, 200).map((it) =>
-        E.el('div', { role: 'listitem' }, E.el('button', { type: 'button', className: 'ws-mine-item', 'data-mine-pick': it.ref }, icon(it.x.icon), E.el('span', {}, it.x.label), E.el('small', {}, it.group)))));
+        E.el('div', { role: 'listitem' }, E.el('button', { type: 'button', className: 'ws-mine-item', 'data-mine-pick': it.ref }, icon(it.x.icon, it.x.id, it.x.label), E.el('span', {}, it.x.label), E.el('small', {}, it.group)))));
     };
     dlg.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
@@ -178,7 +179,7 @@ export function myTools(E) {
       e.preventDefault(); put(Number(b.dataset.tbxMine), ref); return true;
     },
   };
-  return { group, sig, refresh, on, closeMenu, slots, add, put };
+  return { group, sig, refresh, on, closeMenu, slots, add, put, openMenu };
 }
 
 // =========================================================== pet palette ===========================================================
@@ -195,10 +196,10 @@ export function petPalette(E) {
   function draw(list) {
     const s = JSON.stringify(list); if (s === sig) return; sig = s;
     box.replaceChildren(...list.map((id) => {
-      const t = regTool(id), ic = E.el('i', { className: 'bi ' + t.icon, 'aria-hidden': 'true' });
+      const t = regTool(id), ic = blockIcon({ id, label: t.label, bi: t.icon, block: 'pet' });
       return E.el('button', { type: 'button', className: 'ws-pet-tool', 'data-ws-pet': id, 'aria-label': t.label, title: t.label }, ic);
-    }), E.A.showProperties ? E.el('button', { type: 'button', className: 'ws-pet-tool', 'data-ws-props': '', 'aria-label': E.T('shell.ws.props'), title: E.T('shell.ws.props') }, E.el('i', { className: 'bi bi-card-list', 'aria-hidden': 'true' })) : null,
-    E.el('button', { type: 'button', className: 'ws-pet-tool ws-pet-close', 'data-ws-pet-close': '', 'aria-label': E.T('shell.ws.pet.close'), title: E.T('shell.ws.pet.close') }, E.el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })));
+    }), E.A.showProperties ? E.el('button', { type: 'button', className: 'ws-pet-tool', 'data-ws-props': '', 'aria-label': E.T('shell.ws.props'), title: E.T('shell.ws.props') }, blockIcon({ bi: 'bi-card-list', block: 'pet' })) : null,
+    E.el('button', { type: 'button', className: 'ws-pet-tool ws-pet-close', 'data-ws-pet-close': '', 'aria-label': E.T('shell.ws.pet.close'), title: E.T('shell.ws.pet.close') }, blockIcon({ bi: 'bi-x', block: 'pet' })));
   }
   function hide() { at = null; box.hidden = true; }
   function refresh(s) {

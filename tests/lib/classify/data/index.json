@@ -1,0 +1,42 @@
+{
+ "format": "cadcraft-classification-index",
+ "version": 1,
+ "packs": [
+  {
+   "id": "uniclass-ef",
+   "system": "uniclass",
+   "table": "EF",
+   "name": "Uniclass 2015: EF Elements/ functions",
+   "edition": "v1.6 (31 July 2019)",
+   "rows": 81,
+   "file": "uniclass-ef.json",
+   "licence": "CC BY-ND 4.0",
+   "source": "https://identifier.buildingsmart.org/uri/nbs/uniclass2015/1",
+   "fetched": "2026-11-11"
+  },
+  {
+   "id": "uniclass-ss",
+   "system": "uniclass",
+   "table": "Ss",
+   "name": "Uniclass 2015: Ss Systems",
+   "edition": "v1.19 (30 July 2020)",
+   "rows": 2272,
+   "file": "uniclass-ss.json",
+   "licence": "CC BY-ND 4.0",
+   "source": "https://identifier.buildingsmart.org/uri/nbs/uniclass2015/1",
+   "fetched": "2026-11-11"
+  },
+  {
+   "id": "uniclass-pr",
+   "system": "uniclass",
+   "table": "Pr",
+   "name": "Uniclass 2015: Pr Products",
+   "edition": "v1.19 (29 July 2020)",
+   "rows": 7547,
+   "file": "uniclass-pr.json",
+   "licence": "CC BY-ND 4.0",
+   "source": "https://identifier.buildingsmart.org/uri/nbs/uniclass2015/1",
+   "fetched": "2026-11-11"
+  }
+ ]
+}

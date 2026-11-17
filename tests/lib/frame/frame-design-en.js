@@ -27,7 +27,7 @@ export function cleanSteelNA(x) {
   return { gammaM0: n(x?.gammaM0, 1.0, 0.8, 2), gammaM1: n(x?.gammaM1, 1.0, 0.8, 2), gammaM2: n(x?.gammaM2, 1.25, 0.8, 2), eta: n(x?.eta, 1.2, 1, 1.5) };
 }
 
-const ALPHA = { a0: 0.13, a: 0.21, b: 0.34, c: 0.49, d: 0.76 };       // Table 6.1
+export const ALPHA = { a0: 0.13, a: 0.21, b: 0.34, c: 0.49, d: 0.76 };       // Table 6.1
 
 export function props(shape, sec) {
   const { d: h, bf: b, tw, tf } = shape, r = shape.r || 0;

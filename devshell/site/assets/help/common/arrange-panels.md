@@ -75,6 +75,10 @@ Each panel can have a window of its own: up to four panels windows, for example 
 
 After a reload the app offers your panels windows again. Browsers open one window per click, so choose {{ui:Open the next one}} once for each window.
 
+## The same way for every part of a layout
+
+The ribbon, the toolbox, the tool rows and the status bar leave for a window of their own the same way a panel does: open the {{ui:⋯}} menu on the part and choose {{ui:Move to a new window}}; {{ui:Put it back}} (or closing the window) brings it home. Keys you press in that window reach the app, as they do from the panels window. Each part has one such menu.
+
 ## Move a dialog
 
 Every dialog can be moved out of the way of the drawing: press and drag its title bar. The dialog remembers where you left it, each dialog on its own, and comes back to that place the next time it opens. Double-click the title bar to centre it again.

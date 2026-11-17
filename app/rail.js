@@ -40,6 +40,7 @@
  */
 
 import { cleanStd, cleanCites } from './rail-standard.js';   // 0.8 CV.1 (civil_PART_4)
+import { cleanClearance } from './rail-clearance.js';   // CV.1 2026-11-12: the clearance envelope's settings (rail-clearance.js imports nothing from here)
 import { t as tr } from './i18n.js';
 import { LAYERS } from './scene.js';
 
@@ -66,6 +67,10 @@ const G = 9.81;
 const KMH_PER_MPH = 1.609344;
 const M_PER_FT = 1200 / 3937;   // US survey foot, as units.js
 
+/** CV.1 2026-11-12, the track geometry checks' limits (rail-checks.js; placeholders like the rest): steepest grade (mm/m), least vertical radius as k in
+ *  Rv ≥ k·V² (m, km/h), shortest vertical curve and least horizontal radius (project units; 0 = not checked), shortest arc / straight as seconds at
+ *  line speed, the rate of change of cant deficiency (mm/s). */
+export const MORE_LIMITS = { m: { grade: 12.5, vRadius: 0.35, vLength: 20, radius: 0, elementTime: 1.8, defRate: 55 }, ft: { grade: 10, vRadius: 0.35, vLength: 100, radius: 0, elementTime: 1.8, defRate: 55 } };
 /** Placeholders to start from, in the project's units (not a standard: the help says so). */
 export function railDefaults(units = 'ft') {
   const m = units === 'm';
@@ -74,7 +79,7 @@ export function railDefaults(units = 'ft') {
     sleeper: m ? { material: 'concrete', length: 2.6, width: 0.28, depth: 0.22, spacing: 0.6 } : { material: 'timber', length: 8.5, width: 0.75, depth: 0.583, spacing: 1.625 },
     ballast: m ? { depth: 0.3, shoulder: 0.4, slope: 1.5, crib: 0.03 } : { depth: 1, shoulder: 1, slope: 1.5, crib: 0.1 },
     sub: m ? { depth: 0.2, cess: 0.6, fall: 0.03 } : { depth: 0.5, cess: 2, fall: 0.03 },
-    limits: m ? { cant: 160, deficiency: 130, excess: 110, gradient: 2.25, rate: 55 } : { cant: 152, deficiency: 76, excess: 76, gradient: 2.1, rate: 50 },
+    limits: m ? { cant: 160, deficiency: 130, excess: 110, gradient: 2.25, rate: 55, ...MORE_LIMITS.m } : { cant: 152, deficiency: 76, excess: 76, gradient: 2.1, rate: 50, ...MORE_LIMITS.ft },
     minSpeed: null, std: 'none', cites: {},
   };
 }
@@ -95,7 +100,9 @@ export function cleanRail(o, units = 'ft') {
     sleeper: { material: SLEEPERS.includes(sl.material) ? sl.material : d.sleeper.material, length: num(sl.length, d.sleeper.length, 0.5 * big, 6 * big), width: num(sl.width, d.sleeper.width, 0.05 * big, 1 * big), depth: num(sl.depth, d.sleeper.depth, 0.05 * big, 1 * big), spacing: num(sl.spacing, d.sleeper.spacing, 0.2 * big, 3 * big) },
     ballast: { depth: num(bl.depth, d.ballast.depth, 0, 2 * big), shoulder: num(bl.shoulder, d.ballast.shoulder, 0, 3 * big), slope: num(bl.slope, d.ballast.slope, 0.5, 10), crib: num(bl.crib, d.ballast.crib, 0, 0.2 * big) },
     sub: { depth: num(sb.depth, d.sub.depth, 0, 2 * big), cess: num(sb.cess, d.sub.cess, 0, 10 * big), fall: num(sb.fall, d.sub.fall, 0, 0.2) },
-    limits: { cant: num(li.cant, d.limits.cant, 0, 300), deficiency: num(li.deficiency, d.limits.deficiency, 0, 400), excess: num(li.excess, d.limits.excess, 0, 400), gradient: num(li.gradient, d.limits.gradient, 0.1, 20), rate: num(li.rate, d.limits.rate, 1, 500) },
+    limits: { cant: num(li.cant, d.limits.cant, 0, 300), deficiency: num(li.deficiency, d.limits.deficiency, 0, 400), excess: num(li.excess, d.limits.excess, 0, 400), gradient: num(li.gradient, d.limits.gradient, 0.1, 20), rate: num(li.rate, d.limits.rate, 1, 500),
+      grade: num(li.grade, d.limits.grade, 0.1, 100), vRadius: num(li.vRadius, d.limits.vRadius, 0, 5), vLength: num(li.vLength, d.limits.vLength, 0, 2000), radius: num(li.radius, d.limits.radius, 0, 100000), elementTime: num(li.elementTime, d.limits.elementTime, 0, 30), defRate: num(li.defRate, d.limits.defRate, 1, 500) },
+    ...(cleanClearance(o.clearance) ? { clearance: cleanClearance(o.clearance) } : {}),   // CV.1 2026-11-12
     minSpeed: fin(o.minSpeed) && o.minSpeed > 0 && o.minSpeed < 1000 ? o.minSpeed : null,
     std: cleanStd(o.std), cites: cleanCites(o.cites),   // 0.8 CV.1: which standard the placeholders are for, and the clause the person entered beside each
   };

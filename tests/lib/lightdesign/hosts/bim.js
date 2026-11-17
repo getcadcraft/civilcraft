@@ -6,12 +6,14 @@
  *   detect(api, { t }) → the host, or null when the api has no model.rooms
  *   host.rooms() → [{ name, poly mm, area m², height (the walls' usual height), z, level, storey (GlobalId), windows [{ x, y, w, sill }] }]   from api.model.roomPlans() (api.model.rooms() on an older host)
  *   host.draw({ luminaires, result, room }) → { n, lux }   ONE undo step: the luminaires become IfcLightFixture in the room's level (BimCraft's own ceiling luminaire, with
- *       its plan symbol, tag and Load = the luminaire's watts, so the device schedule and the electrical tools see them; a property set CadCraft_LightDesign holds lumens, watts and
+ *       its plan symbol, tag and Load = the luminaire's watts, so the device schedule and the electrical tools see them; a property set CadCraft_Light (kind, lumens of the web, colour from the colour temperature) makes each a lamp in BimCraft's render; CadCraft_LightDesign holds lumens, watts and
  *       the room's calculated mean lux), and the calculated lux are drawn in that level's plan view as numbers (drafting lines, tag 'lightdesign'). Drawing again replaces both.
  *   host.erase() → n   the fixtures this add-on placed and its numbers on the plan     host.count()     host.start(app) → nothing (the panel is the interface)
  *   The fixtures are real model elements: moving or deleting one afterwards is the person's, the next Draw removes only the ones this add-on made (they carry CadCraft_LightDesign).
  */
+import { kelvinToHex, webFlux } from './lib/night.js';
 const PSET = 'CadCraft_LightDesign';
+const LAMP_PSET = 'CadCraft_Light';   // the set BimCraft's own render reads for a light fixture (render-bim.js: Kind, Lumens, Color, On)
 const TAG = 'lightdesign';
 
 // seven-segment digits as stroke polylines in a 2 × 4 box (x right, y up); one entry per digit, each a list of strokes
@@ -44,6 +46,8 @@ export function detect(api, { t }) {
   const mine = (E, w) => E.readDevices(w).filter((d) => { try { return !!w.readPset(d.id, PSET); } catch { return false; } });
   const host = {
     id: 'bim',
+    renderer: true,   // BimCraft carries the path tracer's reference (render/pt-*.js): the night view draws a picture
+    axes: 'y',   // the night view's scene axes: BimCraft's (x, z, -y), metres
     async rooms() {
       let plans = null;
       if (typeof api.model.roomPlans === 'function') { try { plans = await api.model.roomPlans(); } catch { plans = null; } }
@@ -76,7 +80,7 @@ export function detect(api, { t }) {
       n = 0;
       return removed;
     },
-    async draw({ luminaires, result, room }) {
+    async draw({ luminaires, result, room, cct = 3000 }) {
       const E = await elec();
       // the outline in the panel is rounded to whole millimetres: the model's room is the one whose corners are all within 2 mm of it (same count)
       const same = (q) => q.poly.length === room.polygon.length && q.poly.every((c, i) => Math.hypot(c[0] - room.polygon[i][0], c[1] - room.polygon[i][1]) <= 2);
@@ -92,6 +96,7 @@ export function detect(api, { t }) {
           const res = nest(w, E.placeDevice({ kind: linear ? 'luminaire.linear' : p.width > 0 && p.width < 250 && p.length < 250 ? 'downlight' : 'luminaire', level: r.storey, at: [L.p[0], L.p[1]], height: L.p[2], load: Math.round((p.watts || 0) * (L.scale ?? 1) * 10) / 10 }));
           if (res && res.id) {
             w.upsertPset(res.id, PSET, [['Lumens', 'IFCREAL', Math.round((p.lumens || 0) * (L.scale ?? 1))], ['Watts', 'IFCREAL', Math.round((p.watts || 0) * (L.scale ?? 1) * 10) / 10], ['Photometry', 'IFCLABEL', String(p.name || '').slice(0, 80)], ['RoomMeanLux', 'IFCREAL', mean]]);
+            w.upsertPset(res.id, LAMP_PSET, [['Kind', 'IFCLABEL', 'point'], ['Lumens', 'IFCREAL', Math.max(1, Math.round(webFlux(p) * (L.scale ?? 1)))], ['Color', 'IFCLABEL', kelvinToHex(L.cct ?? cct)], ['On', 'IFCBOOLEAN', true]]);   // SU.1816: the fixture is a lamp in BimCraft's own night render
             made++;
           }
         }

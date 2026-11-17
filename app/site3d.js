@@ -58,6 +58,7 @@ import { planArray } from './solar-run.js';
 import { pitMesh, pitLines, PIT_COLORS } from './site3d-pit.js';   // 0.8 EG.27 (civil_PART_4)
 import { pitScene } from './pit-view.js';
 import { railInput, railMesh, ballastMesh, sleeperInstances, RAIL_COLORS } from './site3d-rail.js';   // 0.7.1 71.26: tracks
+import { turnoutLines3d } from './rail-turnouts.js';   // CV.1 2026-11-12: turnouts' diverging rails
 
 export const SHOW_DEFAULTS = {
   eg: true, fg: true, triangles: false, contours: true, breaklines: true, boundary: true,
@@ -105,7 +106,7 @@ export function siteInput(project, { species = null } = {}) {
   return {
     units: s.units,
     eg, fg,
-    contours: { eg: eg ? (ps.ground ? ps.ground.contours(Number(d.interval) || 1) || [] : project.contours(eg, 'eg')) : [], fg: fg ? project.contours(fg, 'fg') : [] },
+    contours: { eg: eg ? (ps.ground ? (project.contoursOf ? project.contoursOf(ps.ground) : ps.ground.contours(Number(d.interval) || 1) || []) : project.contours(eg, 'eg')) : [], fg: fg ? project.contours(fg, 'fg') : [] },
     interval: Number(d.interval) || 1, major: Number(d.major) || 5, bandCount: Number(d.bandCount) || 8,
     // 0.4 V5: each breakline knows what it is (picking in 3D): a drawn one (its index), a point group's, or a feature line's
     breaklines: project.egBreaklines().filter((b) => !b.feature).map((b) => ({ ...b, owner: b.fromGroup ? { kind: 'breakline', id: 'group:' + b.name, name: b.name } : { kind: 'breakline', id: 'drawn:' + s.surface.breaklines.indexOf(b), name: b.name } })),
@@ -131,6 +132,8 @@ export function siteInput(project, { species = null } = {}) {
     pits: ps.pits, pitNotes: ps.notes, pitCut: !!ps.ground,   // 0.8 EG.27
     solar: solarInput(project),   // 0.8 EG.15: ground PV tables on the terrain
     tracks: railInput(eg ? items : project.standInCorridors?.() || []),   // 0.7.1 71.26: corridors built as railway tracks
+    // CV.1 2026-11-12: each turnout's diverging rails at the main track's top of rail (its design profile; none = not drawn in 3D)
+    turnouts: (project.allTurnouts?.() || []).flatMap((x) => { const pr = x.alignment.pvis?.length >= 2 ? project.designProfile(x.alignment) : null; return pr?.ok ? turnoutLines3d(x.placed, (sta) => pr.elevationAt(sta)).map((l) => ({ ...l, owner: { kind: 'alignment', id: x.alignment.id, name: x.alignment.name } })) : []; }),
     landscape: landscapeInput(project, { species, zAt: fg || eg ? (x, y) => { const z = (fg || eg).elevationAt(x, y, 1e-6); return Number.isFinite(z) ? z : null; } : null }),
     ifcRefs: project.ifcRefs || [],   // 0.7.1 71.24: an opened IFC's other surfaces and elements (ifc-civil-read.js applyIfcImport), as reference
   };
@@ -303,6 +306,11 @@ export function buildSite3D(input, opts = {}) {
   if (show.walls && input.walls?.length) {   // 0.7.1 71.22
     const wb = meshBuilder();
     if (wallMesh(wb, input.walls, L, C)) scene.meshes.push({ key: 'walls', name: t('s3.walls'), onGround: true, ...wb.done() });
+  }
+  if (show.track && input.turnouts?.length) {   // CV.1 2026-11-12: turnouts' diverging rails, as lines
+    const pos = [];
+    for (const l of input.turnouts) for (let i = 1; i < l.pts.length; i++) { const a = l.pts[i - 1], b = l.pts[i]; pos.push(...L(a.x, a.y, a.z), ...L(b.x, b.y, b.z)); }
+    if (pos.length) scene.lines.push({ key: 'turnouts', name: t('s3.turnouts'), color: C.rail || RAIL_COLORS.rail, positions: new Float32Array(pos) });
   }
   if (show.track && input.tracks?.length) {   // 0.7.1 71.26: rails and the ballast bed (sleepers are instances, below)
     const rb = meshBuilder(), bb = meshBuilder();

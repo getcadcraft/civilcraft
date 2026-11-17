@@ -8,6 +8,9 @@
  *     (their inner faces, anticlockwise; free-standing walls inside a room are its holes); outlines are the building's outer
  *     faces (anticlockwise), one per separate building on the level.
  *   loopAt(loops, p) → the room (or outline) containing p (the smallest), or null
+ *   planLoops(polys, { lines }) (0.10, bk-tools-a-10): lines = [[a, b]…] are boundaries with no thickness (room separators, area
+ *     boundaries). A line bounds on both of its sides; the part of it inside a wall is ignored; an end that reaches nothing bounds
+ *     nothing (the loop goes round it and it is taken out again). With no lines the result is what it always was.
  *
  * How: every edge of every outline, split where edges cross or overlap (a T wall's end lies along the through wall's face);
  * a piece is on the boundary of the walls when one side of it is inside a wall and the other is not; turned so the free
@@ -20,9 +23,11 @@ const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
 const cross = (a, b) => a[0] * b[1] - a[1] * b[0];
 const dot = (a, b) => a[0] * b[0] + a[1] * b[1];
 
-export function planLoops(polys, { snap = 1e-3 } = {}) {
+export function planLoops(polys, { snap = 1e-3, lines = [] } = {}) {
   const edges = [];
   for (const p of polys) for (let i = 0; i < p.length; i++) { const a = p[i], b = p[(i + 1) % p.length]; if (Math.hypot(b[0] - a[0], b[1] - a[1]) > EPS) edges.push([a, b]); }
+  const wallEdges = edges.length;   // the edges after these are lines (no thickness)
+  for (const l of lines || []) { const a = l[0], b = l[1]; if (a && b && Math.hypot(b[0] - a[0], b[1] - a[1]) > EPS) edges.push([[a[0], a[1]], [b[0], b[1]]]); }
   // split every edge at the points where others cross or touch it
   const cuts = edges.map(() => [0, 1]);
   for (let i = 0; i < edges.length; i++) for (let j = i + 1; j < edges.length; j++) {
@@ -52,21 +57,28 @@ export function planLoops(polys, { snap = 1e-3 } = {}) {
       const kp = node(p), kq = node(q);
       if (kp === kq) continue;
       const id = kp < kq ? kp + '|' + kq : kq + '|' + kp;
-      if (!pieces.has(id)) pieces.set(id, [kp, kq]);
+      if (!pieces.has(id)) pieces.set(id, [kp, kq, i >= wallEdges]);   // a line lying along a wall's face is the wall's face
     }
   });
   // which pieces are on the boundary, turned so the free side is on the left
   const inside = (x, y) => polys.some((p) => inPoly(x, y, p));
   const out = new Map();   // node → [{ to, ang }]
-  for (const [kp, kq] of pieces.values()) {
-    const p = pts.get(kp), q = pts.get(kq), d = sub(q, p), L = Math.hypot(...d);
-    const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], n = [-d[1] / L, d[0] / L], h = Math.min(0.5, L / 4);
-    const left = inside(m[0] + n[0] * h, m[1] + n[1] * h), right = inside(m[0] - n[0] * h, m[1] - n[1] * h);
-    if (left === right) continue;
-    const [from, to] = left ? [kq, kp] : [kp, kq];   // free on the left
+  const push = (from, to) => {
     if (!out.has(from)) out.set(from, []);
     const a = pts.get(from), b = pts.get(to);
     out.get(from).push({ to, ang: Math.atan2(b[1] - a[1], b[0] - a[0]), used: false });
+  };
+  for (const [kp, kq, line] of pieces.values()) {
+    const p = pts.get(kp), q = pts.get(kq), d = sub(q, p), L = Math.hypot(...d);
+    const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], n = [-d[1] / L, d[0] / L], h = Math.min(0.5, L / 4);
+    const left = inside(m[0] + n[0] * h, m[1] + n[1] * h), right = inside(m[0] - n[0] * h, m[1] - n[1] * h);
+    if (line) {   // free space on both sides: it bounds both (once each way); inside a wall it bounds nothing
+      if (!left) push(kp, kq);
+      if (!right) push(kq, kp);
+      continue;
+    }
+    if (left === right) continue;
+    if (left) push(kq, kp); else push(kp, kq);   // free on the left
   }
   // walk the loops
   const loops = [];
@@ -89,7 +101,7 @@ export function planLoops(polys, { snap = 1e-3 } = {}) {
       }
       cur = at; e = best;
     }
-    if (loop.length >= 3 && e && e.to === start) loops.push(clean(loop.map((k) => pts.get(k))));
+    if (loop.length >= 3 && e && e.to === start) loops.push(clean(edges.length > wallEdges ? unspur(loop.map((k) => pts.get(k))) : loop.map((k) => pts.get(k))));
   }
   const rooms = [], islands = [], outlines = [];
   for (const l of loops) {
@@ -146,6 +158,20 @@ export function inPoly(x, y, p) {
     if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
   }
   return inside;
+}
+/** A loop that ran out along a line that ends in the open and back again: the way out and back is taken off. */
+function unspur(q) {
+  let again = true;
+  while (again && q.length >= 3) {
+    again = false;
+    for (let i = 0; i < q.length; i++) {
+      const a = q[(i + q.length - 1) % q.length], c = q[(i + 1) % q.length];
+      if (Math.hypot(a[0] - c[0], a[1] - c[1]) > 1e-6) continue;
+      if (i + 1 < q.length) q.splice(i, 2); else { q.splice(i, 1); q.splice(0, 1); }   // the tip and the second copy of where it left
+      again = true; break;
+    }
+  }
+  return q;
 }
 /** Drop repeated and collinear points of a loop. */
 function clean(p) {

@@ -6,13 +6,13 @@ order: 95
 keywords: parcels, lots, property lines, boundary, deed, plat, metes and bounds, bearing, distance, closure, misclosure, precision, legal description, point of beginning, curve, radius, area, acres
 ---
 
-Parcels sit on the plan with their bearings and distances along each course and their name and area in the middle. They go into the PDF plot and the DWG and DXF exports, on the layers `V-PROP` (lines) and `V-PROP-TEXT` (labels). Everything is under **Parcels** in the right panel when nothing is selected.
+Parcels sit on the plan with the bearing and distance along each straight course (a curve shows its radius, length and central angle) and their name and area in the middle. They go into the PDF plot and the DWG and DXF exports, on the layers `V-PROP` (lines) and `V-PROP-TEXT` (labels). Everything is under **Parcels** in the right panel when nothing is selected.
 
 ## Draw a parcel
 
 1. Click **Draw a parcel**.
 2. Click the corners, starting at the point of beginning. A click near a survey point takes that point's exact place.
-3. Click the first corner again, or press {{key:Enter}}, to finish. {{key:Backspace}} takes back the last corner; {{key:Esc}} stops.
+3. Click the first corner again, or press {{key:Enter}}, to finish. {{key:Backspace}} takes back the last corner; {{key:Esc}} drops the corners so far; press it again to leave the tool.
 
 ## Enter the calls from a deed
 
@@ -27,7 +27,7 @@ Parcels sit on the plan with their bearings and distances along each course and 
 
 ## Curves
 
-In a parcel's **Properties**, each course has a **Radius**. Type one to make that course a curve through the same two corners, and choose which way it curves: a curve to the right has its center to the right of the direction of travel, as in a deed. Clear the radius to make it straight again. Each change is one step: {{key:Mod+Z}} undoes it.
+In a parcel's **Properties**, each course has a **Radius**. Type one to make that course a curve through the same two corners (a radius smaller than half the distance between the corners cannot reach, so it is refused), and choose **Right** or **Left** in **Curves**: a curve to the right has its center to the right of the direction of travel, as in a deed. Clear the radius to make it straight again. Each change is one step: {{key:Mod+Z}} undoes it.
 
 ## The legal description
 

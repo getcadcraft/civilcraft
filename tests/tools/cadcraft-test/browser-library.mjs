@@ -174,6 +174,14 @@ try {
   ok(true, 'the preview image loads');
   ok(await page.locator('.cc-lib-tabs, [role=tablist][aria-label="Library sources"] [role=tab]').count() === 4, 'sources: LibraryCraft, Files…, Standard (0.5 MQ.3/MQ.4), Other feeds');
   ok(await page.locator('dialog[data-lib] a:has-text("Sign in to the library")').count() === 1, '"Sign in to the library" link is offered');
+  // 0.10 BK.21 (bk-r3-library-10): Symbols and Assets in the picker (Types are BimCraft's)
+  const clsOpts = await page.$$eval('dialog[data-lib] [data-lib-class] option', (o) => o.map((x) => [x.value, x.textContent]));
+  ok(JSON.stringify(clsOpts) === JSON.stringify([['', 'Symbols and assets'], ['symbol', 'Symbols'], ['asset', 'Assets']]), 'Kind of item: Symbols and assets, Symbols, Assets (no Types in CadCraft)');
+  const classReq = page.waitForRequest((r) => /[?&]class=asset\b/.test(r.url()));
+  await page.selectOption('dialog[data-lib] [data-lib-class]', 'asset');
+  await classReq; ok(true, 'choosing Assets asks the Library for class=asset');
+  await page.selectOption('dialog[data-lib] [data-lib-class]', '');
+  await page.waitForSelector('.cc-lib-card');
   await page.fill('dialog[data-lib] input[type=search]', 'table');
   await page.click('dialog[data-lib] .cc-lib-search button[type=submit]');
   await page.waitForTimeout(300);

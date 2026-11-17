@@ -1,0 +1,164 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "gb-eng-planning",
+  "name": "England: planning application (national information requirements)",
+  "jurisdiction": {
+    "country": "GB",
+    "level": "country",
+    "region": "ENG",
+    "name": "England"
+  },
+  "base": null,
+  "edition": "national information requirements",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "Submission list only, no rules. Read from the published page on the date shown by whoever built it; not confirmed by a practitioner. The authority decides what it requires."
+  },
+  "authority": "community",
+  "source": {
+    "name": "The Town and Country Planning (Development Management Procedure) (England) Order 2015 (S.I. 2015/595), article 7",
+    "url": "https://www.legislation.gov.uk/uksi/2015/595/article/7",
+    "date": "",
+    "checked": "2026-11-11"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [],
+  "release": {
+    "version": "0.1.0",
+    "changelog": [
+      {
+        "version": "0.1.0",
+        "date": "2026-11-11",
+        "added": [
+          "Added: the submission list for an English planning application (first version of this pack)"
+        ]
+      }
+    ]
+  },
+  "submission": {
+    "authority": "The local planning authority",
+    "summary": "Application for planning permission: the national information requirements. The authority's own local list comes on top.",
+    "sources": [
+      {
+        "title": "The Town and Country Planning (Development Management Procedure) (England) Order 2015 (S.I. 2015/595), article 7",
+        "url": "https://www.legislation.gov.uk/uksi/2015/595/article/7",
+        "fetched": "2026-11-11",
+        "licence": "Contains public sector information licensed under the Open Government Licence v3.0. Items are written in our own words."
+      },
+      {
+        "title": "Planning practice guidance: Making an application (validation requirements, paragraphs 016 to 044), last updated 12 May 2025",
+        "url": "https://www.gov.uk/guidance/making-an-application",
+        "fetched": "2026-11-11",
+        "licence": "Contains public sector information licensed under the Open Government Licence v3.0. Items are written in our own words."
+      }
+    ],
+    "drawings": [
+      {
+        "id": "location-plan",
+        "title": "Location plan",
+        "detail": "A plan that identifies the land. Guidance: typically at 1:1250 or 1:2500 on A4 or A3, the site edged in red, other land the applicant owns nearby edged in blue, enough roads or buildings to make the location clear. Drawn to an identified scale and showing north.",
+        "clause": "Article 7(1)(c)(i) and 7(2); guidance paragraphs 023 and 024",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "words": [
+              "location plan"
+            ]
+          }
+        ],
+        "site": false
+      },
+      {
+        "id": "other-plans",
+        "title": "Other plans and drawings needed to describe the development",
+        "detail": "Any other plans, drawings and information necessary to describe the development, each drawn to an identified scale; plans show the direction of north.",
+        "clause": "Article 7(1)(c)(ii) and 7(2)",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "view": [
+              "plan",
+              "elevation",
+              "section"
+            ]
+          },
+          {
+            "words": [
+              "site plan",
+              "block plan",
+              "floor plan",
+              "elevation",
+              "section"
+            ]
+          }
+        ],
+        "site": true
+      }
+    ],
+    "documents": [
+      {
+        "id": "form",
+        "title": "Application form",
+        "detail": "Made in writing on the form published by the Secretary of State, with the particulars the form asks for.",
+        "clause": "Article 7(1)(a) and (b)",
+        "when": "always",
+        "source": 0
+      },
+      {
+        "id": "ownership",
+        "title": "Ownership certificate and agricultural land declaration",
+        "detail": "The relevant certificate (A, B, C or D) completed; the application is not valid without it.",
+        "clause": "Guidance paragraphs 025 to 028",
+        "when": "always",
+        "source": 1
+      },
+      {
+        "id": "fee",
+        "title": "The correct fee",
+        "detail": "A valid application needs the correct fee.",
+        "clause": "Guidance paragraph 016",
+        "when": "always",
+        "source": 1
+      },
+      {
+        "id": "das",
+        "title": "Design and access statement",
+        "detail": "For some applications, among them major development, and in a conservation area or World Heritage Site one or more dwellings or a building of 100 square metres or more.",
+        "clause": "Guidance paragraphs 029 and 030",
+        "when": "if-applicable",
+        "source": 1
+      },
+      {
+        "id": "fire-statement",
+        "title": "Fire statement",
+        "detail": "For some applications made on or after 1 August 2021.",
+        "clause": "Guidance paragraph 022",
+        "when": "if-applicable",
+        "source": 1
+      },
+      {
+        "id": "biodiversity",
+        "title": "Biodiversity gain information",
+        "detail": "Whether the biodiversity gain condition would apply and, if it would, the metric calculation and the habitat information the article lists.",
+        "clause": "Article 7(1)(c)(iia) and 7(1A)",
+        "when": "if-applicable",
+        "source": 0
+      },
+      {
+        "id": "local-list",
+        "title": "Local information requirements",
+        "detail": "Whatever the local planning authority's published local list asks for.",
+        "clause": "Guidance paragraphs 038 to 044",
+        "when": "if-applicable",
+        "source": 1
+      }
+    ]
+  }
+}

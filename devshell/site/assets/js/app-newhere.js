@@ -8,7 +8,7 @@
  * Opens from any [data-newhere-open] button (the Help panel and the Vector Help menu carry one), window event 'cc-newhere-open', or by
  * itself once, as a one-line offer, the first time a person opens any app (unless Settings › Global › First-time tours is off).
  * localStorage cc-newhere = 'done' | 'skipped' (shared by every app, like cc-tours); Settings' Reset does not touch it.
- * window.cadcraftNewHere = { open(step?), close() }. Words: shell.newhere.* in assets/lang/shell. Nothing is sent anywhere.
+ * window.cadcraftNewHere = { open(step?), close(), mark(selector | element), unmark() } (mark/unmark: the same ring for a teacher's step, BK.168). Words: shell.newhere.* in assets/lang/shell. Nothing is sent anywhere.
  */
 (function () {
   var root = document.querySelector('[data-newhere]');
@@ -55,8 +55,8 @@
     for (var i = 0; i < list.length; i++) { var r = list[i].getBoundingClientRect(); if (r.width > 0 && r.height > 0) return list[i]; }
     return null;
   }
-  function mark(sel) {
-    var el = sel && target(sel);
+  function mark(sel) {   // a selector (the tour's steps) or the element itself (BK.168: the step card of app-ai-assist.js marks a command's button)
+    var el = sel && (sel.nodeType ? sel : target(sel));
     if (!ring) return;
     if (!el) { unmark(); return; }
     var r = el.getBoundingClientRect(), pad = 4;
@@ -178,9 +178,10 @@
     stepEl.textContent = T('shell.newhere.step', { n: at + 1, total: STEPS.length });
     dots.replaceChildren.apply(dots, STEPS.map(function (x, i) { return h('li', { class: i === at ? 'on' : i < at ? 'past' : '', 'aria-hidden': 'true' }); }));
     body.replaceChildren.apply(body, s.make());
-    backBtn.hidden = at === 0;
+    var one = root.classList.contains('tour-toast');   // the tour toast has one button, Next; the X closes it (owner 2026-11-12)
+    backBtn.hidden = one || at === 0;
     nextBtn.textContent = at === STEPS.length - 1 ? T('shell.newhere.finish') : T('shell.newhere.next');
-    skipBtn.hidden = at === STEPS.length - 1;
+    skipBtn.hidden = one || at === STEPS.length - 1;
     body.scrollTop = 0;
     mark(s.ring);
   }
@@ -214,16 +215,20 @@
   function maybeOffer() {
     if (get(KEY) || get(TOURS) === 'off' || root.dataset.open === '1') return;
     if (document.querySelector('dialog[open]')) { setTimeout(maybeOffer, 4000); return; }
-    offer = h('div', { class: 'nh-offer', role: 'region', 'aria-label': T('shell.newhere.title') },
-      h('p', { text: T('shell.newhere.offer', { app: root.dataset.name || '' }) }),
+    // the question ("New to SuperCad Studio?") in bold: up to the first ? in any locale, so translations keep working (owner 2026-11-12)
+    var said = T('shell.newhere.offer', { app: root.dataset.name || '' }), q = said.search(/[?？]/) + 1;
+    var line = h('p');
+    if (q > 0 && q < said.length) line.append(h('strong', { text: said.slice(0, q) }), said.slice(q)); else line.textContent = said;
+    offer = h('div', { class: 'nh-offer tour-toast', role: 'region', 'aria-label': T('shell.newhere.title') },
+      line,
       h('div', { class: 'nh-offer-bar' },
-        h('button', { type: 'button', class: 'nh-btn', 'data-k': 'start', onclick: function () { open(0); } }, T('shell.newhere.offer.start')),
-        h('button', { type: 'button', class: 'nh-btn nh-quiet', 'data-k': 'no', onclick: function () { put(KEY, 'skipped'); removeOffer(); } }, T('shell.newhere.offer.no'))));
+        h('button', { type: 'button', class: 'nh-btn nh-quiet', 'data-k': 'no', onclick: function () { put(KEY, 'skipped'); removeOffer(); } }, T('shell.newhere.offer.no')),
+        h('button', { type: 'button', class: 'nh-btn', 'data-k': 'start', onclick: function () { open(0); } }, T('shell.newhere.offer.start'))));   // Show me around far right (owner 2026-11-12)
     offer.setAttribute('popover', 'manual'); document.body.append(offer);
     try { offer.showPopover(); } catch (e) { /* no popover support: it sits in the page */ }
   }
   // after the app has settled; never while the person is in the middle of something modal
   if (!/[?&]nonewhere\b/.test(location.search)) setTimeout(maybeOffer, 3500);
 
-  window.cadcraftNewHere = { open: open, close: function () { close(null); } };
+  window.cadcraftNewHere = { open: open, close: function () { close(null); }, mark: mark, unmark: unmark };
 })();

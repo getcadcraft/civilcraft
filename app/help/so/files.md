@@ -1,113 +1,113 @@
 ---
-title: Faylasha aad furi, kaydi iyo dhoofin karto
-summary: Faylalka barooyinka, LandXML iyo mashaariicda CivilCraft ku soo gali; mashaariicda, LandXML, DXF iyo PDF ka soo dhoofi; wixii mid kasta hayo, meesha faylalku tagaan, iyo wixii isbeddelaya marka khadka ka baxsan.
-keywords: fur, kaydi, dhoofi, soo dhoofi, qaababka faylka, csv, txt, landxml, xml, dxf, pdf, json, soo dejin, fayl mashruuc
-from: a7debb61
+title: Faylalka aad furi, kaydin iyo dhoofin karto
+summary: Faylalka barta ku soo geli, LandXML iyo mashruucyada CivilCraft; mashruucyada, LandXML, DXF iyo PDF u dhoofi; waxa mid kasta hayo, meesha faylalku tagaan, iyo waxa isbedela marka offline.
+keywords: fur, kaydi, dhoofin, soo geli, qaababka faylalka, csv, txt, landxml, xml, dxf, pdf, json, soo degso, faylka mashruuca
+from: 82bff559
 ---
 
-CivilCraft wuxuu furaa faylal ka kooban kombiyuutarkaaga, wuxuuna kaydiyaa isagoo faylalka dib ugu soo dejinaya kombiyuutarkaaga. Wax lagu soo rarin, wixii lagu kaydiyo server ma jiro. Sidoo kale eeg [Faylalkaaga](common:your-files).
+CivilCraft wuxuu ka furaa faylal kombiyuutarkaaga ku jira wuxuuna kaydiyaa iyagoo ku soo degsanaya kombiyuutarka. Waxba lama soo rarin, waxna server-ka lama kaydiyo. Eeg sidoo kale [Faylalkaaga](common:your-files).
 
-## Waxa uu furo
+## Waxa uu furayo
 
-Guji {{ui:Fur}} (ama riix {{key:Mod+O}}) oo dooro fayl, ama jiid faylka {{pick:mac=Finder|windows=File Explorer|linux=maareeyaha faylalkaaga}} ku rid qorshaha. Hal fayl mar; faylal ka weyn 200 MB waa la diidaa.
+Guji {{ui:Fur}} (ama riix {{key:Mod+O}}) oo dooro fayl, ama jiidi faylka {{pick:mac=Finder|windows=File Explorer|linux=maamulaha faylalkaaga}} oo keen saxanka. Hal fayl mar; faylalka ka weyn 200 MB waa la diidaa. LandXML ama fayl mashruuc oo ka weyn 32 MB waxa la akhriyaa qaybo ku dhow 4 MB, weligood qoraal hal jeex ah ma aha; intii LandXML la furayo, filo inuu xusuusta isticmaalo qiyaastii 13 jeer cabbirka faylka (fayl 69 MB ah wuxuu isticmaalay qiyaastii 0.9 GB tijaabadeenna).
 
 | Nooca | Magacyada faylalka | Waxa dhaca |
 |---|---|---|
-| Fayl barood | `.csv`, `.txt`, `.pnt`, `.xyz` (fayl qoraal kasta) | Wada-hadalka **Soo dhoofi barood** ayaa furmaa. Barooyinka ayaa beddelaya barooyinka mashruuca; jid-hagayaasha, padyada iyo tuubooyinka way joogaan. |
-| LandXML | `.xml`, `.landxml` | **Mashruuc cusub** ayaa laga sameeyaa faylka (waa la weydiin doonaa marka hore haddii mashruuca hadda jira uu leeyahay isbeddel aan la kaydin). |
-| Mashruuca CivilCraft | `.civilcraft.json` (ama `.json` kasta) | Mashruuca ayaa furmaa sida loo kaydiyay (waa la weydiin doonaa marka hore haddii mashruuca hadda jira uu leeyahay isbeddel aan la kaydin). |
+| Fayl barta | `.csv`, `.txt`, `.pnt`, `.xyz` (fayl qoraal kasta) | Daaqadda **Soo geli barta** ayaa furmaysa. Barta ayaa beddelaysa barta mashruuca; khadadka waddada, saldhigyada iyo tuubooyinka way sii joogaan. |
+| LandXML | `.xml`, `.landxml` | **Mashruuc cusub** ayaa laga sameeyaa faylka (waa la weydiin doonaa marka hore haddii mashruuca hadda jira uu leeyahay isbedello aan la kaydin). |
+| Mashruuca CivilCraft | `.civilcraft.json` (wixii `.json` ah) | Mashruucu wuxuu furmaa sida loo kaydiyay (waa la weydiin doonaa marka hore haddii mashruuca hadda jira uu leeyahay isbedello aan la kaydin). |
 
-CivilCraft wuxuu go'aamiyaa nooca faylka iyadoo laga eegayo dhamaadka magaca, kadibna xarfaha ugu horreeya: qoraal ka bilaabma `{` waxaa loo akhriyaa sida mashruuc, qoraal ka bilaabma `<` sida LandXML, wixii kale sida fayl barood. Fayl ay sanduuqa furitaanku diidayo ayaa weli lagu ridi karaa qorshaha.
+CivilCraft wuxuu go'aan ka gaadhaa dhamaadka magaca faylka, kadibna xarfaha ugu horreeya: qoraal ku bilaabma `{` waa la akhriyaa mashruuc, qoraal ku bilaabma `<` waa LandXML, wixii kale waa fayl barta. Fayl uu sanduuqa furista ku madoobeeyo ayaa weli lagu tuuri karaa saxanka.
 
 :::note
-Soo dhoofinta fayl barood mashruuc ay horey barooyin u lahayd ayaa barooyinka beddelaysa iyadoo aan la weydiin, waxayna nadiifinaysaa taariikhda ka noqoshada (fur wax kasta waa bilow cusub oo ka noqosho). Haddii dusha uu ka yimid LandXML, soo dhoofinta barooyinka waxay dusha ku celinaysaa dusha laga dhisay barooyinka. Marka hore kaydi haddii aad rabto barooyinkii hore inaad dib u hesho.
+Soo gelinta fayl barta mashruuc leh barta horey u jirta waxay beddeshaa barta jirta si aan la weydiin, waxayna tirtirtaa taariikhda ka noqoshada (furidda wax kasta waa bilow cusub oo ka noqoshada). Haddii dusha laga keenay LandXML, soo gelinta barta waxay dib ugu beddeshaa dusha loo sameeyay barta. Marka hore kaydi haddii aad rabto barta hore dib u soo celin karto.
 :::
 
-Faahfaahin: [Qaababka faylka barooyinka](topic:point-file-formats), [LandXML: waxa la akhriyo iyo la qoro](topic:landxml-reference).
+Faahfaahin dheeraad ah: [Qaababka faylalka barta](topic:point-file-formats), [LandXML: waxa la akhriyo iyo la qoro](topic:landxml-reference).
 
-## Waxa uu kaydiyaa
+## Waxa uu kaydiyo
 
-{{ui:Kaydi}} ({{key:Mod+S}}) wuxuu qoraa laba fayl oo dhinac-dhinac ah, oo loogu magac daray **Magaca** panelka bidix: `<magaca>.civilcraft.json`, mashruuca aad sii wadi doonto tafatirka, iyo `<magaca>.ifc`, isla naqshadda oo ah IFC 4.3 dadka kale (eeg [IFC dhoofin iyo soo dhoofin](topic:ifc)). Fayl kasta wuxuu xusaa kan kale, IFC-na wuxuu sidoo kale qaadaa nuqul la yareeyay oo mashruuca ah, sidaas darteed IFC la kaligiis loo diro weli wuu furmi karaa oo wax lagu bedeli karo oo dhan.
+{{ui:Kaydi}} ({{key:Mod+S}}) wuxuu qoraa laba fayl oo ku dhinac-dhinac ah, oo magacooda laga qaatay **Magaca** ku jira xagga bidix: `<name>.civilcraft.json`, mashruuca aad sii wadid tafatirka, iyo `<name>.ifc`, isla naqshadda oo IFC 4.3 ah oo dadka kale loogu talagalay (eeg [dhoofinta iyo soo gelinta IFC](topic:ifc)). Fayl kasta wuxuu diiwaangeliyaa kan kale, IFC-na wuxuu sidoo kale qaadaa nuqul la kaabay oo mashruuca ah, sidaas darteed IFC keligeed loo diro weli si buuxda ayuu tafatir ugu furmaa.
 
-- **Studio-da** labada fayl waxa lagu qoraa meel ay isku dhinac yihiin, meeshooda.
-- **Chrome iyo Edge** kaydinta ugu horreysa waxay weydiisaa folder, waxayna labadaba ku qorataa; kaydinta dambe waxay tagaan isla folder-kaas. Ka jawaab weydiinta folder-ka si aad labada u soo dejiso halkii.
-- **Browsers kale** labada fayl way soo degaan, mashruuca fayl ka horreeya.
+- **Studio gudahiisa** labada fayl waa la qoraa dhinac-dhinac, meeshii ay joogeen.
+- **Chrome iyo Edge gudahooda** kaydinta ugu horreysa waxay weydiisaa folder, waxayna labadooda ku qortaa; kaydinta dambe waxay tagaan isla folderkaas. Ka jawaab folder-ka weydiinta si labadooda loogu soo dego.
+- **Browser-ada kale gudahooda** labada fayl way soo degaan, mashruucuna marka hore.
 
-Furidda midkood ayaa doonta kan kale. Labadaba isku wada fur (ama isku jiid), ama midka keliya fur: Studio-da kan kale waxa laga helaa isla folder-ka; browser-ka CivilCraft wuxuu kugu weydiinayaa inaad ku darto, ama inaad ku sii socoto midka haysta. Haddii IFC-ga barnaamij kale beddelay kadib markii CivilCraft kaydiyay, ama midkood uu ka duwan yahay kan kale, mashruuca waxa laga furaa naqshadda cusub, panelka **Dhibaatooyinka** wuxuu sheegayaa waxa dhacay, oo leh **Kaydi hadda** (wuxuu mar kale qorayaa labada fayl) iyo **Muuji joomitriga IFC-ga tixraac ahaan**. IFC keliya oo barnaamij kale beddelay wuxuu ka furmaa nuqulkiisa mashruuca oo wax walba oo is waafaqa: jid-hagayaasha uu beddelay waxay qaataan joomitriggooda, walxaha uu tirtiray waa la reebaa, isbeddelada kale waa la liistaa oo ma qaadan. Fayl mashruuc ka horreeya 0.7.1 wuxuu furmaa sida hore.
+Furidda fayl kasta waxay raadisaa kan kale. Labadooda isku mar fur (ama jiid labadooda), ama mid keliya fur: Studio gudahiisa kan kale isla folderkaas ayay ka helaysaa; browser gudahiisa CivilCraft wuxuu weydiinayaa inaad ku darto, ama inaad ku sii wadato midka aad haysato. Haddii IFC-ga barnaamij kale beddelay ka dib markii CivilCraft kaydiyay, ama mid ka mid ah labada fayl ayaa ka hor yimid kan kale, mashruucu wuxuu ka furmaa naqshadda cusub, garoonka Dhibaatooyinka ayaa sheegaa waxa dhacay, oo leh **Kaydi hadda** (labada fayl mar kale qoraa) iyo **Tus joometriga IFC ahaan tixraac**. IFC keligiis oo uu barnaamij kale beddelay wuxuu ka furmaa nuqulkiisa mashruuca oo wuxuu qaadaa wixii weli isku mid ah: waxyaabaha wax-ka-beddelkooda leh waxay qaadaan joometriga IFC-ga, shayada uu tirtiray way ka maqnaadaan, isbeddellada kale waa la liistaa, ma aha la qaadan. Fayl mashruuc ka hor nooca 0.7.1 wuxuu furmaa sidii hore.
 
 Faylka mashruucu wuxuu hayaa:
 
-- barooyin kasta (lambar, isku-xirka, sare-taagga, sharaxaadda) iyo magaca faylka barooyinka ay ka yimaadeen
-- dejinta dusha: doorashooyinka kooxda, khadadka jebinta la sawiray, xuduudka, geerida ugu dheer ee dibadda, iyo TIN laga akhriyay LandXML
-- dejinta bandhigga
-- jid-hagayaasha, PI-yadooda, radius-kooda iyo station-ka bilowga, naqshadaha dhererka (PVI-yada iyo dhererka qallooca) iyo dejinta korridorka
-- padyada iyo shabakadda tuubooyinka iyo xeerarkeeda
+- barta kasta (lambarka, koordinaadyada, sare-u-kac, sharraxaadda) iyo magaca faylka barta ay ka timaadeen
+- dejinta dusha: doorashooyinka kooxda, khadadka jajabka ee la sawiray, xadka, cirifka dibedda ee ugu dheer, iyo TIN laga akhriyay LandXML
+- dejinta muuqaalka
+- khadadka waddada oo leh PI-kooda, radiyadooda iyo station-ka bilowga, naqshadaha dhulka (PVI-yada iyo dhererka qallooyinka) iyo dejinta koridorka
+- saldhigyada iyo shabakada tuubooyinka oo leh qawaaniinteeda
 
-Ma kaydiyo taariikhda ka noqoshada. Dusha, kontuurrada, khadadka iftiinka (daylight) iyo mugga lama kaydiyo; waxaa dib loo dhisaa xogta la kaydiyay marka mashruuca la furo. Fayl mashruuc oo ka cusub CivilCraft ayaa la diidaa, fariin ayaa magaca nooca sheegaysa.
+Ma hayo taariikhda ka noqoshada. Dusha, konturada, khadadka dhulka ee daylight iyo mugga lama kaydiyo; waxa dib loo dhisaa xogta la kaydiyay marka mashruucu furmo. Fayl mashruuc oo ka cusub CivilCraft cusub waa la diidaa, fariin magaciisa nooca ku jirtaa ayaa tusaysa.
 
-## Waxa uu dhoofiyaa
+## Waxa uu dhoofiyo
 
 | Badhanka | Faylka | Waxa ku jira |
 |---|---|---|
-| {{ui:LandXML}} | `<magaca>.xml` | LandXML 1.2: barooyinka, dhulka jira (iyo dusha la sameeyay marka uu jiro) sida dusha TIN, jid-hagayaasha, joomitriga dhulka iyo naqshadaha, shabakadda tuubooyinka |
-| {{ui:DXF}} | `<magaca>.dxf` | DXF R12 ee khadadka qorshaha sida loo muujiyay, layer-yo magacaabay ah |
-| {{ui:DWG}} | `<magaca>.dwg` | Isla khadadkaas sida sawir DWG ah, qaabka aad dooratid (2000 ilaa 2018) |
-| {{ui:PDF}} | `<magaca>.pdf` | Qorshaha oo ah vector ah ee xaashi, miisaan aad dooratid |
-| {{ui:GLB}} ama {{ui:OBJ}} (bar-ka muuqaalka 3D) | `<magaca>-3d.glb`, `<magaca>-3d.obj` | Waxa muuqaalka 3D muujiyo sida moodeel 3D ah: mitir, Y oo sare, miisaan run ah, oo ku wareegsan meel asal ah oo la duubay |
+| {{ui:LandXML}} | `<name>.xml` | LandXML 1.2: barta, dhulka jira (iyo dusha la dhisay haddii ay jirto) oo ah dusha TIN, khadadka waddada, naqshadaha dhulka iyo kuwa naqshadda, shabakada tuubooyinka |
+| {{ui:DXF}} | `<name>.dxf` | Khadadka sawirka sida loo muujiyay DXF R12 oo leh lakabyo magacaabani |
+| {{ui:DWG}} | `<name>.dwg` | Isla khadadka sawir DWG ah, qaabka aad doorato (2000 ilaa 2018) |
+| {{ui:PDF}} | `<name>.pdf` | Sawirka dhulka oo vector ah oo ku taal warqad, miisaan aad doorato |
+| {{ui:GLB}} ama {{ui:OBJ}} (qaybta ku taal muuqaalka 3D) | `<name>-3d.glb`, `<name>-3d.obj` | Waxa muuqaalka 3D uu muujiyo oo ah moodeel 3D: meter, Y sare, cabbir run ah, oo ku wareegsan meel asal ah oo la duubay |
 
-Waxa midkiiba ka reebo: [LandXML isweydaarsi](topic:landxml), [Dhoofi qorshaha DXF](topic:dxf-export) (DWG sidoo kale), [Qorshaha ku daabac PDF](topic:plot-pdf), [Dhoofi goobta 3D](topic:export-3d).
+Waxa mid kasta ka reebo: [LandXML dhoofin](topic:landxml), [Dhoofi sawirka DXF](topic:dxf-export) (DWG sidoo kale), [Daabac sawirka PDF](topic:plot-pdf), [Dhoofi goobta 3D](topic:export-3d).
 
-## Halka faylalku tagaan
+## Faylalku halkay ku tagaan
 
-Faylalka la kaydiyay iyo kuwa la dhoofiyay waxay tagaan meesha browser-kaagu soo dejinta ku keydiyo, badanaa folder-ka Downloads. Si aad folder kasta mar kasta u dooratid:
+Faylalka la kaydiyay iyo kuwa la dhoofiyay waxay aadayaan meesha browser-ku ku soo dego, badanaaba folderka Soo degidda. Si aad folder u dooratid mar kasta:
 
 :::chromium
-Fur **Dejinta** browser-ka, kadibna **Soo dejinta**, oo shid **Weydii meesha loo kaydinayo fayl kasta ka hor soo dejinta**.
+Fur **Dejinta** browser-ka, kadibna **Soo degidda**, oo shid **Weydii halka faylka kasta ka hor soo degidda loo kaydinayo**.
 :::
 
 :::firefox
-Fur **Dejinta**, kadibna **Guud**, oo hoosta **Faylal iyo barnaamijyo** dooro **Had iyo jeer weydii meesha aad faylalka ku kaydinayso**.
+Fur **Dejinta**, kadibna **Guud**, oo hoos **Faylal iyo Barnaamijyo** dooro **Weydii had iyo jeer halka faylalka loo kaydinayo**.
 :::
 
 :::safari
-Fur **Safari > Dejinta > Guud** oo deji **Meesha soo dejinta faylka** ** Weydii soo dejinta kasta**.
+Fur **Safari > Dejinta > Guud** oo deji **Goobta soo dejinta faylka** **Weydii soo dejin kasta**.
 :::
 
-Haddii aad labo jeer kaydiso magac isku mid ah, browser-ku wuxuu ku dari karaa lambar labaad, tusaale `Goob (1).civilcraft.json`. Marka xigta fur kan ugu dambeeya.
+Haddii aad labo jeer kaydiso isla magac, browser-ku wuxuu ku dari karaa lambar fayl labaad, tusaale ahaan `Site (1).civilcraft.json`. Mar xiga fayl ugu cusub fur.
 
-## Khadka ku jira iyo khadka ka baxsan
+## Online iyo offline
 
-CivilCraft wuxuu shaqeeyaa kombiyuutarkaaga keliya labada xaaladood: furidda waxay akhrisaa faylka browser-ka, kaydinta waxay soo dejisaa. Si aad CivilCraft u furto iyada oo aan xidhiidh jirin, marka hore u kaydi khadka ka baxsan:
+CivilCraft wuxuu shaqeeyaa kombiyuutarkaaga keliya, online ama offline kasta: furidda waxay akhrisaa faylka browser-ka, kaydinta waxay soo dejisaa. Si aad CivilCraft ugu furto iyada oo aan xiriir lahayn, marka hore u kaydi offline:
 
-1. Markaad online tahay, guji {{ui:Kaydi khadka ka baxsan}} bar-ka sare ee app-ka.
-2. Badhanku wuxuu tiriyaa ("Kaydinta 12 ka 30") kadibna wuxuu muujinayaa {{ui:Khadka ka baxsan diyaar}}. CivilCraft waa yar yahay (qiyaastii 0.6 MB), sidaas darteed waxay qaadataa wakhti yar. Nuqulka la kaydiyay wuxuu ku jiraa caawimaadan iyo goobta tusaalaha.
-3. Xidhiidh la'aan, fur isla cinwaankaas (ama calaamad ku qoran). Wax walba way shaqeeyaan, oo ay ku jiraan {{ui:Fur goobta tusaalaha}}.
+1. Markaad online tahay, guji {{ui:Kaydi khadka ka baxsan}} ee bar-ka sare.
+2. Badhanku wuxuu tiriyaa ("Saving 12 of 30") kadibna wuxuu muujinayaa {{ui:Khadka ka baxsan diyaar}}. CivilCraft waa yar yahay (qiyaastii 0.6 MB), sidaas darteed waqti yar ayuu qaadanayaa. Nuqulka la kaydiyay wuxuu ku jiraa caawinta iyo goobta tusaalaha.
+3. Xiriir la'aan, fur isla cinwaanka (ama bookmark-ka); wax kasta waa shaqeeyaa, oo ay ku jiraan {{ui:Fur goobta tusaalaha}}.
 
-Badhanka gobolladiisa kale:
+Gudbinta kale ee badhanka:
 
-- {{ui:Lama kaydin karin}}: qaar ka mid ah faylalka lama soo dejin. Hubi xidhiidhka oo guji si aad mar kale u isku daydo.
-- {{ui:Khadka ka baxsan lama heli karo}}: daaqaddan browser-ku ma kaydin karto nuqul khadka ka baxsan (daaqadaha gaarka ah iyo kombiyuutarrada maamulka qaarkood way xannibaan). Isticmaal daaqad caadi ah.
+- {{ui:Lama kaydin karin}}: qaar ka mid ah faylalka lama soo dejin. Hubi xiriirka oo guji si aad mar kale u isku daydo.
+- {{ui:Khadka ka baxsan lama heli karo}}: daaqaddan browser-ka ma kari karto nuqul offline ah (daaqadaha gaarka ah iyo kombiyuutarada maamulka qaarkood way xannibaan). Isticmaal daaqad caadi ah.
 
-Guji {{ui:Khadka ka baxsan diyaar}} si aad u aragto waqtigii nuqulka la kaydiyay, oo leh laba doorasho: {{ui:Mar kale kaydi (hel nooca ugu dambeeya)}} iyo {{ui:Ka saar nuqulka khadka ka baxsan}}. Mar kale kaydi ka hor booqasho goobeed si nuqulku u waafaqo dhismaha ugu dambeeya. Dheeraad ah: [Khadka ka baxsan](common:offline).
+Guji {{ui:Khadka ka baxsan diyaar}} si aad u aragto goorta la kaydiyay nuqulka, oo leh laba ikhtiyaar: {{ui:Mar kale kaydi (hel nooca ugu dambeeya)}} iyo {{ui:Ka saar nuqulka khadka ka baxsan}}. Mar kale kaydi ka hor booqashada goobta si nuqulku ula mid noqdo dhismaha ugu dambeeya. Wax dheeraad ah: [Offline](common:offline).
 
 :::offline
-Hadda waad ka baxsan tahay khadka. Haddii CivilCraft loo kaydiyay isticmaalka khadka ka baxsan, wax walba way shaqeeyaan, oo ay ku jiraan goobta tusaalaha. Haddii aan la kaydin, ku sii wad shaqada tabkan, laakiin ha dib u cusboonaysiin ilaa aad ku xirnaato khadka; ma jiro nuqul la kaydiyay, {{ui:Fur goobta tusaalaha}} wuxuu fashilmaa "Tusaalaha lama soo rari karin".
+Hadda offline ayaad tahay. Haddii CivilCraft loo kaydiyay isticmaalka offline, wax kasta waa shaqeeyaa, oo ay ku jiraan goobta tusaalaha. Haddii aysan ahayn, ku sii wad shaqada tabkan, laakiin ha dib u soo rarin ilaa aad online ku noqoto; haddii aanu jirin nuqul la kaydiyay, {{ui:Fur goobta tusaalaha}} wuxuu fashilmaa oo wuxuu sheegaa "The sample could not be loaded".
 :::
 
 :::tip
-Shaqada goobta, kaydi CivilCraft khadka ka baxsan isticmaalka, oo qaado faylalkaaga barooyinka kombiyuutarka laptop-ka laftiisa. Mashruucyada iyo dhoofinta waxay u kaydiyaan sida soo dejin xidhiidh la'aan, sidaas darteed waxaad soo dhoofin kartaa akhrinta sahanka maalinta, hubin kartaa dusha, oo kaydin kartaa mashruuca goobta.
+Shaqada beerta, kaydi CivilCraft isticmaalka offline oo keen faylalka barta kombiyuutarka laftiisa. Mashruucyada iyo dhoofinta waxay u kaydiyaan sida soo degitaanno iyada oo aan xiriir jirin, sidaas darteed waxaad soo gelin kartaa tirooyinka maalinta, hubin kartaa dusha, oo kaydin kartaa mashruuca goobta.
 :::
 
-Kaydinta gacan-ka-geynta (cloud) weli ma diyaar aha, dhismayaasha desktop-ka weli ma soo baxin. Hadda, faylalka aad kaydiso ayaa ah nuqulka keliya: ku hay meel la badbaadiyo.
+Kaydinta sixaabka weli lama heli karo, qalabka desktop-kana weli lama soo saarin. Hadda faylalka aad kaydiso ayaa nuqulka keliya ah: ku hay meel la kaabay.
 
-## Kordhinta ay faylku isticmaalo
+## Kordhinta uu faylku isticmaalo
 
-Marka aad kaydiso mashruuc ku jira xog ka timid kordhin (tiksiyada Xeerarka dhismaha, ama isha Cinwaanka ilaa goobta), faylku wuxuu xusaa kordhinnada iyo noocyadooda. Haddii aad furto kombiyuutar uusan lahayn mid ka mid ah, bar ka sare qorshaha ayaa sheegaya oo wuxuu kugu soo bandhigayaa inaad ku darto liiska akoonkaaga. Xusidda waa fiiro keliya: faylku wuxuu furmaa labadaba.
+Marka aad kaydiso mashruuc ku jira xog ka timid kordhin (xulashooyinka Building regulations, ama Address to site source), faylku wuxuu diiwaangeliyaa kordhinnada iyo noocyadooda. Haddii laga furo kombiyuutar uusan lahayn mid ka mid ah, garoonka sare ee sawirka ayaa sheegaa oo waxay ku bixisaa in laga soo daro liiska akoonkaaga. Diiwaanku waa fiiro keliya; faylku wuu furmaa si kastaba ha ahaatee.
 
 ## Ka noqo Studio-ga
 
-Gudaha CadCraft Studio, talaabo kasta oo aad ku dhamayso CivilCraft waxaa loo sheegaa Studio, si ka noqoshada heerka mashruuca ay u qaadi karto talaabada ugu dambeysay app-yada dhexdooda. Studio wuxuu ka noqdaa talaabo kaliya marka kaydka ka noqoshada CivilCraft uu yahay sida talaabadaas ay ka tagtay; markaad furto fayl kale, wuu ka boodaa daaqaddan.
+Gudaha CadCraft Studio, talaabo kasta oo aad ku dhamaysid CivilCraft waxaa loo sheegaa Studio, sidaas darteed ka noqoshadeeda heerka mashruucu waxay ka noqon kartaa talaabada ugu dambeysay dhammaan barnaamijyada. Studio wuxuu ka noqdaa talaabo kaliya marka xidhmada ka noqoshada CivilCraft ay tahay sidii talaabadaas ka tagtay; markaad fayl kale furto, wuu ka tallaabsadaa daaqaddan.
 
-## Xidhista isbeddel aan la kaydin
+## Xidhista isbedello aan la kaydin
 
-Marka mashruucu leeyahay isbeddel aan la kaydin oo aad xirto tab-ka, dib u rarto, ama ka baxdo bogga, browser-ku wuxuu weydiinayaa inaad rabto inaad baxdo. Qoraalka iyo qaabkiisa waxay ku xiran yihiin browser-ka, CivilCraft ma beddeli karo. {{ui:Cusub}}, iyo furidda mashruuc ama fayl LandXML, waxay weydiiyaan sanduuq **Isbeddel aan la kaydin** oo CivilCraft gudahiisa ah, leh {{ui:Jooji}}, {{ui:Ha kaydin}} iyo {{ui:Kaydi nuqul}}.
+Marka mashruucu leeyahay isbedello aan la kaydin oo aad xirto tab-ka, dib u soo rarto, ama aad bogga ka baxdo, browser-ku wuxuu weydiin doonaa inaad rabto inaad baxdo. Hadalkiisa iyo muuqiisa waa kan browser-ka, CivilCraft ma beddeli karo. {{ui:Cusub}}, iyo furidda mashruuc ama fayl LandXML, waxay weydiiyaan sanduuqa CivilCraft ee **Isbedello aan la kaydin**, oo leh {{ui:Jooji}}, {{ui:Ha kaydin}} iyo {{ui:Kaydi nuqul}}.

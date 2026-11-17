@@ -10,6 +10,9 @@
  *     schema: 'AP203' | 'AP214' | 'AP242' | 'other', schemaName, unitMm (length unit in mm), angle (plane-angle unit in radians),
  *     solids: [{ name, kind: 'brep' | 'faceted' | 'tessellated' | 'surface', positions: Float64Array (mm), indices: Uint32Array,
  *               triFace: Uint32Array (each triangle's face, 0-based in the solid), faces, failedFaces, instance (how many times placed) }],
+ *               surfs: per face its exact surface where the file gives an elementary one, else null (0.9.1, mm, placed like the
+ *               positions): { type: 'plane', n, o } | { type: 'cylinder', o, d, r } | { type: 'cone', o (apex), d (towards the wide
+ *               end), k (radius per unit along d) } | { type: 'sphere', c, r } | { type: 'torus', c, d, R, r }
  *     notes: [{ key, vars }], counts: { entities, solids, instances, faces, failedFaces, triangles } }
  *   Every solid placed where the file's assembly structure puts it (representation relationships with transformation, mapped
  *   items), so an assembly comes in as all its parts in place. Errors: Error with `code` (step.err.*).
@@ -300,9 +303,37 @@ export function readStep(input, { tol = null } = {}) {
     out.seam2 = seam2;
     return out;
   };
+  /** A face's surface as plain numbers when it is an elementary one (0.9.1: an imported body keeps its true round faces), in the
+   *  representation's coordinates; null for swept, offset and spline surfaces. */
+  const exactSurf = (S) => {
+    if (!S || !S.F) return null;
+    const F = S.F, fin = (...a) => a.every((x) => Number.isFinite(x));
+    if (S.kind === 'plane') return { type: 'plane', n: [...F.z], o: [...F.o] };
+    if (S.kind === 'cylinder' && S.r > 0) return { type: 'cylinder', o: [...F.o], d: [...F.z], r: S.r };
+    if (S.kind === 'cone' && fin(S.R, S.k) && Math.abs(S.k) > 1e-12) {
+      // radius R + v·k at height v: the apex is at v = −R/k, and the cone opens along +z when k > 0
+      const va = -S.R / S.k, apex = [F.o[0] + F.z[0] * va, F.o[1] + F.z[1] * va, F.o[2] + F.z[2] * va];
+      return S.k > 0 ? { type: 'cone', o: apex, d: [...F.z], k: S.k } : { type: 'cone', o: apex, d: [-F.z[0], -F.z[1], -F.z[2]], k: -S.k };
+    }
+    if (S.kind === 'sphere' && S.r > 0) return { type: 'sphere', c: [...F.o], r: S.r };
+    if (S.kind === 'torus' && S.R > 0 && S.r > 0) return { type: 'torus', c: [...F.o], d: [...F.z], R: S.R, r: S.r };
+    return null;
+  };
+  /** exactSurf moved by a placement T (column-major 4×4, a rigid motion). */
+  const placeSurf = (s, T) => {
+    if (!s) return null;
+    const pt = (p) => [T[0] * p[0] + T[4] * p[1] + T[8] * p[2] + T[12], T[1] * p[0] + T[5] * p[1] + T[9] * p[2] + T[13], T[2] * p[0] + T[6] * p[1] + T[10] * p[2] + T[14]];
+    const dv = (d) => { const v = [T[0] * d[0] + T[4] * d[1] + T[8] * d[2], T[1] * d[0] + T[5] * d[1] + T[9] * d[2], T[2] * d[0] + T[6] * d[1] + T[10] * d[2]], l = Math.hypot(v[0], v[1], v[2]); return l > 0 ? [v[0] / l, v[1] / l, v[2] / l] : null; };
+    const out = { ...s };
+    for (const k of ['o', 'c']) if (s[k]) out[k] = pt(s[k]);
+    for (const k of ['n', 'd']) if (s[k]) { out[k] = dv(s[k]); if (!out[k]) return null; }
+    return out;
+  };
   const counts = { entities: ix.count, solids: 0, instances: 0, faces: 0, failedFaces: 0, triangles: 0 };
   /** Triangles of one face → appended to (pos, idx). */
+  let lastSurf = null;   // the surface of the face addFace built last (solidMesh keeps it per face)
   const addFace = (fid, pos, idx) => {
+    lastSurf = null;
     const f = get(fid);
     if (!f) return false;
     counts.faces++;
@@ -326,6 +357,7 @@ export function readStep(input, { tol = null } = {}) {
       if (!S) { note('step.note.unknown_surface', { type: get(ref(f.params[2]))?.type || '?' }); return false; }
       const same = !(f.params[3] && f.params[3].enum === 'F');
       r = faceTriangles(S, loops, { sameSense: same, tol });
+      lastSurf = S;
       for (const n of r.notes) note(n);
     } else {
       // FACE with poly loops (faceted B-rep): each loop in its own best plane
@@ -393,6 +425,7 @@ export function readStep(input, { tol = null } = {}) {
     else if (e.type === 'TESSELLATED_SOLID' || e.type === 'TESSELLATED_SHELL') { kind = 'tessellated'; }
     else return null;
     const pos = [], idx = [], tf = [];   // tf: the face each triangle came from (its place in the solid's face list)
+    const fsurf = [];                    // per face: its elementary surface (exactSurf) or null
     let faces = 0, failed = 0;
     const faceIds = [];
     if (kind === 'tessellated') for (const x of e.params[1] || []) faceIds.push(ref(x));
@@ -403,11 +436,12 @@ export function readStep(input, { tol = null } = {}) {
       const t0 = idx.length;
       try { okF = addFace(fid, pos, idx); } catch (err) { if (err instanceof StepReadError) throw err; okF = false; }
       if (!okF) failed++;
+      fsurf.push(okF ? exactSurf(lastSurf) : null);
       for (let k = t0 / 3; k < idx.length / 3; k++) tf.push(faces - 1);
     }
     counts.failedFaces += failed;
     if (failed) note('step.note.faces_failed', { n: failed });
-    return { kind, name: typeof e.params[0] === 'string' ? e.params[0] : '', pos, idx, tf, faces, failed };
+    return { kind, name: typeof e.params[0] === 'string' ? e.params[0] : '', pos, idx, tf, fsurf, faces, failed };
   });
 
   // ---- where the solids are: representations, their links and placements (ISO 10303-43)
@@ -498,7 +532,7 @@ export function readStep(input, { tol = null } = {}) {
       const x = s.pos[i], y = s.pos[i + 1], z = s.pos[i + 2];
       pos[i] = T[0] * x + T[4] * y + T[8] * z + T[12]; pos[i + 1] = T[1] * x + T[5] * y + T[9] * z + T[13]; pos[i + 2] = T[2] * x + T[6] * y + T[10] * z + T[14];
     }
-    solids.push({ name: s.name, kind: s.kind, positions: pos, indices: Uint32Array.from(s.idx), triFace: Uint32Array.from(s.tf), faces: s.faces, failedFaces: s.failed, solid: id });
+    solids.push({ name: s.name, kind: s.kind, positions: pos, indices: Uint32Array.from(s.idx), triFace: Uint32Array.from(s.tf), surfs: (s.fsurf || []).map((x) => placeSurf(x, T)), faces: s.faces, failedFaces: s.failed, solid: id });
   }
   counts.solids = new Set(solids.map((s) => s.solid)).size;
   counts.instances = solids.length;

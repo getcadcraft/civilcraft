@@ -32,7 +32,8 @@ export function createCtx(api, PC) {
       return w !== k ? w : ctx.t('pc.err.other', { why: code || String((e && e.message) || e) });
     },
     isAbort(e) { return !!e && (e.code === 'aborted' || e.name === 'AbortError'); },
-    unitWord() { return ctx.t('pc.unit.m'); },
+    /** 0.10 BK.8: the unit the open cloud was read in (stated by its file, or answered when it was built), as a short word; a cloud that carries none says so. */
+    unitWord(u = ctx.cloud && ctx.cloud.meta ? ctx.cloud.meta.unit : null) { return u === 'm' ? ctx.t('pc.unit.m') : u === 'ft' ? ctx.t('pc.unit.ft') : u === 'ftUS' || u === 'usft' || u === 'us-ft' ? ctx.t('pc.unit.ftus') : ctx.t('pc.unit.none'); },
   };
   return ctx;
 }

@@ -1,0 +1,6 @@
+{"format":"cadcraft-vehicle-pack","version":1,"id":"rail-classes","name":"Light rail vehicles (placeholders)",
+ "source":{"title":"Generic light rail vehicle classes","note":"PLACEHOLDERS. A short two-bogie car and a two-car consist, rounded sizes, not a named vehicle. Every entry says verified: false. Use the operator's vehicle drawing and kinematic envelope; this checks only where the body ends swing."},
+ "vehicles":[
+  {"key":"light-rail-car","name":"Light rail car (class)","kind":"rail","verified":false,"source":"generic class, rounded","width":2.65,"bogies":9.0,"front":3.4,"rear":3.4,"cars":1,"gap":0.6,"gauge":1435},
+  {"key":"light-rail-pair","name":"Light rail, two cars coupled (class)","kind":"rail","verified":false,"source":"generic class, rounded","width":2.65,"bogies":9.0,"front":3.4,"rear":3.4,"cars":2,"gap":6.8,"gauge":1435}
+ ]}

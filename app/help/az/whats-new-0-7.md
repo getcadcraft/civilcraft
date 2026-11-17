@@ -1,0 +1,90 @@
+---
+title: 0.7-də yeniliklər (əvvəlki)
+summary: CivilCraft 0.7 Elektrik xətləri iş sahəsi (öz kitabxanalarınızla havaya asılı xətlər və yeraltı kabellər, sallanma və gərginlik, təmizlik və möhkəmlik yoxlamaları, çəkmə cədvəlləri, miqdarlar, vərəqlər və GIS), Abadlaşdırma iş sahəsi (bitki siyahısı, əkin planları və cədvəlləri, abadlaşdırma şaquli planlaşdırması, döşəmə, divarlar və pillələr, suvarma üzrə hesablama köməkçisi, abadlaşdırma vərəqləri və sərbəst obyektlər), tikinti kütlələri, daxil etdiyiniz zoninq limitləri və günəş saatları, klotoid spiralları, hər tərəfi hissələrdən qurulan korridorlar, USD ixracı və AI köməkçiləri üçün daha çox alət təqdim edir.
+keywords: 0.7 yenilikləri, əvvəlki buraxılış, buraxılış qeydləri, dəyişiklik jurnalı, dəyişikliklər, 0.7, versiya, yeni xüsusiyyətlər, abadlaşdırma, abadlaşdırma iş sahəsi, bitki siyahısı, bitkilər, əkin, bitki cədvəli, yataq, hasar, şaquli planlaşdırma, platforma, berm, arx, nöqtə yüksəkliyi, yamac təhlili, su yığılması, bərk örtük, döşəmə, cığır, divar, bordür, pandus, pillələr, suvarma, səpici, damcı, abadlaşdırma vərəqləri, sərbəst obyekt, tikinti kütləsi, kütlə, ümumi mərtəbə sahəsi, zoninq, geri çəkilmə, zərf, səma müstəvisi, mərtəbə sahəsi nisbəti, örtülmə, günəş saatları, kölgə, ifc, bimcraft-da işlət, spiral, klotoid, keçid, qurğu, bordür, oluk, səki, usd, köməkçilər, vahidlər, portuqal
+from: 797d2f2f
+---
+
+Bu, CivilCraft 0.6-ya nisbətən 0.7-də nəyin dəyişdiyini göstərir. Ən böyük yeni hissələr Elektrik xətləri və Abadlaşdırma iş sahələri və tikinti kütlələridir.
+
+## Yeni
+
+### Abadlaşdırma iş sahəsi
+
+- **Eyni sahədə Abadlaşdırma iş sahəsi.** {{ui:Səth}} › {{ui:Daha çox}} › {{ui:Abadlaşdırma iş sahəsi}} artıq olan sahəyə əkin, şaquli planlaşdırma, bərk örtük və suvarma alətləri əlavə edir: eyni nöqtələr, səthlər və layihə faylı ilə. Geri qayıtmaq üçün **İş sahəsi** altında **Civil** seçin. Bax: [Abadlaşdırma iş sahəsi](topic:landscape).
+- **Bitki siyahısı.** Mülayim və Aralıq dənizi iqliminin təxminən 420 ümumi ağacı, kolu, hasarı, otu, çoxillik bitkisi, yerüstü örtüyü və tırmanan bitkisi; əkin və yetkinlik ölçüləri, soyuğa davamlılıq zonası, işıq, su və məsafə ilə. İngilis, ispan və portuqal dillərində istənilən adla axtarın. Öz siyahınızı CSV kimi idxal edin; layihə ilə birlikdə saxlanılır. Daxili ölçülər təxmini və yuvarlaqdır: onları yerli pitomnik ilə yoxlayın. Bax: [Bitki siyahısı](topic:plant-list).
+- **Əkin planları.** {{ui:Bitki}} torpaqda duran tək bitkiləri yerləşdirir və sonrakı şaquli planlaşdırmaya uyğunlaşır; {{ui:Yataq}} konturu bitkilərin məsafəsinə uyğun, faizlə qarışıq doldurur; {{ui:Hasar}} xətt boyunca bir və ya iki sıra qurur. Bitkilər planda etiketlənir. Bax: [Əkin planları və cədvəlləri](topic:planting).
+- **Bitki cədvəli.** Daha çox › {{ui:Bitki cədvəli…}} bitkiləri növlərinə və əkin ölçüsünə görə sayır. CSV və ya XLSX kimi saxlayın, ya da qiymətləndirmək üçün TakeoffCraft-a göndərin. Bax: [Bitki cədvəli](topic:planting#the-plant-schedule).
+- **Abadlaşdırma üçün şaquli planlaşdırma.** {{ui:Şaquli planlaşdırma}} düz və ya enən platformalar, bermlər, arxlar və sürüklədiyiniz nöqtə yüksəklikləri və horizontallarla planlaşdırma sahələrinə malikdir. Kəsmə və doldurma siz işləyərkən görünür. **Yamac təhlili** səthi sizin iki limitinizə görə rənglədir, **Axın oxları və su yığılması** isə suyun harada axdığını və harada yığılacağını göstərir. Hamısı pad və korridorlarla eyni təklif olunan səthə daxil olur. Bax: [Abadlaşdırma üçün şaquli planlaşdırma](topic:landscape-grading).
+- **Döşəmə, cığırlar, divarlar, bordürlər, pandus və pillələr.** {{ui:Bərk örtük}} köndələn meylli və ya drenaja enən döşəmə, naxış və onun təbəqələri ilə; zəmini izləyən cığırlar; hündürlük altlığı olan saxlayıcı və sərbəst divarlar; bordürlər; müəyyən etdiyiniz limitlərə görə yoxlanılan pandus və pillələr çəkir. 1,2 m (4 ft) üstündəki saxlayıcı divar mühəndis üçün işarələnir. Bax: [Döşəmə, divarlar və pillələr](topic:hardscape).
+- **Suvarma üzrə hesablama köməkçisi.** {{ui:Suvarma}} başlıqları, şaxələri, əsas xətti, klapanları, damcı xətlərini və birləşmə nöqtəsini yerləşdirir. {{ui:Sistemi yoxla…}} borulardan zonaları tapır və hər zonanın axınını, klapanında və təchizatında tələb olunan təzyiqi (Hazen–Williams), yağıntını, iş müddətlərini, əhatəni və material siyahısını hesablayır. Başlıqlar ümumi növlərdir və ya faylınızdan öz başlıqlarınızdır. Bu, dizayn sertifikatı deyil, hesablama köməkçisidir: suvarma dizayneri hər nəticəni yoxlayır. Bax: [Suvarma dizaynı](topic:irrigation).
+- **Abadlaşdırma vərəqləri.** Daha çox › {{ui:Abadlaşdırma vərəqləri…}} əkin, şaquli planlaşdırma və suvarma planlarını izahları ilə, divar kəsiklərinin, döşəmə quruluşlarının və pillələrin detal vərəqini isə hamısını bir PDF-də hazırlayır. Bax: [Abadlaşdırma vərəqləri](topic:landscape-sheets).
+- **Sərbəst obyektlər.** Daha çox › {{ui:Sərbəst obyekt…}} başqa proqramda hazırlanmış STL, OBJ və ya kitabxana elementi şəbəkəsini (məsələn, əkin qabı və ya heykəl) yerləşdirir. Yerdə durur və ya ona kəsilir; həcmi, sahəsi və oturacaq ölçüsü hesablanır. Bax: [Sərbəst obyektlər](topic:freeform-objects).
+- **Abadlaşdırma IFC.** Daha çox › {{ui:Abadlaşdırma IFC-ni ixrac et}} bitkiləri (xüsusiyyətləri ilə birlikdə bitki örtüyü kimi), bərk örtüyü və sərbəst obyektləri BIM modeli üçün IFC 4.3 kimi saxlayır. Bax: [IFC](topic:planting#ifc).
+- **Əvvəldən sona.** [Bağı əvvəldən sona layihələndirin](topic:landscape-walkthrough) nümunə sahədə bütün iş sahəsini addım-addım göstərir.
+
+### Elektrik xətləri iş sahəsi
+
+- **Sahənizdə havaya asılı xətlər və yeraltı kabellər.** {{ui:Səth}} › {{ui:Daha çox}} › {{ui:Elektrik xətləri iş sahəsi}}: xətti dayaqlarına görə çəkin, kabelləri xəndəklərdə, avadanlığı və maneələri eyni torpaqda və eyni layihə faylında. Bax: [Elektrik xətləri iş sahəsi](topic:power-lines).
+- **Öz kitabxanalarınız.** Keçiricilər, kabellər, dayaqlar, avadanlıq (çarpaz qollar, izolyatorlar, armaturlar, dayaq ipləri, transformatorlar, şkaflar, birləşmələr) və xəndək növləri, sizin adlandırdığınız kateqoriyalarda, fayl və ya cədvəl kimi paylaşılır. Heç bir ölkənin və ya istehsalçının kataloqu daxili deyil; nümunələrdə bunların nümunə olduğu göstərilir. Bax: [Elektrik xətti kitabxanası](topic:power-line-library).
+- **Yük halları altında sallanma və gərginlik.** Temperatur, külək, buz və bir tərəfdə buz; qırılma möhkəmliyinin bir hissəsi kimi gərginlik limitləri; hər aralıqda, meyllər daxil olmaqla dəqiq katenar; çəkmə cədvəlləri. Bax: [Sallanma və gərginlik](topic:sag-and-tension).
+- **Həmişə yenilənən yoxlamalar.** Yer və maneələr üzərində təmizlik məsafəsi, faza aralığı, izolyatorun rəqsi, qaldırma, kitabxanadan ölçüsü götürülən dayaqların yükü, tirlər, armaturlar, təməllər, çatışmayan məlumatlar, ayrılmış kabellər, həddən artıq yüklənmə və gərginlik düşgüsü; planda və xətt profilində işarələnir. Bu dizayn köməkçisidir: mühəndis yoxlayır. Bax: [Elektrik xətti yoxlamaları](topic:power-line-checks).
+- **Cədvəllər, vərəqlər və GIS.** Çəkmə və dayaq cədvəlləri, miqdarlar (CSV, Excel, TakeoffCraft), bir PDF-də tədqiqat hesabatı ilə plan və profil vərəqləri, hər aktivin məlumatı ilə GIS qatları. Bax: [Elektrik xətti cədvəlləri, miqdarlar, vərəqlər və GIS](topic:power-line-outputs).
+- **İlk cəhdlərdən sonra.** Xətt profili seçdiyiniz xətti izləyir, **Xətt** siyahısına malikdir, göstəricinin altında yeri, keçiricini və təmizliyi oxuyur və iki nöqtə arasını ölçür. Abadlaşdırma bitkiləri və divarları xətlər altında maneə sayılır; kabel marşrutları və borular xətt profilində göstərilir və seçdiyiniz təmizlik qaydası ilə kəsişir; hər təmizlik məsafəsinin yanındakı **Qaydalar…** öz qaydalarınızı açır; kitabxanası olan qayda dəstləri ölkəyə görə paylaşmaq üçün paketlər kimi saxlanılır. Bax: [Elektrik xətti yoxlamaları](topic:power-line-checks) və [Paketlər](topic:sag-and-tension#packs-rules-and-a-library-for-a-country).
+- **Öz fayl formatlarınız.** Elektrik xətləri CivilCraft layihə faylında, kitabxanalar `.cclines.json` və ya CSV-də, qayda dəstləri və paketlər öz JSON fayllarında saxlanılır: hər kəsin oxuya və ya çevirə biləcəyi açıq formatlar. `.DON` tədqiqat faylı bunların yanında əlavə idxal və ixrac vasitəsidir.
+- **Tədqiqat faylları (.DON), test olunmayıb.** Xətti başqa xətt proqramı üçün `.DON` tədqiqat faylı kimi saxlayın və ya başqasının dayaqlarını oxuyun; formatın sahə adlarına görə qurulub, hələ həmin proqramla test olunmayıb. Bax: [Tədqiqat faylları](topic:power-line-study-file).
+
+### Ölçmə
+
+- **Ölçmə aləti.** {{ui:Səth}} › {{ui:Daha çox}} › {{ui:Ölç}} (və ya {{key:M}}) planda ölçür: hər tərəfin uzunluğu və istiqaməti, cəm, yer boyunca uzunluq və meyl, forma bağlandıqdan sonra sahə və perimetr. Layihəyə heç nə çəkilmir. Bax: [Ölçmə](topic:measure).
+
+### Tikinti kütlələri
+
+- **Tikinti kütlələri çəkin.** Xüsusiyyətlər panelində, **Tikinti kütlələri** altında {{ui:Kütlə çək}} (həmçinin {{ui:Səth}} › {{ui:Daha çox}} › {{ui:Kütlələr}}). Kütləyə mərtəbələr və mərtəbə hündürlüyü verin və onun ümumi mərtəbə sahəsini oxuyun. Meyilli torpaqda necə oturduğunu seçin (pilləli, podium və ya kəsim) və doldurma və kəsimi görün. Kütlələr planda, PDF-də və DWG və DXF-də öz qatlarında görünür. Bax: [Sahədə tikinti kütlələrinin çəkilməsi](topic:building-masses).
+- **3D-də itələyin və çəkin.** 3D görünüşündə seçilmiş kütlənin damını sürüklədin və ya {{key:PageUp}} və {{key:PageDown}} basaraq bir mərtəbə vahidi ilə dəyişin; bu, bir geri alma addımıdır. **Günəş** kütlələrin kölgəsini salır. Bax: [3D görünüşündə](topic:building-masses#in-the-3d-view).
+- **Daxil etdiyiniz zoninq limitləri.** Küçə xəttindən geri çəkilmələr sətir-sətir, hündürlük limiti, səma açıqlığı müstəvisi, mərtəbə sahəsi nisbəti və örtülmə. Tikilə bilən zərf planda çəkilir və hər kütlə hər limit üçün işarə və ya xaç alır. CivilCraft-ın içində heç bir zoninq qaydası yoxdur: hər rəqəm sizin öz normativinizdən daxil etdiyiniz rəqəmdir. Bax: [Kütlələri daxil etdiyiniz zoninq limitləri ilə yoxlayın](topic:zoning-limits).
+- **Günəş saatları.** Gün və ya mövsüm seçin, vaxt zonasını adına və ya fərqinə görə təyin edin və hər kütlənin hər divarında, mərtəbə-mərtəbə, ətrafındakı torpaqda birbaşa günəş saatlarını oxuyun; planda çəkilir. Divarları və torpağı CSV kimi saxlayın. Layihənin koordinat sistemi olmalıdır. Bax: [Sahədə günəş saatlarının hesablanması](topic:sun-hours).
+- **IFC-də kütlələr və BimCraft-a davam.** {{ui:Kütlələri IFC kimi ixrac et}} kütlələri IFC4 kimi saxlayır, layihədə koordinat sistemi varsa xəritədə yerləşdirilir. {{ui:BimCraft-da işlət}} BimCraft-ı kütlələrlə yeni sekmədə açır, burada **Bu kütləni işlət** hər mərtəbədə divarları və oturacaqdan döşəməni qurur. Heç nə yüklənmir. Bax: [Davam etdirin](topic:building-masses#send-it-on).
+
+### Üfüqi xəttlər
+
+- **Klotoid spiralları.** Əyri üçün PI cədvəlində **Girişdə spiral** və **Çıxışda spiral** sahələrinə uzunluq yazın: tangens, spiral, əyri, spiral, tangens, bərabər və ya müxtəlif uzunluqlarda. Planda TS, SC, CS və ST işarələnir, əyrilər siyahısında θs və tangens və xarici məsafələr verilir, pikətlər və ofsetlər spiralların içindən keçir. Bax: [Spirallar](topic:alignment#spirals).
+- **LandXML-də spirallar.** LandXML klotoid spirallarını yazır və oxuyur. Spirallı trassalar, əvvəllər idxalda CivilCraft-ın keçdiyi, indi açılır. Bax: [LandXML mübadiləsi](topic:landxml).
+
+### Korridorlar
+
+- **Hər tərəfi hissələrdən qurun.** Hər tərəfə mərkəz xəttindən kənara öz siyahısını vermək üçün **Hər tərəfi hissələrdən qurun** seçin: zolaqlar, kənar zolaq, oluk, bordür, əkin zolağı, səki və öz kəsim və doldurması olan yan yamac. {{ui:Kənd yolu}} və ya {{ui:Şəhər küçəsi}} ilə başlayın və bir tərəfi digərinə kopyalayın. Köndələn kəsiklər axın xəttini, bordürü və yolu işarələyir, hamarlanmış səth isə bordürə malikdir. Bax: [Hər tərəfi hissələrdən qurun](topic:corridor#build-each-side-from-parts).
+- **Spiral üzərində superelevasiya.** Spirallı əyridə superelevasiya keçidi spiral üzərində işləyir: TS-də səviyyəli tac, SC-də tam superelevasiya. Bax: [Superelevasiya](topic:corridor#superelevation).
+
+### 3D faylları
+
+- **USD ixracı.** 3D görünüşündə {{ui:USD}} sahəni `.usda`, `.usdc` və ya `.usdz` kimi real ölçüdə və layihə koordinatlarında yazır: səthlər, borular və strukturlar şəbəkə kimi, xətlər, hər trassa və nöqtə nömrələri ilə geodezik nöqtələr. Bax: [3D sahənin USD kimi ixracı](topic:usd).
+
+### AI köməkçiləri
+
+- **Köməkçilər üçün daha çox.** {{ui:Parametrlər}} › {{ui:CivilCraft}} bölməsində köməkçilər aktivləşdirildikdə köməkçi indi həm də sahələri, kəsim və doldurmanı və profilləri oxuya, geodezik nöqtələr əlavə edə, layihəni saxlaya, LandXML, DWG və USD ixrac edə və CadCraft Studio-da seçdiyiniz qovluqlarda işləyə bilir. Abadlaşdırma iş sahəsi bitkiləri tapmaq, bitkiləri, konturları və hasarları yerləşdirmək, şaquli planlaşdırma və suvarmanı yoxlamaq üçün alətlər əlavə edir. Fayl serveri və `cadcraft` əmr sətiri saxlanılmış layihələri pəncərəsiz açır. Bax: [AI köməkçisinin sahənizdə işləməsi](topic:assistants).
+
+## Bütün tətbiqlərdə
+
+- **Vahidlər.** {{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Vahidlər}} uzunluq, sahə, həcm, bucaq və meyl üçün hər biri üçün ayrıca siyahıya malikdir; vahidlərin tərifləri verdiyi dəqiq ölçülərlə (ABŞ geodezik futu öz vahididir). İstifadə etmədiyiniz vahidləri söndürün, onlar vahid siyahılarından çıxır; birini ulduzlayın və yeni iş onunla başlayır. Fayl həmişə öz vahidini saxlayır. CivilCraft-da layihənin **Vahidlər** siyahısı keçidləri izləyir; metrik uzunluq ulduzu yeni layihələri metrlə başladır (əks halda futla, ABŞ geodezik futu ilə), sahə və ya həcm ulduzu sahələrin və həcmlərin hansı vahidlə göstəriləcəyini təyin edir, uzunluq qutusu istənilən vahidin işarəsini qəbul edir, məsələn `3 ch` və ya `450 mm`. Bax: [Vahidlər, yazılmış dəyərlər və vahid siyahıları](common:unit-lists).
+- **Daha sıx tərtibat və yığılan panellər.** {{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Tərtibat sıxlığı}} › {{ui:Yığcam}} ekrana daha çox şey sığdırır (sensor ekranlar və telefonlar böyük düymələrini saxlayır). Hər yan paneldə nazik başlıq zolağı var: sürükləyərək paneli yerləşdirin və ya üzdürün, başqa panelin zolağına atıb bir çərçivəni sekmələr kimi paylaşın, kənara sürüşmək üçün bərkidin və ya gizlədib kənardan geri çağırın. Bax: [Panelləri təşkil edin](common:arrange-panels#make-the-layout-denser).
+- **Dialoq qutuları hərəkət edir.** Dialoq qutusunu başlıq zolağından tutub çəkiçin üzərindən kənara çəkin; oradan çıxanda hara qoyduğunuz yerə qayıdır. Başlıq zolağına iki dəfə klikləyin, yenidən mərkəzə gəlir. Bax: [Dialoq qutusunu hərəkət etdirin](common:arrange-panels#move-a-dialog).
+- **AI köməkçiləri üçün reseptlər.** Öz köməkçiniz üçün on hazır sorğu (çertyoju səliqələşdirmək, planları çap etmək, çertyojları yoxlamaq, modelə sual vermək, miqdarları cəmləmək, detalın variantını sınamaq…), hər birində çağırdığı alətlər və lazım olan icazələr, və hər biri bizim testlərimizdə təkrar oynadılır. Tətbiqlərin içində heç bir AI yoxdur. Bax: [AI köməkçiləri üçün reseptlər](common:assistants-recipes).
+- **Dillər.** **Português (Portugal)** {{ui:Parametrlər}} › {{ui:Ümumi}} › {{ui:Dil}} bölməsində yenidir. Bu dil, **Português (Brasil)**, **Español (México)** və **Bahasa Indonesia** indi tətbiqlərin hər sözünə malikdir, lakin ana dili danışan tərəfindən hələ yoxlanılmamış qaralama kimidir. Yardım mövzuları ingilis dilindədir, bir neçəsi ispan dilindədir.
+- **CadCraft Studio** yeniləmə yoxlaması niyə uğursuz olduğunu deyir (sistemin üçün hələ fayl yoxdur, şəbəkə yoxdur, səhv imza), sadəcə "Hazırdır" əvəzinə; və bağladığınız Yeniliklər kartını yenə də yeni buraxılış çıxana qədər geri gətirmir.
+
+## Bu versiyada hələ yoxdur
+
+- **0.7 kod imzası ilə imzalanmayıb.** İmzalama və Microsoft Store paketi 0.8-ə keçirildi, çünki sertifikatın yoxlanması hələ tamamlanmayıb. Hər faylın yanındakı SHA-256-nı getcadcraft.com/download səhifəsində yoxlayın. Windows-da SmartScreen quraşdırıcını dayandırsa, {{ui:Ətraflı məlumat}} seçin, sonra {{ui:Yenə də işə sal}}. Mac-də ilk dəfə CadCraft Studio-ya sağ klik edib {{ui:Aç}} seçin. CadCraft Studio hələ tətbiq mağazasında deyil və hələ iPad və ya iPhone versiyası yoxdur.
+- {{ui:Vahidlər}} daxilindəki bucaq və meyl siyahıları saxlanılır, lakin hələ heç bir qutu onları oxumur.
+- İstehsalçıların suvarma başlıqları: yalnız ümumi başlıqlar və faylınızdan öz başlıqlarınız. İstehsalçı məlumatları onların icazəsi ilə gəlir, hələ heç kim icazə verməyib.
+- BimCraft və ModelCraft bitki siyahısını daşıyır, lakin onların Kitabxanadan yerləşdir funksiyası hələ bitkiləri təklif etmir. Bitkilər BimCraft-a abadlaşdırma IFC vasitəsilə çatır.
+- Köməkçilər üçün abadlaşdırma alətləri CivilCraft pəncərəsi açıq olduqda işləyir; fayl serveri və əmr sətirində hələ yoxdur.
+- Tikinti kütlələri: fasad işığı və külək yoxdur, kütlə kimi çəkilməyən ağacların və ya əşyaların kölgəsi yoxdur, dam forması yoxdur, günəş saatları 3D görünüşündə yox, planda göstərilir. BimCraft-da işlət sadə divarlar və döşəmə qurur, açıqlıqlar və damsız.
+- Elektrik xətləri: heç bir ölkənin standartı daxili deyil (yük hallarını, limitləri və təmizlikləri siz təyin edirsiniz); keçiricilərin sürünməsi, basdırılmış kabellərin istilik dərəcəsi, qısa qapanma, mühafizə və torpaqlama tədqiqatları yoxdur; 3D görünüşündə və IFC-də xətt yoxdur. `.DON` tədqiqat faylı onu oxuyan proqramla hələ test olunmayıb.
+- Klotoiddən başqa spirallar, iki əyri arasında spiral və xüsusiyyət xətlərində spirallar. Spirallar düsturlara və LandXML sxeminə görə yoxlanılıb, lakin başqa proqramdan spirallı LandXML faylı ilə hələ yoxlanılmayıb.
+- Korridor qurğuları yol boyunca dəyişən, bölgələr və yamacın hədəfləri.
+- Su magistralları və təzyiqli şəbəkələr (növbəti inşaat işi), zamanla dəyişən axınlar və su ilə yağış şəbəkələri arasında əlaqələr.
+- Çəkilmiş sındırma xətlərində qövslər. Standart dizayn nəqliyyat cədvəlləri: göndərilən beş nəqliyyat vasitəsi yer tutucu kimi işarələnib. Xüsusiyyət xətləri layihələr arasında paylaşılması komanda layihələri üçün gözləyir.
+
+Qalan hər şey [Hələ qurulmayıb](topic:not-built-yet) səhifəsindədir.

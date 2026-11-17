@@ -27,7 +27,7 @@ const pts = []; for (let x = -20, n = 1; x <= 80; x += 5) for (let y = -20; y <=
 p.setPoints(pts, 'slope.csv');
 let changes = 0;
 const defs = AG.geoTools({ project: () => p, changed: () => { changes++; } }), tools = Object.fromEntries(defs.map((d) => [d.name, d]));
-ok(defs.length === 16, 'sixteen tools: ' + Object.keys(tools).join(', '));
+ok(defs.length === 17, 'seventeen tools: ' + Object.keys(tools).join(', '));
 for (const d of defs) { const c = CT.checkTool(d, { app: 'civilcraft' }); ok(c.errors.length === 0, d.name + ' passes the contract: ' + c.errors.join('; ')); ok(d.group === 'read' || d.rollbackPreview, d.name + ' has a preview when it edits'); }
 
 // save → ids → one undo step each
@@ -83,5 +83,18 @@ const cr = tools.collector_read.run({ text: rf, angle: 'deg', adjust: true }); o
   const li4 = tools.link_run.run({ link: lk4 }); ok(li4.towerLegs.compressionKN > 0 && li4.towerLegs.useOfCapacity > 1 && li4.towerLegs.eulerLoadKN > 0, 'tower legs by statics against the given capacity'); ok(li4.findings.includes('tel.leg.over'), 'the leg check speaks Problems');
   const cv = await save('covers', { name: 'cover', tx: { x: 0, y: 0, h: 30 }, f: 2, pt: 30, gt: 10, sensitivity: -90, range: 2000, step: 200 });
   const cr = tools.coverage_run.run({ cover: cv }); ok(cr.coveredShare === 1 || cr.coveredShare === 0, 'coverage runs (' + cr.coveredShare + ', no ground = nothing known)'); ok(cr.findings.includes('tel.cover.noground') || cr.coveredShare > 0, 'no ground: said');
+}
+{   // CV.1 2026-11-12: the railway line report
+  const RL = await mod('rail.js');
+  p.change('rail line', (s) => { s.alignments.push({ id: 'ar1', name: 'Down main', start: 0, pis: [{ x: 0, y: 0, r: 0 }, { x: 600, y: 0, r: 500, ls: 80, cant: 100 }, { x: 1000, y: 400, r: 0 }], pvis: [{ sta: 0, z: 100, L: 0 }, { sta: 300, z: 106, L: 40 }, { sta: 1100, z: 106, L: 0 }], design: { speed: 120, unit: 'km/h' }, sampling: null, rail: RL.cleanRail({ on: true, clearance: { on: true } }, 'm') }, { id: 'ar2', name: 'Road', start: 0, pis: [{ x: 0, y: 50, r: 0 }, { x: 100, y: 50, r: 0 }], pvis: [], sampling: null }); });
+  const tu = await save('turnouts', { name: 'T1', n: 9, gauge: 1.435, side: 'L', alignment: 'ar1', station: 100 });
+  const rr = tools.rail_line.run({ alignment: 'ar1' });
+  ok(rr.warnings.some((w) => w.code === 'rail.vert.grade' && w.value === 20 && w.limit === 12.5) && rr.steepestGradientMmPerM === 20, 'rail_line: the 20 mm/m grade against its limit');
+  ok(rr.verticalCurves.length === 1 && rr.verticalCurves[0].radius === 2000 && rr.verticalCurves[0].radiusNeeded === 5040, 'rail_line: vertical curve radius 2000, needed 5040');
+  ok(rr.turnouts.length === 1 && rr.turnouts[0].id === tu && rr.turnouts[0].switchToeStation === 100 && rr.turnouts[0].leadLength > 10 && rr.turnouts[0].divergingSpeedKmh > 10, 'rail_line: the turnout placed, with lead and speed');
+  ok(rr.clearance.stations > 50 && rr.clearance.widest > 3.4 && Array.isArray(rr.clearance.inside), 'rail_line: the clearance envelope swept');
+  ok(/placeholder/i.test(rr.placeholders), 'rail_line says the limits are placeholders');
+  await rejects(() => tools.rail_line.run({ alignment: 'ar2' }), 'failed', 'rail_line on a road alignment');
+  await rejects(() => tools.rail_line.run({ alignment: 'nope' }), 'not_found', 'rail_line on an unknown id');
 }
 console.log(`geoagent: ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

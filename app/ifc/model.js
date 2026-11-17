@@ -186,6 +186,29 @@ export class IfcFile {
     return m;
   }
 
+  /**
+   * 0.10 PERF.37: inverse() in slices that give the page back (`yieldFn` is async, called about every `sliceMs`), so the index is built after the
+   * model is open and the first property lookup finds it. Same map as inverse(); when the file was edited meanwhile the result is not stored.
+   */
+  async inverseAsync(up, attrName, { inherited = true, yieldFn = null, sliceMs = 10 } = {}) {
+    const key = up + '.' + attrName + (inherited ? '+' : '');
+    if (this.inv && this.invVersion === this.version && this.inv.has(key)) return this.inv.get(key);
+    const v0 = this.version, now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const m = new Map();
+    let t0 = now(), n = 0;
+    for (const id of this.ofType(up, inherited)) {
+      const v = this.attr(id, attrName);
+      const add = (x) => { if (x && x.ref !== undefined) { let a = m.get(x.ref); if (!a) m.set(x.ref, (a = [])); a.push(id); } };
+      if (Array.isArray(v)) v.forEach(add); else add(v);
+      if (yieldFn && (++n & 63) === 0 && now() - t0 >= sliceMs) { await yieldFn(); t0 = now(); }
+    }
+    if (this.version !== v0) return this.inverse(up, attrName, inherited);   // edited while it was built: the cheap, current answer
+    this.inv = this.inv && this.invVersion === this.version ? this.inv : new Map();
+    this.invVersion = this.version;
+    if (!this.inv.has(key)) this.inv.set(key, m);
+    return this.inv.get(key);
+  }
+
   // ---- writing ----
 
   set(id, type, params) {

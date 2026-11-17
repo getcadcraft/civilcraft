@@ -91,15 +91,19 @@ export function setLibraryPacks(list) {
 export function setRegions(codes) { state.regions = Array.isArray(codes) ? [...new Set(codes.filter((c) => /^[A-Z]{2}$/.test(String(c))))] : null; apply(); }
 export const regions = () => (state.regions ? state.regions.slice() : null);
 
-export function setAppliesFilter(kinds) { appliesFilter = Array.isArray(kinds) && kinds.length ? new Set(kinds) : null; return apply(); }
-const relevant = (id) => { if (!appliesFilter) return true; const pr = resolve(all(), id); return !!pr && pr.list().some((r) => appliesFilter.has(r.applies)); };
+let withSections = false;
+/** `sections`: the app also lists a pack that holds only local requirements (an approval process, a submission list, drawing conventions,
+ *  standard notes: BK.67/156/157), so a person can tick it, though it has no rule the app checks. BimCraft (permit package, sheets) does. */
+export function setAppliesFilter(kinds, { sections = false } = {}) { appliesFilter = Array.isArray(kinds) && kinds.length ? new Set(kinds) : null; withSections = !!sections; return apply(); }
+const relevant = (id) => { if (!appliesFilter) return true; const pr = resolve(all(), id); return !!pr && (pr.list().some((r) => appliesFilter.has(r.applies)) || (withSections && Object.keys(pr.sections || {}).length > 0)); };
 const shownCountry = (c) => state.regions === null || state.regions.includes(c);
 const info = (p, from) => ({ id: p.id, name: p.name, edition: p.edition, review: p.review, authority: p.authority || null, in_force: p.in_force || null, jurisdiction: p.jurisdiction, source: p.source, price: p.price,
   maker: p.maker, base: p.base, own: from === 'own', from, version: state.libMeta.get(p.id)?.version ?? null, uuid: state.libMeta.get(p.id)?.uuid ?? '' });
 
-export function listPacks({ all: every = false } = {}) {
+/** `local`: every pack whatever the app's rule kinds (a pack with only a process, a submission list or notes has no rules the app checks, BK.67/156/157). */
+export function listPacks({ all: every = false, local = false } = {}) {
   const out = [], seen = new Set();
-  const push = (p, from) => { if (seen.has(p.id)) return; seen.add(p.id); if (from === 'own' || ((every || shownCountry(p.jurisdiction.country)) && relevant(p.id))) out.push(info(p, from)); };
+  const push = (p, from) => { if (seen.has(p.id)) return; seen.add(p.id); if (from === 'own' || ((every || shownCountry(p.jurisdiction.country)) && (local || relevant(p.id)))) out.push(info(p, from)); };
   for (const id of state.order) push(state.library.get(id) || state.bundled.get(id), state.library.has(id) ? 'library' : 'bundled');
   for (const p of state.library.values()) push(p, 'library');
   for (const p of state.own.values()) push(p, 'own');

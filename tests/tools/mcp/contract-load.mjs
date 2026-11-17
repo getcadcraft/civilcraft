@@ -19,6 +19,11 @@ globalThis.localStorage ??= deep();
 export async function loadTools(app) {
   const dev = path.join(ROOT, app, 'dev');
   const manifest = JSON.parse(fs.readFileSync(path.join(dev, 'manifest.json'), 'utf8'));
+  if (app === 'supercadcraft') {   // 0.10 BK.59: Super's tools come from super-agents.js with a stand-in window (it carries no host.js of its own)
+    const core = await import(pathToFileURL(path.join(REPO, 'tools/mcp/core.mjs')).href);
+    const { superTools } = await import(pathToFileURL(path.join(dev, 'super-agents.js')).href);
+    return superTools({ ToolError: core.ToolError }, { doc: false });
+  }
   registerHooks({ resolve(spec, ctx, next) { const m = manifest.imports?.[spec]; return m ? { url: pathToFileURL(path.join(REPO, 'public_html', m)).href, shortCircuit: true } : next(spec, ctx); } });
   const mod = (f) => import(pathToFileURL(path.join(dev, f)).href);
   const host = await mod('host.js');
@@ -53,6 +58,12 @@ export async function loadTools(app) {
   const grab = { tool: (d) => { seen.push(d); return () => {}; } };
   if (manifest['ai-suggest']) (await shell('ai-suggest.js')).registerTools(grab, stub);
   if (manifest['ai-ask']) (await shell('ai-ask.js')).registerTools(grab, stub);
+  if (manifest['ai-ask']) {   // bk-r3-assistant-10: what app-ai-assist.js registers beside the Ask box (history, the step card, the problem report, the knowledge pack)
+    take((await shell('ai-history.js')).historyTools({ history: stub })); take((await shell('ai-history.js')).reportTools({ open: stub }));
+    take((await shell('ai-teach.js')).guideTools({ guide: stub }));
+    take((await shell('knowledge-pack.js')).knowledgeTools({ pack: stub, read: stub, app }));
+  }
+  if (manifest.docinfo) take((await shell('docinfo.js')).docinfoTools({ info: stub, read: stub }));   // docinfo_get / docinfo_set / signoff_status / stage_get (DI.1, BK.168, BK.144)
   if (manifest['ai-ask'] || manifest['ai-suggest']) (await shell('ai-standards.js')).registerTools(grab, { get: () => null, app });
   const names = new Set();
   return seen.filter((d) => d && d.name && !names.has(d.name) && names.add(d.name));

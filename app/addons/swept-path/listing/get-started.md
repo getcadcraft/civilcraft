@@ -1,0 +1,3 @@
+- Switch the add-on on in Settings, Add-ons, then open the Swept path tab. Draw the path as a line (or use an alignment), and any kerbs or buildings as lines or parcels.
+- Pick a vehicle, pick the path, press Run. Drag the slider to watch the vehicle move along it.
+- Under Clearance tick what the vehicle must not touch, set a margin, press Check the run. Press Draw into the project to keep the envelope.

@@ -33,6 +33,7 @@ const CAD = /\.(dwg|dxf)$/i;
 const MAX_BYTES = 200 * 1024 * 1024;
 const CONTOUR = /TOPO|CONT|CNTR|CTR|CONTOUR/i;
 const UNIT_CHOICES = [['', null], ['ft', 2], ['ft-us', 21], ['m', 6], ['mm', 4], ['cm', 5], ['in', 1]];
+const SAID_CODE = { ft: 2, usft: 21, m: 6, mm: 4, cm: 5, in: 1 };   // 0.10 BK.8: the shell's unit ids (lib/units/unit-table.js) → $INSUNITS
 // likely attribute tags of survey point blocks (upper case), for the first choice of each select
 const TAG_GUESS = { num: /^(PT|PNT|POINT|PT_?NO|PNT_?NO|POINT_?(NO|NUM|NUMBER)|NO|NUM|NUMBER|ID)$/, desc: /^(DESC|DESCRIPTION|CODE|DESCR|RAW_?DESC|FULL_?DESC|NAME)$/, z: /^(ELEV|ELEVATION|EL|Z|HEIGHT|ELV|LEVEL|RL)$/ };
 
@@ -77,7 +78,15 @@ export async function install(host) {
     for (const f of files) {
       const model = await readModel(f);
       if (!model) return;
-      await chooseDialog(f.name, model);
+      // 0.10 BK.8 (units on import): a drawing that states no units is asked about before its choices are shown (the shell's one dialog,
+      // remembered per file); it was read in project units, with a note. The Drawing units list in the dialog still changes it.
+      let said = null;
+      if (!(model.header?.INSUNITS > 0) && globalThis.ccImportUnits) {
+        const a = await globalThis.ccImportUnits.resolve({ file: f, format: /\.dxf$/i.test(f.name) ? 'DXF' : 'DWG', stated: null, choices: Object.keys(SAID_CODE), suggest: P().state.units === 'm' ? 'm' : 'ft', say: (s) => host.say(s) });
+        if (!a) continue;
+        said = SAID_CODE[a.unit];
+      }
+      await chooseDialog(f.name, model, said);
     }
   }
 
@@ -94,13 +103,14 @@ export async function install(host) {
     return { dlg, foot };
   }
 
-  function chooseDialog(file, model) {
+  function chooseDialog(file, model, saidCode = null) {
     return new Promise((done) => {
       const projectUnit = P().state.units === 'm' ? 'm' : 'ft';
-      let unitCode = null;   // null = what the file says
-      let flOn = true, fls = cadFeatureLines(model, { projectUnit });   // 0.6 WL.24
-      let r = cadLinework(model, { file, projectUnit, skipFeatureLines: fls.length > 0 });
-      let br = blockRefs(model, { projectUnit, scale: r.scale });
+      let unitCode = saidCode;   // null = what the file says; a code = what the person answered for a file that says nothing (BK.8)
+      const m0 = saidCode === null ? model : { ...model, header: { ...model.header, INSUNITS: saidCode } };
+      let flOn = true, fls = cadFeatureLines(m0, { projectUnit });   // 0.6 WL.24
+      let r = cadLinework(m0, { file, projectUnit, skipFeatureLines: fls.length > 0 });
+      let br = blockRefs(m0, { projectUnit, scale: r.scale });
       if (!r.layers.length && !br.refs.length && !fls.length) { host.say([t('cad.ui.nothing', { file }), ...r.notes].join(' ')); done(null); return; }
       const pick = new Set(r.cadLayers.filter((l) => l.on).map((l) => l.name));
       const use = new Map();   // cad layer name + geom → choice index (into useChoices of that layer)
@@ -258,6 +268,7 @@ export async function install(host) {
         bWhat.textContent = nPts ? t('cad.blk.what', { n: nPts }) : t('cad.blk.what.none');
         go.disabled = !ls.length && !nPts && !nFl && !(svBox.checked && lv.points.length);
       }
+      if (saidCode !== null) unitSel.value = String(saidCode);
       unitSel.onchange = () => { unitCode = unitSel.value === '' ? null : Number(unitSel.value); rebuild(); };
 
       const { dlg, foot } = dialog(t('cad.ui.title', { file }), [

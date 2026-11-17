@@ -239,7 +239,7 @@ export function cylinder(F, r) {
 export function cone(F, R, semi) {
   const k = Math.tan(semi);
   const rad = (v) => R + v * k;
-  return { kind: 'cone', F, at: (u, v) => { const r = rad(v); return world(F, r * Math.cos(u), r * Math.sin(u), v); },
+  return { kind: 'cone', F, R, k, at: (u, v) => { const r = rad(v); return world(F, r * Math.cos(u), r * Math.sin(u), v); },
     project: (q) => {
       const l = local(F, q);
       let a = Math.atan2(l[1], l[0]); if (a < 0) a += TAU;
@@ -257,7 +257,7 @@ export function sphere(F, r) {
     singular: (q) => { const l = local(F, q); return Math.hypot(l[0], l[1]) < 1e-9 * r ? 'u' : null; } };
 }
 export function torus(F, R, r) {
-  return { kind: 'torus', F, at: (u, v) => { const c = R + r * Math.cos(v); return world(F, c * Math.cos(u), c * Math.sin(u), r * Math.sin(v)); },
+  return { kind: 'torus', F, R, r, at: (u, v) => { const c = R + r * Math.cos(v); return world(F, c * Math.cos(u), c * Math.sin(u), r * Math.sin(v)); },
     project: (q) => {
       const l = local(F, q);
       let a = Math.atan2(l[1], l[0]); if (a < 0) a += TAU;

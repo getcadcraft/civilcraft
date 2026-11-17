@@ -82,6 +82,10 @@ $__more = [
         ['corridor-templates', Lang::t('tpl.tb'), Lang::t('tpl.tb.title'), '', 'menuitem'],   // 0.9 SU.1110: corridor templates (templates-ui.js)
         ['terrain-templates', Lang::t('tpl.tb.tt'), Lang::t('tpl.tb.tt.title'), '', 'menuitem'],   // 0.9 WB.6: terrain templates (templates-ui.js)
         ['water', Lang::t('wm.tb'), Lang::t('wm.tb.title'), '', 'menuitem'],   // 0.8 LC.16: water mains (water-ui.js)
+        ['issues', Lang::t('iss.tb'), Lang::t('iss.tb.title'), '', 'menuitem'],   // 0.10 CV.1: issues and BCF (issues-ui.js)
+        ['utilities', Lang::t('un.tb'), Lang::t('un.tb.title'), '', 'menuitem'],   // 0.10 SU.1810: utility networks (utilnet-ui.js)
+        ['parking', Lang::t('pk.tb'), Lang::t('pk.tb.title'), '', 'menuitem'],   // 0.10 SU.1815: parking lots (parking-ui.js)
+        ['fences', Lang::t('fc.tb'), Lang::t('fc.tb.title'), '', 'menuitem'],   // 0.10 SU.1814b: fences (fence-ui.js)
         ['eg-rain', Lang::t('eg.tb.rain'), Lang::t('eg.tb.rain.title'), '', 'menuitem'],   // 0.8 round 2 (EG.69 Make it rain; eg-ui.js)
         ['eg-earthwork', Lang::t('eg.tb.earthwork'), Lang::t('eg.tb.earthwork.title'), '', 'menuitem'],   // 0.8 round 2 (EG.70 earthwork balancer; eg-ui.js)
         ['eg-route', Lang::t('eg.tb.route'), Lang::t('eg.tb.route.title'), '', 'menuitem'],   // 0.8 round 2 (EG.71 best route; eg-ui.js)
@@ -201,6 +205,10 @@ $__more = [
         <div class="cv-row"><input type="number" id="cv-gridstep" class="cv-input" min="0" step="any" data-grid-step><span class="cv-unit" data-unit></span></div>
         <label for="cv-gridpower"><?= Lang::e('ui.grid.power') ?></label>
         <div class="cv-row"><input type="number" id="cv-gridpower" class="cv-input" min="1" max="10" step="any" data-grid-power></div>
+        <label for="cv-gridq"><?= Lang::e('ui.grid.q') ?></label>
+        <div class="cv-row"><input type="number" id="cv-gridq" class="cv-input" min="0.01" max="100" step="any" data-grid-q></div>
+        <label for="cv-gridacc"><?= Lang::e('ui.grid.acc') ?></label>
+        <div class="cv-row"><input type="number" id="cv-gridacc" class="cv-input" min="0" max="100" step="any" data-grid-acc></div>
       </div>
       <p class="cv-note"><?= Lang::e('ui.grid.note') ?></p>
       <div class="cv-links" data-surface-actions></div>
@@ -222,11 +230,18 @@ $__more = [
           <option value="5"><?= Lang::e('ui.display.major.5') ?></option>
           <option value="10"><?= Lang::e('ui.display.major.10') ?></option>
         </select>
+        <label for="cv-smooth"><?= Lang::e('ui.display.smooth') ?></label>
+        <select id="cv-smooth" class="cv-select" data-contour-smooth>
+          <option value="none"><?= Lang::e('ui.display.smooth.none') ?></option>
+          <option value="light"><?= Lang::e('ui.display.smooth.light') ?></option>
+          <option value="strong"><?= Lang::e('ui.display.smooth.strong') ?></option>
+        </select>
         <label for="cv-bands"><?= Lang::e('ui.display.bands') ?></label>
         <select id="cv-bands" class="cv-select" data-bandcount>
           <option value="5">5</option><option value="8">8</option><option value="10">10</option><option value="12">12</option>
         </select>
       </div>
+      <p class="cv-note"><?= Lang::e('ui.display.smooth.note') ?></p>
       <fieldset class="cv-checks" data-checks>
         <legend class="visually-hidden"><?= Lang::e('v3d.show') ?></legend>
         <label><input type="checkbox" data-show="contours"> <?= Lang::e('ui.show.contours') ?></label>
@@ -268,7 +283,8 @@ $__more = [
           <li><?= $__lx('ui.hint.3', ['alignment' => '<strong>' . Lang::e('ui.tb.alignment') . '</strong>', 'enter' => '<kbd>Enter</kbd>', 'profile' => '<strong>' . Lang::e('ui.tb.profile') . '</strong>']) ?><?php /* i18n-ignore: a key name */ ?></li>
           <li><?= $__lx('ui.hint.4', ['pad' => '<strong>' . Lang::e('ui.tb.pad') . '</strong>', 'enter' => '<kbd>Enter</kbd>']) ?><?php /* i18n-ignore: a key name */ ?></li>
         </ol>
-        <p class="cv-hint-foot"><?= Lang::e('ui.hint.foot') ?> <button type="button" class="cv-linkbtn" data-sample><?= Lang::e('ui.hint.sample') ?></button></p>
+        <p class="cv-hint-foot"><?= Lang::e('ui.hint.foot') ?></p>
+        <p class="cv-hint-foot d-flex flex-wrap gap-2"><button type="button" class="btn-line btn-sm-cc" data-sample><i class="bi bi-lightning-charge" aria-hidden="true"></i> <?= Lang::e('ui.hint.sample') ?></button></p>
         <p class="cv-hint-foot"><?= Lang::e('ui.hint.paper') ?> <button type="button" class="cv-linkbtn" data-cmd="scan-start"><?= Lang::e('ui.hint.scan') ?></button></p>
         <?php /* recent files (host.js 1.4): the shell fills it with files it can reopen; empty = hidden */ ?>
         <div data-recent-files data-max="5"></div>
@@ -284,6 +300,8 @@ $__more = [
         <label class="visually-hidden" for="cv-prof-al"><?= Lang::e('sec.alignment') ?></label>
         <select id="cv-prof-al" class="cv-select cv-prof-al" data-prof-al></select>
         <button type="button" class="cv-toggle" data-pvi-add aria-pressed="false" title="<?= Lang::e('ui.pvi.add.title') ?>"><?= Lang::e('ui.pvi.add') ?></button>
+        <?php /* CV.3 (#1534): snap while adding and dragging PVIs (Alt = free) — civilcraft.js profSnapOn */ ?>
+        <button type="button" class="cv-toggle" data-prof-snap aria-pressed="true" title="<?= Lang::e('ui.prof.snap.title') ?>"><?= Lang::e('ui.prof.snap') ?></button>
         <?php /* 0.5 WL.20: feature lines in the profile (crossings; alongside within a distance) — civilcraft.js renderProfile */ ?>
         <button type="button" class="cv-toggle" data-prof-fl aria-pressed="true" title="<?= Lang::e('ui.prof.fl.title') ?>"><?= Lang::e('ui.prof.fl') ?></button>
         <label class="cv-prof-within" title="<?= Lang::e('ui.prof.fl.within.title') ?>"><?= Lang::e('ui.prof.fl.within') ?> <input type="text" inputmode="decimal" class="cv-input" data-prof-fl-within placeholder="0"></label>
@@ -308,6 +326,14 @@ $__more = [
           <option value="0"><?= Lang::e('sec.ve.fit') ?></option>
           <?php /* i18n-ignore: factors */ ?><option value="1">1×</option><option value="2">2×</option><option value="5">5×</option><option value="10">10×</option>
         </select>
+        <?php /* CV.3 (#1534): what the volumes are measured to, measuring, fit the view — sections-ui.js */ ?>
+        <label class="visually-hidden" for="cv-sec-basis"><?= Lang::e('sec.basis.label') ?></label>
+        <select id="cv-sec-basis" class="cv-select cv-sec-basis" data-sec-basis title="<?= Lang::e('sec.basis.title') ?>">
+          <option value="bottom"><?= Lang::e('sec.basis.bottom') ?></option>
+          <option value="top"><?= Lang::e('sec.basis.top') ?></option>
+        </select>
+        <button type="button" class="cv-toggle" data-sec-measure aria-pressed="false" title="<?= Lang::e('sec.measure.title') ?>"><?= Lang::e('sec.measure') ?></button>
+        <button type="button" class="btn-line btn-sm-cc" data-sec-fit title="<?= Lang::e('sec.fit.title') ?>"><?= Lang::e('sec.fit') ?></button>
         <button type="button" class="btn-line btn-sm-cc" data-sec-csv title="<?= Lang::e('sec.csv.title') ?>"><?= Lang::e('sec.csv') ?></button>
         <span class="cv-note cv-prof-read" data-sec-read></span>
         <button type="button" class="cv-x" data-sec-close aria-label="<?= Lang::e('sec.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>

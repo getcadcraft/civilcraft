@@ -18,6 +18,13 @@
  *   doc.rename('Plans (2).pdf');
  *   await autosave.offer({ onRecover: async (rec) => { … open rec.data, rec.meta … } });   // at start: "Recover your work?"
  *
+ * Journal mode (0.10 PERF.24, writes what changed): `autosave.doc({ name, journal })` with journal = { base(), delta() } in place of
+ * snapshot(). base() → {data, meta?, size?, commit?} is the whole document, written once and again when the changes written
+ * since add up to more than half of it; delta() → null (nothing changed) or {data, meta?, size?, commit?} is only what changed
+ * since the last write. journal.epoch() (optional) names the baseline the changes continue: when it differs from the last write's, a new base is written. commit() is called after the write reached storage (a failed write leaves the changes for the next try).
+ * `load(rec)` then gives {data: base, segments: [delta…]} (lib/history/journal.js `recoverState` folds them). Copies of a
+ * journal are listed under the record app `<app>~j`, so a build without journal mode never offers a base without its changes.
+ *
  * snapshot() returns {data, meta?} (or null = nothing to keep yet). `data` is anything IndexedDB can store: a Blob, an
  * ArrayBuffer/typed array, a string or plain JSON-like objects — the app's own format, whatever it reopens fastest. `meta`
  * is small plain data the app wants back (file name, format, view…). Each app decides what a document is (MarkupCraft:
@@ -243,9 +250,9 @@ export class Autosave {
   }
 
   /** A document to keep a recovery copy of. */
-  doc({ id, name = '', snapshot, meta } = {}) {
-    if (typeof snapshot !== 'function') throw new Error('Autosave.doc needs snapshot().');
-    const d = new AutosaveDoc(this, id || newId(), name, snapshot, meta);
+  doc({ id, name = '', snapshot, journal, meta } = {}) {
+    if (typeof snapshot !== 'function' && !(journal && typeof journal.base === 'function' && typeof journal.delta === 'function')) throw new Error('Autosave.doc needs snapshot() or a journal.');
+    const d = new AutosaveDoc(this, id || newId(), name, snapshot, meta, journal);
     this.docs.set(d.id, d);
     return d;
   }
@@ -260,14 +267,14 @@ export class Autosave {
    * copies older than keepDays and beyond keepPerApp, and heartbeats of stopped sessions.
    */
   async orphans() {
-    const all = await this.store.index(this.app);
+    const all = await this.records();
     const live = await liveSessions(this);
     const t = this.now();
     const maxAge = this.opts.keepDays * 86400000;
     const dead = all.filter((r) => !live.has(r.session)).sort((a, b) => b.savedAt - a.savedAt);
     const keep = [], drop = [];
     for (const r of dead) (t - r.savedAt > maxAge || keep.length >= this.opts.keepPerApp ? drop : keep).push(r);
-    for (const r of drop) await this.store.del(r.key).catch(() => {});
+    for (const r of drop) await delRecord(this.store, r).catch(() => {});
     if (!this.locks && !this.alive) {
       for (const b of await this.store.beats(this.app).catch(() => [])) if (!live.has(b.session)) await this.store.delBeat(this.app, b.session).catch(() => {});
     }
@@ -277,15 +284,31 @@ export class Autosave {
   /** One copy with its data (null when it is gone — another tab recovered or discarded it). */
   async load(rec) {
     const key = typeof rec === 'string' ? rec : rec.key;
-    const idx = (await this.store.index(this.app)).find((r) => r.key === key);
+    const idx = (await this.records()).find((r) => r.key === key);
     if (!idx) return null;
-    const data = await this.store.getData(key);
+    const data = await this.store.getData(dataKey(idx));
     if (data === undefined) return null;
-    return { ...publicRec(idx), data };
+    const out = { ...publicRec(idx), data };
+    if (idx.journal) {
+      out.segments = [];
+      for (let i = 0; i < (idx.segs || 0); i++) {
+        const seg = await this.store.getData(segKey(idx, i));
+        if (seg === undefined) break;   // a missing change ends the copy at the last whole state before it
+        out.segments.push(seg);
+      }
+    }
+    return out;
   }
 
+  /** The copies of this app: plain ones and journals (record app `<app>~j`). */
+  async records() { return [...await this.store.index(this.app), ...await this.store.index(this.app + JOURNAL_SUFFIX)]; }
+
   /** Remove a copy (recovered, or discarded by the user). */
-  async discard(rec) { await this.store.del(typeof rec === 'string' ? rec : rec.key); }
+  async discard(rec) {
+    const key = typeof rec === 'string' ? rec : rec.key;
+    const idx = (await this.records()).find((r) => r.key === key);
+    if (idx) await delRecord(this.store, idx); else await this.store.del(key);
+  }
 
   /** Say once per kind of problem (shell message line), and tell the app. */
   warn(code, error, doc) {
@@ -318,13 +341,31 @@ export class Autosave {
   }
 }
 
+const JOURNAL_SUFFIX = '~j';
+const JOURNAL_RATIO = 0.5, JOURNAL_MIN = 262144, JOURNAL_MAX_SEGS = 400;   // rewrite the base when the changes written pass half of it (≥ 256 KB), or at 400 changes
+/** Where a record's data lives: a journal's base has a generation, so a new base never mixes with the old changes. */
+const dataKey = (r) => (r.journal ? r.key + '@' + r.gen : r.key);
+const segKey = (r, i) => dataKey(r) + '#' + i;
+/** A journal's base and changes (not its index entry): the extra two cover a change written just before a crash. */
+async function delRecordData(store, r) {
+  for (let i = 0; i < (r.segs || 0) + 2; i++) await store.del(segKey(r, i)).catch(() => {});
+  await store.del(dataKey(r)).catch(() => {});
+}
+async function delRecord(store, r) {
+  await store.del(r.key);   // the index entry first: a copy is gone the moment it is not listed
+  if (r.journal) await delRecordData(store, r);
+}
+
 function publicRec(r) {
-  return { key: r.key, app: r.app, session: r.session, doc: r.doc, name: r.name, savedAt: r.savedAt, size: r.size, meta: r.meta === undefined ? null : r.meta, format: r.format };
+  return { key: r.key, app: r.journal ? r.app.slice(0, -JOURNAL_SUFFIX.length) : r.app, session: r.session, doc: r.doc, name: r.name, savedAt: r.savedAt, size: r.size, meta: r.meta === undefined ? null : r.meta, format: r.format };
 }
 
 export class AutosaveDoc {
-  constructor(owner, id, name, snapshot, meta) {
+  constructor(owner, id, name, snapshot, meta, journal = null) {
     this.owner = owner;
+    this.journal = journal;
+    this.base = null;      // journal: {segs, baseBytes, segBytes} once a base is written
+    this.rec = null;       // journal: the index record now
     this.id = String(id);
     this.name = String(name || '');
     this.snapshot = snapshot;
@@ -367,6 +408,15 @@ export class AutosaveDoc {
     this.saving = (async () => {
       let ok = false;
       try {
+        if (this.journal) {
+          const wrote = await this.writeJournal(gen);
+          if (wrote === null) { if (rev === this.rev) { this.dirty = false; this.firstDirty = null; } return false; }
+          this.savedAt = wrote.savedAt;
+          if (rev === this.rev) { this.dirty = false; this.firstDirty = null; }
+          ok = true;
+          if (o.onSaved) { try { o.onSaved({ doc: this, size: wrote.size, savedAt: wrote.savedAt }); } catch { /* the app's handler */ } }
+          return true;
+        }
         const snap = await this.snapshot();
         if (!snap || snap.data === undefined) { if (rev === this.rev) { this.dirty = false; this.firstDirty = null; } return false; }
         if (gen !== this.gen || this.closed) return false;
@@ -396,6 +446,45 @@ export class AutosaveDoc {
     return this.saving;
   }
 
+  /**
+   * Journal mode: write one change (or, the first time and when the changes pile up, the whole base). → null when there was
+   * nothing to write (or the doc was cleaned meanwhile), else {size, savedAt}. A new base goes to a new generation key and the
+   * index entry moves to it last, so a crash at any point leaves the previous base with its changes whole.
+   */
+  async writeJournal(gen) {
+    const o = this.owner, st = o.store, j = this.journal, b = this.base;
+    const epochOf = () => (typeof j.epoch === 'function' ? j.epoch() : null);   // another document (or a new baseline) since the last write: start a new base
+    let full = !b || b.epoch !== epochOf() || b.segs >= JOURNAL_MAX_SEGS || b.segBytes > Math.max(JOURNAL_MIN, b.baseBytes * JOURNAL_RATIO);
+    let snap = full ? await j.base() : await j.delta();
+    // a journal that builds its document on demand starts its baseline inside base() / delta(): the epoch is read after, and a delta taken
+    // across a new baseline is not a change to what was written, so a base is taken instead
+    if (!full && epochOf() !== b.epoch) { full = true; snap = await j.base(); }
+    const epoch = epochOf();
+    if (!snap || snap.data === undefined) return null;
+    if (gen !== this.gen || this.closed) return null;
+    const savedAt = o.now();
+    const size = typeof snap.size === 'number' ? snap.size : sizeOf(snap.data);
+    const meta = snap.meta === undefined ? (this.meta === undefined ? null : this.meta) : snap.meta;
+    if (full) {
+      const old = this.rec;
+      const next = { key: this.key, format: FORMAT + 1, app: o.app + JOURNAL_SUFFIX, session: o.session, doc: this.id, name: this.name, savedAt, size, meta, journal: true, gen: newId().slice(0, 8), segs: 0 };
+      await st.putData(dataKey(next), snap.data);
+      await st.putIndex(next);
+      this.rec = next;
+      this.base = { segs: 0, baseBytes: size, segBytes: 0, epoch };
+      if (old) await delRecordData(st, old);
+    } else {
+      const next = { ...this.rec, savedAt, size: b.baseBytes + b.segBytes + size, meta, name: this.name, segs: this.rec.segs + 1 };
+      await st.putData(segKey(this.rec, this.rec.segs), snap.data);
+      await st.putIndex(next);
+      this.rec = next;
+      b.segs++; b.segBytes += size;
+    }
+    if (gen !== this.gen || this.closed) { await delRecord(st, this.rec).catch(() => {}); this.rec = null; this.base = null; return null; }   // cleaned meanwhile
+    if (typeof snap.commit === 'function') snap.commit();
+    return { size, savedAt };
+  }
+
   /** The document matches a file again (saved, or reverted): drop the copy. The doc stays tracked. */
   clean() {
     this.cancel();
@@ -403,6 +492,11 @@ export class AutosaveDoc {
     this.firstDirty = null;
     this.gen++;
     this.savedAt = null;
+    if (this.journal) {
+      const rec = this.rec;
+      this.rec = null; this.base = null;
+      return (rec ? delRecord(this.owner.store, rec) : Promise.resolve()).catch(() => {});
+    }
     return this.owner.store.del(this.key).catch(() => {});
   }
 
@@ -416,7 +510,11 @@ export class AutosaveDoc {
 
   rename(name) {
     this.name = String(name || '');
-    if (this.savedAt !== null) this.owner.store.index(this.owner.app).then((all) => {
+    if (this.journal) {   // a journal's index entry is this doc's own: written from memory, never read-modify-write (a write in flight moves `segs`)
+      if (this.rec) { this.rec = { ...this.rec, name: this.name }; if (!this.saving) this.owner.store.putIndex(this.rec).catch(() => {}); }
+      return;
+    }
+    if (this.savedAt !== null) this.owner.records().then((all) => {
       const r = all.find((x) => x.key === this.key);
       if (r && !this.closed) return this.owner.store.putIndex({ ...r, name: this.name });
     }).catch(() => {});

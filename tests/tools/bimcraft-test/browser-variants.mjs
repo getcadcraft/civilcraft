@@ -59,7 +59,7 @@ try {
 
   console.log('== an item with variants in the Library panel');
   await page.click('[data-rtab="library"]');
-  await page.click('.bc-lib-src:has-text("LibraryCraft")');
+  await page.click('.bc-lib-src:text-is("Library")');
   await page.waitForSelector('.bc-lib-card', { timeout: 15000 });
   await page.click('.bc-lib-card:has-text("Mounting plate")');
   await page.waitForSelector('[data-lib-variant]', { timeout: 15000 });

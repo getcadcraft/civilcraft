@@ -151,8 +151,8 @@ export default {
   'res.style.rail': 'Railing',
   'res.err.rail': 'A railing needs at least two points.',
   'res.err.stairkind': 'That kind of stair is not one BimCraft makes.',
-  'res.err.stairwidth': 'A stair is between 500 mm and 5 m wide.',
-  'res.err.stairsize': 'Risers 100–300 mm, treads 150–600 mm.',
+  'res.err.stairwidth': 'A stair needs a width of at least 10 mm.',   // 0.10 BK.73: the usual ranges are advice now (draw-advice.js), not refusals
+  'res.err.stairsize': 'Risers and treads need at least 10 mm, and a turn that splits the flights between 0 and 1.',
   'res.err.stairshort': 'Too few steps for a turn: make it straight, or the floors farther apart.',
   // RC.9 framing
   'res.tool.framing': 'Framing',
@@ -296,7 +296,7 @@ export default {
   'res.err.terrainthere': 'The model has its ground already: delete it to start again.',
   'res.err.nosite': 'The model has no site to put the ground in.',
   'res.err.ifc4': 'The ground needs an IFC4 model (this one is IFC2x3).',
-  'res.err.padslope': 'Slopes from 1:1 to 10:1 (run to rise).',
+  'res.err.padslope': 'Slopes from 0.1:1 to 100:1 (run to rise).',   // 0.10 BK.73: 1:1 to 10:1 is advice now
   'res.err.hardscape': 'Paving needs at least three corners.',
   'res.err.hardscapeoff': 'That paving is off the ground.',
   'res.err.tinload': 'The ground is still loading: try again in a moment.',

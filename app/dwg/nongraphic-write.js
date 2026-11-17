@@ -239,9 +239,10 @@ export function extendWriter(env) {
     // records write.js makes but does not map: the attributes of a reference, the *Active viewport
     const srcEnt = new Map();
     for (const b of model.blocks || []) for (const e of b.entities || []) srcEnt.set(hexKey(e.handle), e);
-    const back = new Map([...srcMap].map(([k, v]) => [v, k]));
+    let back = null;   // new handle → source key, made when a reference with attributes needs it (a 1.3-million-entry map otherwise: PERF.5)
     for (const r of recs) {
       if ((r.t !== 'INSERT' && r.t !== 'MINSERT') || !r.attribs?.length) continue;
+      if (!back) { back = new Map(); for (const [k, v] of srcMap) back.set(v, k); }
       const e = srcEnt.get(back.get(r.h));
       const atts = (e?.attribs || []).filter((a) => a.insert && Number.isFinite(a.insert.x) && Number.isFinite(a.insert.y) && a.height > 0 && a.tag);
       if (atts.length === r.attribs.length) atts.forEach((a, i) => { if (!srcMap.has(hexKey(a.handle))) mapSrc(a.handle, r.attribs[i]); });
@@ -332,7 +333,8 @@ export function extendWriter(env) {
     for (const list of Object.values(T)) if (Array.isArray(list)) srcThings.push(...list);
     for (const b of model.blocks || []) {
       srcThings.push({ handle: b.record, extDict: (T.blockRecords || []).find((r) => hexKey(r.handle) === hexKey(b.record))?.extDict, reactors: undefined });
-      for (const e of b.entities || []) { srcThings.push(e); for (const a of e.attribs || []) srcThings.push(a); }
+      // an entity matters below only with an extension dictionary or reactors (nothing else is read from it): the rest are not listed (PERF.5)
+      for (const e of b.entities || []) { if (e.extDict || (e.reactors && e.reactors.length)) srcThings.push(e); for (const a of e.attribs || []) if (a.extDict || (a.reactors && a.reactors.length)) srcThings.push(a); }
     }
     for (const L of model.layouts || []) srcThings.push(L);
     // the table control objects are not in the model; their extension dictionaries (ACAD_LAYERSTATES …) are found by owner

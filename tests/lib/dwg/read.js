@@ -4,7 +4,8 @@
  * for .dwg files" v5.4.1: ch. 9 (header section framing), 10 (classes), 23 (object map), 20 (objects),
  * 22 (template / MEASUREMENT), plus the containers (container-read.js, r2007.js).
  *
- *   readDwg(bytes, { strict = false, raw = false }) → Model (model.js)
+ *   readDwg(bytes, { strict = false, raw = false, recover = false }) → Model (model.js)
+ *     recover (ORS.14, RECOVER): also walks the object data for objects the object map does not list, even when the map looks whole.
  *     never throws on a damaged object: it is noted in report.notes and left out (or kept as UNKNOWN);
  *     a file it cannot open at all returns a Model with report.error set (strict: throws instead).
  *     raw: also return model._records (every decoded record by handle) for tests.
@@ -97,7 +98,7 @@ export function readDwg(bytes, opts = {}) {
     ctx.mapTrouble = true;
   }
   const objs = c.sections['AcDb:AcDbObjects'];
-  if (objs && (ctx.mapTrouble || !map.size || c.recovered)) {
+  if (objs && (ctx.mapTrouble || !map.size || c.recovered || opts.recover)) {   // ORS.14: recover = always walk the objects for ones the map lost
     try {
       const added = scanObjects(objs, c.objectsAbsolute ? (c.objectsFrom || 0) : 4, objs.length, ctx, map);
       if (added) notes.push(msg('ccdwg.read.map_scanned', { n: added }));
@@ -510,9 +511,13 @@ function buildModelParts(model, records, ctx, buildErrors) {
   const bySpace = rep.countsBySpace = { model: {}, paper: {}, block: {} };
   const used = new Set();
 
+  const ownerStr = new Map();
   const convert = (rec, ownerHandle) => {
     used.add(rec.handle);
-    const e = { handle: hx(rec.handle), type: rec.type, owner: hx(ownerHandle || ownerOf(rec)) };
+    const oh = ownerHandle || ownerOf(rec);
+    let os = ownerStr.get(oh);   // one string per owner, not one per entity (158,000 faces share one block: PERF.22)
+    if (os === undefined) { os = hx(oh); ownerStr.set(oh, os); }
+    const e = { handle: hx(rec.handle), type: rec.type, owner: os };
     e.layer = layerName(rec._h.layer);
     const lf = rec._ltflags;
     e.linetype = ver < 15 ? (rec._bylayerlt ? 'ByLayer' : nameOf(rec._h.ltype) ?? hx(rec._h.ltype))

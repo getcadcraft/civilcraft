@@ -62,7 +62,8 @@ function copyClosure(src, dst, entries, { staticOnly = [] } = {}) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/mcp/package.json'), 'utf8'));
-pkg.bin = { 'cadcraft-mcp': 'mcp/server.mjs', cadcraft: 'cli/cadcraft.mjs' };
+delete pkg.private;   // the source package.json is private so nothing publishes the unpacked tools/ folder; the packed one is the publishable copy
+pkg.bin = { mcp: 'mcp/server.mjs', 'cadcraft-mcp': 'mcp/server.mjs', cadcraft: 'cli/cadcraft.mjs' };   // a bin named like the package (mcp) is what makes `npx @getcadcraft/mcp` work with several bins
 pkg.files = ['mcp/', 'cli/', 'LICENSE', 'README.md', 'THIRD_PARTY.md'];
 pkg.keywords = ['mcp', 'model-context-protocol', 'cad', 'dwg', 'dxf', 'ifc', 'takeoff', 'cli'];
 mk(OUT);
@@ -70,6 +71,20 @@ fs.writeFileSync(path.join(OUT, 'package.json'), JSON.stringify(pkg, null, 2) + 
 for (const f of ['server.mjs', 'core.mjs', 'live-server.mjs', 'bridge.mjs', 'setup.mjs', 'clients.mjs', 'contract.mjs', 'openapi.mjs', 'packs.mjs']) cp(path.join(ROOT, 'tools/mcp', f), path.join(OUT, 'mcp', f));
 // AC.5 / AC.14: the skill packs and the firm-standards reader beside the server (server.mjs finds them next to itself)
 for (const f of ['skill-packs.js', 'ai-standards.js']) cp(path.join(ROOT, 'public_html/assets/js', f), path.join(OUT, 'mcp', f));
+// BK.145 / BK.57: the model-data-only filter and the knowledge-pack reader beside the server, and the knowledge pack of this package's release
+// (mcp/knowledge/<version>/, when tools/packs/build.mjs --knowledge <x.y> has built one): server.mjs serves it and says when versions differ.
+for (const f of ['ai-model-only.js', 'knowledge-pack.js']) cp(path.join(ROOT, 'public_html/assets/js', f), path.join(OUT, 'mcp', f));
+{
+  const kdir = path.join(ROOT, 'public_html/assets/packs/knowledge');
+  const mm = pkg.version.split('.').slice(0, 2).join('.');
+  let list = []; try { list = JSON.parse(fs.readFileSync(path.join(kdir, 'index.json'), 'utf8')).versions || []; } catch { /* no pack built */ }
+  const v = list.find((x) => x.channel === 'release' && x.version.split('.').slice(0, 2).join('.') === mm);
+  if (v) {
+    const index = JSON.parse(fs.readFileSync(path.join(kdir, v.version, 'index.json'), 'utf8'));
+    for (const f of ['index.json', 'README.txt', ...index.documents.map((x) => x.path)]) cp(path.join(kdir, v.version, f), path.join(OUT, 'mcp/knowledge', v.version, f));
+    fs.writeFileSync(path.join(OUT, 'mcp/knowledge/index.json'), JSON.stringify({ format: 'cadcraft-knowledge-packs', formatVersion: 1, versions: [v] }, null, 1) + '\n');
+  }
+}
 // AC.10: the OpenAPI description of the live tools, generated from their definitions at pack time (`cadcraft-mcp openapi` prints it)
 {
   const { loadTools } = await import('./contract-load.mjs');
@@ -86,6 +101,8 @@ cp(path.join(ROOT, 'tools/cli/cadcraft.mjs'), path.join(OUT, 'cli/cadcraft.mjs')
 for (const f of fs.readdirSync(path.join(ROOT, 'tools/cli/headless'))) if (f.endsWith('.mjs')) cp(path.join(ROOT, 'tools/cli/headless', f), path.join(OUT, 'cli/headless', f));
 for (const a of APPS) copyCode(path.join(ROOT, 'public_html/assets/apps', a, 'dev'), path.join(OUT, 'cli/apps', a));
 copyClosure(path.join(ROOT, 'public_html/assets/apps/bimcraft/dev'), path.join(OUT, 'cli/apps/bimcraft'), ['agents.js', 'ifc-edit.js', 'new-model.js'], { staticOnly: ['render-tools.js'] });
+// SuperCad Studio (0.10 BK.59): the project tools (super-agents.js) and the project file reader they import
+copyClosure(path.join(ROOT, 'public_html/assets/apps/supercadcraft/dev'), path.join(OUT, 'cli/apps/supercadcraft'), ['super-agents.js', 'super-project.js']);
 // CivilCraft (0.7 AS.3): its project and assistant tools, the libraries they import by name (as its import map maps them)
 const CIVIL = path.join(ROOT, 'public_html/assets/apps/civilcraft/dev');
 copyClosure(CIVIL, path.join(OUT, 'cli/apps/civilcraft'), ['project.js', 'points.js', 'civil-agent.js', 'landscape/ls-agent.js', 'landscape/plants.js', 'powerline/pl-agent.js', 'powerline/library.js', 'water-agent.js']);
@@ -150,8 +167,8 @@ may touch. Node.js 20.19 or newer.
     npx -y @getcadcraft/mcp unsetup         # takes CadCraft out of their settings again
     npx -y @getcadcraft/mcp openapi > cadcraft-tools.openapi.json   # the same tools as an OpenAPI 3.1 description
 
-\`setup\` adds one entry, \`npx -y @getcadcraft/mcp connect\`, to the settings of Claude Desktop, Claude Code, Cursor, Windsurf,
-Visual Studio Code, Codex CLI and Gemini CLI. That entry holds no password; CadCraft Studio keeps its connection secret in a file only you
+\`setup\` adds one entry, \`npx -y @getcadcraft/mcp connect\`, to the settings of the AI apps it finds on your computer (the setup cards on
+getcadcraft.com/connect-ai list them). That entry holds no password; CadCraft Studio keeps its connection secret in a file only you
 can read, and \`connect\` reads it each time. Open CadCraft Studio, then ask your AI: "Use the CadCraft tools: list the apps you can
 reach." The tools are named by app (\`cad_…\`, \`bim_…\`, \`model_…\`, \`markup_…\`, \`takeoff_…\`, \`civil_…\`, \`detail_…\`, \`part_…\`); each app
 has its own Read / Suggest / Edit / Save / Export switches in Studio.

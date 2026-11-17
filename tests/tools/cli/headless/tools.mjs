@@ -12,6 +12,8 @@ import path from 'node:path';
 import { Roots, PathError, writeFileAtomic, listFiles } from './paths.mjs';
 import { CadSession, extOf } from './cad.mjs';
 import { load, appDir, vendorDir } from './apps.mjs';
+import { ToolError as ToolErr } from '../../mcp/core.mjs';
+import { superTools } from './super.mjs';   // 0.10 BK.59: SuperCad Studio's project tools
 
 // BimCraft's Draw edits (0.6 DF.25, session `bim-draw`): the same tool definitions as its live window (bimcraft/dev/agents.js),
 // each given a `doc` handle here. A build without them (an older package) simply lists none.
@@ -41,8 +43,9 @@ try { TAKEOFF_AGENTS = await load('takeoffcraft', 'agents.js'); } catch { TAKEOF
  */
 export const WINDOW_ONLY = {
   cadcraft: { same: {}, only: ['app_info', 'selection_get', 'selection_set', 'view_describe', 'view_screenshot', 'autocomplete_list', 'autocomplete_run', 'sketch_clean', 'details_find', 'details_list', 'details_add', 'details_place', 'sheets_plan', 'sheets_make', 'autodim_run', 'grid_list', 'grid_move', 'photo_to_drawing', 'redline_read', 'redline_list', 'redline_decide', 'redline_apply', 'redline_answers'], why: 'they work on what is on screen or need the window (diagram_from_text has its headless twin since 0.8 round 3, cad_PART_3)' },
+  supercadcraft: { same: { project_describe: 'super_project_describe', members_list: 'super_members_list', links_list: 'super_links_list', objects_list: 'super_objects_list', object_get: 'super_object_get', layers_list: 'super_layers_list', revisions_list: 'super_revisions_list', changes_list: 'super_changes_list' }, only: ['app_info', 'selection_get', 'selection_set', 'workspace_get', 'workspace_set', 'commands_find', 'command_run', 'apps_list', 'app_tool_query', 'app_tool_run'], why: 'they work on the window: its selection, its workspaces, its command catalog and the apps mounted in its panels (headless: super_open and the project tools read a .ccproject file)' },
   bimcraft: { same: { model_save: 'ifc_save' }, only: ['app_info', 'selection_get', 'selection_set', 'usd_export', 'render_still', 'render_queue', 'frame_break'], why: 'they work on what is on screen (USD is written from the 3D view\'s triangles; renders need the window\'s graphics card)' },
-  takeoffcraft: { same: { sheets_list: 'takeoff_open', items_list: 'takeoff_open', cad_sheets: 'takeoff_open' }, only: ['app_info', 'marks_add', 'usd_export', 'legend_open', 'legend_count_start', 'legend_count_status', 'legend_count_result', 'legend_count_add', 'prices_list', 'prices_apply', 'supply_check', 'carbon_check'], why: 'marks by points need the PDF page the window shows, and the 3D check model needs the open sheet (on a DWG / DXF: cad_count_add and cad_measure work here too)' },
+  takeoffcraft: { same: { sheets_list: 'takeoff_open', items_list: 'takeoff_open', cad_sheets: 'takeoff_open' }, only: ['app_info', 'marks_add', 'marks_select', 'usd_export', 'legend_open', 'legend_count_start', 'legend_count_status', 'legend_count_result', 'legend_count_add', 'prices_list', 'prices_apply', 'supply_check', 'carbon_check'], why: 'marks by points need the PDF page the window shows, and the 3D check model needs the open sheet (on a DWG / DXF: cad_count_add and cad_measure work here too)' },
   markupcraft: { same: { sheets_list: 'markups_list' }, only: ['app_info', 'markup_add', 'markup_status', 'markup_reply', 'markups_export', 'tasks_list', 'task_set', 'task_clear', 'tasks_check', 'revisions_changes', 'pins_list', 'decision_add', 'redline_answer', 'redline_export'], why: 'markups are changed and exported in the window (saving a PDF with markups headless is not built)' },
   modelcraft: { same: {}, only: '*', why: 'ModelCraft has no headless tools yet (render_still and render_queue need the window\'s graphics card)' },
   detailcraft: { same: {}, only: '*', why: 'DetailCraft has no headless tools yet' },
@@ -125,7 +128,7 @@ function keep(env, kind, session, real) {
 
 function get(env, id, kind) {
   const d = env.docs.get(id);
-  const OPENER = { cad: 'drawing_open', ifc: 'ifc_open', takeoff: 'takeoff_open', civil: 'site_open', part: 'part_open' }, WHAT = { cad: 'a drawing', ifc: 'an IFC model', takeoff: 'a takeoff', civil: 'a civil site', part: 'a part' };
+  const OPENER = { super: 'super_open', cad: 'drawing_open', ifc: 'ifc_open', takeoff: 'takeoff_open', civil: 'site_open', part: 'part_open' }, WHAT = { super: 'a Super project', cad: 'a drawing', ifc: 'an IFC model', takeoff: 'a takeoff', civil: 'a civil site', part: 'a part' };
   if (!d) throw new Error('No open file ' + id + '. Open one first (' + (OPENER[kind] || 'drawing_open') + ').');
   if (kind && d.kind !== kind) throw new Error(id + ' is ' + WHAT[d.kind] + ', not ' + WHAT[kind] + '.');
   return d;
@@ -664,6 +667,8 @@ export function headlessTools(env) {
       const s = await MarkupSession.open(bytes, real);
       return { sheets: s.sheets(), ...s.markups(a) };
     } });
+
+  for (const t of superTools(env, { ToolError: ToolErr, readFile, keep, get, S, obj })) T(t);   // 0.10 BK.59
 
   return tools;
 }

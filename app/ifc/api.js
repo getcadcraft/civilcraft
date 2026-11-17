@@ -17,6 +17,7 @@
  * Writing: CreateIfcEntity(mid, code, ...attrs) (expressID −1 until written) · CreateIfcType(mid, code, value) ·
  *   CreateIFCGloballyUniqueId · WriteLine(mid, line) (a new line gets the next free id) · DeleteLine · SaveModel → bytes
  * Geometry: StreamAllMeshes(mid, cb(mesh, index, total)) · StreamAllMeshesWithTypes(mid, codes, cb) · GetFlatMesh(mid, id)
+ *   · StreamAllMeshesAsync(mid, cb, { sliceMs, release }) · StreamAllMeshesWithTypesAsync(mid, codes, cb, opts): the same, in slices that give the page back (0.10 PERF.8)
  *   · GetGeometry(mid, geometryExpressID) → { GetVertexData, GetVertexDataSize, GetIndexData, GetIndexDataSize, delete }
  *   · GetVertexArray(data, size) / GetIndexArray(data, size) · GetCoordinationMatrix · GetWorldTransformMatrix(mid, placementId)
  *   · GetGeoReference(mid) (map conversion: CRS, eastings/northings/height, rotation, scale, model → map matrix)
@@ -52,6 +53,17 @@ class Vector {
   get(i) { return this.a[i]; }
   [Symbol.iterator]() { return this.a[Symbol.iterator](); }
   delete() {}
+}
+
+let yieldPort = null;
+/** Give the page's thread back (no 4 ms timer clamp: a message, as scheduler.yield() would do). */
+function yieldToPage() {
+  if (typeof MessageChannel === 'undefined') return new Promise((r) => setTimeout(r, 0));
+  return new Promise((resolve) => {
+    if (!yieldPort) yieldPort = new MessageChannel();
+    yieldPort.port1.onmessage = () => { yieldPort.port1.onmessage = null; resolve(); };
+    yieldPort.port2.postMessage(0);
+  });
 }
 
 const classes = new Map();
@@ -319,6 +331,51 @@ export class IfcAPI {
       if (!fm.geometries.size()) continue;
       cb(fm, i++, total);
     }
+  }
+
+  /**
+   * 0.10 PERF.8: StreamAllMeshes that gives the page back between slices of about `sliceMs`, so a big model opens without one long task
+   * (the page stays answering and a progress line can paint). Same meshes, same order, same callback as StreamAllMeshes. `release`
+   * (default on) lets the engine drop each element's meshes once the callback has copied them out (Geometry.sweep: the heap stops growing
+   * with the model). Resolves when the last element is done.
+   */
+  async StreamAllMeshesAsync(mid, cb, opts = {}) { return this.streamAsync(mid, null, cb, opts); }
+  async StreamAllMeshesWithTypesAsync(mid, codes, cb, opts = {}) {
+    return this.streamAsync(mid, [...codes].map((c) => nameOfCode(c)).filter(Boolean), cb, opts);
+  }
+
+  async streamAsync(mid, types, cb, { sliceMs = 12, release = true } = {}) {
+    const geo = this.geometry(mid);
+    const ids = geo.products(types ? { types, exclude: [] } : {});
+    this.ensureC(mid);
+    const total = ids.length, now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const was = geo.tracking;
+    if (release) geo.tracking = true;
+    try {
+      let i = 0, t0 = now();
+      for (const id of ids) {
+        const fm = this.flatMesh(mid, id);
+        if (fm.geometries.size()) cb(fm, i++, total);
+        if (release) geo.sweep();
+        if (now() - t0 >= sliceMs) { await yieldToPage(); t0 = now(); }
+      }
+    } finally { geo.tracking = was; if (release) geo.sweep(); }
+  }
+
+  /**
+   * 0.10 PERF.37: build, in slices, the relation indexes the property panel reads (property sets, type, classification, groups, spatial
+   * containment), so the first click on a big model does not pay for them (5 to 12 s at 115 and 201 MB). Safe to call at any time; a model
+   * closed meanwhile stops it. `opts.yieldFn` defaults to giving the page back through a message.
+   */
+  async PrepareInverses(mid, opts = {}) {
+    const f = this.file(mid), yieldFn = opts.yieldFn || yieldToPage;
+    for (const [up, attr] of [['IFCRELDEFINESBYPROPERTIES', 'RelatedObjects'], ['IFCRELDEFINESBYTYPE', 'RelatedObjects'], ['IFCRELASSOCIATESCLASSIFICATION', 'RelatedObjects'],
+      ['IFCRELASSIGNSTOGROUP', 'RelatedObjects'], ['IFCRELAGGREGATES', 'RelatingObject'], ['IFCRELCONTAINEDINSPATIALSTRUCTURE', 'RelatingStructure']]) {
+      if (!this.models.has(mid)) return false;
+      await yieldFn();
+      await f.inverseAsync(up, attr, { yieldFn, sliceMs: opts.sliceMs });
+    }
+    return true;
   }
 
   GetGeometry(mid, gid) {

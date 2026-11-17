@@ -45,8 +45,8 @@ test('drawing closure and re-opening retain document ownership; a new editor res
 test('a tool BimCraft lacks says so; a tool it has runs its own button, with the same live reasons', () => {
   const s = valid(), c = createCommands({ t, state: () => s, actions: {} });
   const button = { disabled: false, getAttribute: () => null }, root = { querySelector: () => button }, ctx = { root, t };
-  for (const id of ['curtain', 'modelline', 'attach', 'pin']) { const a = availability(id, c, s, ctx); assert.equal(a.enabled, false); assert.match(a.reason, /Not built in BimCraft yet/); }
-  for (const id of ['roof', 'column', 'stair', 'clash', 'takeoff']) assert.equal(availability(id, c, s, ctx).enabled, true, id);
+  for (const id of ['attach', 'pin'])   /* curtain and modelline were built 2026-11-11 (bk-tools-b-10) */ { const a = availability(id, c, s, ctx); assert.equal(a.enabled, false); assert.match(a.reason, /Not built in BimCraft yet/); }
+  for (const id of ['roof', 'column', 'stair', 'clash', 'takeoff', 'curtain', 'modelline', 'elevation', 'tile'])   /* elevation, tile: 0.10 BT.10, BT.11 */ assert.equal(availability(id, c, s, ctx).enabled, true, id);
   button.disabled = true; assert.equal(availability('roof', c, s, ctx).enabled, false);
   button.disabled = false; s.document = null; assert.match(availability('roof', c, s, ctx).reason, /Open an IFC/);
   s.document = {}; assert.equal(availability('roof', c, s, { root: { querySelector: () => null }, t }).enabled, false);

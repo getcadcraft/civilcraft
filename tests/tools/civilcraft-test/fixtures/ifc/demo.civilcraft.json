@@ -2075,7 +2075,8 @@
   "pipes": true,
   "profFeatures": true,
   "profWithin": 0,
-  "gradeOverlay": false
+  "gradeOverlay": false,
+  "secBasis": "bottom"
  },
  "alignments": [
   {

@@ -5,8 +5,8 @@
  * panel. DOM-free, no imports; tested in Node (bin/test-docinfo.mjs). The UI is app-docinfo.js.
  *
  *   const info = createDocInfo({ now })
- *     get() → { title, subject, author, company, keywords, comments, created, modified, modifiedBy, revision }
- *     set(patch, { by })   the person's words (FIELDS only); creates `created` the first time anything is written
+ *     get() → { title, subject, author, company, keywords, comments, stage, created, modified, modifiedBy, revision }
+ *     set(patch, { by })   the person's words (FIELDS, and `stage`: one of STAGES or '' for not set); creates `created` the first time anything is written
  *     stamp(by)            a save happened: modified = now, revision + 1 (the app's serializer calls it through ccDocInfo.save())
  *     load(json) · save() → json | null (null until something was written)
  *     on(fn) → off         fn(why)
@@ -17,26 +17,61 @@
 
 export const FORMAT = 'cadcraft-docinfo';
 export const FIELDS = Object.freeze(['title', 'subject', 'author', 'company', 'keywords', 'comments']);
-export const LIMITS = Object.freeze({ title: 160, subject: 160, author: 120, company: 120, keywords: 300, comments: 1200, by: 120 });
+/**
+ * The project stage (BK.168): where the project is, so a teacher or an assistant can pitch its help. Kept with the drawing details in the
+ * app's own file, one key of this list or '' (not set). The order is the order a project runs in; the names are the booklet's.
+ */
+export const STAGES = Object.freeze(['brief', 'concept', 'design-development', 'submission', 'working-drawings', 'tender', 'close-out']);
+export const STAGE_NAMES = Object.freeze({ brief: 'Brief', concept: 'Concept', 'design-development': 'Design development', submission: 'Submission', 'working-drawings': 'Working drawings', tender: 'Tender', 'close-out': 'Close-out' });
+const stageKey = (v) => (STAGES.includes(v) ? v : '');
+/**
+ * Sign-off (BK.144, principle 3 "trust but verify"): an estimate or an audit is signed off by a PERSON, with who and when, kept in the file with the
+ * drawing details. `revision` is the save count at the time: a drawing saved since then says the sign-off is out of date. No tool can sign: the
+ * assistants only read (signoff_status); the person signs in the Drawing details panel (sign(what, { by, note })).
+ */
+export const SIGNOFF_KINDS = Object.freeze(['estimate', 'audit']);
+export const SIGNOFF_MAX = 40;
+export const LIMITS = Object.freeze({ title: 160, subject: 160, author: 120, company: 120, keywords: 300, comments: 1200, by: 120, note: 300 });
 
 const text = (s, n) => String(s ?? '').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f‪-‮⁦-⁩]/g, ' ').trim().slice(0, n);
 const when = (v) => (Number.isFinite(+v) && +v > 0 ? Math.floor(+v) : 0);
 
 export function createDocInfo({ now = () => Date.now() } = {}) {
   let s = blank();
+  let signoffs = [];
   const listeners = new Set();
   const changed = (why) => { for (const f of listeners) { try { f(why); } catch { /* a listener must not break the store */ } } };
-  function blank() { return { title: '', subject: '', author: '', company: '', keywords: '', comments: '', created: 0, modified: 0, modifiedBy: '', revision: 0 }; }
+  function blank() { return { title: '', subject: '', author: '', company: '', keywords: '', comments: '', stage: '', created: 0, modified: 0, modifiedBy: '', revision: 0 }; }
   const api = {
     get: () => ({ ...s }),
-    empty: () => !s.created && !FIELDS.some((f) => s[f]),
+    empty: () => !s.created && !s.stage && !signoffs.length && !FIELDS.some((f) => s[f]),
     set(patch = {}, { by = '' } = {}) {
       let any = false;
       for (const f of FIELDS) if (f in patch) { const v = text(patch[f], LIMITS[f]); if (v !== s[f]) { s[f] = v; any = true; } }
+      if ('stage' in patch) { const v = stageKey(patch.stage); if (v !== s.stage) { s.stage = v; any = true; } }
       if (!any) return false;
       if (!s.created) s.created = now();
       if (by) s.modifiedBy = text(by, LIMITS.by);
       changed('set'); return true;
+    },
+    /** A person signs off an estimate or an audit: who and when, at this revision. `by` is required; the newest sign-off of a kind is the one that counts. */
+    sign(what, { by = '', note = '' } = {}) {
+      const kind = SIGNOFF_KINDS.includes(what) ? what : '';
+      const who = text(by, LIMITS.by);
+      if (!kind || !who) return null;
+      if (!s.created) s.created = now();
+      const rec = { what: kind, by: who, at: now(), revision: s.revision, note: text(note, LIMITS.note) };
+      signoffs.push(rec);
+      if (signoffs.length > SIGNOFF_MAX) signoffs = signoffs.slice(-SIGNOFF_MAX);
+      changed('signoff'); return { ...rec };
+    },
+    /** A person takes their sign-off back (the record stays out of the file). */
+    unsign(what) { const n = signoffs.length; signoffs = signoffs.filter((x) => x.what !== what); if (signoffs.length !== n) { changed('signoff'); return true; } return false; },
+    signoffs: () => signoffs.map((x) => ({ ...x })),
+    /** { signed, by, at, note, stale } for one kind; stale = the drawing was saved after the sign-off. Never "signed" without a person. */
+    signoff(what) {
+      const r = [...signoffs].reverse().find((x) => x.what === what);
+      return r ? { signed: true, by: r.by, at: r.at, note: r.note, stale: s.revision > r.revision } : { signed: false, by: null, at: null, note: '', stale: false };
     },
     stamp(by = '') {
       if (!s.created) s.created = now();
@@ -48,11 +83,13 @@ export function createDocInfo({ now = () => Date.now() } = {}) {
       const o = json && typeof json === 'object' && !Array.isArray(json) ? json : {};
       const next = blank();
       for (const f of FIELDS) next[f] = text(o[f], LIMITS[f]);
+      next.stage = stageKey(o.stage);
       next.created = when(o.created); next.modified = when(o.modified); next.modifiedBy = text(o.modifiedBy, LIMITS.by);
       next.revision = Math.min(1e9, Math.max(0, Math.floor(+o.revision) || 0));
+      signoffs = (Array.isArray(o.signoffs) ? o.signoffs : []).slice(-SIGNOFF_MAX).map((x) => ({ what: SIGNOFF_KINDS.includes(x?.what) ? x.what : '', by: text(x?.by, LIMITS.by), at: when(x?.at), revision: Math.min(1e9, Math.max(0, Math.floor(+x?.revision) || 0)), note: text(x?.note, LIMITS.note) })).filter((x) => x.what && x.by && x.at);
       s = next; changed('load');
     },
-    save() { return api.empty() ? null : { format: FORMAT, v: 1, ...s }; },
+    save() { return api.empty() ? null : { format: FORMAT, v: 1, ...s, ...(signoffs.length ? { signoffs: signoffs.map((x) => ({ ...x })) } : {}) }; },
     on(fn) { listeners.add(fn); return () => listeners.delete(fn); },
   };
   return api;
@@ -118,16 +155,26 @@ export function docinfoTools({ info, read, step = null } = {}) {
   const obj = (properties, required = []) => ({ type: 'object', properties, required, additionalProperties: false });
   const S = (d, max) => ({ type: 'string', maxLength: max, description: d });
   const run = (label, fn) => (typeof step === 'function' ? step(label, fn) : fn());
-  const props = { title: S('Drawing title.', LIMITS.title), subject: S('Subject.', LIMITS.subject), author: S('Author.', LIMITS.author), company: S('Company or office.', LIMITS.company), keywords: S('Keywords, comma separated.', LIMITS.keywords), comments: S('Comments.', LIMITS.comments) };
+  const signoffOf = (k) => { const r = info.signoff(k); return { ...r, at: r.at ? new Date(r.at).toISOString() : null }; };
+  const stageOf = () => { const k = info.get().stage; return { stage: k || null, name: k ? STAGE_NAMES[k] : null, step: k ? STAGES.indexOf(k) + 1 : null, of: STAGES.length, stages: STAGES.map((x) => ({ key: x, name: STAGE_NAMES[x] })) }; };
+  const props = { stage: { type: 'string', enum: [...STAGES, ''], description: 'The project stage: ' + STAGES.join(', ') + '; an empty text clears it.' }, title: S('Drawing title.', LIMITS.title), subject: S('Subject.', LIMITS.subject), author: S('Author.', LIMITS.author), company: S('Company or office.', LIMITS.company), keywords: S('Keywords, comma separated.', LIMITS.keywords), comments: S('Comments.', LIMITS.comments) };
   return [
     { name: 'docinfo_get', group: 'read', title: 'Get the drawing details', untrusted: true,
-      description: 'Returns the open drawing\'s properties: title, subject, author, company, keywords, comments, created and last saved dates, and what the app counts (drawing size, units, entity, triangle and element counts). A number the app cannot count is left out, never 0.',
+      description: 'Returns the open drawing\'s properties: title, subject, author, company, keywords, comments, the project stage, created and last saved dates, and what the app counts (drawing size, units, entity, triangle and element counts). A number the app cannot count is left out, never 0.',
       inputSchema: obj({}),
       run: () => { let facts = null; try { facts = summarize(read ? read() : null); } catch { /* the app's own trouble */ } return { properties: info.get(), facts }; } },
     { name: 'docinfo_set', group: 'edit', title: 'Write the drawing details', outputSchema: { type: 'object', properties: { undo: { type: 'string' } } },
-      description: 'Writes the drawing\'s title, subject, author, company, keywords or comments; fields you leave out are kept. The dates and counts cannot be written. One undo step.',
+      description: 'Writes the drawing\'s title, subject, author, company, keywords, comments or project stage; fields you leave out are kept. The dates and counts cannot be written. One undo step.',
       inputSchema: obj(props),
-      preview: (a) => ({ before: info.get(), changes: Object.fromEntries(FIELDS.filter((f) => f in a).map((f) => [f, text(a[f], LIMITS[f])])) }),
+      preview: (a) => ({ before: info.get(), changes: { ...Object.fromEntries(FIELDS.filter((f) => f in a).map((f) => [f, text(a[f], LIMITS[f])])), ...('stage' in a ? { stage: stageKey(a.stage) } : {}) } }),
       run: (a) => run('Drawing details', () => { const changed = info.set(a, { by: 'assistant' }); return { changed, properties: info.get(), undo: 'Drawing details' }; }) },
+    { name: 'signoff_status', group: 'read', title: 'Who signed off the estimate or audit',
+      description: 'Returns, for the estimate and for the audit, whether a person has signed it off in this file: who, when, their note, and whether the drawing was saved after they signed. You cannot sign anything off or ask for it to be marked signed: only the person does that in Drawing details. Say plainly in what you hand back that an unsigned estimate or audit is not signed off.',
+      inputSchema: obj({}),
+      run: () => ({ estimate: signoffOf('estimate'), audit: signoffOf('audit') }) },
+    { name: 'stage_get', group: 'read', title: 'Get the project stage',
+      description: 'Returns the stage the person set for this project (brief, concept, design development, submission, working drawings, tender or close-out), its place in that order, and the list of stages; stage is null when none is set. Read it before teaching or advising, so the help fits where the project is. Set it with docinfo_set.',
+      inputSchema: obj({}),
+      run: () => stageOf() },
   ];
 }

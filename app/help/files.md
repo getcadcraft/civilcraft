@@ -10,7 +10,7 @@ CivilCraft opens files from your computer and saves by downloading files back to
 
 ## What it opens
 
-Click {{ui:Open}} (or press {{key:Mod+O}}) and choose a file, or drag the file from {{pick:mac=Finder|windows=File Explorer|linux=your file manager}} onto the plan. One file at a time; files over 200 MB are refused.
+Click {{ui:Open}} (or press {{key:Mod+O}}) and choose a file, or drag the file from {{pick:mac=Finder|windows=File Explorer|linux=your file manager}} onto the plan. One file at a time; files over 200 MB are refused. A LandXML or project file over 32 MB is read in pieces of about 4 MB, never as one block of text; while a LandXML opens, expect it to use roughly 13 times the file's size in memory (a 69 MB file used about 0.9 GB in our test).
 
 | Kind | File names | What happens |
 |---|---|---|

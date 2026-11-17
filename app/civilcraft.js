@@ -33,16 +33,19 @@
  * page only as text nodes (el() in ui-util.js). `window.civilcraft` exposes the state for tests.
  */
 
-import { Project, cleanDesign, SPEED_UNITS } from './project.js';
+import { Project, cleanDesign, SPEED_UNITS, recoverText } from './project.js';
 import { parsePoints, lassoPoints } from './points.js';
 import { lassoMode, nextMode, thin } from './lasso-core.js';
 import { civilTools, civilRollback } from './civil-agent.js';
 import { readLandXml, writeLandXml } from './landxml.js';
+import { decodePartsAsync, partsOf, parseJsonParts } from './textin.js';   // 0.10 PERF.20
+const TEXT_PARTS_FROM = 32 * 1048576;
 import { planScene, toDxfEntities, LAYERS } from './scene.js';
 import { writeDxf } from './dxf.js';
 import { PAPERS, paperBy, scalesFor, fitScale, planSheet, toPdf, sheetWindow } from './plot.js';
 import { PlanView, mix, LABEL_FONT } from './view.js';
 import { ProfileView } from './profile-view.js';
+import { snapProfile, slopeOut, setSlope } from './profile-snap.js';   // CV.3 (#1534): snap, slope column and lock in the profile
 import { unitOf, formatStation, parseStation, fixed, pct, volumeText, areaText, dms, bearing, isNum, readLength, grouped, newProjectUnits, TABLE_ID as UNIT_TABLE_ID } from './units.js';
 import { limitSelect, onUnitsChange } from './unit-prefs.js';   // 0.7 UNITS: Settings › General › Units
 import { buildProfile } from './profile.js';
@@ -52,7 +55,9 @@ import { normAng } from './alignment.js';
 import { curveWhy, verticalWhy } from './solve-why.js';   // 0.5 WL.23
 import { snapTargets, nearestSnap, translate, rotate, bearingBetween, setTangent, copyOf } from './snap.js';   // 0.9 WB.10 + WB.15
 import { railProps } from './rail-ui.js';   // 0.7.1 71.26: railway alignments and tracks
-import { railSceneItems } from './rail.js';
+import { railSceneItems, cleanRail, railDefaults } from './rail.js';
+import { turnoutSceneItems } from './rail-turnouts.js';   // CV.1 2026-11-12
+import { clearanceSceneItems } from './rail-clearance.js';   // CV.1 2026-11-12
 import { civilProblems, civilMarkers } from './problems-civilcraft.js';   // 0.7.1 → 0.8: the shell's Problems (docs/0.8-PROBLEMS-SPEC.md)
 import { el, fillDl, num } from './ui-util.js';
 import { mountIds } from './ids-ui.js';   // 0.7.1 71.25: Check against IDS… in Export › IFC (cc-ids in ./ids/)
@@ -99,6 +104,11 @@ import { egTools } from './eg-agent.js';   // 0.8 round 2: its assistant tools (
 import { createEg } from './eg-ui.js';   // 0.8 round 2 (civil_PART_2): Make it rain, earthwork balancer, best route, address to site, detention ponds, progress
 import { waterNetwork, waterFromNetwork } from './water-objects.js';   // 0.8 LC.16 rest + CV.2 (civil_PART_3): LandXML water networks, hydrants, fittings
 import { cleanWater } from './water.js';
+import { createIssues } from './issues-ui.js';   // 0.10 CV.1: issues and BCF
+import { createUtilnet } from './utilnet-ui.js';   // 0.10 SU.1810: utility networks
+import { createParking } from './parking-ui.js';   // 0.10 SU.1815: parking lots
+import { createFence } from './fence-ui.js';   // 0.10 SU.1814b: fences
+import { siteGenTools } from './site-gen-agent.js';   // 0.10 SU.1815 + SU.1814b: their assistant tools
 import { createWater } from './water-ui.js';   // 0.8 LC.16 W1/W2: water mains (pressure networks)
 import { createRivers } from './river-ui.js';   // 0.8 SU.957: rivers, 1D steady flow (session sx-river)
 import { powerlineTools } from './powerline/pl-agent.js';   // 0.7 PL.8: its assistant tools
@@ -114,6 +124,8 @@ import { earthworkFile, QTY_EXT } from './qtyout.js';   // 0.6 TK.5+: cut and fi
 import { createSewer } from './sewer-ui.js';   // 0.6 LC.16 S1: sanitary design flows
 import { mountUndoHook } from './undo-hook.js';   // 0.8 EG.77: tells Studio each finished step
 import { measure } from './measure.js';   // 0.7 PL.10: the Measure tool
+import { mountFiles } from './files-ui.js';
+import { mountProps } from './props-ui.js';
 
 const root = document.querySelector('[data-civilcraft]');
 // root plus any toolbar torn off into its own window (app-toolbar-tear.js), so pressed and greyed-out states reach it (0.9 fix 2026-11-02)
@@ -128,11 +140,11 @@ function init(root) {
     base: $('[data-base]'), over: $('[data-over]'), plan: $('[data-plan]'), hint: $('[data-hint]'), drop: $('[data-drop]'), busy: $('[data-busy]'), busyText: $('[data-busy-text]'),
     toolhint: $('[data-toolhint]'), file: $('[data-file]'), name: $('[data-name]'), units: $('[data-units]'),
     pointsEmpty: $('[data-points-empty]'), pointsInfo: $('[data-points-info]'), groups: $('[data-groups]'),
-    surfaceH: $('[data-surface-h]'), surfaceInfo: $('[data-surface-info]'), surfaceReport: $('[data-surface-report]'), maxEdge: $('[data-maxedge]'), gridMethod: $('[data-grid-method]'), gridStep: $('[data-grid-step]'), gridPower: $('[data-grid-power]'), surfaceActions: $('[data-surface-actions]'),
+    surfaceH: $('[data-surface-h]'), surfaceInfo: $('[data-surface-info]'), surfaceReport: $('[data-surface-report]'), maxEdge: $('[data-maxedge]'), gridMethod: $('[data-grid-method]'), gridQ: $('[data-grid-q]'), gridAcc: $('[data-grid-acc]'), smooth: $('[data-contour-smooth]'), gridStep: $('[data-grid-step]'), gridPower: $('[data-grid-power]'), surfaceActions: $('[data-surface-actions]'),
     showSurface: $('[data-show-surface]'), interval: $('[data-interval]'), major: $('[data-major]'), bandCount: $('[data-bandcount]'), checks: $('[data-checks]'), legend: $('[data-legend]'),
     props: $('[data-props]'), propsH: $('[data-props-h]'),
     coords: $('[data-coords]'), elev: $('[data-elev]'), staoff: $('[data-staoff]'), status: $('[data-status]'),
-    profPanel: $('[data-profile-panel]'), prof: $('[data-prof]'), profAl: $('[data-prof-al]'), pviAdd: $('[data-pvi-add]'), profFl: $('[data-prof-fl]'), profWithin: $('[data-prof-fl-within]'), profRead: $('[data-prof-read]'), profClose: $('[data-prof-close]'),
+    profPanel: $('[data-profile-panel]'), prof: $('[data-prof]'), profAl: $('[data-prof-al]'), pviAdd: $('[data-pvi-add]'), profSnapBtn: $('[data-prof-snap]'), profFl: $('[data-prof-fl]'), profWithin: $('[data-prof-fl-within]'), profRead: $('[data-prof-read]'), profClose: $('[data-prof-close]'),
     imp: $('[data-import]'), plot: $('[data-plot]'), dwg: $('[data-dwg]'),
     gisLayers: $('[data-gis-layers]'),   // GIS: the GIS layers section (gis-vector-ui.js fills it)
   };
@@ -146,6 +158,7 @@ function init(root) {
   let snapHit = null, pickJob = null;   // 0.9 WB.10: the vertex or point the pointer snaps to · a Pick button waiting for a plan click { label, cb }
   let drag = null, pvDrag = null, lastReport = null;
   let picked = new Set();         // selected survey points, by point number
+  let pickLast = '';              // SC.5: the pick last announced to the page (announcePick, below)
   let pasteJob = null;            // { pts, anchor, label, from, note } while the Paste tool carries points
   let clip = null;                // this tab's copy (readClip shape)
   const DEFAULT_R = { ft: 100, m: 30 };
@@ -195,6 +208,28 @@ function init(root) {
   const pfUi = createPlatform({ root, el, project: () => project, units: () => units(), say: (m) => say(m), setTool: (x) => setTool(x), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), legend: ui.legend, refresh: () => refresh(), redraw: () => view.invalidate() });   // 0.8 SU.914
   const wmUi = createWater({ root, el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m), select: (x) => { picked.clear(); sel = x; selPvi = -1; refresh(); }, selection: () => sel,   // 0.8 LC.16
     setTool: (x) => setTool(x), redraw: () => { view.invalidate(); wmUi.refreshWindow(); }, download: (name, blob) => download(blob, name), fileStem: () => fileStem(), tol: () => 8 / view.zoom, groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } });
+  // 0.10 CV.1 / SU.1810: what the Issues and Utility networks windows ask of the page
+  const geomOfSel = () => {
+    const x = sel; if (!x) return null;
+    if (x.kind === 'alignment') { const a = findAl(x.id), al = a && project.alignment(a); return al?.ok ? { kind: 'alignment', id: a.id, name: a.name, al, pts: al.polyline(Math.max(al.length / 400, units() === 'm' ? 1 : 3), Math.PI / 180).map((q) => ({ x: q.x, y: q.y })) } : null; }
+    if (x.kind === 'feature') { const f = (project.state.features || []).find((q) => q.id === x.id); return f ? { kind: 'feature', id: f.id, name: f.name, pts: f.pts.map((q) => ({ x: q.x, y: q.y })), closed: f.closed === true } : null; }
+    if (x.kind === 'parcel') { const f = (project.state.parcels || []).find((q) => q.id === x.id); return f?.pts?.length >= 3 ? { kind: 'parcel', id: f.id, name: f.name, pts: f.pts.map((q) => ({ x: q.x, y: q.y })), closed: true } : null; }   // 0.10 SU.1815: closed outlines for the parking lot and fence tools
+    if (x.kind === 'pad') { const f = (project.state.pads || []).find((q) => q.id === x.id); return f?.pts?.length >= 3 ? { kind: 'pad', id: f.id, name: f.name, pts: f.pts.map((q) => ({ x: q.x, y: q.y })), closed: true } : null; }
+    if (x.kind === 'pipe') { const n = project.state.network, q = n?.pipes.find((p) => p.id === x.id), a = q && n.structures.find((v) => v.id === q.from), b = q && n.structures.find((v) => v.id === q.to); return a && b ? { kind: 'pipe', id: q.id, name: q.name, pts: [{ x: a.x, y: a.y }, { x: b.x, y: b.y }] } : null; }
+    if (x.kind === 'structure') { const v = project.state.network?.structures.find((q) => q.id === x.id); return v ? { kind: 'structure', id: v.id, name: v.name, pts: [{ x: v.x, y: v.y }] } : null; }
+    return null;
+  };
+  const groundHere = (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; };
+  const groundExisting = (x, y) => { const z = eg().surface?.elevationAt(x, y); return Number.isFinite(z) ? z : null; };   // 0.10 SU.1815: a lot is graded against the EXISTING ground, never its own result
+  const issUi = createIssues({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(), download: (name, blob) => download(blob, name), fileStem: () => fileStem(), view,
+    selected: () => geomOfSel(), groundAt: groundHere, refresh: () => { view.invalidateScene(); view.invalidate(); },
+    problems: () => { const P = window.ccProblems; return P ? P.store.list({ accepted: 'hide', t }).map((p) => ({ id: p.id, text: p.text || (p.msg ? t(p.msg.key, p.msg.vars) : ''), where: p.where })) : []; } });
+  const utUi = createUtilnet({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(), download: (name, blob) => download(blob, name), fileStem: () => fileStem(),
+    selected: () => geomOfSel(), groundAt: groundHere, refresh: () => { view.invalidateScene(); view.invalidate(); } });
+  const pkUi = createParking({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(), download: (name, blob) => download(blob, name), fileStem: () => fileStem(),   // 0.10 SU.1815
+    selected: () => geomOfSel(), groundAt: groundExisting, seed: () => lsUi.seedSpecies(), refresh: () => { view.invalidateScene(); view.invalidate(); } });
+  const fcUi = createFence({ root, el, project: () => project, units: () => units(), say: (m) => say(m), refocus: () => refocus(), download: (name, blob) => download(blob, name), fileStem: () => fileStem(),   // 0.10 SU.1814b
+    selected: () => geomOfSel(), groundAt: groundHere, refresh: () => { view.invalidateScene(); view.invalidate(); } });
   let gnSrc = null;   // the ground and platform steps' Problems source
   let egSrc = null;   // the Problems source for the round-2 tools (set where the sources are made)
   let lsSrcRef = null;   // 0.8 LA.4 (landscape-arch_PART_4): the Landscape junctions source (re-checked after a link regenerates)
@@ -221,6 +256,61 @@ function init(root) {
   const codesUi = createCodes({ root, el, project: () => project, say: (m) => say(m), refocus: () => refocus() });   // 0.4 V16
   root.querySelector('[data-codes-open]')?.addEventListener('click', () => codesUi.open());
   const ppUi = createSheetsDialog({ root, el, project: () => project, units: () => units(), buildScene: (mm) => buildScene(mm), download: (...x) => download(...x), fileStem: () => fileStem(), say: (m) => say(m), refocus: () => refocus() });
+  // ---- SC.5 (sc-r5-select): the pick is announced to the page (SuperCad Studio hears `cc-pick` and keeps one selection across its panels) and a pick from another
+  // panel comes back through window.ccPickers.civilcraft. Both are inert outside Super. Ids are `<kind>:<id>` as the project's object registry names them
+  // (`alignment:a1`, `pad:p2`, `parcel:…`, `feature:…`, `swept:…`); survey points are `point:<number>`.
+  const PICK_LISTS = { alignment: (st) => st.alignments, pad: (st) => st.pads, parcel: (st) => st.parcels, feature: (st) => st.features, swept: (st) => st.swept,
+    structure: (st) => st.network && st.network.structures, pipe: (st) => st.network && st.network.pipes };
+  function pickIds() {
+    if (sel && sel.kind === 'gis') return ['gis:' + sel.layer + ':' + sel.i];
+    if (sel && sel.id != null) return [sel.kind + ':' + sel.id];
+    return [...picked].slice(0, 2000).map((n) => 'point:' + n);
+  }
+  function announcePick() {
+    const ids = pickIds(), key = ids.join(',');
+    if (key === pickLast) return;
+    pickLast = key;
+    try { window.dispatchEvent(new CustomEvent('cc-pick', { detail: { app: 'civilcraft', ids } })); } catch { /* no window */ }
+  }
+  /** Show a pick from another panel: the first object named `<kind>:<id>` that this project has, else the survey points named. → the ids shown, or false */
+  function pickApply(refs) {
+    const st = project.state, pts = [];
+    let hit = null;
+    for (const r of (refs || []).slice(0, 5000)) {
+      const m = /^([a-z][a-z-]{0,20}):(.{1,120})$/.exec(String(r && r.id != null ? r.id : ''));
+      if (!m) continue;
+      if (m[1] === 'point') { if (project.points.some((q) => String(q.n) === m[2])) pts.push(m[2]); continue; }
+      const list = Object.hasOwn(PICK_LISTS, m[1]) ? PICK_LISTS[m[1]](st) : null, o = Array.isArray(list) ? list.find((x) => x && String(x.id) === m[2]) : null;
+      if (o && !hit) hit = { kind: m[1], id: o.id };
+    }
+    if (!hit && !pts.length) return false;
+    if (hit) { picked.clear(); sel = hit; } else { picked = new Set(pts); sel = null; }
+    selPvi = -1;
+    pickLast = pickIds().join(',');   // shown from elsewhere: not a new pick of this panel
+    refresh();
+    return pickIds();
+  }
+  (window.ccPickers = window.ccPickers || {}).civilcraft = { apply: pickApply, get: () => ({ ids: pickIds() }), clear: () => { if (sel || picked.size) { picked.clear(); sel = null; selPvi = -1; pickLast = ''; refresh(); } return true; } };
+  const { openFile, openText, openProject, download, fileStem, saveProject, exportLandXml, extentsAll, fitAll, exportDxf, DWG_YEAR, dwgDialog, exportDwg, visibleMaps, plotNow, plotDialog } = mountFiles({
+    ui, view, gisLoad, buildScene, refresh, rebind, say, nativeUi, ifcUi, refocus, busy, confirmDiscard,
+    get openingFrom() { return openingFrom; },
+    get project() { return project; }, set project(v) { project = v; },
+    get projectTarget() { return projectTarget; }, set projectTarget(v) { projectTarget = v; },
+    get sel() { return sel; }, set sel(v) { sel = v; },
+    get selPvi() { return selPvi; }, set selPvi(v) { selPvi = v; },
+    get lastReport() { return lastReport; }, set lastReport(v) { lastReport = v; },
+    get gisReg() { return gisReg; },
+    get settings() { return settings; },
+    get picked() { return picked; },
+    get eg() { return eg; },
+    get fileHost() { return fileHost; },
+    get asDoc() { return asDoc; },
+    get graded() { return graded; },
+    get units() { return units; },
+    get shown() { return shown; },
+    get u() { return u; },
+    get TEXT_PARTS_FROM() { return TEXT_PARTS_FROM; },
+  });
   window.civilcraft = {
     get project() { return project; }, view, pview, structs: stUi, swept: swUi, setTool, command, openText, select: (s) => { sel = s; selPvi = -1; refresh(); },
     get tool() { return tool; }, get sel() { return sel; }, get selPvi() { return selPvi; }, get picked() { return [...picked]; },
@@ -235,6 +325,7 @@ function init(root) {
     get rivers() { return rvUi; }, get platform() { return pfUi; }, get water() { return wmUi; },   // 0.8 SU.957 / SU.914 / LC.16 (tests)
     get sheets() { return ppUi; },   // 0.4 V15
     say: (m) => say(m),   // Studio Live (0.5 LV.22, live.js): its messages
+    get exportSet() { return exportSet; },   // Finalize and export in SuperCad Studio (SC.7): the exporters with options, no dialogs
   };
   // the menu styles (0.5 IP.3, input-civilcraft.js + the shell's app-input-ui.js): their messages go to the status line;
   // letters stay CivilCraft's while a line is being drawn (draft points: Backspace, Enter)
@@ -396,6 +487,7 @@ function init(root) {
     }, { mmPerUnit: mm, show: { ...d, pointLabelText: settings.labels } });
     if (d.alignments !== false) scene.items.push(...secUi.sceneItems(s.alignments));   // 0.4 V13 sample lines
     scene.items.push(...flUi.sceneItems());   // 0.4 V14 feature lines
+    scene.items.push(...utUi.sceneItems(mm), ...issUi.sceneItems(mm), ...pkUi.sceneItems(mm), ...fcUi.sceneItems(mm));   // 0.10 SU.1810 utility networks, CV.1 issue pins
     scene.items.push(...wmUi.sceneItems(mm));   // 0.8 LC.16 rest + CV.2: water mains on C-WATR-MAIN, hydrants, valves and fittings
     scene.items.push(...rvUi.sceneItems());   // 0.8 SU.957: river centreline, cut lines with stations, the flood extent (C-WATR-*)
     scene.items.push(...pfUi.sceneItems(1 / mm));   // 0.8 SU.914: spot levels of the cut and fill map
@@ -415,6 +507,11 @@ function init(root) {
     if (d.pads !== false) for (const p of padsOut) scene.items.push(...wallSceneItems(p.walls, { layer: 'C-GRAD-WALL', unitPerMm: 1 / mm, fixed: (v) => fixed(v, 2) }));
     // 0.7.1 71.26: each track's rails (and track centres) from its corridor sections (flat stand-in ground too)
     if (d.pads !== false) scene.items.push(...railSceneItems(eg().surface ? (gr.items || []).filter((x) => x.kind === 'corridor') : project.standInCorridors()));
+    // CV.1 2026-11-12: turnouts and crossovers on their alignments (C-RAIL-TURN) and each railway's clearance envelope (C-RAIL-CLRN)
+    if (d.alignments !== false) {
+      for (const x of project.allTurnouts()) scene.items.push(...turnoutSceneItems(x.placed, { unitPerMm: 1 / mm }));
+      for (const a of project.state.alignments) if (a.rail?.on && a.rail.clearance?.on) scene.items.push(...clearanceSceneItems(project.railClearance(a), { unitPerMm: 1 / mm }));
+    }
     for (const f of gisReg.scene) f(scene, mm);
     return scene;
   }
@@ -448,6 +545,7 @@ function init(root) {
     renderProfile();
     secUi.render();   // 0.4 V13
     updateTools();
+    announcePick();   // SC.5: every change of the selection ends in a refresh
     if (kind !== 'display') bandCache = null;
     view3d?.refresh();
     window.dispatchEvent(new CustomEvent('cc-addon-model-changed'));   // the add-ons' model host (below)
@@ -464,7 +562,9 @@ function init(root) {
   function bindAutosave() {
     asDoc?.close();
     const p = project;
-    asDoc = autosave.doc({ name: fileStem() + '.civilcraft.json', snapshot: async () => (unsaved() ? { data: JSON.stringify(p.toJSON()), meta: { name: fileStem() + '.civilcraft.json', points: p.points.length } } : null) });
+    // 0.10 PERF.24: the first copy is the whole project, then only what each edit changed (lib/history)
+    const j = p.autosaveJournal(() => ({ name: fileStem() + '.civilcraft.json', points: p.points.length }));
+    asDoc = autosave.doc({ name: fileStem() + '.civilcraft.json', journal: { epoch: j.epoch, base: () => (unsaved() ? j.base() : null), delta: () => (unsaved() ? j.delta() : null) } });
     p.on(() => { if (p !== project) return; asDoc.rename(fileStem() + '.civilcraft.json'); if (unsaved()) asDoc.changed(); else asDoc.clean(); });
   }
   bindAutosave();
@@ -637,7 +737,7 @@ function init(root) {
       }
     }
     lsUi.updateTools();   // 0.7 LD: Plant, Bed, Hedge pressed; Landscape checked
-    plUi.updateTools(); plUi.refreshAfterChange();   wmUi.refreshWindow();   // 0.8 LC.16: the Water mains window follows the project   // 0.7 PL: tools pressed; the Power lines section and the line profile follow the project
+    plUi.updateTools(); plUi.refreshAfterChange();   wmUi.refreshWindow(); issUi.refreshWindow(); utUi.refreshWindow(); pkUi.refreshWindow(); fcUi.refreshWindow();   // 0.8 LC.16: the Water mains window follows the project   // 0.7 PL: tools pressed; the Power lines section and the line profile follow the project
     ui.over.classList.toggle('is-select', tool === 'select');
     ui.hint.hidden = hintClosed || !!hasData || tool !== 'select';
   }
@@ -690,6 +790,11 @@ function init(root) {
     if (ui.gridPower.ownerDocument.activeElement !== ui.gridPower) ui.gridPower.value = s.surface.gridPower || (s.surface.method === 'polyreg' ? 1 : 2);
     ui.gridStep.disabled ||= !s.surface.method || s.surface.method === 'tin';
     ui.gridPower.disabled ||= !['idw', 'polyreg'].includes(s.surface.method);
+    if (ui.gridQ && ui.gridAcc) {   // 0.9.1 ABOS: smoothness q (paper default 0.5) and accuracy in % of the height range (paper default 1)
+      if (ui.gridQ.ownerDocument.activeElement !== ui.gridQ) ui.gridQ.value = s.surface.gridQ || 0.5;
+      if (ui.gridAcc.ownerDocument.activeElement !== ui.gridAcc) ui.gridAcc.value = s.surface.gridAcc ?? 1;
+      ui.gridQ.disabled = ui.gridAcc.disabled = !!s.surface.tin || s.surface.method !== 'abos';
+    }
     const acts = [];
     if (s.surface.boundary) acts.push(el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => project.change(t('cv.undo.boundary.remove'), (st) => { st.surface.boundary = null; }) }, t('cv.sf.boundary.remove')));
     if (s.surface.breaklines.length) acts.push(el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => project.change(t('cv.undo.breaklines.remove'), (st) => { st.surface.breaklines = []; }) }, t('cv.sf.breaklines.remove', { n: s.surface.breaklines.length })));
@@ -704,6 +809,7 @@ function init(root) {
     ui.interval.replaceChildren(...ivs.sort((a, b) => a - b).map((v) => el('option', { value: String(v) }, v + ' ' + U.short)));
     ui.interval.value = String(d.interval);
     ui.major.value = String(d.major);
+    if (ui.smooth) ui.smooth.value = d.smooth || 'none';   // 0.9.1 contour smoothing
     ui.bandCount.value = String(d.bandCount);
     for (const c of ui.checks.querySelectorAll('[data-show]')) c.checked = !!d[c.dataset.show];
     if (!d.bands) ui.legend.hidden = true;
@@ -793,551 +899,31 @@ function init(root) {
     return host;
   }
 
-  function projectProps() {
-    ui.propsH.textContent = t('cv.props.project');
-    const s = project.state, out = [];
-    out.push(el('p', { className: 'cv-note' }, t('cv.props.project.note')));
-    if (s.alignments.length) {
-      out.push(el('h3', { className: 'cv-h3' }, t('cv.props.alignments')));
-      out.push(el('ul', { className: 'cv-plainlist' }, ...s.alignments.map((a) => { const al = project.alignment(a); return el('li', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { sel = { kind: 'alignment', id: a.id }; selPvi = -1; refresh(); } }, a.name), ' · ', al.ok ? fixed(al.length, 2) + ' ' + u().short : t('cv.al.needsfix')); })));
-    }
-    if (s.pads.length) {
-      out.push(el('h3', { className: 'cv-h3' }, t('cv.props.pads')));
-      out.push(el('ul', { className: 'cv-plainlist' }, ...s.pads.map((d) => el('li', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { sel = { kind: 'pad', id: d.id }; refresh(); } }, d.name), ' · ', t('cv.pad.el', { z: fixed(Number(d.z), 2) })))));
-    }
-    if (s.pads.length || s.alignments.some((a) => a.corridor?.on || (a.corridors || []).some((c) => c.on)) || (s.terrainTemplates || []).length) out.push(volumeBlock());
-    out.push(...tpUi.terrainBlock());   // 0.9 WB.6: terrain templates
-    out.push(...pcUi.block());   // 0.4 V21
-    out.push(...msUi.block());   // 0.7 LC.1
-    out.push(...rvUi.block());   // 0.8 SU.957
-    out.push(...wmUi.block());   // 0.8 LC.16
-    out.push(...flUi.teamProject());   // 0.8 WL.26 the team's lines without a selected feature line
-    out.push(...tvUi.block());   // 0.4 V22
-    if (s.network) out.push(...networkBlock());
-    if (!s.alignments.length && !s.pads.length && !s.network) out.push(el('p', { className: 'cv-note' }, t('cv.props.empty')));
-    ui.props.replaceChildren(...out);
-  }
+  const { projectProps, alignmentProps, cornersBlock, transformBlock, padProps, structureProps, pipeProps, pointProps, pickedProps } = mountProps({
+    ui, secUi, flUi, drUi, seUi, pcUi, msUi, tvUi, skUi, stUi, swUi, rvUi, wmUi, tpUi, codesUi, ppUi, fileStem, download, units, u, eg, graded, findAl, findPad, net, findStruct, findPipe, diaU, refresh, renderProps, numInput, row, gridRow, roRow, propGrid, numberSpan, showProfile, renderProfile, pviPickBtn, slopeCell, command, armPick, say,
+    get project() { return project; },
+    get sel() { return sel; }, set sel(v) { sel = v; },
+    get selPvi() { return selPvi; }, set selPvi(v) { selPvi = v; },
+    get pickBtn() { return pickBtn; },
+    get picked() { return picked; }, set picked(v) { picked = v; },
+    get pickNote() { return pickNote; },
+    get pickedPoints() { return pickedPoints; },
+  });
 
-  function volumeBlock() {
-    const v = project.volumes(), g = graded(), s = project.state;
-    const wrap = el('div', {}, el('h3', { className: 'cv-h3' }, t('cv.ew.head')));
-    const probs = (g.report?.items || []).flatMap((p) => p.problems.map((x) => t('cv.ew.problem', { name: p.name || t('cv.pad'), problem: x })));
-    if (probs.length) wrap.append(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((x) => el('li', {}, x)))));
-    if (!v) { wrap.append(el('p', { className: 'cv-note' }, t('cv.ew.none')), ...tpUi.materialsBlock()); if (project.materials().length) wrap.append(qtyButton()); return wrap; }
-    const net = v.fill - v.cut;
-    wrap.append(el('dl', { className: 'cv-vol' },
-      el('dt', {}, t('cv.ew.cut')), el('dd', { 'data-vol-cut': '' }, volumeText(v.cut, s.units)),
-      el('dt', {}, t('cv.ew.fill')), el('dd', { 'data-vol-fill': '' }, volumeText(v.fill, s.units)),
-      el('dt', {}, t('cv.ew.net')), el('dd', {}, Math.abs(net) < 1e-9 ? volumeText(Math.abs(net), s.units) : t(net > 0 ? 'cv.ew.net.fill' : 'cv.ew.net.cut', { v: volumeText(Math.abs(net), s.units) }))));
-    if (v.items?.length > 1) wrap.append(el('ul', { className: 'cv-plainlist cv-note' }, ...v.items.map((it) => el('li', {}, t('cv.ew.item', { name: it.name, cut: volumeText(it.cut, s.units), fill: volumeText(it.fill, s.units) })))));
-    wrap.append(el('p', { className: 'cv-note' }, t('cv.ew.grid', { n: v.cells, cells: num(v.cells), cell: fixed(v.cell, 3).replace(/\.?0+$/, ''), u: u().short })));
-    wrap.append(...tpUi.materialsBlock());   // 0.9 SU.1110 + WB.6: what the templates place
-    wrap.append(qtyButton());
-    return wrap;
-  }
-  function qtyButton() { return el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'cv-linkbtn', dataset: { qtySend: '' }, title: t('cv.qty.send.title'), onclick: sendEarthwork }, el('i', { className: 'bi bi-box-arrow-up-right', 'aria-hidden': 'true' }), ' ', t('cv.qty.send'))); }
-  /** TK.5+: cut and fill as a quantities file TakeoffCraft opens (File › Open takeoff, or a drop) as typed quantities. */
-  function sendEarthwork() {
-    const r = earthworkFile({ name: project.state.name, units: project.state.units, volumes: project.volumes(), materials: project.materials().map((m) => ({ ...m, name: tpUi.label(m.name), material: tpUi.label(m.material) })) });   // materials: 0.9 SU.1110 + WB.6
-    if (!r.ok) { say(r.why); return; }
-    const name = fileStem() + QTY_EXT;
-    download(JSON.stringify(r.json, null, 1), name, 'application/json');
-    say(t('cv.qty.saved', { name, cut: grouped(r.cut, 2), fill: grouped(r.fill, 2), unit: r.unit }));
-  }
 
-  /** 0.7.1 71.24 (owner): the alignment's design speed (with its unit) and design class, one undo step each; stored and written to
-   *  IFC (Pset_RoadDesignCriteriaCommon), not checked: CivilCraft has no table that ties a speed to a radius (al.speed.note). */
-  function designRows(a) {
-    const d = a.design || {}, unitDefault = units() === 'm' ? 'km/h' : 'mph';
-    const setD = (label, fn) => project.change(label, () => { const x = findAl(a.id); const nd = { ...(x.design || { unit: unitDefault }) }; fn(nd); x.design = cleanDesign(nd) || undefined; if (!x.design) delete x.design; });
-    const sp = numInput(Number.isFinite(d.speed) ? String(d.speed) : '', (v) => { const x = v.trim() === '' ? null : Number(v); if (x !== null && !(x > 0 && x < 1000)) return false; setD(t('al.speed.undo'), (nd) => { if (x === null) delete nd.speed; else nd.speed = x; }); }, { text: true, id: 'cv-al-speed', width: '5rem' });
-    sp.placeholder = t('al.speed.none');
-    const un = el('select', { className: 'cv-select', 'aria-label': t('al.speed.unit'), 'data-al-speed-unit': '' }, ...SPEED_UNITS.map((x) => el('option', { value: x, selected: x === (d.unit || unitDefault) }, x)));
-    un.addEventListener('change', () => setD(t('al.speed.undo'), (nd) => { nd.unit = un.value; }));
-    const cl = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-class', value: d.cls || '', maxLength: 60, placeholder: t('al.class.none') });
-    cl.addEventListener('change', () => setD(t('al.class.undo'), (nd) => { nd.cls = cl.value; }));
-    return [...row(t('al.speed'), el('div', { className: 'cv-row' }, sp, un), 'cv-al-speed'), ...row(t('al.class'), cl, 'cv-al-class'),
-      el('p', { className: 'cv-note cv-span', 'data-al-speed-note': '' }, t('al.speed.note'))];
-  }
 
-  function alignmentProps(a) {
-    ui.propsH.textContent = t('sec.alignment');
-    const al = project.alignment(a), U = u(), out = [];
-    const alName = (v) => { project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = v.trim().slice(0, 120) || t('sec.alignment'); }); };
-    const alStart = (v) => { const x = parseStation(v, units()); if (x === null) return false; project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); };
-    // 0.5 WL.23: a design minimum radius (empty = none): curves under it are said, with the smallest radius that fits
-    const alMinR = (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }); };
-    if (window.ccPropGrid) {   // 0.8 PANEL-COMPACT: name, start station, minimum radius and the read-only length/end in the shared grid; design speed/class rows stay below
-      const C = t('sec.alignment');
-      const rows = [gridRow('name', C, t('fl.props.name'), a.name, { maxLength: 120 }), gridRow('start', C, t('cv.al.start'), formatStation(Number(a.start) || 0, units())),
-        gridRow('minR', C, t('why.minr') + ' (' + U.short + ')', a.minR > 0 ? String(a.minR) : '', { hint: t('why.minr.none') })];
-      if (al.ok) rows.push(roRow('length', C, t('fl.props.length'), fixed(al.length, 2) + ' ' + U.short), roRow('end', C, t('cv.al.end'), formatStation(al.end, units())));
-      out.push(propGrid('alignment', C, rows, { name: { fn: alName }, start: { fn: alStart, station: true }, minR: { fn: alMinR } }), el('div', { className: 'cv-props' }, ...designRows(a)));   // 0.7.1 71.24
-    } else {
-      const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-al-name', value: a.name, maxLength: 120 });
-      nm.addEventListener('change', () => alName(nm.value));
-      const st = numInput(formatStation(Number(a.start) || 0, units()), alStart, { text: true, station: true, id: 'cv-al-start' });
-      const minR = numInput(a.minR > 0 ? String(a.minR) : '', alMinR, { text: true, id: 'cv-al-minr', width: '7rem' });
-      minR.placeholder = t('why.minr.none');
-      out.push(el('div', { className: 'cv-props' }, ...row(t('fl.props.name'), nm, 'cv-al-name'), ...row(t('cv.al.start'), st, 'cv-al-start'),
-        ...row(t('why.minr'), el('div', { className: 'cv-row' }, minR, el('span', { className: 'cv-unit' }, U.short)), 'cv-al-minr'),
-        ...designRows(a),   // 0.7.1 71.24: design speed and class
-        ...(al.ok ? [...row(t('fl.props.length'), fixed(al.length, 2) + ' ' + U.short), ...row(t('cv.al.end'), formatStation(al.end, units()))] : [])));
-    }
-    const why = curveWhy(a.pis, { minR: a.minR || 0 });
-    if (why.length) out.push(whyBlock(a, why));
-    else if (al.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...al.errors.map((e) => el('li', {}, e)))));
-    // PIs
-    out.push(el('h3', { className: 'cv-h3' }, t('cv.al.pis')));
-    const tbody = el('tbody');
-    a.pis.forEach((p, i) => {
-      const end = i === 0 || i === a.pis.length - 1;
-      const setXY = (k) => (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { findAl(a.id).pis[i][k] = x; }); };
-      tbody.append(el('tr', {},
-        el('td', {}, String(i + 1)),
-        el('td', {}, numInput(fixed(p.x, 2), setXY('x'), { label: t('cv.al.pi.e', { n: i + 1 }) })),
-        el('td', {}, el('div', { className: 'cv-row' }, numInput(fixed(p.y, 2), setXY('y'), { label: t('cv.al.pi.n', { n: i + 1 }) }),   // 0.9 WB.15: pick the place in the plan
-          pickBtn(t('cv.pick.pi', { n: i + 1 }), (pt) => project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { const q = findAl(a.id).pis[i]; q.x = pt.x; q.y = pt.y; })))),
-        el('td', end ? { className: 'cv-dash' } : {}, end ? '—' : numInput(p.r || 0, (v) => { const r = Number(v); if (!(r >= 0)) return false; project.change(t('cv.al.pi.r', { n: i + 1 }), () => { findAl(a.id).pis[i].r = r; }); }, { label: t('cv.al.pi.r', { n: i + 1 }), min: 0 })),
-        ...[['ls1', 'cv.al.pi.ls1'], ['ls2', 'cv.al.pi.ls2']].map(([k, key]) => el('td', end || !(p.r > 0) ? { className: 'cv-dash' } : {}, end || !(p.r > 0) ? '—' : numInput(p[k] || 0, (v) => { const x = Number(v); if (!(x >= 0)) return false; project.change(t('cv.undo.pi.ls'), () => { const q = findAl(a.id).pis[i]; if (x > 0) q[k] = x; else delete q[k]; }); }, { label: t(key, { n: i + 1 }), min: 0, id: 'cv-pi' + (i + 1) + '-' + k }))),   // 0.7 D7.35
-        el('td', {}, a.pis.length > 2 ? el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.al.pi.remove', { n: i + 1 }), title: t('cv.al.pi.remove.title'), onclick: () => project.change(t('cv.undo.pi.remove'), () => { findAl(a.id).pis.splice(i, 1); }) }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })) : '')));
-    });
-    out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' },
-      el('thead', {},
-        el('tr', {}, ...[['#', '#'], [t('pt.props.easting')], [t('pt.props.northing')], [t('se.c.r')]].map(([x]) => el('th', { scope: 'col', rowSpan: 2 }, x)), el('th', { scope: 'colgroup', colSpan: 2, className: 'cv-th-group' }, t('cv.al.col.spiral')), el('th', { rowSpan: 2 }, el('span', { className: 'visually-hidden' }, t('sec.props.remove')))),
-        el('tr', {}, el('th', { scope: 'col' }, t('cv.al.col.in')), el('th', { scope: 'col' }, t('cv.al.col.out')))), tbody)));
-    out.push(tangentBlock(a), transformBlock('alignment', a.id));   // 0.9 WB.15 / WB.10
-    // curves
-    const cvs = al.ok ? al.curves : [];
-    if (cvs.length) {
-      out.push(el('h3', { className: 'cv-h3' }, t('cv.al.curves')));
-      const st = (v) => formatStation(v, units());
-      out.push(el('ol', { className: 'cv-curves' }, ...cvs.map((c) => {
-        const sp = c.ls1 > 0 || c.ls2 > 0, dg = (v) => dms(v * 180 / Math.PI);
-        return el('li', {},
-          el('span', { className: 'cv-curve-sta' }, sp ? t('cv.al.curve.sta.sp', { ts: st(c.ts), sc: st(c.sc), cs: st(c.cs), st: st(c.st) }) : t('cv.al.curve.sta', { pc: st(c.ts), pt: st(c.st) })),
-          el('span', {}, t(c.ccw ? 'cv.al.curve.left' : 'cv.al.curve.right', { r: fixed(c.r, 2), delta: dms(Math.abs(c.d) * 180 / Math.PI) })),
-          sp ? el('span', { 'data-spiral-facts': '' }, t('cv.al.curve.sp', { ls1: fixed(c.ls1, 2), ls2: fixed(c.ls2, 2), th1: dg(c.theta1), th2: dg(c.theta2), t1: fixed(c.T1, 2), t2: fixed(c.T2, 2), es: fixed(c.Es, 2) })) : null,
-          el('span', {}, t('cv.al.curve.parts', { len: fixed(c.Lc, 2), tan: fixed(c.T1, 2), ext: fixed(c.Es, 2), chord: fixed(2 * c.r * Math.sin(Math.max(0, Math.abs(c.d) - c.theta1 - c.theta2) / 2), 2) })));
-      })));
-      out.push(el('p', { className: 'cv-note' }, t('cv.al.curves.note')));
-    }
-    if (al.ok) out.push(el('p', { className: 'cv-note' }, t('cv.al.tangent', { b: bearing(al.elements[0].dir ?? al.elements[0].dirIn) })));
-    // 0.7.1 71.26: railway — track, gauge, transitions, cant per curve, limits, warnings, the cant diagram, quantities
-    if (al.ok) out.push(...railProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, project.railPlan(a), (eg().surface ? graded().items?.find((x) => x.id === a.id && x.kind === 'corridor') : project.standInCorridors().find((x) => x.id === a.id)) || null));
-    // profile
-    out.push(el('h3', { className: 'cv-h3' }, t('cv.prof.head')));
-    if (al.ok) out.push(...profileProps(a, al));
-    if (al.ok) out.push(...corridorProps(a));
-    if (al.ok && !a.rail?.on) out.push(...tpUi.moreCorridors(a, eg().surface ? graded() : { items: project.standInCorridors() }));   // 0.9 SU.1110: more corridors on this alignment
-    if (al.ok) out.push(...secUi.props(a));   // 0.4 V13 sample lines
-    out.push(el('div', { className: 'cv-actions' },
-      el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => showProfile(true, a.id) }, el('i', { className: 'bi bi-graph-up', 'aria-hidden': 'true' }), ' ', t('cv.prof.view')),
-      al.ok ? skUi.button(a) : null,   // 0.4 V23
-      al.ok ? swUi.button('alignment', a.id) : null,   // 0.6 WL.28
-      al.ok ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-pp-open': '', onclick: () => ppUi.open(a.id) }, el('i', { className: 'bi bi-file-earmark-pdf', 'aria-hidden': 'true' }), ' ', t('pp.ui.open')) : null,   // 0.4 V15
-      el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
-    ui.props.replaceChildren(...out);
-  }
 
-  /**
-   * 0.5 WL.23: why the curves have no solution, in numbers, each with the radius that would fit as a button (one undo
-   * step). Overlaps offer either PI's largest fitting radius or both scaled together; a radius under the design minimum
-   * offers the smallest that meets it, or says why none fits.
-   */
-  function whyBlock(a, why) {
-    const U = u().short, n = (v) => fixed(v, 2).replace(/,/g, '');
-    const setR = (pairs, label) => () => { project.change(label, () => { const al = findAl(a.id); for (const [i, r] of pairs) al.pis[i].r = r; }); say(label); };
-    const shown = new Set();   // one button per fix: two overlaps round one PI often offer the same radius
-    const btn = (text, attr, fn) => { if (shown.has(attr)) return null; shown.add(attr); return el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-why-fix': attr, onclick: fn }, text); };
-    const items = why.map((w) => {
-      if (w.kind === 'overlap') {
-        const fixes = [];
-        if (w.fixA !== null) fixes.push(btn(t('why.fix.r', { pi: w.a + 1, r: n(w.fixA), u: U }), w.a + ':' + w.fixA, setR([[w.a, w.fixA]], t('why.undo.r', { pi: w.a + 1, r: n(w.fixA) }))));
-        if (w.fixB !== null) fixes.push(btn(t('why.fix.r', { pi: w.b + 1, r: n(w.fixB), u: U }), w.b + ':' + w.fixB, setR([[w.b, w.fixB]], t('why.undo.r', { pi: w.b + 1, r: n(w.fixB) }))));
-        if (w.both.ra > 0 && w.both.rb > 0) fixes.push(btn(t('why.fix.both', { a: w.a + 1, b: w.b + 1, ra: n(w.both.ra), rb: n(w.both.rb), u: U }), 'both', setR([[w.a, w.both.ra], [w.b, w.both.rb]], t('why.undo.both', { a: w.a + 1, b: w.b + 1 }))));
-        const none = [w.fixA === null && w.a > 0 ? t('why.none.at', { pi: w.a + 1, other: w.b + 1 }) : '', w.fixB === null && w.b < a.pis.length - 1 ? t('why.none.at', { pi: w.b + 1, other: w.a + 1 }) : ''].filter(Boolean);
-        const one = !(w.Ta > 0 && w.Tb > 0), [pi, other] = w.Ta > 0 ? [w.a, w.b] : [w.b, w.a];
-        const said = one ? t('why.overlap.one', { pi: pi + 1, other: other + 1, need: n(w.need), dist: n(w.dist), u: U }) : t('why.overlap', { a: w.a + 1, b: w.b + 1, need: n(w.need), ta: n(w.Ta), tb: n(w.Tb), dist: n(w.dist), u: U });
-        const kept = fixes.filter(Boolean);
-        return el('li', { 'data-why': 'overlap' }, el('p', {}, said),
-          ...none.map((x) => el('p', { className: 'cv-note' }, x)), kept.length ? el('div', { className: 'cv-actions' }, ...kept) : null);
-      }
-      if (w.kind === 'back') return el('li', { 'data-why': 'back' }, el('p', {}, t('why.back', { pi: w.pi + 1 })),
-        el('div', { className: 'cv-actions' }, btn(t('why.fix.nocurve', { pi: w.pi + 1 }), w.pi + ':0', setR([[w.pi, 0]], t('why.undo.r', { pi: w.pi + 1, r: '0' })))));
-      return el('li', { 'data-why': 'min' }, el('p', {}, t('why.min', { pi: w.pi + 1, r: n(w.r), min: n(w.minR), u: U })),
-        w.fix !== null ? el('div', { className: 'cv-actions' }, btn(t('why.fix.min', { pi: w.pi + 1, r: n(w.fix), u: U }), w.pi + ':' + w.fix, setR([[w.pi, w.fix]], t('why.undo.r', { pi: w.pi + 1, r: n(w.fix) }))))
-          : el('p', { className: 'cv-note' }, t('why.min.none', { pi: w.pi + 1, max: n(w.maxR), min: n(w.minR), u: U })));
-    });
-    const errs = why.some((w) => w.kind !== 'min');
-    return el('div', { className: 'cv-report cv-why' + (errs ? ' is-error' : ''), 'data-why-block': '' },
-      el('p', { className: 'cv-why-h' }, t(errs ? 'why.head.error' : 'why.head.min')), el('ul', {}, ...items));
-  }
 
-  function profileProps(a, al) {
-    const out = [], prof = project.designProfile(a);
-    if (!a.pvis.length) {
-      out.push(el('p', { className: 'cv-note' }, t('cv.prof.none')));
-      out.push(el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-start-profile': '', onclick: () => startProfile(a) }, t('cv.prof.start')));
-      return out;
-    }
-    // 0.5 WL.23: vertical curves that do not fit say why, with the longest length that does (one undo step)
-    const vwhy = verticalWhy(a.pvis);
-    if (vwhy.length) {
-      const n = (v) => fixed(v, 2).replace(/,/g, '');
-      out.push(el('div', { className: 'cv-report cv-why is-error', 'data-vwhy-block': '' }, el('p', { className: 'cv-why-h' }, t('why.head.error')), el('ul', {}, ...vwhy.map((w) => el('li', { 'data-why': 'vc' },
-        el('p', {}, t(w.side === 'before' ? 'why.vc.before' : 'why.vc.past', { pvi: w.pvi + 1, l: n(w.L), room: n(w.room / 2), u: u().short })),
-        w.fix ? el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-why-fix': 'L' + w.index + ':' + w.fix,
-          onclick: () => { const lbl = t('why.undo.l', { pvi: w.pvi + 1, l: n(w.fix) }); project.change(lbl, () => { const v = findAl(a.id).pvis[w.index]; v.L = w.fix; delete v.K; }); say(lbl); } }, t('why.fix.l', { pvi: w.pvi + 1, l: n(w.fix), k: fixed(w.K, 1), u: u().short }))) : null)))));
-    } else if (prof.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...prof.errors.map((e) => el('li', {}, e)))));
-    const tbody = el('tbody');
-    a.pvis.forEach((v, i) => {
-      const interior = i > 0 && i < a.pvis.length - 1;
-      tbody.append(el('tr', { className: selPvi === i ? 'is-sel' : '' },
-        el('td', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { selPvi = i; renderProfile(); renderProps(); } }, String(i + 1))),
-        el('td', {}, numInput(formatStation(v.sta, units()), (x) => { const s = parseStation(x, units()); if (s === null) return false; project.change(t('cv.undo.pvi.sta'), () => { const p = findAl(a.id).pvis; p[i].sta = s; p.sort((m, n) => m.sta - n.sta); }); }, { text: true, station: true, label: t('cv.pvi.sta.of', { n: i + 1 }) })),
-        el('td', {}, numInput(fixed(v.z, 2), (x) => { const z = Number(x); if (!Number.isFinite(z) || x === '') return false; project.change(t('cv.undo.pvi.z'), () => { findAl(a.id).pvis[i].z = z; }); }, { label: t('cv.pvi.z.of', { n: i + 1 }) })),
-        el('td', interior ? {} : { className: 'cv-dash' }, interior ? numInput(v.L || 0, (x) => { const L = Number(x); if (!(L >= 0)) return false; project.change(t('cv.undo.pvi.l'), () => { findAl(a.id).pvis[i].L = L; }); }, { label: t('cv.pvi.l.of', { n: i + 1 }), min: 0 }) : '—'),
-        el('td', {}, el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.pvi.remove.of', { n: i + 1 }), onclick: () => { project.change(t('cv.undo.pvi.remove'), () => { findAl(a.id).pvis.splice(i, 1); }); selPvi = -1; } }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })))));
-    });
-    out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-pvi-table': '' },
-      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, t('cv.pvi.col')), el('th', { scope: 'col' }, t('sec.station.label')), el('th', { scope: 'col' }, t('pt.props.elev')), el('th', { scope: 'col' }, t('cv.pvi.col.l')), el('th', {}, el('span', { className: 'visually-hidden' }, t('sec.props.remove'))))), tbody)));
-    if (prof.ok) {
-      const lines = prof.grades.map((g, i) => t('cv.prof.grade', { n: i + 1, g: pct(g.g) }));
-      for (const c of prof.curves) {
-        lines.push(t(c.kind === 'crest' ? 'cv.prof.crest' : 'cv.prof.sag', { sta: formatStation(c.pvi, units()), l: fixed(c.L, 2), k: fixed(c.K, 1), bvc: formatStation(c.bvc, units()), zbvc: fixed(c.zBvc, 2), evc: formatStation(c.evc, units()), zevc: fixed(c.zEvc, 2) }));
-        const hp = c.high || c.low;
-        if (hp) lines.push(t(c.high ? 'cv.prof.high' : 'cv.prof.low', { sta: formatStation(hp.sta, units()), z: fixed(hp.z, 2) }));
-      }
-      out.push(el('ul', { className: 'cv-note cv-plainlist', 'data-profile-facts': '' }, ...lines.map((l) => el('li', {}, l))));
-    }
-    if (a.pvis.length && (a.pvis[0].sta > al.start + 1e-6 || a.pvis[a.pvis.length - 1].sta < al.end - 1e-6)) out.push(el('p', { className: 'cv-note' }, t('cv.prof.partial', { from: formatStation(al.start, units()), to: formatStation(al.end, units()) })));
-    return out;
-  }
 
-  function corridorProps(a) {
-    const out = [el('h3', { className: 'cv-h3' }, t('cv.co.head'))], U = u();
-    const c = { ...defaultAssembly(units()), ...(a.corridor || {}) };
-    const on = el('input', { type: 'checkbox', id: 'cv-co-on', checked: !!a.corridor?.on });
-    on.addEventListener('change', () => project.change(on.checked ? t('cv.undo.co.on') : t('cv.undo.co.off'), () => { const x = findAl(a.id); x.corridor = { ...defaultAssembly(units()), ...(x.corridor || {}), on: on.checked }; }));
-    out.push(el('label', { className: 'cv-check', for: 'cv-co-on' }, on, ' ', t('cv.co.on')));
-    if (!a.corridor?.on) { out.push(el('p', { className: 'cv-note' }, t('cv.co.off.note'))); return out; }
-    const field = (k, label, undo, scale, unit, id) => [el('label', { for: id }, label), el('div', { className: 'cv-row' }, numInput(fixed(c[k] * scale, 2), (v) => { const x = Number(v); if (!(x >= 0) || v === '' || ((k === 'cut' || k === 'fill' || k === 'step') && !(x > 0))) return false; project.change(undo, () => { findAl(a.id).corridor[k] = x / scale; }); }, { id, min: 0 }), el('span', { className: 'cv-unit' }, unit))];
-    const railTrack = !!a.rail?.on;   // 0.7.1 71.26: a track (Railway block above): only the side slopes and the section step here
-    const tplMode = !railTrack && !!a.corridor?.regions;   // 0.9 SU.1110: built from templates by station (the side slopes = the daylight when no end condition meets the ground)
-    const custom = !!a.corridor?.parts || railTrack || tplMode;   // 0.7 D7.35: built from parts, left and right
-    out.push(el('div', { className: 'cv-props' },
-      ...(railTrack || tplMode ? [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')] : []),
-      ...(custom ? [] : [...field('lane', t('cv.co.lane'), t('cv.undo.co.lane'), 1, U.short, 'cv-co-lane'), ...field('laneSlope', t('cv.co.ls'), t('cv.undo.co.ls'), 100, '%', 'cv-co-ls'),
-        ...field('shoulder', t('cv.co.sh'), t('cv.undo.co.sh'), 1, U.short, 'cv-co-sh'), ...field('shoulderSlope', t('cv.co.ss'), t('cv.undo.co.ss'), 100, '%', 'cv-co-ss')]),
-      ...(custom ? [] : [...field('cut', t('fl.props.cut'), t('cv.undo.co.cut'), 1, ': 1', 'cv-co-cut'), ...field('fill', t('fl.props.fill'), t('cv.undo.co.fill'), 1, ': 1', 'cv-co-fill')]),
-      ...field('step', t('cv.co.step'), t('cv.undo.co.step'), 1, U.short, 'cv-co-step')));
-    if (railTrack) out.push(el('p', { className: 'cv-note', 'data-rail-co-note': '' }, t('rail.co.note')));
-    else if (tplMode) { /* 0.9 SU.1110: the templates block below replaces the assembly editor */ }
-    else out.push(...assemblyProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), say: (m) => say(m) }, a));   // 0.7 D7.35
-    if (!railTrack && !tplMode) out.push(el('p', { className: 'cv-note' }, t('co.note')));   // 0.4 V18: superelevation is available now
-    // 0.7.1 71.19: no existing ground → the corridor built on flat stand-in ground, with its warning (project.standInCorridors)
-    const standIn = eg().surface ? null : project.standInCorridors().find((x) => x.id === a.id);
-    for (const w of standIn?.warnings || []) out.push(el('div', { className: 'cv-report', 'data-corridor-warning': w.code }, el('p', {}, w.text)));
-    const it = standIn || graded().items?.find((x) => x.id === a.id && x.kind === 'corridor');
-    const seProblems = new Set(it?.super?.problems || []);   // 0.4 V18: said in the Superelevation block instead
-    const others = (it?.problems || []).filter((p) => !seProblems.has(p));
-    if (others.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...others.map((p) => el('li', {}, p)))));
-    else if (it?.sections) {
-      const vi = project.volumes()?.items?.find((x) => x.id === a.id);
-      out.push(el('p', { className: 'cv-note', 'data-corridor-facts': '' }, vi ? t('cv.co.facts.vol', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()), cut: volumeText(vi.cut, units()), fill: volumeText(vi.fill, units()) }) : t('cv.co.facts', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()) })));
-    }
-    if (railTrack) return out;   // 0.7.1 71.26: no targets or superelevation on a track (its cant is in the Railway block)
-    out.push(...tpUi.corridorBlock(a, a.corridor, a.id, it));   // 0.9 SU.1110: templates by station, left and right apart
-    if (tplMode) { out.push(el('p', { className: 'cv-note', 'data-tpl-mode-note': '' }, t('tpl.co.mode.note'))); return out; }
-    out.push(...targetProps({ el, project: () => project, say: (m) => say(m) }, a, it));   // 0.6 WL.25
-    out.push(...superProps({ el, project: () => project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, it));   // 0.4 V18
-    return out;
-  }
 
-  function startProfile(a) {
-    const al = project.alignment(a);
-    const egp = project.egProfile(a).filter((p) => p.z !== null);
-    if (!al.ok || egp.length < 2) { say(t('cv.prof.noground')); return; }
-    const z0 = egp[0], z1 = egp[egp.length - 1];
-    project.change(t('cv.undo.prof.start'), () => { findAl(a.id).pvis = [{ sta: z0.sta, z: Number(z0.z.toFixed(2)), L: 0 }, { sta: z1.sta, z: Number(z1.z.toFixed(2)), L: 0 }]; });
-    showProfile(true, a.id);
-    say(t('cv.prof.started'));
-  }
 
-  // ---- 0.9 WB.10 + WB.15 (a visitor's CivilCraft request): typed and picked coordinates, a tangent from two points, move / copy / rotate ----
-  /** Easting / northing boxes for each vertex of a pad, parcel or feature line, each with a Pick button (snaps like the drawing tools). */
-  function cornersBlock(kind, id) {
-    const get = () => (kind === 'pad' ? project.state.pads : kind === 'parcel' ? project.state.parcels || [] : project.state.features || []).find((x) => x.id === id);
-    const o = get();
-    if (!o) return el('span');
-    const move = (i, x, y) => project.change(t('cv.undo.corner.move', { n: i + 1 }), () => { const q = get()?.pts[i]; if (q) { q.x = x; q.y = y; } });
-    const num = (v) => { const x = Number(v); return v !== '' && Number.isFinite(x) ? x : null; };
-    return el('div', { 'data-cv-corners': kind }, el('h3', { className: 'cv-h3' }, t('cv.corners.head')),
-      el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' },
-        el('thead', {}, el('tr', {}, ...['#', t('pt.props.easting'), t('pt.props.northing')].map((h) => el('th', { scope: 'col' }, h)))),
-        el('tbody', {}, ...o.pts.map((q, i) => el('tr', {},
-          el('td', {}, String(i + 1)),
-          el('td', {}, numInput(fixed(q.x, 2), (v) => { const x = num(v); if (x === null) return false; move(i, x, get().pts[i].y); }, { label: t('cv.corner.e', { n: i + 1 }) })),
-          el('td', {}, el('div', { className: 'cv-row' },
-            numInput(fixed(q.y, 2), (v) => { const y = num(v); if (y === null) return false; move(i, get().pts[i].x, y); }, { label: t('cv.corner.n', { n: i + 1 }) }),
-            pickBtn(t('cv.pick.corner', { n: i + 1 }), (pt) => move(i, pt.x, pt.y))))))))),
-      el('p', { className: 'cv-note' }, t('cv.corners.note')));
-  }
 
-  /** A tangent's direction from two picked points: PI k+1 turns about PI k to that direction, the tangent keeps its length. */
-  function tangentBlock(a) {
-    if (a.pis.length < 2) return el('span');
-    const which = el('select', { className: 'cv-select', id: 'cv-tan-k', 'aria-label': t('cv.tan.which'), style: 'width:auto' }, ...a.pis.slice(1).map((_, k) => el('option', { value: String(k) }, t('cv.tan.n', { n: k + 1 }))));
-    const status = el('p', { className: 'cv-note', 'data-cv-tan-status': '' }, t('cv.tan.note'));
-    let A = null, B = null;
-    const show = () => { status.textContent = A && B ? t('cv.tan.ready', { b: bearing(bearingBetween(A, B)) }) : A ? t('cv.tan.have.a') : t('cv.tan.note'); };
-    const apply = el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tan-apply': '', onclick: () => {
-      if (!A || !B || !(Math.hypot(B.x - A.x, B.y - A.y) > 1e-9)) { say(t('cv.tan.need')); return; }
-      const k = Number(which.value), cur = findAl(a.id)?.pis;
-      if (!cur || !(Math.hypot(cur[k + 1].x - cur[k].x, cur[k + 1].y - cur[k].y) > 1e-9)) { say(t('cv.tan.fail')); return; }
-      const dir = bearingBetween(A, B);
-      project.change(t('cv.undo.tan', { n: k + 1 }), () => setTangent(findAl(a.id).pis, k, dir));
-      say(t('cv.tan.done', { n: k + 1, b: bearing(dir) }));
-    } }, t('cv.tan.apply'));
-    return el('div', { 'data-cv-tangent': '' }, el('h3', { className: 'cv-h3' }, t('cv.tan.head')),
-      el('div', { className: 'cv-row' }, which,
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tan-a': '', onclick: () => armPick(t('cv.tan.first'), (pt) => { A = pt; show(); }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.tan.first')),
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tan-b': '', onclick: () => armPick(t('cv.tan.second'), (pt) => { B = pt; show(); }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.tan.second')),
-        apply), status);
-  }
 
-  /** Move, copy and rotate the selected alignment, pad, parcel or feature line (a typed distance, or two picked points). */
-  function transformBlock(kind, id) {
-    const LIST = { alignment: 'alignments', pad: 'pads', parcel: 'parcels', feature: 'features' }[kind], PFX = { alignment: 'a', pad: 'p', parcel: 'r', feature: 'f' }[kind];
-    const get = () => (project.state[LIST] || []).find((x) => x.id === id);
-    const verts = (o) => o.pis || o.pts;
-    if (!get()) return el('span');
-    const dx = numInput('0', () => true, { label: t('cv.tx.dx'), id: 'cv-tx-dx', width: '6rem' }), dy = numInput('0', () => true, { label: t('cv.tx.dy'), id: 'cv-tx-dy', width: '6rem' });
-    const ang = numInput('0', () => true, { label: t('cv.tx.angle'), id: 'cv-tx-ang', width: '6rem', calc: false });
-    let from = null, about = null;
-    const aboutTxt = el('span', { className: 'cv-note', 'data-cv-tx-about': '' }, t('cv.tx.about.centre'));
-    const val = (inp) => { const x = Number(inp.value); return Number.isFinite(x) ? x : null; };
-    const centre = (o) => { const v = verts(o); return { x: v.reduce((m, q) => m + q.x, 0) / v.length, y: v.reduce((m, q) => m + q.y, 0) / v.length }; };
-    const apply = (copy, how) => {
-      const o = get(); if (!o) return;
-      let mx = 0, my = 0, a = 0, c = null;
-      if (how === 'move') { const x = val(dx), y = val(dy); if (x === null || y === null) { say(t('cv.tx.bad')); return; } mx = x; my = y; }
-      else { const d = val(ang); if (d === null) { say(t('cv.tx.bad')); return; } a = (d * Math.PI) / 180; c = about || centre(o); }
-      const run = (list) => { const t0 = list.find((x) => x.id === id); const tgt = copy ? copyOf(t0, project.nextId(PFX), t('cv.tx.copy.name', { name: t0.name }).slice(0, 120), 0, 0) : t0; if (how === 'move') translate(verts(tgt), mx, my); else rotate(verts(tgt), c.x, c.y, a); if (copy) { list.push(tgt); return tgt.id; } return null; };
-      let nid = null;
-      project.change(t(copy ? 'cv.undo.tx.copy' : how === 'move' ? 'cv.undo.tx.move' : 'cv.undo.tx.rotate', { name: o.name }), (st) => { nid = run(st[LIST]); });
-      if (nid) { picked.clear(); sel = { kind, id: nid }; selPvi = -1; refresh(); }
-      say(t(copy ? 'cv.tx.copied' : how === 'move' ? 'cv.tx.moved' : 'cv.tx.rotated', { name: o.name }));
-    };
-    const btn = (key, fn, attr) => el('button', { type: 'button', className: 'btn-line btn-sm-cc', ...attr, onclick: fn }, t(key));
-    return el('div', { 'data-cv-transform': kind }, el('h3', { className: 'cv-h3' }, t('cv.tx.head')),
-      el('div', { className: 'cv-props' },
-        ...row(t('cv.tx.dx') + ' (' + u().short + ')', dx, 'cv-tx-dx'), ...row(t('cv.tx.dy') + ' (' + u().short + ')', dy, 'cv-tx-dy')),
-      el('div', { className: 'cv-row' },
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-tx-from': '', onclick: () => armPick(t('cv.tx.from'), (pt) => { from = pt; say(t('cv.tx.from.done')); armPick(t('cv.tx.to'), (to) => { dx.value = String(Number((to.x - from.x).toFixed(6))); dy.value = String(Number((to.y - from.y).toFixed(6))); say(t('cv.tx.to.done')); }); }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.tx.pick.move')),
-        btn('cv.tx.move', () => apply(false, 'move'), { 'data-cv-tx-move': '' }), btn('cv.tx.copy', () => apply(true, 'move'), { 'data-cv-tx-copy': '' })),
-      el('div', { className: 'cv-props' }, ...row(t('cv.tx.angle') + ' (°)', ang, 'cv-tx-ang')),
-      el('div', { className: 'cv-row' },
-        pickBtn(t('cv.tx.about'), (pt) => { about = pt; aboutTxt.textContent = t('cv.tx.about.at', { e: fixed(pt.x, 2), n: fixed(pt.y, 2) }); }), aboutTxt),
-      el('div', { className: 'cv-row' }, btn('cv.tx.rotate', () => apply(false, 'rotate'), { 'data-cv-tx-rotate': '' }), btn('cv.tx.rotcopy', () => apply(true, 'rotate'), { 'data-cv-tx-rotcopy': '' })),
-      el('p', { className: 'cv-note' }, t('cv.tx.note')));
-  }
 
-  function padProps(d) {
-    ui.propsH.textContent = t('cv.pad');
-    const out = [], U = u();
-    const padName = (v) => { project.change(t('cv.undo.pad.rename'), () => { findPad(d.id).name = v.trim().slice(0, 120) || t('cv.pad'); }); };
-    const padZ = (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; project.change(t('cv.undo.pad.z'), () => { findPad(d.id).z = x; }); };
-    // 0.7.1 71.22: slopes typed as 3, 3:1, 33% or 18.4° (sides-ui.js slopeInput)
-    const cut = slopeInput(numInput, d.cut, (x) => { project.change(t('fl.props.cut'), () => { findPad(d.id).cut = x; }); }, { id: 'cv-pad-cut', label: t('fl.props.cut') });
-    const fill = slopeInput(numInput, d.fill, (x) => { project.change(t('fl.props.fill'), () => { findPad(d.id).fill = x; }); }, { id: 'cv-pad-fill', label: t('fl.props.fill') });
-    if (window.ccPropGrid) {
-      const C = t('cv.pad');
-      out.push(propGrid('pad', C, [gridRow('name', C, t('fl.props.name'), d.name, { maxLength: 120 }), gridRow('z', C, t('pt.props.elev') + ' (' + U.short + ')', fixed(Number(d.z), 2)),
-        roRow('area', C, t('cv.pad.area'), areaText(Math.abs(polyArea(d.pts)), units())), roRow('corners', C, t('dr.c.corners'), d.pts.length)],
-      { name: { fn: padName }, z: { fn: padZ, calc: true } }),
-      el('div', { className: 'cv-props' },   // the slopes keep slopeInput's own reader (3, 3:1, 33%, 18.4°)
-        ...row(t('fl.props.cut'), el('div', { className: 'cv-row' }, cut, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-cut'),
-        ...row(t('fl.props.fill'), el('div', { className: 'cv-row' }, fill, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-fill')));
-    } else {
-      const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-pad-name', value: d.name, maxLength: 120 });
-      nm.addEventListener('change', () => padName(nm.value));
-      const z = numInput(fixed(Number(d.z), 2), padZ, { id: 'cv-pad-z' });
-      out.push(el('div', { className: 'cv-props' },
-        ...row(t('fl.props.name'), nm, 'cv-pad-name'),
-        ...row(t('pt.props.elev'), el('div', { className: 'cv-row' }, z, el('span', { className: 'cv-unit' }, U.short)), 'cv-pad-z'),
-        ...row(t('fl.props.cut'), el('div', { className: 'cv-row' }, cut, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-cut'),
-        ...row(t('fl.props.fill'), el('div', { className: 'cv-row' }, fill, el('span', { className: 'cv-unit' }, ': 1 (H:V)')), 'cv-pad-fill'),
-        ...row(t('cv.pad.area'), areaText(Math.abs(polyArea(d.pts)), units())),
-        ...row(t('dr.c.corners'), String(d.pts.length))));
-    }
-    const gp = graded().items?.find((x) => x.id === d.id);
-    if (gp && !gp.problems.length) {
-      const cutN = gp.rays.filter((r) => r.kind === 'cut').length, fillN = gp.rays.filter((r) => r.kind === 'fill').length;
-      out.push(el('p', { className: 'cv-note' }, t('cv.pad.daylight', { n: gp.rays.length, cut: cutN, fill: fillN, d: fixed(Math.max(...gp.rays.map((r) => r.d)), 2), u: U.short })));
-    }
-    // 0.7.1 71.22: each side its own slopes or a retaining wall, the walls' quantities and warnings
-    out.push(...sidesBlock({ el, numInput: (...x) => numInput(...x), units: units(), n: d.pts.length, sides: d.sides, cut: Number(d.cut), fill: Number(d.fill), info: gp,
-      change: (label, sides) => project.change(label, () => { const p = findPad(d.id); const c = cleanSides(sides, units(), p.pts.length); if (c) p.sides = c; else delete p.sides; }), idp: 'cv-pad-sd' }));
-    out.push(cornersBlock('pad', d.id), transformBlock('pad', d.id));   // 0.9 WB.10 / WB.15
-    out.push(volumeBlock());
-    out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
-    ui.props.replaceChildren(...out);
-  }
 
-  // ---- pipe network
-  function networkBlock() {
-    const n = net(), chk = project.networkCheck(), U = u(), out = [];
-    out.push(el('h3', { className: 'cv-h3' }, t('cv.net.head')));
-    const type = el('select', { className: 'cv-select', id: 'cv-net-type' }, el('option', { value: 'storm' }, t('cv.net.storm')), el('option', { value: 'sanitary' }, t('cv.net.sanitary')));
-    type.value = n.type;
-    type.addEventListener('change', () => project.change(t('cv.undo.net.type'), (st) => { st.network.type = type.value; }));
-    const rule = (k, label, id, scale, unit) => numInput(fixed(n.rules[k] * scale, scale === 100 ? 2 : 2), (v) => { const x = Number(v); if (!(x >= 0) || v === '') return false; project.change(label, (st) => { st.network.rules[k] = x / scale; }); }, { id, min: 0 });
-    out.push(el('div', { className: 'cv-props' },
-      ...row(t('cv.net.type'), type, 'cv-net-type'),
-      ...row(t('cv.net.minslope'), el('div', { className: 'cv-row' }, rule('minSlope', t('cv.net.minslope'), 'cv-net-slope', 100), el('span', { className: 'cv-unit' }, '%')), 'cv-net-slope'),
-      ...row(t('cv.net.mincover'), el('div', { className: 'cv-row' }, rule('minCover', t('cv.net.mincover'), 'cv-net-cover', 1), el('span', { className: 'cv-unit' }, U.short)), 'cv-net-cover'),
-      ...row(t('cv.net.mindrop'), el('div', { className: 'cv-row' }, rule('minDrop', t('cv.net.mindrop'), 'cv-net-drop', 1), el('span', { className: 'cv-unit' }, U.short)), 'cv-net-drop')));
-    out.push(el('p', { className: 'cv-note' }, t('cv.net.note')));
-    out.push(el('p', { className: 'cv-note' }, t('cv.net.count', { structures: t('cv.net.structures', { n: n.structures.length }), pipes: t('cv.net.pipes', { n: n.pipes.length }) })));
-    const probs = chk?.problems || [];
-    out.push(probs.length ? el('div', { className: 'cv-report is-error', 'data-net-problems': '' }, el('ul', {}, ...probs.slice(0, 40).map((p) => el('li', {}, p.id ? el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { sel = { kind: p.kind === 'pipe' ? 'pipe' : 'structure', id: p.id }; refresh(); } }, p.msg) : p.msg)))) : el('p', { className: 'cv-note', 'data-net-ok': '' }, t('cv.net.ok')));
-    out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-auto-inverts': '', onclick: () => setInverts(null) }, t('cv.net.auto'))));
-    out.push(...(n.type === 'sanitary' ? seUi.block() : drUi.block()));   // 0.4 V19/V20 storm; 0.6 LC.16 S1 sanitary design flows
-    out.push(...stUi.block());   // 0.6 WL.27: structure types
-    return out;
-  }
-  function setInverts(only) {
-    const r = autoInverts(net(), project.pipeSurface(), units(), { only });
-    project.change(t('cv.undo.net.inverts'), (st) => { st.network.pipes = r.pipes; });
-    say(r.problems.length ? r.problems.join(' ') : t('cv.net.inverts.done'));
-  }
 
-  function structureProps(x) {
-    ui.propsH.textContent = t('cv.st');
-    const chk = project.networkCheck(), info = chk?.structs.get(x.id), U = u(), out = [];
-    const stNameBox = () => { const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-st-name', value: x.name, maxLength: 60 }); nm.addEventListener('change', () => stName(nm.value)); return nm; };
-    const stRimBox = () => { const rim = numInput(Number.isFinite(x.rim) ? fixed(x.rim, 2) : '', stRim, { id: 'cv-st-rim' }); rim.placeholder = rimHint; return rim; };
-    const stSumpBox = () => numInput(x.sumpDepth || 0, stSump, { id: 'cv-st-sump', min: 0 });
-    const stDiaBox = () => { const dia = numInput(x.dia, stDia, { id: 'cv-st-dia', min: 1 }); if (x.type) { dia.disabled = true; dia.title = t('st.dia.typed'); } return dia; };
-    const stName = (v) => { project.change(t('cv.undo.st.rename'), () => { findStruct(x.id).name = v.trim().slice(0, 60) || t('cv.st'); }); };
-    const stRim = (v) => { if (v === '') { project.change(t('cv.undo.st.rim.surface'), () => { findStruct(x.id).rim = null; }); return; } const z = Number(v); if (!Number.isFinite(z)) return false; project.change(t('cv.undo.st.rim'), () => { findStruct(x.id).rim = z; }); };
-    const stSump = (v) => { const z = Number(v); if (!(z >= 0)) return false; project.change(t('cv.st.sump'), () => { findStruct(x.id).sumpDepth = z; }); };
-    const stDia = (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.st.size'), () => { findStruct(x.id).dia = z; }); };
-    const rimHint = info?.rim !== null && info?.rim !== undefined ? t('cv.st.rim.ph', { z: fixed(info.rim, 2) }) : t('cv.st.rim.off');
-    const rimUsed = info?.rim !== null && info?.rim !== undefined ? (info.rimFrom === 'surface' ? t('cv.st.rim.from', { z: fixed(info.rim, 2) }) : fixed(info.rim, 2)) : '—';
-    if (window.ccPropGrid) {
-      const C = t('cv.st');
-      out.push(propGrid('structure', C, [gridRow('name', C, t('fl.props.name'), x.name, { maxLength: 60 }),
-        gridRow('rim', C, t('cv.st.rim') + ' (' + U.short + ')', Number.isFinite(x.rim) ? fixed(x.rim, 2) : '', { hint: rimHint }),
-        gridRow('sumpDepth', C, t('cv.st.sump') + ' (' + U.short + ')', x.sumpDepth || 0),
-        gridRow('dia', C, t('cv.diameter') + ' (' + diaU().name + ')', x.dia, { readonly: !!x.type, hint: x.type ? t('st.dia.typed') : '' }),   // 0.6 WL.27: a type sets the size
-        roRow('rimUsed', C, t('cv.st.rim.used'), rimUsed), roRow('sumpZ', C, t('cv.st.sump.z'), info?.sump !== null && info?.sump !== undefined ? fixed(info.sump, 2) : '—'),
-        roRow('easting', C, t('pt.props.easting'), fixed(x.x, 2)), roRow('northing', C, t('pt.props.northing'), fixed(x.y, 2))],
-      { name: { fn: stName }, rim: { fn: stRim, calc: true }, sumpDepth: { fn: stSump, calc: true }, dia: { fn: stDia, calc: true } }));
-    } else out.push(el('div', { className: 'cv-props' },
-      ...row(t('fl.props.name'), stNameBox(), 'cv-st-name'),
-      ...row(t('cv.st.rim'), el('div', { className: 'cv-row' }, stRimBox(), el('span', { className: 'cv-unit' }, U.short)), 'cv-st-rim'),
-      ...row(t('cv.st.sump'), el('div', { className: 'cv-row' }, stSumpBox(), el('span', { className: 'cv-unit' }, U.short)), 'cv-st-sump'),
-      ...row(t('cv.diameter'), el('div', { className: 'cv-row' }, stDiaBox(), el('span', { className: 'cv-unit' }, diaU().name)), 'cv-st-dia'),
-      ...row(t('cv.st.rim.used'), rimUsed),
-      ...row(t('cv.st.sump.z'), info?.sump !== null && info?.sump !== undefined ? fixed(info.sump, 2) : '—'),
-      ...row(t('pt.props.easting'), fixed(x.x, 2)), ...row(t('pt.props.northing'), fixed(x.y, 2))));
-    out.push(el('p', { className: 'cv-note' }, t('cv.st.rim.note')));
-    out.push(...stUi.structureRow(x));   // 0.6 WL.27
-    const lines = [];
-    for (const p of net().pipes) { if (p.to === x.id) lines.push(t('cv.st.in', { pipe: p.name, z: Number.isFinite(p.invDn) ? fixed(p.invDn, 2) : '—' })); if (p.from === x.id) lines.push(t('cv.st.out', { pipe: p.name, z: Number.isFinite(p.invUp) ? fixed(p.invUp, 2) : '—' })); }
-    if (lines.length) out.push(el('ul', { className: 'cv-plainlist' }, ...lines.map((l) => el('li', {}, l))));
-    const probs = (chk?.problems || []).filter((p) => p.id === x.id);
-    if (probs.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((p) => el('li', {}, p.msg)))));
-    out.push(...(net().type === 'sanitary' ? seUi.structureRows(x) : drUi.structureRows(x)));   // 0.4 V19/V20; 0.6 LC.16 S1
-    out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
-    ui.props.replaceChildren(...out);
-  }
 
-  function pipeProps(p) {
-    ui.propsH.textContent = t('dr.r.pipe');
-    const chk = project.networkCheck(), info = chk?.pipes.get(p.id), U = u(), out = [];
-    const ppName = (v) => { project.change(t('cv.undo.pp.rename'), () => { findPipe(p.id).name = v.trim().slice(0, 60) || t('dr.r.pipe'); }); };
-    const ppDia = (v) => { const z = Number(v); if (!(z > 0)) return false; project.change(t('cv.undo.pp.size'), () => { findPipe(p.id).dia = z; }); };
-    const ppInv = (k, label) => (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; project.change(label, () => { findPipe(p.id)[k] = z; }); };
-    const a = findStruct(p.from), b = findStruct(p.to);
-    const fromTo = (a?.name || '?') + ' → ' + (b?.name || '?'), lenT = info ? fixed(info.len, 2) + ' ' + U.short : '—';
-    const slopeT = info?.slope !== null && info?.slope !== undefined ? pct(info.slope) : '—', coverT = info?.cover !== null && info?.cover !== undefined ? fixed(info.cover, 2) + ' ' + U.short : '—';
-    if (window.ccPropGrid) {
-      const C = t('dr.r.pipe');
-      out.push(propGrid('pipe', C, [gridRow('name', C, t('fl.props.name'), p.name, { maxLength: 60 }), roRow('fromto', C, t('cv.pp.fromto'), fromTo),
-        gridRow('dia', C, t('cv.diameter') + ' (' + diaU().name + ')', p.dia),
-        gridRow('invUp', C, t('cv.pp.up') + ' (' + U.short + ')', Number.isFinite(p.invUp) ? fixed(p.invUp, 2) : ''), gridRow('invDn', C, t('cv.pp.dn') + ' (' + U.short + ')', Number.isFinite(p.invDn) ? fixed(p.invDn, 2) : ''),
-        roRow('length', C, t('fl.props.length'), lenT), roRow('slope', C, t('cv.pp.slope'), slopeT), roRow('cover', C, t('cv.net.mincover'), coverT)],
-      { name: { fn: ppName }, dia: { fn: ppDia, calc: true }, invUp: { fn: ppInv('invUp', t('cv.pp.up')), calc: true }, invDn: { fn: ppInv('invDn', t('cv.pp.dn')), calc: true } }));
-    } else {
-      const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-pp-name', value: p.name, maxLength: 60 });
-      nm.addEventListener('change', () => ppName(nm.value));
-      const inv = (k, label, id) => numInput(Number.isFinite(p[k]) ? fixed(p[k], 2) : '', ppInv(k, label), { id });
-      out.push(el('div', { className: 'cv-props' },
-        ...row(t('fl.props.name'), nm, 'cv-pp-name'),
-        ...row(t('cv.pp.fromto'), fromTo),
-        ...row(t('cv.diameter'), el('div', { className: 'cv-row' }, numInput(p.dia, ppDia, { id: 'cv-pp-dia', min: 1 }), el('span', { className: 'cv-unit' }, diaU().name)), 'cv-pp-dia'),
-        ...row(t('cv.pp.up'), el('div', { className: 'cv-row' }, inv('invUp', t('cv.pp.up'), 'cv-pp-up'), el('span', { className: 'cv-unit' }, U.short)), 'cv-pp-up'),
-        ...row(t('cv.pp.dn'), el('div', { className: 'cv-row' }, inv('invDn', t('cv.pp.dn'), 'cv-pp-dn'), el('span', { className: 'cv-unit' }, U.short)), 'cv-pp-dn'),
-        ...row(t('fl.props.length'), lenT), ...row(t('cv.pp.slope'), slopeT), ...row(t('cv.net.mincover'), coverT)));
-    }
-    const probs = (chk?.problems || []).filter((x) => x.id === p.id);
-    out.push(probs.length ? el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((x) => el('li', {}, x.msg)))) : el('p', { className: 'cv-note' }, t('cv.pp.ok')));
-    out.push(...(net().type === 'sanitary' ? seUi.pipeRows(p) : drUi.pipeRows(p)));   // 0.4 V19/V20; 0.6 LC.16 S1
-    out.push(el('div', { className: 'cv-actions' },
-      el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => setInverts(new Set([p.id])) }, t('cv.pp.auto')),
-      el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
-    ui.props.replaceChildren(...out);
-  }
 
-  /** 0.4 V2: one point, every field editable (point-edit.js); each change is one undo step. */
-  function pointProps(p) {
-    ui.propsH.textContent = t('cv.pt.head', { n: p.n });
-    const commit = (field) => (v) => {
-      const r = editPoint(project, p.n, { [field]: v });
-      if (!r.ok) { if (r.message) say(r.message); return r.message ? false : undefined; }
-      if (r.point.n !== p.n) picked = new Set([r.point.n]);
-      say(r.message);
-      return true;
-    };
-    if (window.ccPropGrid) {   // 0.8 PANEL-COMPACT: the same fields in the shared grid; each box still goes through editPoint (one undo step)
-      const C = t('cv.pt.head', { n: p.n }), calc = { calc: true };
-      const hs = { n: { fn: commit('n') }, x: { fn: commit('x'), ...calc }, y: { fn: commit('y'), ...calc }, z: { fn: commit('z'), ...calc }, d: { fn: commit('d') } };
-      const rows = [gridRow('n', C, t('pt.props.number'), p.n), gridRow('x', C, t('pt.props.easting'), fixed(p.x, 3).replace(/,/g, '')), gridRow('y', C, t('pt.props.northing'), fixed(p.y, 3).replace(/,/g, '')),
-        gridRow('z', C, t('pt.props.elev'), p.z === null ? '' : fixed(p.z, 3).replace(/,/g, ''), { hint: t('pt.props.elev.none') }), gridRow('d', C, t('pt.props.desc'), p.d || ''),
-        roRow('group', C, t('pt.props.group'), project.keyOf()(p))];
-      if (codesUi.keyFor(p)?.label) rows.push(roRow('key', C, t('pt.props.key'), codesUi.keyFor(p).label));
-      if (p.blk) rows.push(roRow('block', C, t('pt.props.block'), t('pt.props.block.v', { block: p.blk.name, layer: p.blk.layer, handle: p.blk.handle })));
-      const host = propGrid('point', C, rows, hs, { 'data-point-edit': '' });
-      if (p.blk) host.setAttribute('data-has-block', '');
-      ui.props.replaceChildren(host, el('p', { className: 'cv-note' }, t('pt.props.note')), pickNote());
-      return;
-    }
-    const f = (field, value, opts) => numInput(value, commit(field), { ...opts, id: 'cv-pt-' + field, label: t('pt.props.' + opts.key), text: true, calc: ['x', 'y', 'z'].includes(field) });   // 0.6 DF.3: the number and description are words
-    const grid = el('div', { className: 'cv-props', 'data-point-edit': '' },
-      ...row(t('pt.props.number'), f('n', p.n, { key: 'number', width: '8rem' }), 'cv-pt-n'),
-      ...row(t('pt.props.easting'), f('x', fixed(p.x, 3).replace(/,/g, ''), { key: 'easting' }), 'cv-pt-x'),
-      ...row(t('pt.props.northing'), f('y', fixed(p.y, 3).replace(/,/g, ''), { key: 'northing' }), 'cv-pt-y'),
-      ...row(t('pt.props.elev'), f('z', p.z === null ? '' : fixed(p.z, 3).replace(/,/g, ''), { key: 'elev' }), 'cv-pt-z'),
-      ...row(t('pt.props.desc'), f('d', p.d || '', { key: 'desc' }), 'cv-pt-d'),
-      ...row(t('pt.props.group'), project.keyOf()(p)), ...(codesUi.keyFor(p)?.label ? row(t('pt.props.key'), codesUi.keyFor(p).label) : []),
-      // 0.5 WL.19: a point made from a block reference remembers it
-      ...(p.blk ? row(t('pt.props.block'), el('span', { 'data-pt-block': '' }, t('pt.props.block.v', { block: p.blk.name, layer: p.blk.layer, handle: p.blk.handle }))) : []));
-    for (const inp of grid.querySelectorAll('#cv-pt-z')) inp.placeholder = t('pt.props.elev.none');
-    ui.props.replaceChildren(grid, el('p', { className: 'cv-note' }, t('pt.props.note')), pickNote());
-  }
-  function pickedProps() {
-    const pts = pickedPoints(), zs = pts.filter((p) => p.z !== null).map((p) => p.z);
-    ui.propsH.textContent = t('cv.pts.n', { n: pts.length, count: num(pts.length) });
-    const dl = el('dl', { className: 'cv-dl', 'data-picked-info': '' });
-    const keyOf = project.keyOf(), groups = [...new Set(pts.map(keyOf))];   // 0.4 V16: through the description keys
-    fillDl(dl, [[t('cv.pk.selected'), num(pts.length)], [t('cv.pk.numbers'), numberSpan(pts)], [t('cv.sf.elevations'), zs.length ? t('cv.range', { a: fixed(Math.min(...zs), 2), b: fixed(Math.max(...zs), 2) }) : t('pt.props.elev.none')],
-      [t('cv.pk.groups'), groups.slice(0, 6).join(', ') + (groups.length > 6 ? ' …' : '')]]);
-    ui.props.replaceChildren(dl, pickNote());
-  }
   const pickNote = () => el('p', { className: 'cv-note' }, t('cv.pk.note'));
   function numberSpan(pts) {
     const w = pts.map((p) => p.n).filter((n) => /^\d+$/.test(n)).map(Number).sort((a, b) => a - b);
@@ -1378,7 +964,7 @@ function init(root) {
     ui.profFl.setAttribute('aria-pressed', String(!!ds.profFeatures));
     if (document.activeElement !== ui.profWithin) ui.profWithin.value = ds.profWithin ? String(ds.profWithin) : '';
     ui.profWithin.disabled = !ds.profFeatures;
-    pview.set({ key: a.id + '|' + project.version, eg: project.egProfile(a), profile: prof, pvis, start: al.start, end: al.end, units: units(), sel: selPvi, hover: pvHover, cursor: profCursor,
+    pview.set({ key: a.id + '|' + project.version, align: a.id, snap: profSnap && profSnap.kind !== 'free' ? profSnap : null, eg: project.egProfile(a), profile: prof, pvis, start: al.start, end: al.end, units: units(), sel: selPvi, hover: pvHover, cursor: profCursor,
       features, featSel: sel?.kind === 'feature' ? sel.id : null, cant: project.railPlan(a) });   // cant: 0.7.1 71.26
   }
   ui.profFl.addEventListener('click', () => { project.setDisplay('profFeatures', !project.state.display.profFeatures); renderProfile(); });
@@ -1388,7 +974,43 @@ function init(root) {
     project.setDisplay('profWithin', ui.profWithin.value.trim() === '' ? 0 : v);
     renderProfile();
   });
-  let pvHover = -1;
+  let pvHover = -1, pvPick = null, profSnap = null, profSnapOn = true, profPan = null;   // CV.3: pvPick = { id, i, field: 'sta' | 'z' } while a table pick button waits for a click in the profile
+  const parseSlope = (x) => { const v = Number(String(x).replace('%', '').replace(',', '.').trim()); return String(x).trim() === '' || !Number.isFinite(v) ? null : v / 100; };
+  /** The pick button beside a PVI's station or elevation: the next click in the profile (snapped) fills that value. */
+  function pviPickBtn(i, field) {
+    const on = pvPick && pvPick.i === i && pvPick.field === field;
+    return el('button', { type: 'button', className: 'cv-x cv-pvipick' + (on ? ' is-on' : ''), 'data-pvi-pick': field + ':' + i, 'aria-pressed': String(!!on),
+      'aria-label': t(field === 'sta' ? 'cv.pvi.pick.sta.of' : 'cv.pvi.pick.z.of', { n: i + 1 }), title: t('cv.pvi.pick.title'), onclick: () => startPviPick(i, field) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }));
+  }
+  function startPviPick(i, field) {
+    const a = profileAlignment(); if (!a) return;
+    if (pvPick && pvPick.i === i && pvPick.field === field) { endPviPick(); renderProps(); return; }
+    if (ui.profPanel.hidden) showProfile(true, a.id);
+    pvPick = { id: a.id, i, field };
+    ui.prof.classList.add('is-picking'); ui.prof.focus({ preventScroll: true });
+    say(t('cv.pvi.pick.hint', { n: i + 1, what: t(field === 'sta' ? 'cv.pvi.pick.what.sta' : 'cv.pvi.pick.what.z') }));
+    renderProps();
+  }
+  function endPviPick() { pvPick = null; profSnap = null; ui.prof.classList.remove('is-picking'); renderProfile(); }
+  /** What a point in the profile means for PVI `skip` (or a new one): the snapped point, or the raw one when snapping is off or Alt is held. */
+  function profPoint(sx, sy, a, skip, alt) {
+    const d = pview.toData(sx, sy);
+    const snap = profSnapOn && !alt ? snapProfile(sx, sy, { toScreen: (q, z) => pview.toScreen(q, z), toData: (x, y) => pview.toData(x, y), eg: project.egProfile(a), pvis: a.pvis, skip, px: 10, labels: { pvi: t('cv.snap.pvi'), ground: t('cv.snap.ground'), station: t('cv.snap.station'), groundline: t('cv.snap.groundline') } }) : null;
+    return snap || { sta: d.sta, z: d.z, kind: 'free', label: '' };
+  }
+  /** The slope cell: the grade (%) of the tangent from this PVI to the next, typed to move the next PVI's elevation (the last row has none). */
+  function slopeCell(a, i) {
+    const last = i === a.pvis.length - 1, g = slopeOut(a.pvis, i);
+    if (last || g === null) return el('td', { className: 'cv-dash' }, '—');
+    return el('td', {}, numInput(String(Number((g * 100).toFixed(3))), (x) => {
+      const q = parseSlope(x); if (q === null) return false;
+      const trial = a.pvis.map((v) => ({ ...v })), r = setSlope(trial, i, q);
+      if (!r.ok) { say(t('cv.pvi.slope.locked', { a: i + 1, b: i + 2 })); return false; }
+      project.change(t('cv.undo.pvi.slope'), () => { const p = findAl(a.id).pvis; p[r.moved].z = trial[r.moved].z; });
+      say(t('cv.pvi.slope.set', { a: i + 1, b: i + 2, g: pct(q), n: r.moved + 1 }));
+      return true;
+    }, { label: t('cv.pvi.slope.of', { a: i + 1, b: i + 2 }), calc: false }));
+  }
   ui.profAl.addEventListener('change', () => { ui.profAl.dataset.want = ui.profAl.value; sel = { kind: 'alignment', id: ui.profAl.value }; selPvi = -1; refresh(); });
   ui.profClose.addEventListener('click', () => showProfile(false));
   ui.pviAdd.addEventListener('click', () => setPviAdd(ui.pviAdd.getAttribute('aria-pressed') !== 'true'));
@@ -1398,18 +1020,31 @@ function init(root) {
     const a = profileAlignment(); if (!a || !pview.data) return;
     ui.prof.focus({ preventScroll: true });
     const r = ui.prof.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
+    if (e.button === 1 || e.button === 2) { profPan = { x: e.clientX, y: e.clientY }; ui.prof.setPointerCapture(e.pointerId); e.preventDefault(); return; }   // CV.3: middle or right button drags the view
+    if (pvPick) {   // CV.3 (#1534): a pick button in the PVI table is waiting for this click
+      const pk = pvPick, pa = findAl(pk.id), al0 = project.alignment(pa), q = profPoint(sx, sy, pa, pk.i, e.altKey);
+      if (pa && pa.pvis[pk.i]) {
+        const prev = pa.pvis[pk.i - 1], next = pa.pvis[pk.i + 1];
+        const sta = Math.max(prev ? prev.sta + 0.01 : al0.start, Math.min(next ? next.sta - 0.01 : al0.end, Number(q.sta.toFixed(2)))), z = Number(q.z.toFixed(2));
+        project.change(t(pk.field === 'sta' ? 'cv.undo.pvi.sta' : 'cv.undo.pvi.z'), () => { const v = findAl(pk.id).pvis[pk.i]; if (pk.field === 'sta') v.sta = sta; else v.z = z; });
+        say(t(pk.field === 'sta' ? 'cv.pvi.picked.sta' : 'cv.pvi.picked.z', { n: pk.i + 1, v: pk.field === 'sta' ? formatStation(sta, units()) : fixed(z, 2) }));
+      }
+      endPviPick(); renderProps();
+      return;
+    }
     const hit = pview.hitPvi(sx, sy);
     const fl = hit < 0 ? pview.hitFeature(sx, sy) : null;   // 0.5 WL.20: a feature line's crossing mark selects it
     if (fl) { flUi.find(fl) && (sel = { kind: 'feature', id: fl }, selPvi = -1, picked.clear(), refresh()); return; }
     if (hit >= 0) {
       selPvi = hit; sel = { kind: 'alignment', id: a.id };
+      if (a.pvis[hit].locked) { say(t('cv.pvi.locked.drag', { n: hit + 1 })); renderProps(); renderProfile(); return; }   // CV.3: a locked PVI is not dragged
       pvDrag = { id: a.id, i: hit, pvis: a.pvis.map((v) => ({ ...v })), prof: project.designProfile(a), moved: false, x0: sx, y0: sy };
       ui.prof.setPointerCapture(e.pointerId);
       renderProps(); renderProfile();
       return;
     }
     if (ui.pviAdd.getAttribute('aria-pressed') === 'true') {
-      const al = project.alignment(a); const d = pview.toData(sx, sy);
+      const al = project.alignment(a); const d = profPoint(sx, sy, a, -1, e.altKey);   // CV.3: snaps (Alt = free)
       const sta = Math.max(al.start, Math.min(al.end, Number(d.sta.toFixed(2)))), z = Number(d.z.toFixed(2));
       if (a.pvis.some((v) => Math.abs(v.sta - sta) < 0.01)) { say(t('cv.pvi.exists', { sta: formatStation(sta, units()) })); return; }
       project.change(t('cv.undo.pvi.add'), () => { const p = findAl(a.id).pvis; p.push({ sta, z, L: 0 }); p.sort((m, n) => m.sta - n.sta); });
@@ -1421,20 +1056,27 @@ function init(root) {
   ui.prof.addEventListener('pointermove', (e) => {
     const a = profileAlignment(); if (!a || !pview.data) return;
     const r = ui.prof.getBoundingClientRect(), sx = e.clientX - r.left, sy = e.clientY - r.top;
+    if (profPan) { pview.panBy(e.clientX - profPan.x, e.clientY - profPan.y); profPan = { x: e.clientX, y: e.clientY }; return; }
     const d = pview.toData(sx, sy), al = project.alignment(a);
     if (pvDrag) {
       if (Math.hypot(sx - pvDrag.x0, sy - pvDrag.y0) > 2) pvDrag.moved = true;
       if (!pvDrag.moved) return;
       const v = pvDrag.pvis[pvDrag.i], prev = pvDrag.pvis[pvDrag.i - 1], next = pvDrag.pvis[pvDrag.i + 1];
-      v.sta = Math.max(prev ? prev.sta + 0.01 : al.start, Math.min(next ? next.sta - 0.01 : al.end, Number(d.sta.toFixed(2))));
-      v.z = Number(d.z.toFixed(2));
+      const q = profPoint(sx, sy, { ...a, pvis: pvDrag.pvis }, pvDrag.i, e.altKey);   // CV.3: the dragged PVI snaps to the others, to ground points and ground
+      profSnap = q;
+      v.sta = Math.max(prev ? prev.sta + 0.01 : al.start, Math.min(next ? next.sta - 0.01 : al.end, Number(q.sta.toFixed(2))));
+      v.z = Number(q.z.toFixed(2));
       pvDrag.prof = buildProfileLive(pvDrag.pvis);
       renderProfile();
       ui.profRead.textContent = t('cv.prof.read.pvi', { sta: formatStation(v.sta, units()), z: fixed(v.z, 2) });
       return;
     }
     const h = pview.hitPvi(sx, sy);
-    if (h !== pvHover) { pvHover = h; renderProfile(); }
+    const wantSnap = pvPick || ui.pviAdd.getAttribute('aria-pressed') === 'true';
+    const ns = wantSnap && h < 0 ? profPoint(sx, sy, a, pvPick ? pvPick.i : -1, e.altKey) : null;
+    const snapChanged = (ns && ns.kind !== 'free' ? ns.sta + '|' + ns.z : '') !== (profSnap && profSnap.kind !== 'free' ? profSnap.sta + '|' + profSnap.z : '');
+    profSnap = ns;
+    if (h !== pvHover || snapChanged) { pvHover = h; renderProfile(); }
     const sta = Math.max(al.start, Math.min(al.end, d.sta));
     const egz = interpEg(project.egProfile(a), sta), prof = project.designProfile(a), fg = prof.ok ? prof.elevationAt(sta) : null;
     const read = [t('cv.read.sta', { sta: formatStation(sta, units()) })];
@@ -1444,14 +1086,36 @@ function init(root) {
     profCursor = { id: a.id, sta };
     view.invalidate();
   });
-  ui.prof.addEventListener('pointerleave', () => { profCursor = null; view.invalidate(); });
+  ui.prof.addEventListener('pointerleave', () => { profCursor = null; if (profSnap) { profSnap = null; renderProfile(); } view.invalidate(); });
+  ui.prof.addEventListener('contextmenu', (e) => e.preventDefault());
+  // CV.3 (#1534): the wheel zooms the profile about the pointer (Shift = stations only, Alt = elevations only); double click fits; + − F keys
+  const profPad = new PadDetector();
+  ui.prof.addEventListener('wheel', (e) => {
+    if (!pview.data) return;
+    e.preventDefault();
+    if (!e.shiftKey && !e.altKey && profPad.isSwipe(e)) { pview.panBy(-e.deltaX, -e.deltaY); renderProfile(); return; }   // D7.56: two fingers pan; a pinch and a mouse wheel zoom (Shift / Alt keep their one-axis zoom)
+    const r = ui.prof.getBoundingClientRect();
+    pview.zoomAt(e.clientX - r.left, e.clientY - r.top, Math.pow(1.0015, -e.deltaY * (e.deltaMode === 1 ? 16 : 1)), e.shiftKey ? 'x' : e.altKey ? 'y' : 'xy');
+    renderProfile();
+  }, { passive: false });
+  ui.prof.addEventListener('dblclick', () => { pview.fit(); renderProfile(); });
   ui.prof.addEventListener('pointerup', () => {
+    if (profPan) { profPan = null; return; }
     if (!pvDrag) return;
+    profSnap = null;
     const d = pvDrag; pvDrag = null;
     if (d.moved) { project.change(t('cv.undo.pvi.move'), () => { findAl(d.id).pvis = d.pvis; }); selPvi = d.i; }
     renderProfile(); renderProps();
   });
-  ui.prof.addEventListener('keydown', (e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && selPvi >= 0) { e.preventDefault(); command('delete'); } });
+  ui.prof.addEventListener('keydown', (e) => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selPvi >= 0) { e.preventDefault(); command('delete'); }
+    if (e.key === 'Escape' && pvPick) { e.preventDefault(); e.stopPropagation(); endPviPick(); renderProps(); }   // the pick ends; the selection stays
+    const c = pview.plot, cx = (c.x0 + c.x1) / 2, cy = (c.y0 + c.y1) / 2;
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); pview.zoomAt(cx, cy, 1.25); renderProfile(); }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); pview.zoomAt(cx, cy, 0.8); renderProfile(); }
+    else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); pview.fit(); renderProfile(); }
+  });
+  ui.profSnapBtn?.addEventListener('click', () => { profSnapOn = !profSnapOn; ui.profSnapBtn.setAttribute('aria-pressed', String(profSnapOn)); if (!profSnapOn) { profSnap = null; renderProfile(); } });
   const buildProfileLive = (p) => buildProfile(p);
   function interpEg(eg, sta) {
     for (let i = 1; i < eg.length; i++) if (sta <= eg[i].sta) { const a = eg[i - 1], b = eg[i]; if (a.z === null || b.z === null) return null; return a.z + (b.z - a.z) * (sta - a.sta) / Math.max(b.sta - a.sta, 1e-12); }
@@ -1526,7 +1190,7 @@ function init(root) {
       default:
         if (lsUi.command(c)) { refresh(); break; }   // 0.7 LD: landscape, ls-*
         if (plUi.command(c)) { refresh(); break; }   // 0.7 PL: powerlines, pl-*
-        if (wmUi.command(c)) break;   // 0.8 LC.16: water
+        if (wmUi.command(c) || issUi.command(c) || utUi.command(c) || pkUi.command(c) || fcUi.command(c)) break;   // 0.8 LC.16: water
         if (geoUi.command(c)) break;   // 0.8 round 2 (civil-geo_PART_2): geo-soil, geo-road, geo-survey, geo-mine, geo-link, geo-rail
         if (moUi.command(c)) break;   // 0.8 EG.58 (civil_PART_3): mass-options
         if (solarUi.command(c)) break;   // 0.8 EG.15 (civil_PART_3): solar
@@ -2357,13 +2021,17 @@ function init(root) {
   ui.name.addEventListener('change', () => project.change(t('cv.undo.project.rename'), (s) => { s.name = ui.name.value.trim().slice(0, 120) || t('project.untitled'); }));
   ui.units.addEventListener('change', () => { project.change(t('cv.undo.units'), (s) => { s.units = ui.units.value === 'm' ? 'm' : 'ft'; }); say(t('cv.units.now', { units: u().name.toLowerCase() })); });
   onUnitsChange(() => refresh());   // 0.7 UNITS: a change in Settings › General › Units (lists, starred area / volume units)
-  ui.gridMethod.addEventListener('change', () => project.change(t('cv.undo.gridmethod'), (st) => { if (ui.gridMethod.value === 'tin') { delete st.surface.method; delete st.surface.gridStep; delete st.surface.gridPower; } else st.surface.method = ui.gridMethod.value; }));
+  ui.gridMethod.addEventListener('change', () => project.change(t('cv.undo.gridmethod'), (st) => { if (ui.gridMethod.value === 'tin') { delete st.surface.method; delete st.surface.gridStep; delete st.surface.gridPower; delete st.surface.gridQ; delete st.surface.gridAcc; } else st.surface.method = ui.gridMethod.value; }));
   ui.gridStep.addEventListener('change', () => { const v = Number(ui.gridStep.value); if (!(v >= 0)) { ui.gridStep.setAttribute('aria-invalid', 'true'); return; } ui.gridStep.removeAttribute('aria-invalid'); project.change(t('cv.undo.gridstep'), (st) => { if (v > 0) st.surface.gridStep = v; else delete st.surface.gridStep; }); });
   ui.gridPower.addEventListener('change', () => { const v = Number(ui.gridPower.value); if (!(v >= 1 && v <= 10)) { ui.gridPower.setAttribute('aria-invalid', 'true'); return; } ui.gridPower.removeAttribute('aria-invalid'); project.change(t('cv.undo.gridpower'), (st) => { st.surface.gridPower = v; }); });
   ui.maxEdge.addEventListener('change', () => { const v = Number(ui.maxEdge.value); if (!(v >= 0)) { ui.maxEdge.setAttribute('aria-invalid', 'true'); return; } ui.maxEdge.removeAttribute('aria-invalid'); project.change(t('cv.undo.maxedge'), (s) => { s.surface.maxEdge = v; }); });
   ui.showSurface.addEventListener('change', () => project.setDisplay('surface', ui.showSurface.value));
   ui.interval.addEventListener('change', () => project.setDisplay('interval', Number(ui.interval.value)));
   ui.major.addEventListener('change', () => project.setDisplay('major', Number(ui.major.value)));
+  // 0.9.1: contour smoothing (contour-smooth.js). 'none' removes the key, so a drawing that never used it saves as before
+  ui.smooth?.addEventListener('change', () => { const v = ui.smooth.value; if ((project.state.display.smooth || 'none') === v) return; if (v === 'light' || v === 'strong') project.state.display.smooth = v; else delete project.state.display.smooth; project.touch('display'); });
+  ui.gridQ?.addEventListener('change', () => { const v = Number(ui.gridQ.value); if (!(v > 0 && v <= 100)) { ui.gridQ.setAttribute('aria-invalid', 'true'); return; } ui.gridQ.removeAttribute('aria-invalid'); project.change(t('cv.undo.gridq'), (st) => { st.surface.gridQ = v; }); });
+  ui.gridAcc?.addEventListener('change', () => { const v = Number(ui.gridAcc.value); if (ui.gridAcc.value.trim() === '' || !(v >= 0 && v <= 100)) { ui.gridAcc.setAttribute('aria-invalid', 'true'); return; } ui.gridAcc.removeAttribute('aria-invalid'); project.change(t('cv.undo.gridacc'), (st) => { st.surface.gridAcc = v; }); });
   ui.bandCount.addEventListener('change', () => project.setDisplay('bandCount', Number(ui.bandCount.value)));
   ui.checks.addEventListener('change', (e) => { const c = e.target.closest('[data-show]'); if (c) project.setDisplay(c.dataset.show, c.checked); });
 
@@ -2386,8 +2054,9 @@ function init(root) {
     try { await openFile(fs[0]); } finally { openingFrom = null; }
   }
   autosave.offer({ onRecover: async (rec) => {
-    if (typeof rec.data !== 'string') throw new Error(t('recover.failed'));
-    await openProject(rec.data, rec.meta?.name || 'project.civilcraft.json');
+    const text = rec.data && rec.data.kind === 'chunks' ? recoverText(rec) : rec.data;   // 0.10: a base and its changes, or the old whole text
+    if (typeof text !== 'string') throw new Error(t('recover.failed'));
+    await openProject(text, rec.meta?.name || 'project.civilcraft.json');
     project.saved = -1;   // recovered work is unsaved until it is saved to a file
     asDoc?.changed();
     refresh();
@@ -2416,6 +2085,7 @@ function init(root) {
   })) fileHost.control.tool(def);
   { const reg = () => window.ccProblems?.registerTools?.(fileHost.control); if (window.ccProblems) reg(); else document.addEventListener('cc-problems-ready', reg, { once: true }); }   // problems-08's mount line: the Problems tools for assistants
   for (const def of landscapeTools({ project: () => project, seed: () => lsUi.seedSpecies(), changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.7 LD.8
+  for (const def of siteGenTools({ project: () => project, seed: () => lsUi.seedSpecies(), zAt: (x, y) => groundExisting(x, y), changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.10 SU.1815 + SU.1814b
   for (const def of waterTools({ project: () => project, groundAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; }, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 LC.16
   for (const def of egTools({ project: () => project, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 round 2: civil_PART_2
   for (const def of massOptTools({ project: () => project, changed: () => { refresh(); view.invalidateScene(); view.invalidate(); } })) fileHost.control.tool(def);   // 0.8 EG.58: civil_PART_3
@@ -2468,173 +2138,16 @@ function init(root) {
     try {
       const r = await fetch(new URL('./sample-site.csv', import.meta.url));
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      openText(await r.text(), 'sample-site.csv');
+      openText(await r.text(), 'sample-site.csv', 'ft');   // 0.10 BK.8: our own sample is in feet and says so (it is not asked about)
     } catch (err) { say(t('cv.sample.noload', { why: err.message })); }
   });
 
-  async function openFile(f) {
-    if (f.size > 200 * 1024 * 1024) { say(t('cv.file.toobig')); return; }
-    if (/\.ccbundle$|ccbundle\.zip$/i.test(f.name)) {   // 0.8 BIM-BUNDLE-OPEN: a project bundle opens as its IFC model (shared reader and plan, ./bundle/plan.js)
-      const r = await (await import('./bundle/plan.js')).expandBundles([f], 'civilcraft', { prefer: ['model'], limit: 1 });
-      const n = r.notes[0];
-      if (!n || n.code === 'failed') { say(t('bundle.failed', { file: f.name, why: n ? n.why : '' })); return; }
-      if (n.code === 'empty' || !r.files.length) { say(t('bundle.nomodel', { file: f.name })); return; }
-      say(t('bundle.model', { file: f.name }));
-      (await ifcUi())?.importFile(r.files[0]); return;
-    }
-    if (/\.ifc$/i.test(f.name)) { (await ifcUi())?.importFile(f); return; }   // 0.7.1 71.24: through cc-ifc (ifc-civil-read.js)
-    busy(t('cad.ui.reading', { file: f.name }));
-    try { openText(await f.text(), f.name); } catch (err) { say(t('cad.ui.read.failed', { file: f.name, why: err.message })); } finally { busy(null); }
-  }
 
-  async function openText(text, name) {
-    const ext = (name.match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
-    const head = text.slice(0, 400).trimStart();
-    if (ext === 'json' || head.startsWith('{')) return openProject(text, name);
-    if (ext === 'xml' || ext === 'landxml' || head.startsWith('<')) return openLandXml(text, name);
-    return importPoints(text, name);
-  }
 
-  async function openProject(text, name) {
-    const from = openingFrom;   // read now: it is cleared once the opening call returns, before the discard question
-    let r;
-    try { r = Project.fromJSON(JSON.parse(text)); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
-    if (!(await confirmDiscard())) return;
-    project = r.project; project.saved = project.version; projectTarget = from; rebind();
-    sel = null; selPvi = -1; lastReport = r.notes.length ? r.notes : null;
-    refresh(); fitAll();
-    say(t('cv.opened', { file: name }));
-  }
 
-  async function openLandXml(text, name) {
-    let d;
-    try { d = readLandXml(text); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
-    if (!d.points.length && !d.surfaces.length && !d.alignments.length && !d.networks?.length && !d.features?.length) { say(t('cv.lx.empty', { file: name }) + (d.notes.length ? ' ' + d.notes.join(' ') : '')); return; }
-    if (!(await confirmDiscard())) return;
-    const p = new Project(), notes = [...d.notes];
-    p.state.units = d.units || 'ft';
-    p.state.name = (d.name || name.replace(/\.[^.]+$/, '')).slice(0, 120);
-    if (d.points.length) p.setPoints(d.points, name);
-    const s0 = d.surfaces[0];
-    if (s0) {
-      p.state.surface.name = s0.name.slice(0, 120);
-      p.state.surface.breaklines = s0.breaklines.map((b) => ({ name: b.name.slice(0, 120), pts: b.pts }));
-      p.state.surface.boundary = s0.boundary;
-      if (s0.faces.length) p.state.surface.tin = { pts: s0.pts, faces: s0.faces };
-      if (d.surfaces.length > 1) notes.push(t('cv.lx.surfaces.more', { name: s0.name, n: d.surfaces.length - 1 }));
-    }
-    for (const a of d.alignments) {
-      const prof = a.profiles[0];
-      p.state.alignments.push({ id: p.nextId('a'), name: a.name.slice(0, 120), start: a.start, pis: a.pis, pvis: prof ? prof.pvis : [] });
-      if (a.profiles.length > 1) notes.push(t('cv.lx.profiles.more', { name: a.name }));
-    }
-    const n0 = d.networks?.find((x) => x.type !== 'water'), nw0 = d.networks?.find((x) => x.type === 'water');   // 0.8 LC.16 rest: a water network opens as water mains
-    if (nw0) { const w = cleanWater(waterFromNetwork(nw0, p.state.units), p.state.units); if (w.nodes.length) { p.state.water = w; notes.push(t('cv.lx.water', { n: w.pipes.length })); } }
-    if (n0) {
-      p.state.network = { ...defaultNetwork(p.state.units), name: n0.name.slice(0, 60), type: n0.type, structures: n0.structures.map((x) => ({ ...x, id: p.nextId('s'), _old: x.id, name: x.name.slice(0, 60), dia: x.dia || defaultStructDia(p.state.units) })), pipes: [] };
-      const map = new Map(p.state.network.structures.map((x) => [x._old, x.id]));
-      for (const x of p.state.network.structures) delete x._old;
-      // 0.6 WL.27: structures read with a shape (RectStruct, or a wall thickness) get a type each distinct size
-      const types = new Map();
-      for (const x of p.state.network.structures) {
-        const si = x.shapeIn;
-        delete x.shapeIn;
-        if (!si) continue;
-        const key = JSON.stringify([si.shape, si.dia, si.w, si.l, si.wall]);
-        if (!types.has(key)) { const k = cleanType({ ...si, sump: x.sumpDepth || 0 }, p.state.units); if (k) { k.id = p.nextId('u'); k.name = si.name ? si.name.slice(0, 80) : k.name; types.set(key, k); } }
-        const k = types.get(key);
-        if (k) Object.assign(x, { type: k.id, dia: k.shape === 'round' ? k.dia : k.w });
-      }
-      if (types.size) p.state.network.types = [...types.values()];
-      p.state.network.pipes = n0.pipes.map((q) => ({ ...q, id: p.nextId('q'), name: q.name.slice(0, 60), from: map.get(q.from), to: map.get(q.to), dia: q.dia || defaultPipeDia(p.state.units) }));
-      notes.push(t('cv.lx.net.rules'));
-      if (d.networks.filter((x) => x.type !== 'water').length > 1) notes.push(t('cv.lx.nets.more', { n: d.networks.filter((x) => x.type !== 'water').length - 1 }));
-    }
-    // 0.6 WL.24: feature lines (with their arcs); a line from another program is drawn only until its use is chosen
-    let flOff = 0;
-    for (const f of d.features || []) {
-      const c = cleanFeature({ ...f, use: f.use || 'off' }, p.state.units);
-      if (!c) continue;
-      if (!f.use) flOff++;
-      c.id = p.nextId('f');
-      (p.state.features ||= []).push(c);
-    }
-    if (flOff) notes.push(t('cv.lx.fl.off', { n: flOff }));
-    p.undoStack = []; p.version++; p.saved = p.version;
-    project = p; rebind(); sel = null; selPvi = -1; lastReport = notes.length ? notes : null;
-    refresh(); fitAll();
-    say(t('cv.lx.opened', { file: name, points: t('cv.pts.n', { n: d.points.length, count: num(d.points.length) }), surfaces: t('cv.surfaces.n', { n: d.surfaces.length }), alignments: t('cv.als.n', { n: d.alignments.length }) }));
-    // GIS: the file's <CoordinateSystem> is offered as the project's system (gis-vector-ui.js)
-    if (d.coordinateSystem) gisLoad().then(() => gisReg.landxmlCrs?.(d.coordinateSystem, name)).catch(() => {});
-  }
 
-  function importPoints(text, name) {
-    const dlg = ui.imp, $d = (s) => dlg.querySelector(s);
-    let res = null;
-    const parse = () => {
-      res = parsePoints(text, { format: $d('[data-imp-format]').value, prefer: settings.order });
-      $d('[data-imp-file]').textContent = name;
-      const delimKey = { ',': 'cv.imp.delim.comma', '\t': 'cv.imp.delim.tab', ';': 'cv.imp.delim.semi', ws: 'cv.imp.delim.space' }[res.delimiter];
-      const delim = delimKey ? t(delimKey) : '—';
-      $d('[data-imp-summary]').textContent = res.points.length
-        ? t(res.formatFrom === 'header' ? 'cv.imp.read.header' : res.formatFrom === 'chosen' ? 'cv.imp.read.chosen' : 'cv.imp.read.guessed', { n: res.points.length, count: num(res.points.length), format: res.format, order: settings.order, delim }) + (res.badCount ? ' ' + t('cv.imp.bad', { n: res.badCount, count: num(res.badCount) }) : '')
-        : t('cv.imp.none');
-      // GIS: latitude/longitude columns are degrees — converted through a coordinate system on Import, never loaded as feet
-      if (res.latlon && res.points.length) $d('[data-imp-summary]').textContent += ' ' + (project.state.crs ? t('cv.imp.latlon.crs', { crs: project.state.crs.name }) : t('cv.imp.latlon.pick'));
-      const rows = res.points.slice(0, 6);
-      $d('[data-imp-preview]').replaceChildren(rows.length ? el('table', { className: 'cv-table' },
-        el('thead', {}, el('tr', {}, ...[t('sk.c.point'), t('pt.props.northing'), t('pt.props.easting'), t('pt.props.elev'), t('pt.props.desc')].map((h) => el('th', { scope: 'col' }, h)))),
-        el('tbody', {}, ...rows.map((p) => el('tr', {}, el('td', {}, p.n), el('td', { className: 'num' }, fixed(p.y, 3)), el('td', { className: 'num' }, fixed(p.x, 3)), el('td', { className: 'num' }, p.z === null ? '—' : fixed(p.z, 3)), el('td', {}, p.d))))) : '');
-      $d('[data-imp-bad]').replaceChildren(res.bad.length ? el('div', { className: 'cv-report' }, el('p', {}, t('cv.imp.bad.head')), el('ul', {}, ...res.bad.slice(0, 25).map((b) => el('li', {}, t('cv.imp.bad.line', { line: b.line, why: b.why, text: b.text.slice(0, 60) })))), res.badCount > 25 ? el('p', {}, t('cv.imp.bad.more', { count: num(res.badCount - 25) })) : '') : '');
-      $d('[data-imp-ok]').disabled = !res.points.length;
-    };
-    $d('[data-imp-format]').value = 'auto';
-    parse();
-    $d('[data-imp-format]').onchange = parse;
-    $d('[data-imp-ok]').onclick = async () => {
-      dlg.close('ok');
-      // GIS: latitude/longitude → project coordinates through the project's system, or one picked now (gis-vector-ui.js)
-      let pts = res.points, llNote = '', llCrs = null;
-      if (res.latlon) {
-        try { await gisLoad(); } catch { return; }
-        const r = gisReg.pointsLatLon ? await gisReg.pointsLatLon(res.points, name) : null;
-        if (!r) { say(t('cv.imp.latlon.need', { file: name })); return; }
-        pts = r.points; llNote = ' ' + r.note; llCrs = r.crs;
-      }
-      const replacing = project.points.length;
-      project.state.surface.tin = null;
-      if (!project.points.length && !project.state.alignments.length && project.state.name === t('project.untitled')) project.state.name = name.replace(/\.[^.]+$/, '').slice(0, 120);
-      lastReport = null;
-      if (llCrs) { const before = project.state.crs; project.state.crs = llCrs; for (const f of gisReg.crsChange) f(before, llCrs); }   // GIS
-      project.setPoints(pts, name);
-      sel = null; selPvi = -1; picked.clear();
-      refresh(); fitAll();
-      const sf = eg().surface;
-      const counts = { n: pts.length, count: num(pts.length), file: name, tris: sf ? num(sf.nT) : '' };
-      say(t(sf ? (replacing ? 'cv.imp.replaced.sf' : 'cv.imp.imported.sf') : (replacing ? 'cv.imp.replaced' : 'cv.imp.imported'), counts) + ' ' + t('cv.imp.mark') + llNote);
-    };
-    for (const b of dlg.querySelectorAll('[data-close]')) b.onclick = () => dlg.close('cancel');
-    dlg.onclose = () => refocus();
-    dlg.showModal();
-    $d('[data-imp-ok]').focus();
-  }
 
-  /** An export: always a copy (browser: a download; desktop: the save dialog). */
-  function download(bytes, name, type) {
-    fileHost.download(bytes instanceof Blob ? bytes : new Blob([bytes], { type }), name, type);
-  }
-  function fileStem() { return (project.state.name || 'site').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '_').trim().slice(0, 80) || 'site'; }   // hoisted: autosave names its copy at start
 
-  /** Save the project: in place when it was opened from a project file on the desktop, else a new file (browser: a
-   *  download, as before). → true when saved. */
-  async function saveProject() {
-    // 0.7.1 71.27 (owner): the pair — <name>.civilcraft.json + <name>.ifc (IFC 4.3) side by side (ifc-native-ui.js)
-    const n = await nativeUi();
-    if (!n) return false;
-    const ok = await n.save();
-    if (ok) asDoc?.clean();
-    return ok;
-  }
   /** 0.7.1 71.27: the open pair's warnings for the Problems panel (none until the pair module is loaded). */
   function nativeWarnings() {
     return (project.nativeWarnings || []).map((w) => ({ ...w, text: t(w.msg.key, w.msg.vars), fixes: w.fixes.map((a) => ({ id: a, action: a, msg: { key: 'ifc.native.fix.' + (a === 'ifcSave' ? 'save' : 'take'), vars: {} }, text: t('ifc.native.fix.' + (a === 'ifcSave' ? 'save' : 'take')) })) }));
@@ -2657,55 +2170,8 @@ function init(root) {
   }
   async function openAny(fs, hfs = []) { if (!(await openPairFiles(fs, hfs))) await openFile(fs[0]); }
 
-  function exportLandXml() {
-    const s = project.state, r = eg();
-    if (!project.points.length && !r.surface && !s.alignments.length && !(s.features || []).length) { say(t('cv.export.none')); return; }
-    const surfaces = [];
-    if (r.surface) surfaces.push({ name: s.surface.name || t('surface.eg'), desc: t('surface.eg'), surface: r.surface, breaklines: project.egBreaklines(), boundary: s.surface.boundary });
-    const g = graded();
-    if (g.surface) surfaces.push({ name: t('cv.lx.proposed'), desc: t('cv.lx.proposed.desc', { n: s.pads.length }), surface: g.surface });
-    const xml = writeLandXml({
-      name: s.name, units: s.units, points: project.points, surfaces, crs: s.crs,   // GIS: <CoordinateSystem> when the project has one
-      alignments: s.alignments.map((a) => ({ name: a.name, alignment: project.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: project.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: project.designProfile(a) } : null })),
-      features: s.features || [],   // 0.6 WL.24
-      networks: [...(s.water?.pipes?.length ? [waterNetwork(cleanWater(s.water, s.units), s.units, { zAt: (x, y) => { const z = (graded().surface || eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } })] : []), ...(s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = project.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [])],
-    });
-    download(xml, fileStem() + '.xml', 'application/xml');
-    const skipped = s.alignments.filter((a) => !project.alignment(a).ok).length;
-    const als = t('cv.als.n', { n: s.alignments.length - skipped });
-    const list = [t('cv.pts.n', { n: project.points.length, count: num(project.points.length) }), t('cv.surfaces.n', { n: surfaces.length }), skipped ? t('cv.lx.als.skipped', { alignments: als, n: skipped }) : als];
-    if (s.network) list.push(t('cv.lx.network'));
-    if ((s.features || []).length) list.push(t('cv.lx.features', { n: s.features.length }));   // 0.6 WL.24
-    say(t('cv.lx.exported', { list: list.join(', ') }));
-  }
 
-  function extentsAll() {
-    const b = { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
-    const g = (x, y) => { b.minX = Math.min(b.minX, x); b.maxX = Math.max(b.maxX, x); b.minY = Math.min(b.minY, y); b.maxY = Math.max(b.maxY, y); };
-    const sf = eg().surface;
-    if (sf) { const s = sf.bounds; g(s.minX, s.minY); g(s.maxX, s.maxY); }
-    for (const p of project.points) g(p.x, p.y);
-    for (const a of project.state.alignments) for (const p of a.pis) g(p.x, p.y);
-    for (const d of project.state.pads) for (const p of d.pts) g(p.x, p.y);
-    for (const d of [...(project.state.parcels || []), ...(project.state.masses || []), ...(project.state.network?.catchments || []), ...(project.state.features || [])]) for (const p of d.pts) g(p.x, p.y);   // 0.4 V14/V19/V21
-    for (const f of gisReg.extents) { const e = f(); if (e && Number.isFinite(e.minX)) { g(e.minX, e.minY); g(e.maxX, e.maxY); } }
-    return Number.isFinite(b.minX) ? b : null;
-  }
-  function fitAll() {
-    const b = extentsAll();
-    if (b) { view.origin = { x: Math.floor(b.minX), y: Math.floor(b.minY) }; view.invalidateScene(); }
-    view.fit(b);
-  }
 
-  function exportDxf() {
-    const ext = extentsAll();
-    if (!ext) { say(t('cv.export.none')); return; }
-    const scale = fitScale(units(), ext, paperBy(units() === 'm' ? 'a3' : 'tabloid'));
-    const sc = buildScene(scale.mmPerUnit);
-    const { text, report } = writeDxf({ units: units(), layers: LAYERS.map((l) => ({ name: l.name, color: l.aci })), entities: toDxfEntities(sc, scale.mmPerUnit) });
-    download(text, fileStem() + '.dxf', 'application/dxf');
-    say(t('cv.dxf.done', { n: sc.items.length, count: num(sc.items.length), scale: scale.label }) + (report.notes.length ? ' ' + report.notes.join(' ') : '') + ' ' + t('cv.bands.no'));
-  }
 
   /** 0.7.1 71.24: Export › IFC and opening .ifc files (ifc-civil-ui.js and cc-ifc, loaded on first use). */
   let ifcReady = null;
@@ -2715,45 +2181,6 @@ function init(root) {
       project: () => project, setProject(p) { project = p; projectTarget = null; rebind(); sel = null; selPvi = -1; lastReport = null; },
       species: () => lsUi.index(), confirmDiscard: () => confirmDiscard(), openPicker: () => command('open'),
     })).catch((err) => { ifcReady = null; say(t('ifc.noload', { why: err.message })); return null; }));
-  }
-  /**
-   * Same drawing as the DXF, written as a DWG by dwg-write.js (our own cc-dwg library, loaded on first use), in the
-   * format picked in the dialog: 2000 (the default), 2004, 2007, 2010, 2013 or 2018 — remembered in this browser.
-   */
-  const DWG_YEAR = { AC1015: '2000', AC1018: '2004', AC1021: '2007', AC1024: '2010', AC1027: '2013', AC1032: '2018' };
-  function dwgDialog() {
-    if (!extentsAll()) { say(t('cv.export.none')); return; }
-    const sel = ui.dwg.querySelector('[data-dwg-format]');
-    let saved = null;
-    try { saved = localStorage.getItem('civilcraft.dwgFormat'); } catch { /* storage blocked */ }
-    if (saved && (DWG_YEAR[saved] || saved === 'DXF')) sel.value = saved;   // 0.7.1 71.24: DXF is a choice of the one DWG / DXF button
-    ui.dwg.querySelector('[data-dwg-map-row]').hidden = !visibleMaps() || sel.value === 'DXF';   // 0.4 V8
-    ui.dwg.showModal();
-    sel.focus();
-  }
-  async function exportDwg(version = 'AC1015') {
-    const ext = extentsAll();
-    if (!ext) { say(t('cv.export.none')); return; }
-    const scale = fitScale(units(), ext, paperBy(units() === 'm' ? 'a3' : 'tabloid'));
-    const sc = buildScene(scale.mmPerUnit);
-    let writeDwg;
-    try { ({ writeDwg } = await import('./dwg-write.js')); } catch { say(t('cv.dwg.noload')); return; }
-    // 0.4 V8: with map layers, a .zip: the drawing + the picture (PNG + world file) its IMAGE points at
-    let pic = null;
-    if (visibleMaps() && ui.dwg.querySelector('[data-dwg-map]').checked) { busy(t('map.out.busy')); pic = await mapPicture(ext, 4096, 'image/png').finally(() => busy(null)); }
-    const picName = fileStem() + '-map.png';
-    const { bytes, report } = writeDwg({ units: units(), layers: LAYERS.map((l) => ({ name: l.name, color: l.aci })), entities: toDxfEntities(sc, scale.mmPerUnit), version,
-      images: pic ? [{ fileName: picName, pxW: pic.pxW, pxH: pic.pxH, box: pic.box, layer: 'G-MAP-IMAG' }] : [] });
-    if (pic) {
-      const { zip } = await import('./zipfile.js');
-      const px = (pic.box.maxX - pic.box.minX) / pic.pxW, py = (pic.box.maxY - pic.box.minY) / pic.pxH;
-      const world = [px, 0, 0, -py, pic.box.minX + px / 2, pic.box.maxY - py / 2].join('\n') + '\n';   // a world file: pixel centres
-      download(await zip([{ name: fileStem() + '.dwg', data: bytes }, { name: picName, data: pic.bytes }, { name: fileStem() + '-map.pgw', data: world }]), fileStem() + '-dwg.zip', 'application/zip');
-    } else download(bytes, fileStem() + '.dwg', 'application/acad');
-    const c = report.counts;
-    const parts = [[c.lwpolyline, 'cv.dwg.n.poly'], [c.polyline3d, 'cv.dwg.n.poly3d'], [c.arc, 'cv.dwg.n.arc'], [c.text, 'cv.dwg.n.label'], [c.point, 'cv.pts.n']]
-      .filter(([n]) => n).map(([n, key]) => t(key, { n, count: num(n) }));
-    say(t('cv.dwg.done', { year: DWG_YEAR[version], list: parts.join(', '), n: report.layers.length, scale: scale.label }) + (report.notes.length ? ' ' + report.notes.join(' ') : '') + ' ' + t('cv.bands.no') + (pic ? ' ' + t('map.out.dwg.done', { png: picName }) + (pic.complete ? '' : ' ' + t('map.out.partial')) : ''));
   }
   ui.dwg.addEventListener('click', (e) => {
     if (e.target.closest('[data-close]')) { ui.dwg.close(); return; }
@@ -2767,69 +2194,25 @@ function init(root) {
   ui.dwg.querySelector('[data-dwg-format]').addEventListener('change', (e) => { ui.dwg.querySelector('[data-dwg-map-row]').hidden = !visibleMaps() || e.target.value === 'DXF'; });
   ui.dwg.addEventListener('close', () => refocus());
 
-  // ------------------------------------------------------------------ map layers in the PDF and the DWG (0.4 V8)
-  const visibleMaps = () => (project.state.gis?.maps || []).some((m) => m.visible);
-  /** The visible map layers over `box` as a picture of at most maxPx (null when none draws); waits for pictures still
-   *  loading (up to 8 s). type 'image/jpeg' (PDF) or 'image/png' (DWG). */
-  async function mapPicture(box, maxPx, type) {
-    if (!visibleMaps()) return null;
-    try { await gisLoad(); } catch { return null; }
-    const r = await gisReg.drape?.renderSettled(box, maxPx, { canvas: document.createElement('canvas') });
-    if (!r) return null;
-    const blob = await new Promise((ok) => r.canvas.toBlob(ok, type, 0.88));
-    if (!blob) return null;
-    return { bytes: new Uint8Array(await blob.arrayBuffer()), pxW: r.canvas.width, pxH: r.canvas.height, box, complete: r.complete !== false, attribution: r.attribution };
-  }
 
-  // ------------------------------------------------------------------ plot
-  function plotDialog() {
-    const ext = extentsAll();
-    if (!ext) { say(t('cv.plot.none')); return; }
-    const dlg = ui.plot, $d = (s) => dlg.querySelector(s);
-    const paperSel = $d('[data-plot-paper]'), scaleSel = $d('[data-plot-scale]'), areaSel = $d('[data-plot-area]');
-    paperSel.replaceChildren(...PAPERS.map((p) => el('option', { value: p.key }, p.name)));
-    if (!paperSel.dataset.set) { paperSel.value = units() === 'm' ? 'a3' : 'tabloid'; paperSel.dataset.set = '1'; }
-    const area = () => (areaSel.value === 'view' ? view.viewBounds() : ext);
-    const fill = () => {
-      const fit = fitScale(units(), area(), paperBy(paperSel.value));
-      scaleSel.replaceChildren(...scalesFor(units()).map((s) => el('option', { value: s.label }, s.label === fit.label ? t('cv.plot.fits', { scale: s.label }) : s.label)));
-      scaleSel.value = fit.label;
-      info();
-    };
-    const info = () => {
-      const s = scalesFor(units()).find((x) => x.label === scaleSel.value), b = area();
-      const P = paperBy(paperSel.value);
-      const wmm = (b.maxX - b.minX) * s.mmPerUnit, hmm = (b.maxY - b.minY) * s.mmPerUnit;
-      $d('[data-plot-info]').textContent = t('cv.plot.info', { w: fixed(wmm, 0), h: fixed(hmm, 0), scale: s.label, pw: fixed(Math.max(P.w, P.h), 0), ph: fixed(Math.min(P.w, P.h), 0) });
-    };
-    paperSel.onchange = fill; areaSel.onchange = fill; scaleSel.onchange = info;
-    $d('[data-plot-map-row]').hidden = !visibleMaps();   // 0.4 V8
-    fill();
-    $d('[data-plot-go]').onclick = async () => {
-      const s = scalesFor(units()).find((x) => x.label === scaleSel.value);
-      const sc = buildScene(s.mmPerUnit);
-      const d = project.state.display;
-      const notes = [];
-      if (d.contours && shown().s) notes.push(t(shown().tag === 'fg' ? 'cv.plot.contours.fg' : 'cv.plot.contours.eg', { i: d.interval, u: u().short }));
-      // 0.4 V8: the map layers under the linework, as a picture of the sheet's drawing window (150 dpi, ≤ 4096 px)
-      const images = [], extra = [];
-      if (visibleMaps() && $d('[data-plot-map]').checked) {
-        const win = sheetWindow(area(), { paper: paperSel.value, scale: s }), mmW = (win.maxX - win.minX) * s.mmPerUnit, mmH = (win.maxY - win.minY) * s.mmPerUnit;
-        busy(t('map.out.busy'));
-        const pic = await mapPicture(win, Math.min(4096, Math.round((Math.max(mmW, mmH) / 25.4) * 150)), 'image/jpeg').finally(() => busy(null));
-        if (pic) { images.push({ jpeg: pic.bytes, pxW: pic.pxW, pxH: pic.pxH, box: win }); if (pic.attribution) notes.push(pic.attribution); if (!pic.complete) extra.push(t('map.out.partial')); }
-      }
-      const sheet = planSheet(sc, { extents: area(), paper: paperSel.value, scale: s, title: project.state.name, units: units(), notes, images });
-      const { bytes, report } = await toPdf(sheet, { mono: $d('[data-plot-ink]').value === 'mono' });
-      download(bytes, fileStem() + '.pdf', 'application/pdf');
-      dlg.close('ok');
-      say(t('cv.plot.done', { file: fileStem() + '.pdf', scale: s.label }) + (report.missing ? ' ' + t('pp.ui.missing', { n: report.missing }) : '') + (images.length ? ' ' + t('map.out.pdf.done') : '') + (extra.length ? ' ' + extra.join(' ') : ''));
-    };
-    for (const b of dlg.querySelectorAll('[data-close]')) b.onclick = () => dlg.close('cancel');
-    dlg.onclose = () => refocus();
-    dlg.showModal();
-    $d('[data-plot-go]').focus();
-  }
+  /**
+   * The export set's entry (SuperCad Studio's Finalize and export, SC.7): the exporters behind the toolbar's buttons, run with options instead of their dialogs.
+   * The files leave through the same download as the buttons' (the host collects them). sheets() → the one plan sheet; can(kind) → null | 'empty' | 'unknown';
+   * run(kind, o) → [{ sheets }] for the PDF (what is on its page), else nothing. o = { paper: 'iso-a3' | 'a3' …, scale: '1:500' | 'fit', mono, dwgVersion: '2000' …, ifcSchema }
+   */
+  const exportSet = {
+    kinds: ['pdf', 'dwg', 'dxf', 'landxml', 'ifc'],
+    sheets: () => (extentsAll() ? [{ id: 'plan', number: '', title: project.state.name || fileStem(), scale: '', revision: '', paper: '' }] : []),
+    can: (kind) => (!exportSet.kinds.includes(kind) ? 'unknown' : extentsAll() ? null : 'empty'),
+    async run(kind, o = {}) {
+      if (kind === 'pdf') { const r = await plotNow({ paper: String(o.paper || '').replace(/^iso-/, ''), scale: o.scale, mono: !!o.mono, map: true, titleBlock: o.titleBlock || null }); return r ? [{ sheets: [{ id: 'plan', number: '', title: project.state.name || fileStem(), scale: r.scale, revision: '', block: !!o.titleBlock }] }] : []; }
+      if (kind === 'dwg') { const code = Object.keys(DWG_YEAR).find((k) => DWG_YEAR[k] === String(o.dwgVersion)); await exportDwg(code || 'AC1015'); }
+      else if (kind === 'dxf') await exportDxf();
+      else if (kind === 'landxml') await exportLandXml();
+      else if (kind === 'ifc') await (await ifcUi())?.exportNow(o.ifcSchema || null);
+      return [];
+    },
+  };
 
   // ------------------------------------------------------------------ dialogs, busy, discard
   function refocus() { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); ui.over.focus({ preventScroll: true }); }
@@ -2973,19 +2356,18 @@ function init(root) {
     .catch((err) => { console.error(err); document.documentElement.removeAttribute('data-cc-ws-boot'); });
 }
 
-// FX: a box too narrow for its number (Easting 615005.25 shows "615005") shows the whole value in a Bootstrap tooltip while the pointer
+// FX: a box too narrow for its number (Easting 615005.25 shows "615005") shows the whole value in the tooltip while the pointer
 // or the keyboard is on it. One listener for the page; it only looks at a box when the pointer enters or focus lands on it.
+// 0.9.1: the tooltip itself is app-tooltips.js (ccTooltips.showText), the one engine; this only decides when a value is cut off.
 {
-  let tip = null, tipFor = null;
-  const hide = () => { if (tip) { try { tip.dispose(); } catch { /* already gone */ } } tip = null; tipFor = null; };
+  let tipFor = null;
+  const hide = () => { if (tipFor) window.ccTooltips?.hide(); tipFor = null; };
   const show = (inp) => {
-    const B = window.bootstrap;
-    if (!B?.Tooltip || !inp.isConnected || inp === tipFor) return;
+    if (!window.ccTooltips || !inp.isConnected || inp === tipFor) return;
     hide();
     if (!inp.value || inp.scrollWidth <= inp.clientWidth + 1) return;   // it fits: nothing to add
     tipFor = inp;
-    tip = new B.Tooltip(inp, { title: inp.value, trigger: 'manual', container: 'body', placement: 'top', fallbackPlacements: ['bottom'], animation: false, customClass: 'shell-tip' });
-    tip.show();
+    window.ccTooltips.showText(inp, inp.value, 0);
   };
   const boxOf = (t) => (t instanceof Element ? t.closest('input.cv-input') : null);
   document.addEventListener('pointerover', (e) => { if (e.pointerType === 'touch') return; const b = boxOf(e.target); if (b) show(b); });

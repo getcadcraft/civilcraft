@@ -27,7 +27,7 @@
  * Stored: localStorage <registry STORE or '<slug>.input'> (app-input.js readState); the family for every app in
  * 'cc-input-family' (one origin: every app and the Studio hub read it; a change in another window follows at once).
  * window.ccInput = { current, setStyle, run, why, state, styles, commands, keysOf, paletteItems, covers, macros, setMacros,
- * family, useEverywhere, resetLayout, ribbon, setRibbon } for the palette, the workspace layouts (app-workspace-input.js), tests and
+ * family, useEverywhere, resetLayout, ribbon, setRibbon, typed } for the palette, the workspace layouts (app-workspace-input.js), tests and
  * the console. why(id) → '' when run(id) would run it now, else the reason (the app's hooks().why first, as run asks).
  * 0.6 DF.27 (only where the Settings dialog carries data-shell-ui: dev builds and releases from 0.6 on): a ribbon style can
  * collapse to its tab names (S.collapsed, stored with the style): a click on a tab opens its panels over the drawing (.cc-in-peek)
@@ -36,6 +36,7 @@
  * Words: shell strings shell.input.*; the registry's own (input.cmd.*, input.grp.*, input.m.*, input.style.*) from the app.
  */
 import * as IP from './app-input.js';
+import { matchWord, makeHistory, keyLetters } from './app-cmdline.js';   // 0.10 BK.34: one typed-word matcher and one history for every command line
 
 const T = (k, v) => (window.ccShellT ? window.ccShellT(k, v) : k);
 const has = (k) => !!(window.ccShellT && window.ccShellT.has && window.ccShellT.has(k));
@@ -104,7 +105,8 @@ function mount(cfg, reg) {
   save();
 
   let prof = null, matcher = null, last = null, waitTimer = 0, recording = null, peek = false, rbody = null;
-  const hist = [];
+  const LAB = !!cfg.lab;   // 0.10 (bk-r3-shell-10): lab (dev) builds: type anywhere into a docked command line (BK.34), two-stage tooltips (BK.33)
+  const cmdHist = makeHistory({ getItem: store.get, setItem: store.set }, 'cc-cmd-history:' + cfg.app), hist = cmdHist.items;   // BK.34: the same history in a style's command line and the docked one
   const raw = (id) => IP.rawStyle(S, reg, id);
   const nameOf = (p) => (p.builtin ? tx(p.name) : p.name);
   const label = (id) => tx((prof && prof.labels && prof.labels[id]) || byId.get(id)?.label || id);
@@ -130,6 +132,7 @@ function mount(cfg, reg) {
     }
     target(c)?.click();
     last = id;
+    window.dispatchEvent(new CustomEvent('cc-input-run', { detail: { id, label: label(id) } }));   // BK.147: the history of what led to here (ai-history.js) lists the commands a person started
     if (rememberSplit(id)) {   // the used tool is now the split's face
       const inBar = bar.contains(document.activeElement);
       render();
@@ -181,12 +184,13 @@ function mount(cfg, reg) {
     if (!toolbar) return [];
     // a button is known when it does what a command's button does: the same first data-* attribute
     const known = new Set(COMMANDS.map((c) => target(c)).filter(Boolean).map(dataKey).filter(Boolean));
-    return [...toolbar.querySelectorAll('button, [role="menuitem"]')].filter((b) => !bar.contains(b) && !b.closest('summary')
+    // BK.126: a bar's own handle (the tear-off grip) is not a tool: it was listed in the menus as "Move the … toolbar"
+    return [...toolbar.querySelectorAll('button, [role="menuitem"]')].filter((b) => !bar.contains(b) && !b.closest('summary') && !b.closest('.shell-tb-tear, .shell-grip')
       && !known.has(dataKey(b)) && (b.textContent || b.title || '').trim());
   }
   function extraBtn(b, asItem) {
     const name = (b.querySelector('span')?.textContent || b.textContent || b.title || '').trim();
-    const n = el('button', { type: 'button', className: asItem ? 'cc-in-item' : 'cc-in-tool cc-in-big', role: asItem ? 'menuitem' : null, title: b.title || name },
+    const n = el('button', { type: 'button', className: asItem ? 'cc-in-item' : 'cc-in-tool cc-in-big', role: asItem ? 'menuitem' : null, title: b.title || name, 'data-extra': dataKey(b) || 'button' },   // data-extra: whose button it stands for (BK.126: the test lets only add-on tools through)
       el('i', { className: 'bi ' + ((b.querySelector('i.bi')?.className.match(/bi-[\w-]+/) || ['bi-puzzle'])[0]), 'aria-hidden': 'true' }), el('span', {}, name));
     n.addEventListener('click', () => { closeMenus(); b.click(); queueSync(); });
     return n;
@@ -424,10 +428,14 @@ function mount(cfg, reg) {
   });
 
   // ---- keys ----
+  /** The docked command line (app-cmdline.js) when it is on screen in this window, else null. */
+  const dockedField = () => { const f = document.querySelector('[data-ws-cmd]'); return f && f.offsetParent !== null ? f : null; };
   const inField = (n) => n?.closest?.('input, textarea, select, [contenteditable="true"], dialog, [data-help-panel], [data-app-settings]');
   window.addEventListener('keydown', (e) => {
     if (!prof || e.defaultPrevented || e.isComposing || recording) return;
-    if (prof.id === OWN && !matcher.text.size) return;   // the app's own style, unchanged: nothing at all happens
+    // 0.10 BK.34: a command line docked in the status strip (a layout's "command": true) takes what is typed anywhere, in every style
+    const dock = LAB && H.commandLine !== 'own' ? dockedField() : null;
+    if (prof.id === OWN && !matcher.text.size && !dock) return;   // the app's own style, unchanged: nothing at all happens
     // hooks.keysIn(node): the app's own command line takes a style's keys while it is empty (CadCraft; 0.5 IP.3)
     if (e.target === cmdInput || (inField(e.target) && !(H.keysIn && H.keysIn(e.target))) || document.querySelector('dialog[open]')) return;
     const combo = IP.eventCombo(e);
@@ -441,12 +449,16 @@ function mount(cfg, reg) {
       if (!(bid && byId.get(bid)?.whileBusy)) return;
     }
     if (H.keepKey && H.keepKey(combo, plain)) return;
-    if (prof.commandLine && H.commandLine !== 'own' && plain && IP.isTyping(combo) && !matcher.buf.length) {
+    if ((dock || (prof.commandLine && H.commandLine !== 'own')) && plain && IP.isTyping(combo) && !matcher.buf.length) {
       e.preventDefault(); e.stopImmediatePropagation();
-      cmdInput.focus();
-      cmdInput.value += e.key.length === 1 ? e.key.toUpperCase() : '';
+      // a layout may hide this bar and carry its own command line (statusbar command): the letters go there then
+      const field = dock || (cmdInput.offsetParent === null ? document.querySelector('[data-ws-cmd]') || cmdInput : cmdInput);
+      field.focus();
+      field.value += e.key.length === 1 ? (field === cmdInput ? e.key.toUpperCase() : e.key) : '';
+      if (field !== cmdInput) field.dispatchEvent(new Event('input', { bubbles: true }));   // the docked line shows what the letters could mean
       return;
     }
+    if (prof.id === OWN && !matcher.text.size) return;   // the app's own style: its other keys stay the app's
     const r = matcher.press(combo);
     clearTimeout(waitTimer);
     if (!r || r.native) return;
@@ -484,7 +496,7 @@ function mount(cfg, reg) {
     hi = -1;
     const id = word ? IP.matchTyped(prof, word) : last;   // Enter on nothing repeats the last command
     if (!id) { cmdMsg.textContent = word ? T('shell.input.cl.unknown', { word: word.toUpperCase().slice(0, 30) }) : T('shell.input.cl.ready'); return; }
-    if (word) { hist.push(word.toUpperCase()); if (hist.length > 50) hist.shift(); }
+    if (word) cmdHist.add(word.toUpperCase());
     cmdMsg.textContent = label(id);
     cmdInput.blur();
     run(id);
@@ -513,8 +525,13 @@ function mount(cfg, reg) {
     const fam = IP.familyOf(reg, S, S.style), sh = sharedFamily();
     const every = el('input', { type: 'checkbox', 'data-input-every': '', checked: !!(fam && sh && sh.family === fam), disabled: !fam });
     every.addEventListener('change', () => useEverywhere(every.checked));
+    // 0.9.1: a layout with more tools in a menu, split or list than the engine keeps says so here, in words, instead of showing a shorter menu
+    let over = [];
+    try { over = IP.validateProfile(cur, COMMANDS, STYLES, OPTS).problems.filter(IP.isLimitProblem); } catch (e) { over = []; }   // the alert must never stop the settings, or the page, from drawing
+    const alertBox = over.length ? el('p', { className: 'shell-alert', role: 'alert', 'data-input-limit-alert': '' }, T('shell.input.limit.alert', { n: over.length, style: nameOf(raw(S.style) || STYLES[OWN]), max: IP.LIMITS.items })) : null;
     setHost.replaceChildren(
       cards,
+      ...(alertBox ? [alertBox] : []),   // replaceChildren(null) writes the word "null" on the page (seen under the cards, 2026-11-12)
       el('p', { className: 'shell-hint-text' }, desc),
       el('label', { className: 'shell-check' }, every, ' ', T('shell.input.every')),
       el('p', { className: 'shell-hint-text', 'data-input-every-hint': '' }, fam ? T('shell.input.every.hint', { family: T('shell.input.family.' + fam) }) : T('shell.input.every.none')),
@@ -796,7 +813,7 @@ function mount(cfg, reg) {
   if (toolbar) new MutationObserver((recs) => { if (prof.layout !== 'toolbar' && recs.some((r) => !bar.contains(r.target) && r.target !== bar)) render(); }).observe(toolbar, { childList: true });
   const api = {
     app: cfg.app, current: () => prof, setStyle, run, why: (id) => (byId.has(id) ? why(byId.get(id), target(byId.get(id))) : T('shell.input.why.nothere')), get state() { return S; }, styles: STYLES, commands: COMMANDS,
-    keysOf: (id) => (matcher ? matcher.keysOf(id).map(IP.showSeq) : []), paletteItems, covers, macros, setMacros,
+    keysOf: (id) => (matcher ? matcher.keysOf(id).map(IP.showSeq) : []), labelOf: (id) => (byId.has(id) ? label(id) : ''), paletteItems, covers, macros, setMacros,
     family: () => IP.familyOf(reg, S, S.style), useEverywhere, importText,
     // 0.6 DF.8 (app-settings.js "Reset the layout"): the style this app starts with; the person's own styles stay listed
     resetLayout() { S = { ...IP.resetStyle(S, reg, sharedFamily(), Date.now()), collapsed: undefined }; peek = false; save(); render(); },
@@ -805,7 +822,43 @@ function mount(cfg, reg) {
     /** 0.7 RIBBON-COMPACT: an app registers the drawing of an inline ribbon control: fn({size, t, run, root}) → an element (or null). */
     registerControl(name, fn) { if (IP.CONTROL_RE.test(name) && typeof fn === 'function') { controls.set(name, fn); if (prof?.layout === 'ribbon') render(); return true; } return false; },
     controlNames: () => [...controls.keys()],
+    /** 0.9 RH.1: a word typed at a layout's command line → the style's command for it (its `typed` words), run now. → { id, label } | null (unknown word). */
+    typed(word) { const id = word ? IP.matchTyped(prof, word) || (LAB ? matchWord(word, api.words()) : null) : null; if (!id) return null; cmdMsg.textContent = label(id); last = id; run(id); return { id, label: label(id) }; },
+    /** 0.10 BK.34 / BK.33: every command with its name in this style, the style's typed words and its keys (raw combos: 'W', 'W A', 'Ctrl+Z'). */
+    words: () => COMMANDS.map((c) => ({ id: c.id, label: label(c.id), words: (prof?.typed && prof.typed[c.id]) || [], keys: matcher ? matcher.keysOf(c.id) : [] })),
+    history: cmdHist,
   };
+  // 0.10 BK.33 (lab builds): what the tooltip engine says about a control that runs a command. Stage 1 = the command's name in this
+  // style, its keys and its typed word; stage 2 = one line of description. Nothing is written per button: the name, keys and words
+  // are the registry's and the style's; the description is the text key `input.desc.<id>` when the app has one, else the title the
+  // app's own button for the command already carries (its key in brackets at the end taken off: stage 1 shows the key of THIS style).
+  if (LAB) {
+    const cmdOf = (n) => {
+      const lay = n.getAttribute('data-ws-command') || n.getAttribute('data-tbx-tool'), id = lay || n.getAttribute('data-cmd');
+      if (id && byId.has(id)) return byId.get(id);
+      if (n.closest('[data-input-bar]')) return null;
+      if (lay) { n = window.ccWorkspaceEngine?.sourceOf?.(id, n.getAttribute('data-tbx-tool') ? 'toolbox' : n.getAttribute('data-ws-block') || 'ribbon'); if (!n) return null; }   // a layout's button: the app's own control behind it
+      return COMMANDS.find((c) => { try { return !!c.sel && n.matches(c.sel); } catch (e) { return false; } }) || null;
+    };
+    const describe = (n) => {
+      const c = cmdOf(n);
+      if (!c || !prof) return null;
+      const name = label(c.id), raw = matcher ? matcher.keysOf(c.id) : [], keys = raw.map(IP.showSeq);
+      const words = (prof.typed && prof.typed[c.id]) || [];
+      const line = !!dockedField() || (!!prof.commandLine && H.commandLine !== 'own' && cmdInput.offsetParent !== null);
+      const typed = words[0] || (line && !raw.some(keyLetters) && name.length <= 28 ? name.toUpperCase() : '');
+      const own = target(c), off = !own || own.disabled || own.getAttribute('aria-disabled') === 'true';
+      let desc = has('input.desc.' + c.id) ? T('input.desc.' + c.id) : (off ? '' : own.getAttribute('title') || own.getAttribute('data-bs-title') || '');
+      const shown = new Set([...(c.defKeys || []), ...raw].flatMap((k) => [k, IP.showSeq(k)]));
+      // a key in brackets at the end of the app's own title goes: stage 1 shows the keys of the style in use (and an old title may name a key that moved)
+      desc = desc.replace(/\s*\(([^()]{1,24})\)\s*$/, (m, k) => (shown.has(k.trim()) || /^((Ctrl|Shift|Alt|Cmd)\+)*([A-Z0-9]|F\d{1,2}|Esc|Del|Delete|Enter|Space|Tab)$/.test(k.trim()) ? '' : m)).trim();
+      if (desc.toLowerCase() === name.toLowerCase() || desc.toLowerCase() === tx(c.label).toLowerCase()) desc = '';
+      return { id: c.id, name, keys, typed, desc };
+    };
+    const hook = () => { if (window.ccTooltips?.provide) { window.ccTooltips.provide(describe); return true; } return false; };
+    if (!hook()) window.addEventListener('DOMContentLoaded', hook, { once: true });
+    api.describe = describe;
+  }
   window.ccInput = api;
   window.dispatchEvent(new CustomEvent('cc-input-ready', { detail: { app: cfg.app } }));
   return api;

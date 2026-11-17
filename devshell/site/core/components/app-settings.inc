@@ -133,8 +133,8 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         <div class="shell-ws-pop" id="shell-ws-pop" data-ws-pop>
         <div class="shell-seg shell-seg-col" role="radiogroup" aria-labelledby="shell-ws-h" data-ws-set>
           <label class="shell-ws-opt"><input type="radio" name="workspace" value="standard"> <i class="bi bi-layout-text-window" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.standard') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.standard.hint') ?></span></span></label>
-          <?php foreach (['docked' => 'bi-layout-sidebar-inset', 'toolbox' => 'bi-tools', 'autorev' => 'bi-layout-sidebar', 'duncan' => 'bi-layout-three-columns', 'vector' => 'bi-window-desktop', 'sketch' => 'bi-box'] as $__wk => $__wi): $__won = in_array($__wk, $__ws, true); ?>
-          <label class="shell-ws-opt<?= $__won ? '' : ' is-off' ?>"><input type="radio" name="workspace" value="<?= $__wk ?>"<?= $__won ? '' : ' disabled' ?>> <i class="bi <?= $__wi ?>" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.' . $__wk) ?><?php if (!$__won): ?> <span class="shell-hint-text">(<?= Lang::e($__wk === 'toolbox' ? 'shell.ws.notbuilt' : 'shell.ws.notyet', $__an) ?>)</span><?php endif; ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.' . $__wk . '.hint') ?></span></span></label>
+          <?php foreach (['docked' => 'bi-layout-sidebar-inset', 'toolbox' => 'bi-tools', 'autorev' => 'bi-layout-sidebar', 'duncan' => 'bi-layout-three-columns', 'vector' => 'bi-window-desktop', 'sketch' => 'bi-box', 'rhino' => 'bi-bounding-box', 'pro-cad1' => 'bi-layout-text-window-reverse', 'pro-cad2' => 'bi-diagram-3', 'pro-cad3' => 'bi-pencil-square', 'pro-cad4' => 'bi-columns-gap'] as $__wk => $__wi): $__won = in_array($__wk, $__ws, true); ?>
+          <label class="shell-ws-opt<?= $__won ? '' : ' is-off' ?>"><input type="radio" name="workspace" value="<?= $__wk ?>"<?= $__won ? '' : ' disabled' ?>> <i class="bi <?= $__wi ?>" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.ws.' . str_replace('-', '', $__wk)) ?><?php if (!$__won): ?> <span class="shell-hint-text">(<?= Lang::e($__wk === 'toolbox' ? 'shell.ws.notbuilt' : 'shell.ws.notyet', $__an) ?>)</span><?php endif; ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.ws.' . str_replace('-', '', $__wk) . '.hint') ?></span></span></label>
           <?php endforeach; ?>
         </div>
         <?php /* 0.7 WS.17: layouts from add-ons and imported files (app-settings.js fills these from the engine, assets/js/app-workspace.js;
@@ -216,7 +216,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </section>
       </fieldset>
 <?php endif; ?>
-      <fieldset data-sec-group="display" class="shell-set">
+      <fieldset data-sec-group="interface" class="shell-set">
         <legend><?= Lang::e('shell.settings.theme') ?></legend>
         <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('shell.settings.theme') ?>">
           <label><input type="radio" name="theme" value="paper"> <i class="bi bi-sun" aria-hidden="true"></i> <?= Lang::e('shell.settings.theme.paper') ?></label>
@@ -260,25 +260,47 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
          specs are shared unless this is ticked; in the desktop app they are not, unless it is unticked. The apps' compute/report.js asks. */ ?>
       <fieldset data-sec-group="other" class="shell-set" data-hw-set>
         <legend><?= Lang::e('shell.hw.legend') ?></legend>
-        <label class="shell-check"><input type="checkbox" name="hwNoShare" data-hw-noshare> <?= Lang::e('shell.hw.noshare') ?></label>
+        <label class="shell-check"><input type="checkbox" name="hwNoShare" data-hw-noshare> <span data-hw-label><?= Lang::e('shell.hw.noshare') ?></span></label>
         <p class="shell-hint-text"><?= Lang::e('shell.hw.why') ?></p>
         <p class="shell-hint-text" data-hw-default></p>
+<?php if (!empty($__build['is_dev'])): /* NET.1 (Lucas, Discord 2026-11-12): the desktop box is a plain opt-in ("Share …", ticked = sent), and anyone can
+         read the exact report this app would send (compute/report.js keeps it in window.ccHardwarePreview; nothing is sent to show it). */ ?>
+        <details class="shell-hint-text" data-hw-preview>
+          <summary><?= Lang::e('shell.hw.preview') ?></summary>
+          <p data-hw-preview-none><?= Lang::e('shell.hw.preview.none') ?></p>
+          <pre data-hw-json hidden style="white-space:pre-wrap;max-height:16rem;overflow:auto;font-size:.75rem"></pre>
+        </details>
+<?php endif; ?>
       </fieldset>
 <?php if (!empty($__build['is_dev'])): /* 0.8 D8.14: one switch for every app's full-screen crosshair (localStorage cc-crosshair; app-crosshair.js) */ ?>
-      <fieldset data-sec-group="display" class="shell-set" data-crosshair-set>
+      <fieldset data-sec-group="interface" class="shell-set" data-crosshair-set>
         <legend><?= Lang::e('shell.crosshair.legend') ?></legend>
         <label class="shell-check"><input type="checkbox" name="crosshairAll" data-crosshair-all> <?= Lang::e('shell.crosshair.all') ?></label>
         <p class="shell-hint-text"><?= Lang::e('shell.crosshair.hint') ?></p>
       </fieldset>
 <?php endif; ?>
+      <fieldset data-sec-group="other" class="shell-set" data-starttips-set>
+        <legend><?= Lang::e('shell.starttips.legend') ?></legend>
+        <label class="shell-check"><input type="checkbox" name="startTips" data-start-tips> <?= Lang::e('shell.starttips.all') ?></label>
+        <p class="shell-hint-text"><?= Lang::e('shell.starttips.hint') ?></p>
+      </fieldset>
       <fieldset data-sec-group="other" class="shell-set" data-tours-set>
         <legend><?= Lang::e('shell.tours.legend') ?></legend>
         <label class="shell-check"><input type="checkbox" name="toursAll" data-tours-all> <?= Lang::e('shell.tours.all') ?></label>
         <p class="shell-hint-text"><?= Lang::e('shell.tours.hint') ?></p>
       </fieldset>
+<?php if (!empty($__build['is_dev'])): /* 2026-11-12 (owner: "can those be reset from settings??"): every "Don't show this again" / "Don't ask again" in one list, each with Show again (app-settings.js fills it) */ ?>
+      <fieldset data-sec-group="other" class="shell-set" data-hidden-set>
+        <legend><?= Lang::e('shell.hidden.legend') ?></legend>
+        <p class="shell-hint-text"><?= Lang::e('shell.hidden.lede') ?></p>
+        <ul class="shell-hidden-list" data-hidden-list></ul>
+        <p class="shell-hint-text" data-hidden-none hidden><?= Lang::e('shell.hidden.none') ?></p>
+        <div><button type="button" class="btn-line btn-sm-cc" data-hidden-all hidden><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> <?= Lang::e('shell.hidden.all') ?></button></div>
+      </fieldset>
+<?php endif; ?>
 
 <?php endif; ?>
-      <fieldset data-sec-group="display" class="shell-set">
+      <fieldset data-sec-group="interface" class="shell-set">
         <legend><?= Lang::e('shell.settings.screen') ?></legend>
         <div class="shell-row">
           <label for="shell-screen"><?= Lang::e('shell.settings.screen.label', $__an) ?></label>

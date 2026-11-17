@@ -15,13 +15,14 @@ after a restart, (3) did the test prompt pass (`TEST_PROMPT` in tools/mcp/client
 | Windsurf | ? | ? | ? | `~/.codeium/windsurf/mcp_config.json` |
 | Codex CLI | ? | ? | ? | TOML `[mcp_servers.cadcraft]` |
 | Gemini CLI | ? | ? | ? | `~/.gemini/settings.json` |
+| Google Antigravity | ? | ? | ? | `~/.gemini/config/mcp_config.json` (Windows `%USERPROFILE%\.gemini\config\`), `mcpServers`; workspace `.agents/mcp_config.json` |
 
 Also on each: Studio closed while the client starts (the bridge answers; tools appear when Studio opens), a new token (Studio
 restart) with no AI-app change, and a client that sends `initialize` (all of the above today) versus one that sends `server/discover`.
 
 ## Clients the owner must install on workstation11a
 
-Claude Desktop, Claude Code (needs Node 20.19+ for `npx`), Cursor, Visual Studio Code with GitHub Copilot, Windsurf, Codex CLI, Gemini CLI.
+Claude Desktop, Claude Code (needs Node 20.19+ for `npx`), Cursor, Visual Studio Code with GitHub Copilot, Windsurf, Codex CLI, Gemini CLI, Google Antigravity.
 Each needs an account of its own for the model; the matrix only needs the tool list and one test-prompt answer. macOS rows need the Mac
 (rdavis) with the same list. Local-model clients (Ollama/LM Studio) are `ai-remote_PART_2`'s (AC.7).
 

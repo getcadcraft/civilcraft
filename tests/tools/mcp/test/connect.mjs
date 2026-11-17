@@ -71,6 +71,15 @@ ok(JSON.parse(get(path.join(home, '.cursor/mcp.json'))).mcpServers.cadcraft.comm
 put(path.join(home, '.gemini/settings.json'), '{"theme":"x"}');
 await apply(byId('gemini'), env, io);
 ok(JSON.parse(get(path.join(home, '.gemini/settings.json'))).theme === 'x', 'Gemini CLI: other settings kept');
+put(path.join(home, '.gemini/config/mcp_config.json'), '{"mcpServers":{"other":{"serverUrl":"https://x","disabled":true}}}');
+const ag = byId('antigravity');
+ok((await detect(ag, env, io)).found && !(await detect(ag, env, io)).configured, 'Antigravity: found by its settings folder, not yet configured');
+await apply(ag, env, io);
+const agj = JSON.parse(get(path.join(home, '.gemini/config/mcp_config.json')));
+ok(agj.mcpServers.cadcraft.command === 'npx' && agj.mcpServers.cadcraft.type === undefined && agj.mcpServers.other.serverUrl === 'https://x' && agj.mcpServers.other.disabled === true, 'Antigravity: mcpServers entry written, a remote serverUrl entry kept', agj);
+ok((await detect(ag, env, io)).configured, 'Antigravity: now configured');
+await remove(ag, env, io);
+ok(!JSON.parse(get(path.join(home, '.gemini/config/mcp_config.json'))).mcpServers.cadcraft && JSON.parse(get(path.join(home, '.gemini/config/mcp_config.json'))).mcpServers.other, 'Antigravity: undo removes only cadcraft');
 const toml = '[model]\nname = "x"\n\n[mcp_servers.other]\ncommand = "o"\nargs = ["a"]\n\n[mcp_servers.cadcraft]\ncommand = "old"\nargs = ["1", "2"]\n\n[ui]\nx = 1\n';
 put(path.join(home, '.codex/config.toml'), toml);
 await apply(byId('codex'), env, io);

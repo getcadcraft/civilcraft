@@ -91,7 +91,7 @@ r = await rpc('claude-desktop', 'tools/call', { name: 'windows_list', arguments:
 ok(r.body.result.structuredContent.windows.length === 3 && r.body.result.structuredContent.windows.find((w) => w.app === 'cadcraft').window === 'cadcraft:plan a.dwg', 'windows_list (0.7) = studio_windows_list, with stable window ids', r.body.result);
 r = await rpc('claude-desktop', 'tools/call', { name: 'studio_apps_list', arguments: {} });
 const apps = r.body.result.structuredContent.apps;
-ok(apps.length === 8 && apps.find((a) => a.app === 'cadcraft').assistants && apps.find((a) => a.app === 'bimcraft').open && !apps.find((a) => a.app === 'bimcraft').assistants && !apps.find((a) => a.app === 'partcraft').open && apps.find((a) => a.app === 'cadcraft').allowed.includes('edit'), 'studio_apps_list: eight apps, open / takes assistants / allowed', apps);
+ok(apps.length === 9 && apps[8].app === 'supercadcraft' && !apps[8].open && apps.find((a) => a.app === 'cadcraft').assistants && apps.find((a) => a.app === 'bimcraft').open && !apps.find((a) => a.app === 'bimcraft').assistants && !apps.find((a) => a.app === 'partcraft').open && apps.find((a) => a.app === 'cadcraft').allowed.includes('edit'), 'studio_apps_list: the eight apps and Super (BK.59), open / takes assistants / allowed', apps);
 r = await rpc('claude-desktop', 'tools/call', { name: 'nonsense_tool', arguments: {} });
 ok(r.status === 400 || r.body.error, 'an unknown tool is a protocol error (-32602)', r.body);
 

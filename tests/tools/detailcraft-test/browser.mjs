@@ -51,6 +51,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, a
 // host.js opens files with the File System Access picker when there is one; headless runs drive the plain
 // <input type=file> instead (Playwright's file chooser), as tools/partcraft-test/browser.mjs does
 await ctx.addInitScript(() => { window.showOpenFilePicker = undefined; });
+if (process.env.NOBATCH) await ctx.addInitScript(() => { try { localStorage.setItem('detailcraft.nobatch', '1'); } catch (e) { /* none */ } });   // 0.10 PERF.36: the per-part scene, to tell a batching problem from another
 // 0.7 WS.13: CC_WORKSPACE=docked|toolbox runs the suite with that workspace layout on (Settings › Global › Layout)
 // (without it: classic, whatever a stored --state remembers)
 await ctx.addInitScript((w) => { try { if (w) localStorage.setItem('cc-workspace', w); else localStorage.removeItem('cc-workspace'); } catch (e) { /* no storage: classic */ } }, process.env.CC_WORKSPACE || '');

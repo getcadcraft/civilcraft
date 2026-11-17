@@ -17,14 +17,14 @@ export const STANDARDS = {
   eu: {
     id: 'eu',
     docs: [
-      { key: 'alignment', ref: 'EN 13803', title: 'Railway applications — Track — Track alignment design parameters — Track gauges 1435 mm and wider', for: ['cant', 'deficiency', 'excess', 'gradient', 'rate'] },
+      { key: 'alignment', ref: 'EN 13803', title: 'Railway applications — Track — Track alignment design parameters — Track gauges 1435 mm and wider', for: ['cant', 'deficiency', 'excess', 'gradient', 'rate', 'grade', 'vertical', 'radius', 'element', 'defrate'] },
       { key: 'switches', ref: 'EN 13232', title: 'Railway applications — Track — Switches and crossings for Vignole rails', for: ['turnout'] },
       { key: 'gauges', ref: 'EN 15273', title: 'Railway applications — Gauges', for: ['gauge'] },
       { key: 'geometry', ref: 'EN 13848', title: 'Railway applications — Track — Track geometry quality', for: [] },
     ],
   },
 };
-export const CITE_KEYS = ['cant', 'deficiency', 'excess', 'gradient', 'rate', 'turnout', 'gauge'];
+export const CITE_KEYS = ['cant', 'deficiency', 'excess', 'gradient', 'rate', 'turnout', 'gauge', 'grade', 'vertical', 'radius', 'element', 'defrate'];   // the last five: CV.1 2026-11-12 (rail-checks.js)
 export const cleanStd = (v) => (v === 'eu' ? 'eu' : 'none');
 export function cleanCites(o) {
   const out = {};

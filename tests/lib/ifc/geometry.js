@@ -43,6 +43,8 @@ export class Geometry {
     this.itemGeom = new Map();       // item id → geomId (items whose mesh does not depend on the product)
     this.nextId = GEOM_ID_BASE;
     this.voids = null;
+    this.tracking = false;           // 0.10 PERF.8 / 23: see sweep()
+    this.fresh = []; this.shared = new Set(); this.direct = new Map();
   }
 
   get notes() { return this.g.notes; }
@@ -129,7 +131,23 @@ export class Geometry {
     return out.filter((p) => !this.store.get(p.geomId).isEmpty);
   }
 
-  keep(mesh) { const id = this.nextId++; this.store.set(id, mesh); return id; }
+  keep(mesh) { const id = this.nextId++; this.store.set(id, mesh); if (this.tracking) this.fresh.push(id); return id; }
+
+  /**
+   * 0.10 PERF.8 / PERF.23: while a whole model is streamed into a viewer, every mesh was kept in `store` (and every leaf item in `itemGeom`) for the
+   * life of the model: about 1 GB of JS heap per 100 MB of IFC. With tracking on, sweep() (called after each element has been copied out) drops what
+   * that element made, except leaf meshes reached through a mapped item (those are shared by every instance of the type and stay). Anything dropped
+   * is built again on demand, so a later GetFlatMesh gives the same result.
+   */
+  sweep() {
+    for (const id of this.fresh) {
+      if (this.shared.has(id)) continue;
+      this.store.delete(id);
+      const it = this.direct.get(id);
+      if (it !== undefined) { this.itemGeom.delete(it); this.direct.delete(id); }
+    }
+    this.fresh.length = 0;
+  }
 
   mesh(id) { return this.store.get(id) || null; }
 
@@ -157,6 +175,7 @@ export class Geometry {
       if (!mesh) return [];
       geomId = this.keep(mesh);
       this.itemGeom.set(id, geomId);
+      if (depth > 0) this.shared.add(geomId); else this.direct.set(geomId, id);
     }
     return [{ geomId, matrix: m, color: own }];
   }

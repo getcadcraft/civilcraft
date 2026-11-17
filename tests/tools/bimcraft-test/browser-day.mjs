@@ -87,6 +87,7 @@ try {
   await page.keyboard.press('Escape');
   ok(await page.evaluate(() => window.bimcraftPlan.state.data.walls.length) === 4 && await page.evaluate(() => window.bimcraftPlan.state.data.derived.spaces.length) === 1, 'four walls, one room (closing the loop makes it)');
   ok(!(await page.evaluate(() => window.bimcraftPlan.view.outsideView())), 'the whole house is in view without touching Fit (it went off the first view as it was typed)');
+  await page.click('[data-mtool="wall"]');   // 0.10: a closed room (or Esc) leaves the Wall tool for Select
   await click([5000, 0]); await typed('5000,7000'); await page.keyboard.press('Escape');
   await page.click('[data-mtool="door"]'); await planClick(2500, 0); await settled();
   await page.click('[data-mtool="window"]'); await planClick(7500, 0); await settled(); await planClick(0, 3500); await settled();
@@ -99,8 +100,12 @@ try {
   await page.click('[data-model-print]');
   await waitStatus(/Saved the plan as a PDF/);
   ok(true, 'plan PDF: ' + await statusOf());
+  // 0.10: left-panel sections fold (the shell's accordion): open the one that holds a control before using it
+  const reveal = async (sel) => { if (!(await page.isVisible(sel))) { await page.click(`section.bc-sec:has(${sel}) [data-af="closed"]`); await page.waitForSelector(sel, { state: 'visible', timeout: 10000 }); } };
+  await reveal('[data-msched]');
   const rowsText = await page.evaluate(() => document.body.innerText);
   ok(/D1\s+Single swing door/.test(rowsText), 'the doors schedule lists D1');
+  await reveal('[data-save]');
   const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 30000 }), page.click('[data-save]')]);
   ok(/Small house.*\.ifc$/.test(dl.suggestedFilename()), 'Save as IFC downloads "' + dl.suggestedFilename() + '"');
 
@@ -113,6 +118,7 @@ try {
   await page.waitForTimeout(600);
 
   console.log('== Copy this level… to a new level on top');
+  await reveal('[data-lv-copy]');
   await page.click('[data-lv-copy]');
   await page.waitForSelector('dialog[data-lvc-dialog][open]');
   const opts = await page.$$eval('[data-lvc-to] option', (o) => o.map((x) => x.textContent));
@@ -129,7 +135,8 @@ try {
 } catch (e) {
   fail++; console.log('  FAIL ' + (e.stack || e));
 } finally {
-  ok(problems.length === 0, 'no console errors' + (problems.length ? ': ' + problems.slice(0, 3).join(' | ') : ''));
+  const real = problems.filter((p) => !/status of 429/.test(p));   // the anonymous hardware report is throttled per network; test runs share one address
+  ok(real.length === 0, 'no console errors' + (real.length ? ': ' + real.slice(0, 3).join(' | ') : ''));
   await browser.close();
   try { execFileSync('sudo', ['-u', 'www-data', 'php', adminPhp, 'down', 'bimwalls'], { stdio: 'ignore' }); } catch {}
   console.log(`\n${pass} passed, ${fail} failed`);

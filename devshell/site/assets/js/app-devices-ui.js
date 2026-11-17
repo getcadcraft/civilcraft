@@ -36,6 +36,7 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { ret
 const root = document.documentElement;
 
 try { installStudioDevices(window); } catch (e) { /* nothing installed: the doors say "not available here" as before */ }   // no-op without Studio's devices bridge
+const penOn = () => { try { return JSON.parse(document.getElementById('cc-pen')?.textContent || 'null')?.on === true; } catch (e) { return false; } };
 if (cfg && cfg.app) boot();
 
 function boot() {
@@ -231,7 +232,12 @@ function boot() {
     if (!navigator.hid) return { ok: false, why: 'nohid' };
     try {
       const [dev] = await navigator.hid.requestDevice({ filters: D.HID_FILTERS });
-      if (!dev) return { ok: false, why: 'none' };
+      if (!dev) {
+        // Studio's own door (0.8 ID.8) has no chooser: it either found a 3D mouse or it did not, or Linux does not let it read one yet
+        if (!navigator.hid.studio) return { ok: false, why: 'none' };
+        if (!((await navigator.hid.blocked()) > 0)) return { ok: false, why: 'nodevice' };
+        return { ok: false, why: 'blocked', rule: await navigator.hid.rule() };
+      }
       return { ok: await openSpace(dev), name: dev.productName };
     } catch (e) { return { ok: false, why: 'denied' }; }
   }
@@ -288,6 +294,8 @@ function boot() {
   };
   window.ccShellDevices = api;
   window.dispatchEvent(new CustomEvent('cc-devices-ready', { detail: { app: APP } }));
+  // 0.10 SU.1807: the pen module, only on a page that prints #cc-pen (app-shell.inc, .env PEN_SHARED=1; off = nothing loads)
+  if (penOn()) import('./app-pen.js').catch(() => { /* the pen module is an extra; the pen works as before without it */ });
   mountSettings(api);
 }
 
@@ -391,6 +399,14 @@ function mountSettings(A) {
     box.append(card('pen', 'bi-pen', [
       row('shell.dev.pen.side', actionSelect('pen.side', P.pen.side, { appLabel: 'shell.pen.app.side' })),
       row('shell.dev.pen.eraser', actionSelect('pen.eraser', P.pen.eraser, { appLabel: 'shell.pen.app.eraser' })),
+      ...(penOn() ? [
+        row('shell.dev.pen.double', actionSelect('pen.double', P.pen.double, { appLabel: 'shell.dev.act.app' })),
+        row('shell.dev.pen.squeeze', actionSelect('pen.squeeze', P.pen.squeeze, { appLabel: 'shell.dev.act.app' })),
+        check('pen.hover', P.pen.hover, 'shell.dev.pen.hover'),
+        check('pen.gestures', P.pen.gestures, 'shell.dev.pen.gestures'),
+        row('shell.dev.pen.scribble', actionSelect('pen.scribble', P.pen.scribble, { app: false })),
+        row('shell.dev.pen.circle', actionSelect('pen.circle', P.pen.circle, { app: false })),
+      ] : []),
       hint('shell.dev.pen.hint'),
     ]));
     box.append(card('touch', 'bi-hand-index', [
@@ -401,7 +417,12 @@ function mountSettings(A) {
     const sm = P.spacemouse;
     const connect3d = el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-dev-connect': 'spacemouse', disabled: !navigator.hid }, icon('bi-usb-plug'), ' ', T('shell.dev.sm.connect'));
     const status3d = el('span', { className: 'shell-hint-text', 'aria-live': 'polite' });
-    connect3d.addEventListener('click', async () => { const r = await A.connectSpace(); status3d.textContent = r.ok ? T('shell.dev.connected', { name: r.name || '' }) : T('shell.dev.sm.why.' + r.why); });
+    connect3d.addEventListener('click', async () => {
+      const r = await A.connectSpace();
+      status3d.textContent = r.ok ? T('shell.dev.connected', { name: r.name || '' }) : T('shell.dev.sm.why.' + r.why);
+      // Studio on Linux without the udev rule (0.8 ID.8): the rule file to save, beside the words that say where it goes
+      if (!r.ok && r.why === 'blocked' && r.rule) status3d.append(' ', el('a', { className: 'btn-line btn-sm-cc', download: '70-cadcraft-3dmouse.rules', 'data-dev-rule': '', href: URL.createObjectURL(new Blob([r.rule], { type: 'text/plain' })) }, icon('bi-download'), ' ', T('shell.dev.sm.rule')));
+    });
     const axisRows = D.SPACE_AXES.map((k) => el('div', { className: 'shell-row shell-dev-axis' },
       el('label', { for: 'cc-dev-ax-' + k + uid }, T('shell.dev.sm.ax.' + k)),
       Object.assign(choiceSelect('spacemouse.axes.' + k, sm.axes[k], AXIS), { id: 'cc-dev-ax-' + k + uid }),

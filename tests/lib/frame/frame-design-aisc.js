@@ -99,7 +99,7 @@ export function flexureMinor(p, fy, E) {
   return { phiMn: 0.9 * Mn, Mp };
 }
 
-function cv(h_t, kv, fy, E) {
+export function cv(h_t, kv, fy, E) {
   const a = Math.sqrt(kv * E / fy);
   if (h_t <= 1.10 * a) return 1;                                                              // (G2-3)
   if (h_t <= 1.37 * a) return 1.10 * a / h_t;                                                 // (G2-4)

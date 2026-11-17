@@ -1,0 +1,21 @@
+{
+  "id": "swept-path",
+  "name": "Swept path (vehicles, aircraft, light rail)",
+  "version": "0.10.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "files",
+    "objects",
+    "problems"
+  ],
+  "description": "Drive a vehicle, an aircraft or a light rail car along a path in CivilCraft and see the ground it sweeps and what it touches. Pick a vehicle from a pack or make your own, check the run against kerbs, buildings and lines, send conflicts to Problems, draw a roundabout, lay out a parking lot. A planning aid: an engineer decides.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

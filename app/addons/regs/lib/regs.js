@@ -13,7 +13,7 @@
  *   ruleBounds(rule) → { min, max }              the rule as limits (a value with <= is a max, with >= a min)
  *   strictest(profiles) → profile                several profiles as one, the tightest limit of each rule winning (id 'strict')
  *
- * Optional pack fields: authority (AUTHORITIES: adopted-law = the rules in force in a place, sourced to the act or rule that adopts them;
+ * Optional pack fields: release { version, adopted?, changelog } (the shared pack version + changelog rule, BK.153/154), authority (AUTHORITIES: adopted-law = the rules in force in a place, sourced to the act or rule that adopts them;
  * government; model-code = e.g. the IRC before a place adopts it; professional; community), source.date (when the source document was
  * issued: 2021, 2021-03 or 2021-03-15) and source.checked (when we last checked it, YYYY-MM-DD), maker { name } (who made it, when not
  * the standard's body) and price { amount, currency, url } — a paid pack;
@@ -23,6 +23,7 @@
  * it) and never code. review.state says how far the numbers can be trusted: 'unchecked' (not confirmed against the standard),
  * 'draft' (entered from the published code, awaiting a professional's review), 'reviewed'.
  */
+import { cleanSections, mergeSections } from './sections.js';   // BK.67/156/157: optional process, submission, conventions, notes
 export const FORMAT = 'cadcraft-regulation-pack';
 export const FORMAT_VERSION = 1;
 export const LEVELS = ['country', 'state', 'county', 'city'];
@@ -110,6 +111,9 @@ export const RULES = {
   'conn.bolt.pitch.min':     { applies: 'connection', op: '>=', unit: 'ratio' },
   'conn.bolt.gauge.min':     { applies: 'connection', op: '>=', unit: 'ratio' },
 };
+let releaseCheck = null;
+/** The host's version + changelog validator (packver.js validatePackVersion): (doc, path) → { ok, errors }. */
+export const setReleaseCheck = (fn) => { releaseCheck = typeof fn === 'function' ? fn : null; };
 export const LIMITS = { rules: 200, label: 120, note: 300, clause: 40, name: 120, packNote: 400 };
 
 const ID_PACK = /^[a-z0-9][a-z0-9-]{1,47}$/;
@@ -206,8 +210,16 @@ export function cleanPack(raw) {
     if (!text || text === 'null' || text.length > TABLE_LIMIT) { bad('tables.' + k + '.data is JSON of at most ' + TABLE_LIMIT + ' bytes'); continue; }
     tables[k] = { kind: v.kind, clause: str(v.clause, LIMITS.clause), label: str(v.label, LIMITS.label), note: str(v.note, LIMITS.note), data: JSON.parse(text) };
   }
+  // BK.153/154: an optional release record { version MAJOR.MINOR.PATCH, adopted?, changelog newest first } checked by THE shared validator (assets/js/packver.js,
+  // PHP twin PackVersioning); the engine has no app imports, so the host hands it over (setReleaseCheck). Without one only the shape is checked.
+  let release = null;
+  if (raw.release !== undefined && raw.release !== null) {
+    const v = releaseCheck ? releaseCheck(raw.release, 'release') : { ok: raw.release && typeof raw.release === 'object' && typeof raw.release.version === 'string' && Array.isArray(raw.release.changelog), errors: ['release: needs a version and a changelog'] };
+    if (!v.ok) v.errors.slice(0, 5).forEach(bad); else release = JSON.parse(JSON.stringify(raw.release));
+  }
+  const sections = cleanSections(raw, bad);   // a key only when the raw pack has it: an older pack cleans to what it always did
   if (errors.length) return { ok: false, pack: null, errors };
-  return { ok: true, pack: { format: FORMAT, version: FORMAT_VERSION, id, name, jurisdiction, base, edition, in_force: inForce, review, authority, source, maker, price, criteria, tables, rules }, errors: [] };
+  return { ok: true, pack: { format: FORMAT, version: FORMAT_VERSION, id, name, jurisdiction, base, edition, in_force: inForce, review, authority, source, maker, price, criteria, tables, rules, ...(release ? { release } : {}), ...sections }, errors: [] };
 }
 
 /* i18n-ignore-end */
@@ -237,7 +249,7 @@ export function resolve(packs, id) {
   return {
     id: leaf.id, name: leaf.name, chain, edition: leaf.edition, in_force: leaf.in_force, jurisdiction: leaf.jurisdiction, source: leaf.source,
     review: { state: weakest(chain.map((p) => p.review.state)), note: leaf.review.note },
-    rules, criteria, tables,
+    rules, criteria, tables, sections: mergeSections(chain),
     rule(rid) { return rules.get(rid) || null; },
     list() { return [...rules.values()]; },
     table(kind) { return Object.values(tables).find((t) => t.kind === kind) || null; },
@@ -268,7 +280,7 @@ export function strictest(profiles) {
     id: 'strict', name: list.map((p) => p.name).join(' + '), parts: list, chain: list.flatMap((p) => p.chain), edition: list.map((p) => p.edition).filter(Boolean).join(' + '),
     in_force: null, jurisdiction: last.jurisdiction, source: last.source,
     review: { state: weakest(list.map((p) => p.review.state)), note: '' },
-    rules, criteria: Object.assign({}, ...list.map((p) => p.criteria || {})), tables: Object.assign({}, ...list.map((p) => p.tables || {})),
+    rules, criteria: Object.assign({}, ...list.map((p) => p.criteria || {})), tables: Object.assign({}, ...list.map((p) => p.tables || {})), sections: {},
     rule(rid) { return rules.get(rid) || null; },
     list() { return [...rules.values()]; },
     table(kind) { return Object.values(this.tables).find((t) => t.kind === kind) || null; },

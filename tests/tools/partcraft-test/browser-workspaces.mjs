@@ -32,8 +32,9 @@ export async function run(h) {
     return { first: first.dataset.group, label: document.querySelector(`label[for="${s.id}"]`)?.textContent.trim(), opts: [...s.options].map((o) => o.value + ':' + o.textContent), tag: s.tagName };
   });
   ok(sw.first === 'workspace' && sw.tag === 'SELECT' && sw.label === 'Workspace', 'the toolbar starts with the workspace switcher: a labelled <select>');
-  // 0.7: Illustrate (session illustrate) registers after these; its own browser test covers it
-  ok(sw.opts.filter((o) => o !== 'illustrate:Illustrate').join() === 'design:Design,form:Form,simulation:Simulation,generative:Generative,manufacture:Manufacture,script:Script' && sw.opts.includes('illustrate:Illustrate'), `its options: ${sw.opts.map((o) => o.split(':')[1]).join(', ')}`);
+  // 0.7: Illustrate (session illustrate) registers after these; Nodes, Surfaces and QuantScope came later (0.8, 0.9). Each has its own browser test
+  const core = sw.opts.filter((o) => /^(design|form|simulation|generative|manufacture|script):/.test(o));
+  ok(core.join() === 'design:Design,form:Form,simulation:Simulation,generative:Generative,manufacture:Manufacture,script:Script' && sw.opts[0] === 'design:Design' && sw.opts.includes('illustrate:Illustrate'), `its options: ${sw.opts.map((o) => o.split(':')[1]).join(', ')}`);
   ok((await rows()) === 1 && (await visibleGroups()).join() === 'workspace,file,sketch,features,drawing,assembly,edit,view', 'Design: the toolbar is one row at 1440 px with every Design group');
   for (const id of IDS.slice(1)) {
     await choose(id);

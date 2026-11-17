@@ -1,0 +1,318 @@
+{
+  "format": "cadcraft-regulation-pack",
+  "version": 1,
+  "id": "us-sample-practice",
+  "name": "MADE-UP sample: drawing conventions and standard notes",
+  "jurisdiction": {
+    "country": "US",
+    "level": "country",
+    "region": "",
+    "name": "Nowhere (teaching sample)"
+  },
+  "base": null,
+  "edition": "made up",
+  "in_force": null,
+  "review": {
+    "state": "unchecked",
+    "note": "MADE-UP. Every number and every note in this pack was invented to show how conventions and standard notes work. It is not any office's, city's or code's practice. Replace it with a pack for your own place."
+  },
+  "authority": "community",
+  "source": {
+    "name": "Made up for teaching: no source",
+    "url": "https://example.com/made-up",
+    "date": "",
+    "checked": "2026-11-11"
+  },
+  "maker": null,
+  "price": null,
+  "criteria": {},
+  "tables": {},
+  "rules": [],
+  "release": {
+    "version": "0.1.0",
+    "changelog": [
+      {
+        "version": "0.1.0",
+        "date": "2026-11-11",
+        "added": [
+          "Added: MADE-UP text heights, line weights, marks and standard notes to show how conventions and notes work (first version of this pack)",
+          "Added: a MADE-UP submission format"
+        ]
+      }
+    ]
+  },
+  "submission": {
+    "authority": "Nobody (MADE-UP)",
+    "summary": "MADE-UP submission format: invented to show how the permit package reads a pack. No authority asks for this.",
+    "sources": [
+      {
+        "title": "MADE-UP: no real source",
+        "url": "https://example.com/made-up",
+        "fetched": "2026-11-11",
+        "licence": "Invented for teaching."
+      }
+    ],
+    "format": {
+      "sheetSizes": [
+        "a1",
+        "a3"
+      ],
+      "orientation": "landscape",
+      "fileFormats": [
+        "pdf"
+      ],
+      "maxFileMB": 20,
+      "copies": {
+        "text": "MADE-UP: two paper sets and one file",
+        "paper": 2,
+        "electronic": 1
+      },
+      "stampSpace": "MADE-UP: keep the top-right corner free",
+      "titleBlock": {
+        "fields": [
+          {
+            "key": "project",
+            "label": "Project",
+            "words": [
+              "project",
+              "job"
+            ]
+          },
+          {
+            "key": "drawnby",
+            "label": "Drawn by",
+            "words": [
+              "drawn",
+              "author"
+            ]
+          },
+          {
+            "key": "date",
+            "label": "Date",
+            "words": [
+              "date"
+            ]
+          }
+        ]
+      },
+      "note": "MADE-UP sample.",
+      "source": 0
+    },
+    "drawings": [
+      {
+        "id": "site-plan",
+        "title": "Site plan (MADE-UP)",
+        "detail": "MADE-UP: the lot and the building on it.",
+        "clause": "MADE-UP S1",
+        "when": "always",
+        "source": 0,
+        "scale": {
+          "text": "1:200 or larger (MADE-UP)",
+          "maxDenominator": 200
+        },
+        "satisfy": [
+          {
+            "words": [
+              "site plan"
+            ]
+          }
+        ],
+        "site": true
+      },
+      {
+        "id": "floor-plans",
+        "title": "Floor plans (MADE-UP)",
+        "detail": "MADE-UP: one plan per level.",
+        "clause": "MADE-UP S2",
+        "when": "always",
+        "source": 0,
+        "satisfy": [
+          {
+            "view": [
+              "plan"
+            ]
+          }
+        ],
+        "site": false
+      }
+    ],
+    "documents": [
+      {
+        "id": "application-form",
+        "title": "Application form (MADE-UP)",
+        "detail": "MADE-UP: a form you fill in yourself.",
+        "clause": "MADE-UP S3",
+        "when": "always",
+        "source": 0
+      }
+    ]
+  },
+  "conventions": {
+    "sources": [
+      {
+        "title": "MADE-UP: no real source",
+        "url": "https://example.com/made-up",
+        "fetched": "2026-11-11",
+        "licence": "Invented for teaching."
+      }
+    ],
+    "text": [
+      {
+        "id": "notes",
+        "use": "General notes (MADE-UP)",
+        "kind": "text",
+        "clause": "MADE-UP 1",
+        "min": true,
+        "source": 0,
+        "mm": 3
+      },
+      {
+        "id": "dimensions",
+        "use": "Dimensions (MADE-UP)",
+        "kind": "dimension",
+        "clause": "MADE-UP 2",
+        "min": true,
+        "source": 0,
+        "mm": 2.5
+      },
+      {
+        "id": "titles",
+        "use": "View titles (MADE-UP)",
+        "kind": "title",
+        "clause": "MADE-UP 3",
+        "min": false,
+        "source": 0,
+        "mm": 5
+      }
+    ],
+    "lines": [
+      {
+        "id": "cut",
+        "use": "Cut walls (MADE-UP)",
+        "clause": "MADE-UP 4",
+        "source": 0,
+        "mm": 0.5
+      },
+      {
+        "id": "visible",
+        "use": "Visible edges (MADE-UP)",
+        "clause": "MADE-UP 4",
+        "source": 0,
+        "mm": 0.25
+      },
+      {
+        "id": "hidden",
+        "use": "Hidden edges (MADE-UP)",
+        "clause": "MADE-UP 4",
+        "source": 0,
+        "mm": 0.13
+      }
+    ],
+    "marks": [
+      {
+        "id": "north",
+        "label": "North point on every plan (MADE-UP)",
+        "required": true,
+        "clause": "MADE-UP 6",
+        "source": 0
+      },
+      {
+        "id": "scalebar",
+        "label": "Graphic scale bar on every sheet (MADE-UP)",
+        "required": true,
+        "clause": "MADE-UP 7",
+        "source": 0
+      }
+    ],
+    "note": "MADE-UP teaching sample.",
+    "penTable": {
+      "ref": "MADE-UP pen table: three weights, 0.13 / 0.25 / 0.5 mm",
+      "clause": "MADE-UP 5",
+      "source": 0
+    }
+  },
+  "notes": {
+    "sources": [
+      {
+        "title": "MADE-UP: no real source",
+        "url": "https://example.com/made-up",
+        "fetched": "2026-11-11",
+        "licence": "Invented for teaching."
+      }
+    ],
+    "items": [
+      {
+        "id": "gen-dimensions",
+        "region": "sample",
+        "discipline": "general",
+        "title": "Dimensions govern",
+        "text": "Do not scale the drawings. Written dimensions govern. Verify all dimensions on site before work starts and report differences to the designer.",
+        "clause": "MADE-UP G1",
+        "source": 0
+      },
+      {
+        "id": "gen-codes",
+        "region": "sample",
+        "discipline": "general",
+        "title": "Codes in force",
+        "text": "All work is to follow the codes and rules in force at the place of the building and the requirements of the approving authority.",
+        "clause": "MADE-UP G2",
+        "source": 0
+      },
+      {
+        "id": "gen-coord",
+        "region": "sample",
+        "discipline": "general",
+        "title": "Coordination",
+        "text": "The contractor coordinates the trades and checks these drawings against the engineers' drawings before ordering.",
+        "clause": "MADE-UP G3",
+        "source": 0
+      },
+      {
+        "id": "arch-fire",
+        "region": "sample",
+        "discipline": "architectural",
+        "title": "Fire-rated penetrations",
+        "text": "Seal every penetration of a fire-rated wall or floor with a system suited to that rating.",
+        "clause": "MADE-UP A1",
+        "source": 0
+      },
+      {
+        "id": "arch-finish",
+        "region": "sample",
+        "discipline": "architectural",
+        "title": "Finishes",
+        "text": "Finishes are shown for design intent; confirm selections with the owner before ordering.",
+        "clause": "MADE-UP A2",
+        "source": 0
+      },
+      {
+        "id": "str-verify",
+        "region": "sample",
+        "discipline": "structural",
+        "title": "Structure by the engineer",
+        "text": "Structural members are sized by the engineer's drawings; this sheet shows layout only.",
+        "clause": "MADE-UP S1",
+        "source": 0
+      },
+      {
+        "id": "elec-code",
+        "region": "sample",
+        "discipline": "electrical",
+        "title": "Electrical layout",
+        "text": "Outlet and light positions are indicative; the electrical contractor lays out circuits to the applicable code.",
+        "clause": "MADE-UP E1",
+        "source": 0
+      },
+      {
+        "id": "plumb-test",
+        "region": "sample",
+        "discipline": "plumbing",
+        "title": "Testing",
+        "text": "Pressure-test drainage and supply pipework and keep the test record for the inspector.",
+        "clause": "MADE-UP P1",
+        "source": 0
+      }
+    ]
+  }
+}

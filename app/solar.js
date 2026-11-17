@@ -25,6 +25,7 @@ import { skyYear, sunGridOf, yieldOf, DEFAULT_LOSSES } from './pv/pv-yield.js';
 import { obstructions, tableTris, shadeGrid } from './pv/pv-shade.js';
 import { frameOf } from './pv/pv-sun.js';
 import { METRES_PER } from './units.js';
+import { pointInPolygon } from './geom2d.js';
 
 const RAD = Math.PI / 180;
 const fin = Number.isFinite;
@@ -32,14 +33,7 @@ const mPer = (units) => METRES_PER[units] || METRES_PER.ft;
 
 export const DEFAULTS = Object.freeze({ tilt: 25, azimuth: null, perRow: 12, stack: 2, orient: 'portrait', gap: 0.02, colGap: 0.5, clearance: 0.6, setback: 3, maxSlope: 15, maxPile: 2, step: 0.1, hours: 0, maxTables: 4000, keepOutMargin: 1 });
 
-function inPoly(poly, x, y) {
-  let c = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const a = poly[i], b = poly[j];
-    if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) c = !c;
-  }
-  return c;
-}
+function inPoly(poly, x, y) { return pointInPolygon(x, y, poly); }
 function distToEdges(poly, x, y) {
   let best = Infinity;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {

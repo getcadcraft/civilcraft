@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { pointInPolygon } from './geom2d.js';
 /**
  * templates.js — corridor templates (0.9 SU.1110 + WB.6, session `civil-templates-09`). No DOM, no storage: the UI
  * (templates-ui.js) keeps the library in localStorage and files; the corridor (corridor.js) and the terrain templates
@@ -367,14 +368,7 @@ export function terrainLayers(tpl, params = {}) {
 }
 
 /** Point in polygon (x, y). */
-function inside(x, y, poly) {
-  let c = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const p = poly[i], q = poly[j];
-    if ((p.y > y) !== (q.y > y) && x < ((q.x - p.x) * (y - p.y)) / (q.y - p.y) + p.x) c = !c;
-  }
-  return c;
-}
+function inside(x, y, poly) { return pointInPolygon(x, y, poly); }
 /**
  * A terrain template draped on a surface inside a plan shape (clip = [{x,y}], or null = the whole surface's extent). Sampled
  * on a grid of `cell` (default: about 20 000 cells over the shape): plan area = cells on the surface × cell², sloped area adds

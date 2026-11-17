@@ -1,52 +1,52 @@
 ---
 title: Lucrul în aspectul cu panglică și browserul proiectului
-summary: Treceți aplicația la o panglică de file deasupra desenului, cu Proprietățile și un browser de proiect în stânga și o filă pentru fiecare vizualizare deschisă, și reveniți oricând la aspectul clasic.
-keywords: aspect, spațiu de lucru, panglică, file panglică, browser de proiect, browser, palete, paleta proprietăților, file de vizualizare, bară de stare, acces rapid, restrângere panglică, minimizare panglică, fereastră panglică, aspect clasic, schimbare aspect, comutare aspect, ancorat
-from: c1a6eccc
+summary: Treceți aplicația la o panglică de file peste desen, cu Proprietățile și un browser al proiectului în stânga și o filă pentru fiecare vizualizare deschisă, și reveniți la aspectul clasic oricând doriți.
+keywords: aspect, spațiu de lucru, panglică, file panglică, browserul proiectului, browser, palete, paleta proprietăților, file de vizualizare, bară de stare, acces rapid, restrângere panglică, minimizare panglică, fereastră panglică, aspect clasic, schimbare aspect, comutare aspect, ancorat
+from: 93700102
 ---
 
-**Panglică și browserul proiectului** este unul dintre cele trei aspecte de spațiu de lucru ale aplicației. O panglică de file rulează pe partea de sus, Proprietățile și un browser de proiect împart panoul din stânga, fiecare vizualizare deschisă primește o filă deasupra desenului, iar o bară de stare se află jos. Instrumentele sunt ale aplicației: tot ce puteți face în aspectul clasic funcționează și aici, iar desenul, stilul meniului și tastele rămân la fel.
+**Panglică și browserul proiectului** este unul dintre cele trei aspecte de spațiu de lucru ale aplicației. O panglică de file trece pe partea de sus, Proprietățile și un browser al proiectului împart panoul din stânga, fiecare vizualizare deschisă primește o filă peste desen, iar o bară de stare se află jos. Instrumentele sunt ale aplicației: tot ce puteți face în aspectul clasic funcționează și aici, iar desenul, stilul meniului și tastele rămân la fel.
 
 ## Alegerea lui
 
-1. Deschideți {{ui:Setări}} (rotița sau {{key:Mod+,}}).
+1. Deschideți {{ui:Setări}} (rotița, sau {{key:Mod+,}}).
 2. Alegeți fila {{ui:Global}}, apoi mergeți la {{ui:Aspect}} › {{ui:Spațiu de lucru}}.
 3. Alegeți {{ui:Panglică și browserul proiectului}}.
 
-Aspectul se schimbă imediat. Alegerea este una pentru fiecare aplicație din acest browser: fiecare aplicație se deschide în el de atunci încolo și este aplicat înainte ca pagina să se deseneze, așa că nu vedeți niciodată mai întâi aspectul clasic.
+Aspectul se schimbă imediat. Alegerea este una pentru fiecare aplicație din acest browser: fiecare aplicație se deschide în el de atunci și este pus în loc înainte de desenarea paginii, așa că nu vedeți niciodată mai întâi aspectul clasic.
 
-## Ce unde se află
+## Ce este unde
 
-- **Bara de titlu:** numele aplicației, butoanele de acces rapid (deschidere, salvare, anulare, refacere), numele fișierului deschis, {{ui:Ce face fiecare instrument aici}} (o listă cu fiecare instrument și o casetă de căutare, care spune care sunt gata acum și de ce celelalte nu sunt), ecran complet, {{ui:Ajutor}} și {{ui:Setări}}. În acest aspect, bara de titlu ia locul barei aplicației.
-- **Panglică:** instrumentele aplicației în file, fiecare filă în grupuri. {{ui:Fișier}} din stânga deschide, salvează și restul. Unele aplicații adaugă o filă proprie cât lucrați într-un anumit mod sau spațiu de lucru; ea este aprinsă cât se aplică și dispare apoi.
-- **Bara de opțiuni:** sub panglică, ce cere instrumentul care rulează, sau ce este selectat.
-- **Panoul din stânga:** {{ui:Proprietăți}} deasupra și, sub el, paletele (browserul proiectului și conținutul propriu al panoului) ca file. Trageți linia dintre ele pentru a împărți spațiul.
-- **File de vizualizare:** câte o filă pentru fiecare vizualizare deschisă (o foaie, un plan, o scenă…). Închideți una cu butonul ei de închidere; fișierul rămâne deschis.
+- **Bara de titlu:** numele aplicației, butoane de acces rapid (deschidere, salvare, anulare, refacere), numele fișierului deschis, {{ui:Ce face fiecare instrument aici}} (o listă cu toate instrumentele, cu o casetă de căutare, care arată care sunt gata acum și de ce nu sunt celelalte), ecran complet, {{ui:Ajutor}} și {{ui:Setări}}. În acest aspect, bara de titlu ia locul barei aplicației.
+- **Panglica:** instrumentele aplicației în file, fiecare filă în grupuri. {{ui:Fișier}} din stânga deschide, salvează și restul. Unele aplicații adaugă o filă proprie când lucrați într-un anumit mod sau spațiu de lucru; ea este aprinsă cât timp se aplică și dispare după aceea.
+- **Bara de opțiuni:** sub panglică, ce cere instrumentul în curs sau ce este selectat.
+- **Panoul din stânga:** {{ui:Proprietăți}} deasupra, iar dedesubt paletele (browserul proiectului și propriul conținut al panoului) ca file. Trageți linia dintre ele ca să împărțiți spațiul.
+- **Filele de vizualizare:** o filă pentru fiecare vizualizare deschisă (o foaie, un plan, o scenă...). Închideți una cu butonul ei de închidere; fișierul rămâne deschis.
 - **Bara de vizualizare și bara de stare:** sub desen, comenzile proprii ale vizualizării (scară, zoom); jos, mesajele aplicației.
 
-Un instrument care nu poate rula acum este estompat, iar sfatul lui spune de ce (de exemplu „Deschideți mai întâi un fișier” sau că aplicația nu are încă acel instrument). Faceți clic pe el sau apăsați {{key:Enter}} pe el pentru a citi motivul într-o casetă.
+Un instrument care nu poate rula acum este gri, iar sfatul lui spune de ce (de exemplu „Deschideți întâi un fișier” sau că aplicația nu are încă acel instrument). Faceți clic pe el, sau apăsați {{key:Enter}} pe el, ca să citiți motivul într-o casetă.
 
-## Utilizarea panglicii de la tastatură
+## Folosirea panglicii de la tastatură
 
-Cu o filă de panglică activată, {{key:Left}} și {{key:Right}} trec între file, iar {{key:Home}} și {{key:End}} duc la prima și la ultima. {{key:Esc}} încheie mai întâi instrumentul care rulează, ca în aspectul clasic, iar fiecare scurtătură și {{key:Ctrl+Shift+F}} (modurile de ecran) funcționează ca înainte.
+Cu o filă a panglicii focalizată, {{key:Left}} și {{key:Right}} mută între file, iar {{key:Home}} și {{key:End}} merg la prima și la ultima. {{key:Esc}} încheie mai întâi instrumentul în curs, ca în aspectul clasic, iar fiecare scurtătură și {{key:Ctrl+Shift+F}} (modurile de ecran) funcționează ca înainte.
 
-## Restrângerea panglicii sau fereastra ei proprie
+## Restrângerea panglicii sau o fereastră proprie
 
-- Faceți dublu clic pe o filă a panglicii pentru a restrânge panglica la file; un clic pe o filă arată apoi instrumentele ei până treceți mai departe. Faceți din nou dublu clic pentru a o menține deschisă. Butonul {{ui:Mutați panglica}} de la capătul din dreapta al panglicii are și {{ui:Restrângere a panglicii}} și {{ui:Mențineți panglica deschisă}}. Fiecare aplicație își amintește aceasta.
-- {{ui:Mutați panglica}} › {{ui:Mutare într-o fereastră nouă}} pune panglica într-o fereastră proprie, de exemplu pe un al doilea monitor. Tastele apăsate acolo ajung la aplicație. {{ui:Puneți panglica la loc}} sau închiderea acelei ferestre o aduce acasă.
+- Dublu clic pe o filă a panglicii o restrânge la file; un clic pe o filă arată atunci instrumentele ei până treceți mai departe. Dublu clic din nou o ține deschisă. Butonul {{ui:Mutați panglica}} de la capătul din dreapta al panglicii are și {{ui:Restrângere a panglicii}} și {{ui:Mențineți panglica deschisă}}. Fiecare aplicație își amintește.
+- {{ui:Mutați panglica}} › {{ui:Mutare într-o fereastră nouă}} pune panglica într-o fereastră proprie, de exemplu pe un al doilea monitor. Tastele apăsate acolo ajung la aplicație. {{ui:Puneți panglica la loc}}, sau închiderea acelei ferestre, o aduce acasă.
 
-Setările barei de instrumente se aplică panglicii: {{ui:Setări}} › {{ui:Global}} › {{ui:Bară de instrumente}} › {{ui:Pictograme și etichete}}, {{ui:Doar pictograme}} (panglica afișează atunci două rânduri de pictograme mici pe grup) sau {{ui:Doar etichete}}, și {{ui:Afișare nume de grupuri (Fișier, Desen, …)}}.
+## Panourile din stânga și din dreapta
 
-## Panourile rămân aceleași
-
-Panourile din stânga și din dreapta păstrează tot ce este descris în [Aranjarea panourilor](common:arrange-panels): ancorare, plutire, fixare, ascundere, file, {{ui:Mutare într-o fereastră nouă}} și {{ui:Resetare aspect}}.
+Acestea păstrează tot ce este descris în [Aranjarea panourilor](common:arrange-panels): ancorare, plutire, fixare, ascundere, file, {{ui:Mutare într-o fereastră nouă}} și {{ui:Resetare aspect}}.
 
 ## Revenirea la aspectul clasic
 
-Deschideți {{ui:Setări}} › {{ui:Global}} › {{ui:Aspect}} › {{ui:Spațiu de lucru}} și alegeți {{ui:CadCraft clasic}}. Fiecare bară de instrumente, filă și panou revine acolo unde era.
+Deschideți {{ui:Setări}} › {{ui:Global}} › {{ui:Aspect}} › {{ui:Spațiu de lucru}} și alegeți {{ui:CadCraft clasic}}. Fiecare bară de instrumente, filă și panou revine unde era.
 
 :::note
-Pe telefon, sau într-o fereastră de 760 de pixeli lățime sau mai îngustă, aplicația folosește aspectul pentru telefon, orice ați alege. O fereastră mai lată aduce înapoi aspectul ales.
+Pe telefon, sau într-o fereastră de 760 de pixeli lățime sau mai îngustă, aplicația folosește aspectul pentru telefon, orice ați alege. O fereastră mai largă aduce înapoi aspectul ales.
 :::
 
-Pentru a încerca un alt aranjament, vezi [aspectul cu casetă de instrumente și casetă de informații](common:layout-toolbox).
+Pentru a încerca alt aranjament, vedeți [aspectul cu casetă de instrumente și casetă de informații](common:layout-toolbox).
+
+Pentru a schimba ce arată acest aspect, vedeți [Modificarea unui aspect pe ecran](common:layout-edit); pentru un aranjament întunecat, cu bară de meniu și panglică, vedeți [aspectul Drafting](common:layout-drafting).
