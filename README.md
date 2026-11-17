@@ -18,9 +18,9 @@ Use it now at https://getcadcraft.com/use/civilcraft, or install CadCraft Studio
 
 | Platform | Status |
 |---|---|
-| [Browser](web/) | 0.9: `civilcraft-browser-edition-v0.9.0.zip` in [Releases](https://github.com/getcadcraft/civilcraft/releases), or build it from a clone ([BUILDING.md](BUILDING.md#the-browser-edition)) |
-| Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.9](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0) (installer, `.deb`, AppImage); not code-signed yet |
-| [macOS](macos/) | In [CadCraft Studio 0.9](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0) (universal disk image; not code-signed or notarized yet) |
+| [Browser](web/) | 0.10: `civilcraft-browser-edition-v0.10.0.zip` in [Releases](https://github.com/getcadcraft/civilcraft/releases), or build it from a clone ([BUILDING.md](BUILDING.md#the-browser-edition)) |
+| Desktop: [Windows](windows/), [Linux](linux/) | In [CadCraft Studio 0.10](https://github.com/getcadcraft/studio/releases/tag/studio-v0.10.0) (installer, `.deb`, AppImage); not code-signed yet |
+| [macOS](macos/) | In [CadCraft Studio 0.10](https://github.com/getcadcraft/studio/releases/tag/studio-v0.10.0) (universal disk image, signed and notarized by Apple) |
 | [Android](android/) | The Studio APK, on the [download page](https://getcadcraft.com/download#studio) |
 | [iPad](ios/) | From the App Store when it is released; not in the store yet |
 

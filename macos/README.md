@@ -1,6 +1,6 @@
 # CivilCraft for macOS
 
-CivilCraft comes inside [CadCraft Studio](https://github.com/getcadcraft/studio): get Studio 0.9 for macOS (one universal disk image, macOS 13 or later) from the [download page](https://getcadcraft.com/download#studio) or the [GitHub release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.9.0). It is not code-signed or notarized yet: the first time, right-click CadCraft Studio in Applications and choose **Open** (macOS 15 and later: System Settings › Privacy & Security › **Open Anyway**). Every app also runs in the browser: https://getcadcraft.com/use/civilcraft.
+CivilCraft comes inside [CadCraft Studio](https://github.com/getcadcraft/studio): get Studio 0.10 for macOS (one universal disk image, macOS 13 or later) from the [download page](https://getcadcraft.com/download#studio) or the [GitHub release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.10.0). It is signed with our Developer ID and notarized by Apple, so it opens like any other Mac app, and it updates itself. Every app also runs in the browser: https://getcadcraft.com/use/civilcraft.
 
 Or install it with [Homebrew](https://github.com/getcadcraft/homebrew-tap):
 
