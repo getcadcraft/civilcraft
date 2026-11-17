@@ -6,9 +6,9 @@ From survey points to finished grade.
 
 **[Website](https://getcadcraft.com/apps/civilcraft) | [Use it in your browser](https://getcadcraft.com/use/civilcraft) | [Download CadCraft Studio](https://getcadcraft.com/download#studio) | [Help and tutorials](https://getcadcraft.com/tutorials/civilcraft) | [News](https://getcadcraft.com/news) | [Suggest a feature](https://getcadcraft.com/suggest)**
 
-[![CivilCraft 0.9](screenshots/paper.png)](https://getcadcraft.com/use/civilcraft)
+[![CivilCraft 0.10](screenshots/paper.png)](https://getcadcraft.com/use/civilcraft)
 
-<sub>CivilCraft 0.9 in the browser, dark theme. [A second view](screenshots/model.png).</sub>
+<sub>CivilCraft 0.10 in the browser, dark theme. [A second view](screenshots/model.png).</sub>
 
 CivilCraft is the civil & site design app in the [CadCraft](https://getcadcraft.com) family: Surfaces from points and breaklines, alignments, profiles, corridors, grading and pipe networks. LandXML in and out.
 
