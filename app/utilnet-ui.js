@@ -4,10 +4,10 @@
  * selected alignment, feature line or pipe; OpenStreetMap data read from an Overpass JSON file and placed through the project's coordinate system; the
  * OpenStreetMap map under the plan (needs "map layers from the internet" in Settings); crossings between runs and their clear height; trench sections
  * with volumes; CSV; plan items on service layers. Every change is one undo step (state.utilities). The numbers are utilnet.js's
- * (bin/test-civilcraft-utilnet.mjs). Not drawn run by run on the plan with a tool yet.
+ * (bin/test-civilcraft-utilnet.mjs). 0.11: the Utility run tool draws a run point by point on the plan (ownsTool / finish, as the other drawing tools).
  *
- *   createUtilnet(ctx) → { command(c) → handled, sceneItems(mm), open(), crossingsAlong(line) }
- *   ctx = { root, el, project, units, say, refocus, download(name, blob), fileStem(), selected() → { kind, id, name, pts } | null, groundAt(x, y), refresh() }
+ *   createUtilnet(ctx) → { command(c) → handled, sceneItems(mm), open(), crossingsAlong(line), ownsTool(t), hints, finish(tool, pts) → done }
+ *   ctx = { setTool(t), root, el, project, units, say, refocus, download(name, blob), fileStem(), selected() → { kind, id, name, pts } | null, groundAt(x, y), refresh() }
  */
 import { t } from './i18n.js';
 import { LAYERS } from './scene.js';
@@ -15,6 +15,8 @@ import * as N from './utilnet.js';
 import { fixed } from './units.js';
 
 for (const [name, key, aci] of N.LAYER_DEFS) if (!LAYERS.some((l) => l.name === name)) LAYERS.push({ name, token: 'blue', aci, get label() { return t(key); } });
+
+const TOOL = 'util-run';
 
 export function createUtilnet(ctx) {
   const { el } = ctx;
@@ -103,7 +105,20 @@ export function createUtilnet(ctx) {
     ctx.root.append(dlg); render(); dlg.showModal();
   }
   return {
-    command(c) { if (c === 'utilities') { open(); return true; } return false; },
+    command(c) { if (c === 'utilities') { open(); return true; } if (c === TOOL) { ctx.setTool(ctx.tool() === TOOL ? 'select' : TOOL); return true; } return false; },
+    ownsTool: (tl) => tl === TOOL,
+    hints: { [TOOL]: 'un.tool.hint' },
+    /** The points clicked on the plan become one run of the service chosen in the Utility networks window (water until another is chosen). */
+    finish(tool, pts) {
+      if (tool !== TOOL) return false;
+      if (pts.length < 2) { ctx.say(t('un.tool.need2')); return false; }
+      const n = get().runs.filter((r) => r.source === 'drawn').length + 1;
+      addRuns([{ service: svc, name: t('un.tool.name', { service: t('un.s.' + svc), n }), pts: pts.map((p) => ({ x: p.x, y: p.y })), material: '', size: N.DEFAULTS.size, depth: N.DEFAULTS.depth[U()], owner: '', source: 'drawn' }]);
+      ctx.say(t('un.tool.made', { service: t('un.s.' + svc), len: fixed(N.runLength(get().runs[get().runs.length - 1]), 1), u: U() }));
+      render(); ctx.refresh();
+      return true;
+    },
+    service: () => svc, setService: (k) => { if (N.SERVICES[k]) svc = k; },
     sceneItems: (mm) => N.sceneItems(P().state.utilities, { mmPerUnit: mm }),
     crossingsAlong: (line) => N.crossingsAlong(line, get().runs, U(), { zAt }),
     open, refreshWindow: () => render(),

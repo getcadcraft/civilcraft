@@ -1,0 +1,3 @@
+Reads EnergyPlus weather files (.epw), from a weather set or your own. Writes nothing into the model: the outside temperatures and degree-days it hands to Heating and cooling loads are kept with that section's inputs in this browser. Saves the .epw file of the chosen station on request. The year viewer saves a picture (.png), tables (.csv) and its own settings (.json, format cadcraft-weather-view).
+
+Weather sets are served as plain files: an index (JSON, format cadcraft-weather-index) and one gzip-packed .epw per station, each checked against the SHA-256 in the index before it is used. The requests carry no cookies and say nothing about your model.

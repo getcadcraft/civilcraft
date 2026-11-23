@@ -78,6 +78,7 @@ export function horizontalSegments(al) {
     const sg = e.ccw ? 1 : -1;
     if (e.type === 'line') out.push({ type: 'LINE', x: e.p0.x, y: e.p0.y, dir: e.dir, dir1: e.dir, r0: 0, r1: 0, len: e.len, sta: e.sta });
     else if (e.type === 'arc') { const d0 = fin(e.dirIn) ? e.dirIn : e.a0 + sg * Math.PI / 2; out.push({ type: 'CIRCULARARC', x: e.p0.x, y: e.p0.y, dir: d0, dir1: fin(e.dirOut) ? e.dirOut : d0 + sg * e.delta, r0: sg * e.r, r1: sg * e.r, len: e.len, sta: e.sta }); }
+    else if (e.type === 'spiral' && e.io === 'cs') out.push({ type: 'CLOTHOID', kind: 'clothoid', Lp: e.len, x: e.p0.x, y: e.p0.y, dir: e.dir0, dir1: e.dir1, r0: Math.sign(e.k1) * e.r1, r1: Math.sign(e.k2) * e.r2, len: e.len, sta: e.sta, cs: true });   // 0.11 SU.1944: between two curves
     else if (e.type === 'spiral') {
       const kind = TRANSITION_TYPES[e.tr] ? e.tr : 'clothoid';
       out.push({ type: TRANSITION_TYPES[kind], kind, Lp: e.Lp ?? e.Ls, x: e.p0.x, y: e.p0.y, dir: e.dir0, dir1: e.dir1, r0: e.io === 'in' ? 0 : sg * e.r, r1: e.io === 'in' ? sg * e.r : 0, len: e.len, sta: e.sta });
@@ -413,7 +414,7 @@ export function civilIfcModel(project, { species = null, lat = null, lon = null 
   // 0.10 SU.1814b: fences (lib/fence): posts, panels, rails and gates on the finished ground
   if ((s.fences || []).length) {
     const ground = project.graded().surface || project.eg().surface, zAt = (x, y) => { const z = ground?.elevationAt(x, y); return Number.isFinite(z) ? z : null; };
-    model.fences = s.fences.map((rec) => { const lay = Fence.build(rec, { zAt, units: units === 'm' ? 'm' : 'ft' }); return { id: rec.id, name: rec.name, type: rec.type, panelThk: rec.panelThk, posts: lay.posts, panels: lay.panels, rails: lay.rails, gates: lay.gates }; }).filter((f) => f.posts.length);
+    model.fences = s.fences.map((rec) => { const u = units === 'm' ? 'm' : 'ft', lay = Fence.build(rec, { zAt, units: u }), pk = Fence.pickets(lay, { ...rec, units: u }); return { id: rec.id, name: rec.name, type: rec.type, panelThk: rec.panelThk, posts: lay.posts, panels: lay.panels.filter((n) => !pk.some((k) => k.panel === n.id)), pickets: pk, rails: lay.rails, gates: lay.gates }; }).filter((f) => f.posts.length);
   }
 
   // 0.8 LC.16 rest + CV.2 (civil_PART_3): the water mains as pipes under the ground with their hydrants, valves and fittings (water-objects.js)

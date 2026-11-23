@@ -3,3 +3,10 @@
 - Take each main, or each valved section, out of service in turn and see how much demand is cut off and which junctions fall under the minimum pressure. WaterCraft tab, Which main matters most. {#wn-crit}
 - Follow water age, chlorine decay (in the water and at the pipe wall) and a source trace through the run, with junctions flagged when the residual is too low or the water too old. WaterCraft tab, Water age and chlorine. {#wn-quality}
 - Save every table as a CSV that a spreadsheet will open without running a name as a formula. Each table's Save as CSV button. {#wn-csv}
+- Read the parcels you drew in CivilCraft as customers: each parcel becomes a load at its centre, its use sets the demand per acre or per home, and the parcel's own area (curved boundaries included) is used. WaterCraft tab, Demands from parcels. {#wn-parcels}
+- Compare what-if versions of the network side by side: a main out, a peak day, a larger pipe, a fire, a pump off, a tank level, each as a column with its change from the base. WaterCraft tab, Scenarios side by side. {#wn-scenarios}
+- See what a network delivers when its pressure falls (pressure-dependent demand), with leaking joints and a leak along the pipes. WaterCraft tab, Shortage and leakage. {#wn-pdd}
+- Run a day with control rules, flow-control and pressure-sustaining valves and boosters, with each pump's energy, peak load and cost, and a price that changes by the hour. WaterCraft tab, Valves, rules and pump energy. {#wn-rules}
+- Run a main break, a fire or a power cut and see who is cut off, who falls under the minimum pressure, for how long, and when a tank runs empty. WaterCraft tab, Emergencies. {#wn-emerg}
+- Fit the roughness of groups of pipes (and, if asked, a factor on every demand) to field pressure and flow readings. WaterCraft tab, Calibrate to field readings. {#wn-calib}
+- Size pipes from the list of sizes you may buy for the money, or choose which old pipes to rehabilitate within a budget. WaterCraft tab, Pipe sizes and rehabilitation. {#wn-size}

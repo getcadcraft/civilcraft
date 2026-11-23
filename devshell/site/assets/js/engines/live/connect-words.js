@@ -13,6 +13,13 @@ export const WORDS = {
   'live.bridge.none': 'Reading a device needs CadCraft Studio: a browser page cannot open a plant network connection. Use a CSV of readings meanwhile.',
   'live.bridge.noproto': 'This Studio does not read {protocol} yet.',
   'live.state.waiting': 'waiting', 'live.state.ok': 'ok', 'live.state.uncertain': 'uncertain', 'live.state.bad': 'bad quality', 'live.state.stale': 'stale', 'live.state.high': 'high', 'live.state.low': 'low',
+  'live.h.trend': 'Trend', 'live.trend.tag': 'Tag', 'live.trend.save': 'Save the trend (CSV)',
+  'live.trend.none': 'Nothing to draw yet. Show readings or read the devices: every read adds to the trend.',
+  'live.trend.caption': '{label}: {n} values, from {min} to {max} {unit}.', 'live.trend.gap': 'Breaks in the line: bad quality, or no value for more than {s} s.',
+  'live.act.fill': 'Fill the map from the drawing', 'live.fill.done': '{n} tags from the drawing added to the map. Give each one a device and an address.', 'live.fill.none': 'Every tag on the drawing is already in the map.',
+  'live.poll.label': 'Keep reading every', 'live.poll.seconds': 's', 'live.poll.on': 'Reading the devices every {s} s. Untick to stop.', 'live.poll.off': 'Stopped reading.',
+  'live.act.history': 'Load history (OPC UA)', 'live.hist.hours': 'hours back', 'live.hist.done': '{n} past values loaded from the server.',
+  'live.hist.none': "Loading history needs CadCraft Studio's OPC UA connection: a browser page cannot reach a plant server.",
   'live.note': 'Read-only plant and building data, for viewing and comparison. Not an alarm system or a safety function.',
 };
 export const wordsOf = (t) => (k, v) => { const r = t ? t(k, v) : k; if (r && r !== k) return r; return (WORDS[k] || k).replace(/\{(\w+)\}/g, (m, a) => (v && v[a] !== undefined ? v[a] : m)); };

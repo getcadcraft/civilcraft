@@ -1,129 +1,129 @@
 ---
-title: Kas naujo 0.9 versijoje
-summary: Koridorių ir reljefo šablonai, prisegimai ir pasirinkimo mygtukai braižant, GIS analizė su atributų lentele, šešėlio, saulės energijos, komforto ir vėjo tyrimai vietovei, 3D atvaizdavimo vaizdas, bei Taškų debesų ir WaterCraft priedai.
-keywords: kas naujo, 0.9, versijų pastabos, koridoriaus šablonai, reljefo šablonai, šablonų redaktorius, tipinis skerspjūvis, keli koridoriai, prisegimas, prisegimai, pasirinkimas, perkelti, kopijuoti, sukti, liestinė, atvaizdavimas, 3d atvaizdavimas, gis analizė, buferis, perdengimas, erdvinis sujungimas, atributų lentelė, stilius pagal atributą, šešėlio tyrimas, saulės derlius, utci, lauko komfortas, vėjo tyrimas, openfoam, taškų debesys, las, laz, watercraft, gaisrinis debitas, hidrantas, vandens amžius, chloras, poreikiai, patarimai, išdėstymas, pakeitimų žurnalas, pakeitimai, 0.8, 0.8.1, versija, naujos funkcijos, lietus, lietaus nuotekos, užliejimas, žemės darbai, balansas, iškasa ir pylimas, transportavimas, geriausias maršrutas, mažiausia kaina, trasa, sulaikymo tvenkinys, nutekėjimas, išsekimas, laisvasis aukštis, pažanga, apklausa, dronas, sandėlis, adresas į vietovę, sklypas, gruntas, potvynis, šlaito stabilumas, Bišopas, nuosėdos, sankryža, ženklinimas, ženklai, regėjimo atstumas, koregavimas, mažiausių kvadratų, poligonas, atvira duobė, blokų modelis, radijo ryšio linija, Fresnelio zona, išvažiavimas, kryžminimas, kalbos, problemos, gyvai, dwg
-from: d7ac5b14
+title: Kas naujo 0.9 (ankstesnė versija)
+summary: Koridoriaus ir reljefo šablonai, prisitraukimai ir pasirinkimo mygtukai braižant, GIS analizė su atributų lentele, šešėlio, saulės energijos derliaus, komforto ir vėjo tyrimai vietovei, 3D atvaizdavimo rodinys bei taškų debesų ir WaterCraft priedai.
+keywords: kas naujo 0.9, ankstesnė versija, kas naujo, 0.9, išleidimo pastabos, koridoriaus šablonai, reljefo šablonai, šablonų redaktorius, tipinis skyrius, keli koridoriai, prisitraukimas, prisitraukimai, pasirinkti, perkelti, kopijuoti, sukti, liestinė, atvaizdavimas, 3d atvaizdavimas, gis analizė, buferis, perdengimas, erdvinis sujungimas, atributų lentelė, stilius pagal atributą, šešėlio tyrimas, saulės energijos derlius, utci, lauko komfortas, vėjo tyrimas, openfoam, taškų debesys, las, laz, watercraft, gaisrinis debitas, hidrantas, vandens amžius, chloras, paklausos, patarimai, išdėstymas, pakeitimai, 0.8, 0.8.1, versija, naujos funkcijos, lietus, gruntų darbai, balansas, pylimas ir iškasa, vežimas, geriausias maršrutas, mažiausia kaina, trasa, sulaikymo tvenkinys, išleidimo anga, nuleidimas, laisvasis bortas, eiga, apklausa, dronas, krūva, adresas į vietovę, sklypas, dirvožemis, potvynis, nuolydžio stabilumas, bishop, nusėdimas, sankryža, ženklinimas, ženklai, matomumo atstumas, koregavimas, mažiausių kvadratų, traversa, atviras karjeras, blokinis modelis, radijo ryšys, fresnelio zona, išvažiavimas, kalbos, problemos, gyvai, dwg
+from: 4664522c
 ---
 
-Tai, kas pasikeitė CivilCraft 0.9 versijoje, palyginti su 0.8.1. CivilCraft 0.9 yra CadCraft Studio 0.9 dalis ir jos aštuonios programos. Didžiausios dalys – koridorių ir reljefo šablonai, prisegimai braižant, GIS analizė, vietovės saulės, saulės energijos, komforto ir vėjo tyrimai bei du priedai: Taškų debesys ir WaterCraft.
+Tai, kas pasikeitė CivilCraft 0.9 versijoje, palyginti su 0.8.1. CivilCraft 0.9 yra CadCraft Studio 0.9 ir jos aštuonių programų dalis. Pagrindinės dalys: koridoriaus ir reljefo šablonai, prisitraukimas braižant, GIS analizė, vietovės saulės, saulės energijos derliaus, komforto ir vėjo tyrimai bei du priedai: Taškų debesys ir WaterCraft.
 
 ## Naujovės
 
-### Koridorių ir reljefo šablonai
+### Koridoriaus ir reljefo šablonai
 
-- **Koridoriaus šablonai.** Atidarykite {{ui:Paviršius}} › {{ui:Daugiau}} › {{ui:Koridoriaus šablonai…}} (arba įveskite {{cmd:TEMPLATES}}). Šablonas yra mažas skerspjūvis su komponentais, poslinkiais, nuolydžiais, medžiagomis ir taškų kodais. Laikykite juos projekte, {{ui:Mano biblioteka}} arba kaip `.cctemplates.json` failą. Šablonų redaktorius rodo tikro mastu brėžinį ir rašant nurodo problemas.
-- **Kurti pagal šablonus pagal stotį.** Pasirinkite trasą ir savybėse įjunkite {{ui:Kurti pagal šablonus pagal stotį}}. Kiekviena kiekvieno ruožo pusė turi savo dangos sąrašą ir savo galo sąlygą. {{ui:Pridėti koridorių}} skyriuje {{ui:Koridoriai šioje trasoje}} sudeda kelis koridorius į vieną trasą.
-- **Reljefo šablonai.** {{ui:Paviršius}} › {{ui:Daugiau}} › {{ui:Reljefo šablonai…}} (arba įveskite {{cmd:TERRAINTEMPLATES}}) uždeda sluoksniuotas medžiagas, pavyzdžiui, viršutinį dirvožemį ar dangą ir pagrindą, ant reljefo, su plotu ir tūriu kiekviename sluoksnyje. Žr. [Koridorių šablonai ir reljefo šablonai](topic:corridor-templates).
+- **Koridoriaus šablonai.** Atidarykite {{ui:Paviršius}} › {{ui:Daugiau}} › {{ui:Koridoriaus šablonai…}} (arba įveskite {{cmd:TEMPLATES}}). Šablonas yra mažas skersinis pjūvis su komponentais, poslinkiais, nuolydžiais, medžiagomis ir taškų kodais. Laikykite juos projekte, {{ui:Mano biblioteka}} arba kaip `.cctemplates.json` failą. Šablonų redaktorius rodo tikro mastelio brėžinį ir rašant išvardija problemas.
+- **Statyba pagal šablonus pagal stacionažą.** Pasirinkite trasą ir jos Ypatybėse įjunkite {{ui:Statyti pagal šablonus pagal stotį}}. Kiekviena regiono pusė turi savo dangos sąrašą ir savo galo sąlygą. Skiltyje {{ui:Koridoriai šioje trasoje}} {{ui:Pridėti koridorių}} įdeda kelis koridorius į vieną trasą.
+- **Reljefo šablonai.** {{ui:Paviršius}} › {{ui:Daugiau}} › {{ui:Reljefo šablonai…}} (arba įveskite {{cmd:TERRAINTEMPLATES}}) uždeda sluoksniuotas medžiagas, pavyzdžiui, dirvožemį ar dangą ir pagrindą, ant reljefo, su plotu ir tūriu kiekvienam sluoksniui. Žr. [Koridoriaus šablonai ir reljefo šablonai](topic:corridor-templates).
 
 ### Braižymas
 
-- **Prisegimai.** Trasos, aikštelės, parcelio, masės, objekto linijos, matavimo, ribos ir baseino įrankiai prisega prie matavimo taškų, PI, kampų, viršūnių ir statinių, su žymele prie žymeklio. Laikykite {{key:Alt}} laisvam taškui.
-- **Pasirinkimo mygtukai, liestinė, perkelti, kopijuoti, sukti.** Aikštelės, parcelio ir objekto linijos kampai turi įvedamus Rytų ir Šiaurės langelius bei kryželio formos {{ui:Pasirinkti}} mygtuką. Savybėse taip pat yra {{ui:Liestinė pagal du taškus}} trasoms ir {{ui:Perkelti, kopijuoti ir sukti}} trasoms, aikštelėms, parceliams ir objekto linijoms. Žr. [Braižykite su prisegimais, pasirinktais kampais ir perkelti, kopijuoti, sukti](topic:draft-with-snaps).
-- **Atvaizdavimo vaizdas 3D.** 3D juostos mygtukas {{ui:Atvaizdavimas}} nubraižo žemę natūraliomis spalvomis, dangų, rūką ir švelnius šešėlius. Modelio jis nekeičia. {{ui:Saulė}} meniu dabar turi mygtukus {{ui:Taikyti}} ir {{ui:Uždaryti}}. Žr. [Vietovės peržiūra 3D](topic:site-3d).
-- **Skydeliai atsidaro po vieną skyrių.** Kairysis skydelis ir Savybių skydelis atveria vieną skyrių ir uždaro kitus, o Kraštovaizdžio juostos plytelės su keliais įrankiais yra padalintieji mygtukai.
+- **Prisitraukimai.** Trasos, aikštelės, sklypo, masės, charakteristinės linijos, matavimo, ribos ir baseino įrankiai prisitraukia prie matavimo taškų, PI, kampų, viršūnių ir konstrukcijų, šalia žymeklio rodoma žymė. Laisvam taškui laikykite {{key:Alt}}.
+- **Pasirinkimo mygtukai, liestinė ir perkelti, kopijuoti, sukti.** Aikštelių, sklypų ir charakteristinių linijų kampai turi įvedamus Rytų (E) ir Šiaurės (N) laukus bei kryžminį mygtuką Pasirinkti. Ypatybėse taip pat yra {{ui:Liestinė pagal du taškus}} trasoms ir {{ui:Perkelti, kopijuoti ir sukti}} trasoms, aikštelėms, sklypams ir charakteristinėms linijoms. Žr. [Braižykite su prisitraukimais, pasirinktais kampais ir perkeliant, kopijuojant, sukant](topic:draft-with-snaps).
+- **Atvaizdavimo rodinys 3D.** Mygtukas {{ui:Atvaizdavimas}} 3D juostoje piešia žemę natūraliomis spalvomis, dangumu, rūku ir minkštais šešėliais. Modelio jis nekeičia. Meniu {{ui:Saulė}} dabar turi mygtukus {{ui:Taikyti}} ir {{ui:Uždaryti}}. Žr. [Žiūrėti vietovę 3D](topic:site-3d).
+- **Skydeliai atsidaro po vieną skiltį.** Kairysis skydelis ir Ypatybių skydelis atveria vieną skiltį ir uždaro kitas, o Kraštovaizdžio juostos plytelės, turinčios kelis įrankius, yra padalyti mygtukai.
 
 ### GIS analizė
 
-- **Analizė.** {{ui:Paviršius}} › {{ui:Daugiau}} › {{ui:Analizė}} siūlo buferį, perdengimą, erdvinį sujungimą, pasirinkimą pagal atributą ar formą ir matavimą. Kiekvienas įrankis sukuria naują sluoksnį viename atšaukimo žingsnyje.
-- **Atributų lentelė.** Sluoksnio meniu su trimis taškais yra {{ui:Atributų lentelė…}} ir {{ui:Stilius pagal atributą…}}. Žr. [Analizuokite GIS sluoksnius](topic:gis-analysis) ir [Dirbkite su sluoksnio atributų lentele](topic:gis-table).
+- **Analizė.** {{ui:Paviršius}} › {{ui:Daugiau}} › {{ui:Analizė}} siūlo buferį, perdengimą, erdvinį sujungimą, pasirinkimą pagal atributą ar formą ir matavimą. Kiekvienas įrankis sukuria naują sluoksnį per vieną anuliavimo žingsnį.
+- **Atributų lentelė.** Sluoksnio trijų taškų meniu turi {{ui:Atributų lentelė…}} ir {{ui:Stilius pagal atributą…}}. Žr. [GIS sluoksnių analizė](topic:gis-analysis) ir [Dirbkite su sluoksnio atributų lentele](topic:gis-table).
 
 ### Vietovė: saulė, saulės energija, komfortas ir vėjas
 
-- **Aplinkos skyrius.** Pasirinkite masę: skyrius {{ui:Aplinka}} yra po {{ui:Saulės valandos}} jos savybėse. Jame yra šešėlio tyrimas (žemėlapis, lentelė, animacija, CSV), saulės energijos derlius pagal tipinių metų orų failą (.epw) ir lauko komfortas (UTCI).
-- **Vėjas, tik atrankai.** {{ui:Atlikti vėjo tyrimą}} nudažo žemę nuo sėdėjimo iki nepatogumo kiekvienai vėjo krypčiai iš orų failo. Jis nepatvirtintas, ir skydelis tai nurodo.
-- **Pėsčiųjų vėjas (OpenFOAM) priedas.** Išjungtas, kol jį įjungsite {{ui:Parametrai}} › {{ui:Priedai}}. OpenFOAM yra programa, kurią įdiegiate patys. Žr. [Šešėlis, saulės energija ir lauko komfortas](topic:environment).
+- **Aplinkos skiltis.** Pasirinkite masę: {{ui:Aplinka}} skiltis yra po {{ui:Saulės valandos}} jos Ypatybėse. Joje yra šešėlio tyrimas (žemėlapis, lentelė, animacija, CSV), saulės energijos derlius pagal tipinių metų orų failą (.epw) ir lauko komfortas (UTCI).
+- **Vėjas, tik patikra.** {{ui:Paleisti vėjo tyrimą}} nuspalvina žemę nuo tinkamos sėdėti iki nepatogios kiekvienai vėjo krypčiai orų faile. Jis nepatvirtintas, ir skydelyje tai nurodyta.
+- **Pėsčiųjų vėjo (OpenFOAM) priedas.** Išjungtas, kol neįjungsite {{ui:Parametrai}} › {{ui:Priedai}}. OpenFOAM yra programinė įranga, kurią įdiegiate patys. Žr. [Šešėlis, saulės energijos derlius ir lauko komfortas](topic:environment).
 
 ### Taškų debesys (priedas)
 
-- Įjunkite {{ui:Taškų debesys}} skyriuje {{ui:Parametrai}} › {{ui:Priedai}}; dešiniajame skydelyje atsiranda skirtukas Taškų debesys. Atidarykite LAS ar LAZ failą, išvalykite jį, surūšiuokite į žemę, augmeniją ir pastatus, sukurkite žemę, horizontales ir tūrius bei eksportuokite LAS ar LAZ. Žr. [Taškų debesys iš drono ar skaitytuvo](topic:point-clouds).
+- Įjunkite {{ui:Taškų debesys}} skiltyje {{ui:Parametrai}} › {{ui:Priedai}}; dešiniajame skydelyje atsiras skirtukas Taškų debesys. Atidarykite LAS ar LAZ failą, išvalykite jį, surūšiuokite į žemę, augmeniją ir pastatus, sukurkite gruntą, kontūrus ir apimtis bei eksportuokite LAS ar LAZ. Žr. [Taškų debesys iš drono ar skenerio](topic:point-clouds).
 
 ### WaterCraft (priedas)
 
-- Įjunkite {{ui:WaterCraft (vandens paskirstymas)}} skyriuje {{ui:Parametrai}} › {{ui:Priedai}}; atsiranda skirtukas WaterCraft. Jame yra vartotojų poreikiai, gaisrinis debitas prie kiekvieno hidranto, kurio magistralės atjungimas svarbiausias, ir vandens amžius bei chloras, kiekvienas įrašomas kaip CSV. Žr. [WaterCraft: poreikiai, gaisrinis debitas, atjungimai ir vandens amžius](topic:watercraft).
+- Įjunkite {{ui:WaterCraft (vandens paskirstymas)}} skiltyje {{ui:Parametrai}} › {{ui:Priedai}}; atsiras skirtukas WaterCraft. Jame yra vartotojų paklausa, gaisrinis debitas kiekviename hidrante, kurio magistralės nutraukimas svarbiausias, ir vandens amžius bei chloras; kiekvienas įrašomas kaip CSV. Žr. [WaterCraft: paklausa, gaisrinis debitas, nutraukimai ir vandens amžius](topic:watercraft).
 
-### Bendradarbiavimas
+### Dirbame kartu
 
-- Live sesijoje matote kiekvieno kitų žymeklius ir vardus plane. Bibliotekos augalai: CivilCraft kraštovaizdis pradeda nuo savo numatytosios bibliotekos kolekcijos, {{ui:CivilCraft kraštovaizdis}}.
+- Gyvoje sesijoje matote vienas kito žymeklius ir vardus plane. Bibliotekos augalai: {{ui:CivilCraft kraštovaizdis}} pradedamas nuo numatytosios bibliotekos kolekcijos.
 
 ## Visose programose
 
-- Patarimai rodomi kaip Bootstrap įrankių patarimai, o pradžios patarimą galima uždaryti.
-- Skirtukų juosta, kuri netelpa skydelyje, slenka, o ne nukerpama.
-- Naršyklės skirtukų pavadinimai yra `<dokumentas> - CivilCraft | CadCraft`.
-- {{ui:Parametrai}} turi išdėstymo skyrių, kur išdėstymai pateikiami išskleidžiamajame sąraše su dviejų eilučių pasirinkimais.
+- Užuominos rodomos kaip Bootstrap įrankių patarimai, o pradžios patarimą galima uždaryti.
+- Skydelio skirtukų juosta, kuri netelpa, slenka vietoj to, kad būtų nukirsta.
+- Naršyklės skirtukų pavadinimai rodo `<dokumentas> - CivilCraft | CadCraft`.
+- {{ui:Parametrai}} turi skiltį Išdėstymas, kurioje išdėstymai yra išskleidžiamasis sąrašas su dviejų eilučių pasirinkimais.
 - Svorio ir temperatūros vienetai yra {{ui:Parametrai}} › {{ui:Visuotiniai}} › {{ui:Vienetai}}.
-- Kalbų sąraše rodomos kalbos, kurioms versija turi failus. Kalbos, išskyrus anglų, yra mašininiai juodraščiai.
+- Kalbų sąraše rodomos kalbos, kurioms versija turi failų. Kalbos, išskyrus anglų, yra mašininiai juodraščiai.
 
 ## Ištaisyta
 
 - Adreso paieškos ir EnergyPlus patikros priedų nebuvo galima įjungti; dabar galima.
-- Pagalba dabar nurodo, kad Taškų debesų priedas įrašo išvalytą debesį kaip LAS 1.4 arba LAZ.
-- Paspaudus pasirinkto objekto paties rankenėlę, nebeprasideda rankenėlės vilkimas, kuris sustabdydavo laukiamą Pasirinkimą.
+- Žinyne dabar nurodyta, kad taškų debesų priedas išvalytą debesį įrašo kaip LAS 1.4 ar LAZ.
+- Spustelėjus pažymėto objekto savo rankenėlę, nebeprasideda rankenėlės tempimas, kuris sustabdydavo laukiantį pasirinkimą.
 
-## Ribos, kurias reikia žinoti
+## Sąžiningi apribojimai
 
-- Koridorių šablonai pavyzdžiai yra vietos laikikliai, neparemti jokiu standartu; inžinierius turi juos patikrinti. Reljefo šablonai nepridedia paviršiaus ir nėra nubraižomi 3D ar pjūvio vaizde. Antrasis koridorius trasoje nėra IFC eksporte. Tarp dviejų šablonų pagal stotį nėra sklandaus perėjimo.
-- Taškų debesys išbandyti su išgalvotais failais, ne su tikru dronų matavimu. Skaitomi tik LAS ir LAZ.
+- Koridoriaus šablonų pavyzdžiai yra vietos rezervuotojai, neparemti jokiu standartu; juos turi patikrinti inžinierius. Reljefo šablonai nepridedami jokio paviršiaus ir nebraižomi 3D ar pjūvio rodinyje. Antras koridorius trasoje nėra IFC eksporte. Tarp dviejų šablonų pagal stacionažą nėra susiaurėjimo.
+- Taškų debesys išbandyti su išgalvotais failais, o ne tikra dronų apklausa. Skaitomi tik LAS ir LAZ failai.
 - GIS analizė išbandyta su išgalvotais sluoksniais.
-- Šešėlis, saulės energija ir komfortas yra planavimo įvertinimai; vėjas yra nepatvirtinta atranka. Nė vienas iš jų nėra projektinė vertė.
-- WaterCraft yra skaičiavimo pagalbinė priemonė, patikrinta išgalvotuose tinkluose. Vandens inžinierius nusprendžia, kiek verti yra skaičiai.
+- Šešėlis, saulė ir komfortas – planavimo įverčiai; vėjas – nepatvirtinta patikra. Nė vienas iš jų nėra projektinė reikšmė.
+- WaterCraft – skaičiavimo pagalbinė priemonė, patikrinta išgalvotuose tinkluose. Vandens inžinierius nusprendžia, kiek skaičiai vertingi.
 - Kalbos, išskyrus anglų, yra mašininiai juodraščiai.
 - Windows diegimo programos nepasirašytos kodu, o macOS diskų vaizdas nėra notarizuotas.
 
-## Ankstesnė: 0.8 ir 0.8.1
+## Anksčiau: 0.8 ir 0.8.1
 
-Tai, kas pasikeitė CivilCraft 0.8 (2026-11-01) ir 0.8.1 (2026-11-02) versijose, palyginti su 0.7. Didžiausios naujos dalys – įrankiai, testuojantys jūsų planiravimą ir vietovę (lietus, žemės darbai, maršrutai, tvenkiniai, pažanga), ir šeši skaičiavimo langai žemei, keliams, apklausai, kasykloms, ryšiams ir geležinkeliams.
+Tai, kas pasikeitė CivilCraft 0.8 (2026-11-01) ir 0.8.1 (2026-11-02) versijose, palyginti su 0.7. Pagrindinės naujos dalys – įrankiai, kurie tikrina jūsų suvedimą ir vietovę (lietus, gruntų darbai, maršrutai, tvenkiniai, eiga), ir šeši skaičiavimo langai gruntui, keliams, matavimams, kasykloms, ryšiams ir geležinkeliams.
 
 ### Naujovės
 
-**Išbandykite savo planiravimą**
+**Patikrinkite savo suvedimą**
 
-- **Leisti lietui.** {{ui:Leisti lietui…}} ({{ui:Paviršius}} skyriuje) numeta liūtį ant planiruotos žemės. Matote, kaip vanduo nuteka nuo aikštelių, susitelkia žemumose ir persilieja per per mažus tvenkinius. Eiga animuota, ir pateikiami tūriai, didžiausias nutekėjimas ir CSV kiekvienam tvenkiniui. Numatytasis langelis yra stambus, kad pirmasis žvilgsnis būtų greitas; smulkesnis langelis lėtesnis. Persiliejantys tvenkiniai rodomi ir Problemų skydelyje.
-- **Žemės darbų balansavimas.** {{ui:Žemės darbų balansavimas…}} pakelia arba nuleidžia aikštelę, kol iškasa lygi pylimui, ir rodo transportavimo lentelę tarp jų.
-- **Geriausias maršrutas.** {{ui:Geriausias maršrutas…}}: pasirinkite pradžią ir pabaigą, o CivilCraft suranda pigiausią kelią per reljefą, laikantis jūsų nuolydžio ir kreivės ribų, ir iš jo sukuria trasą.
-- **Sulaikymo tvenkiniai.** {{ui:Sulaikymo tvenkiniai…}} apskaičiuoja lygį ir talpą pagal jūsų žemę, priima išleidimo įrenginius (angą, pylimą, V formos pylimą, perpylimo kanalą), nukreipia liūtį per tvenkinį ir tikrina sulaikomą smailę, nusekimo laiką ir laisvąjį aukštį.
-- **Pažanga pagal matavimus.** {{ui:Pažanga pagal matavimus…}} palygina dronų ar skenavimo paviršius iš skirtingų datų su žeme, kokia ji buvo, ir su projektu: procentas atlikta pagal tūrį, per giliai iškastos ir per daug užpiltos sritys, sandėliai ir kada darbai baigsis tokiu tempu (pažymėta kaip įvertinimas).
+- **Tegul lyja.** {{ui:Leisti lietui…}} ({{ui:Paviršius}} skiltyje) ant suvesto grunto užpila audrą. Stebite, kaip vanduo nuteka nuo aikštelių, kaupiasi žemose vietose ir perpildo per mažus tvenkinius. Eiga animuota ir pateikia apimtis, didžiausią ištekėjimo debitą ir kiekvieno tvenkinio CSV. Numatytasis langelis yra stambus, todėl pirmas įvertinimas greitas; smulkesnis langelis lėtesnis. Perpildantys tvenkiniai rodomi ir Problemų skydelyje.
+- **Žemės darbų balansavimas.** {{ui:Žemės darbų balansavimas…}} kelia arba leidžia aikštelę, kol iškasa lygi įpylimui, ir rodo vežimo lentelę tarp jų.
+- **Geriausias maršrutas.** {{ui:Geriausias maršrutas…}}: pasirinkite pradžią ir pabaigą, o CivilCraft suranda pigiausią kelią per reljefą, laikantis jūsų nuolydžio ir kreivės ribų, tada iš jo sukuria trasą.
+- **Sulaikymo tvenkiniai.** {{ui:Sulaikymo tvenkiniai…}} apskaičiuoja lygį ir talpą pagal jūsų gruntą, priima išleidimo įrenginius (ištakos anga, slenkstis, V formos slenkstis, perpylimo kanalas), nukreipia audrą per tvenkinį ir tikrina sulaikytą pikinį debitą, nuleidimo laiką ir laisvąjį bortą.
+- **Eiga pagal apklausas.** {{ui:Eigą pagal matavimus…}} lygina skirtingomis datomis gautus dronų ar skenavimo paviršius su gruntu, koks jis buvo, ir su projektu: užbaigtumas procentais pagal tūrį, perkasti ir perpilti plotai, krūvos ir kada darbai baigsis tokiu tempu (pažymėta kaip įvertis).
 
-**Pažinkite vietovę**
+**Žinokite vietovę**
 
-- **Adresas į vietovę.** {{ui:Adresas į vietovę…}} sujungia atvirus parcelių, pastatų, zonavimo, dirvožemio, potvynių ir reljefo duomenis vienoje vietovėje. Vietovę galite laikyti projekto faile: įvestą adresą, kiekvieną šaltinį su diena, kurią jį gavote, ir jo licenciją, bei tai, kas grįžo. Atidarę ar bendrindami projektą vėl matote vietovę, be naujo duomenų atsisiuntimo. Taip pat galite ją įrašyti kaip vietovės failą arba siųsti į BimCraft. Žr. [Adresas į vietovę](topic:address-to-site).
+- **Adresas į vietovę.** {{ui:Adresas į sklypą…}} sulygina atviruosius sklypo, pastatų, zonavimo, dirvožemio, potvynių ir reljefo duomenis vienoje vietoje. Vietovę galite laikyti projekto faile: įvestą adresą, kiekvieną šaltinį su diena, kada jį parsisiuntėte, ir licenciją, bei gautus rezultatus. Vėl atidarius ar bendrinant projektą vietovė išlieka, be naujo parsisiuntimo. Taip pat galite ją įrašyti kaip vietovės failą arba siųsti į BimCraft. Žr. [Adresas į vietovę](topic:address-to-site).
 
 **Gruntas, keliai, matavimai, kasyklos, ryšiai ir geležinkeliai**
 
-- **Gruntai ir šlaitai.** {{ui:Gruntai ir šlaitai…}} nubraižo dirvožemio profilį tarp jūsų įvestų gręžinių. Bišopo metodas tada ieško kritinio apskritimo jūsų žemėje, su gruntinio vandens lygiu, papildoma apkrova ir žemės drebėjimo koeficientu; pamatų nusėdimas apima konsolidaciją, tuojaus nusėdimą ir laiką.
-- **Sankryžos ir ženklinimas.** {{ui:Sankryžos ir ženklinimas…}} sujungia kojas su bordiūrų lankais (vienas spindulys kiekvienai kojai arba trijų centrų lankai), regėjimo atstumą projektiniam greičiui, regėjimo trikampių patikrą, pėsčiųjų perėjas, stabdymo linijas, ženklinimą ir ženklus su ženklų sąrašu. Jos nubraižomos plane ir įrašomos kaip .dxf su pavadintais sluoksniais.
-- **Matavimų koregavimas.** {{ui:Matavimų koregavimas…}} atlieka trasos ar tinklo mažiausių kvadratų koregavimą: koreguotos koordinatės, paklaidų elipsės, chi kvadrato testas ir žymė matavimui, kuris netinka. Įtraukti laisvi tinklai, trasos uždarymas kompaso taisykle ir RW5, GSI, JobXML ar CSV lauko failai, o koreguoti taškai įrašomi kaip CSV.
-- **Atviros duobės.** {{ui:Atviros duobės…}} paverčia gręžinio mėginius blokų modeliu ir ribine duobe jūsų nuolydžio kampo ribose, su išplovimo santykiu, lentele pagal pakopą ir kreive pagal sąlygą bei tonažą. Yra ir įdėtos duobės pagal pajamų koeficientą bei gamybos grafikas su diskontuotu pinigų srautu.
-- **Radijo ryšio linijos.** {{ui:Radijo ryšio linijos…}} tikrina matomumą per jūsų žemę su Žemės išlinkimu, pirmąja Fresnelio zona, ryšio biudžetu, rezervu nuo užgesimo ir daugiakelio kelio nutrūkimu, ir nurodo stiebo aukštį, kuris leistų praeiti per kelią. Taip pat yra optinio pluošto nuostolių biudžetai, maršruto kiekiai ir vėjo apkrova bokštui.
-- **Geležinkelio išvažiavimai.** {{ui:Geležinkelio išvažiavimai…}} sukuria išvažiavimą pagal jo kryžiaus numerį, kryžminimus tarp lygiagrečių kelių ir konstrukcijos matmenis, pasvirusius dėl posvyrio ir platėjančius kreivėje. Išvažiavimas gali būti trasos stotyje.
+- **Gruntai ir šlaitai.** {{ui:Gruntai ir šlaitai…}} braižo dirvožemio profilį tarp jūsų įvestų gręžinių. Bishop metodas tada ieško kritinio apskritimo jūsų grunte, su gruntinio vandens lygiu, papildoma apkrova ir žemės drebėjimo koeficientu; pamato nusėdimas apima konsolidaciją, momentinį nusėdimą ir laiką.
+- **Sankryžos ir ženklinimas.** {{ui:Sankryžos ir ženklinimas…}} sujungia šakas su bordiūrų lankais (vienas spindulys kiekvienai šakai arba trijų centrų lankai), matomumo atstumą projektiniam greičiui, matomumo trikampių patikrą, pėsčiųjų perėjas, sustojimo linijas, žymėjimą ir ženklus su ženklų žiniaraščiu. Jie braižomi plane ir įrašomi kaip .dxf su pavadintais sluoksniais.
+- **Matavimų koregavimas.** {{ui:Matavimų koregavimas…}} atlieka traversos ar tinklo mažiausių kvadratų koregavimą: koreguotos koordinatės, paklaidų elipsės, chi kvadrato testas ir žymė matavimui, kuris neatitinka. Įtraukti laisvieji tinklai, traversos uždarymas kompaso taisykle, bei RW5, GSI, JobXML ar CSV lauko failai, o koreguoti taškai įrašomi kaip CSV.
+- **Atviros duobės.** {{ui:Atviros duobės…}} paverčia gręžinių mėginius blokiniu modeliu ir galutine duobe jūsų nuolydžio kampo ribose, su nuodengos santykiu, lentele pagal laiptą ir kokybės bei tonažo kreive. Įdėtosios duobės pagal pajamų koeficientą ir gamybos grafikas su diskontuotu pinigų srautu taip pat yra.
+- **Radijo ryšiai.** {{ui:Radijo ryšio linijos…}} tikrina matomumą virš jūsų grunto su Žemės išgaubimu, pirmąja Fresnelio zona, ryšio biudžetu, užgesimo rezervu ir daugiakelio sklidimo nutraukimu, ir nurodo stiebo aukštį, kuris išlaisvintų kelią. Taip pat atlieka šviesolaidžio nuostolių biudžetus, maršruto kiekius ir vėjo apkrovą bokštui.
+- **Geležinkelio išvažiavimai.** {{ui:Geležinkelio išvažiavimai…}} sudaro išvažiavimą pagal jo kryžmės numerį, perėjimus tarp lygiagrečių bėgių ir konstrukcijos tarpą, pasvirusį dėl pakreipimo ir praplatintą kreivėje. Išvažiavimas gali būti trasos stacionaže.
 
-Žr. [Gruntai, sankryžos, matavimų koregavimas, kasyklos, radijo ryšio linijos ir išvažiavimai](topic:soils-roads-survey-mines-links).
+Žr. [Gruntai, sankryžos, matavimų koregavimas, duobės, radijo ryšiai ir išvažiavimai](topic:soils-roads-survey-mines-links).
 
 ### Visose programose
 
-- **Kalbos.** 54 kalbos, dešimt iš jų naujos. Kalbos, išskyrus anglų, yra mašininiai juodraščiai, kol jų neperskaito gimtosios kalbos specialistas. Pagalbos temos daugiausia anglų kalba.
-- **Įrankių juostos eilutės.** {{ui:Parametrai}} › {{ui:Bendra}} › {{ui:Įrankių juostos eilutės}}: Perkelti (kaip anksčiau), 2 eilutės arba 1 eilutė. CivilCraft juosta rodo dažniausiai naudojamą įrankį didelį, kiti – maži, o likę – už grupės pavadinimo rodyklės.
-- **Įvesties įrenginiai.** Jutiklinis kilimėlis, rašiklis, 3D pelė, valdiklis ir MIDI gali valdyti programas.
-- **Problemos.** Problemų skydelis, įspėjantis visose programose, su patikromis, kurios skaito reglamentų paketus.
-- **Live.** Vaizdas, kas kur yra Live sesijoje.
-- **Priedai.** Priedų sąrašas su apšvietimo priedais.
-- **Prijunkite savo DI.** Bet kuris prijungtas asistentas gali valdyti CivilCraft įrankius. Jis pridedamas su pastaba, kad vieno paspaudimo prijungimas CadCraft Studio viduje ir talpinamas jungtis dar nėra paruoštos. Žr. [Leiskite DI asistentui dirbti su jūsų vietove](topic:assistants).
+- **Kalbos.** 54 kalbos, iš jų dešimt naujos. Kalbos, išskyrus anglų, yra mašininiai juodraščiai, kol jas perskaito gimtakalbis. Žinyno temos vis dar daugiausia anglų kalba.
+- **Įrankių juostos eilutės.** {{ui:Parametrai}} › {{ui:Bendra}} › {{ui:Įrankių juostos eilutės}}: Laužyti (kaip anksčiau), 2 eilutės arba 1 eilutė. CivilCraft juosta rodo dažniausiai naudojamą įrankį didelį, kiti – maži, o likusieji – už grupės pavadinimo rodyklės.
+- **Įvesties įrenginiai.** Jutiklinė dalis, rašiklis, 3D pelė, valdiklis ir MIDI gali valdyti programas.
+- **Problemos.** Problemų skydelis, kuris perspėja kiekvienoje programoje, su tikrinimais, kurie skaito reglamentų paketus.
+- **Gyvai.** Rodinys, kas kur yra gyvoje sesijoje.
+- **Priedai.** Priedų sąrašas, su apšvietimo priedais.
+- **Prijunkite savo DI.** Bet kuris prijungtas asistentas gali valdyti CivilCraft įrankius. Su juo pateikiama pastaba, kad prijungimas vienu spustelėjimu CadCraft Studio viduje ir talpinamas jungtis dar neparuoštos. Žr. [Leiskite DI asistentui dirbti su jūsų vietove](topic:assistants).
 
 ### Ištaisyta 0.8.1
 
-- **DWG klasių skyrius.** Jis buvo skaitomas kaip neteisingas tipas (GitHub cadcraft#5). Ištaisyta CivilCraft kartu su CadCraft, BimCraft, ModelCraft ir TakeoffCraft.
-- **Kalbos keitimas veikiant.** CadCraft Studio ir supakuoti leidimai gali keisti kalbą veikimo metu. Anksčiau buvo tik anglų kalba. Dar neišbandyta visose platformose: praneškite, jei kalba nepasikeičia.
+- **DWG klasių skiltis.** Ji buvo nuskaitoma kaip neteisingas tipas (GitHub cadcraft#5). Ištaisyta CivilCraft kartu su CadCraft, BimCraft, ModelCraft ir TakeoffCraft.
+- **Kalbos keitimas veikiant.** CadCraft Studio ir supakuotos versijos gali keisti kalbą veikiant programai. Anksčiau jos buvo tik anglų kalba. Dar neišbandyta visose platformose: praneškite, jei kalba nepasikeičia.
 
-### Dar nėra šioje versijoje
+### Dar neįtraukta šioje versijoje
 
-- **Tai skaičiavimo pagalbinės priemonės.** Kiekvieną naujų langų rezultatą turi patikrinti inžinierius. Gruntų stiprumai pradeda nuo tipinių grupės verčių, ir langas tai nurodo.
-- **Lietus.** Paleidimas pavyzdinėje vietovėje naršyklėje gali užtrukti daugiau nei dvi minutes su smulkiu langeliu. Patikrinta su rankiniais atvejais ir V formos baseinu, dar ne su tikra planuota vietove.
-- **Adresas į vietovę.** Skaito atviras duomenų failus, kuriuos atsinešate; išbandyta tik su mūsų failais. Medžiai nėra šaltinis. Šaltinių gavimas jūsų vardu laukia privatumo formuluotės.
-- **Pažanga pagal matavimus.** Išbandyta tik su išgalvotais matavimais. Pažanga pagal lapus ir žymėjimus (MarkupCraft) bei palyginimas su modeliu (BimCraft) nėra sukurti.
-- **Gruntai ir šlaitai.** Tik apskritiminiai paviršiai: nėra pleišinės ar blokinės paieškos ir nėra įtrūkimo.
-- **Sankryžos.** Vienas spindulys kiekvienai kojai, nėra sunkvežimių apsisukimo kelių, ir jos dar nepatenka į koridorių.
-- **Lauko failai.** Skaitikliai parašyti pagal viešus formatų aprašymus ir išbandyti su mūsų failais. Reikia tikrų prietaisų failų.
-- **Ryšiai ir geležinkeliai.** Radijo ryšio linijos: tik laisvos erdvės nuostoliai ir daugiakelis kelias (be lietaus užgesimo ar antenų diagramų), ir jokio geležinkelio standarto: kiekviena geležinkelio riba yra vietos laikiklis, su juodraščio skaičiais, kurių nė vienas geležinkelių inžinierius nepatikrino.
-- **Windows ir macOS.** 0.8 nepasirašyta kodu. Windows gali įspėti, o macOS reikalauja dešiniojo klavišo, tada Atidaryti.
+- **Tai skaičiavimo pagalbinės priemonės.** Kiekvieną naujų langų rezultatą turi patikrinti inžinierius. Grunto stiprumai pradedami nuo dirvožemio grupės tipinių reikšmių, ir langas tai nurodo.
+- **Tegul lyja.** Paleidimas pavyzdinėje vietovėje naršyklėje smulkiame langelyje gali užtrukti daugiau nei dvi minutes. Jis patikrintas rankiniais atvejais ir V formos baseinu, bet dar ne tikroje suvestoje vietovėje.
+- **Adresas į vietovę.** Jis skaito jūsų atviruosius duomenų failus ir išbandytas tik su mūsų failais. Medžiai nėra šaltinis. Šaltinių parsisiuntimas laukia privatumo formuluotės.
+- **Eiga pagal apklausas.** Išbandyta tik su išgalvotomis apklausomis. Eiga pagal lapus ir žymėjimus (MarkupCraft) bei skenavimas prieš modelį (BimCraft) dar nesukurti.
+- **Gruntai ir šlaitai.** Tik apskritiminiai paviršiai: nėra pleišto ar bloko paieškos ir nėra įtempių įtrūkimo.
+- **Sankryžos.** Vienas spindulys kiekvienai šakai, nėra sunkvežimių važiavimo kreivių, ir jos dar nepatenka į koridorių.
+- **Lauko failai.** Skaitikliai parašyti pagal viešus formatų aprašymus ir išbandyti su mūsų sukurtais failais. Reikalingi tikri prietaisų failai.
+- **Ryšiai ir geležinkeliai.** Radijo ryšiai: tik laisvosios erdvės nuostoliai ir daugiakelis sklidimas (nėra lietaus užgesimo ar antenų diagramų), ir nėra geležinkelių standarto: kiekviena geležinkelio riba yra vietos rezervuotojas su juodraščio skaičiais, kurių nė vienas geležinkelių inžinierius nepatikrino.
+- **Windows ir macOS.** 0.8 nepasirašyta kodu. Windows gali įspėti, o macOS prašo dešiniuoju pelės klavišu, tada Atidaryti.
 
-Viskas kita yra [Dar neįgyvendinta](topic:not-built-yet). Ankstesnę versiją žr. [Kas naujo 0.7](topic:whats-new-0-7).
+Visa kita – [Dar neįgyvendinta](topic:not-built-yet). Ankstesnei versijai žr. [Kas naujo 0.7](topic:whats-new-0-7).

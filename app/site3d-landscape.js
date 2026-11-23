@@ -29,6 +29,7 @@ import { offsetLine } from './landscape/planting.js';
 import { triangulate } from './massing.js';
 import { normalizeModel } from './landscape/symbols.js';   // 0.8 LA.7 (landscape-arch_PART_4): a record's own 3D model
 import { t } from './i18n.js';
+import { bodyOf } from './junction.js';   // 0.10.1 #1977: paths stop at a road's edge
 
 export const MAX_PLANTS_3D = 100000;
 /** Physical colours (the same on paper and model): road parts, plants, hardscape. */
@@ -76,11 +77,14 @@ export function landscapeInput(project, { species = null, zAt = null } = {}) {
     out.plants.push({ x: p.x, y: p.y, z: fin(p.z) ? p.z : null, h: z.h / k, s: z.s / k, type: sp.type, form: sp.form, foliage: sp.foliage, owner: ownerOf(p), seed: p.id + ':' + out.plants.length, ...(own ? { own } : {}), ...(view === 'simple' ? { simple: true } : {}) });
   }
   const surface = zAt ? { elevationAt: (x, y) => zAt(x, y) } : null;
+  // 0.10.1 #1977: the bodies of the roads as built (their corridors, or the stand-in ones with no ground)
+  const built = project.eg?.().surface ? (project.graded?.().items || []).filter((x) => x.kind === 'corridor' && x.sections?.length >= 2 && !x.problems?.length) : project.standInCorridors?.() || [];
+  const roads = built.map((x) => bodyOf(x)).filter(Boolean);
   const els = new Map(hardElements(ls, surface, units).map((e) => [e.tag, e]));
   for (const h of ls.hardscape || []) {
     const owner = { kind: 'ls-hard', id: h.id, name: h.name || h.id }, th = (h.layers || []).reduce((a, l) => a + (Number(l.thickness) || 0), 0);
     if (h.kind === 'paving') out.hard.push({ kind: 'paving', owner, top: pavingSurface(h, surface).corners, th: th || 0.1 / k });
-    else if (h.kind === 'path') { const st = pathStrip(h, surface); if (st.left.length >= 2) out.hard.push({ kind: 'path', owner, left: st.left, right: st.right, th: th || 0.1 / k }); }
+    else if (h.kind === 'path') { const st = pathStrip(h, surface, { roads }); for (const r of st.runs) out.hard.push({ kind: 'path', owner, left: r.left, right: r.right, th: th || 0.1 / k }); }   // 0.10.1 #1977: a path stops at a road's edge (one piece each side of a road it crosses)
     else if (h.kind === 'ramp') out.hard.push({ kind: 'ramp', owner, pts: h.pts, width: h.width, landing: h.landing, lay: rampLayout(h, surface, units), slab: 0.15 / k, zAt });
     else if (els.get(h.id)) out.hard.push({ kind: h.kind, owner, el: els.get(h.id) });   // walls, kerbs, steps: their IFC bodies
   }
@@ -102,10 +106,10 @@ function partOf(code) {
 
 /** One side of a section as [{x, y, z, part}] from the centreline out (the plain assembly: lane, shoulder). */
 function sidePoints(sec, side) {
-  if (sec.det?.[side]) return sec.det[side].map((q, i) => ({ x: q.x, y: q.y, z: q.z, code: i ? q.code : 'CL' }));
+  if (sec.det?.[side]) return sec.det[side].map((q, i) => ({ x: q.x, y: q.y, z: q.z, code: i ? q.code : 'CL', ...(q.open ? { open: true } : {}) }));
   const a = sec[side];
   if (!a) return [];
-  return [{ ...a[0], code: 'CL' }, { ...a[1], code: 'EOP' }, { ...a[2], code: 'SH' }, { ...a[3], code: 'DL' }];
+  return [{ ...a[0], code: 'CL' }, { ...a[1], code: 'EOP' }, { ...a[2], code: 'SH' }, { ...a[3], code: 'DL' }];   // (a[2].open rides along: 0.10.1 #1977)
 }
 
 /** A flat-shaded triangle in local space; faces turned up unless it stands (a curb face). */
@@ -126,11 +130,15 @@ export function roadMesh(B, corridors, L, exag, C) {
     if (secs.length < 2) continue;
     B.owner({ kind: 'alignment', id: c.id, name: c.name });
     for (let i = 0; i + 1 < secs.length; i++) for (const side of ['L', 'R']) {
+      // 0.10.1 #1977: where this road lies ON the road or pad it joins (both sections in the tie zone) that one is drawn, not this
+      if (secs[i].tie && secs[i + 1].tie) continue;
       const A = sidePoints(secs[i], side), Bs = sidePoints(secs[i + 1], side);
       const byCode = new Map(Bs.map((q, k) => [q.code, k]));
       for (let k = 1; k < A.length; k++) {
-        const part = partOf(A[k].code), kb = byCode.get(A[k].code), kb0 = byCode.get(A[k - 1].code);
-        if (!part || kb === undefined || kb0 === undefined) continue;
+        const kb = byCode.get(A[k].code), kb0 = byCode.get(A[k - 1].code);
+        if (kb === undefined || kb0 === undefined) continue;
+        const part = A[k].open && Bs[kb].open ? 'asphalt' : partOf(A[k].code);   // an opening for another road's mouth is pavement
+        if (!part) continue;
         const p0 = L(A[k - 1].x, A[k - 1].y, A[k - 1].z), p1 = L(A[k].x, A[k].y, A[k].z), q0 = L(Bs[kb0].x, Bs[kb0].y, Bs[kb0].z), q1 = L(Bs[kb].x, Bs[kb].y, Bs[kb].z);
         const col = rgbOf(C[part]), standing = /^(TOC|BC)/.test(A[k].code);
         face(B, p0, p1, q1, col, !standing); face(B, p0, q1, q0, col, !standing);

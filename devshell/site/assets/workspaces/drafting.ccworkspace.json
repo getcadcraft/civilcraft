@@ -1,0 +1,26 @@
+{
+  "format": "cadcraft-workspace",
+  "version": 2,
+  "id": "drafting",
+  "name": "Drafting",
+  "nameKey": "shell.ws.drafting",
+  "hintKey": "shell.ws.drafting.hint",
+  "description": "A 2D drafting workspace: the app mark and name at the top with the Craft menu, a menu bar, quick-access tools and a search box, a ribbon with contextual tabs, file tabs, a viewport label, view cube and navigation bar over the drawing, a command line, Model and Layout tabs and a status bar of toggles with the scale. Dark chrome.",
+  "author": "CadCraft",
+  "license": "Apache-2.0",
+  "look": { "density": "compact", "outline": "box", "tabs": "underline", "tone": "dark" },
+  "blocks": [
+    { "block": "titlebar", "place": "top", "order": 0, "quick": ["new", "open", "save", "saveas", "print", "undo", "redo"], "menus": true, "find": true, "pins": true },
+    { "block": "menubar", "place": "top", "order": 1, "set": "drafting", "shell": false },
+    { "block": "ribbon", "place": "top", "order": 2, "file": ["open", "save"], "collapse": true, "tearOff": true, "more": true, "slots": true, "contextual": true },
+    { "block": "viewtabs", "place": "view-top", "order": 0, "mode": "open" },
+    { "block": "viewlabel", "place": "view-tl", "order": 0 },
+    { "block": "viewcube", "place": "view-tr", "order": 0 },
+    { "block": "navbar", "place": "view-br", "order": 0 },
+    { "block": "axes", "place": "view-bl", "order": 0 },
+    { "block": "commandline", "place": "float", "order": 0, "history": true, "log": true },
+    { "block": "modeltabs", "place": "view-bottom", "order": 0 },
+    { "block": "statustoggles", "place": "bottom", "order": 0, "toggles": ["grid", "snap", "ortho", "polar", "osnap", "track", "lineweight", "transparency", "cycle", "isolate", "annoscale"] },
+    { "block": "statusbar", "place": "bottom", "order": 1, "tearOff": true }
+  ]
+}

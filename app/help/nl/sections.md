@@ -1,52 +1,70 @@
 ---
-title: Steekproeflijnen en dwarsprofielen
-summary: Snijd dwarsprofielen loodrecht op een tracé, bekijk het terrein, het ontwerp en de snede en ophoging bij elk station, en krijg volumes met gemiddelde eindoppervlakken.
-keywords: massadiagram, massaverdeling, balanspunt, krimp, zwelling, transportafstand, aanvoer, overschot, dwarsprofielbladen, doorsnedebladen, dwarsprofielen, doorsneden, steekproeflijnen, doorsneeweergave, snede, ophoging, oppervlakken, gemiddeld eindoppervlak, volumes eindoppervlak, grondverzet, station, offset, csv
-from: 5060173c
+title: Steekproeflijnen en doorsneden
+summary: Doorsneden loodrecht op een tracé snijden, het terrein, het ontwerp en de ontgraving en ophoging op elk station bekijken, en volumes berekenen met gemiddelde eindoppervlakken.
+keywords: massaverdeling, massadiagram, evenwichtspunt, krimp, zwel, aanvoerafstand, lenen, storten, doorsnedebladen, dwarsprofielbladen, doorsneden-pdf, doorsneden, dwarsprofielen, steekproeflijnen, doorsnedeweergave, ontgraving, ophoging, oppervlakken, gemiddeld eindoppervlak, eindoppervlakvolumes, grondverzet, station, offset, csv
+from: 09639ce2
 ---
 
-Een dwarsprofiel toont de weg zoals hij zal worden gebouwd: dwars op het tracé bij één station, het bestaande terrein, het ontwerp (het corridor of plateau ingepast) en de snede en ophoging ertussen.
+Een dwarsprofiel toont de weg zoals hij gebouwd zal worden: dwars op het tracé op één station, het bestaande terrein, het ontwerp (de corridor of het plateau afgewerkt) en de ontgraving en ophoging ertussen.
 
 ## Steekproeflijnen toevoegen
 
 1. Selecteer een tracé. Klik in **Eigenschappen**, onder **Steekproeflijnen**, op {{ui:Steekproeflijnen toevoegen}}.
-2. Stel **Elke** in (de tussenafstand: 50 ft of 20 m om mee te beginnen), **Linker breedte** en **Rechter breedte** (hoe ver elk dwarsprofiel van de hartlijn reikt).
-3. Om een dwarsprofiel bij een bepaald station te snijden, typt u het in **Station toevoegen** (bijvoorbeeld `2+35`) en drukt u op {{key:Enter}}.
+2. Stel **Elke** in (de tussenafstand: 50 ft of 20 m als start), **Linkerbreedte** en **Rechterbreedte** (hoe ver elke doorsnede van de as reikt).
+3. Om op een bepaald station een doorsnede te snijden, typt u het in **Een station toevoegen** (bijvoorbeeld `2+35`) en drukt u op {{key:Enter}}.
 
-Dwarsprofielen worden gesneden op elk geheel veelvoud van de tussenafstand, aan beide uiteinden van het tracé, bij het begin en het einde van elke bocht (PC en PT), en bij de stations die u toevoegt. De steekproeflijnen worden op het plan als grijze lijnen over het tracé getoond; ze gaan ook mee naar DXF, DWG en PDF op laag C-ROAD-SCTN. Elke wijziging is één stap: {{key:Mod+Z}} maakt ze ongedaan.
+Doorsneden worden gesneden op elk heel veelvoud van de afstand, aan beide uiteinden van het tracé, aan begin en eind van elke boog (PC en PT), en op de stations die u toevoegt. De steekproeflijnen worden op het plan als grijze lijnen dwars op het tracé getoond; ze gaan ook mee in DXF, DWG en PDF op laag C-ROAD-SCTN. Elke wijziging is één stap: {{key:Mod+Z}} maakt hem ongedaan.
 
-## De doorsneeweergave
+## De doorsnedeweergave
 
-Open haar met {{ui:Doorsnedeweergave}} in de **Eigenschappen** van het tracé, met {{ui:Doorsneden}} onder **Terrein** › {{ui:Meer}}, of met {{key:X}}. Ze vervangt de profielweergave onder het plan.
+Open hem met {{ui:Doorsnedeweergave}} in de **Eigenschappen** van het tracé, {{ui:Doorsneden}} onder {{ui:Oppervlak}} › {{ui:Meer}}, of met {{key:X}}. Hij neemt de plaats in van de profielweergave onder het plan.
 
-- Blader door de dwarsprofielen met de pijlen in de balk, de stationslijst, of met {{key:Left}} en {{key:Right}} wanneer de doorsneeweergave de focus heeft ({{key:Home}} en {{key:End}} voor het eerste en het laatste).
-- De grijze lijn is het bestaande terrein, de rode lijn het ontwerp. Snede is oranje gearceerd, ophoging groen. Corridorpunten zijn gemarkeerd: CL (hartlijn), EOP (verhardingsrand), SH (berm) en DL (daglicht).
-- De kop geeft het station, de snede- en ophogingsoppervlakken van dit dwarsprofiel en de verticale overdrijving. **Passend** vult het paneel; kies 1× om het dwarsprofiel op ware schaal te zien.
-- De dikke lijn op het plan toont welk dwarsprofiel op het scherm staat.
+- Blader door de doorsneden met de pijltjes in zijn balk, de stationslijst, of {{key:Left}} en {{key:Right}} wanneer de doorsnedeweergave focus heeft ({{key:Home}} en {{key:End}} voor de eerste en laatste).
+- De grijze lijn is het bestaande terrein, de rode lijn het ontwerp. Ontgraving is oranje gearceerd, ophoging groen. Corridorpunten zijn gemarkeerd: CL (as), EOP (verhardingsrand), SH (berm) en DL (ontgravingslijn).
+- De kop geeft het station, de ontgraving- en ophogingsoppervlakken van deze doorsnede en de verticale overdrijving. {{ui:Passend}} vult het paneel; kies 1× om de doorsnede op ware schaal te zien.
+- De dikke lijn in het plan toont welke doorsnede op het scherm staat.
+- **Zoomen en verschuiven:** het wiel zoomt rond de aanwijzer, en slepen verplaatst de weergave. {{ui:Passend}} (of {{key:F}}, of een dubbelklik) past de hele doorsnede weer.
 
-## Dwarsprofielbladen
+## Meten in een doorsnede
 
-{{ui:Doorsnedebladen (PDF)}} onder **Steekproeflijnen** zet elk dwarsprofiel op PDF-pagina's, in rijen van links naar rechts en van boven naar beneden in stationvolgorde. Kies het **Papier**, de **Plan-schaal** (de horizontale schaal van de dwarsprofielen) en de **Profielvergroting** (1×, 2×, 5× of 10×); het dialoogvenster zegt hoeveel dwarsprofielen op een pagina passen en hoeveel pagina's dat maakt.
+1. Klik op {{ui:Meten}} in de doorsnedebalk, of druk op {{key:M}}. De hint zegt "Klik op het eerste punt, en daarna op het tweede."
+2. Klik op twee punten. Elk snapt op het eind van een lijn of een corridorpunt (CL, EOP, SH, DL); houd {{key:Alt}} ingedrukt voor een vrij punt.
+3. De uitlezing geeft de horizontale afstand (ΔH), de verticale afstand (ΔV), de helling in procent met zijn verhouding, en de rechte lengte, in de eenheden van het project.
 
-Elk dwarsprofiel toont een raster met offsets en hoogten, het terrein (gestreept), het ontwerp, de snede en ophoging gearceerd (oranje en groen), de corridorpunten, en eronder het station en de snede- en ophogingsoppervlakken. Elk dwarsprofiel op de bladen wordt even groot getekend, hoog genoeg voor het grootste. Past dat niet op de pagina bij uw vergroting, dan gebruikt CivilCraft het grootste dat wel past en zegt dat. De titelstrook noemt het tracé, de stations op die pagina, de schalen en "Blad 1 van 3".
+Klik opnieuw om een nieuwe meting te beginnen. {{key:Esc}} wist hem, en {{key:M}} schakelt Meten uit.
+
+## Doorsnedebladen
+
+{{ui:Doorsnedebladen (PDF)}} onder **Steekproeflijnen** zet elke doorsnede op PDF-pagina's, in rijen van links naar rechts en van boven naar beneden in stationsvolgorde. Kies het **Papier**, de **Plan schaal** (de horizontale schaal van de doorsneden) en de **Profieloverdrijving** (1×, 2×, 5× of 10×); het dialoogvenster zegt hoeveel doorsneden op een pagina passen en hoeveel pagina's dat maakt.
+
+Elke doorsnede toont een raster met afstanden en hoogtes, het terrein (gestreept), het ontwerp, ontgraving en ophoging (oranje en groen gearceerd), de corridorpunten, en eronder het station en de ontgraving- en ophogingsoppervlakken. Elke doorsnede op de bladen wordt even groot getekend, hoog genoeg voor de grootste. Past die niet op de pagina bij uw overdrijving, dan gebruikt CivilCraft de grootste die past en zegt dat. De titelstrook noemt het tracé, de stations op die pagina, de schalen en "Blad 1 van 3".
+
+## Waarop ontgraving en ophoging worden gemeten
+
+Een corridor kan lagen onder de verharding hebben: verhardingslagen, sjabloononderdelen, spoor. De keuzelijst **Volumes gemeten tot** in de doorsnedebalk bepaalt waartoe ontgraving en ophoging lopen:
+
+- **Onderste oppervlak** (de start): tot de onderkant van die onderdelen, zodat de ontgraving de diepte van de verhardingsopbouw omvat.
+- **Bovenste oppervlak**: alleen tot de bovenkant van het ontwerp, zoals voorheen toen onderdelen meetelden.
+
+De oppervlakken in de kop, de volumes eronder, het CSV en het massadiagram volgen deze keuze, en ze wordt met het project opgeslagen.
 
 ## Volumes met gemiddelde eindoppervlakken
 
-Tussen twee naburige dwarsprofielen is het volume het gemiddelde van hun twee oppervlakken maal de afstand tussen hun stations. De balk toont de totalen voor het tracé, en {{ui:CSV}} downloadt de oppervlakken en volumes van elk dwarsprofiel met lopende totalen (kubieke yards voor projecten in feet, kubieke meter voor metrische projecten).
+Tussen twee naburige doorsneden is het volume het gemiddelde van hun twee oppervlakken maal de afstand tussen hun stations. De balk toont de totalen voor het tracé, en {{ui:CSV}} downloadt de oppervlakken en volumes van elke doorsnede met lopende totalen (kubieke yards voor voetprojecten, kubieke meters voor metrische).
 
-**Eigenschappen** toont dezelfde totalen naast de volumes met de rastermethode uit [Grondverzetvolumes](topic:volumes). De twee zijn verschillende benaderingen: dichtere dwarsprofielen brengen ze dichter bij elkaar, en op een rechte weg in vlak terrein zijn ze gelijk.
+**Eigenschappen** toont dezelfde totalen naast de rastermethode-volumes uit [Grondverzetvolumes](topic:volumes). De twee zijn verschillende benaderingen: dichtere doorsneden brengen ze dichter bij elkaar, en op een rechte weg op vlak terrein zijn ze gelijk.
 
 :::note
-Snede en ophoging worden alleen geteld binnen de geprofileerde gebieden (de daglichtlijnen van een corridor of plateau), zoals bij de rastermethode. Zonder corridor of plateau is het ontwerp het terrein, dus een dwarsprofiel toont geen snede of ophoging.
+Ontgraving en ophoging worden alleen binnen de afgewerkte gebieden geteld (de ontgravingslijnen van een corridor of plateau), zoals bij de rastermethode. Zonder corridor of plateau is het ontwerp het terrein, dus toont een doorsnede geen ontgraving of ophoging.
 :::
 
 ## Massadiagram
 
-**Massadiagram** onder **Steekproeflijnen** tekent het massadiagram uit dezelfde volumes met eindoppervlakken: langs de stations het lopende totaal van snede min ophoging.
+**Massadiagram** onder **Steekproeflijnen** tekent het massadiagram uit dezelfde eindoppervlaktevolumes: langs de stations, het lopende totaal van ontgraving min ophoging.
 
-- **Krimp (−) of zwelling (+) van de snede** zegt wat een kubieke yard snede wordt als hij als ophoging is aangebracht: −10 % (de startwaarde, een placeholder) betekent krimp tot 0.9; rots die zwelt kan +5 % zijn. Gebruik het cijfer uit uw geotechnisch rapport.
-- Waar de lijn stijgt, ligt de weg in snede; waar hij daalt, in ophoging. Boven nul (oranje gearceerd) verplaatst grond zich stroomopwaarts; onder nul (groen) stroomafwaarts.
-- **Balanspunten** zijn de plekken waar de lijn nul kruist: tussen twee daarvan zijn snede en ophoging in evenwicht. De tabel toont elk in evenwicht stuk, het verplaatste volume (zijn hoogste of laagste punt) en de gemiddelde transportafstand (het gearceerde oppervlak gedeeld door dat volume).
-- Waar de lijn buiten nul eindigt, is wat overblijft **overschot** (boven) of **aanvoer** (onder). In dat laatste stuk telt alleen de grond boven het niveau waarop de lijn eindigt als verplaatst.
+- **Krimp (−) of zwel (+) van de ontgraving** zegt wat een kubieke yard ontgraving wordt zodra hij als ophoging is aangebracht: −10 % (de startwaarde, een tijdelijke waarde) betekent dat hij krimpt tot 0.9; gesteente dat zwelt kan +5 % zijn. Gebruik het cijfer uit uw geotechnisch rapport.
+- Waar de lijn stijgt is de weg in ontgraving; waar hij daalt, in ophoging. Boven nul (oranje gearceerd) verplaatst grond zich stroomopwaarts; onder nul (groen), stroomafwaarts.
+- **Evenwichtspunten** zijn waar de lijn nul kruist: tussen twee ervan zijn ontgraving en ophoging in evenwicht. De tabel toont elk evenwichtig traject, het verplaatste volume (zijn hoogste of laagste punt) en de gemiddelde aanvoerafstand (het gearceerde oppervlak gedeeld door dat volume).
+- Waar de lijn eindigt buiten nul, is wat overblijft **overschot** (boven) of **aanvoer** (onder). In dat laatste traject telt alleen de grond boven het niveau waarop hij eindigt als verplaatst.
 
-**CSV** slaat de massaordinaat bij elk dwarsprofiel op, de stukken en de factor.
+**CSV** slaat de massaordinaat op elke doorsnede, de trajecten en de factor op.

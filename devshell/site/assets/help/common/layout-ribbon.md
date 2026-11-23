@@ -3,15 +3,15 @@ title: Work in the ribbon and project browser layout
 summary: Switch the app to a ribbon of tabs over the drawing, with Properties and a project browser on the left and a tab for each open view, and switch back to the classic layout whenever you like.
 section: start
 order: 36
-keywords: layout, workspace, ribbon, ribbon tabs, project browser, browser, palettes, properties palette, view tabs, status bar, quick access, collapse ribbon, minimize ribbon, ribbon window, classic layout, change layout, switch layout, docked
+keywords: interface style, layout, workspace, ribbon, ribbon tabs, project browser, browser, palettes, properties palette, view tabs, status bar, quick access, collapse ribbon, minimize ribbon, ribbon window, classic layout, change layout, switch layout, docked
 ---
 
-**Ribbon and project browser** is one of the app's three workspace layouts. A ribbon of tabs runs across the top, Properties and a project browser share the left panel, every view you open gets a tab over the drawing, and a status bar sits at the bottom. The tools are the app's own: everything you can do in the classic layout works here too, and your drawing, your menu style and your keys stay as they are.
+**Ribbon and project browser** is one of the app's interface styles. A ribbon of tabs runs across the top, Properties and a project browser share the left panel, every view you open gets a tab over the drawing, and a status bar sits at the bottom. The tools are the app's own: everything you can do in the classic layout works here too, and your drawing, your menu style and your keys stay as they are.
 
 ## Pick it
 
 1. Open {{ui:Settings}} (the gear, or {{key:Mod+,}}).
-2. Choose the {{ui:Global}} tab, then go to {{ui:Layout}} › {{ui:Workspace}}.
+2. Choose the {{ui:Global}} tab, then go to {{ui:Interface style}} › {{ui:Pick a style}}.
 3. Choose {{ui:Ribbon and project browser}}.
 
 The layout changes at once. The choice is one for every app in this browser: each app opens in it from then on, and it is in place before the page draws, so you never see the classic layout first.
@@ -44,7 +44,7 @@ The left and right panels keep everything described in [Arrange the panels](comm
 
 ## Go back to the classic layout
 
-Open {{ui:Settings}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} and choose {{ui:CadCraft classic}}. Every toolbar, tab and panel goes back where it was.
+Open {{ui:Settings}} › {{ui:Global}} › {{ui:Interface style}} › {{ui:Pick a style}} and choose {{ui:CadCraft classic}}. Every toolbar, tab and panel goes back where it was.
 
 :::note
 On a phone, or in a window 760 pixels wide or narrower, the app uses its phone layout whatever you picked. A wider window brings your layout back.

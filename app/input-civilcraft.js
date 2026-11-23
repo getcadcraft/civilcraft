@@ -51,6 +51,7 @@ export const COMMANDS = [
   C('file.new', 'file', 'bi-file-earmark-plus', T('File', 'new')),
   C('file.open', 'file', 'bi-folder2-open', T('File', 'open'), { defKeys: ['Ctrl+O'] }),
   C('file.save', 'file', 'bi-save', T('File', 'save'), { defKeys: ['Ctrl+S'] }),
+  C('file.save-older', 'file', 'bi-clock-history', T('File', 'save-older')),   // 0.11 DC.27
   C('export.landxml', 'export', 'bi-filetype-xml', T('Export', 'landxml')),
   C('export.dxf', 'export', 'bi-vector-pen', '[data-dwg] [data-cmd="dxf"]'),   // 0.7.1 71.24: the toolbar's one DWG / DXF button; this command (and its keys) stays
   C('export.dwg', 'export', 'bi-file-earmark-ruled', T('Export', 'dwg')),
@@ -69,6 +70,7 @@ export const COMMANDS = [
   C('surface.terrain-templates', 'surface', 'bi-layers-half', T('Surface', 'terrain-templates'), { label: 'tpl.tb.tt' }),   // 0.9 WB.6: terrain templates
   C('surface.issues', 'surface', 'bi-chat-square-text', T('Surface', 'issues'), { label: 'iss.tb' }),   // 0.10 CV.1: issues and BCF (issues-ui.js)
   C('surface.utilities', 'surface', 'bi-diagram-3', T('Surface', 'utilities'), { label: 'un.tb' }),   // 0.10 SU.1810: utility networks (utilnet-ui.js)
+  C('surface.util-run', 'surface', 'bi-bezier2', T('Surface', 'util-run'), { label: 'un.tool.tb' }),   // 0.11 SU.1810: draw a utility run on the plan (utilnet-ui.js; a registry command since FX.460)
   C('surface.parking', 'surface', 'bi-p-square', T('Surface', 'parking'), { label: 'pk.tb' }),   // 0.10 SU.1815: parking lots (parking-ui.js)
   C('surface.fences', 'surface', 'bi-border-all', T('Surface', 'fences'), { label: 'fc.tb' }),   // 0.10 SU.1814b: fences (fence-ui.js)
   C('surface.water', 'surface', 'bi-droplet', T('Surface', 'water'), { label: 'wm.tb' }),   // 0.8 LC.16: water mains (water-ui.js)
@@ -133,7 +135,7 @@ const CTRL_KEYS = Object.fromEntries(Object.entries(DEFAULT_KEYS).filter(([, k])
 const m = (label, items) => ({ label: 'input.m.' + label, items });
 // a panel is [label, items, extra?]: extra = the 0.7 RIBBON-COMPACT fields (mixed, more) of app-input.js
 const tab = (label, panels) => ({ label: 'input.m.' + label, panels: panels.map(([l, items, extra]) => ({ label: 'input.m.' + l, items, ...extra })) });
-const FILE_MENU = ['file.new', 'file.open', 'file.save', '-', 'export.pdf', '-', 'app.settings', 'app.palette', 'app.help'];
+const FILE_MENU = ['file.new', 'file.open', 'file.save', 'file.save-older', '-', 'export.pdf', '-', 'app.settings', 'app.palette', 'app.help'];
 // 0.7.1: a tab per workspace (Landscape, Power lines), a group per toolbar menu: the first tool large, the rest small
 const WS_TABS = WS_TOOLS.map(([ws, , panels]) => ({ label: 'input.m.' + ws, panels: panels.map(([l, items]) => ({ label: 'input.m.' + l, items: items.map(([id]) => ws + '.' + id), mixed: true })) }));
 
@@ -149,7 +151,7 @@ export const STYLES = {
     quick: ['file.new', 'file.open', 'file.save', 'export.pdf', 'edit.undo', 'edit.redo'],
     tabs: [
       tab('home', [
-        ['draw', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.breakline', 'surface.boundary', 'surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.landscape', 'surface.powerlines'], { more: ['surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.corridor-templates', 'surface.terrain-templates', 'surface.issues', 'surface.utilities', 'surface.parking', 'surface.fences'] }],
+        ['draw', ['design.alignment', 'design.pad', 'design.pipe', 'surface.feature', 'surface.breakline', 'surface.boundary', 'surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.landscape', 'surface.powerlines'], { more: ['surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.corridor-templates', 'surface.terrain-templates', 'surface.issues', 'surface.utilities', 'surface.util-run', 'surface.parking', 'surface.fences'] }],
         ['modify', ['view.select', 'edit.copy', 'edit.paste', 'edit.duplicate', 'edit.delete']],
         ['view', ['view.fit', 'view.view3d', 'design.profile', 'design.pvi-add', 'surface.sections', 'surface.free-section', 'surface.grades', 'surface.measure']],
         ['clipboard', ['edit.cut', 'edit.paste-in-place', 'edit.select-all', 'edit.select-none']],
@@ -181,7 +183,7 @@ export const STYLES = {
       // 0.8 RIBBON-COMPACT (shell-08): the group's most-used tool large, the next three small, the rest behind the group name's arrow
       tab('home', [
         ['ground', [{ split: ['surface.cad-open', 'surface.scan-start', 'gis.import', 'file.open'], size: 'lg' }]],
-        ['create', [{ id: 'design.alignment', size: 'lg' }, { id: 'design.pad', size: 'sm' }, { id: 'design.pipe', size: 'sm' }, { id: 'surface.feature', size: 'sm' }], { more: ['surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.free-section', 'surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.corridor-templates', 'surface.terrain-templates', 'surface.issues', 'surface.utilities', 'surface.parking', 'surface.fences', 'surface.landscape', 'surface.powerlines'] }],
+        ['create', [{ id: 'design.alignment', size: 'lg' }, { id: 'design.pad', size: 'sm' }, { id: 'design.pipe', size: 'sm' }, { id: 'surface.feature', size: 'sm' }], { more: ['surface.mass', 'surface.ground-contours', 'surface.river', 'surface.ramp', 'surface.free-section', 'surface.water', 'surface.eg-rain', 'surface.eg-earthwork', 'surface.eg-route', 'surface.section-lines', 'surface.mass-options', 'surface.solar', 'surface.eg-pond', 'surface.eg-site', 'surface.eg-progress', 'surface.geo-soil', 'surface.geo-road', 'surface.geo-survey', 'surface.geo-mine', 'surface.geo-link', 'surface.geo-rail', 'surface.corridor-templates', 'surface.terrain-templates', 'surface.issues', 'surface.utilities', 'surface.util-run', 'surface.parking', 'surface.fences', 'surface.landscape', 'surface.powerlines'] }],
         ['views', [{ id: 'design.profile', size: 'lg' }, { id: 'design.pvi-add', size: 'sm' }, { id: 'surface.sections', size: 'sm' }]],
       ]),
       tab('surfaces', [['editsurface', ['surface.breakline', 'surface.boundary']], ['analyze', ['surface.grades', 'surface.measure']]]),

@@ -54,3 +54,10 @@ html[data-cc-density="compact"] .pg-filter { height: 1.5rem; }
   .pg-divider { width: 1.5rem; left: calc(var(--pg-label, 9rem) - .75rem); }
   .pg-check { width: 1.5rem; height: 1.5rem; }
 }
+/* 0.11 FX.307 (rule 62: only inside a mounted layout, body.ws-on; the standard page is unchanged). In a narrow panel the label column no longer takes the room the
+ * value needs ("By l" for By layer): the label takes at most 42 % of the panel (never under 3.5 rem) and the value keeps at least 5 rem. */
+body.ws-on .pg-body { container-type: inline-size; }
+body.ws-on .pg { --pg-lab: min(var(--pg-label, 9rem), max(3.5rem, 42cqw)); }
+body.ws-on .pg-row { grid-template-columns: var(--pg-lab, 9rem) minmax(5rem, 1fr); }
+body.ws-on .pg-divider { left: calc(var(--pg-lab, 9rem) - .25rem); }
+@media (pointer: coarse) { body.ws-on .pg-divider { left: calc(var(--pg-lab, 9rem) - .75rem); } }

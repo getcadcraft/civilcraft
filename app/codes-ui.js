@@ -89,7 +89,7 @@ export function createCodes(ctx) {
   function sceneItems() {
     const p = P(), g = p.state.surface.groups;
     if (!p.points.length) return [];
-    return p.figures().filter((f) => f.coded && g[f.group] !== 'breakline' && g[f.group] !== 'off')
+    return p.figures(null, { coded: true }).filter((f) => f.coded && g[f.group] !== 'breakline' && g[f.group] !== 'off')   // 0.11: only the codes a line code shapes are made into objects
       .map((f) => ({ layer: 'V-NODE-LINE', kind: 'poly', pts: f.pts.map((q) => ({ x: q.x, y: q.y, z: q.z })), closed: f.closed, z: true }));
   }
   const keyFor = (pt) => { const m = compileKeys(P().state.surface.descKeys || []); const code = String(pt?.d ?? '').trim().split(/\s+/)[0]?.toUpperCase(); return code ? m(code) : null; };

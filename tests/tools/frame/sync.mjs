@@ -15,15 +15,18 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const LIB = path.join(ROOT, 'lib/frame');
 const APPS = path.join(ROOT, 'public_html/assets/apps');
-export const FILES = ['frame-model.js', 'frame-solve.js', 'plate.js', 'plate-model.js', 'plate-solve.js', 'plate-mesh.js', 'plate-bim.js', 'plate-draw.js', 'rc-section.js', 'slab-design.js', 'rc-aci318.js', 'rc-design.js', 'loads-asce7.js', 'loads-sources.js', 'wind-asce7.js', 'seismic-asce7.js', 'spectrum-asce7.js', 'combos-asce7.js', 'frame-loads-panel.js', 'frame-concrete.js', 'frame-concrete-panel.js', 'frame-dynamics-panel.js', 'frame-chart.js', 'frame-report.js', 'frame-pdf.js', 'frame-combos.js', 'frame-design.js', 'frame-design-aisc.js', 'frame-design-en.js', 'frame-design-hollow.js', 'frame-weld.js', 'frame-members.js', 'frame-breakit.js', 'frame-craft.js', 'frame-panel.js', 'frame-draw.js', 'frame-panel.css'];
+export const FILES = ['frame-model.js', 'frame-solve.js', 'plate.js', 'plate-model.js', 'plate-solve.js', 'plate-mesh.js', 'plate-bim.js', 'plate-draw.js', 'rc-section.js', 'slab-design.js', 'rc-aci318.js', 'rc-design.js', 'loads-asce7.js', 'loads-sources.js', 'wind-asce7.js', 'seismic-asce7.js', 'spectrum-asce7.js', 'combos-asce7.js', 'frame-loads-panel.js', 'frame-concrete.js', 'frame-concrete-panel.js', 'frame-dynamics-panel.js', 'frame-chart.js', 'frame-report.js', 'frame-pdf.js', 'frame-combos.js', 'frame-design.js', 'frame-design-aisc.js', 'frame-design-en.js', 'frame-design-hollow.js', 'frame-weld.js', 'frame-members.js', 'frame-part.js', 'frame-breakit.js', 'frame-craft.js', 'frame-panel.js', 'frame-draw.js', 'frame-panel.css'];
 export const TARGETS = {
   detailcraft: path.join(APPS, 'detailcraft/dev/frame'),
   bimcraft: path.join(APPS, 'bimcraft/dev/frame'),
+  partcraft: path.join(APPS, 'partcraft/dev/frame'),   // 0.11 SU.1811: only when named (EXPLICIT); the words stay out of PartCraft's lang files until model-part-11 mounts the command
   cadcraft: path.join(APPS, 'cadcraft/dev/frame'),   // 0.8 CH.11: the P&ID add-on's pipe stress calculator (process/equip/pipestress.js imports ../../frame/)
 };
 
+export const EXPLICIT = new Set(['partcraft']);   // not part of the default run or of bin/test-frame.mjs's check; no frame.* words written
+const DEFAULT = Object.keys(TARGETS).filter((n) => !EXPLICIT.has(n));
 /** [{ target, file, state: 'ok' | 'differs' | 'missing' | 'stale' }] */
-export function compare(names = Object.keys(TARGETS)) {
+export function compare(names = DEFAULT) {
   const out = [];
   for (const name of names) {
     const dir = TARGETS[name];
@@ -46,7 +49,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   let diff = 0;
   // the words: frame.* keys of tools/frame/lang.mjs in each app's en.json and es-MX.json (others left to `closing`)
   const { EN, ES } = await import('./lang.mjs');
-  for (const name of names.length ? names : Object.keys(TARGETS)) {
+  for (const name of (names.length ? names : DEFAULT).filter((n) => !EXPLICIT.has(n))) {
     for (const [loc, table] of [['en', EN], ['es-MX', ES]]) {
       const file = path.join(TARGETS[name], '..', 'lang', loc + '.json');
       // other sessions edit these files too: write only when a frame.* value differs, replacing values in place, adding
@@ -65,7 +68,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       console.log(name + ' ' + loc + '.json: ' + (check ? 'frame.* words differ' : 'frame.* words written'));
     }
   }
-  for (const name of names.length ? names : Object.keys(TARGETS)) {
+  for (const name of names.length ? names : DEFAULT) {
     const mine = rows.filter((r) => r.target === name && r.state !== 'ok');
     if (!mine.length) { console.log(name + ': ok (' + FILES.length + ' files)'); continue; }
     diff++;

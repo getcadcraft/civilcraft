@@ -1,0 +1,15 @@
+- Plan the fewest luminaires, in an even grid, that reach a mean lux and uniformity you type; or place a grid or rows yourself. Layout section.
+- Read mean, lowest and highest lux on the workplane, uniformity, wall and ceiling lux, UGR and watts per square metre, with a colour map. Calculate.
+- Check the result against typical requirements for 15 kinds of room, or your own numbers. Requirements section.
+- Add windows (wall, position, size, glass) and read the daylight factor and its spread. Windows and daylight section; in BimCraft the model's windows fill in when you pick a room.
+- List boxes (furniture, columns, partitions) that block direct light. Furniture and partitions section.
+- Check emergency lighting along an escape route and over the open area. Emergency lighting section.
+- CadCraft: draw the luminaires and the lux values on layers LD-LUMINAIRE and LD-LUX (one undo). BimCraft: place them as IfcLightFixture in the room's level and draw the lux as numbers in the plan view (undo steps).
+- Print a report page (with a map, requirement checks, daylight and emergency results) or save every grid point as CSV.
+- See lines of equal lux drawn on the map and in the report page, so you can read where a level is reached at a glance.
+- Turn the lux over the room as a 3D surface, height and colour from the same grid. Under the map.
+- Build your own catalogues from makers' .ldt and .ies files (add a whole folder), search them by name and maker, sort by lumens, watts, lumens per watt or beam angle, and pick one for the room. Your luminaire catalogues section.
+- ModelCraft: light the room a selected floor face makes, and put the luminaires and the 3D lux surface in the model as coloured bodies (one undo).
+- BimCraft: see the night picture of a room with the model's own walls, floors and colours, and render the model in BimCraft's Render with each fixture's measured light spread.
+- CivilCraft: light a parking lot, parcel, paving or planting bed: an up-light at each tree and bollards along each path, the lux on the ground and a false-colour night view.
+- Light a straight road or street: a cross-section of carriageways, lanes, footways and verges (from a CivilCraft road's assembly, or typed), luminaires on one side, both sides, staggered or twin arms on the centre; illuminance and its uniformity on the carriageway and footways, road-surface luminance, overall and longitudinal uniformity from a reflection table you paste, threshold increment, edge illumination ratio, and checks against the class values you enter or a cited table, each failure a line in Problems. Road lighting section.

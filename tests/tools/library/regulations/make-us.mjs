@@ -232,6 +232,15 @@ for (const c of cities) {
   });
 }
 
+// ---- California's own rules (0.11 T24.7/T24.8): tools/energy-ca/packs/us-ca-rules.json, made by tools/energy-ca/make-us-ca-rules.mjs from the cited Title 24 research ----
+{
+  const f = path.join(HERE, '../../energy-ca/packs/us-ca-rules.json'), p = packs.find((x) => x.id === 'us-ca');
+  if (p && fs.existsSync(f)) {
+    const frag = JSON.parse(fs.readFileSync(f, 'utf8'));
+    if (frag.pack === 'us-ca') p.rules.push(...frag.rules.filter((x) => !p.rules.some((y) => y.id === x.id)));
+  }
+}
+
 // ---- design criteria (research/criteria-*.json): the building department's IRC Table R301.2(1) values, attached to the place's pack ----
 const crit = fs.readdirSync(path.join(HERE, 'research')).filter((f) => /^criteria-.*\.json$/.test(f)).sort()
   .flatMap((f) => JSON.parse(fs.readFileSync(path.join(HERE, 'research', f), 'utf8')));

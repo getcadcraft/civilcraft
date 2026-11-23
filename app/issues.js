@@ -46,7 +46,7 @@ export function cleanIssues(list, units = 'ft') {
   const seen = new Set(), guids = new Set(), out = [];
   for (const r of (Array.isArray(list) ? list : []).slice(0, LIMITS.issues)) {
     if (!r || typeof r !== 'object') continue;
-    const id = /^i\d{1,9}$/.test(String(r.id)) ? String(r.id) : null;
+    const id = /^i\d{1,16}$/.test(String(r.id)) ? String(r.id) : null;
     if (!id || seen.has(id)) continue;
     const guid = isUuid(String(r.guid || '').toLowerCase()) ? String(r.guid).toLowerCase() : newUuid();
     if (guids.has(guid)) continue;

@@ -14,7 +14,15 @@ Each alignment has one design profile: a list of PVIs (station and elevation) jo
 2. Press {{key:R}}, or click {{ui:Profile}} in the toolbar, or {{ui:Profile view}} at the bottom of the right panel.
    The profile view opens under the plan with the existing ground along the alignment. With two or more alignments, pick one in the list at the left of the profile bar.
 
-The view always shows the whole alignment and stretches the elevations to fill the panel; the exaggeration is printed in the lower-left corner, for example "Vertical exaggeration 10×". It does not zoom or pan.
+The view starts by showing the whole alignment and stretching the elevations to fill the panel; the exaggeration is printed in the lower-left corner, for example "Vertical exaggeration 10×".
+
+## Zoom and pan the profile
+
+- **Zoom:** turn the mouse wheel (or pinch on a trackpad) and the view zooms about the pointer. Hold {{key:Shift}} to zoom the stations only, or {{key:Alt}} to zoom the elevations only (that changes the exaggeration). With the profile view focused, the plus and minus keys zoom about the middle.
+- **Pan:** drag with the right or middle mouse button, or swipe with two fingers on a trackpad.
+- **Fit:** double-click the profile or press {{key:F}} to show the whole alignment again.
+
+Editing a PVI keeps the zoom you chose; it does not jump back to fit.
 
 Move the pointer along the profile: the bar shows the station, ground and design elevations, the grade and the cut or fill there, and a dot follows on the alignment in the plan.
 
@@ -33,10 +41,17 @@ If the alignment does not cross the surface, you get "This alignment has no grou
 
 A click where there is already a PVI is refused ("There is already a PVI at …"). PVIs always stay in station order.
 
+## Snap while you add or drag
+
+The **Snap** button in the profile bar is on to start with. While it is on, a PVI you add or drag lands on the nearest PVI, ground point, PVI station or the ground line, and a label by the marker says which one. Hold {{key:Alt}} for a free point, anywhere.
+
 ## Adjust PVIs
 
 - **Drag** a PVI in the profile to move it. It cannot pass its neighbors. The move is one undo step.
-- **Type** exact values in the PVI table in the right panel: **Station**, **Elevation** and **Curve L** (vertical curve length). Press {{key:Enter}} after each.
+- **Type** exact values in the PVI table in the right panel: **Station**, **Elevation**, **Slope %** and **Curve L** (vertical curve length). Press {{key:Enter}} after each.
+- **Pick** a value from the profile: the small button beside a PVI's station or elevation waits for one click in the profile view and fills that value in. The click snaps like Add PVIs; hold {{key:Alt}} for a free point; {{key:Esc}} cancels.
+- **Slope %** is the grade of the tangent that starts at that PVI and runs to the next one. Typing it moves the **next** PVI's elevation (its station never moves). If the next PVI is locked, the previous PVI's elevation moves instead.
+- **Lock** a PVI with the padlock at the end of its row. A locked PVI is not dragged, and a slope edit does not move it. If both ends of a tangent are locked, its slope cannot change: the status bar says so, and you unlock one end first. The lock is saved in the file.
 - **Remove** a PVI with the x at the end of its row, or select it (click it) and press {{key:Delete}}. When the profile view has the focus, {{key:Backspace}} also removes it.
 
 The first and last PVI never take a curve.

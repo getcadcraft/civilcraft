@@ -91,7 +91,7 @@ const treeCopied = (u) => /\/assets\/js\/engines\//.test(u) && engines && /asset
 // Files the packers do not ship because the packed page has no tag or mount for the key (devshell/render.php prints tags only for
 // panels, phone, input, hardware, devices and the extras). A manifest key in this set is a known gap: listed as a note, never a failure.
 // Closing a gap is a feature (an edition mount for the key), not a list entry.
-const NOT_RENDERED = /\/(problems|problems-pdf|app-problems|app-nodes|app-lang-packs|app-crosshair|app-toolbar-tear|app-fit|app-palette|app-addons|app-addon-license|addon-license|addon-license-keys|app-addons-account-mount)\.(js|css)$|\/css\/app-(problems|nodes)\.css$|\/bootstrap\//;
+const NOT_RENDERED = /\/(problems|problems-pdf|app-problems|app-nodes|app-lang-packs|app-crosshair|app-toolbar-tear|app-fit|app-palette|app-addons|app-addon-license|addon-license|addon-license-keys)\.(js|css)$|\/css\/app-(problems|nodes)\.css$|\/bootstrap\//;
 
 const read = (f) => { const p = path.join(PUB, f); return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null; };
 const dynNotes = new Set();

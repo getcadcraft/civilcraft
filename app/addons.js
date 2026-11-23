@@ -344,6 +344,7 @@ export class AddonLoader {
     this.importer = o.importer || ((u) => import(/* @vite-ignore */ u));
     this.fetchJson = o.fetchJson || (async (u) => { try { const r = await fetch(u, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } });
     this.locale = o.locale || (typeof window !== 'undefined' && window.ccShellT && window.ccShellT.locale && window.ccShellT.locale()) || 'en';
+    this.localeGiven = !!o.locale;   // FX.437: not given = follow the shell; loadStrings asks it again (see there)
     this.timeout = typeof o.timeout === 'number' ? o.timeout : ACTIVATE_TIMEOUT;
     this.entries = new Map();   // id → entry
     this.listeners = new Set();
@@ -380,6 +381,13 @@ export class AddonLoader {
     if (this.started) return this.list();
     this.started = true;
     await this.discover();
+    // PERF.52: fetch every ready bundled add-on's entry module at once; activation below stays serial and in the same order
+    // (an import() of an already-requested URL resolves from the same module record, so nothing runs twice).
+    for (const e of this.entries.values()) {
+      if (e.state !== 'ready' || e.source !== 'bundled' || !e.manifest) continue;
+      const u = this.urlOf(e, e.manifest.entry);
+      if (u) { try { Promise.resolve(this.importer(u)).catch(() => {}); } catch { /* activate() reports it */ } }
+    }
     for (const e of this.entries.values()) if (e.state === 'ready') await this.activate(e);
     this.changed();
     this.mountSettings();
@@ -390,12 +398,13 @@ export class AddonLoader {
     const add = (e) => { if (!this.entries.has(e.id)) this.entries.set(e.id, e); };
     // Bundled / edition folder.
     const index = await this.fetchJson(this.base + 'index.json');
+    // Owner 2026-11-22: a lab build lists only the add-ons the account chose in the Library (app-addons-index.php marks it {chosen: true});
+    // those are the person's choice, so a manifest's default "off" does not apply to them. A switch-off of their own still does.
+    this.chosenIndex = !!(index && index.chosen === true);
     const names = index && Array.isArray(index.addons) ? index.addons.filter((n) => typeof n === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(n)) : [];
-    for (const dir of names) {
-      const root = this.base + dir + '/';
-      const raw = await this.fetchJson(root + 'addon.json');
-      add(this.entryFor(raw, { source: 'bundled', root, key: dir }));
-    }
+    // PERF.52: the manifests are read at once (13 serial round trips in CadCraft), then added in index order.
+    const raws = await Promise.all(names.map((dir) => this.fetchJson(this.base + dir + '/addon.json')));
+    names.forEach((dir, i) => add(this.entryFor(raws[i], { source: 'bundled', root: this.base + dir + '/', key: dir })));
     // Installed.
     let pkgs = [];
     try { pkgs = await this.packages.list(); } catch { pkgs = []; }
@@ -419,7 +428,7 @@ export class AddonLoader {
       const p = this.prefs();
       const off = p.off[id];
       if (off) { e.state = 'off'; e.reason = off === 'user' ? '' : off; }
-      else if (source === 'bundled' && r.manifest.default === 'off' && !p.on[id]) { e.state = 'off'; e.reason = ''; e.defaultOff = true; }
+      else if (source === 'bundled' && r.manifest.default === 'off' && !p.on[id] && !this.chosenIndex) { e.state = 'off'; e.reason = ''; e.defaultOff = true; }
     }
     return e;
   }
@@ -441,6 +450,9 @@ export class AddonLoader {
    *      add-on's en.json has, with the same {fills}
    */
   async loadStrings(e) {
+    // FX.437: an app's own loader is made before the shell's deferred script defines ccShellT, so the constructor saw no locale and every
+    // add-on of CadCraft and BimCraft stayed English. Ask the shell again now; a locale given to the loader still wins.
+    if (!this.localeGiven && typeof window !== 'undefined' && window.ccShellT && window.ccShellT.locale) { const l = window.ccShellT.locale(); if (l) this.locale = l; }
     const want = [...new Set([this.locale, this.locale.split('-')[0], 'en'])].reverse();
     const out = {}, en = {};
     const take = (j, into, onlyKeys) => {
@@ -661,8 +673,11 @@ export class AddonLoader {
     const list = root.querySelector('[data-addons-list]');
     const render = () => {
       const rows = this.list();
-      root.hidden = !rows.length && !this.devMode;
+      // owner 2026-11-22: a lab build lists only what the account chose, so the section stays (empty) with its Library link
+      root.hidden = !rows.length && !this.devMode && !this.chosenIndex;
       list.replaceChildren(...rows.map((a) => this.row(a)));
+      const none = root.querySelector('[data-addons-none]');
+      if (none) none.hidden = rows.length > 0;
       const dev = root.querySelector('[data-addons-dev]');
       if (dev) dev.hidden = !this.devMode;
     };
@@ -694,7 +709,7 @@ export class AddonLoader {
       el('label', { class: 'shell-check', for: id }, box, ' ', el('strong', {}, a.name), ' ', el('span', { class: 'shell-addon-ver' }, a.version)),
       el('ul', { class: 'meta-items shell-addon-meta' },
         m.license ? el('li', {}, T('shell.addons.license', { license: m.license })) : null,
-        el('li', {}, T('shell.addons.source.' + a.source)),
+        el('li', {}, T('shell.addons.source.' + (this.chosenIndex && a.source === 'bundled' ? 'installed' : a.source))),   // chosen in the Library (owner 2026-11-22), not "comes with the app"
         perms.length ? el('li', {}, T('shell.addons.perms', { list: perms.join(', ') })) : null),
       m.description ? el('p', { class: 'shell-hint-text' }, m.description) : null,
       status ? el('p', { class: 'shell-addon-status', role: 'status' }, status) : null);
@@ -857,6 +872,15 @@ function wireGrip(p, sec, grip, name, app) {
 
 const SAFE_ID = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const iconClass = (icon) => (typeof icon === 'string' && /^bi-[a-z0-9-]{1,40}$/.test(icon) ? icon : 'bi-puzzle');
+/** 0.11 UI.14 (4): api.icons = the one icon family (window.ccIconSet, assets/js/app-workspace-icons.js). node(key|command id|label, {bi}) -> an element or null;
+ *  has(key); keys. An add-on's button asks for a drawing by key, command or label; with none (or the set not loaded) the button keeps its Bootstrap glyph, and the miss is
+ *  logged in window.ccIconMissing so the inventory sees it (the engine's Map when the set is loaded, else an array). A tool with no key or command asks by
+ *  '<addon>:<tool id>' (tools/icons/command-map.json can name it; the last part and the label still match the set's rules). Never the host's or another program's picture. */
+const setIcons = () => ({
+  get keys() { return (window.ccIconSet && window.ccIconSet.keys) || []; },
+  has: (k) => !!(window.ccIconSet && window.ccIconSet.has(k)),
+  node(q, o = {}) { const S = window.ccIconSet; if (!S) return null; const k = S.has(q) ? q : S.key(q, o.label || q); if (!k) { try { const M = window.ccIconMissing, m = { block: 'addon', id: String(q), label: o.label || '', addon: o.addon || '' }; if (M && typeof M.set === 'function') M.set('addon|' + m.addon + '|' + m.id, m); else (window.ccIconMissing = M || []).push(m); } catch { /* log only */ } return null; } return S.node(k); },
+});
 
 /** The shared API on top of the loader's base API. `track(fn)` registers a cleanup for when the add-on goes off. */
 export function sharedApi(base, addon, registry) {
@@ -883,7 +907,8 @@ export function sharedApi(base, addon, registry) {
         const i = document.createElement('i');
         i.className = 'bi ' + iconClass(t.icon);
         i.setAttribute('aria-hidden', 'true');
-        b.append(i);
+        const drawn = t.draw !== false ? setIcons().node(t.key || t.command || key(t.id), { label: t.label, addon: addon.id }) : null;
+        if (drawn) { drawn.setAttribute('aria-hidden', 'true'); b.append(drawn); } else b.append(i);
         const span0 = btn0 && [...btn0.children].find((c) => c.tagName === 'SPAN');
         const span = document.createElement('span');
         if (span0) span.className = span0.className;
@@ -962,7 +987,9 @@ export function sharedApi(base, addon, registry) {
         if (save) sectionPrefs.setCollapsed(app, k, !open);
       };
       setOpen(!sectionPrefs.collapsed(app, k), false);
-      tog.addEventListener('click', () => setOpen(body.hidden, true));
+      // Owner 2026-11-22 (PRO-cad2): when the shell's fold owns this header (data-af on the h2, lock + caret on the right) it is the one fold; this
+      // button then only passes the click on to it (two folds on one header undid each other, and the add-on's own hidden body could stay shut).
+      tog.addEventListener('click', (ev) => { if (h.hasAttribute('data-af')) { if (body.hidden) setOpen(true, false); return; } setOpen(body.hidden, true); });
       sectionPlace(p, sec, app);
       wireGrip(p, sec, grip, name, app);
       if (typeof render === 'function') { try { render(body); } catch (err) { sec.remove(); refreshGrips(p); throw err; } }
@@ -1129,7 +1156,7 @@ export function sharedApi(base, addon, registry) {
       return e && e.source === 'addon' && e.addon === addon.id ? (reg.unregister(e.id), true) : false;
     },
   };
-  return { ...base, ui, files, problems, rules, model, renderEngines };
+  return { ...base, ui, files, problems, rules, model, renderEngines, icons: setIcons() };
 }
 
 /**

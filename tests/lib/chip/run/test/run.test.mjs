@@ -19,8 +19,8 @@ import { zipStored, unzipStored, crc32 } from '../zip.js';
 import { newProject, readProject, writeProject, recordRun, repeatable, sha256, stage as stageOf } from '../project.js';
 import { ALLOWED_PROGRAMS, parseVersion, probeSteps } from '../tools.js';
 import { readVcd, valueAt, formatValue, isFst } from '../vcd.js';
-import { findTestbenches, simSteps, parseSimLog } from '../sim.js';
-import { synthScript, parseStat, parseTiming, parseYosysLog } from '../synth.js';
+import { findTestbenches, simSteps, parseSimLog, simSummary } from '../sim.js';
+import { synthScript, synthSteps, parseStat, parseTiming, parseYosysLog } from '../synth.js';
 import { pnrTcl, pnrSteps, parseOpenroadLog, pnrRows } from '../pnr.js';
 import { drcSteps, readLyrdb, drcRows, drcSummary } from '../drc.js';
 import { lvsSteps, parseLvsText, parseLvsJson, lvsRows } from '../lvs.js';
@@ -132,7 +132,7 @@ const files = { 'counter.v': FX('counter.v'), 'counter_tb.v': FX('counter_tb.v')
   const tbs = findTestbenches(files);
   ok(tbs[0]?.name === 'counter_tb' && tbs.length === 1 && tbs[0].timescale === '1ns/1ps', 'the testbench is picked (no ports + initial), with its timescale');
   const ver = simSteps({ tool: 'verilator', files: Object.keys(files), top: 'counter_tb', defines: { W: 4 } });
-  ok(ver.steps[0].tool === 'verilator' && ver.steps[0].args.includes('--binary') && ver.steps[0].args.includes('--trace') && ver.steps[1].tool === 'obj_dir/Vcounter_tb' && ver.waves === '', 'Verilator: --binary --trace, then ./obj_dir/V<top>; no waves without $dumpfile (command line only: Verilator is NOT installed here)');
+  ok(ver.steps[0].tool === 'verilator' && ver.steps[0].args.includes('--binary') && ver.steps[0].args.includes('--trace') && ver.steps[1].tool === 'obj_dir/Vcc_top' && ver.waves === 'out/wave.vcd' && /counter_tb tb\(\);/.test(ver.extra['cc_top.v']), 'Verilator: --binary --trace, then ./obj_dir/Vcc_top; a testbench with no $dumpfile is held by the cc_top wrapper, which dumps it');
   const vlog = parseSimLog('%Error: counter.v:9:5: syntax error, unexpected <=\n%Warning-WIDTH: counter.v:10:20: Operator ADD expects 4 bits\n', 'verilator');
   ok(vlog.length === 2 && vlog[0].severity === 'error' && vlog[0].line === 9 && vlog[1].text.startsWith('WIDTH'), 'Verilator messages (hand-written sample) become rows at their line');
   if (has('iverilog') && has('vvp')) {
@@ -259,7 +259,8 @@ tns -1.05
 console.log('DRC and LVS (HD.8) — KLayout and Netgen NOT installed: command lines + hand-written reports');
 {
   const ds = drcSteps({ gds: 'counter.gds', deck: 'pdk.lydrc', top: 'counter' });
-  ok(ds.steps[0].tool === 'klayout' && ds.steps[0].args.join(' ') === '-b -r pdk.lydrc -rd input=counter.gds -rd report=out/drc.lyrdb -rd topcell=counter', 'KLayout batch mode: -b -r <deck> -rd input= -rd report= -rd topcell=');
+  ok(ds.steps[0].tool === 'klayout' && ds.steps[0].args.join(' ') === '-b -r pdk.lydrc -rd input=counter.gds -rd report={job}/out/drc.lyrdb -rd topcell=counter', 'KLayout batch mode: -b -r <deck> -rd input= -rd report={job}/… (a full path: KLayout reads it against the layout\'s folder) -rd topcell=');
+  { const job = { toolsDir: '', pdkDir: '' }; let bad = 0; for (const a of ['report={job}/../x', '{job}//etc', 'x={job}/a/../../b']) { try { checkArg(a, job, '/tmp/j'); } catch { bad++; } } ok(checkArg('report={job}/out/drc.lyrdb', job, '/tmp/j') === 'report=/tmp/j/out/drc.lyrdb' && bad === 3, '{job}/… becomes the job folder; it cannot step out (' + bad + '/3 refused)'); }
   const db = readLyrdb(`<?xml version="1.0" encoding="utf-8"?>
 <report-database>
  <description>DRC for counter</description>
@@ -335,6 +336,76 @@ console.log('the add-on copy (tools/chip/sync.mjs)');
   for (const f of [...fs.readdirSync(RUN).filter((n) => n.endsWith('.js')).map((n) => path.join(RUN, n)), path.join(ROOT, 'public_html/assets/apps/cadcraft/dev/addons/chip/main.js')]) for (const m of fs.readFileSync(f, 'utf8').matchAll(/t\('(chip\.[a-z0-9_.]+[a-z0-9])'/gi)) used.add(m[1]);
   const missing = [...used].filter((k) => !(k in en));
   ok(!missing.length, 'every string the runners and the shell use is in lang/en.json (' + used.size + ')', missing.join(', '));
+}
+
+console.log('REAL tool outputs (workstation11a, 2026-11-21: Icarus 13, Verilator 5.054, Yosys 0.71, OpenSTA, OpenROAD 2.0-12381, KLayout 0.28.16, Magic, Netgen 1.5.272, sky130_fd_sc_hd)');
+{
+  const RX = (n) => path.join(HERE, 'fixtures/real', n);
+  const R = (n) => fs.readFileSync(RX(n), 'utf8');
+  if (!fs.existsSync(RX('README.txt'))) skip('fixtures/real not present');
+  else {
+    const { readFst, fstToVcd, isFstBytes } = await import('../fst.js');
+    const { readVcd } = await import('../vcd.js');
+    const { parseSlack } = await import('../synth.js');
+    const { lefStemClash } = await import('../pnr.js');
+    // HD.4
+    const ivl = parseSimLog(R('icarus13-vvp.log'));
+    ok(!ivl.some((r) => /\$finish/.test(r.text)), 'Icarus 13 "tb.v:30: $finish called at …" is the end-of-run report, not a warning');
+    ok(simSummary(R('icarus13-vvp.log')).finished && simSummary(R('verilator-run.log')).finished && simSummary(R('verilator-run.log')).unit === 'us', 'simSummary reads Icarus 13 and Verilator 5 ("- Verilator: $finish at 2us")');
+    const vv = readVcd(R('verilator-wave.vcd'));
+    ok(vv.ok && vv.signals.length === 84 && vv.end === 1730000, 'Verilator\'s VCD (through the cc_top wrapper): 84 signals to 1.73 µs', vv.signals.length + ' / ' + vv.end);
+    const fb = new Uint8Array(fs.readFileSync(RX('verilator-wave.fst')));
+    const f = readFst(fb);
+    ok(isFstBytes(fb) && f.header && f.vars.length > 0 && !f.problems.length, 'our FST reader reads Verilator\'s --trace-fst file (' + f.vars.length + ' signals, ' + (f.header?.writer || '') + ')', f.problems.join('; '));
+    const fv = readVcd(fstToVcd(f));
+    // Verilator's FST puts an unpacked array in a scope of its own (tb.expected.expected[0]); its VCD lists the elements in the parent
+    const norm = (p) => p.replace(/\.([A-Za-z_]\w*)\.(\1\[)/, '.$2');
+    const differ = vv.signals.filter((a) => { const b = fv.signals.find((x) => norm(x.path) === a.path); return !b || a.t.join() !== b.t.join() || a.v.join() !== b.v.join(); }).map((a) => a.path);
+    ok(fv.signals.length === vv.signals.length && !differ.length, 'FST and VCD of the same Verilator run agree change for change, all ' + vv.signals.length + ' signals', differ.slice(0, 5).join(', '));
+    ok(fv.end === vv.end, 'the FST run ends at the same time as the VCD run');
+    const sv = simSteps({ tool: 'verilator', files: ['a.v'], top: 'tb', dumps: false, format: 'fst' });
+    ok(sv.extra['cc_top.v'] && sv.steps[0].args.includes('--trace-fst') && sv.steps[0].args.includes('cc_top') && sv.waves === 'out/wave.fst', 'Verilator with a testbench that does not dump: the cc_top wrapper dumps it (VCD or FST)');
+    // HD.5
+    const st = parseStat(R('yosys-0.71-stat.txt'));
+    ok(st.cells === 637 && st.modules.pebble_soc.wires === 632 && Math.abs(st.area - 5950.7072) < 1e-6 && st.modules.pebble_soc.types.sky130_fd_sc_hd__dfxtp_1 === 60, 'Yosys 0.71 stat (new column layout, "-" for no area): 637 cells, 632 wires, area 5950.7072, 60 dfxtp_1', JSON.stringify([st.cells, st.modules.pebble_soc?.wires, st.area]));
+    const ye = parseYosysLog(R('yosys-0.71-error.log'));
+    ok(ye.length === 1 && ye[0].severity === 'error' && ye[0].file === 'pdk/primitives.v' && ye[0].line === 36, 'Yosys 0.71 "file:line: ERROR: …" lands as an error at its line');
+    const sl = parseSlack(R('sta.log'));
+    ok(sl.wns === 0 && sl.tns === 0 && sl.worst > 0, 'OpenSTA after synthesis: wns 0, tns 0, worst slack ' + sl.worst + ' ns');
+    const ss = synthSteps({ files: ['a.v'], top: 't', liberty: 'x.lib', sdc: 'c.sdc', dontUse: ['*lpflow*'], tie: { cell: 'conb' }, buffer: { cell: 'buf' } });
+    ok(ss.steps.map((x) => x.tool).join() === 'yosys,sta' && /-dont_use \*lpflow\*/.test(ss.extra['cc_synth.ys']) && /hilomap/.test(ss.extra['cc_synth.ys']) && /insbuf -buf buf A X/.test(ss.extra['cc_synth.ys']), 'synthesis: OpenSTA step, dont_use, tie cells, buffers for assigns');
+    // HD.6
+    const orl = parseOpenroadLog(R('openroad.log'));
+    ok(orl.area === 6371 && orl.util === 38 && orl.wns === 0 && orl.drcCount === 0 && orl.worst > 0, 'OpenROAD log: area 6371 µm², 38 %, wns 0, 0 route violations');
+    const orr = pnrRows(parseOpenroadLog(R('openroad.log') + '\n' + R('openroad-tcl-error.log')));
+    ok(orr.some((r) => r.severity === 'error' && /invalid command name/.test(r.text)), 'a TCL error from the program output ("Error: cc_pnr.tcl, 17 invalid command name …") is an error row');
+    ok(lefStemClash(['p/x.tlef', 'p/x.lef']).length === 1 && !lefStemClash(['p/x.tlef', 'p/x_merged.lef']).length, 'two LEFs with one name stem are found before OpenROAD drops the second');
+    const tcl = pnrTcl({ lefs: ['a.tlef', 'b.lef'], libs: ['l.lib'], netlist: 'n.v', top: 't', supply: {}, pdn: {}, tapcell: { cell: 'tap' }, fill: ['f'], route: 'detailed' });
+    ok(/info commands global_connect/.test(tcl) && /set_voltage_domain -name CORE/.test(tcl) && /write_verilog -include_pwr_gnd/.test(tcl) && /filler_placement/.test(tcl), 'the OpenROAD script works on the 2024 build (global_connect when it exists, a named domain) and writes the powered netlist');
+    // HD.7: an OASIS file from another program (KLayout, strict mode with CBLOCKs) holds the same layout as the GDSII it was written from
+    {
+      const zl = await import('node:zlib');
+      const O = await import('../../fmt/oasis.js'), G = await import('../../fmt/gds.js'), L = await import('../../fmt/layout.js');
+      const g = G.readGds(new Uint8Array(zl.gunzipSync(fs.readFileSync(RX('final.gds.gz'))))), o = O.readOasis(new Uint8Array(fs.readFileSync(RX('klayout-cblock.oas'))));
+      const gs = L.layoutStats(g.lib, 'pebble_soc'), os = L.layoutStats(o.lib, 'pebble_soc');
+      const flat = (x) => JSON.stringify(x.layers.filter((l) => l.flat).map((l) => [l.layer, l.datatype, l.flat]));
+      ok(!o.problems.some((p) => p.severity === 'error') && os.cells === gs.cells && os.flatShapes === gs.flatShapes && flat(os) === flat(gs), 'KLayout\'s OASIS of the routed chip: ' + os.cells + ' cells, ' + os.flatShapes + ' shapes, the same on every layer as the GDSII', JSON.stringify(o.problems.slice(0, 2)));
+    }
+    // HD.8
+    const db = readLyrdb(R('drc.lyrdb'));
+    const rows = drcRows(db);
+    ok(db.top === 'pebble_soc' && db.items.length > 0 && rows.length === db.items.length && rows.every((r) => r.about.some((a) => a.kind === 'cell') && Array.isArray(r.where?.at || r.at)), 'KLayout sky130 DRC report: ' + db.items.length + ' items, each a row with its cell');
+    const lj = parseLvsJson(R('lvs.json'));
+    const lt = parseLvsText(R('lvs.out'));
+    const top = lj.circuits.find((c) => c.left === 'pebble_soc');
+    ok(top && lt.match !== null, 'Netgen\'s real -json and text reports read (top cell ' + (top ? top.devices.join('/') + ' devices, ' + top.nets.join('/') + ' nets' : 'missing') + ')');
+    const LVS_OK = fs.existsSync(RX('lvs-matched.txt'));
+    if (LVS_OK) ok(lj.match && lt.match && !lvsRows(lj).some((r) => r.severity === 'error'), 'the routed Pebble matches its netlist: no LVS errors');
+    // HD.9
+    const gl = parseGlsLog(R('gls-vvp.log'));
+    ok(/PASS: Pebble printed the 9 expected numbers/.test(R('gls-vvp.log')) && !gl.some((r) => /Chosen value not defined|Could not find net/.test(r.text)), 'gate-level sim of the ROUTED netlist with OpenROAD\'s SDF (wire delays, max corner) passes Pebble\'s own check');
+    ok(glsSteps({ netlist: 'n.v', testbench: 'tb.v', top: 'tb', dut: 'tb.dut', sdf: 'x.sdf', corner: 'max', interconnect: true }).steps[0].args.includes('-ginterconnect'), 'interconnect: -ginterconnect; the corner goes to iverilog -T');
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed, ${skipped} skipped`);

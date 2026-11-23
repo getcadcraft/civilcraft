@@ -31,6 +31,7 @@ import { renumber } from './clip.js';
 import { frame } from './crs.js';
 import { LAYER_TOKENS, MAX_LAYERS, clean, readGisState, gisFeaturesJSON } from './gis-state.js';
 import { t } from './i18n.js';
+import { takeNumber } from './history/ids.js';   // 0.11 DC.27: the project's counter (session tags)
 import { compile, cleanSymbology } from './gis-symbology.js';
 
 const TOKEN_KEY = { blue: 'layers.color.blue', orange: 'layers.color.orange', magenta: 'layers.color.magenta', cyan: 'layers.color.cyan', ochre: 'layers.color.ochre', green: 'layers.color.green', red: 'layers.color.red' };
@@ -51,7 +52,7 @@ export function addLayers(project, layers, { label = t('layers.undo.import'), cr
     let k = g.layers.length;
     for (const l of layers) {
       if (g.layers.length >= MAX_LAYERS) break;
-      const id = 'g' + s.seq++;
+      const id = 'g' + takeNumber(s);   // 0.11 DC.27
       ids.push(id);
       g.layers.push({ id, name: clean(l.name, 120) || t('layers.default'), geom: l.geom, hasZ: !!l.hasZ, fields: (l.fields || []).map((f) => ({ name: f.name, type: f.type })), visible: true, color: LAYER_TOKENS[k++ % LAYER_TOKENS.length], source: { file: clean(l.source?.file, 200), format: clean(l.source?.format, 40), crs: l.source?.crs ? clean(l.source.crs, 200) : null } });
       map.set(id, l.features);
@@ -346,7 +347,7 @@ export function useForSurface(project, id, { use, from = 'z', field = null, feat
     }
     if (!pts.length) return { ok: false, message: from === 'field' ? t('layers.use.nopoint.field', { layer: l.name, field }) : t('layers.use.nopoint', { layer: l.name }) };
     const r = renumber(pts, project.points, { mode: 'always' });
-    project.editPoints(t('layers.undo.pts', { layer: l.name }), (all) => all.concat(r.points));
+    project.editPointTable(t('layers.undo.pts', { layer: l.name }), (ed) => { ed.add(r.points); });
     const nums = r.points.map((p) => p.n);
     return { ok: true, count: pts.length, message: t('layers.use.pts.added', { n: pts.length, layer: l.name, first: nums[0], last: nums[nums.length - 1] }) + (skipped ? ' ' + t('layers.use.pts.skipped', { n: skipped }) : '') + (project.state.surface.tin ? ' ' + t('layers.use.tin') : '') };
   }

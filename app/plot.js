@@ -23,6 +23,7 @@
 
 import { t } from "./i18n.js";
 import { CP1252, SUBST, charAdvance, advance } from './font.js';
+import { eachPoint } from './scene.js';
 
 export const PAPERS = [
   { key: 'letter', get name() { return t('plot.paper.letter'); }, w: 279.4, h: 215.9 },
@@ -80,6 +81,7 @@ export function planSheet(scene, { extents, paper = 'tabloid', landscape = true,
     if (it.kind === 'poly') strokes.push({ color, width, pts: it.pts.map(tx), closed: !!it.closed });
     else if (it.kind === 'arc') strokes.push({ color, width, arc: { ...tx(it.c), r: it.r * s, a0: it.a0, a1: it.a1 } });
     else if (it.kind === 'point') points.push({ color, ...tx(it) });
+    else if (it.kind === 'points') eachPoint(it, (x, y) => points.push({ color, ...tx({ x, y }) }));   // 0.11: the survey points as one item
     else if (it.kind === 'text') texts.push({ color, ...tx(it), h: it.mm, rot: it.rot || 0, text: it.text, align: it.align, middle: it.middle });
   }
   // title strip and frame

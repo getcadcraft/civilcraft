@@ -1,0 +1,22 @@
+{
+  "id": "wastewater",
+  "name": "Water and wastewater treatment",
+  "version": "0.11.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "objects",
+    "files",
+    "problems"
+  ],
+  "description": "Size a treatment plant beside the site: an activated sludge plant with the published ASM1 model (COD and nitrogen balances, clarifier, disinfection) and the design equations, then put each basin's footprint on the site plan from its volume and water depth. A study aid, not an engineering approval.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off",
+  "help": "./help/help.js"
+}

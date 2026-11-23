@@ -78,7 +78,7 @@ export function emptyPowerlines() {
 
 const str = (v, max = 120) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max) : '');
 const num = (v, lo, hi, d = null) => (fin(v) && v >= lo && v <= hi ? v : d);
-const idOk = (v, pre) => (new RegExp('^' + pre + '\\d{1,9}$').test(String(v)) ? String(v) : null);
+const idOk = (v, pre) => (new RegExp('^' + pre + '\\d{1,16}$').test(String(v)) ? String(v) : null);
 const keyOk = (v) => (typeof v === 'string' && /^[A-Za-z0-9_.:-]{1,64}$/.test(v) ? v : null);
 const keys = (a, max = 20) => (Array.isArray(a) ? a.map(keyOk).filter(Boolean).slice(0, max) : []);
 const xy = (q) => (q && fin(q.x) && fin(q.y) && Math.abs(q.x) < 1e9 && Math.abs(q.y) < 1e9 ? { x: q.x, y: q.y } : null);

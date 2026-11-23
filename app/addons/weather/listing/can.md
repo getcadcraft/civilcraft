@@ -1,0 +1,16 @@
+- See the weather stations nearest your model, with the distance and any large difference in height above sea level.
+- Read a station's winter design temperature (99.6 % and 99 %), summer design temperature (0.4 % and 1 %), heating and cooling degree-days, mean air temperature and ground temperature, in °C and °F. {#wx-design}
+- In BimCraft: put the winter and summer outside temperatures, the degree-days and the ground temperature into Heating and cooling loads with one press. The section then says which station they came from.
+- In BimCraft: hand the hourly year to the EnergyPlus check for a year's run. In every app: save the .epw file.
+- Explore the year: every hourly quantity of the weather file as a 3D surface over the days of the year and the hours of the day, in five views, with cuts at a date, a time and a value, a cut block, a rolling average, contour lines and animation.
+- See the same year as a flat map with contour lines and sunrise and sunset, year and day profiles, a wind rose, a histogram and a monthly table.
+- See quantities the file does not carry, worked out from it: wet-bulb temperature, humidity ratio, enthalpy, dew-point depression and the height of the sun.
+- Plot the hours on a psychrometric chart, set a comfort range of temperature and humidity, and count the hours inside it for the year and each month.
+- See the sun's path over the station with each daylight hour coloured by any quantity.
+- Compare two stations on one scale, with the difference between them.
+- Multiply or shift a quantity for the whole year and save the result as a new .epw file.
+- Copy a link that opens the same view for someone else.
+- Open any station of a weather set from a map of the stations.
+- Switch between metric and US customary units. Save the chart as a picture, the numbers as a table, and the view's settings as a file.
+- Open a weather file of your own (.epw) and get the same figures from it.
+- Type a latitude and longitude when the model does not say where it stands.

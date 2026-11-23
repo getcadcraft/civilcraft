@@ -25,7 +25,7 @@ try {
   const hasKey = await page.evaluate(() => { try { return /^ccu_/.test(sessionStorage.getItem('cc-super-token') || ''); } catch { return false; } });
   ok(hasKey, 'the key is in this tab\'s session storage, not localStorage'); ok(await page.evaluate(() => { try { return !Object.keys(localStorage).some(k => /token/i.test(k) && /^ccu_/.test(localStorage.getItem(k) || '')); } catch { return true; } }), 'and in no localStorage entry');
   // make a team in the real dialog and see it reach the account
-  await page.evaluate(() => window.superWindow.plugins.run('teams:teams')); const PG = '[data-home-view="page"]:not([hidden])'; await page.waitForSelector(PG + ' [data-tm-new]');   // Teams is a PAGE of the welcome area
+  await page.evaluate(() => window.superWindow.plugins.run('teams:new-team')); const PG = '[data-home-view="page"]:not([hidden])'; await page.waitForSelector(PG + ' [data-tm-new]');   // Teams is a PAGE of the welcome area
   await page.fill(PG + ' [data-tm-new]', 'Real lab team'); await page.click(PG + ' [data-act="team-add"]'); await page.waitForSelector(PG + ' [data-team-card]'); await page.waitForTimeout(1500);
   const api = async p => (await (await fetch(SITE + p, { headers: { Authorization: 'Bearer ' + F.token } })).json()).data;
   const viaFixtureToken = await api('/api/v1/team/teams'); ok((viaFixtureToken.teams || []).some(t => t.name === 'Real lab team'), 'the team made in the real page is in the account: ' + (viaFixtureToken.teams || []).map(t => t.name).join(', '));

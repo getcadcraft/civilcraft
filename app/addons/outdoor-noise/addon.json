@@ -1,0 +1,19 @@
+{
+  "id": "outdoor-noise",
+  "name": "Outdoor noise (CNOSSOS-EU)",
+  "version": "0.11.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "problems"
+  ],
+  "description": "Predict road, railway and industrial noise at chosen points of a CivilCraft project by the EU common method CNOSSOS-EU: the ground from the project's terrain, barriers from its feature lines, day, evening and night levels in dB(A), warnings over your own limits. A design aid; results are predictions, not measurements.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

@@ -16,7 +16,7 @@ import * as groundSurface from './ground-surface.js';
 import { placement } from './common.js';
 
 export const ground = true;
-export const accept = '.las,.laz,.e57,.ply,.obj,.usdz,.pcd,.ptx,.xyz,.pts';
+export const accept = '.las,.laz,.e57,.ply,.obj,.usdz,.usdc,.glb,.pcd,.ptx,.xyz,.pts';
 export const engineDeps = () => ({ las, thin, groundClassify, groundSurface });
 export const readers = () => import('../../pointcloud.js');
 export const e57 = () => import('../../e57.js');   // 0.10 PERF.25: its e57Detail reads the XML section for the page-by-page reader

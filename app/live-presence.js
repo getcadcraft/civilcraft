@@ -24,7 +24,7 @@
  *   hidden()              true while the view is covered (a 3D view over a plan) (optional)
  *
  * What goes out is `{ sp, cur, sel, cmd }` (CadCraft's keys), merged into whatever else the window sends (XR's `xr`),
- * at most about 30 a second and only when it changed; the client keeps only the newest, so a slow link sends less, never
+ * at most about 30 a second and only when it changed (asked on pointer / key events and every 250 ms, PERF.75); the client keeps only the newest, so a slow link sends less, never
  * a queue. What comes in is drawn eased toward the newest point, so cursors glide instead of jumping on a slow link.
  * Presence never touches the model: not the file, not the undo history, not storage. Names come from other people and
  * reach the canvas as text only, cut to NAME_MAX.
@@ -180,9 +180,9 @@ export function attachPresence(client, adapter, view, opts = {}) {
     const { r } = size();
     if (!r) return;
     const x = e.clientX - r.left, y = e.clientY - r.top;
-    ptr = x >= 0 && y >= 0 && x <= r.width && y <= r.height ? [x, y] : null; moved = true;
+    ptr = x >= 0 && y >= 0 && x <= r.width && y <= r.height ? [x, y] : null; moved = true; poke();
   };
-  const onLeave = () => { ptr = null; moved = true; };
+  const onLeave = () => { ptr = null; moved = true; poke(); };
   function home() {
     let e = null;
     try { e = view.el || null; } catch { e = null; }
@@ -209,9 +209,9 @@ export function attachPresence(client, adapter, view, opts = {}) {
 
   // ---- what this window sends --------------------------------------------------------------------------------------------
   let sent = '', cur = null, sel = null, slowAt = 0;
-  function tick() {
+  function tick(force = false) {
     home();
-    const now = Date.now(), slow = now - slowAt >= SLOW_EVERY;
+    const now = Date.now(), slow = force || now - slowAt >= SLOW_EVERY;
     if (moved || slow) {
       moved = false;
       if (!ptr) cur = null;
@@ -224,8 +224,18 @@ export function attachPresence(client, adapter, view, opts = {}) {
     sent = k;
     try { client.setPresence({ ...(client.lastPresence || {}), ...body }); } catch { /* the session ended */ }
   }
-  const timer = setInterval(tick, SEND_EVERY);
-  offs.push(() => clearInterval(timer));
+  // PERF.75 (perf-finish-11 code): ask on events, not every 33 ms for ever. A pointer move over the view, a pointer button, the wheel,
+  // a touch or a key asks within SEND_EVERY (at most one ask per SEND_EVERY, so a drag still goes out about 30 a second); every
+  // SLOW_EVERY ms one ask comes anyway (with the selection, as before), for changes no event announces (a sheet or command set by
+  // code). The pointer point and the selection go out exactly as before; a sheet or command change with no event is up to 250 ms
+  // later (was 33). Idle: 4 asks a second instead of 30.
+  let wait = null, askedAt = -Infinity;
+  function ask(force) { wait = null; askedAt = Date.now(); tick(force); }
+  function poke() { if (wait === null) wait = setTimeout(ask, Math.max(0, SEND_EVERY - (Date.now() - askedAt)), false); }
+  const POKES = ['pointerdown', 'pointerup', 'wheel', 'touchmove', 'keydown', 'keyup'], pokeOpts = { capture: true, passive: true };
+  for (const e of POKES) document.addEventListener(e, poke, pokeOpts);
+  const timer = setInterval(() => { if (wait !== null) clearTimeout(wait); ask(true); }, SLOW_EVERY);
+  offs.push(() => { clearInterval(timer); if (wait !== null) clearTimeout(wait); wait = null; for (const e of POKES) document.removeEventListener(e, poke, pokeOpts); });
 
   const shown = new Map();   // c → eased cursor point
   const onScreen = new Map(), boxesOn = new Map();   // c → where its arrow / selection boxes were drawn last frame (tests)

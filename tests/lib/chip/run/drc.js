@@ -11,18 +11,68 @@
  *       shape: { kind: 'polygon'|'box'|'edge'|'edge-pair'|'text'|'float'|'string', pts: [[x, y]…], text }
  *   drcRows(db, { max = 2000 }) → rows (one per item; severity error; where.at = the middle of the item's shapes; about = the cell)
  *   drcSummary(db) → [{ category, description, count }] most first
+ *   streamSteps({ def, lefs: [..], cells: [gds..], map, out = 'out/final.gds' }) → a KLayout step that turns the placed-and-routed DEF into
+ *       GDSII (the DEF read with the LEFs and the PDK's layer map, every standard cell replaced by its drawn cells from the PDK's GDS);
+ *       the script is ours (cc_def2gds.py, KLayout's Python API). drcSteps({ …, def, lefs, cellGds, map }) puts it first.
  */
 import { row } from './rows.js';
 import { readXml, kids, kid, textOf } from './xml.js';
 
 const RD_KEY = /^[A-Za-z_]\w{0,40}$/;
-export function drcSteps({ gds, deck, top = '', report = 'out/drc.lyrdb', vars = {}, extra = {} } = {}) {
+
+/** KLayout Python (pya), run as `klayout -zz -r cc_def2gds.py -rd def=… -rd lefs=a,b -rd cells=x.gds -rd map=… -rd out=…`.
+ *  Written for this add-on from KLayout's documented API (LoadLayoutOptions.lefdef_config, Layout.read, Cell.copy_tree). */
+export const DEF2GDS_PY = [
+  "# made by CadCraft's Chip design add-on: DEF (+ LEF + layer map) to GDSII with the PDK's drawn cells",
+  "import os",
+  "import pya",
+  "# KLayout reads LEF and map paths relative to the DEF's folder: hand it full paths from the job folder",
+  "opt = pya.LoadLayoutOptions()",
+  "cfg = opt.lefdef_config",
+  "cfg.lef_files = [os.path.abspath(f) for f in lefs.split(',') if f]",
+  "if map: cfg.map_file = os.path.abspath(map)",
+  "cfg.produce_cell_outlines = False",
+  "cfg.read_lef_with_def = False",
+  "layout = pya.Layout()",
+  "layout.read(def_file, opt)",
+  "top = layout.top_cell()",
+  "# the standard cells came in from the LEF as outlines and pins: empty exactly the cells the PDK's GDS draws, then read that GDS, whose",
+  "# cells of the same names fill them. Everything else (the DEF's vias such as L1M1_PR or via_1600x480, made from the LEF) stays as read.",
+  "gds_files = [os.path.abspath(f) for f in cells.split(',') if f]",
+  "drawn = set()",
+  "for g in gds_files:",
+  "    names = pya.Layout()",
+  "    names.read(g)",
+  "    drawn.update(c.name for c in names.each_cell())",
+  "for c in layout.each_cell():",
+  "    if c.cell_index() != top.cell_index() and c.name in drawn:",
+  "        c.clear()",
+  "for g in gds_files:",
+  "    layout.read(g)",
+  "keep = pya.Layout()",
+  "keep.dbu = layout.dbu",
+  "new_top = keep.create_cell(top.name)",
+  "new_top.copy_tree(top)",
+  "keep.write(out)",
+  "print('CCGDS cells=%d top=%s' % (keep.cells(), top.name))",
+].join('\n') + '\n';
+
+export function streamSteps({ def, lefs = [], cells = [], map = '', out = 'out/final.gds' } = {}) {
+  if (!def || !lefs.length) throw new Error('streamSteps: a DEF and its LEFs');
+  const args = ['-zz', '-r', 'cc_def2gds.py', '-rd', 'def_file=' + def, '-rd', 'lefs=' + lefs.join(','), '-rd', 'cells=' + cells.join(','), '-rd', 'map=' + (map || ''), '-rd', 'out=' + out];
+  return { steps: [{ tool: 'klayout', label: 'klayout gds', args }], extra: { 'cc_def2gds.py': DEF2GDS_PY }, out };
+}
+
+export function drcSteps({ gds, deck, top = '', report = 'out/drc.lyrdb', vars = {}, extra = {}, def = '', lefs = [], cellGds = [], map = '' } = {}) {
+  let pre = { steps: [], extra: {} };
+  if (def) { pre = streamSteps({ def, lefs, cells: cellGds, map, out: gds || 'out/final.gds' }); gds = pre.out; }
   if (!gds || !deck) throw new Error('drcSteps: a layout and a deck');
   const v = { input: 'input', report: 'report', topcell: 'topcell', ...vars };
-  const args = ['-b', '-r', deck, '-rd', v.input + '=' + gds, '-rd', v.report + '=' + report];
+  // the report as {job}/…: KLayout reads a relative report name against the layout's folder (out//out/drc.lyrdb, 2026-11-21)
+  const args = ['-b', '-r', deck, '-rd', v.input + '=' + gds, '-rd', v.report + '={job}/' + report];
   if (top) args.push('-rd', v.topcell + '=' + top);
   for (const [k, val] of Object.entries(extra)) if (RD_KEY.test(k)) args.push('-rd', k + '=' + String(val).replace(/[^\w.+/-]/g, ''));
-  return { steps: [{ tool: 'klayout', label: 'klayout drc', args }], extra: {}, collect: ['out/'] };
+  return { steps: [...pre.steps, { tool: 'klayout', label: 'klayout drc', args }], extra: pre.extra, collect: ['out/'] };
 }
 
 const unq = (s) => s.replace(/^'(.*)'$/, '$1').replace(/\\'/g, "'");

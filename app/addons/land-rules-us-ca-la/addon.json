@@ -1,0 +1,26 @@
+{
+  "id": "land-rules-us-ca-la",
+  "name": "Land rules: City of Los Angeles",
+  "version": "0.11.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [],
+  "needs": [
+    {
+      "id": "land-records",
+      "range": "*"
+    },
+    {
+      "id": "land-rules-us-ca",
+      "range": "*"
+    }
+  ],
+  "description": "The City of Los Angeles' lot minimums and filing lists for the Land records add-on, standing on the California rules add-on: lot area and width by zone, hillside figures, the new zoning code's lot sizes, and worksheets for the city's planning forms. Every figure names its document and how it was read. Not legal advice and not the city's form.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

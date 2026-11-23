@@ -1,37 +1,37 @@
 ---
-title: WaterCraft: kysynnät, palovirtaama, katkokset ja veden ikä
-summary: WaterCraft-lisäosalla voit muuttaa asiakkaat kysynnäksi vesijohdoillesi, tarkistaa jokaisen paloposti saatavilla olevan virtaaman, nähdä mikä päävesijohdon katkos haittaa eniten sekä seurata veden ikää ja klooria vuorokauden aikana.
-keywords: watercraft, vedenjakelu, kysynnät, asiakkaat, huippukerroin, kysyntäkuvio, palovirtaama, paloposti, jäännöspaine, kriittisyys, katkos, venttiilillä erotettu osuus, veden ikä, kloori, jäännös, lähteen jäljitys, umpipää, csv, lisäosa
-from: 76809f01
+title: WaterCraft: kysyntä, palovirtaama, katkot ja veden ikä
+summary: WaterCraft-lisäosalla muutat asiakkaat vesijohtojesi kysynnäksi, tarkistat jokaisen palopostin käytettävissä olevan virtaaman, näet mikä vesijohtokatko haittaa eniten sekä seuraat veden ikää ja klooria vuorokauden aikana.
+keywords: watercraft, vesijakelu, kysyntä, asiakkaat, huippukerroin, kysyntäprofiili, palovirtaama, palopostti, jäännöspaine, kriittisyys, katko, venttiilillinen osuus, veden ikä, kloori, jäännös, lähteen jäljitys, umpipää, csv, lisäosa
+from: 066fb17a
 ---
 
-WaterCraft on lisäosa, joka toimii vesiverkon kanssa, jonka olet jo piirtänyt vesijohtotyökaluilla. Se lisää oikeanpuoleiseen paneeliin välilehden, jossa on neljä osiota.
+WaterCraft on lisäosa, joka toimii vesiverkolla, jonka olet jo piirtänyt Vesijohdot-työkaluilla. Se lisää oikeanpuoleiseen paneeliin välilehden, jossa on neljä osiota.
 
 :::warning
-Pelkkä laskenta-apu. Sitä on tarkistettu käsin lasketuilla vastauksilla keksityissä verkoissa, ei todellisessa vesilaitoksen mallissa. Vesihuoltoinsinöörin on tarkistettava jokainen tulos. Paineenkorotusasemia, toisen asteen hajoamista tai skenaarioita ei ole vielä.
+Vain laskentaapu. Sitä on verrattu käsin laskettuihin vastauksiin keksityillä verkoilla, ei todellisella yhdyskuntamallilla. Vesi-insinöörin on tarkistettava jokainen tulos. Skenaariot, säätösäännöt, venttiilit ja kenttälukemat ovat omissa aiheissaan, ”Skenaariot” ja ”Tutkimukset”, WaterCraft-lisäosan ohjeessa.
 :::
 
 ## Mitä teet
 
-- Lisää asiakkaat verkkoon kysyntöinä.
-- Etsi paloposti, joiden virtaama jää tarvitsemastasi.
-- Etsi päävesijohdot, joiden menetys on merkittävin.
-- Etsi vanha vesi ja alhainen kloorimäärä.
+- Lisää asiakkaat verkkoon kysyntänä.
+- Löydä palopostit, joiden virtaama jää tarvittavan alle.
+- Löydä vesijohdot, joiden menetys on eniten haitallinen.
+- Löydä vanha vesi ja matala kloori.
 
 ## Vaiheet
 
-1. Avaa {{ui:Asetukset}} › {{ui:Lisäosat}} ja kytke päälle {{ui:WaterCraft (vedenjakelu)}}. Oikeanpuoleiseen paneeliin ilmestyy {{ui:WaterCraft}}-välilehti.
-2. Piirrä ensin vesijohtotyökaluilla altaat, solmut ja putket (katso [Vesijohdot](topic:water-mains)). Ilman verkkoa välilehti kertoo, että se on tehtävä ensin.
-3. Kohdassa {{ui:Kysynnät}} liitä yksi asiakas riviä kohti: tunnus, x, y, tyyppi, määrä. Valitse {{ui:Huippukerroin}} ja {{ui:Tuntikuvio}} (asuinpäivä, liikepäivä, tasainen tai säilytä kuvio sellaisenaan). Paina {{ui:Tarkista}} nähdäksesi, mihin kukin asiakas osuu (lähin solmu), ja sen jälkeen {{ui:Vie verkkoon}}. {{ui:Kumoa}} palauttaa kysynnät.
-4. Kohdassa {{ui:Palovirtaama}} aseta tarvittava virtaama ja jäännöspaine, valitse, pidetäänkö jäännöspaine {{ui:Vain paloposteissa}} vai {{ui:Kaikkialla järjestelmässä (tiukempi)}}, ja paina {{ui:Vaakamitta}}. Jokainen paloposti on listattu heikoimmasta alkaen, merkittynä joko täyttyy tai jää alle.
-5. Kohdassa {{ui:Mikä päävesijohto on tärkein}} valitse {{ui:yksi putki kerrallaan}} tai {{ui:yksi venttiilillä erotettu osuus kerrallaan}} ja paina {{ui:Vaakamitta}}. Jokaisesta katkoksesta näkyy katkaistu kysyntä, katkaistut solmut, solmut, jotka jäävät uudesti alle vähimmäispaineen, ja jäljelle jäävä alin paine.
-6. Kohdassa {{ui:Veden ikä ja kloori}} valitse, mitä seurataan (veden ikä, kloori tai lähteen jäljitys), aseta ajettavat tunnit ja haluamasi rajat ja paina {{ui:Vaakamitta}}. Rajojesi ulkopuoliset solmut on listattu.
-7. Säilytä mikä tahansa taulukko painamalla sen alla {{ui:Tallenna CSV:nä}}.
+1. Avaa {{ui:Asetukset}} › {{ui:Lisäosat}} ja kytke päälle {{ui:WaterCraft (vesijakelu)}}. Oikeanpuoleiseen paneeliin ilmestyy {{ui:WaterCraft}}-välilehti.
+2. Piirrä ensin altaat, liitoskohdat ja putket Vesijohdot-työkaluilla (katso [Vesijohdot](topic:water-mains)). Ilman verkkoa välilehti kehottaa tekemään sen.
+3. Kohdassa {{ui:Kysyntä}} liitä yksi asiakas riviä kohden: tunnus, x, y, laji, määrä. Valitse {{ui:Huippukerroin}} ja {{ui:Tuntiprofiili}} (asuinpäivä, liikepäivä, tasainen tai säilytä profiili sellaisenaan). Paina {{ui:Tarkista}} nähdäksesi, mihin kukin asiakas osuu (lähin liitoskohta), ja sen jälkeen {{ui:Vie verkkoon}}. Kumoa poistaa kysynnät.
+4. Kohdassa {{ui:Palovirtaama}} aseta tarvittava virtaama ja jäännöspaine, valitse pidetäänkö jäännöspainetta {{ui:Vain palopostissa}} vai {{ui:Koko järjestelmässä (tiukempi)}} ja paina {{ui:Vaakamitta}}. Jokainen palopostti on luettelossa heikoimmasta alkaen, merkittynä joko ”täyttää” tai ”jää alle”.
+5. Kohdassa {{ui:Tärkein päävesijohto}} valitse {{ui:yksi putki kerrallaan}} tai {{ui:yksi venttiilein erotettu osuus kerrallaan}} ja paina {{ui:Vaakamitta}}. Jokainen katko näyttää katkaistun kysynnän, katkaistut liitoskohdat, liitoskohdat, jotka putoavat alle vähimmäispaineen, ja jäljelle jäävän alimman paineen.
+6. Kohdassa {{ui:Veden ikä ja kloori}} valitse, mitä seurataan (veden ikä, kloori tai lähteen jäljitys), aseta ajettavat tunnit ja haluamasi rajat ja paina {{ui:Vaakamitta}}. Rajojesi ulkopuoliset liitoskohdat luetellaan.
+7. Paina {{ui:Tallenna CSV:nä}} minkä tahansa taulukon alla säilyttääksesi sen.
 
 ## Huomautuksia
 
-- Tarvittava palovirtaama sekä kulutus per talo tai per eekkeri ovat lähtöarvoja, eivät standardeja. Käytä oman vesilaitoksesi lukuja.
-- Venttiilin osittain katkaisema putki suljetaan kokonaan, joten näytetty katkos on hieman todellista pahempi.
-- Aja vedenlaatuosio riittävän pitkään, jotta vuorokausikuvio toistuu ennen viimeisen päivän lukemista.
-- {{ui:Pysäytä}} lopettaa pitkän ajon aikaisin; lista näyttää silloin vain sen, mitä ehdittiin tehdä.
+- Tarvittava palovirtaama ja kulutus kotitaloutta tai eekkeriä kohden ovat aloitusarvoja, eivät standardeja. Käytä vesilaitoksesi omia lukuja.
+- Venttiilin osittain katkaisema putki suljetaan kokonaan, joten näytetty katko on hieman todellista huonompi.
+- Aja vesilaatuosio riittävän pitkään, jotta päivittäinen profiili toistuu ennen kuin luet viimeisen päivän.
+- {{ui:Pysäytä}} lopettaa pitkän ajon aikaisin; luettelo näyttää sen jälkeen vain sen, mikä ehdittiin tehdä.
 - Verkkosi pysyy tässä projektissa ja tällä tietokoneella. Mitään ei lähetetä minnekään.

@@ -26,7 +26,7 @@ Only what this app has is offered. Your layout is listed under {{ui:From add-ons
 A work environment is your whole setup for every app in this browser: the layout, the menu style and your keys, the toolbar style, the panels and their sizes, and {{ui:My tools}}. The theme and the language are not part of it.
 
 - **Save:** type a name under {{ui:Work environments}} and choose {{ui:Save my setup}}. Saving under a name that exists replaces that setup.
-- **Switch:** pick a setup in the list and choose {{ui:Switch to it}}. The app reloads in that setup; if you have unsaved work, the app asks first, as it does on any reload.
+- **Switch:** pick a setup in the list and choose {{ui:Switch to it}}. The app reloads in that setup; if you have unsaved work, the app asks first, as it does on any reload. In the lab, a setup that differs from yours only in its layouts switches at once, with no reload, and a setup also keeps the style each app has of its own.
 - **Share:** {{ui:Export}} saves the picked setup as a `.ccenv.json` file; {{ui:Import a setup…}} adds one from a file. A file only ever sets these choices, nothing else.
 - **Remove:** pick a setup and choose {{ui:Remove}}.
 

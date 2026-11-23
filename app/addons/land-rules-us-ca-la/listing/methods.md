@@ -1,0 +1,3 @@
+Each figure is carried in the unit it is printed in (square feet, acres, feet); the Land records engine converts it exactly. Width is measured on the street line named in the lot's zoning: Chapter 1A measures width that way, Chapter 1 measures it mid-lot between the side lines, so for an irregular Chapter 1 lot read the definition.
+
+The RZ zones print several widths for different cases; a lot in such a zone is reported as not compared, with the clause to read. The hillside minimums are ones the city may allow for part of a subdivision; choose a -H zone only where that applies. A zone the pack does not have, or a lot with no street line named, is reported as not compared, never as a pass.

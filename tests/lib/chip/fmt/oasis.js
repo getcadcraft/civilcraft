@@ -39,6 +39,7 @@ class Src {
       default: throw new Error('real of unknown kind ' + t);
     }
   }
+  byte() { if (this.p >= this.b.length) throw new Error('cut short'); return this.b[this.p++]; }   // an info-byte is ONE byte (SEMI P39), not an unsigned integer
   str() { const n = this.u(); if (this.p + n > this.b.length) throw new Error('cut short'); let s = ''; for (let i = 0; i < n; i++) s += String.fromCharCode(this.b[this.p + i]); this.p += n; return s; }
   bytes(n) { const v = this.b.subarray(this.p, this.p + n); this.p += n; return v; }
   g() { // g-delta → [dx, dy]
@@ -134,7 +135,7 @@ export function readOasis(bytes) {
         case 15: M.rel = false; break;
         case 16: M.rel = true; break;
         case 17: case 18: {
-          const info = S.u(); let ref = M.pcell;
+          const info = S.byte(); let ref = M.pcell;
           if (info & 0x80) ref = info & 0x40 ? { ref: S.u() } : S.str(); M.pcell = need(ref, 'placement cell');
           let mag = 1, angle = 0;
           if (id === 18) { if (info & 0x04) mag = S.real(); if (info & 0x02) angle = S.real(); } else angle = ((info >> 1) & 3) * 90;
@@ -144,7 +145,7 @@ export function readOasis(bytes) {
           if (!cell) throw new Error('a placement outside a cell'); cell.refs.push(r); target = { kind: 'obj', o: r }; break;
         }
         case 19: {
-          const info = S.u(); let txt = M.text;
+          const info = S.byte(); let txt = M.text;
           if (info & 0x40) txt = info & 0x20 ? { ref: S.u() } : S.str(); M.text = need(txt, 'text string');
           if (info & 0x01) M.tl = S.u(); if (info & 0x02) M.tt = S.u();
           const x = X('t', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('t', info & 0x08, info & 0x08 ? S.s() : 0);
@@ -153,19 +154,19 @@ export function readOasis(bytes) {
           if (!cell) throw new Error('a text outside a cell'); cell.texts.push(t); target = { kind: 'obj', o: t }; break;
         }
         case 20: {
-          const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u();
+          const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u();
           if (info & 0x40) M.gw = S.u(); if (info & 0x80) M.gh = M.gw; else if (info & 0x20) M.gh = S.u();
           const x = X('g', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('g', info & 0x08, info & 0x08 ? S.s() : 0), rep = info & 0x04 ? (M.rep = repetition(S, M)) : undefined;
           const w = need(M.gw, 'rectangle width'), h = need(M.gh, 'rectangle height');
           addShape(POLY, need(M.layer, 'layer'), need(M.dt, 'datatype'), x, y, [0, 0, w, 0, w, h, 0, h], rep); break;
         }
         case 21: {
-          const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x20) M.ppl = pointList(S, true);
+          const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x20) M.ppl = pointList(S, true);
           const x = X('g', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('g', info & 0x08, info & 0x08 ? S.s() : 0), rep = info & 0x04 ? (M.rep = repetition(S, M)) : undefined;
           addShape(POLY, need(M.layer, 'layer'), need(M.dt, 'datatype'), x, y, need(M.ppl, 'polygon point list'), rep); break;
         }
         case 22: {
-          const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x40) M.hw = S.u();
+          const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x40) M.hw = S.u();
           if (info & 0x80) { const e = S.u(), ss = (e >> 2) & 3, ee = e & 3; const ext = (k, cur) => (k === 0 ? cur : k === 1 ? 0 : k === 2 ? 'hw' : S.s()); M.se = ext(ss, M.se); M.ee = ext(ee, M.ee); }
           if (info & 0x20) M.pathpl = pointList(S, false);
           const x = X('g', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('g', info & 0x08, info & 0x08 ? S.s() : 0), rep = info & 0x04 ? (M.rep = repetition(S, M)) : undefined;
@@ -174,7 +175,7 @@ export function readOasis(bytes) {
           addShape(PATH, need(M.layer, 'layer'), need(M.dt, 'datatype'), x, y, need(M.pathpl, 'path point list'), rep, 2 * hw, ext); break;
         }
         case 23: case 24: case 25: {
-          const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x40) M.gw = S.u(); if (info & 0x20) M.gh = S.u();
+          const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x40) M.gw = S.u(); if (info & 0x20) M.gh = S.u();
           const da = id !== 25 ? S.s() : 0, db = id !== 24 ? S.s() : 0;
           const x = X('g', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('g', info & 0x08, info & 0x08 ? S.s() : 0), rep = info & 0x04 ? (M.rep = repetition(S, M)) : undefined;
           const w = need(M.gw, 'width'), h = need(M.gh, 'height');
@@ -182,19 +183,19 @@ export function readOasis(bytes) {
           skipped.trap++; addShape(POLY, M.layer, M.dt, x, y, pts, rep); break;
         }
         case 26: {
-          const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x80) M.ct = S.u(); if (info & 0x40) M.gw = S.u(); if (info & 0x20) M.gh = S.u();
+          const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x80) M.ct = S.u(); if (info & 0x40) M.gw = S.u(); if (info & 0x20) M.gh = S.u();
           const x = X('g', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('g', info & 0x08, info & 0x08 ? S.s() : 0), rep = info & 0x04 ? (M.rep = repetition(S, M)) : undefined;
           const f = CTRAP[need(M.ct, 'ctrapezoid type')]; if (!f) throw new Error('ctrapezoid type ' + M.ct);
           skipped.trap++; addShape(POLY, M.layer, M.dt, x, y, f(M.gw ?? 0, M.gh ?? M.gw ?? 0), rep); break;
         }
         case 27: {
-          const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x20) M.r = S.u();
+          const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); if (info & 0x20) M.r = S.u();
           const x = X('g', info & 0x10, info & 0x10 ? S.s() : 0), y = Y('g', info & 0x08, info & 0x08 ? S.s() : 0), rep = info & 0x04 ? (M.rep = repetition(S, M)) : undefined;
           const r = need(M.r, 'circle radius'), pts = []; for (let k = 0; k < 64; k++) pts.push(Math.round(r * Math.cos(k * Math.PI / 32)), Math.round(r * Math.sin(k * Math.PI / 32)));
           skipped.circle++; addShape(POLY, M.layer, M.dt, x, y, pts, rep); break;
         }
         case 28: {
-          const info = S.u(); let name = lastProp?.name, values;
+          const info = S.byte(); let name = lastProp?.name, values;
           if (info & 0x04) name = info & 0x02 ? { ref: S.u() } : S.str();
           if (info & 0x08) values = need(lastProp?.values, 'property values');
           else { let n = info >> 4; if (n === 15) n = S.u(); values = []; for (let k = 0; k < n; k++) { const t = S.u(); if (t <= 7) { S.p--; values.push(S.real()); } else if (t === 8) values.push(S.u()); else if (t === 9) values.push(S.s()); else if (t <= 12) values.push(S.str()); else values.push({ ref: S.u() }); } }
@@ -203,7 +204,7 @@ export function readOasis(bytes) {
         case 29: if (!lastProp) throw new Error('PROPERTY repeated before one was given'); attach(lastProp); break;
         case 30: case 31: S.u(); S.str(); if (id === 31) S.u(); skipped.x++; break;
         case 32: S.u(); S.str(); skipped.x++; break;
-        case 33: { const info = S.u(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); S.u(); S.str(); X('g', info & 0x10, info & 0x10 ? S.s() : 0); Y('g', info & 0x08, info & 0x08 ? S.s() : 0); if (info & 0x04) M.rep = repetition(S, M); skipped.x++; break; }
+        case 33: { const info = S.byte(); if (info & 0x01) M.layer = S.u(); if (info & 0x02) M.dt = S.u(); S.u(); S.str(); X('g', info & 0x10, info & 0x10 ? S.s() : 0); Y('g', info & 0x08, info & 0x08 ? S.s() : 0); if (info & 0x04) M.rep = repetition(S, M); skipped.x++; break; }
         case 34: {
           const kind = S.u(), un = S.u(), cn = S.u(), data = S.bytes(cn);
           if (kind !== 0) { problems.push(prob('oas.cblock', 'A compressed block uses compression kind ' + kind + ', which is not DEFLATE; the rest of the file cannot be read.')); throw new Error('stop'); }
@@ -241,6 +242,7 @@ class Out {
   constructor(n = 1 << 16) { this.b = new Uint8Array(n); this.p = 0; }
   room(k) { if (this.p + k > this.b.length) { const b = new Uint8Array(Math.max(this.b.length * 2, this.p + k)); b.set(this.b.subarray(0, this.p)); this.b = b; } }
   u(v) { this.room(10); if (v < 0 || !Number.isFinite(v)) throw new Error('unsigned value ' + v); while (v >= 128) { this.b[this.p++] = (v % 128) | 128; v = Math.floor(v / 128); } this.b[this.p++] = v; }
+  byte(v) { this.room(1); this.b[this.p++] = v & 255; }   // info-byte: one byte, never an unsigned integer (KLayout's files showed it, 2026-11-21)
   s(v) { this.u(v < 0 ? -v * 2 + 1 : v * 2); }
   str(s) { s = String(s); this.u(s.length); this.room(s.length); for (let i = 0; i < s.length; i++) this.b[this.p++] = s.charCodeAt(i) & 255; }
   real(v) { if (Number.isInteger(v) && Math.abs(v) < 2 ** 53) { this.u(v >= 0 ? 0 : 1); this.u(Math.abs(v)); return; } const r = 1 / v; if (Number.isInteger(r) && Math.abs(r) < 2 ** 53) { this.u(r > 0 ? 2 : 3); this.u(Math.abs(r)); return; } this.u(7); this.room(8); new DataView(this.b.buffer, this.b.byteOffset + this.p, 8).setFloat64(0, v, true); this.p += 8; }
@@ -290,8 +292,8 @@ export function writeOasis(lib, { compress = true, validate = 'crc32', problems 
   for (const L of lib.layerNames || []) { o.u(L.text ? 12 : 11); o.str(L.name); for (const iv of [L.layer, L.datatype]) { if (iv[0] === 0 && iv[1] === Infinity) o.u(0); else if (iv[1] === Infinity) { o.u(2); o.u(iv[0]); } else if (iv[0] === iv[1]) { o.u(3); o.u(iv[0]); } else if (iv[0] === 0) { o.u(1); o.u(iv[1]); } else { o.u(4); o.u(iv[0]); o.u(iv[1]); } } }
   const props = (w, ps) => {
     for (const p of ps || []) {
-      if (Array.isArray(p)) { w.u(28); w.u(0x20 | 0x04 | 0x01); w.str('S_GDS_PROPERTY'); w.u(8); w.u(p[0]); w.u(11); w.str(p[1]); continue; }
-      const vals = p.values || [], cnt = vals.length; w.u(28); w.u(((cnt < 15 ? cnt : 15) << 4) | 0x04); w.str(p.name); if (cnt >= 15) w.u(cnt);
+      if (Array.isArray(p)) { w.u(28); w.byte(0x20 | 0x04 | 0x01); w.str('S_GDS_PROPERTY'); w.u(8); w.u(p[0]); w.u(11); w.str(p[1]); continue; }
+      const vals = p.values || [], cnt = vals.length; w.u(28); w.byte(((cnt < 15 ? cnt : 15) << 4) | 0x04); w.str(p.name); if (cnt >= 15) w.u(cnt);
       for (const v of vals) { if (typeof v === 'string') { w.u(10); w.str(v); } else if (Number.isInteger(v) && v >= 0) { w.u(8); w.u(v); } else if (Number.isInteger(v)) { w.u(9); w.s(v); } else w.real(v); }
     }
   };
@@ -311,18 +313,18 @@ export function writeOasis(lib, { compress = true, validate = 'crc32', problems 
       if (isRect) {
         const W = xy[a + 2] - x, H = xy[a + 5] - y; let info = (dx ? 0x10 : 0) | (dy ? 0x08 : 0) | (hasRep ? 0x04 : 0) | db | lb;
         if (W === H) { info |= 0x80; if (M.gw !== W) info |= 0x40; } else { if (M.gw !== W) info |= 0x40; if (M.gh !== H) info |= 0x20; }
-        w.u(20); w.u(info); if (lb) w.u(S.layer[i]); if (db) w.u(S.dt[i]); if (info & 0x40) w.u(W); if (info & 0x20) w.u(H); M.gw = W; M.gh = H; if (dx) w.s(dx); if (dy) w.s(dy); if (hasRep) writeRep(w, rep);
+        w.u(20); w.byte(info); if (lb) w.u(S.layer[i]); if (db) w.u(S.dt[i]); if (info & 0x40) w.u(W); if (info & 0x20) w.u(H); M.gw = W; M.gh = H; if (dx) w.s(dx); if (dy) w.s(dy); if (hasRep) writeRep(w, rep);
       } else if (k === PATH) {
         const hw = S.width[i] / 2; if (!Number.isInteger(hw) || hw < 0) problems.push(prob('oas.path-width', 'A path in ' + name + ' has width ' + S.width[i] + '; OASIS keeps half-widths in whole units, so it was rounded.', { severity: 'warning' }));
         const e = S.ext.get(i), pt = e?.pathtype || 0; if (pt === 1) problems.push(prob('oas.round-ends', 'A path with round ends in ' + name + ' was written with half-width square ends (OASIS has no round ends).', { severity: 'note' }));
         const hwi = Math.max(0, Math.round(hw)), se = pt === 4 ? e.bgnext | 0 : pt === 2 || pt === 1 ? hwi : 0, ee = pt === 4 ? e.endext | 0 : pt === 2 || pt === 1 ? hwi : 0;
         const extChanged = M.se !== se || M.ee !== ee, info = 0x20 | (extChanged ? 0x80 : 0) | (M.hw !== hwi ? 0x40 : 0) | (dx ? 0x10 : 0) | (dy ? 0x08 : 0) | (hasRep ? 0x04 : 0) | db | lb;
-        w.u(22); w.u(info); if (lb) w.u(S.layer[i]); if (db) w.u(S.dt[i]); if (info & 0x40) w.u(hwi); M.hw = hwi;
+        w.u(22); w.byte(info); if (lb) w.u(S.layer[i]); if (db) w.u(S.dt[i]); if (info & 0x40) w.u(hwi); M.hw = hwi;
         if (extChanged) { const sch = (v) => (v === 0 ? 1 : v === hwi ? 2 : 3); const ss = sch(se), es = sch(ee); w.u((ss << 2) | es); if (ss === 3) w.s(se); if (es === 3) w.s(ee); M.se = se; M.ee = ee; }
         writePointList(w, xy, a, b, x, y, false); if (dx) w.s(dx); if (dy) w.s(dy); if (hasRep) writeRep(w, rep);
       } else {
         if (k === BOX) problems.push(prob('oas.box', 'A GDSII BOX in ' + name + ' was written as a polygon.', { severity: 'note' }));
-        w.u(21); w.u(0x20 | (dx ? 0x10 : 0) | (dy ? 0x08 : 0) | (hasRep ? 0x04 : 0) | db | lb); if (lb) w.u(S.layer[i]); if (db) w.u(S.dt[i]);
+        w.u(21); w.byte(0x20 | (dx ? 0x10 : 0) | (dy ? 0x08 : 0) | (hasRep ? 0x04 : 0) | db | lb); if (lb) w.u(S.layer[i]); if (db) w.u(S.dt[i]);
         writePointList(w, xy, a, b, x, y, true); if (dx) w.s(dx); if (dy) w.s(dy); if (hasRep) writeRep(w, rep);
       }
       props(w, S.props.get(i));
@@ -332,15 +334,15 @@ export function writeOasis(lib, { compress = true, validate = 'crc32', problems 
       const rx = Math.round(r.x), ry = Math.round(r.y), dx = rx - M.px, dy = ry - M.py; M.px = rx; M.py = ry;
       const rep = r.rep && repOk(r.rep) && intRep(r.rep) ? r.rep : null, newCellRef = M.pcell !== num;
       const ang = ((r.angle || 0) % 360 + 360) % 360, simple = (r.mag ?? 1) === 1 && ang % 90 === 0;
-      if (simple) { w.u(17); w.u((newCellRef ? 0xc0 : 0) | (dx ? 0x20 : 0) | (dy ? 0x10 : 0) | (rep ? 0x08 : 0) | ((ang / 90) << 1) | (r.flip ? 1 : 0)); if (newCellRef) w.u(num); }
-      else { w.u(18); w.u((newCellRef ? 0xc0 : 0) | (dx ? 0x20 : 0) | (dy ? 0x10 : 0) | (rep ? 0x08 : 0) | ((r.mag ?? 1) !== 1 ? 0x04 : 0) | (ang ? 0x02 : 0) | (r.flip ? 1 : 0)); if (newCellRef) w.u(num); if ((r.mag ?? 1) !== 1) w.real(r.mag); if (ang) w.real(r.angle); }
+      if (simple) { w.u(17); w.byte((newCellRef ? 0xc0 : 0) | (dx ? 0x20 : 0) | (dy ? 0x10 : 0) | (rep ? 0x08 : 0) | ((ang / 90) << 1) | (r.flip ? 1 : 0)); if (newCellRef) w.u(num); }
+      else { w.u(18); w.byte((newCellRef ? 0xc0 : 0) | (dx ? 0x20 : 0) | (dy ? 0x10 : 0) | (rep ? 0x08 : 0) | ((r.mag ?? 1) !== 1 ? 0x04 : 0) | (ang ? 0x02 : 0) | (r.flip ? 1 : 0)); if (newCellRef) w.u(num); if ((r.mag ?? 1) !== 1) w.real(r.mag); if (ang) w.real(r.angle); }
       M.pcell = num; if (dx) w.s(dx); if (dy) w.s(dy); if (rep) writeRep(w, rep);
       props(w, r.props);
     }
     for (const t of c.texts) {
       const tx = Math.round(t.x), ty = Math.round(t.y), dx = tx - M.tx, dy = ty - M.ty; M.tx = tx; M.ty = ty;
       const rep = t.rep && repOk(t.rep) && intRep(t.rep) ? t.rep : null, nt = M.text !== t.text, nl = M.tl !== t.layer, ntt = M.tt !== (t.texttype || 0);
-      w.u(19); w.u((nt ? 0x40 : 0) | (dx ? 0x10 : 0) | (dy ? 0x08 : 0) | (rep ? 0x04 : 0) | (ntt ? 0x02 : 0) | (nl ? 0x01 : 0)); if (nt) w.str(t.text); if (nl) w.u(t.layer); if (ntt) w.u(t.texttype || 0);
+      w.u(19); w.byte((nt ? 0x40 : 0) | (dx ? 0x10 : 0) | (dy ? 0x08 : 0) | (rep ? 0x04 : 0) | (ntt ? 0x02 : 0) | (nl ? 0x01 : 0)); if (nt) w.str(t.text); if (nl) w.u(t.layer); if (ntt) w.u(t.texttype || 0);
       M.text = t.text; M.tl = t.layer; M.tt = t.texttype || 0; if (dx) w.s(dx); if (dy) w.s(dy); if (rep) writeRep(w, rep);
       props(w, t.props);
     }

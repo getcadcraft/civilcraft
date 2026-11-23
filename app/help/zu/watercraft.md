@@ -1,37 +1,37 @@
 ---
-title: WaterCraft: izidingo, ukugeleza komlilo, ukucima kanye nobudala bamanzi
-summary: Ngesengezo se-WaterCraft, shintsha abakhastamu babe izidingo kumigudu yakho yamanzi, hlola ukugeleza okutholakalayo kuwo wonke ama-hydrant, bona ukucima kwemigudu okulimaza kakhulu, bese ulandelela ubudala bamanzi kanye neklorini phakathi nosuku.
-keywords: watercraft, ukusabalalisa amanzi, izidingo, abakhastamu, ifektha yokuphezulu, iphethini yezidingo, ukugeleza komlilo, hydrant, uxinzelelo oluseleyo, ukubaluleka, ukucima, isigaba esinevalvu, ubudala bamanzi, iklorini, okuseleyo, ukulandelela umthombo, ipayipi elivalekile, csv, okwengeziwe
-from: 76809f01
+title: WaterCraft: izidingo, ukugeleza komlilo, ukuphazamiseka nobudala bamanzi
+summary: Nge-add-on ye-WaterCraft, guqula amakhasimende abe izidingo ezinethiwekhi yakho yamanzi, hlola ukugeleza okutholakalayo kuwo wonke ama-hydrant, bona ukuphazamiseka komugqa okulimaza kakhulu, bese ulandela ubudala bamanzi nekhlorini ngosuku.
+keywords: watercraft, ukusabalalisa amanzi, izidingo, amakhasimende, ifektha yokuphezulu, iphethini yezidingo, ukugeleza komlilo, hydrant, ingcindezi esele, ubucayi, ukuphazamiseka, isigaba se-valve, ubudala bamanzi, ikhlorini, esele, ukulandelela umthombo, dead end, csv, add-on
+from: 066fb17a
 ---
 
-I-WaterCraft iyi-add-on esebenza kunethiwekhi yamanzi osuvele uyidwebile ngamathuluzi {{ui:Imigudu yamanzi}}. Yengeza ithebhu ephaneli yangakwesokudla enezigaba ezine.
+I-WaterCraft yi-add-on esebenza kunethiwekhi yamanzi osuvele uyidwetshe ngamathuluzi e-Water mains. Yengeza ithebhu ephaneli yesokudla enezigaba ezine.
 
 :::warning
-Ithuluzi lokubala kuphela. Lihlolwe ngezibalo ezenziwe ngesandla kumanethiwekhi aqanjiwe, hhayi kumodeli yangempela yomhlinzeki wamanzi. Unjiniyela wamanzi kumele ahlole yonke imiphumela. Azikho iziteshi zokukhulisa, akukho ukubola kwesibili kanye nezimo ezihlukahlukene okwamanje.
+Usizo lokubala kuphela. Lwahlolwa ngezimpendulo ezenziwe ngesandla kwizinethiwekhi ezenziwe ngabantu, hhayi emodelini yangempela yomphakathi wamanzi. Umhlaziyi wamanzi kufanele ahlole wonke imiphumela. Izimo, imithetho yokulawula, ama-valve nokufundwa kwasensimini kunezihloko zazo, "Izimo" no "Izifundo", ku-usizo lwe-add-on ye-WaterCraft.
 :::
 
 ## Okuzokwenza
 
-- Faka abakhastamu kunethiwekhi njengezidingo.
-- Thola ama-hydrant angafinyeleli ukugeleza okudingekayo.
-- Thola imigudu lapho ukulahleka kubaluleke khona kakhulu.
-- Thola amanzi amadala kanye neklorini ephansi.
+- Faka amakhasimende kwinethiwekhi njengezidingo.
+- Thola ama-hydrant angaphansi kwesidingo sokugeleza osidingayo.
+- Thola imigodi okulahleka kwayo kubaluleke kakhulu.
+- Thola amanzi amadala nekhlorini ephansi.
 
 ## Izinyathelo
 
-1. Vula {{ui:Izilungiselelo}} › {{ui:Okwengeziwe}} bese uvula {{ui:WaterCraft (ukusabalalisa amanzi)}}. Ithebhu ye-WaterCraft iyavela ephaneli yangakwesokudla.
-2. Qala ngokudweba ukhamanzi, izinqumo kanye namapayipi ngamathuluzi Emigudu yamanzi (bona [Imigudu yamanzi](topic:water-mains)). Ngaphandle kwenethiwekhi, ithebhu iyakutshela ukuthi wenze lokho kuqala.
-3. Ngaphansi kwe-{{ui:Izidingo}}, namathisela umkhastamu oyedwa ngomugqa ngamunye: id, x, y, uhlobo, inani. Khetha {{ui:Ifektha yokuphezulu}} kanye ne-{{ui:Iphethini yehora}} (usuku lwasekhaya, usuku lwezentengiselwano, olulinganayo, noma gcina iphethini njengoba ikunjalo). Cindezela {{ui:Hlola}} ukubona ukuthi umkhastamu ngamunye ufika kuphi (inqumo eseduze kakhulu), bese {{ui:Faka kunethiwekhi}}. {{ui:Hlehlisa}} ibuyisela izidingo.
-4. Ngaphansi kwe-{{ui:Ukugeleza komlilo}}, setha ukugeleza okudingekayo kanye noxinzelelo oluseleyo, khetha ukuthi okuseleyo kubanjwe {{ui:Ku-hydrant kuphela}} noma {{ui:Kuwo wonke uhlelo (okuqinile kakhulu)}}, bese ucindezela {{ui:Ukuhamba}}. Ihydrant ngayinye ibhalwa okubi kakhulu kuqala, njengeyanele noma eyasweleka.
-5. Ngaphansi kwe-{{ui:Ukuthi yiluphi ugobhe obubaluleke kakhulu}}, khetha {{ui:ipayipi elilodwa ngesikhathi}} noma {{ui:isigaba esinevalvu esisodwa ngesikhathi}} bese ucindezela {{ui:Ukuhamba}}. Ukucima ngakunye kubonisa izidingo ezicutshiwe, izinqumo ezicutshiwe, izinqumo ezisanda kuwela ngaphansi koxinzelelo oluncane kanye noxinzelelo oluphansi oluseleyo.
-6. Ngaphansi kwe-{{ui:Ubudala bamanzi neklorini}}, khetha okuzolandelelwa (ubudala bamanzi, iklorini noma ukulandelela umthombo), setha amahora okuzosebenza kanye nemikhawulo oyifunayo, bese ucindezela {{ui:Ukuhamba}}. Izinqumo ezingaphandle kwemikhawulo yakho ziyabhalwa.
+1. Vula {{ui:Izilungiselelo}} › {{ui:Okwengeziwe}} bese uvula {{ui:WaterCraft (ukusabalalisa amanzi)}}. Ithebhu ye-{{ui:WaterCraft}} iyavela ephaneli yesokudla.
+2. Dweba ithangi, ama-junction namapayipi ngamathuluzi e-Water mains kuqala (bheka [Imigodi yamanzi](topic:water-mains)). Ngaphandle kwenethiwekhi ithebhu iyakutshela ukuthi wenze lokho.
+3. Ngaphansi kwe-{{ui:Izidingo}}, namathisela ikhasimende ngalinye ngomugqa: i-id, x, y, uhlobo, inani. Khetha i-{{ui:Ifektha yokuphezulu}} ne-{{ui:Iphethini yehora}} (usuku lokuhlala, usuku lwezohwebo, okulingene, noma gcina iphethini njengoba kunjalo). Cindezela {{ui:Hlola}} ukuze ubone ikhasimende ngalinye liphi (i-junction eseduze kakhulu), bese {{ui:Faka kwinethiwekhi}}. Ukuhlehlisa kuyabuyisa izidingo.
+4. Ngaphansi kwe-{{ui:Ukugeleza komlilo}}, setha ukugeleza okudingekayo nengcindezi esele, khetha ukuthi insalela ibanjwe {{ui:Kuhydrant kuphela}} noma {{ui:Kuyo yonke inethiwekhi (kuqinile)}}, bese ucindezela {{ui:Ukuhamba}}. Ngalinye i-hydrant ihlelwa kuqala okubi kakhulu, njengokuhlangabezana noma ukuncipha.
+5. Ngaphansi kwe-{{ui:Yimuphi umugqa obaluleke kakhulu}}, khetha {{ui:ipayipi elilodwa ngesikhathi}} noma {{ui:isigaba se-valve esisodwa ngesikhathi}} bese ucindezela {{ui:Ukuhamba}}. Ngalinye ukuphazamiseka kukhombisa isidingo esivalwe, ama-junction avalwe, ama-junction asanda kuba ngaphansi kwengcindezi encane kakhulu kanye nengcindezi encane kakhulu esele.
+6. Ngaphansi kwe-{{ui:Ubudala bamanzi nekhlorini}}, khetha okuzolandelwa (ubudala bamanzi, ikhlorini noma ukulandelela umthombo), setha amahora okusebenza namakhawulo ofuna, bese ucindezela {{ui:Ukuhamba}}. Ama-junction angaphandle kwamakhawulo akho ayadwetshwa.
 7. Cindezela {{ui:Londoloza njenge-CSV}} ngaphansi kwanoma yiliphi ithebula ukuze uligcine.
 
 ## Amanothi
 
-- Ukugeleza komlilo okudingekayo kanye nokusetshenziswa ngakunye ekhaya noma ngakunye ngeyadi kuyizinombolo zokuqala, hhayi izinga elisemthethweni. Sebenzisa izinombolo zomhlinzeki wakho wamanzi.
-- Ipayipi elinqunywe ngokwengxenye yivalvu livalwa lonke, ngakho ukucima okubonakalayo kubi kancane kunokwangempela.
-- Gijimisa isigaba sekhwalithi yamanzi isikhathi esanele ukuze iphethini yansuku zonke iphinde, ngaphambi kokufunda usuku lokugcina.
-- {{ui:Yima}} iphelisa ukuhamba isikhathi eside ngaphambi kwesikhathi; uhlu bese lubonisa kuphela okwenziwe.
-- Inethiwekhi yakho ihlala kule projekthi nakulesi sikhompyutha. Akukho lutho oluthunyelwa noma kuphi.
+- Ukugeleza komlilo okudingekayo nokusetshenziswa kwamanzi ngalowo mkhaya noma ngalowo ingxenye yomhlaba ngamanani okuqala, hhayi izinga. Sebenzisa izibalo zomphakathi wakho wamanzi.
+- Ipayipi eliqunywe ngokuphelele ngu-valve livalwa lonke, ngakho ukuphazamiseka okubonakalayo kumbi kancane kunokwangempela.
+- Sebenza ingxenye yekhwalithi yamanzi isikhathi esanele ukuze iphethini yansuku zonke iphinde bese ufunda usuku lokugcina.
+- {{ui:Yima}} iyaphelisa ukusebenza isikhathi eside ngaphambi kwesikhathi; uhlu lubonisa kuphela lokho okwenziwe.
+- Inethiwekhi yakho ihlala kule phrojekthi nakulo khompyutha. Akukho lutho olusatshalaliswa noma yikuphi.

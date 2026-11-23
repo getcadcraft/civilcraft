@@ -50,6 +50,11 @@
         }
     },
     "known": {
+        "coolprop": {
+            "name": "CoolProp (fluid properties in WebAssembly)",
+            "spdx": "MIT",
+            "url": "https://github.com/CoolProp/CoolProp"
+        },
         "delaunator": {
             "name": "Delaunator",
             "spdx": "ISC",
@@ -89,6 +94,11 @@
             "name": "Proj4js",
             "spdx": "MIT",
             "url": "https://github.com/proj4js/proj4js"
+        },
+        "rdkit": {
+            "name": "RDKit (RDKit_minimal, cheminformatics in WebAssembly)",
+            "spdx": "BSD-3-Clause",
+            "url": "https://github.com/rdkit/rdkit"
         },
         "robust-predicates": {
             "name": "robust-predicates",

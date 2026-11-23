@@ -1,51 +1,53 @@
 ---
 title: Dlažba, zdi a schody
-summary: Dlažba se spády k vpusti nebo s příčným spádem, vzor a její skladba; cesty, které sledují terén; opěrné a volně stojící zdi se schodovitými základy; obrubníky; rampy a schody kontrolované vůči jejich limitům; export do IFC.
-keywords: zpevněné plochy, dlažba, dlaždice, terasa, spády, odvodnění, příčný spád, rybí kost, běžná vazba, cesta, chodník, opěrná zeď, zahradní zeď, základ, římsa, obrubník, lemování, rampa, přístupnost, schody, podstupnice, stupnice, podesta
-from: 51475877
+summary: Dlažba se spádem k odvodnění nebo příčným sklonem, vzorem a skladbou; stezky, které kopírují terén; opěrné a volně stojící zdi s odstupňovanými základy; obrubníky; rampy a schody kontrolované vůči jejich limitům; export IFC.
+keywords: zpevněné plochy, dlažba, dlaždice, patio, terasa, spády, odvodnění, příčný sklon, rybí kost, běhounová vazba, stezka, chodník, opěrná zeď, zahradní zeď, základ, římsa, obrubník, lemování, rampa, bezbariérovost, schody, stupně, výšky stupňů, šlapky, podesta
+from: d34b4466
 ---
 
-Zpevněné plochy se pokaždé znovu počítají z terénu, takže sledují terén a přegenerují se, když se terén nebo jeho čára posune. Přetáhněte jejich rohy v půdorysu jako jakoukoli čáru. Otevřete je z {{ui:Zpevněné plochy}} ve skupině Krajina.
+Zpevněné plochy se znovu počítají z terénu pokaždé, takže sledují terén a přepočítají se, když se pohne terén nebo jeho čára. Táhněte jejich rohy v půdorysu jako libovolnou čáru. Otevřete je z {{ui:Zpevněné plochy}} ve skupině Krajina.
 
 ## Dlažba
 
-Klikněte na rohy a stiskněte {{key:Enter}}. Ve Vlastnostech:
+Klikněte na rohy a stiskněte {{key:Enter}}. V Vlastnostech:
 
-- **Úroveň**: prázdné = střední terén pod ní.
-- **Spády**: úroveň, **příčný spád** (% ve směru) nebo **ke vpusti**: CivilCraft vás vyzve, abyste klikli, kam vpusť patří, a pak každý roh stoupá od vpusti podle spádu. Šipky v půdorysu ukazují spády.
-- **Vzor** (mřížka, běžná vazba, rybí kost) s velikostí jednotky, spárou a úhlem; **Lemování** šířka. Na listu se spáry užší než jeden milimetr vynechávají.
+- **Úroveň**: prázdné = průměrná výška terénu pod ní.
+- **Spády**: vodorovně, **příčný sklon** (% směrem daným stranou), nebo **k odvodnění**: CivilCraft vás požádá, abyste klikli, kam odvodnění vede, a pak každý roh stoupá od odvodnění se spádem. Šipky v půdorysu ukazují spády.
+- **Vzor** (mřížka, běhounová vazba, rybí kost) s velikostí jednotky, spárou a úhlem; šířka **Lemování**. Na listu se spáry užší než milimetr vynechají.
 - Dlažba je součástí navrhovaného povrchu. Její vrstvy (dlaždice, lože, podklad) jdou do IFC a do množství.
 
-## Cesty
+## Stezky
 
-Klikněte podél cesty a stiskněte {{key:Enter}}. Cesta sleduje terén, s **Příčným spádem** na pravé straně. Cesta strmější než **Nejstrmější povolený** je na půdorysu označena `!` v místě, kde je, a Vlastnosti říkají, jak strmá je.
+Klikněte podél stezky a stiskněte {{key:Enter}}. Stezka kopíruje terén se svým **Příčným sklonem** na pravou stranu. Stezka strmější než **Nejstrmější povolený sklon** je v půdorysu označena `!` v místě, kde je, a Vlastnosti uvádějí, jak strmá je.
+
+Tam, kde se stezka stýká se silnicí postavenou koridorem, končí na vnějším okraji silnice, ve výšce chodníku nebo krajnice v tom místě, v navrhovaném povrchu i ve 3D pohledu. Stezka, která silnici kříží, se upraví a zobrazí jako dva díly; konec nakreslený až do dvojnásobku šířky stezky před silnicí se prodlouží až k jejímu okraji. Půdorys dál ukazuje stezku tak, jak jste ji nakreslili, a její délka a plocha počítají celou čáru. Viz [Protáhnout silniční koridor](topic:corridor).
 
 ## Zdi
 
-Klikněte podél zdi a stiskněte {{key:Enter}}. Zeď je **opěrná**, nebo **volně stojící**. Bez **Horní** výšky stojí do výšky **Výška** nad terénem po celé délce; zadáte-li horní výšku, drží ji vodorovně. Její **základ** sedí v nastavené hloubce pod terénem a klesá po celých krocích, takže mezi nimi zůstává vodorovný. Vlastnosti udávají délku, výšky, plochu líce a kroky základu; půdorys označuje horní a spodní hranu zdi (TW / BW) na každém konci.
+Klikněte podél zdi a stiskněte {{key:Enter}}. Zeď je **opěrná** nebo **volně stojící**. Bez **Horní hrany** se po celé délce postaví do své **Výšky** nad terén; zadáním horní hrany ji udržíte ve vodorovné úrovni. Její **základ** leží v nastavené hloubce pod terénem a schodovitě klesá po celých krocích, takže mezi kroky zůstává vodorovný. Vlastnosti uvádějí její délku, výšky, plochu líce a kroky základu; půdorys označuje na každém konci horní a dolní hranu zdi (TW / BW).
 
 :::warning
-Opěrná zeď vyšší než 1.2 m (4 ft) je označena: navrhuje ji inženýr.
+Opěrná zeď vyšší než 1.2 m (4 ft) je označena: navrhuje ji statik.
 :::
 
 ## Obrubníky
 
-Klikněte podél obrubníku a stiskněte {{key:Enter}}; nastavte jeho šířku a výšku výstupku.
+Klikněte podél obrubníku a stiskněte {{key:Enter}}; nastavte jeho šířku a výšku nad terén.
 
 ## Rampy
 
-Klikněte od spodku k vrcholu a stiskněte {{key:Enter}}. Výšky se vezmou z terénu na každém konci, pokud je nezadáte. Rampa dostane podestu každých 750 mm (2.5 ft) stoupání a je kontrolována vůči **Nejstrmější povolený** (zpočátku 1:12) a minimální šířce; Vlastnosti říkají, jak dlouhá by musela být.
+Klikněte od spodu nahoru a stiskněte {{key:Enter}}. Výšky se vezmou z terénu na každém konci, pokud je nezadáte. Rampa dostane podestu každých 750 mm (2.5 ft) převýšení a je kontrolována vůči **Nejstrmějšímu povolenému** (zpočátku 1:12) a minimální šířce; Vlastnosti uvádějí, jak dlouhá by musela být.
 
 ## Schody
 
-Klikněte na přední hranu spodního stupně, pak tam, kde schody dosáhnou vrchu, a stiskněte {{key:Enter}}. Počet podstupnic vyplyne z výšky a **Největší podstupnice**; šířka stupně z pravidla pohodlí 2R + G ≈ 630 mm, nikdy pod **Nejmenší šířka stupně**; podesta po každých **Nejvíce podstupnic na rameno**. Vlastnosti říkají, zda se schody vejdou mezi oba body, nebo o kolik delší by musely být.
+Klikněte na přední hranu spodního stupně, potom tam, kde schody dosáhnou nahoru, a stiskněte {{key:Enter}}. Počet výšek stupňů vyplyne z výšky a **Největší výšky stupně**; šlapka z komfortního pravidla 2R + G ≈ 630 mm, nikdy pod **Nejmenší šlapkou**; podesta každých nejvýše **Nejvíce stupňů v rameni**. Vlastnosti uvádějí, zda se schody vejdou mezi oba body, nebo o kolik delší musí být.
 
 :::note
-Limity pro rampy a schody jsou označeny jako výchozí hodnoty. Nastavte ty, které vyžaduje váš stavební předpis.
+Limity pro rampy a schody jsou označené výchozí hodnoty. Nastavte ty, které vyžaduje váš stavební předpis.
 :::
 
 ## Mimo CivilCraft
 
-- Více › {{ui:Exportovat IFC krajiny}}: dlažba a cesty jako `IfcPavement`, zdi jako `IfcWall` (opěrné zdi jako RETAININGWALL) s jejich vrstvami, obrubníky jako `IfcKerb`, rampy jako `IfcRamp`, schody jako `IfcStair` s podstupnicemi a stupnicemi.
-- **Odeslat do TakeoffCraft** v soupisu rostlin přenese plochy dlažby a objemy vrstev, plochy líců zdí a jejich délky, délky obrubníků a počty schodů.
-- Výkres detailů nakreslí řez každou zdí, skladbu každé dlažby a každé rameno schodů. Viz [Výkresy krajiny](topic:landscape-sheets).
+- Více › {{ui:Exportovat IFC krajiny}}: dlažba a stezky jako `IfcPavement`, zdi jako `IfcWall` (opěrné zdi jako RETAININGWALL) s jejich vrstvami, obrubníky jako `IfcKerb`, rampy jako `IfcRamp`, schody jako `IfcStair` s jejich stupni a šlapkami.
+- **Odeslat do TakeoffCraft** v rozpisu rostlin přenáší plochy dlažby a objemy vrstev, plochy líců a délky zdí, délky obrubníků a počty schodů.
+- List detailů kreslí řez každé zdi, skladbu každé dlažby a každé rameno schodů. Viz [Listy krajiny](topic:landscape-sheets).

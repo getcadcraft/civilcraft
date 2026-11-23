@@ -1,0 +1,5 @@
+- Planners and permit applicants who prepare subdivision, consolidation and rezoning applications.
+- Land office and municipal staff who compare a parcel map with a register.
+- Owners, farmers and community groups who want a first sketch of a plot before paying for a survey.
+- Surveyors' assistants and students who want a quick reconnaissance of a site.
+- Designers who need the parcel schedule and land-use table of a site.

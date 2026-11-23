@@ -834,10 +834,13 @@ export function renderYourAddons(el, acc, { t = defaultT, browseUrl = '/library'
     note = mk('p', msg, 'small');
     note.setAttribute('role', 'status');
     el.appendChild(note);
+    // owner 2026-11-22: small buttons, the three actions on one row (they had stretched across Settings at the site's page-button size)
+    const actions = mk('div', null, 'shell-acc-actions');
+    el.appendChild(actions);
     const a = mk('a', t('addons.account.browse', 'Browse the Library'), 'btn btn-sm btn-primary');
     a.href = browseUrl; a.target = '_blank'; a.rel = 'noopener';
-    el.appendChild(a);
-    el.appendChild(doc.createTextNode(' '));
+    actions.appendChild(a);
+    let fileHint = null;
     if (typeof fromFile === 'function') {   // 0.9 OF.4: a signed package file, with no connection needed
       const input = doc.createElement('input');
       input.type = 'file'; input.accept = '.json,.ccaddon.json,application/json'; input.hidden = true; input.setAttribute('data-addons-file-input', '');
@@ -849,17 +852,16 @@ export function renderYourAddons(el, acc, { t = defaultT, browseUrl = '/library'
         const r = await fromFile(f);
         say(fileResultText(r, t));
       });
-      el.appendChild(doc.createTextNode(' '));
-      el.appendChild(btn(t('addons.file.add', 'Add from a file'), 'btn btn-sm btn-outline-secondary', () => input.click()));
+      actions.appendChild(btn(t('addons.file.add', 'Add from a file'), 'btn btn-sm btn-outline-secondary', () => input.click()));
       el.appendChild(input);
-      el.appendChild(mk('p', t('addons.file.hint', 'Add from a file takes a package you downloaded from a listing (Download as a file). You can also drop it onto this window. Its signature is checked first.'), 'text-muted small mb-0'));
+      fileHint = (mk('p', t('addons.file.hint', 'Add from a file takes a package you downloaded from a listing (Download as a file). You can also drop it onto this window. Its signature is checked first.'), 'text-muted small mb-0'));
     }
-    el.appendChild(doc.createTextNode(' '));
-    el.appendChild(btn(t('addons.account.offline', 'Download everything for offline'), 'btn btn-sm btn-outline-secondary', async () => {
+    actions.appendChild(btn(t('addons.account.offline', 'Download everything for offline'), 'btn btn-sm btn-outline-secondary', async () => {
       say(t('addons.account.downloading', 'Downloading…'));
       const r = await acc.downloadAll();
       say(r.ok ? t('addons.account.ready', 'Ready for offline.') : t('addons.account.notready', 'Not everything could be downloaded: {list}.', { list: r.failed.map((f) => nameOf(f.id) + ' (' + (reasonText[f.reason] || f.reason) + ')').join(', ') }));
     }));
+    if (fileHint) el.appendChild(fileHint);
   };
   draw();
   return acc.on(draw);

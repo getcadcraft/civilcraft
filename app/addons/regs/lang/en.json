@@ -102,6 +102,7 @@
   "regs.auth.professional": "Professional body",
   "regs.auth.community": "Community",
   "regs.where.egress": "Egress door",
+  "regs.where.guard": "Guard",
   "regs.sheet.button": "Code summary sheet",
   "regs.sheet.title": "Code summary",
   "regs.sheet.file": "code summary",

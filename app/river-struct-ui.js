@@ -17,6 +17,7 @@
 
 import { STRUCT_DEFAULTS, networkOf, solveNetwork } from './river-structures.js';
 import { unsteady } from './river-unsteady.js';
+import { escXml as esc } from './util.js';   // shared helpers (0.11 PERF.74)
 
 const fx = (v, d) => (Number.isFinite(v) ? v.toFixed(d) : '');
 const MAX_STRUCTS = 50;
@@ -128,7 +129,6 @@ function flowSvg(res, { t, units }) {
   for (const fr of f) for (const i of ends) qmax = Math.max(qmax, fr.q[i]);
   const X = (s) => L + ((W - L - Rr) * s) / T1, Y = (q) => T + (H - T - B) * (1 - q / qmax);
   const line = (i, cls) => `<polyline class="${cls}" fill="none" stroke-width="2" points="${f.map((fr) => `${X(fr.t).toFixed(1)},${Y(fr.q[i]).toFixed(1)}`).join(' ')}"/>`;
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const qU = units === 'ft' ? 'ft³/s' : 'm³/s';   // i18n-ignore: unit symbols
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('river.un.plot.aria'))}" width="100%">`
     + `<rect x="${L}" y="${T}" width="${W - L - Rr}" height="${H - T - B}" fill="none" stroke="currentColor" stroke-opacity=".4"/>`

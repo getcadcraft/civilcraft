@@ -20,22 +20,11 @@
 
 export const KIND = { pt: 'point', ln: 'line', pg: 'polygon' };
 import { t } from "./i18n.js";
+import { pointInRing, ringArea } from './geom2d.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
+export { pointInRing, ringArea };
 
 export class GeomError extends Error {}
 
-export function ringArea(r) {
-  let a = 0;
-  for (let i = 0, n = r.length; i < n; i++) { const p = r[i], q = r[(i + 1) % n]; a += p[0] * q[1] - q[0] * p[1]; }
-  return a / 2;
-}
-export function pointInRing(x, y, r) {
-  let inside = false;
-  for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
-    const a = r[i], b = r[j];
-    if ((a[1] > y) !== (b[1] > y) && x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) inside = !inside;
-  }
-  return inside;
-}
 export function closeRing(r) {
   if (r.length && (r[0][0] !== r[r.length - 1][0] || r[0][1] !== r[r.length - 1][1])) r.push(r[0].slice());
   return r;

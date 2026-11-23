@@ -11,7 +11,7 @@
  *   new UsdBuilder(…) — write a scene by the conventions (build.js) · sceneOf(stage) — a stage as a plain scene (scene.js)
  */
 import { readUsda, isUsda } from './usda-read.js';
-import { writeUsda, formatValue } from './usda-write.js';
+import { writeUsda, writeUsdaTo, formatValue } from './usda-write.js';
 import { readUsdc, isUsdc } from './usdc-read.js';
 import { writeUsdc } from './usdc-write.js';
 import { readUsdz, writeUsdz, isZip, crc32 } from './usdz.js';
@@ -24,7 +24,7 @@ import { sceneOf } from './scene.js';
 import { msg, MESSAGES } from './messages.js';
 
 export {
-  readUsda, isUsda, writeUsda, formatValue, readUsdc, isUsdc, writeUsdc, readUsdz, writeUsdz, isZip, crc32, openStage, stageFromLayer,
+  readUsda, isUsda, writeUsda, writeUsdaTo, formatValue, readUsdc, isUsdc, writeUsdc, readUsdz, writeUsdz, isZip, crc32, openStage, stageFromLayer,
   parseLayer, resolveName, Layer, V, TYPES, ROLES, typeInfo, path, identifier, isIdentifier, isPropertyName, listOpItems, applyListOp,
   valueAt, localMatrix, worldMatrix, stageFrame, meshOf, shapeMesh, visibleOf, purposeOf, mul, invert, IDENTITY, transformPoint, quatMatrix,
   UsdError, LIMITS, halfToFloat, floatToHalf, msg, MESSAGES, UsdBuilder, OPENPBR_TYPES, OPENPBR_DEFAULTS, hexToLinear, linearToHex, valueOf,

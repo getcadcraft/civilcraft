@@ -15,6 +15,7 @@ import { createEdl } from './edl.js';
 
 const HEIGHT_OPTS = { rgb: 'rgb', height: 'height', class: 'class', intensity: 'intensity', residual: 'residual' };
 
+// i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
 const PHONE = (() => { try { return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 700) || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); } catch { return false; } })();
 
 /** For the browser test: the phone rule evaluated in the page it runs in. */

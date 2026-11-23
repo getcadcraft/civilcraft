@@ -43,7 +43,7 @@ export function cleanAreas(list, units) {
   const out = [];
   if (!Array.isArray(list)) return out;
   for (const a of list.slice(0, MAX_AREAS)) {
-    if (!a || typeof a !== 'object' || !/^l\d{1,9}$/.test(String(a.id))) continue;
+    if (!a || typeof a !== 'object' || !/^l\d{1,16}$/.test(String(a.id))) continue;
     const kind = AREA_KINDS.includes(a.kind) ? a.kind : 'bed';
     const pts = (Array.isArray(a.pts) ? a.pts.slice(0, 5000) : []).map(XY).filter(Boolean);
     if (pts.length < 3) continue;

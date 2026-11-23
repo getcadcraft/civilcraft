@@ -27,6 +27,7 @@ const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbo
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, serviceWorkers: 'block', acceptDownloads: true });
 const SESSION = admin('session'); const [cname, cvalue] = SESSION.cookie.split('=');
 await ctx.addCookies([{ name: cname, value: cvalue, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
+await ctx.addInitScript(() => localStorage.setItem('cc-autofocus', 'off'));   // the shell keeps one Properties section open (memory page-tests-folded-panels)
 const problems = [];
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -102,6 +103,34 @@ try {
   const csvOut = page.waitForEvent('download', { timeout: 5000 }).catch(() => null);
   await page.click(C + ' [data-live-act="live.act.export"]'); const dl2 = await csvOut;
   ok(dl2 ? /^\ufeff?id,device,address/.test(fs.readFileSync(await dl2.path(), 'utf8')) : true, 'Save the map (CSV) writes the table');
+  // ---- 0.11 IND.12: Fill the map from the drawing, one store across reads, the trend
+  const drawTags = await page.evaluate(() => { const out = new Set(); for (const e of window.cadcraft.doc.all()) { const i = window.ccAddons.kinds.info(e); if (i?.kind === 'pidsym' && i.data.tag) out.add(String(i.data.tag)); } return [...out]; });
+  await page.click(C + ' [data-live-act="live.act.fill"]'); await page.waitForTimeout(250);
+  const mapAfter = await page.inputValue(C + ' [data-live-csv]');
+  const rowsAfter = mapAfter.trim().split('\n').slice(1).map((l) => l.split(',')[0]);
+  ok(drawTags.length > 1 && drawTags.every((g) => rowsAfter.includes(g)) && rowsAfter.filter((g) => g === tag).length === 1 && /tags from the drawing added to the map/.test(await page.textContent(C + ' [data-live-out]')), 'Fill the map from the drawing adds every drawing tag once', drawTags.length + ' tags, map ' + rowsAfter.length);
+  const t0 = Date.now() - 4 * 60000, iso = (i) => new Date(t0 + i * 60000).toISOString();
+  await page.fill(C + ' [data-live-readings]', 'tag,time,value,quality\n' + [[2, 1270], [0, 1200], [1, 2900], [3, 1250]].map(([i, v]) => tag + ',' + iso(i) + ',' + v + ',Good').join('\n'));
+  await page.click(C + ' [data-live-act="live.act.read"]'); await page.waitForTimeout(400);
+  ok(/readings placed/.test(await page.textContent(C + ' [data-live-out]')), 'rows still waiting for an address do not stop the reading');
+  const pts1 = await page.$eval(C + ' [data-live-trend] polyline', (n) => n.getAttribute('points').split(' ').length).catch(() => 0);
+  ok(pts1 >= 4, 'the trend draws a line through the readings (several times per tag, out of order)', String(pts1));
+  await page.fill(C + ' [data-live-readings]', 'tag,time,value,quality\n' + tag + ',' + iso(4) + ',1300,Good');
+  await page.click(C + ' [data-live-act="live.act.read"]'); await page.waitForTimeout(400);
+  const pts2 = await page.$eval(C + ' [data-live-trend] polyline', (n) => n.getAttribute('points').split(' ').length).catch(() => 0);
+  ok(pts2 === pts1 + 1, 'a second read adds to the same trend', pts1 + ' -> ' + pts2);
+  ok(await page.$(C + ' [data-live-trend] [data-live-limit="high"]') !== null && /Reading: \d+ values, from 12.3 to 290 C/.test(await page.textContent(C + ' [data-live-trend-caption]')), 'the high limit line and the caption (scaled values)', await page.textContent(C + ' [data-live-trend-caption]'));
+  await page.$eval(C + ' [data-live-trend]', (n) => n.scrollIntoView({ block: 'center' }));
+  await shot('ind12-trend');
+  await page.locator(C + ' [data-live-trend]').screenshot({ path: path.join(SHOTS, 'ind12-trend-chart.png') });
+  const trendDl = page.waitForEvent('download', { timeout: 8000 }).catch(() => null);
+  await page.click(C + ' [data-live-act="live.trend.save"]'); const tdl = await trendDl;
+  const tcsv = tdl ? fs.readFileSync(await tdl.path(), 'utf8') : '';
+  ok(/^\ufeff?tag,time,value\n/.test(tcsv) && tcsv.trim().split('\n').length === pts2 + 1, 'Save the trend (CSV) writes every value', tcsv.slice(0, 80));
+  await page.click(C + ' [data-live-poll]'); await page.waitForTimeout(200);
+  ok(/needs CadCraft Studio/.test(await page.textContent(C + ' [data-live-out]')) && !(await page.isChecked(C + ' [data-live-poll]')), 'Keep reading in a browser tab says it needs Studio and stays off');
+  await page.click(C + ' [data-live-act="live.act.history"]'); await page.waitForTimeout(200);
+  ok(/Loading history needs CadCraft Studio/.test(await page.textContent(C + ' [data-live-out]')), 'Load history in a browser tab says it needs Studio');
 
   // ---- the calculators the remaining mount lines of chem-engines_PART_4 reach (flare header, charges + mesh sum, test the connection)
   const runCalc = async (id, edit) => {

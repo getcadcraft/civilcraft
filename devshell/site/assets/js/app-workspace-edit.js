@@ -11,15 +11,17 @@
  * imports byte for byte like any file) and chooses it; later changes edit that file. Every change is one undoable step while Arrange mode is on.
  * Everything goes through the format (validateLayout, resolveLayout) by importText: this file never writes a layout the format would refuse.
  *
- *   layoutEditor(E) → { contextmenu(e) → bool, arrange(on?), arranging(), undo(), redo(), reset(), derive(), editTools(at, change) }
- * E = { F, T, el, say, current() → { key, layout } | null, builtin(id), importText(text), use(key), reload(), remove(key), caps(), dataFor(kind) → the app's lists (built tools only),
+ *   layoutEditor(E) → { contextmenu(e) → bool, arrange(on?), arranging(), undo(), redo(), reset(), derive(), editTools(at, change), editBlock(kind, fn) }
+ * 0.11 (lab only, E.lab()): "In a window" on the slot map (place window, UI.6); a group's "Show the first … tools" and Large / Small (UI.6); editBlock for the
+ * dock manager's palette moves (UI.5), one undoable step like every other.
+ * E = { F, T, el, say, lab() → bool, current() → { key, layout } | null, builtin(id), importText(text), use(key), reload(), remove(key), caps(), dataFor(kind) → the app's lists (built tools only),
  *       label(id, block), openMenu(e, items), commands() → [{ id, label }], extra(button) → [[text, fn]] (a block's own entries), root }
  */
 import { editTools, specFromData } from './app-workspace-tools.js';
 
 const KINDS = { ribbon: 'ribbon', toolrows: 'toolrows', toolbox: 'toolbox' };
 const PLACE_LABEL = { top: 'Top', bottom: 'Bottom', 'left-panel': 'Left panel', 'right-panel': 'Right panel', 'stage-top': 'Over the drawing, top', 'stage-bottom': 'Over the drawing, bottom',
-  'stage-left': 'Drawing, left column', 'stage-right': 'Drawing, right column', 'view-top': 'View tabs, top', 'view-bottom': 'View bar, bottom', float: 'Floating', none: 'Hidden' };
+  'stage-left': 'Drawing, left column', 'stage-right': 'Drawing, right column', 'view-top': 'View tabs, top', 'view-bottom': 'View bar, bottom', float: 'Floating', window: 'In a window', none: 'Hidden' };
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
 export function layoutEditor(E) {
@@ -72,6 +74,8 @@ export function layoutEditor(E) {
     b.tools = r.spec;
     return commit(L);
   }
+  /** 0.11: change one block of my own layout (fn returns false = nothing to change); one step of Arrange's undo. */
+  function editBlock(kind, fn) { const L = derive(); const b = L && blockOf(L, kind); if (!b || fn(b) === false) return false; return commit(L); }
   function resetBlock(kind) { const L = derive(); const b = L && blockOf(L, kind); if (!b?.tools) return false; delete b.tools; return commit(L); }
 
   /** Pick one tool: the app's own tools first, then every command of its input registry. */
@@ -111,9 +115,25 @@ export function layoutEditor(E) {
       [word('shell.ws.edit.add', 'Add a tool…'), () => pickTool(kind, (tool) => editTool(at, { op: 'add', tool }, kind))],
       [word('shell.ws.edit.group', 'New group…'), () => { const name = E.root.ownerDocument.defaultView.prompt(word('shell.ws.edit.group.name', 'Name of the group'), ''); if (name) editTool(at, { op: 'group', name }, kind); }],
       [word('shell.ws.edit.rename', 'Rename the group…'), () => { const name = E.root.ownerDocument.defaultView.prompt(word('shell.ws.edit.rename.name', 'Name of the group'), gEl.getAttribute('aria-label') || ''); if (name !== null) editTool(at, { op: 'rename', name }, kind); }],
+      ...(E.lab?.() ? groupLook(c.layout, kind, at, gEl) : []),
       ...(blockOf(c.layout, kind)?.tools ? [[word('shell.ws.edit.reset.block', 'Reset this block'), () => resetBlock(kind)]] : []),
     ];
     e.preventDefault(); E.openMenu(e, items); return true;
+  }
+
+  /** 0.11 UI.6 (lab): how many of a group's tools show (the rest under its ▾), and a ribbon group's tools all large or all small. */
+  function groupLook(L, kind, at, gEl) {
+    const g = (specFor(L, kind).tabs ? specFor(L, kind).tabs.flatMap((t) => t.groups) : specFor(L, kind).groups).find((x) => x.id === at.group) || {};
+    const win = E.root.ownerDocument.defaultView;
+    const out = [[word('shell.ws.edit.visible', 'Show the first … tools'), () => { const v = win.prompt(word('shell.ws.edit.visible.ask', 'How many tools of the group show? The rest sit under its ▾.'), String(g.visible || Math.min(6, (g.tools || []).length || 6)));
+      if (v !== null && /^\s*\d+\s*$/.test(v)) editTool(at, { op: 'visible', n: Number(v) }, kind); }]];
+    if (g.visible) out.push([word('shell.ws.edit.visible.all', 'Show all its tools'), () => editTool(at, { op: 'visible', n: null }, kind)]);
+    if (kind === 'ribbon') {
+      if (g.size !== 'large') out.push([word('shell.ws.edit.large', 'Large tools'), () => editTool(at, { op: 'size', size: 'large' }, kind)]);
+      if (g.size !== 'small') out.push([word('shell.ws.edit.small', 'Small tools'), () => editTool(at, { op: 'size', size: 'small' }, kind)]);
+      if (g.size) out.push([word('shell.ws.edit.size.app', 'Sizes as the app draws them'), () => editTool(at, { op: 'size', size: null }, kind)]);
+    }
+    return out;
   }
 
   // ------------------------------------------------------------------ UI.5: arrange by dragging
@@ -122,7 +142,7 @@ export function layoutEditor(E) {
     for (const r of E.root.ownerDocument.querySelectorAll('[data-ws-blk]')) { const kind = r.dataset.wsBlk; if (!out.some((x) => x.kind === kind)) out.push({ kind, el: r }); }
     return out;
   };
-  function allowed(kind) { return F.BLOCKS[kind]?.places || []; }
+  function allowed(kind) { return (F.BLOCKS[kind]?.places || []).filter((p) => p !== 'window' || !!E.lab?.()); }   // 0.11: "In a window" in the lab only
   function moveBlock(kind, place) {
     const L = derive(); if (!L) return false;
     const b = blockOf(L, kind); if (!b || b.place === place) return false;
@@ -137,7 +157,7 @@ export function layoutEditor(E) {
     return el('div', { className: 'ws-arr-map', role: 'presentation', 'aria-hidden': 'true' },
       cell('top', 'ws-ap-top'), el('div', { className: 'ws-ap-mid' }, cell('left-panel', 'ws-ap-lp'),
         el('div', { className: 'ws-ap-stage' }, cell('stage-top'), cell('view-top'), el('div', { className: 'ws-ap-row' }, cell('stage-left'), el('div', { className: 'ws-ap-draw' }, 'Drawing'), cell('stage-right')), cell('view-bottom'), cell('stage-bottom')),
-        cell('right-panel', 'ws-ap-rp')), cell('bottom', 'ws-ap-bottom'), el('div', { className: 'ws-ap-side' }, cell('float'), cell('none')));
+        cell('right-panel', 'ws-ap-rp')), cell('bottom', 'ws-ap-bottom'), el('div', { className: 'ws-ap-side' }, cell('float'), E.lab?.() ? cell('window') : null, cell('none')));
   }
   function placeHandles() {
     if (!arranging || !layer) return;
@@ -185,5 +205,5 @@ export function layoutEditor(E) {
     placeHandles(); syncBar();
     return true;
   }
-  return { contextmenu, arrange, arranging: () => arranging, undo, redo, reset, derive, editTools: editTool, moveBlock, handles: placeHandles, undoDepth: () => undoStack.length };
+  return { contextmenu, arrange, arranging: () => arranging, undo, redo, reset, derive, editTools: editTool, editBlock, moveBlock, handles: placeHandles, undoDepth: () => undoStack.length };
 }

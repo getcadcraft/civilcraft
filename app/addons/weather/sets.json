@@ -1,0 +1,6 @@
+{
+  "format": "cadcraft-weather-sets",
+  "version": 1,
+  "bases": ["https://cdn.getcadcraft.com/assets/data/weather", "/assets/data/weather"],
+  "sets": ["us-ca-tmy3"]
+}

@@ -10,7 +10,7 @@
  *   parking({ boundary, angle, bay: { width, length }, aisle, loaded }) → { bays: [polygon], count, rows, aisles: [polyline] } over a polygon `boundary`
  *   bayPath(bay, aisle line…) is not here: the adapter drives the worst bay with run(); `worstBay(parking)` names which one.
  */
-import { arcPts, chaikin, inPoly, D2R, bbox, polyArea, fin } from './geom.js';
+import { arcPts, chaikin, inPoly, D2R, bbox, polyArea, fin, minRadius } from './geom.js';
 
 const dirOf = (deg) => ({ x: Math.cos(deg * D2R), y: Math.sin(deg * D2R) });
 
@@ -43,7 +43,7 @@ export function roundabout({ centre, radius, width, apron = 0, legs, far = null,
     const pathIn = [{ x: pa.x + A.u.x * D, y: pa.y + A.u.y * D }, { x: pa.x + A.u.x * (R * 1.4), y: pa.y + A.u.y * (R * 1.4) }];
     const pathOut = [{ x: pb.x + B.u.x * (R * 1.4), y: pb.y + B.u.y * (R * 1.4) }, { x: pb.x + B.u.x * D, y: pb.y + B.u.y * D }];
     const raw = [...pathIn, ...ring, ...pathOut];
-    movements.push({ from: A.i, to: B.i, uturn: swing > 1.9 * Math.PI, path: chaikin(raw, 4) });
+    movements.push({ from: A.i, to: B.i, uturn: swing > 1.9 * Math.PI, path: chaikin(raw, 4), minRadius: minRadius(chaikin(raw, 4), 0.5) });
   }
   return { ok: true, outer: arcPts(C.x, C.y, R, 0, 2 * Math.PI, 120), island: arcPts(C.x, C.y, island, 0, 2 * Math.PI, 90),
     apron: apron > 0 ? arcPts(C.x, C.y, island + apron, 0, 2 * Math.PI, 90) : null, legs: legsOut.map((l) => ({ angle: l.angle, index: l.i, edges: l.edges })), movements, lane: { centreRadius: rc } };

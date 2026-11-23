@@ -86,17 +86,20 @@ export function cameraFor(room, { outdoor = false, aspect = 16 / 9, axes = 'z', 
  * Scene data of a room (floor, ceiling, walls with the design's own reflectances) or a site (a ground sheet around the area, the boxes). The surfaces are the tracer's
  * 'matte' look at a grey of the stated reflectance; the tracer's matte has a faint specular lobe a perfectly diffuse calculation does not (see the test's tolerance).
  */
-export function nightScene({ room, luminaires, outdoor = false, obstacles = null, axes = 'z', aspect = 16 / 9, lamps, ies, settings = {} }) {
+export function nightScene({ room, luminaires, outdoor = false, obstacles = null, axes = 'z', aspect = 16 / 9, lamps, ies, settings = {}, modelItems = null, shell = true }) {
   const A = axesOf(axes), P = room.polygon, H = room.height, bb = bboxOf(P), items = [];
   const rf = room.refl || { ceiling: 0.7, walls: 0.5, floor: 0.2 };
   const gRho = Number.isFinite(settings.groundRho) ? settings.groundRho : 0.2;
   const floor = newItem(greyHex(outdoor ? gRho : rf.floor));
-  if (outdoor) {   // the area plus a margin of 30 %, so the pools of light have an edge to fall off
+  // shell: true = floor, walls and ceiling from the outline; false = none (the model brings its own, modelItems); or { floor, walls, ceiling } each on or off (0.11 SU.1816)
+  const SH = shell === true ? { floor: true, walls: true, ceiling: true } : shell && typeof shell === 'object' ? shell : { floor: false, walls: false, ceiling: false };
+  if (!SH.floor) { /* the model brings its own floor (modelItems) */ }
+  else if (outdoor) {   // the area plus a margin of 30 %, so the pools of light have an edge to fall off
     const mx = (bb.x1 - bb.x0) * 0.3, my = (bb.y1 - bb.y0) * 0.3;
     quad(floor, A, [bb.x0 - mx, bb.y0 - my, 0], [bb.x1 + mx, bb.y0 - my, 0], [bb.x1 + mx, bb.y1 + my, 0], [bb.x0 - mx, bb.y1 + my, 0], [0, 0, 1]);
   } else for (const t of triangulate(P)) tri(floor, A, [t[0][0], t[0][1], 0], [t[1][0], t[1][1], 0], [t[2][0], t[2][1], 0], [0, 0, 1]);
-  items.push(floor);
-  if (!outdoor) {
+  if (SH.floor) items.push(floor);
+  if (!outdoor && (SH.walls || SH.ceiling)) {
     const ceil = newItem(greyHex(rf.ceiling)), walls = newItem(greyHex(rf.walls));
     for (const t of triangulate(P)) tri(ceil, A, [t[0][0], t[0][1], H], [t[2][0], t[2][1], H], [t[1][0], t[1][1], H], [0, 0, -1]);
     let s = 0; for (let i = 0; i < P.length; i++) { const u = P[i], v = P[(i + 1) % P.length]; s += u[0] * v[1] - v[0] * u[1]; }
@@ -104,8 +107,10 @@ export function nightScene({ room, luminaires, outdoor = false, obstacles = null
       const u = P[i], v = P[(i + 1) % P.length], len = Math.hypot(v[0] - u[0], v[1] - u[1]) || 1, tx = (v[0] - u[0]) / len, ty = (v[1] - u[1]) / len, n = s > 0 ? [-ty, tx, 0] : [ty, -tx, 0];
       quad(walls, A, [u[0], u[1], 0], [v[0], v[1], 0], [v[0], v[1], H], [u[0], u[1], H], n);
     }
-    items.push(ceil, walls);
+    if (SH.ceiling) items.push(ceil);
+    if (SH.walls) items.push(walls);
   }
+  if (modelItems && modelItems.length) for (const m of modelItems) items.push(m);   // the model's own geometry and materials (0.11 SU.1816), see modelItem()
   if (obstacles && obstacles.length) { const b = newItem(greyHex(0.35)); for (const o of obstacles) box(b, A, o); items.push(b); }
   const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
   for (const it of items) for (let i = 0; i < it.pos.length; i += 3) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], it.pos[i + k]); hi[k] = Math.max(hi[k], it.pos[i + k]); }
@@ -115,6 +120,20 @@ export function nightScene({ room, luminaires, outdoor = false, obstacles = null
     settings: { sky: 'clear', ground: false, looks: {}, ies: ies || {}, ...settings },
   };
 }
+
+/**
+ * One surface of the model for the night picture: tris = [[[x, y, z] mm, [x, y, z], [x, y, z]], ...] in design space (the host's own triangles), look = the renderer's look name
+ * or a '#rrggbb' colour (what the host's material gives; a reflectance rho gives a grey with greyOf(rho)). Normals come from the winding (counter-clockwise = outward).
+ */
+export function modelItem(tris, look = '#808080', axes = 'z') {
+  const A = axesOf(axes), it = newItem(look);
+  for (const t of tris) {
+    const n = unit(cross(sub(t[1], t[0]), sub(t[2], t[0])));
+    for (const p of t) { it.pos.push(...A.pt(p)); it.nor.push(...A.dir(n)); it.uv.push(p[0] / 1000, p[1] / 1000); }
+  }
+  return it;
+}
+export const greyOf = greyHex;
 
 /** Plain scene data → what pt-pack.js packScene takes. */
 export function rendererScene(d) {

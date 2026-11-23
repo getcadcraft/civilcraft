@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* app-tools.css — the shell's calc sheets, design reasons, running totals and lessons (assets/js/app-{calc,reasons,totals,lessons}.js; round 2,
    session shell_PART_2). Loaded by AppBuilds::headTags only for builds whose manifest turns one of them on. Tokens only; rem sizes. */
-.app-bar-calc[aria-expanded="true"], .app-bar-reasons[aria-expanded="true"], .app-bar-lessons[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+.app-bar-calc[aria-expanded="true"], .app-bar-reasons[aria-expanded="true"], .app-bar-lessons[aria-expanded="true"], .app-bar-btn[data-tool-open][aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
 .app-bar-calc[data-has="1"] .bi, .app-bar-reasons[data-has="1"] .bi { color: var(--layer-blue); }
 .app-bar-lessons[data-running="1"] .bi { color: var(--layer-green); }
 
@@ -28,6 +28,12 @@ body.app-shell.shell-zoomed .cct { zoom: var(--shell-panel-zoom, 1); }
 .cct-primary { background: var(--action); color: var(--on-action); border-color: var(--action); }
 .cct-primary:hover:not(:disabled) { background: var(--action); filter: brightness(1.1); }
 .cct-in { font: inherit; width: 100%; min-width: 0; padding: .2rem .35rem; background: var(--sheet-2); color: inherit; border: var(--pen-1) solid var(--line); border-radius: var(--radius); }
+/* A dropdown always shows its caret (owner 2026-11-22, SuperCad Engines panel): .cct-in's `background` shorthand above wiped
+   .select-cc's caret image, so the selects read as plain boxes. Same caret as site.css .select-cc, on the right. */
+select.cct-in { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 1.9rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 1rem) 52%, calc(100% - .7rem) 52%; background-size: .3rem .3rem; background-repeat: no-repeat; }
+select.cct-in[multiple], select.cct-in[size]:not([size="1"]) { background-image: none; padding-right: .35rem; }
 .cct-in:focus-visible, .cct-btn:focus-visible, .cct-ib:focus-visible, .cct-link:focus-visible, .cct-chip:focus-visible, .cct-x:focus-visible { outline: var(--pen-2) solid var(--action); outline-offset: 1px; }
 .cct-ib { background: none; border: 0; color: inherit; padding: .15rem .3rem; border-radius: var(--radius); }
 .cct-ib:hover { background: var(--grid); }

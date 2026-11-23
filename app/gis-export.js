@@ -25,7 +25,7 @@
  */
 
 import { writeShapefile } from './shapefile.js';
-import { writeGeoJSON } from './geojson.js';
+import { writeGeoJSONChunks } from './geojson.js';
 import { writeKml } from './kml.js';   // 0.4 V6
 import { t } from './i18n.js';
 import { zip } from './zipfile.js';
@@ -183,7 +183,8 @@ export async function writeExport(groups, { format, crs = null, prj = null, toLo
   }
   if (format === 'geojson') {
     if (!toLonLat) throw new Error(t('gexp.geojson.crs'));
-    return { name: stem + '.geojson', bytes: new TextEncoder().encode(writeGeoJSON(groups.map((g) => ({ ...g, kind: g.kind })), { toLonLat, zToMetres, name: stem })), type: 'application/geo+json', notes };
+    const o = writeGeoJSONChunks(groups.map((g) => ({ ...g, kind: g.kind })), { toLonLat, zToMetres, name: stem }).output('application/geo+json');   // PERF.26 (perf-finish-11): a Blob past 300 MB of text
+    return { name: stem + '.geojson', bytes: typeof o === 'string' ? new TextEncoder().encode(o) : o, type: 'application/geo+json', notes };
   }
   if (format === 'kml' || format === 'kmz') {   // 0.4 V6: longitude/latitude, like GeoJSON
     if (!toLonLat) throw new Error(t('kml.need.crs'));

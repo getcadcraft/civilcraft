@@ -284,32 +284,32 @@ function sample() {
 
 // ---- OASIS: a file built by hand, byte by byte, from the spec (record kinds our writer does not use) -------------------------
 {
-  const B = []; const u = (v) => { do { let c = v % 128; v = Math.floor(v / 128); if (v) c |= 128; B.push(c); } while (v); }, s = (v) => u(v < 0 ? -2 * v + 1 : 2 * v), str = (x) => { u(x.length); for (const ch of x) B.push(ch.charCodeAt(0)); };
+  const B = []; const bt = (v) => B.push(v & 255); /* an info-byte is one byte (fixed 2026-11-21: KLayout's files showed u() was wrong) */ const u = (v) => { do { let c = v % 128; v = Math.floor(v / 128); if (v) c |= 128; B.push(c); } while (v); }, s = (v) => u(v < 0 ? -2 * v + 1 : 2 * v), str = (x) => { u(x.length); for (const ch of x) B.push(ch.charCodeAt(0)); };
   for (const ch of '%SEMI-OASIS\r\n') B.push(ch.charCodeAt(0));
   u(1); str('1.0'); u(0); u(1000); u(0); for (let k = 0; k < 12; k++) u(0); // START, unit = 1000 per micron, tables in START (all absent)
   // CELL by reference number 1 (its name comes at the end: a forward reference)
   u(13); u(1);
-  u(20); u(0x7b); u(1); u(0); u(10); u(20); s(5); s(7);                     // RECTANGLE L D W H X Y: layer 1, dt 0, 10 × 20 at (5, 7)
-  u(20); u(0x14); s(100); u(2); u(1); u(50);                               // RECTANGLE X R: modal size and y; repetition type 2: 3 in a row, 50 apart
-  u(20); u(0xd8); u(4); s(0); s(0);                                        // RECTANGLE S W X Y: square 4 at (0, 0)
-  u(21); u(0x3b); u(2); u(0); u(0); u(2); s(10); s(5); s(0); s(100);       // POLYGON L D P X Y; point list type 0 (1-deltas, x first): 10, 5 + the implied corner
-  u(21); u(0x38); u(3); u(2); u(5 * 8 + 4); u(5 * 8 + 0); s(200); s(0);    // POLYGON P X Y; type 3 (3-deltas): NE 5, E 5
-  u(21); u(0x38); u(4); u(2); u(3 * 4 + 1); s(7); u(3 * 4 + 2 + 1); s(1); s(300); s(0); // type 4 g-deltas, form 2: (3, 7), (-3, 1)
-  u(21); u(0x38); u(5); u(3); u((2 * 8 + 0) * 2); u((2 * 8 + 1) * 2); u((4 * 8 + 2) * 2); s(400); s(0); // type 5 double deltas: E2, then +N2, then +W4
-  u(22); u(0xfb); u(3); u(1); u(2); u((2 << 2) | 3); s(5); u(2); u(1); u(20 * 4); s(0); s(200); // PATH: half-width 2, start = half-width, end = 5; type 2: E 20
-  u(19); u(0x5b); str('A1'); u(9); u(2); s(1); s(2);                       // TEXT C X Y T L: "A1" on 9/2 at (1, 2)
-  u(28); u(0x14); str('note'); u(10); str('hi');                           // PROPERTY: name "note", one a-string value → on the text
+  u(20); bt(0x7b); u(1); u(0); u(10); u(20); s(5); s(7);                     // RECTANGLE L D W H X Y: layer 1, dt 0, 10 × 20 at (5, 7)
+  u(20); bt(0x14); s(100); u(2); u(1); u(50);                               // RECTANGLE X R: modal size and y; repetition type 2: 3 in a row, 50 apart
+  u(20); bt(0xd8); u(4); s(0); s(0);                                        // RECTANGLE S W X Y: square 4 at (0, 0)
+  u(21); bt(0x3b); u(2); u(0); u(0); u(2); s(10); s(5); s(0); s(100);       // POLYGON L D P X Y; point list type 0 (1-deltas, x first): 10, 5 + the implied corner
+  u(21); bt(0x38); u(3); u(2); u(5 * 8 + 4); u(5 * 8 + 0); s(200); s(0);    // POLYGON P X Y; type 3 (3-deltas): NE 5, E 5
+  u(21); bt(0x38); u(4); u(2); u(3 * 4 + 1); s(7); u(3 * 4 + 2 + 1); s(1); s(300); s(0); // type 4 g-deltas, form 2: (3, 7), (-3, 1)
+  u(21); bt(0x38); u(5); u(3); u((2 * 8 + 0) * 2); u((2 * 8 + 1) * 2); u((4 * 8 + 2) * 2); s(400); s(0); // type 5 double deltas: E2, then +N2, then +W4
+  u(22); bt(0xfb); u(3); u(1); u(2); u((2 << 2) | 3); s(5); u(2); u(1); u(20 * 4); s(0); s(200); // PATH: half-width 2, start = half-width, end = 5; type 2: E 20
+  u(19); bt(0x5b); str('A1'); u(9); u(2); s(1); s(2);                       // TEXT C X Y T L: "A1" on 9/2 at (1, 2)
+  u(28); bt(0x14); str('note'); u(10); str('hi');                           // PROPERTY: name "note", one a-string value → on the text
   u(29);                                                                   // the same property again
-  u(27); u(0x3b); u(1); u(0); u(10); s(500); s(500);                       // CIRCLE r X Y D L: radius 10 at (500, 500)
+  u(27); bt(0x3b); u(1); u(0); u(10); s(500); s(500);                       // CIRCLE r X Y D L: radius 10 at (500, 500)
   // CELL by name, relative coordinates
   u(14); str('TOP'); u(16);
-  u(17); u(0xf0); u(1); s(1000); s(500);                                   // PLACEMENT C N X Y: cell #1 at (1000, 500)
-  u(17); u(0x23); s(1000);                                                 // X, angle 90 (AA = 1), flip: x = 2000 (relative), y stays 500
-  u(18); u(0x26); u(4); u(3); u(2); u(0); u(45); s(-500);                  // PLACEMENT with M A X: mag 3/2, angle 45, x = 1500
-  u(17); u(0x28); s(100); u(8); u(0); u(0); u((10 * 8 + 0) * 2); u((20 * 8 + 1) * 2); // X R: x = 1600; repetition 8: 2 × 2, (10, 0) and (0, 20)
-  u(17); u(0x08); u(0);                                                    // R only: repetition 0 = the last one again
-  u(17); u(0x08); u(4); u(1); u(5); u(7);                                  // repetition 4: 3 places, 5 then 7 apart in x
-  u(17); u(0x08); u(11); u(0); u(10); u((1 * 8 + 4) * 2);                  // repetition 11: 2 places, grid 10, NE 1 → (10, 10)
+  u(17); bt(0xf0); u(1); s(1000); s(500);                                   // PLACEMENT C N X Y: cell #1 at (1000, 500)
+  u(17); bt(0x23); s(1000);                                                 // X, angle 90 (AA = 1), flip: x = 2000 (relative), y stays 500
+  u(18); bt(0x26); u(4); u(3); u(2); u(0); u(45); s(-500);                  // PLACEMENT with M A X: mag 3/2, angle 45, x = 1500
+  u(17); bt(0x28); s(100); u(8); u(0); u(0); u((10 * 8 + 0) * 2); u((20 * 8 + 1) * 2); // X R: x = 1600; repetition 8: 2 × 2, (10, 0) and (0, 20)
+  u(17); bt(0x08); u(0);                                                    // R only: repetition 0 = the last one again
+  u(17); bt(0x08); u(4); u(1); u(5); u(7);                                  // repetition 4: 3 places, 5 then 7 apart in x
+  u(17); bt(0x08); u(11); u(0); u(10); u((1 * 8 + 4) * 2);                  // repetition 11: 2 places, grid 10, NE 1 → (10, 10)
   u(3); str('TOP'); u(3); str('LEAF');                                     // CELLNAME: TOP = 0, LEAF = 1 (after use)
   u(11); str('M1'); u(3); u(1); u(3); u(0);                                // LAYERNAME M1 = 1/0
   const endAt = B.length; u(2); u(248); for (let k = 0; k < 248; k++) B.push(0); u(1); // END, CRC32

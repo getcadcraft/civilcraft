@@ -65,6 +65,9 @@
   var form = dlg.querySelector('form');
   var KEY = 'cc-app-settings:' + dlg.getAttribute('data-app');
   var DEFAULTS = { zoom: 1, left: null, right: null, tips: true, screen: 'normal', tb: 'both', tbGroups: true, tbTouch: 'row', tbRows: 'wrap', order: null, tab: 'app', secs: null, layoutAt: 0, tbLock: false, ui: 1, density: 'comfortable' };
+  // 0.11 UI.17 (owner 2026-11-21): an app may default to tbRows 'auto' (manifest "toolbarRows": "auto", lab builds; TakeoffCraft)
+  var TB_AUTO = dlg.querySelector('input[name="tbRows"][value="auto"]') !== null;
+  if (TB_AUTO && dlg.getAttribute('data-tb-rows-default') === 'auto') DEFAULTS.tbRows = 'auto';
   var UI = dlg.hasAttribute('data-shell-ui');   // 0.6 layout tools (see the header)
   var DENSITY = dlg.hasAttribute('data-shell-07');   // 0.7 PANEL-COMPACT (dev builds and releases from 0.7 on)
   var RESET_KEY = 'cc-layout-reset';
@@ -85,7 +88,7 @@
       if (['both', 'icons', 'labels'].indexOf(v.tb) !== -1) out.tb = v.tb;
       if (typeof v.tbGroups === 'boolean') out.tbGroups = v.tbGroups;
       if (v.tbTouch === 'row' || v.tbTouch === 'wrap') out.tbTouch = v.tbTouch;
-      if (v.tbRows === 'wrap' || v.tbRows === '2' || v.tbRows === '1') out.tbRows = v.tbRows;
+      if (v.tbRows === 'wrap' || v.tbRows === '2' || v.tbRows === '1' || (v.tbRows === 'auto' && TB_AUTO)) out.tbRows = v.tbRows;
       if (v.order && typeof v.order === 'object') out.order = v.order;
       if (v.tab === 'app' || v.tab === 'general') out.tab = v.tab;
       if (v.secs && typeof v.secs === 'object') ['app', 'general'].forEach(function (k) { var n = v.secs[k]; if (typeof n === 'number' && n >= 0 && n < 200 && n % 1 === 0) { out.secs = out.secs || {}; out.secs[k] = n; } });
@@ -413,7 +416,7 @@
   function applyRows() {
     if (!DENSITY) return;
     var want = s.tbRows;
-    if (want === '2' && tb && shown(tb)) {
+    if ((want === '2' || want === 'auto') && tb && shown(tb)) {
       body.removeAttribute('data-shell-tb-rows');
       var tops = {}, n = 0;
       for (var i = 0; i < tb.children.length; i++) {
@@ -422,12 +425,25 @@
         var t = Math.round(k.getBoundingClientRect().top / 4);
         if (!tops[t]) { tops[t] = 1; n++; }
       }
-      if (n <= 2) want = 'wrap';
-    }
+      // 'auto' (0.11 UI.17): wrapped in one or two lines it stays; three or more fold to one row that scrolls sideways
+      if (want === 'auto') want = n >= 3 ? '1' : 'wrap';
+      else if (n <= 2) want = 'wrap';
+    } else if (want === 'auto') want = 'wrap';
     if (want === 'wrap') body.removeAttribute('data-shell-tb-rows');
     else if (body.getAttribute('data-shell-tb-rows') !== want) body.setAttribute('data-shell-tb-rows', want);
   }
-  window.addEventListener('resize', function () { if (s.tbRows === '2') requestAnimationFrame(applyRows); });
+  window.addEventListener('resize', function () { if (s.tbRows === '2' || s.tbRows === 'auto') requestAnimationFrame(applyRows); });
+  // 'auto': the layout may move the bar into a narrower place after start (Toolbox, Vector), so measure again when its box changes width.
+  // Re-applying ends at the same size, so the observer settles after one round.
+  if (TB_AUTO && tb && window.ResizeObserver) {
+    var tbW = 0, tbPend = false;
+    new ResizeObserver(function (en) {
+      var w = Math.round(en[0].contentRect.width);
+      if (s.tbRows !== 'auto' || w === tbW || tbPend) return;
+      tbW = w; tbPend = true;
+      requestAnimationFrame(function () { tbPend = false; applyRows(); });
+    }).observe(tb);
+  }
   function applyTb() {
     if (!tb) return;
     body.setAttribute('data-shell-tb', s.tb);
@@ -671,7 +687,8 @@
         var b = h.querySelector(':scope > button[data-af-lock]');
         if (!b) { b = document.createElement('button'); b.type = 'button'; b.className = 'af-lock'; b.setAttribute('data-af-lock', ''); b.innerHTML = '<i class="bi" aria-hidden="true"></i>'; h.appendChild(b); }
         b.setAttribute('aria-pressed', String(locked)); b.title = T(locked ? 'shell.af.unlock' : 'shell.af.lock'); b.setAttribute('aria-label', b.title);
-        b.firstChild.className = 'bi ' + (locked ? 'bi-lock' : 'bi-unlock');
+        var ic = locked ? 'bi-lock' : 'bi-unlock';   // the lab icon set may have swapped the <i> for an <svg> (className is read-only there): redraw it only when the state changes
+        if (b.getAttribute('data-af-icon') !== ic) { b.setAttribute('data-af-icon', ic); b.innerHTML = '<i class="bi ' + ic + '" aria-hidden="true"></i>'; }
         u.members.forEach(function (m) { m.classList.toggle('af-collapsed', !open); });
         if (u.box && u.box.open !== open) u.box.open = open;   // <details>: the browser hides and shows
       });
@@ -897,12 +914,39 @@
     var m = wsAppMap(), k = wsAppSlug(); if (!k) return;
     if (v) m[k] = v; else delete m[k];
     try { if (Object.keys(m).length) localStorage.setItem(WSA_KEY, JSON.stringify(m)); else localStorage.removeItem(WSA_KEY); } catch (e) {}
+    if (v) wsEverySave(k, false);
+  }
+  /* 0.11 UI.7 (1), lab (dev) builds only (rule 62: app-settings.inc prints the "This app" / "Every app" radios there, the FX.82 checkbox elsewhere):
+   * the pick is this app's by default. cc-workspace-app {<slug>: layout} first, the global cc-workspace as the fallback; cc-workspace-every = [slugs]
+   * that chose "Every app" (so an app with no layout of its own yet still shows "This app" and keeps the next pick for itself). */
+  var WSE_KEY = 'cc-workspace-every', wsScoped = !!form.querySelector('[data-ws-scope]');
+  function wsEvery() { try { var a = JSON.parse(localStorage.getItem(WSE_KEY) || '[]'); return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string'; }) : []; } catch (e) { return []; } }
+  function wsEverySave(k, on) {
+    if (!wsScoped || !k) return;
+    var a = wsEvery().filter(function (x) { return x !== k; }); if (on) a.push(k);
+    try { if (a.length) localStorage.setItem(WSE_KEY, JSON.stringify(a)); else localStorage.removeItem(WSE_KEY); } catch (e) {}
+  }
+  /** 'app' (this app keeps its own pick: the default) or 'all' (it follows the choice for every app). */
+  function wsScope() { return wsAppOwn() ? 'app' : wsEvery().indexOf(wsAppSlug()) >= 0 ? 'all' : 'app'; }
+  function setWsScope(v) {
+    var k = wsAppSlug(); if (!k) return;
+    if (v === 'all') { wsAppSave(null); wsEverySave(k, true); }
+    else { wsEverySave(k, false); wsAppSave(wsChoice()); }
+    wsMark(); wsTell();
   }
   function wsTell() { window.dispatchEvent(new CustomEvent('cc-workspace', { detail: { layout: wsChoice() } })); }
+  /** 0.11 FX.304 / FX.306 (rule 62: lab only): what the chosen style leaves out in THIS app, said under the picker instead of dropping controls silently. */
+  function wsCannot(v) {
+    var p = form.querySelector('[data-ws-cannot]'); if (!p) return;
+    var st = wsApi && wsApi.styles && wsApi.lab && wsApi.lab() ? wsApi.styles().filter(function (x) { return x.key === v && x.ok; })[0] : null;
+    var parts = st ? st.cannot.map(function (c) { return T(c.key, c.vars); }) : [];
+    p.hidden = !parts.length; p.textContent = parts.length ? T('shell.ws.cannot', { app: dlg.getAttribute('data-app-name') || '', what: parts.join('; ') }) : '';
+  }
   function wsMark() {
     var v = wsChoice(); form.querySelectorAll('input[name="workspace"]').forEach(function (r) { r.checked = r.value === v; });
-    wsCur();
+    wsCur(); wsCannot(v);
     var c = form.querySelector('[data-ws-perapp]'); if (c) c.checked = !!wsAppOwn();
+    if (wsScoped) { var sc = wsScope(); form.querySelectorAll('[data-ws-scope]').forEach(function (r) { r.checked = r.value === sc; }); }
     var n = form.querySelector('[data-ws-perapp-name]'); if (n) n.textContent = wsAppSlug() === dlg.getAttribute('data-app') ? (dlg.getAttribute('data-app-name') || '') : wsAppSlug();
   }
   /* 0.9 FX.83 (owner 2026-11-06): the layout list is a drop-down; the trigger shows the chosen layout (icon, name, hint), the pop-up holds the
@@ -935,28 +979,30 @@
   }
   function setWs(v) {
     if (!v || !WS_RE.test(v)) v = 'standard';
-    if (wsAppOwn()) wsAppSave(v);   // this app has its own: the pick is for it alone
+    if (wsAppOwn() || (wsScoped && wsScope() === 'app')) wsAppSave(v);   // this app has its own (UI.7 lab: or keeps its own by default): the pick is for it alone
     else { try { if (v === 'standard') localStorage.removeItem(WS_KEY); else localStorage.setItem(WS_KEY, v); } catch (e) {} }
     wsMark();
     wsTell();
   }
   function setWsPerApp(on) { wsAppSave(on ? wsChoice() : null); wsMark(); wsTell(); }
-  form.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches('[data-ws-perapp]')) setWsPerApp(e.target.checked); });
+  form.addEventListener('change', function (e) { if (e.target && e.target.matches && e.target.matches('[data-ws-perapp]')) setWsPerApp(e.target.checked); if (e.target && e.target.matches && e.target.matches('[data-ws-scope]') && e.target.checked) setWsScope(e.target.value); });
   window.addEventListener('cc-workspace-app', function () { wsMark(); wsTell(); });   // Studio: the active app changed
-  window.addEventListener('storage', function (e) { if (e.key === WSA_KEY) { wsMark(); wsTell(); } });
+  window.addEventListener('storage', function (e) { if (e.key === WSA_KEY || e.key === WSE_KEY) { wsMark(); wsTell(); } });
   function wsSay(text) { var m = form.querySelector('[data-ws-io-msg]'); if (m) m.textContent = text || ''; }
   /** The layouts from add-ons and imported files, after the three built-ins (radios like theirs; an imported one can be removed). */
   function wsRender() {
     var box = form.querySelector('[data-ws-extra]'), list = form.querySelector('[data-ws-extra-list]');
     if (!box || !list || !wsApi) return;
-    var rows = wsApi.layouts().filter(function (l) { return l.source !== 'builtin' && l.ok; });
+    /* 0.11 FX.309 (rule 62: lab / data-cc-ws-edit only, the engine's lab()): a built-in style the page's list above does not carry (Drafting) is offered here too */
+    var lab = !!(wsApi.lab && wsApi.lab());
+    var rows = wsApi.layouts().filter(function (l) { return l.ok && (l.source !== 'builtin' || (lab && !form.querySelector('input[name="workspace"][value="' + l.key + '"]'))); });
     list.textContent = '';
     rows.forEach(function (l) {
       var lab = document.createElement('label'); lab.className = 'shell-ws-opt';
       var r = document.createElement('input'); r.type = 'radio'; r.name = 'workspace'; r.value = l.key;
-      var ic = document.createElement('i'); ic.className = 'bi ' + (l.source === 'file' ? 'bi-file-earmark-code' : 'bi-puzzle'); ic.setAttribute('aria-hidden', 'true');
+      var ic = document.createElement('i'); ic.className = 'bi ' + (l.source === 'file' ? 'bi-file-earmark-code' : l.source === 'builtin' ? 'bi-layout-text-window' : 'bi-puzzle'); ic.setAttribute('aria-hidden', 'true');
       var txt = document.createElement('span'), nm = document.createElement('span'); nm.className = 'shell-ws-name'; nm.textContent = l.name + ' ';
-      var src = document.createElement('span'); src.className = 'shell-hint-text'; src.textContent = '(' + T(l.source === 'file' ? 'shell.ws.from.file' : 'shell.ws.from.addon') + ')'; nm.appendChild(src);
+      if (l.source !== 'builtin') { var src = document.createElement('span'); src.className = 'shell-hint-text'; src.textContent = '(' + T(l.source === 'file' ? 'shell.ws.from.file' : 'shell.ws.from.addon') + ')'; nm.appendChild(src); }
       txt.appendChild(nm);
       if (l.hint) { var h = document.createElement('span'); h.className = 'shell-hint-text shell-ws-hint'; h.textContent = ' ' + l.hint; txt.appendChild(h); }
       lab.appendChild(r); lab.appendChild(document.createTextNode(' ')); lab.appendChild(ic); lab.appendChild(document.createTextNode(' ')); lab.appendChild(txt);
@@ -978,36 +1024,64 @@
     wsSay(r.message);
     if (r.ok) wsRender();
   }
-  window.ccShellWorkspace = { get: wsChoice, set: setWs, setPerApp: setWsPerApp, hasOwn: function () { return !!wsAppOwn(); },
+  window.ccShellWorkspace = { get: wsChoice, set: setWs, setPerApp: setWsPerApp, hasOwn: function () { return !!wsAppOwn(); }, scope: wsScope, setScope: setWsScope,
     register: function (api) { wsApi = api; wsRender(); },
     importText: function (text) { if (!wsApi) return { ok: false }; var r = wsApi.importText(text); wsSay(r.message); if (r.ok) wsRender(); return r; } };
   if (window.ccWorkspaceEngine) { wsApi = window.ccWorkspaceEngine; }   // the app's layout engine started before this script
   /* Tool icons (0.9 DU.1, owner 2026-11-05): "Full colour" or "Outline" in a colour the person picks (colorized), or each app's own drawings.
    * localStorage cc-icons {style: full|outline|app, color: #rrggbb}; <html data-cc-icons> and --cc-icon-color carry it to the CSS (app-workspace.css),
    * and 'cc-icons' on window tells an engine that is already running. The set itself is assets/js/app-workspace-icons.js. */
-  var IC_KEY = 'cc-icons', IC_STYLES = ['full', 'outline', 'app'], IC_DEFAULT = '#1b7fb5';
+  var IC_KEY = 'cc-icons', IC_STYLES = ['full', 'outline', 'theme', 'app'], IC_DEFAULT = '#1b7fb5', IC_LAYERS = ['red', 'blue', 'orange', 'magenta', 'ochre', 'green', 'violet', 'cyan'];
   function icRead() { try { var o = JSON.parse(localStorage.getItem(IC_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
   function icStyle() { var s = icRead().style; return IC_STYLES.indexOf(s) >= 0 ? s : 'full'; }
   function icColor() { var c = icRead().color; return typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c) ? c : ''; }
+  /** 0.11 UI.15: Theme colour's hue: '' = the app's own colour, a layer name, or #rrggbb (same rule as app-workspace-icons.js iconThemeColor). */
+  function icTheme() { var c = icRead().themeColor; return typeof c === 'string' && (IC_LAYERS.indexOf(c) >= 0 || /^#[0-9a-fA-F]{6}$/.test(c)) ? c : ''; }
+  function icLabels() { return icRead().labels === true; }
+  /** Owner 2026-11-22: with no colour of your own, outline icons take the app's colour (--layer, the colour of the Settings eyebrows),
+   *  not a fixed blue. Read as #rrggbb for the colour picker and the contrast check. */
+  function icAppHex() {
+    try {
+      var v = getComputedStyle(document.body || document.documentElement).getPropertyValue('--layer').trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
+      if (/^#[0-9a-fA-F]{3}$/.test(v)) return ('#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3]).toLowerCase();
+      if (v) { var x = document.createElement('canvas').getContext('2d'); x.fillStyle = '#000'; x.fillStyle = v; var f = String(x.fillStyle); if (/^#[0-9a-fA-F]{6}$/.test(f)) return f.toLowerCase(); }
+    } catch (e) {}
+    return IC_DEFAULT;
+  }
   function icApply() {
     var r = document.documentElement; r.setAttribute('data-cc-icons', icStyle());
     var c = icColor(); if (c) r.style.setProperty('--cc-icon-color', c); else r.style.removeProperty('--cc-icon-color');
+    var t = icTheme(); if (t) r.style.setProperty('--cc-icon-theme', t.charAt(0) === '#' ? t : 'var(--layer-' + t + ')'); else r.style.removeProperty('--cc-icon-theme');
+    if (icLabels()) r.setAttribute('data-cc-icon-labels', '1'); else r.removeAttribute('data-cc-icon-labels');
   }
   function icMark() {
     var s = icStyle(), c = icColor();
     form.querySelectorAll('input[name="icons"]').forEach(function (r) { r.checked = r.value === s; });
-    var pick = form.querySelector('[data-icons-color]'); if (pick) { pick.value = c || IC_DEFAULT; pick.disabled = s !== 'outline'; }
+    var pick = form.querySelector('[data-icons-color]'); if (pick) { pick.value = c || icAppHex(); pick.disabled = s !== 'outline'; }
     var rst = form.querySelector('[data-icons-reset]'); if (rst) rst.disabled = s !== 'outline' || !c;
+    var th = icTheme(), sel = form.querySelector('[data-icons-theme]');
+    if (sel) { sel.value = !th ? '' : th.charAt(0) === '#' ? 'custom' : th; sel.disabled = s !== 'theme'; }
+    var hex = form.querySelector('[data-icons-theme-hex]'); if (hex) { hex.value = th.charAt(0) === '#' ? th : IC_DEFAULT; hex.disabled = s !== 'theme' || th.charAt(0) !== '#'; }
+    var lb = form.querySelector('[data-icons-labels]'); if (lb) { lb.checked = icLabels(); lb.disabled = s === 'app'; }
+    var ck = form.querySelector('[data-icons-check]');   // contrast of the picked colour against both sheets (3:1 is the bar for a graphic)
+    if (ck) {
+      var pick = s === 'outline' ? (c || icAppHex()) : (s === 'theme' && th.charAt(0) === '#' ? th : ''), chk = pick && window.ccIconColorCheck ? window.ccIconColorCheck(pick) : null;
+      ck.textContent = chk ? chk.light + ' : 1 / ' + chk.dark + ' : 1' + (chk.ok ? '' : ' (' + chk.fails.join(', ') + ' below 3 : 1)') : '';
+      ck.hidden = !chk; ck.setAttribute('data-ok', chk && chk.ok ? '1' : '0');
+    }
     icPreview();
   }
   function icSet(patch) {
     var o = icRead(); if (patch.style && IC_STYLES.indexOf(patch.style) >= 0) o.style = patch.style;
+    if ('themeColor' in patch) { if (patch.themeColor && (IC_LAYERS.indexOf(patch.themeColor) >= 0 || /^#[0-9a-fA-F]{6}$/.test(patch.themeColor))) o.themeColor = patch.themeColor; else delete o.themeColor; }
+    if ('labels' in patch) { if (patch.labels) o.labels = true; else delete o.labels; }
     if ('color' in patch) { if (patch.color && /^#[0-9a-fA-F]{6}$/.test(patch.color)) o.color = patch.color; else delete o.color; }
-    /* Outline with no colour chosen yet: take the one the picker shows, so what you see is what you get */
-    if (o.style === 'outline' && !o.color && !('color' in patch)) { var pk = form.querySelector('[data-icons-color]'); o.color = pk && /^#[0-9a-fA-F]{6}$/.test(pk.value) ? pk.value : IC_DEFAULT; }
+    /* Outline with no colour chosen = the app's colour (owner 2026-11-22). Nothing is stored: cc-icons is shared by every app, so
+       each app keeps its own colour until you pick one. */
     try { localStorage.setItem(IC_KEY, JSON.stringify(o)); } catch (e) {}
     icApply(); icMark();
-    window.dispatchEvent(new CustomEvent('cc-icons', { detail: { style: icStyle(), color: icColor() } }));
+    window.dispatchEvent(new CustomEvent('cc-icons', { detail: { style: icStyle(), color: icColor(), themeColor: icTheme(), labels: icLabels() } }));
   }
   /** A few of the set's icons in the chosen style, drawn by the set itself once the layout engine has loaded it (else the row stays empty). */
   function icPreview() {
@@ -1015,14 +1089,18 @@
     box.textContent = '';
     ['line', 'circle', 'move', 'wall', 'door', 'dim', 'section', 'library'].forEach(function (k) { var n = window.ccIconSet.node(k); if (n) box.appendChild(n); });
   }
-  window.ccShellIcons = { style: icStyle, color: icColor, set: icSet };
+  window.ccShellIcons = { style: icStyle, color: icColor, themeColor: icTheme, labels: icLabels, set: icSet };
   icApply();
   form.addEventListener('change', function (e) {
     var t = e.target; if (!t || !t.matches) return;
     if (t.matches('input[name="icons"]')) icSet({ style: t.value });
     else if (t.matches('[data-icons-color]')) icSet({ color: t.value });
+    else if (t.matches('[data-icons-theme]')) icSet({ themeColor: t.value === 'custom' ? ((form.querySelector('[data-icons-theme-hex]') || {}).value || IC_DEFAULT) : t.value });
+    else if (t.matches('[data-icons-theme-hex]')) icSet({ themeColor: t.value });
+    else if (t.matches('[data-icons-labels]')) icSet({ labels: t.checked });
   });
-  form.addEventListener('input', function (e) { if (e.target && e.target.matches && e.target.matches('[data-icons-color]')) icSet({ color: e.target.value }); });
+  form.addEventListener('input', function (e) { if (e.target && e.target.matches && e.target.matches('[data-icons-color]')) icSet({ color: e.target.value });
+    else if (e.target && e.target.matches && e.target.matches('[data-icons-theme-hex]')) icSet({ themeColor: e.target.value }); });
   form.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('[data-icons-reset]')) icSet({ color: '' }); });
   window.addEventListener('cc-icon-set', icPreview);
   (function () {
@@ -1056,6 +1134,10 @@
   var ENV_KEY = 'cc-environments', ENV_NOW = 'cc-environment', ENV_MAX = 12, ENV_FORMAT = 'cadcraft-environment', ENV_BYTES = 1048576;
   var ENV_RE = /^(cc-workspace|cc-workspace-files|cc-icons|cc-input-family|cc-app-settings:[a-z]{2,24}|cc-ws-mytools:[a-z]{2,24}|cc-ws-ribbon:[a-z]{2,24}|[a-z]{2,24}\.input)$/;
   var envForm = form.querySelector('[data-env-set]');
+  /* 0.11 UI.7 (lab, dev builds only): an environment also carries the per-app layout keys, and switching to one that changes only the layout
+   * (the cc-workspace keys) switches in place, no reload: the engine's decide() lays the page out again (every other key still reloads). */
+  var envLab = document.body && document.body.classList.contains('shell-lab');
+  function envKey(k) { return ENV_RE.test(k) || (envLab && (k === WSA_KEY || k === WSE_KEY)); }
   function envAll() { try { var v = JSON.parse(localStorage.getItem(ENV_KEY) || '[]'); return Array.isArray(v) ? v.filter(envOk) : []; } catch (e) { return []; } }
   function envOk(x) { return !!x && typeof x.name === 'string' && x.name.length > 0 && x.keys && typeof x.keys === 'object'; }
   function envSave(list) { try { localStorage.setItem(ENV_KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
@@ -1063,7 +1145,7 @@
   /** The keys of this browser's setup, now. */
   function envCapture() {
     var keys = {};
-    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && ENV_RE.test(k)) keys[k] = localStorage.getItem(k); } } catch (e) {}
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && envKey(k)) keys[k] = localStorage.getItem(k); } } catch (e) {}
     return keys;
   }
   /** A file's or the store's entry, bounded: only the setup's keys, string values, ≤ ENV_BYTES in all. null = not an environment. */
@@ -1073,7 +1155,7 @@
     var keys = {}, bytes = 0;
     Object.keys(obj.keys).forEach(function (k) {
       var v = obj.keys[k];
-      if (!ENV_RE.test(k) || typeof v !== 'string') return;
+      if (!envKey(k) || typeof v !== 'string') return;
       bytes += k.length + v.length; if (bytes <= ENV_BYTES) keys[k] = v;
     });
     return bytes <= ENV_BYTES ? { name: name, saved: typeof obj.saved === 'string' ? obj.saved.slice(0, 40) : '', keys: keys } : null;
@@ -1104,14 +1186,18 @@
   }
   function envUse(name) {
     var x = envAll().filter(function (e) { return e.name === name; })[0]; if (!x) return;
+    var changed = [];
     try {
       var drop = [];
-      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && ENV_RE.test(k) && !(k in x.keys)) drop.push(k); }
-      drop.forEach(function (k) { localStorage.removeItem(k); });
-      Object.keys(x.keys).forEach(function (k) { localStorage.setItem(k, x.keys[k]); });
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && envKey(k) && !(k in x.keys)) drop.push(k); }
+      drop.forEach(function (k) { changed.push(k); localStorage.removeItem(k); });
+      Object.keys(x.keys).forEach(function (k) { if (localStorage.getItem(k) !== x.keys[k]) changed.push(k); localStorage.setItem(k, x.keys[k]); });
       localStorage.setItem(ENV_NOW, x.name);
     } catch (e) { envSay(T('shell.env.nostore')); return; }
     envSay(T('shell.env.using', { name: x.name }));
+    if (envLab && changed.every(function (k) { return /^cc-workspace(-app|-every|-files)?$/.test(k); })) {   // UI.7: only the layout changed: in place
+      wsRender(); wsMark(); wsTell(); envRender(); return;
+    }
     window.ccShellEnvironments._reload();
   }
   if (envForm) {
@@ -1160,6 +1246,15 @@
    * (opt in; window.cadcraftDesktop is the desktop bridge). The apps' compute/report.js asks window.ccShellHardware.allowed(). */
   var HW_KEY = 'cc-hw-share';
   var hwDesktop = function () { return !!window.cadcraftDesktop; };
+  /* The version line says where the app runs (owner 2026-11-22: " – Browser|Desktop|Mobile"). The page prints Browser; Studio's bridge
+     reports the OS (info().platform = std::env::consts::OS): android / ios = Mobile, anything else = Desktop. */
+  (function () {
+    var w = dlg.querySelector('[data-version-where]'), b = window.cadcraftDesktop;
+    if (!w || !b) return;
+    var put = function (mobile) { w.textContent = '– ' + w.getAttribute(mobile ? 'data-where-mobile' : 'data-where-desktop'); };
+    put(false);
+    try { Promise.resolve(b.info && b.info()).then(function (i) { if (i && /^(android|ios)$/i.test(String(i.platform || ''))) put(true); }, function () {}); } catch (e) {}
+  })();
   function hwAllowed() { try { var v = localStorage.getItem(HW_KEY); if (v === 'on') return true; if (v === 'off') return false; } catch (e) {} return !hwDesktop(); }
   function setHw(on) { try { localStorage.setItem(HW_KEY, on ? 'on' : 'off'); } catch (e) {} syncHw(); }
   function syncHw() {
@@ -1383,6 +1478,16 @@
     if (!dlg.open) dlg.showModal();
     if (btn) btn.setAttribute('aria-expanded', 'true');
   }
+  /* Open Settings at one section (Global tab), shown and focused: app-fit.js's "Limited drawing area" buttons (owner 2026-11-21). */
+  window.ccShellSettingsAt = function (sel) {
+    s.tab = 'general'; open();
+    var set = form.querySelector(sel);
+    if (!set) return false;
+    if (dlg.ccShowSetting) dlg.ccShowSetting(set);
+    try { set.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+    var f = set.querySelector('input:checked, input, button, select'); if (f) f.focus();
+    return true;
+  };
 
   form.addEventListener('change', function (e) {
     var t = e.target;

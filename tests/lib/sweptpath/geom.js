@@ -89,3 +89,17 @@ export function arcPts(cx, cy, r, a0, a1, pieces = 0) {
   const out = []; for (let i = 0; i <= k; i++) { const t = a0 + (sweep * i) / k; out.push({ x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) }); }
   return out;
 }
+/** The smallest radius of curvature along a polyline (circle through each three points that are at least `minChord` apart), Infinity for a straight one. */
+export function minRadius(P, minChord = 0) {
+  let best = Infinity, i = 0;
+  while (i < P.length - 2) {
+    let j = i + 1; while (j < P.length - 1 && Math.hypot(P[j].x - P[i].x, P[j].y - P[i].y) < minChord) j++;
+    let k = j + 1; while (k < P.length - 1 && Math.hypot(P[k].x - P[j].x, P[k].y - P[j].y) < minChord) k++;
+    if (k >= P.length) break;
+    const a = P[i], b = P[j], c = P[k], ab = Math.hypot(b.x - a.x, b.y - a.y), bc = Math.hypot(c.x - b.x, c.y - b.y), ca = Math.hypot(a.x - c.x, a.y - c.y);
+    const area2 = Math.abs((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
+    if (area2 > 1e-12) best = Math.min(best, (ab * bc * ca) / (2 * area2));
+    i = j;
+  }
+  return best;
+}

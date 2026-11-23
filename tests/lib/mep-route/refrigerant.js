@@ -16,6 +16,10 @@
  *   → { ok, runs: [{ role: 'trunk'|'branch', line: 'liquid'|'gas', points, size, od, capacity, terminal }], kits: [{ at, branch, capacity }],
  *       checks: [{ key, id?, value, limit, ok }], lengths: { total, longest, perUnit: { id → mm } }, heights: { id → indoor − outdoor (mm) },
  *       failed, notes, clash }
+ * 0.11: `units[].ports` / `outdoor.ports` = { liquid: [x,y,z], gas: [x,y,z] } (the real port points): each line's end is carried on to its own port with short
+ *   legs, one axis at a time (none shorter than `rules.minLeg`, else it stays centred, note 'port-offset') (note 'port-stub' when two axes); the nearer port goes with the nearer line. `rules.equivalent(kind, line, sizeKey) → mm` (kind
+ *   'bend' | 'kit'; the MAKER'S values, typed by the person: none is shipped) adds each fitting's equivalent length to the straight length; limits are then checked on
+ *   `equivalent` lengths (note 'equivalent-lengths') and the result has `equivalent: { total, longest, perUnit }`.
  *   offsetPath(points, lateral, off) → the polyline moved `off` mm to the side, by parallel transport · lateralAt(points, lateral, s)
  */
 import { routeNetwork, sliceLine, lineLength, sectionMax } from './network.js';
@@ -98,6 +102,34 @@ export function planRefrigerant(opt) {
     emit('branch', br.points, lateral0(br.points), br.section, br.flow, br.terminal);
     kits.push({ at: t.at, branch: br.terminal, capacity: br.flow });
   }
+  // the real ports: carry each line's end to its own port
+  const portNote = new Set();
+  const fixEnd = (r, atStart, target) => {
+    if (!target) return;
+    const i = atStart ? 0 : r.points.length - 1, q = r.points[i], d = sub(target, q), L = Math.hypot(...d);
+    if (L < 1) return;
+    // the way from the line's end to the port, one axis at a time (x, y, then z: a port pair stands one above the other as often as side by side)
+    const via = []; let cur = q.slice();
+    for (const k of [0, 1, 2]) if (Math.abs(d[k]) > 1e-6) { cur = cur.slice(); cur[k] = target[k]; via.push(cur); }
+    // the host's run model refuses a leg shorter than its bends need (`rules.minLeg`, mm): a port too close to the pair's own offset is left centred (note 'port-offset')
+    const legs = []; { let prev = q; for (const x of via) { legs.push(Math.hypot(...sub(x, prev))); prev = x; } }
+    if (R.minLeg && legs.some((l) => l > 1e-6 && l < R.minLeg - 1e-9)) { portNote.add('port-offset'); return; }
+    if (via.length > 1) portNote.add('port-stub');
+    if (atStart) r.points.unshift(...via.reverse().map((x) => x.slice())); else r.points.push(...via.map((x) => x.slice()));
+  };
+  const portsFor = (rs, ports, atStart) => {
+    const g = rs.find((x) => x.line === 'gas'), l = rs.find((x) => x.line === 'liquid');
+    if (!g || !l || !ports || !ports.gas || !ports.liquid) return;
+    const i = atStart ? 0 : g.points.length - 1, j = atStart ? 0 : l.points.length - 1;
+    const straight = Math.hypot(...sub(g.points[i], ports.gas)) + Math.hypot(...sub(l.points[j], ports.liquid));
+    const swapped = Math.hypot(...sub(g.points[i], ports.liquid)) + Math.hypot(...sub(l.points[j], ports.gas));
+    const [pg, pl] = swapped < straight - 1e-6 ? [ports.liquid, ports.gas] : [ports.gas, ports.liquid];
+    fixEnd(g, atStart, pg); fixEnd(l, atStart, pl);
+    if (swapped < straight - 1e-6) portNote.add('port-lines-crossed');
+  };
+  portsFor(runs.filter((r) => r.role === 'trunk').slice(0, 2), opt.outdoor.ports, true);
+  for (const u of units) portsFor(runs.filter((r) => r.terminal === u.id && (r.role === 'branch' || r.role === 'trunk')), u.ports, false);
+  for (const n of portNote) notes.push(n);
   // lengths and heights against the person's limits
   const per = {}, heights = {}, checks = [];
   const mainLen = lengthOf(main.points);
@@ -106,7 +138,24 @@ export function planRefrigerant(opt) {
     per[u.id] = br ? arcOf(main.points, br.points[0]) + lengthOf(br.points) : mainLen;
     heights[u.id] = u.p[2] - opt.outdoor.p[2];
   }
-  const totalLen = net.length, longest = Math.max(...Object.values(per)), Lim = opt.limits || {};
+  // equivalent lengths: the maker's value for a bend and for a branch kit, by the gas line's size (R.equivalent, typed by the person); none: the straight length counts
+  const eq = R.equivalent ? (kind, key) => Number(R.equivalent(kind, 'gas', key)) || 0 : null;
+  const eqPer = {}; let eqTotal = net.length;
+  if (eq) {
+    const mainRuns = net.runs.filter((x) => x.role === 'main');
+    const piece = []; { let a0 = 0; for (const r of mainRuns) { const L = lengthOf(r.points); piece.push({ a: a0, L, r }); a0 += L; } }
+    const bendsOf = (pts) => Math.max(0, pts.length - 2), keyOf = (r) => r.section.pair.gas.key;
+    const mainEq = (s) => piece.reduce((n, x) => n + (s > x.a ? bendsOf(x.r.points) * eq('bend', keyOf(x.r)) : 0), 0);
+    eqTotal = net.length;
+    for (const x of piece) eqTotal += bendsOf(x.r.points) * eq('bend', keyOf(x.r));
+    for (const u of units) {
+      const br = net.runs.find((x) => x.role === 'branch' && x.terminal === u.id);
+      if (br) { const s = arcOf(main.points, br.points[0]); eqPer[u.id] = per[u.id] + mainEq(s) + bendsOf(br.points) * eq('bend', keyOf(br)) + eq('kit', keyOf(br)); eqTotal += bendsOf(br.points) * eq('bend', keyOf(br)) + eq('kit', keyOf(br)); }
+      else eqPer[u.id] = per[u.id] + mainEq(Infinity);
+    }
+    notes.push('equivalent-lengths');
+  }
+  const totalLen = eq ? eqTotal : net.length, longest = Math.max(...Object.values(eq ? eqPer : per)), Lim = opt.limits || {};
   const chk = (key, value, limit, id) => { if (Number.isFinite(limit)) { const row = { key, id, value, limit, ok: value <= limit + 1e-9 }; checks.push(row); if (!row.ok) failed.push({ id: id ?? 'limits', error: 'limit-' + key, over: Math.round((value - limit) * 10) / 10 }); } };
   chk('maxTotal', totalLen, Lim.maxTotal);
   chk('maxLongest', longest, Lim.maxLongest);
@@ -116,5 +165,5 @@ export function planRefrigerant(opt) {
   if (!checks.length) notes.push('limits-not-set');
   notes.push('kit-marked');
   const clash = runs.some((r) => hitsObstacle(r.points, opt.obstacles || [], r.od / 2 + (opt.clearance ?? 25) - 1));
-  return { ok: !failed.length, runs, kits, checks, lengths: { total: totalLen, longest, perUnit: per }, heights, failed, notes, clash, net };
+  return { ok: !failed.length, runs, kits, checks, lengths: { total: net.length, longest: Math.max(...Object.values(per)), perUnit: per }, equivalent: eq ? { total: eqTotal, longest, perUnit: eqPer } : null, heights, failed, notes, clash, net };
 }

@@ -1,0 +1,344 @@
+{
+  "format": "cadcraft-material-pack",
+  "version": 1,
+  "id": "materials.nist-steel-heat",
+  "name": "NIST TN 1907: structural steels at temperature (Young's modulus, retained yield and tensile strength): hot-rolled, fire-resistive, quenched-and-tempered plate, bolt steel",
+  "packVersion": "1.1.0",
+  "status": "starter",
+  "refBy": "NIST Technical Note 1907 (Seif et al., 2016), doi:10.6028/NIST.TN.1907",
+  "license": "Values are NIST's published parameters, US federal-government data (17 U.S.C. 105) used with NIST acknowledged as the source. Source terms: https://www.nist.gov/oism/copyrights . The pack file is CadCraft's own arrangement of those values.",
+  "author": "CadCraft",
+  "changeNotice": "Parameters copied by CadCraft from NIST TN 1907 Table 2-2 (r1 to r5 for the Ord., FR, plate and bolt columns; E0, e1 to e4, one set for all four) and Table 2-3 (r6 to r10, ordinary steel) into a JSON data file, read from the PDF as published (April 2016): ordinary steel on 2026-11-20 from the page images, checked on 2026-11-21 by a second reading from the PDF text layer (every value agreed); the FR, plate and bolt columns added on 2026-11-21 from the text layer. The equations are Eq. (2.2), (2.4) and (2.14), written in the same form; temperature is converted from kelvin to T* = T - 20 degC. Bolt tensile strength uses the bolt r1 to r5, as TN 1907 Section 2.2.5.3 and 4.2.2 say. Nothing was refitted or extended. TN 1907 states no fitted range for the FR, plate and bolt columns: CadCraft limits each to the temperatures of the test data NIST plotted beside the fit (Fig. 2-15, 2-17, 2-19: 20 to 650, 20 to 650 and 20 to 800 degC).",
+  "source": {
+    "name": "M. Seif, J. Main, J. Weigand, F. Sadek, L. Choe, C. Zhang, J. Gross, W. Luecke, D. McColskey, Temperature-Dependent Material Modeling for Structural Steels: Formulation and Application, NIST Technical Note 1907, April 2016",
+    "index": "https://doi.org/10.6028/NIST.TN.1907",
+    "accessed": "2026-11-20"
+  },
+  "notice": "R is the 0.2 % offset yield (Ry) or tensile strength (Ru) at temperature divided by its value at 20 degC; multiply by the steel's own room-temperature value. structural-steel = ordinary hot-rolled shapes (the main model). fire-resistive-steel = two proprietary fire-resistive steels (ASTM A1077 type) fitted by NIST; quenched-tempered-plate = one 100 ksi (689 MPa) quenched-and-tempered plate (WTC perimeter columns, A514-like); bolt-steel = A325 / A490 / grade 8.8 and 10.9 bolt steel. The last three rest on few steels; their ranges are CadCraft's (the plotted data), and NIST gives no scatter for them (fitError null). E is the same equation for every steel (Table 2-2 gives one set; TN 1907 says bolts use it). No stainless, aluminium or titanium strength at temperature exists in TN 1907: those stay refused. Outside a curve's range the reader refuses. 'fitError' is the residual standard deviation printed in Table 2-4 (a scatter of the data, not a fit residual).",
+  "materials": {
+    "structural-steel": {
+      "name": "Hot-rolled structural steel (ordinary), NIST TN 1907",
+      "page": "https://doi.org/10.6028/NIST.TN.1907",
+      "properties": {
+        "E": {
+          "name": "Young's modulus, Eq. (2.2), E0 = 206.0 GPa (TN 1907: fitted to data with T <= 725 degC)",
+          "unit": "GPa",
+          "scale": 206.0,
+          "fitError": 0.0402,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                998.15
+              ],
+              "dataRange": [
+                293.15,
+                998.15
+              ],
+              "equationRange": [
+                293.15,
+                998.15
+              ],
+              "coeffs": [
+                3.768,
+                1.0,
+                639,
+                1650,
+                0
+              ]
+            }
+          ]
+        },
+        "Ry": {
+          "name": "Retained 0.2 % yield strength Fy0(T)/Fy0(20 degC), Eq. (2.4) (TN 1907: parameters fitted over 300 to 800 degC)",
+          "unit": "1",
+          "scale": 1,
+          "fitError": 0.026,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                1073.15
+              ],
+              "dataRange": [
+                573.15,
+                1073.15
+              ],
+              "equationRange": [
+                293.15,
+                1073.15
+              ],
+              "coeffs": [
+                7.514,
+                1.0,
+                588,
+                676,
+                0.09
+              ]
+            }
+          ]
+        },
+        "Ru": {
+          "name": "Retained tensile strength Su(T)/Su(20 degC), Eq. (2.14) (TN 1907: fitted over 350 to 825 degC; r10 = 0.110 for T > 725 degC)",
+          "unit": "1",
+          "scale": 1,
+          "fitError": 0.0435,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                1098.15
+              ],
+              "dataRange": [
+                623.15,
+                1098.15
+              ],
+              "equationRange": [
+                293.15,
+                1098.15
+              ],
+              "coeffs": [
+                4.906,
+                4.906,
+                560,
+                592,
+                0.11
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "fire-resistive-steel": {
+      "name": "Fire-resistive structural steel (two steels, ASTM A1077 type), NIST TN 1907 Section 2.2.5.1",
+      "page": "https://doi.org/10.6028/NIST.TN.1907",
+      "properties": {
+        "E": {
+          "name": "Young's modulus, Eq. (2.2), E0 = 206.0 GPa: the one set Table 2-2 gives for every steel (fitted to hot-rolled data with T <= 725 degC)",
+          "unit": "GPa",
+          "scale": 206.0,
+          "fitError": 0.0402,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                998.15
+              ],
+              "dataRange": [
+                293.15,
+                998.15
+              ],
+              "equationRange": [
+                293.15,
+                998.15
+              ],
+              "coeffs": [
+                3.768,
+                1.0,
+                639,
+                1650,
+                0
+              ]
+            }
+          ]
+        },
+        "Ry": {
+          "name": "Retained 0.2 % yield strength, Eq. (2.4), Table 2-2 FR column (r2 fixed at 1; range = the plotted test data, 20 to 650 degC)",
+          "unit": "1",
+          "scale": 1,
+          "fitError": null,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                923.15
+              ],
+              "dataRange": [
+                293.15,
+                923.15
+              ],
+              "equationRange": [
+                293.15,
+                923.15
+              ],
+              "coeffs": [
+                9.782,
+                1.0,
+                625,
+                1334,
+                0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "quenched-tempered-plate": {
+      "name": "Quenched-and-tempered steel plate, Fy = 100 ksi (689 MPa), one steel, NIST TN 1907 Section 2.2.5.2",
+      "page": "https://doi.org/10.6028/NIST.TN.1907",
+      "properties": {
+        "E": {
+          "name": "Young's modulus, Eq. (2.2), E0 = 206.0 GPa: the one set Table 2-2 gives for every steel (fitted to hot-rolled data with T <= 725 degC)",
+          "unit": "GPa",
+          "scale": 206.0,
+          "fitError": 0.0402,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                998.15
+              ],
+              "dataRange": [
+                293.15,
+                998.15
+              ],
+              "equationRange": [
+                293.15,
+                998.15
+              ],
+              "coeffs": [
+                3.768,
+                1.0,
+                639,
+                1650,
+                0
+              ]
+            }
+          ]
+        },
+        "Ry": {
+          "name": "Retained 0.2 % yield strength, Eq. (2.4), Table 2-2 plate column (r2 fixed at 1; range = the plotted test data, 20 to 650 degC)",
+          "unit": "1",
+          "scale": 1,
+          "fitError": null,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                923.15
+              ],
+              "dataRange": [
+                293.15,
+                923.15
+              ],
+              "equationRange": [
+                293.15,
+                923.15
+              ],
+              "coeffs": [
+                10.143,
+                1.0,
+                589,
+                837,
+                0
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "bolt-steel": {
+      "name": "High-strength bolt steel (A325, A490, grade 8.8 and 10.9), NIST TN 1907 Section 2.2.5.3 and 4.2.2",
+      "page": "https://doi.org/10.6028/NIST.TN.1907",
+      "properties": {
+        "E": {
+          "name": "Young's modulus, Eq. (2.2), E0 = 206.0 GPa: the one set Table 2-2 gives for every steel (fitted to hot-rolled data with T <= 725 degC)",
+          "unit": "GPa",
+          "scale": 206.0,
+          "fitError": 0.0402,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                998.15
+              ],
+              "dataRange": [
+                293.15,
+                998.15
+              ],
+              "equationRange": [
+                293.15,
+                998.15
+              ],
+              "coeffs": [
+                3.768,
+                1.0,
+                639,
+                1650,
+                0
+              ]
+            }
+          ]
+        },
+        "Ry": {
+          "name": "Retained 0.2 % yield strength, Eq. (2.4), Table 2-2 bolt column (r2 fixed at 1; range = the plotted test data, 20 to 800 degC)",
+          "unit": "1",
+          "scale": 1,
+          "fitError": null,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                1073.15
+              ],
+              "dataRange": [
+                293.15,
+                1073.15
+              ],
+              "equationRange": [
+                293.15,
+                1073.15
+              ],
+              "coeffs": [
+                4.967,
+                1.0,
+                456,
+                2040,
+                0
+              ]
+            }
+          ]
+        },
+        "Ru": {
+          "name": "Retained tensile strength, Eq. (2.4) with the bolt r1 to r5 (TN 1907 Section 2.2.5.3: Fu0 in place of Fy0; range = the yield data, 20 to 800 degC)",
+          "unit": "1",
+          "scale": 1,
+          "fitError": null,
+          "segments": [
+            {
+              "form": "ret-exp",
+              "range": [
+                293.15,
+                1073.15
+              ],
+              "dataRange": [
+                293.15,
+                1073.15
+              ],
+              "equationRange": [
+                293.15,
+                1073.15
+              ],
+              "coeffs": [
+                4.967,
+                1.0,
+                456,
+                2040,
+                0
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

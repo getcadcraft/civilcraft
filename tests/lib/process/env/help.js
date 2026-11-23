@@ -13,7 +13,7 @@ export const TOPICS = [
     'Limits come from a pack a person typed with the regulation open. Without a pack nothing is compared. A pack nobody has confirmed says so on every result.', END] },
   { id: 'water', title: 'Water and wastewater', body: [
     'Tanks in series with an internal recycle, a sludge return and a clarifier, using the published activated sludge model number 1 (13 components, 8 processes). The result is a steady state with a COD and nitrogen balance that must close.',
-    'The clarifier takes the fraction of solids you say it captures; there is no settling model. Temperature correction, other models and membranes are not built.',
+    'The clarifier is either the ten-layer settler of the BSM1 benchmark (Takacs settling velocity; effluent solids, underflow and the sludge blanket) or the fraction of solids you say it captures. A water temperature corrects the growth, decay, hydrolysis and ammonification rates, with a warning outside 10 to 15 C. The BSM1 steady state is reproduced by the tests.',
     'Screens, an ideal settling basin, a granular filter and Chick-Watson disinfection are separate calculators. Basin footprints go to the site plan as areas.', END] },
   { id: 'structures', title: 'Structures and estimates', body: [
     'Type a SMILES string and get the formula, molar mass, a drawing and a MOL file. Group-contribution (Joback) estimates give boiling point, critical constants, formation values and a heat capacity for the simple groups the table holds.',

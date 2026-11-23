@@ -1,0 +1,34 @@
+{
+ "cases": [
+  {
+   "id": "wx-design",
+   "name": "Design temperatures from the file's own header",
+   "result": "A file whose header carries design conditions gives winter 99.6 % -2.5 °C and 99 % -1 °C, summer 0.4 % dry-bulb 39.8 °C and wet-bulb 21.8 °C; a file with none says so and the figures are worked out from the hours instead (bin/test-weather.mjs)"
+  },
+  {
+   "id": "wx-year",
+   "name": "A whole year is read, or refused",
+   "result": "A file of 8,760 hours is read with its place, ground temperatures and dated hours; a missing-value code is not a number; a file with missing hours is refused, never filled in (bin/test-weather.mjs)"
+  },
+  {
+   "id": "wx-near",
+   "name": "The nearest station",
+   "result": "Sanger, California: Fresno is the nearest station, some 17 km away and 11 m lower; the great-circle distance Fresno to Sacramento is 248 km (bin/test-weather.mjs)"
+  },
+  {
+   "id": "wx-sun",
+   "name": "Sunrise and sunset",
+   "result": "Fresno on 21 June: sunrise about 04:41 and sunset about 19:21 in standard time, each within 0.06 h (3.6 minutes) of the values worked out by hand (bin/test-weather.mjs)"
+  },
+  {
+   "id": "wx-set",
+   "name": "The California set matches its index",
+   "result": "All 73 California stations: each file's size and SHA-256 equal the index's, and every station's winter design temperature is below its summer one (bin/test-weather.mjs, built sets on disk)"
+  },
+  {
+   "id": "wx-page",
+   "name": "In a real BimCraft page",
+   "result": "In BimCraft's lab build the add-on lists the nearest stations to a model, opens a station's year in the 3D viewer and hands the figures to Heating and cooling loads, in headless Chromium with software drawing; not tried on a real graphics card, a tablet or a phone (tools/weather/browser.mjs)"
+  }
+ ]
+}

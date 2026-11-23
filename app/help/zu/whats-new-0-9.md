@@ -1,129 +1,129 @@
 ---
-title: Okusha ku-0.9
-summary: Izifanekiso zekhoridoro nezomhlaba, ukunamathela nezinkinobho zokukhetha ngesikhathi sokudweba, ukuhlaziya kwe-GIS nethebula lezici, izifundo zethunzi, amandla elanga, induduzo nomoya zendawo, ukubuka okungu-3D ngokuthi Renda, kanye nezengezo zamafu amaphoyinti kanye ne-WaterCraft.
-keywords: okusha, 0.9, amanothi okukhishwa, izifanekiso zekhoridoro, izifanekiso zomhlaba, umhleli wezifanekiso, isigaba esijwayelekile, amakhoridoro amaningi, namathela, namathelo, khetha, hambisa, kopisha, zungeza, ithenjenti, renda, renda 3d, ukuhlaziya kwe-gis, ibhafa, ukumboza, ukuhlanganisa kwendawo, ithebula lezici, hlobisa ngokwesici, isifundo sethunzi, amandla elanga, utci, induduzo yangaphandle, isifundo somoya, openfoam, amafu amaphoyinti, las, laz, watercraft, ukugeleza komlilo, hydrant, ubudala bamanzi, i-chlorine, izidingo, amathiphu, ukwakheka, okusha, izinguquko, 0.8, 0.8.1, inguqulo, izici ezintsha, imvula, isiphepho, ukuchitheka kwamanzi, ukugcwala, ukusebenza komhlaba, ukulinganisa, ukumba nokugcwalisa, ukuthutha, indlela engcono kakhulu, umzila, ichibi lokugcina, ukukhipha, ukwehla kwamanzi, ukuphakama kwesikhala, inqubekelaphambili, ukuhlola, idrone, isitokhi, ikheli kuya esizeni, ipaseli, inhlabathi, ukugeleza kwamanzi, ukuzinza kwethambeka, bishop, ukuhla, ukuhlangana, imikhondo, izimpawu, ukubona kwesibonakude, ukulungisa, least squares, traverse, umgodi ovulekile, imodeli yebhlokhi, uxhumo lomsakazo, fresnel, uxhumo lwesitimela, izinhlelo zolimi, izinkinga, live, dwg
-from: d7ac5b14
+title: Okusha ku-0.9 (kwangaphambili)
+summary: Izifanekiso zekhoridoro nezomhlaba, ukuhlanganisa nezinkinobho zokukhetha lapho udweba, ukuhlaziya kwe-GIS nethebula lesici, izifundo zesithunzi, amandla elanga, induduzo nomoya zesayithi, umbono we-3D Render, kanye nama-add-on we-Point clouds nowe-WaterCraft.
+keywords: okusha 0.9, inguqulo yangaphambili, okusha, 0.9, amanothi okukhishwa, izifanekiso zekhoridoro, izifanekiso zomhlaba, umhleli wesifanekiso, isigaba sohlobo, amakhoridoro amaningi, ukuhlanganisa, snap, izinkinobho zokukhetha, khetha, hambisa, kopisha, zungeza, tangent, render, render ye-3d, ukuhlaziya kwe-gis, buffer, overlay, ukujoyina kwendawo, ithebula lesici, ukuhlobisa ngesici, isifundo sesithunzi, amandla elanga, utci, induduzo yangaphandle, isifundo somoya, openfoam, ifu lamaphuzu, las, laz, watercraft, ukugeleza komlilo, hydrant, ubudala bamanzi, ikhlorini, izidingo, izinsiza, ukuhlelwa, okusha, 0.8, 0.8.1, inguqulo, izici ezintsha, imvula, ukuchitheka, ukumba nokugcwalisa, ukulinganisa, ukuthutha, indlela engcono kakhulu, umgodi wokugcina, ukuphuma, ukwehla kwamanzi, izinga lokuphakama, ukuhlolwa, indawo, ingqimba, i-drone, ukuhlolwa kwezinhlobonhlobo, ukuhamba kwesitimela, izixhumi, izinkinga, dwg
+from: 4664522c
 ---
 
-Lokhu yikho okushintshile ku-CivilCraft 0.9, uma kuqhathaniswa ne-0.8.1. I-CivilCraft 0.9 ingxenye ye-CadCraft Studio 0.9 nezinhlelo zayo eziyisishiyagalombili. Izingxenye ezinkulu yizifanekiso zekhoridoro nezomhlaba, ukunamathela lapho udweba, izifundo zelanga, amandla elanga, induduzo nomoya zendawo, kanye nezengezo ezimbili: Amafu amaphoyinti kanye ne-WaterCraft.
+Lokhu kushintshe ku-CivilCraft 0.9, kuqhathaniswa no-0.8.1. I-CivilCraft 0.9 ingxenye ye-CadCraft Studio 0.9 nama-app ayo ayisishiyagalombili. Izingxenye ezinkulu yizifanekiso zekhoridoro nezomhlaba, ukuhlanganisa lapho udweba, ukuhlaziya kwe-GIS, izifundo zelanga esayithini, amandla elanga, induduzo nomoya, kanye nama-add-on amabili: Point clouds neWaterCraft.
 
 ## Okusha
 
 ### Izifanekiso zekhoridoro nezomhlaba
 
-- **Izifanekiso zekhoridoro.** Vula {{ui:Surface}} › {{ui:More}} › {{ui:Izifanekiso zekhoridoro…}} (noma bhala {{cmd:TEMPLATES}}). Isifanekiso siyisigaba esincane esinezingxenye, okusuka, amathambeka, izinto nekhodi zamaphoyinti. Zigcine kuphrojekthi, ku-{{ui:My library}} noma njengefayela `.cctemplates.json`. Umhleli wezifanekiso ubonisa umdwebo wesikali sangempela futhi ubhala izinkinga njengoba uthayipha.
-- **Yakha ngezifanekiso ngesiteshi.** Khetha umzila bese uvula {{ui:Build from templates by station}} kuZizithakazelo zawo. Uhlangothi ngalunye lwesifunda ngalunye lunohlu lwalo lomgwaqo kanye nesimo sokuphela salo. {{ui:Add a corridor}} ngaphansi kwe-{{ui:Corridors on this alignment}} ibeka amakhoridoro amaningi emzileni owodwa.
-- **Izifanekiso zomhlaba.** {{ui:Surface}} › {{ui:More}} › {{ui:Izifanekiso zomhlaba…}} (noma bhala {{cmd:TERRAINTEMPLATES}}) ibeka izingqimba zezinto ezifana nomhlabathi wangaphezulu noma umgwaqo ibe nesisekelo somhlaba, ibale indawo nevolumu ngayinye yengqimba. Bheka [Izifanekiso zekhoridoro nezifanekiso zomhlaba](topic:corridor-templates).
+- **Izifanekiso zekhoridoro.** Vula {{ui:Umphezulu}} › {{ui:Okuningi}} › {{ui:Izifanekiso zekhoridoro…}} (noma thayipha {{cmd:TEMPLATES}}). Isifanekiso siyisigaba esincane esinezingxenye, izikhala, izinkombandlela, amathambeka, izinto nezikhodi zamaphuzu. Zigcine kuphrojekthi, ku-{{ui:Umtapo wami}} noma njengefayela le-`.cctemplates.json`. Umhleli wesifanekiso ukhombisa umdwebo wangempela wangobukhulu nabonisa izinkinga njengoba uthayipha.
+- **Yakha kusuka ezifanekisweni ngesiteshi.** Khetha umzila bese uvula {{ui:Yakha ngezifanekiso ngesiteshi}} ku-Izici zawo. Uhlangothi ngalunye lwesifunda ngasinye lunohlu lwalo lwephavement nesimo sokuphela esiyaso. {{ui:Engeza ikhoridoro}} ngaphansi kwe-{{ui:Amakhoridoro kulo mzila}} ibeka amakhoridoro amaningi emzileni owodwa.
+- **Izifanekiso zomhlaba.** {{ui:Umphezulu}} › {{ui:Okuningi}} › {{ui:Izifanekiso zomhlaba…}} (noma thayipha {{cmd:TERRAINTEMPLATES}}) ihlanganisa izinto ezinezendlalelo njengomhlabathi ophezulu noma iphavement nesisekelo phezu komhlaba, nendawo nevolumu ngayinye yendlalelo. Bheka [Izifanekiso zekhoridoro nezifanekiso zomhlaba](topic:corridor-templates).
 
 ### Ukudweba
 
-- **Ukunamathela.** Amathuluzi i-Alignment, Pad, Parcel, Mass, Feature line, Measure, Boundary kanye ne-Catchment anamathela kumaphoyinti okuhlola, ama-PI, amakhona, izinhlangothi nezakhiwo, nelebula eseduze kwesimaki. Bamba {{key:Alt}} ukuze uthole iphoyinti elikhululekile.
-- **Izinkinobho zokukhetha, ithenjenti nokuhambisa, kopisha, zungeza.** Amakhona e-Pad, e-parcel nomugqa wesici anamabhokisi athayipha e-Easting ne-Northing kanye nenkinobho ethi {{ui:Khetha}} enesibonakude. Izakhiwo futhi zinendawo ethi {{ui:Tangent from two points}} yemizila kanye ne-{{ui:Move, copy and rotate}} yemizila, ama-pad, ama-parcel nemigqa yezici. Bheka [Dweba ngokunamathela, amakhona akhethiwe nokuhambisa, kopisha, zungeza](topic:draft-with-snaps).
-- **Ukubuka i-Render ngo-3D.** Inkinobho ethi {{ui:Render}} kwibha ye-3D idweba umhlaba ngemibala yemvelo, isibhakabhaka, umswakama nemithunzi ethambile. Ayishintshi imodeli. Imenyu ethi {{ui:Sun}} manje inezinkinobho ezithi {{ui:Apply}} no-{{ui:Close}}. Bheka [Buka indawo nge-3D](topic:site-3d).
-- **Amaphaneli avula isigaba esisodwa ngesikhathi.** Ipaneli yangakwesobunxele neyeZakhiwo zivula isigaba esisodwa zivale ezinye, futhi amathayela eRibhoni yeLandscape anamathuluzi amaningi ayizinkinobho ezihlukene.
+- **Ukuhlanganisa.** Amathuluzi e-Alignment, Pad, Parcel, Mass, Feature line, Measure, Boundary kanye ne-Catchment ahlanganisa namaphuzu wesamba, ama-PI, amagumbi, ama-vertex nezakhiwo, nelebula eduze kwesikhombi. Bamba {{key:Alt}} ukuze uthole iphuzu elikhululekile.
+- **Izinkinobho zokukhetha, i-tangent nokuhambisa, ukukopisha, nokuzungeza.** Amagumbi wephedi, wepharsela nomugqa wesici anamabhokisi aphethwe we-Easting ne-Northing nenkinobho ye-crosshair Pick. Izici zinayo futhi i-{{ui:Ithenjenti ngamaphoyinti amabili}} yemizila kanye ne-{{ui:Hambisa, kopisha nezungeza}} yemizila, amaphedi, amaphaseli nemigqa yesici. Bheka [Dweba ngama-snap, amagumbi akhethiwe nokuhambisa, ukukopisha, ukuzungeza](topic:draft-with-snaps).
+- **Umbono we-Render ku-3D.** Inkinobho ye-{{ui:Renda}} ku-3D bar idweba umhlaba ngemibala yemvelo, isibhakabhaka, ukubonakala okufiphele kanye nezithunzi ezithambile. Ayishintshi imodeli. Imenyu ye-{{ui:Ilanga}} manje inezinkinobho ze-{{ui:Sebenzisa}} ne-{{ui:Vala}}. Bheka [Bheka isayithi nge-3D](topic:site-3d).
+- **Amapaneli avulwa isigaba esisodwa ngesikhathi.** Ipaneli esobunxele nepaneli ye-Izici ivula isigaba esisodwa bese ivala ezinye, nezinkinobho zezinhlanganisela zeqembu le-Landscape zihlukaniswa.
 
 ### Ukuhlaziya kwe-GIS
 
-- **Hlaziya.** {{ui:Surface}} › {{ui:More}} › {{ui:Analyze}} unikeza ibhafa, ukumboza, ukuhlanganisa kwendawo, ukukhetha ngesici noma ngesimo, nokulinganisa. Ithuluzi ngalinye lenza ungqimba olusha ngesinyathelo esisodwa sokuhlehlisa.
-- **Ithebula lezici.** Imenyu yamachashazi amathathu yungqimba ine-{{ui:Attribute table…}} ne-{{ui:Style by attribute…}}. Bheka [Hlaziya izingqimba ze-GIS](topic:gis-analysis) kanye [Sebenza ngethebula lezici lengqimba](topic:gis-table).
+- **Hlaziya.** {{ui:Umphezulu}} › {{ui:Okuningi}} › {{ui:Hlaziya}} unikeza i-buffer, i-overlay, ukujoyina kwendawo, ukukhetha ngethebula noma ngesimo, nokulinganisa. Ithuluzi ngalinye lenza isendlalelo esisha esinyathelweni esisodwa sokuhlehlisa.
+- **Ithebula lesici.** Imenyu yamachashaza amathathu yesendlalelo inezinto {{ui:Ithebula lezici…}} ne-{{ui:Hlobisa ngokwesici…}}. Bheka [Hlaziya izendlalelo ze-GIS](topic:gis-analysis) kanye [Sebenza nethebula lesici lesendlalelo](topic:gis-table).
 
-### Indawo: ilanga, amandla elanga, induduzo nomoya
+### Isayithi: ilanga, amandla elanga, induduzo nomoya
 
-- **Isigaba semvelo.** Khetha isisindo: isigaba i-{{ui:Environment}} sisesansi ye-{{ui:Sun hours}} kuZizithakazelo zaso. Sinesifundo sethunzi (imephu, ithebula, ukunyakaza, i-CSV), amandla elanga kusuka efayeleni lesimo sezulu lonyaka ojwayelekile (.epw) nokujabula kwangaphandle (UTCI).
-- **Umoya, ukuhlola kuphela.** I-{{ui:Run wind study}} idweba umhlabathi kusukela ekumeni kuya kokungakhululeki ngasinye isiqondiso somoya esifayelini lesimo sezulu. Awuqinisekisiwe futhi ipaneli iyasho lokho.
-- **Umoya wabahambi ngezinyawo (i-OpenFOAM) yengezo.** Icishe ivaliwe uze uyivule ku-{{ui:Izilungiselelo}} › {{ui:Okwengeziwe}}. I-OpenFOAM yisofthiwe okufanele uyifake ngokwakho. Bheka [Ithunzi, amandla elanga nokujabula kwangaphandle](topic:environment).
+- **Isigaba sendawo ezungezile.** Khetha isisindo: isigaba se-Indawo ezungezile sisesansi ngaphansi kwe-{{ui:Amahora elanga}} kuzo Izici zaso. Sinesifundo sesithunzi (imephu, ithebula, ukunyakaza, i-CSV), amandla elanga kusuka kufayela lesimo sesikhathi sonyaka (.epw) kanye nenduduzo yangaphandle (UTCI).
+- **Umoya, ukuhlola kuphela.** I-{{ui:Run wind study}} idweba umhlaba kusukela ekuhlaleni kuya ekungaphatheki kahle ngokuya ngomoya ngamunye osefayelini lesimo sesikhathi. Ayikaqinisekiswa futhi isiphathi siyasho lokho.
+- **I-Pedestrian wind (OpenFOAM) add-on.** Icima kuze uyivule ku-{{ui:Izilungiselelo}} › {{ui:Okwengeziwe}}. I-OpenFOAM isofthiwe ofakayo wena. Bheka [Umthunzi, amandla elanga nenduduzo yangaphandle](topic:environment).
 
-### Amafu amaphoyinti (yengezo)
+### Ifu lamaphuzu (add-on)
 
-- Vula {{ui:Amafu amaphoyinti}} ku-{{ui:Izilungiselelo}} › {{ui:Okwengeziwe}}; ithebhu yAmafu amaphoyinti iyavela ephaneli yangakwesokudla. Vula ifayela le-LAS noma le-LAZ, lihlanze, lihlele libe ngumhlabathi, izitshalo nezakhiwo, bese wakha umhlabathi, izingqikithi kanye nama-volumu, bese uthumela njenge-LAS noma i-LAZ. Bheka [Amafu amaphoyinti avela kudrone noma kusikena](topic:point-clouds).
+- Vula {{ui:Point clouds}} ku-{{ui:Izilungiselelo}} › {{ui:Okwengeziwe}}; ithebhu ye-Point clouds iyavela ephaneli yesokudla. Vula ifayela le-LAS noma le-LAZ, lihlanze, lihlele libe umhlaba, izitshalo nezakhiwo, yakha umhlaba, ama-contour nemithamo, bese ukhipha i-LAS noma i-LAZ. Bheka [Amafu wamaphuzu avela ku-drone noma kuskena](topic:point-clouds).
 
-### WaterCraft (yengezo)
+### WaterCraft (add-on)
 
-- Vula {{ui:WaterCraft (ukusabalalisa kwamanzi)}} ku-{{ui:Izilungiselelo}} › {{ui:Okwengeziwe}}; ithebhu ye-WaterCraft iyavela. Inezidingo zamakhasimende, ukugeleza komlilo kuwo wonke ama-hydrant, ukuthi yiphi ukuphazamiseka kwepayipi eliyinhloko okubaluleke kakhulu, nobudala bamanzi ne-chlorine, ngasinye sigcinwa njenge-CSV. Bheka [WaterCraft: izidingo, ukugeleza komlilo, ukuphazamiseka nobudala bamanzi](topic:watercraft).
+- Vula {{ui:WaterCraft (ukusabalalisa amanzi)}} ku-{{ui:Izilungiselelo}} › {{ui:Okwengeziwe}}; ithebhu ye-WaterCraft iyavela. Inezidingo zamakhasimende, ukugeleza komlilo kuwo wonke ama-hydrant, ukuthi yimuphi umugqa ophazamisa kakhulu, nobudala bamanzi nekhlorini, ngalinye lilondolozwa njenge-CSV. Bheka [WaterCraft: izidingo, ukugeleza komlilo, ukuphazamiseka nobudala bamanzi](topic:watercraft).
 
 ### Ukusebenza ndawonye
 
-- Ku-seshini ye-Live ubona amakhesa nemibhalo kabani nomunye endizeni. Izitshalo zelabhulali: i-CivilCraft Landscape iqala kuqoqo layo elizenzakalelayo le-Library, {{ui:CivilCraft landscape}}.
+- Esikhathini esiphilayo ubona amakhasa nemiyalo yabanye ngamagama epulani. Izitshalo zelabhulari: i-CivilCraft Landscape iqala kuqoqo lwakhe lwelabhulari ojwayelekile, {{ui:CivilCraft landscape}}.
 
-## Kuzo zonke izinhlelo
+## Ezinhlelweni zonke
 
-- Izeluleko zivela njengamathiphu e-Bootstrap, futhi ithiphu yokuqala ingavalwa.
-- Ibhendi yamathebhu ephaneli engakwanele iyaskrola esikhundleni sokusikwa.
-- Izihloko zamathebhu esiphequluli zifundeka ngokuthi `<document> - CivilCraft | CadCraft`.
-- I-{{ui:Settings}} inesigaba seUkwakheka lapho ukwakheka kuwuhlu olwehla lwezinketho ezimbili imigqa.
-- Iyunithi zesisindo nokushisa zisezi-{{ui:Settings}} › {{ui:Global}} › {{ui:Units}}.
-- Uhlu lwezilimi lubonisa izilimi ibhilidi enamafayela alo. Izilimi ngaphandle kwesiNgisi ziyizinhlaka ezenziwe yimishini.
+- Izinsiza zibonakala njengamatooltip we-Bootstrap, nesiqalo sokuqala singavalwa.
+- Uhlu lwamathebhu wephaneli oluhlukile luyashelela esikhundleni sokusikwa.
+- Amathayitela wamathebhu esiphequluli afundeka njengo-`<document> - CivilCraft | CadCraft`.
+- {{ui:Izilungiselelo}} inesigaba se-Layout lapho izakhiwo zilandwa ngokwehla kohlu lwezinketho zemigqa emibili.
+- Amayunithi wesisindo nezinga lokushisa atholakala ku-{{ui:Izilungiselelo}} › {{ui:Jikelele}} › {{ui:Iyunithi}}.
+- Uhlu lwezilimi lubonisa izilimi ibhildi enamafayela wazo. Izilimi ngaphandle kwesiNgisi ziyizinhlelo zomshini.
 
 ## Okulungisiwe
 
-- Izengezo zokubheka ikheli kanye nokuhlola kwe-EnergyPlus bezingavulwa; manje ziyavuleka.
-- Usizo luthi manje i-engezo yamafu amaphoyinti ibhala ifu elihlanziwe njenge-LAS 1.4 noma i-LAZ.
-- Ukuchofoza isigiyo sento ekhethiwe ngokwayo akusaqali ukudonsa isigiyo esimisa iPick elindile.
+- Ama-add-on wokuthola ikheli kanye nohlolo lwe-EnergyPlus ayengavulwa; manje angavulwa.
+- Usizo manje lusho ukuthi i-add-on yePoint clouds ibhala ifu elihlanjululiwe njenge-LAS 1.4 noma i-LAZ.
+- Ukuchofoza isikhombi sento ekhethiwe ngokwayo akusaqali ukudonsa okuqondile okwakumisa i-Pick elindile.
 
-## Imikhawulo eqinisekile
+## Imikhawulo eqotho
 
-- Izifanekiso zekhoridoro zesibonelo ziyizindawo ezibambe iqhaza ezingasekelwe kunoma yisiphi isitandade; unjiniyela kumele azihlole. Izifanekiso zomhlaba azengezi ngaphezulu futhi azidwetshwa ku-3D noma endaweni yesigaba. Ikhoridoro lesibili emzileni alifakiwe ku-IFC export. Asikho ukuncipha phakathi kwezifanekiso ezimbili ngesiteshi.
-- Amafu amaphoyinti ahlolwe ngamafayela enziwe, hhayi ukuhlola kwangempela kwedrone. Ifunda kuphela i-LAS ne-LAZ.
-- Ukuhlaziya kwe-GIS kuhlolwe ngezingqimba ezenziwe.
-- Ithunzi, amandla elanga nokujabula kuyizilinganiso zokuhlela; umoya uyisikrini esingaqinisekisiwe. Akukho lutho kwalokhu oluyinani lokwakha.
-- I-WaterCraft iyisisekeli sokubala esihlolwe ngamanethiwekhi enziwe. Unjiniyela wamanzi unquma ukuthi izinombolo zinani.
-- Izilimi ngaphandle kwesiNgisi ziyizinhlaka ezenziwe yimishini.
-- Abafakeli be-Windows abasayiniwe ngekhodi, nesithombe sedisiki se-macOS asiqinisekisiwe.
+- Izifanekiso zekhoridoro ezisampula ziyizinhlamvu zesikhashana ezingenasilinganiso; umhlaziyi kufanele azihlole. Izifanekiso zomhlaba azengezi indawo futhi azidwetshwa ku-3D noma kumbono wesigaba. Ikhoridoro lesibili emzileni alikho ku-IFC ephumayo. Akukho ukuncipha phakathi kwezifanekiso ezimbili ngesiteshi.
+- Amafu wamaphuzu ahlolwe ngamafayela enziwe ngabantu, hhayi isiphambano sangempela se-drone. Kufundwa i-LAS ne-LAZ kuphela.
+- Ukuhlaziya kwe-GIS kuhlolwe ngezendlalelo ezenziwe ngabantu.
+- Ilanga, amandla elanga nenduduzo kuyizilinganiso zokuhlela; umoya uyisikhulu esingahlolwe. Akukho lutho kwalokhu olungukukhethwa kwedizayini.
+- I-WaterCraft yisisekelo sokubala esihlolwe ngezinethiwekhi ezenziwe ngabantu. Umhlaziyi wamanzi unquma ukuthi izinombolo zibalulekile kangakanani.
+- Izilimi ngaphandle kwesiNgisi ziyizinhlelo zomshini.
+- Abafakeli be-Windows abaphawulwa ngekhodi, nesithombe sediski se-macOS asiqinisekisiwe.
 
-## Ngaphambili: 0.8 no-0.8.1
+## Kwangaphambili: 0.8 no-0.8.1
 
-Lokhu yikho okushintshile ku-CivilCraft 0.8 (2026-11-01) ne-0.8.1 (2026-11-02), uma kuqhathaniswa ne-0.7. Izingxenye ezinkulu ezintsha yizinto ezihlola ukulinganisa kwakho nendawo yakho (imvula, umsebenzi womhlaba, izindlela, amachibi, inqubekelaphambili) kanye nezizenzo zokubala eziyisithupha zomhlaba, imigwaqo, ukuhlola, izimayini, uxhumo nesitimela.
+Lokhu kushintshe ku-CivilCraft 0.8 (2026-11-01) no-0.8.1 (2026-11-02), kuqhathaniswa no-0.7. Izingxenye ezinkulu ezintsha ziyizinsiza zokuhlola umhlaba nesayithi lakho (imvula, umsebenzi womhlaba, izindlela, amachibi, inqubekelaphambili), kanye nezinhlanzi eziyisithupha zokubala zomhlaba, imigwaqo, ukuhlola, izimayini, izixhumi nezitimela.
 
 ### Okusha
 
-**Hlola ukulinganisa kwakho**
+**Hlola ukugoba kwakho**
 
-- **Yenza imvula.** {{ui:Yenza imvula…}} (ngaphansi kwe-{{ui:Surface}}) wehlisa isiphepho emhlabathini olinganisiwe. Ubona amanzi egeleza kumapad, ehlanganisa emakhoneni aphansi, nagcwala emachibini amancane kakhulu. Ukusebenza kuyenziwa kube nesithombe, kunikeze amavolumu, ukukhishwa kwesikhulu kanye ne-CSV yachibi ngalinye. Iseli elizenzakalelayo liyinkulu ukuze ukubuka kokuqala kube sheshi; iseli elingcono liyahamba kancane. Amachibi agcwele aphinde avele kwiphaneli yeZinkinga.
-- **Isilinganisi somhlabathi.** {{ui:Isilinganisi somhlabathi…}} siphakamisa noma sehlise i-pad uze ukumba kulingane nokugcwalisa, bese sibonisa ithebula lokuthutha phakathi kwazo.
-- **Indlela engcono kakhulu.** {{ui:Indlela engcono kakhulu…}}: khetha isiqalo nokuphela, bese i-CivilCraft ithola indlela eshibhile kakhulu ngaphezulu komhlaba egcina imikhawulo yakho yethambeka nevolumu, bese yenza umzila kuyo.
-- **Amachibi okulawula.** {{ui:Amachibi okulawula…}} ibala isigaba nesitoreji kusuka emhlabathini wakho, ithatha amadivayisi okukhipha (orifice, weir, V-notch, spillway), ihambisa isiphepho ngechibi bese ihlola iphakade elibanjiwe, isikhathi sokwehla kwamanzi nokuphakama kwesikhala.
-- **Inqubekelaphambili kusuka ezifundweni.** {{ui:Inqubekelaphambili kusuka ekuhloleni…}} iqhathanisa izindawo zedrone noma zokuskena ezivela ezinsukwini ezahlukene nomhlabathi njengoba wawunjalo nanjengoba uklelwe: iphesenti eliqediwe ngevolumu, izindawo ezimbiwe kakhulu nezigcwele kakhulu, izitokhi, nokuthi umsebenzi uzophela nini kulesi sivinini (kumakiwe njengesilinganiso).
+- **Yenza imvula.** {{ui:Yenza imvula…}} (ngaphansi kwe-{{ui:Umphezulu}}) yehlisa isiphepho emhlabeni ogobile. Ubona amanzi egijima ehlela kumaphedi, ayima emagumbini aphansi nasemachibini amancane kakhulu ayageleza. Ukusebenza kuyavuseleleka futhi kunika izivolumu, ukuphuma okuphezulu nge-CSV yachibi ngalinye. Iseli ezenzakalelayo ilingene ukuze ukubuka okokuqala kube ngokushesha; iseli elinhle lihamba kancane. Amachibi agelezayo avela nakuphaneli yezinkinga.
+- **Isilinganisi somhlabathi.** {{ui:Isilinganisi somhlabathi…}} iphakamisa noma yehlise iphedi kuze kulingane ukumba nokugcwalisa, futhi ikhombisa ithebula lokuthutha phakathi kwawo.
+- **Indlela engcono kakhulu.** {{ui:Indlela engcono kakhulu…}}: khetha ukuqala nokuphela, bese i-CivilCraft ithola indlela ehlakaniphe kakhulu ngaphesheya komhlaba ehlala ngemikhawulo yakho yokuthambeka nejika, bese yakha umzila kuyo.
+- **Amachibi okugcina.** {{ui:Amachibi okulawula…}} ibala isigaba nesitoreji kusuka emhlabeni wakho, ithatha izinto zokuphuma (orifice, weir, V-notch, spillway), ihambisa isiphepho ngechibi bese ihlola ukuthi uphuzu oluphezulu olubanjiwe, isikhathi sokwehla nendawo yesigamu sewumphezulu.
+- **Inqubekelaphambili kusuka ezindleleni zokuhlola.** {{ui:Inqubekelaphambili kusuka ekuhloleni…}} iqhathanisa izindawo ze-drone noma zokuskena ezivela ezinsukwini ezahlukene nomhlaba njengoba kwakunjalo nakwedizayini: iphesenti eliphelile ngevolumu, izindawo ezimbiwe kakhulu nezigcwele kakhulu, izindawo zokubeka, nokuthi umsebenzi uqeda nini ngalelo zinga (kumakiwe njengesilinganiso).
 
-**Yazi indawo**
+**Yazi isayithi**
 
-- **Ikheli kuya esizeni.** {{ui:Ikheli kuya esizeni…}} ihlanganisa idatha evulekile yepaseli, yesakhiwo, yokuhlelwa kwezindawo, yenhlabathi, yesikhukhula kanye nomhlaba endaweni eyodwa. Ungayigcina indawo kufayela lephrojekthi: ikheli olibhalile, umthombo ngamunye ngosuku owawutholwe ngalo nelayisensi yawo, nento eyabuyiswa. Vula kabusha noma yabelana ngephrojekthi indawo isengakhona, ingatholwanga futhi. Ungayilondoloza futhi njengefayela lendawo noma uyithumele ku-BimCraft. Bheka [Ikheli kuya esizeni](topic:address-to-site).
+- **Ikheli kuya kwisayithi.** {{ui:Ikheli kuya esizeni…}} ilungisa idatha evulekile yamaphakheji, isakhiwo, izonu, inhlabathi, ukugeleza kwamanzi nomhlaba onikezwe kwisayithi elilodwa. Ungagcina isayithi kufayela lephrojekthi: ikheli elithayiphiwe, umthombo ngamunye nosuku okwatholwe ngalo nelayisensi yawo, kanye nalokho okwabuya. Vula kabusha noma yabelana ngephrojekthi isayithi lisekhona, ngaphandle kokuthola okusha. Ungayigcina futhi njengefayela lesayithi noma uyithumele ku-BimCraft. Bheka [Ikheli kuya kwisayithi](topic:address-to-site).
 
-**Umhlaba, imigwaqo, ukuhlola, izimayini, uxhumo nesitimela**
+**Umhlaba, imigwaqo, ukuhlola, izimayini, izixhumi nezitimela**
 
-- **Izinhlabathi nokuthambeka.** {{ui:Izinhlabathi nokuthambeka…}} idweba iphrofayili yenhlabathi phakathi kwezimbobo ozibhalayo. Indlela kaBishop bese isesha ijikeleze ebucayi emhlabathini wakho, ngomgeqo wamanzi, isisindo esengeziwe nesilinganiso sokunyakaza komhlaba; ukuhla kwesisekelo kuthola ukuhlanganiswa, ukuhla okusheshayo nesikhathi.
-- **Izixhumanisi nokumaka.** {{ui:Izixhumanisi nokumaka…}} ihlanganisa imilenze ngamajika omphetho wesikhawu (irediyasi eyodwa ngomlenze, noma amajika amathathu-isikhungo), ububanzi bokubona kwesivinini sokwakha, ukuhlolwa kwezinxantathu zokubona, izindawo zokuwela, imigqa yokuma, imiklomelo nezimpawu ngohlu lwezimpawu. Zidwetshwe kumdwebo bese zigcinwa njenge-.dxf ngezingqimba ezinamagama.
-- **Ukulungisa ukuhlola.** {{ui:Ukulungisa ukuhlola…}} yenza ukulungiswa kwe-least-squares kwe-traverse noma unethiwekhi: izixhumanganisi ezilungisiwe, ama-ellipse amaphutha, ukuhlolwa kwe-chi-squared kanye nophawu esilinganisweni esingalingani. Unethiwekhi wamahhala, ukuvala i-traverse ngomthetho wekhampasi kanye ne-RW5, amafayela asensimini ka-GSI, JobXML noma CSV ayafakiwe, namaphoyinti alungisiwe agcinwa njenge-CSV.
-- **Imigodi evulekile.** {{ui:Imigodi evulekile…}} iguqula amasampula okubhoboza ibe yimodeli yebhlokhi kanye nomgodi wokugcina ngaphakathi kwe-engeli yethambeka lakho, nesilinganiso sendawo, ithebula ngebhentshi nevini lesilinganiso nethani. Kukhona namagodi ahlukene ngesilinganiso sengeniso kanye nohlelo lokukhiqiza olunentengo esehliswayo.
-- **Izixhumi zomsakazo.** {{ui:Izixhumi zomsakazo…}} ihlola umugqa wokubona phezu komhlaba wakho ngokuvuvuka kwebhola lomhlaba, isigaba sokuqala se-Fresnel, isabelomali sokuxhuma, umkhawulo wokufiphala nokuphazamiseka kwe-multipath, bese inikeza ukuphakama kwemasti okuzosula indlela. Yenza futhi nezabelomali zokulahleka kwe-fibre, izinani lemizila nomoya ophezu kwethawa.
-- **Izinkinobho zesitimela.** {{ui:Amaswichi omgwaqo wesitimela…}} yenza iswichi ngenombolo yayo ye-frog, ukudlula phakathi kwamadlelo afanayo, nesikali sesakhiwo esithambekile ngenxa ye-cant futhi sandiswe ejikeleni. Iswichi ingahlala esiteshini semzila.
+- **Izinhlabathi nokuthambeka.** {{ui:Izinhlabathi nokuthambeka…}} idweba iphrofayili yenhlabathi phakathi kwezimbobo ozithayiphayo. Indlela kaBishop bese isesha isiphambano esibucayi emhlabeni wakho, nomfudlana, nesikhathi sesihlamvu sezobuvamile, nesigaba sokumuka, kanye nenani lokuqina. Ukuncipha kwesisekelo kuthola ukuhlanganiswa, ukuncipha okuphuthumayo nesikhathi.
+- **Izixhumanisi nokumaka.** {{ui:Izixhumanisi nokumaka…}} ihlanganisa imilenze ndawonye ngezigoqo zamakheli (ubukhulu obubodwa ngomlenze, noma izigoqo zamabili), ibanga lokubona ngesivinini sokuklama, ukuhlolwa kwezikhonkwane zokubona, izinhlanganiso zabahambi, izinkomba zokuma nezimpawu ngohlu lwezimpawu. Zidwetshwa epulani futhi zigcinwa njenge-DXF nezendlalelo ezinegama.
+- **Ukulungisa ukuhlola.** {{ui:Ukulungisa ukuhlola…}} isebenzisa ukulungiswa kwe-least-squares komzila noma inethiwekhi: amakhoordinethi alungisiwe, ama-ellipse angephutha, ukuhlolwa kwe-chi-squared nokuphawula kwesilinganiso esingafanele. Izinhlobo zamafayela womhlaba ze-free networks, ukuvala umzila ngomthetho we-compass kanye ne-RW5, GSI, JobXML noma CSV ziyafakwa, nezindawo ezilungisiwe zigcinwa njenge-CSV.
+- **Imigodi evulekile.** {{ui:Imigodi evulekile…}} iguqula izampula zokuchoboza ibe yimodeli yebhlokhi nomgodi wokugcina ngaphakathi kwe-engeli yakho yokuthambeka, ngesilinganiso sendawo yokumba, ithebula ngebhenshi kanye nevini lezinga nokulinganiswa kwesisindo. Imigodi ehlanganisiwe ngesilinganiso sengeniso nesikhathi sokukhiqiza esinemali ehlanjululwe nakho kukhona.
+- **Izixhumi zomsakazo.** {{ui:Izixhumi zomsakazo…}} ihlola umugqa wokubona ngaphezu komhlaba wakho ngokukhuphuka komhlaba, indawo yokuqala ye-Fresnel, ukubalwa kwamandla, umkhawulo wokufiphala nokuphazamiseka kwendlela, futhi inikeze ukuphakama kwesikhulumi okuzosicaca ngendlela. Iphinde yenze izilinganiso zokulahleka kwefayibha, izinombolo zomzila nomoya ohlasela uphahla.
+- **Amaswichi omgwaqo wesitimela.** {{ui:Amaswichi omgwaqo wesitimela…}} yenza iswichi kusuka enombolweni ye-frog yayo, ama-crossover phakathi kwamagatsha afana, nomkhulu womzila ophendekela ngokuphakama nokwelulwa ejikeni. Iswichi lingahlala esiteshini semzila.
 
-Bheka [Izinhlabathi, izixhumanisi, ukulungiswa kokuhlola, izimayini, izixhumi zomsakazo namaswichi](topic:soils-roads-survey-mines-links).
+Bheka [Ubumba, izinhlanganiso, ukuhlolwa, izimayini, izixhumi zomsakazo nama-turnout](topic:soils-roads-survey-mines-links).
 
-### Kuzo zonke izinhlelo
+### Ngaphakathi kwawo wonke ama-app
 
-- **Izilimi.** Izilimi ezingama-54, eziyishumi zazo zintsha. Izilimi ngaphandle kwesiNgisi ziyizinhlaka ezenziwe yimishini kuze kufundwe umuntu onolimi lwendabuko. Izihloko zosizo zisekhona zingesiNgisi ikakhulu.
-- **Imigqa yebha yamathuluzi.** {{ui:Izilungiselelo}} › {{ui:General}} › {{ui:Toolbar rows}}: Wrap (njengangaphambili), imigqa emi-2 noma umugqa oyi-1. I-Ribbon ye-CivilCraft ibonisa ithuluzi elisetshenziswa kakhulu likhulu, elilandelayo lincane, nezinye zisemuva kwe-arrow yegama leqoqo.
-- **Amadivayisi okufaka.** I-trackpad, ipeni, imouse ye-3D, isilawuli ne-MIDI zingasebenza izinhlelo.
-- **Izinkinga.** Ipaneli yeZinkinga exwayisa kuzo zonke izinhlelo, nokuhlola okufunda amaphakheji emithetho.
-- **Live.** Ukubuka ukuthi ubani ukuphi kuseshini ye-Live.
-- **Yengezo.** Uhlu lwezengezo, nezengezo zokukhanyisa.
-- **Xhuma i-AI yakho.** Noma yisiphi isisizi osixhumayo singashayela amathuluzi e-CivilCraft. Iza nenothi yokuthi ukuxhuma ngokuchofoza kube kodwa ku-CadCraft Studio nexhumanisi elisesiphezulu azilungele okwamanje. Bheka [Vumela isisizi se-AI sisebenze nendawo yakho](topic:assistants).
+- **Izilimi.** 54 izilimi, eziyishumi zazo zintsha. Izilimi ngaphandle kwesiNgisi ziyizinhlelo zomshini kuze kufundwe yisipikha sendabuko. Izihloko zosizo zisaseyisiNgisi ngokuningi.
+- **Imigqa yebha yamathuluzi.** {{ui:Izilungiselelo}} › {{ui:Okujwayelekile}} › {{ui:Imigqa yebha yamathuluzi}}: Wrap (njengangaphambili), imigqa 2 noma umugqa 1. I-Ribbon ye-CivilCraft ibonisa ithuluzi elisetshenziswa kakhulu ngokukhulu, elilandelayo libe lincane, nokunye okungemuva kwe-arrow yegama leqembu.
+- **Amadivayisi wokufaka.** I-trackpad, ipeni, imouse ye-3D, ikhonsoli nemidlalo ye-MIDI kungasebenzisa ama-app.
+- **Izinkinga.** Ipaneli yezinkinga esexwayisa kuwo wonke ama-app, ngokuhlolwa okufunda amaphakheji wemithetho.
+- **Ukuphila.** Umbono wabantu abasemagumbini esikhathini esiphilayo seSeshini.
+- **Ama-add-on.** Uhlu lwama-add-on, nama-add-on wokukhanya.
+- **Xhuma i-AI yakho.** Noma yimuphi umsizi oxhumile angasebenzisa amathuluzi e-CivilCraft. Ifakwe nenothi yokuthi ukuxhumana ngokuchofoza kanye nokuxhumana kwe-hosted akukalungi. Bheka [Vumela umsizi we-AI asebenze nesayithi lakho](topic:assistants).
 
-### Okulungisiwe ku-0.8.1
+### Okulungiswe ku-0.8.1
 
-- **Isigaba sezigaba ze-DWG.** Sasifundwa njengohlobo olungalungile (GitHub cadcraft#5). Kulungisiwe ku-CivilCraft kanye ne-CadCraft, BimCraft, ModelCraft kanye ne-TakeoffCraft.
-- **Ukushintsha ulimi kusasebenza.** I-CadCraft Studio nezinhlobo ezipakiwe zingashintsha ulimi ngesikhathi sokusebenza. Kwakuqala kuphela ngesiNgisi. Akukahlolwa kuzo zonke izinkundla: sitshele uma ulimi lungashintshi.
+- **Isigaba samakilasi e-DWG.** Sasifundwa njengohlobo olungalungile (GitHub cadcraft#5). Kulungiswe ku-CivilCraft kanye ne-CadCraft, BimCraft, ModelCraft ne-TakeoffCraft.
+- **Ukushintsha ulimi ngenkathi kusebenza.** I-CadCraft Studio namaphakheji anguqula ulimi ngesikhathi sokusebenza. Ngaphambili kwakuyiSiNgisi kuphela. Akuvivinywanga kuwo wonke amaplatifomu: sitshele uma ulimi lungashintshi.
 
-### Akukakufakwa kule nguqulo
+### Akukakabi kule nguqulo
 
-- **Lezi yizisizi zokubala.** Yonke imiphumela yezindawo ezintsha idinga ukuhlolwa yinjiniyela. Amandla omhlabathi aqala kumanani ajwayelekile eqoqo lenhlabathi, futhi iwindi liyasho lokho.
-- **Yenza imvula.** Ukusebenza esiteshini sesampula kungathatha ngaphezu kwemizuzu emibili ebhrawuzeni ngeseli elicolile. Kuhlolwe ngamacala ngesandla nangokuqoqwa kwamanzi okunesimo se-V, akukahlolwa emhlabathini wangempela owulinganisiwe.
-- **Ikheli kuya esizeni.** Ifunda amafayela edatha evulekile oyiletha, futhi ihlolwe kumafayela ethu kuphela. Imithi ayisiyo umthombo. Ukulanda imithombo ngawe kulinda umbhalo wemfihlo.
-- **Inqubekelaphambili kusuka ezifundweni.** Ihlolwe ezifundweni ezenziwe kuphela. Inqubekelaphambili kumashidi nakumamaki (MarkupCraft) kanye nokuskena kuqhathaniswa nemodeli (BimCraft) akwakhiwe.
-- **Izinhlabathi nokuthambeka.** Izindawo ezijikelezayo kuphela: akukho kusesha kwewedge noma kwebhlokhi futhi akukho ukuqhekeka kokuqina.
-- **Izixhumanisi.** Irediyasi eyodwa ngomlenze, akukho ama-swept paths amalori, futhi azikangeni ekhoridorweni okwamanje.
-- **Amafayela asensimini.** Abafundi bakhiwe ngezincazelo zefomethi zoluhlobo oluvulekile futhi bahlolwe emafayelini esiwenzile. Kudingeka amafayela angempela ezinsimbi.
-- **Izixhumi nesitimela.** Izixhumi zomsakazo: ukulahleka kwesikhala esingenamoya nomnyango wemipathi kuphela (akukho ukungena kwemvula noma amaphethini wenkanyezi), futhi akukho nomgomo wesitimela: lonke umkhawulo wesitimela ibhokisi lokubamba, nezinombolo zokusalungiswa ezingakahlolwa unjiniyela wesitimela.
-- **I-Windows ne-macOS.** I-0.8 ayisayinwanga ngekhodi. I-Windows ingasho isexwayiso, futhi i-macOS icela ukuchofoza ngesokudla bese Vula.
+- **Lezi ziyizinsiza zokubala.** Imiphumela yonke ezindaleni ezintsha idinga ukuhlolwa komhlaziyi. Amandla omhlaba aqala ezinhlobonhlobeni ezijwayelekile zeqembu lomhlaba, nalokho iwindi liyasho.
+- **Yenza imvula.** Ukusebenza esayithini lesampula kungathatha ngaphezu kwemizuzu emibili esiphequluli ngesinyathelo esingabazeki sengosi. Kuhlolwe ngezimo zezandla nengosi eyisiVe, hhayi ngesayithi langempela elihlolwe.
+- **Ikheli kuya kwisayithi.** Ifunda amafayela womphakathi owunikezayo, futhi yahlolwa kumafayela ethu kuphela. Izihlahla azisiyo umthombo. Ukutholwa komthombo wenu kulindele umbhalo wemfihlo.
+- **Ukuhlola ngezinhlobonhlobo.** Kuhlolwe ngezinhlobonhlobo ezenziwe ngabantu, hhayi ngezinhlobonhlobo ezithe ngokwenene. Inqubekelaphambili kumashidi nemarkups (MarkupCraft) kanye nokuskena ngokumelene nemodeli (BimCraft) akwakhiwe.
+- **Ubumba nezinhlaka.** Izindawo zomzimba zangaphansi kuphela; hhayi izingqimba ezimbalwa ngesikhathi.
+- **Izinhlanganiso.** Ukuthi umugqa wodwa ngomkhawulo, hhayi izigoqo zamakheli ezimbili ngomlenze; azikho izindawo zokuhamba zemvelo zomthwalo.
+- **Izingxenye zokuhlola.** Abafundi bathi bakhiwe ezincazelweni zomphakathi zefomethi bese bezama ngamafayela esiwenzile. Kudingeka amafayela ezinsimbi zangempela.
+- **Izixhumi nezitimela.** Izixhumi zomsakazo: ukulahlekelwa kwesikhala nokuphazamiseka kwendlela kuphela (akukho ukwehla kwemvula noma amaphethini wenkanyezi), futhi akukho ukwelashwa kwezitimela: zonke izimo zezitimela ziyizinhlamvu zesikhashana, ngezinombolo zesisuka ezingazange zihlolwe ngumhlaziyi wezitimela.
+- **Windows nemacOS.** I-0.8 ayiqinisekiswanga ngekhodi. I-Windows ingayisho, nemacOS icela ukuthi uchofoze ngesokudla bese uvula.
 
-Konke okunye kukuhlu [Akukakwakhiwa](topic:not-built-yet). Ukuze uthole inguqulo yangaphambili, bheka [Okusha ku-0.7](topic:whats-new-0-7).
+Konke okunye kusencwadini [Akukakhiwa okwamanje](topic:not-built-yet). Ngokukhishwa okwangaphambili, bheka [Okusha ku-0.7](topic:whats-new-0-7).

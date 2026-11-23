@@ -80,7 +80,7 @@ export function meshFromItem(item) {
 export function cleanFreeform(list) {
   const out = [];
   for (const f of Array.isArray(list) ? list.slice(0, 200) : []) {
-    if (!f || !/^l\d{1,9}$/.test(String(f.id))) continue;
+    if (!f || !/^l\d{1,16}$/.test(String(f.id))) continue;
     const mesh = checkMesh(f.mesh), at = f.at && fin(f.at.x) && fin(f.at.y) ? { x: f.at.x, y: f.at.y, rot: fin(f.at.rot) ? ((f.at.rot % 360) + 360) % 360 : 0 } : null;
     if (!mesh || !at) continue;
     out.push({ id: f.id, name: str(f.name) || 'Freeform', mesh, at, base: f.base === 'cut' ? 'cut' : 'follow', baseZ: fin(f.baseZ) && Math.abs(f.baseZ) < 1e6 ? f.baseZ : null,

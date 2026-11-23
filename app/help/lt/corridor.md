@@ -1,105 +1,120 @@
 ---
-title: Kelio koridoriaus išvedimas
-summary: Įjunkite koridorių trasai, nustatykite juostų, pakelės ir šoninio nuolydžio reikšmes bei skaitykite jo sukuriamus pjūvius, išėjimo linijas ir žemės darbus.
-keywords: viražas, super, įvedimo ruožas, išvedimo ruožas, nuolydžių lentelė, skersinis nuolydis, pasukimas, koridorius, surinkimas, tipinis skerspjūvis, kelias, juosta, pakelė, skersinis nuolydis, šoninis nuolydis, išėjimas, iškasa, pylimas, pjūviai, tikslas, tikslai, pločio tikslas, aukščio tikslas, poslinkio tikslas, platinimas, važiuojamosios dalies kraštas, sekti kitą koridorių
-from: 91303189
+title: Kelio koridorius išilgai trasos
+summary: Įjunkite trasos koridorių, nustatykite juostos, pakraščio ir šoninio šlaito reikšmes ir peržiūrėkite skyrius, ribines linijas bei gruntų darbus, kuriuos jis sukuria.
+keywords: sankryža, susikirtimas, kelias susitinka su keliu, šoninis kelias, T sankryža, kirtimasis, aikštelės lygis, jungimas, susiejimas, superelevacija, posūkis, išėjimo ruožas, išlyginimo ruožas, nuolydžių lentelė, skersinis nuolydis, pasukimas, koridorius, sudėtis, tipinis skyrius, kelias, juosta, pakraštys, skersinis nuolydis, šoninis šlaitas, ribinė linija, iškasa, įpylimas, skyriai, tikslas, tikslai, pločio tikslas, aukščio tikslas, poslinkio tikslas, platinimas, dangos kraštas, sekti kitą koridorių
+from: 6dcb92b3
 ---
 
-Koridorius išvedžioja vieną paprastą tipinį skerspjūvį palei trasą ir jos projektinį profilį, sujungia jį su esamu gruntu ir prideda rezultatą prie projektuojamo paviršiaus. Trasoje gali būti keli koridoriai skirtinguose pikketų ruožuose, o koridorių galima sudaryti iš pakartotinai naudojamų šablonų pagal pikketą ([Koridoriaus šablonai](topic:corridor-templates)). Toliau pateiktas paprastas surinkimas yra vienodas abiejose pusėse; norėdami kiekvienai pusei duoti savas dalis, žr. [Kiekvieną pusę sudaryti iš dalių](topic:corridor#build-each-side-from-parts).
+Koridorius išilgai trasos ir jos projektinio profilio nutiesia vieną paprastą tipinį skyrių (sudėtį), suveda jį su esamu gruntu ir įtraukia rezultatą į projektuojamą paviršių. Vienai trasai gali priklausyti keli koridoriai skirtinguose stacionažo ruožuose, o koridorių galima sudaryti iš daugkartinio naudojimo šablonų pagal stacionažą ([Koridoriaus šablonai](topic:corridor-templates)). Toliau aprašyta paprasta sudėtis yra vienoda abiejose pusėse; jei norite, kad kiekviena pusė turėtų savas dalis, žr. [Kiekvieną pusę sudarykite iš dalių](topic:corridor#build-each-side-from-parts).
 
-## Surinkimas
+## Sudėtis
 
-Nuo centrinės linijos į išorę, kiekvienoje pusėje:
+Nuo ašies į išorę, abiejose pusėse:
 
-1. **juosta** nurodyto pločio, nuo vainiko krintanti pagal **juostos nuolydį**
-2. **pakelė** nurodyto pločio su **pakelės nuolydžiu**
-3. **šoninis nuolydis** nuo pakelės krašto iki susitikimo su gruntu: **iškasos nuolydis**, kai gruntas aukščiau, ir **pylimo nuolydis**, kai žemiau
+1. **juosta** nurodyto pločio, nuo kelio skardos krypstanti **juostos nuolydžiu**
+2. **pakraštys** nurodyto pločio su **pakraščio nuolydžiu**
+3. **šoninis šlaitas** nuo pakraščio krašto iki susikirtimo su gruntu: **iškasos šlaitas**, kai gruntas yra aukščiau, ir **įpylimo šlaitas**, kai jis yra žemiau
 
 Pradinės reikšmės yra vietos rezervuotojai, o ne projektavimo standartas:
 
-| Reikšmė | US feet | Metrai |
+| Reikšmė | JAV pėdos | Metrai |
 |---|---|---|
 | Juostos plotis | 12 ft | 3.6 m |
 | Juostos nuolydis | 2% | 2% |
-| Pakelės plotis | 4 ft | 1.2 m |
-| Pakelės nuolydis | 4% | 4% |
-| Iškasos nuolydis | 2 : 1 | 2 : 1 |
-| Pylimo nuolydis | 3 : 1 | 3 : 1 |
-| Pjūvis kas | 10 ft | 5 m |
+| Pakraščio plotis | 4 ft | 1.2 m |
+| Pakraščio nuolydis | 4% | 4% |
+| Iškasos šlaitas | 2 : 1 | 2 : 1 |
+| Įpylimo šlaitas | 3 : 1 | 3 : 1 |
+| Skyrius kas | 10 ft | 5 m |
 
-Šoninių nuolydžių nuolydžiai yra horizontalūs su vertikaliais (H:V): 3 : 1 reiškia 3 vienetus į šoną už 1 žemyn.
+Šoninių šlaitų nuolydžiai nurodomi horizontaliai ir vertikaliai (H:V): 3 : 1 reiškia 3 horizontaliai už 1 vertikaliai.
 
-## Sukurti koridorių
+## Sukurkite koridorių
 
-Jums reikia trasos be klaidų ir projektinio profilio su bent dviem PVI, be klaidų.
+Reikia trasos be klaidų ir projektinio profilio, turinčio bent du PVI ir jokių klaidų.
 
 1. Pasirinkite trasą.
-2. Dešinėje srityje, skiltyje **Koridorius**, pažymėkite **Išvesti surinkimą palei projektinį profilį**.
-   Laukai atsiranda ir koridorius iš karto sukuriamas. Plane rodomi juostos ir pakelės kraštai bei išėjimo linijos; kai skiltyje **Rodymas** pasirinktas {{ui:Projektuojamas (su nuolydžiais)}}, horizontalės rodo naują gruntą.
-3. Pakeiskite bet kurią reikšmę: **Juostos plotis**, **Juostos nuolydis**, **Pakelės plotis**, **Pakelės nuolydis**, **Iškasos nuolydis**, **Pylimo nuolydis**, **Pjūvis kas**. Po kiekvienos paspauskite {{key:Enter}}. Iškasos, pylimo ir pjūvių tarpo reikšmės turi būti didesnės už 0.
-4. Perskaitykite eilutę po laukais, pavyzdžiui „39 pjūviai nuo 0+00.00 iki 3+86.36; iškasa 240.2 cu yd, pylimas 556.0 cu yd.“
+2. Dešiniajame skydelyje, skiltyje **Koridorius**, pažymėkite **Nutiesti sudėtį išilgai projektinio profilio**.
+   Atsiranda laukai, ir koridorius sukuriamas iš karto. Plane rodomi juostos ir pakraščio kraštai bei ribinės linijos; jei skiltyje **Rodymas** pasirinkta {{ui:Projektuojamas (su nuolydžiais)}}, kontūrai rodo naują gruntą.
+3. Pakeiskite bet kurią reikšmę: **Juostos plotis**, **Juostos nuolydis**, **Pakraščio plotis**, **Pakraščio nuolydis**, **Iškasos šlaitas**, **Įpylimo šlaitas**, **Skyrius kas**. Po kiekvienos paspauskite {{key:Enter}}. Iškasos ir įpylimo šlaitų santykiai bei skyrių tarpas turi būti didesni nei 0.
+4. Perskaitykite eilutę po laukais, pavyzdžiui: „39 skyriai nuo 0+00.00 iki 3+86.36; iškasa 240.2 cu yd, įpylimas 556.0 cu yd.“
 
-Pjūviai pjaunami kas kiekvieną **Pjūvis kas** žingsnį, galuose, bei kiekvienos horizontaliosios ir vertikaliosios kreivės pradžioje ir pabaigoje. Kiekvienas pjūvis ir linijos per juos (centrinė linija, juostos ir pakelės kraštai, išėjimo linijos) tampa projektuojamo paviršiaus lūžio linijomis.
+Skyriai pjaunami kas **Skyrius kas** žingsnį, galuose ir kiekvienos horizontaliosios bei vertikaliosios kreivės pradžioje ir pabaigoje. Kiekvienas skyrius ir per juos einančios linijos (ašis, juostų ir pakraščių kraštai, ribinės linijos) tampa projektuojamo paviršiaus lūžio linijomis.
 
-Norėdami išjungti koridorių, nuimkite žymėjimą nuo langelio. Jo reikšmės išsaugomos kitam kartui.
+Norėdami išjungti koridorių, panaikinkite langelio pažymėjimą. Jo reikšmės išsaugomos kitam kartui.
 
-## Kai jis nesudaromas
+## Kai koridorius nesukuriamas
 
-Raudonas langelis po laukais paaiškina, kodėl:
+Raudonas langelis po laukais nurodo priežastį:
 
 | Pranešimas | Ką daryti |
 |---|---|
-| „Koridoriui reikia projektinio profilio be klaidų.“ | Pridėkite PVI arba ištaisykite persidengiančias vertikaliąsias kreives (žr. [Projektuoti vertikalųjį profilį](topic:profile)). |
-| „Projektinis profilis nesutampa su trasa.“ | Perkelkite PVI į trasos pikketų ruožą. |
-| „Koridoriui reikia bent dviejų pjūvių paviršiuje.“ | Didžioji koridoriaus dalis yra už esamo grunto ribų. |
-| „4 šoniniai nuolydžiai išeina už paviršiaus ribų prieš pasiekdami gruntą.“ | Paviršiaus krašto artumoje nuolydis nepasiekia grunto. Laikykite kelią toliau nuo krašto arba ten sumažinkite pylimo ar iškasos aukštį. |
-| „Koridoriaus išėjimo linijos kertasi (pjūviai persidengia, pavyzdžiui siauro posūkio vidinėje pusėje). Naudokite didesnį spindulį arba siauresnį surinkimą.“ | Pjūviai aštraus posūkio vidinėje pusėje persidengia. Padidinkite spindulį arba sumažinkite surinkimą. |
+| „The corridor needs a design profile without errors.“ (Koridoriui reikalingas projektinis profilis be klaidų.) | Pridėkite PVI arba ištaisykite persidengiančias vertikaliąsias kreives (žr. [Projektuokite vertikalųjį profilį](topic:profile)). |
+| „The design profile does not overlap the alignment.“ (Projektinis profilis nesutampa su trasa.) | Perkelkite PVI į trasos stacionažo ruožą. |
+| „The corridor needs at least two sections on the surface.“ (Koridoriui paviršiuje reikia bent dviejų skyrių.) | Didžioji koridoriaus dalis yra ne esamame grunte. |
+| „4 side slopes run off the surface before meeting the ground.“ (4 šoniniai šlaitai baigiasi paviršiumi, nepasiekę grunto.) | Paviršiaus krašto zonoje šlaitas negali pasiekti grunto. Laikykite kelią toliau nuo krašto arba sumažinkite įpylimo ar iškasos aukštį toje vietoje. |
+| „The corridor’s daylight lines cross (sections overlap, for example on the inside of a tight curve). Use a larger radius or narrower assembly.“ (Koridoriaus ribinės linijos kertasi: skyriai persidengia, pavyzdžiui, staraus posūkio vidinėje pusėje. Naudokite didesnį spindulį arba siauresnę sudėtį.) | Staraus posūkio vidinės pusės skyriai persidengia. Padidinkite spindulį arba susiaurinkite sudėtį. |
 
-Koridorius su problema neformuojamas į gruntą ir neįskaičiuojamas žemės darbuose.
+Koridorius su problema nėra suvedamas į gruntą ir neįskaičiuojamas į gruntų darbus.
 
 ## Koridoriai ir aikštelės kartu
 
-Projektuojamas paviršius sudaromas eilės tvarka: pirmiausia visi koridoriai, paskui visos aikštelės. Ten, kur aikštelės formavimas kertasi su koridoriumi, pirmenybę turi aikštelė. Tūriai skaičiuojami visų išėjimo linijų viduje kartu; žr. [Žemės darbų tūriai](topic:volumes).
+Projektuojamas paviršius kuriamas eilės tvarka: pirmiausia visi koridoriai, po to visos aikštelės. Ten, kur aikštelės suvedimas persidengia su koridoriumi, lemia aikštelė. Ten, kur vėlesnis objektas persidengia su keliu, pakeičiama tik ta kelio dalis, kuri yra vėlesnio objekto ribinės linijos viduje; likusi kelio dalis ir visos gruntą kertančios lūžio linijos išlaiko savo formą. Apimtys skaičiuojamos visose ribinėse linijose kartu; žr. [Gruntų darbų apimtys](topic:volumes).
 
-## Viražas
+## Superelevacija
 
-Per kreivę kelias gali pasvirti į vidinę pusę, todėl eismas mažiau spaudžiamas į išorę. Skiltyje **Viražas** trasos **Ypatybėse** pažymėkite **Įvesti viražą kreivėse**:
+Posūkyje kelias gali būti pasvirtas į vidinę pusę, todėl eismas mažiau spaudžiamas į išorę. Trasos **Ypatybėse**, skiltyje **Superelevacija**, pažymėkite **Superelevuoti posūkius**:
 
-- Kiekviena apskritiminė kreivė paima normą **e** iš normų lentelės: pirmą eilutę, kurios spindulį kreivė pasiekia (eilutė su tuščia norma palieka įprastą vainiką). Lentelė ir **Didžiausias santykinis nuolydis** (pradžioje 0.5 %) yra vietos rezervuotojai, ne standartas: nustatykite juos pagal savo projektavimo kriterijus. Pridėkite ar pašalinkite eilutes pagal poreikį.
-- Juostos sukasi aplink centrinę liniją. Prieš kreivę išorinė juosta išlyginama per **išvedimo ruožą** (įprastas vainikas ÷ e × **įvedimo ruožas**), tada per **įvedimo ruožą** (juostos plotis × e ÷ nuolydis) išorinė juosta toliau sukasi, kol visas kelias nuslysta e vidinės pusės link; du trečdaliai įvedimo ruožo yra prieš kreivę, vienas trečdalis – ant jos. Po kreivės vyksta atvirkščiai.
-- Žemoje pusėje esanti pakelė niekada nebūna lygesnė už savo juostą; aukštoje pusėje ji išlaiko savo nuolydį (ji nusiriečia).
-- Lentelė po ja išvardija kiekvienos kreivės spindulį, normą, įvedimo ir išvedimo ruožus bei vietas, kur prasideda ir baigiasi pilnas viražas. **Viražo diagrama** braižo abiejų juostų skersinius nuolydžius palei pikketus (kairė juosta – ištisine linija, dešinė – brūkšnine).
-- Kreivė, per trumpa pasiekti pilną viražą, arba dvi kreivės, kurių pereinamieji ruožai persidengia, nurodoma dėžutėje virš lentelės.
+- Kiekviena apskritiminė kreivė pagal nuolydžių lentelę gauna reikšmę **e**: pirmoji eilutė, kurios spindulį kreivė pasiekia (eilutė su tuščia reikšme palieka įprastą skardą). Lentelė ir **Didžiausias santykinis nuolydis** (pradžioje 0.5 %) yra vietos rezervuotojai, o ne standartas: nustatykite juos pagal savo projektavimo kriterijus. Eilutes pridėkite arba šalinkite pagal poreikį.
+- Juostos sukasi apie ašį. Prieš posūkį išorinė juosta išlyginama per **išėjimo ruožą** (įprasta skarda ÷ e × išlyginimo ruožas), o paskui per **išlyginimo ruožą** (juostos plotis × e ÷ nuolydis) išorinė juosta toliau sukasi, kol visas kelias nuo e nuolydžio krypsta į vidinę pusę; du trečdaliai išlyginimo ruožo yra prieš posūkį, o vienas trečdalis – posūkyje. Po posūkio tas pats vyksta atvirkštine tvarka.
+- Žemesnėje pusėje esantis pakraštys niekada nebūna lygesnis už savo juostą; aukštesnėje pusėje jis išlaiko savo nuolydį (nusirita).
+- Lentelė po ja nurodo kiekvienos kreivės spindulį, reikšmę, išlyginimo ir išėjimo ruožus bei vietas, kur prasideda ir baigiasi visa superelevacija. **Superelevacijos schema** pagal stacionažus braižo abiejų juostų skersinius nuolydžius (kairioji juosta – ištisine, dešinioji – brūkšnine linija).
+- Apie kreivę, per trumpą pasiekti visą superelevaciją, arba apie dvi kreives, kurių pereinamieji ruožai persidengia, pranešama langeliu virš lentelės.
 
-Pjūviai, tūriai, 3D vaizdas ir brėžiniai visi rodo pasvirusį kelią. Kiekvienas pakeitimas – vienas žingsnis: {{key:Mod+Z}} jį anuliuoja.
+Skyriai, apimtys, 3D rodinys ir lapai visi rodo pasvirusį kelią. Kiekvienas pakeitimas yra vienas žingsnis: {{key:Mod+Z}} jį anuliuoja.
 
 ## Tikslai
 
-Tikslas perkelia vieną kelio vienos pusės tašką į liniją: **Važiuojamosios dalies kraštas** arba **Pakelės kraštas**, kairėje arba dešinėje pusėje. Kiekvienas pjūvis susitinka su linija statmenai centrinei linijai, eidamas į išorę tik toje pusėje, todėl dešinės pusės tikslas niekada nejuda kairės pusės.
+Tikslas perkelia vieną kelio vienos pusės tašką į liniją: **Dangos kraštą** arba **Pakraščio kraštą**, **kairėje** arba **dešinėje** pusėje. Kiekvienas skyrius susikerta su linija statmenai ašiai, eidamas tik į tą pusę, todėl dešinės pusės tikslas niekada nejudina kairiosios.
 
-| Nustato | Kas nutinka, kur pjūvis susitinka su linija |
+| Nustato | Kas nutinka, kai skyrius susikerta su linija |
 |---|---|
-| **Plotis** | Taškas guli ant linijos: juosta (arba pakelė) platėja arba siaurėja iki jos, išlaikydama savo skersinį nuolydį. |
-| **Aukštis** | Taškas įgauna linijos aukštį toje vietoje, savo poslinkyje: juostos (arba pakelės) skersinis nuolydis seka. |
+| **Plotis** | Taškas atsiduria ant linijos: juosta (arba pakraštys) platėja arba siaurėja iki jos, išlaikydama savo skersinį nuolydį. |
+| **Aukštis** | Taškas ten įgyja linijos aukštį savo poslinkyje: juostos (arba pakraščio) skersinis nuolydis prisitaiko. |
 
-Linija gali būti charakteristinė linija (kad ir koks būtų jos **Naudojimas**) arba kito koridoriaus linija: jo centrinė linija, važiuojamosios dalies kraštai, pakelių kraštai arba išėjimo linijos. Kito koridoriaus linija seka tą koridorių: pakeiskite kitą kelią, ir šis seks. CivilCraft pirmiausia pastato kitą koridorių; du koridoriai, kurie taikytų vienas į kitą ciklu, atmetami vienoje pusėje, o lentelė nurodo, kurioje.
+Linija gali būti charakteristinė linija (kokia būtų jos **Paskirtis**) arba kito koridoriaus linija: jo ašis, dangos kraštai, pakraščių kraštai ar ribinės linijos. Koridoriaus linija seka tą koridorių: pakeiskite kitą kelią – šis seks. CivilCraft pirmiausia sukuria kitą koridorių; du koridoriai, kurie nukreiptų tikslus vienas į kitą ciklu, atmetami vienoje pusėje, o lentelėje nurodoma, kuriame.
 
 1. Pasirinkite trasą ir įjunkite jos koridorių.
 2. Skiltyje **Tikslai** spustelėkite {{ui:Pridėti tikslą}}.
-3. Pasirinkite **Pusę**, **Tašką**, ką jis **Nustato**, ir **Iki linijos**. Kiekvienas pakeitimas – vienas anuliavimo žingsnis.
+3. Pasirinkite **Pusę**, **Tašką**, ką jis **Nustato** ir **Iki linijos**. Kiekvienas pakeitimas – vienas anuliavimo žingsnis.
 
-**Rezultatas** nurodo, į kiek pjūvių linija buvo pasiekta. Pjūviai, kurie jos nepasiekia (už jos galų arba kur ji yra už centrinės linijos), išlaiko surinkimo reikšmes. Linija, kuri ištrinama, palieka koridorių tokį, koks buvo prieš tikslą, ir lentelė tai nurodo. Vienoje pusėje kiekvienam taškui gali būti po vieną pločio ir vieną aukščio tikslą.
+**Rezultatas** nurodo, prie kiek skyrių pasiekta linija. Skyriai, kurių linija nepasiekia (už jos galų arba už ašies), išlaiko sudėties reikšmes. Ištrynus liniją, koridorius lieka toks, koks buvo prieš tikslą, ir apie tai lentelėje pranešama. Vienoje pusėje kiekvienam taškui gali būti vienas pločio ir vienas aukščio tikslas.
 
-## Kiekvieną pusę sudaryti iš dalių
+## Kiekvieną pusę sudarykite iš dalių
 
-Įjunkite **Kiekvieną pusę sudaryti iš dalių** koridoriaus nustatymuose. Tada kiekviena pusė turi savo sąrašą nuo centrinės linijos į išorę: juostos, pakelė, latakas, bordiūras, želdynų juosta, šaligatvis ir, paskutinis, šoninis nuolydis iki grunto (su savo iškasos ir pylimo santykiais). Pradėkite nuo {{ui:Kelias užmiestyje}} arba {{ui:Miesto gatvė}}, pridėkite ir pašalinkite dalis, perkelkite jas rodyklėmis, o {{ui:Kopijuoti}} nukopijuokite vieną pusę į kitą. Kiekvienas pakeitimas – vienas anuliavimo žingsnis.
+Koridoriaus nustatymuose įjunkite **Kiekvieną pusę sudaryti iš dalių**. Tada kiekviena pusė turi savo sąrašą nuo ašies į išorę: juostas, pakraštį, lataką, bordiūrą, želdinių juostelę, šaligatvį ir galiausiai šoninį šlaitą iki grunto (su savo iškasos ir įpylimo santykiais). Pradėkite nuo {{ui:Kelias užmiestyje}} arba {{ui:Miesto gatvė}}, pridėkite ir šalinkite dalis, perkelkite jas rodyklėmis ir {{ui:Kopijuoti}} vieną pusę į kitą. Kiekvienas pakeitimas yra vienas anuliavimo žingsnis.
 
-Skersinis nuolydis yra nuokrypis nuo kelio, todėl šaligatvis, nukreiptas link kelio, turi neigiamą reikšmę. Bordiūras yra paviršius nurodyto aukščio, viršus nurodyto pločio ir pasirinktinis nusileidimas gale. Viražas pasuka kiekvieną juostą pirmoje eilutėje; latakas, bordiūras, juosta ir šaligatvis kabo nuo pastatytų juostų krašto. Tikslai vis dar perkelia juostų galą ir paskutinę dalį. Skersiniai pjūviai pažymi latako tėkmės liniją, bordiūro viršų ir užpakalinį kraštą bei kitus. Kreivėje su spiralėmis įvedimo ruožas yra spiralė: lygus vainikas TS taške, pilnas viražas SC taške.
+Skersinis nuolydis yra nuolydis nuo kelio, todėl šaligatvis, nukreipiantis vandenį link kelio, turi neigiamą reikšmę. Bordiūras yra nurodyto aukščio sienelė, nurodyto pločio viršus ir pasirinktinis nuokritis gale. Superelevacija pasuka visas juostas pirmoje eilutėje; latakas, bordiūras, juostelė ir šaligatvis kabo nuo juostų krašto, kaip pastatyta. Tikslai vis dar perkelia juostų galą ir paskutinę dalį. Skersiniuose pjūviuose pažymima latako tėkmės linija, bordiūro viršus ir galas bei kita. Kreivėje su spiralėmis išlyginimo ruožas yra spiralė: plokščias skardis TS taške, pilna superelevacija SC taške.
 
 ## Dangos sluoksniai
 
-Juostai, pakelei, lataky, želdynų juostai ar šaligatviui gali priklausyti jų konstrukcija: po dalimi {{ui:Pridėti sluoksnį}} prideda sluoksnį su pavadinimu, medžiaga, storiu ir rūšimi (paviršius, rišiklis, pagrindas, apatinis pagrindas, dengiamasis sluoksnis arba kita), iš viršaus žemyn. Sluoksniai nekeičia kelio paviršiaus (jo viršus yra projektuojamas paviršius); kiekvienas guli po savo dalimi, o jo gylis matuojamas tiesiai žemyn. Pjūviai kiekvieno sluoksnio apačią braižo brūkšnine linija, o {{ui:Dangos sluoksniai: kiekiai}} išvardija kiekvieno sluoksnio plano plotą ir tūrį (plotas išilgai koridoriaus pagal jo pjūvius, tūris = plotas × storis). IFC eksportas kiekvieną sluoksnį rašo kaip atskirą elementą su storiu ir medžiaga (žr. [IFC eksportas ir importas](topic:ifc)). Storis, kurį įvedate, yra jūsų: CivilCraft nedimensionuoja dangų.
+Juosta, pakraštys, latakas, želdinių juostelė ar šaligatvis gali turėti savo konstrukcijos sluoksnius: po dalimi {{ui:Pridėti sluoksnį}} prideda sluoksnį su pavadinimu, medžiaga, storiu ir rūšimi (paviršius, rišamasis, pagrindas, pagrindo sluoksnis, apsauginis sluoksnis ar kita), iš viršaus į apačią. Sluoksniai nekeičia kelio paviršiaus (jo viršus yra projektinis paviršius); kiekvienas guli po savo dalimi, o jo gylis matuojamas tiesiai žemyn. Skersiniuose pjūviuose kiekvieno sluoksnio apatinė riba braižoma brūkšnine linija, o {{ui:Dangos sluoksniai: kiekiai}} išvardija kiekvieno sluoksnio plotą plane ir tūrį (plotas išilgai koridoriaus pagal jo skyrius, tūris = plotas × storis). IFC eksportas kiekvieną sluoksnį įrašo kaip atskirą elementą su storiu ir medžiaga (žr. [IFC eksportas ir importas](topic:ifc)). Įvestas storis yra jūsų: CivilCraft dangos storio nenustato.
 
-## Kas dar nesukurta
+## Kur keliai susitinka su keliais, aikštelėmis ir takais
 
-Išėjimo nuolydžio tikslai dar nepasiekiami. Koridoriui, kuris keičiasi išilgai kelio, su atskirtomis kairiąja ir dešiniąja puse, naudokite [Koridoriaus šablonus](topic:corridor-templates). Žr. [Dar nesukurta](topic:not-built-yet).
+Įjungus {{ui:Sujungti kelius ir aikšteles, su kuriomis jis susikerta}} (kiekvienam koridoriui ji įjungta), CivilCraft sujungia koridorių su tuo, ką jis plane kerta:
+
+- **Kelias, kuris baigiasi ant kito kelio** (jo trasos galas guli ant kito kelio arba maždaug per pusę savo dangos pločio nuo to kelio krašto) yra sankryžos šoninis kelias. Kelias, su kuriuo jis susitinka, atveria savo kraštą šoninio kelio dangai: per žiotis pakraštys, bordiūras, juostelė ir šaligatvis klojami ant juostos skersinio nuolydžio ir braižomi kaip danga. Šoninis kelias klojamas ant pagrindinio kelio paviršiaus ten, kur jie persidengia, ir prijungiamas prie jo pakylant arba nusileidžiant per privažiavimą.
+- **Du kryžiuojantys keliai** sujungiami abiejose pusėse tuo pačiu būdu. Pirmasis kelias, išvardytas skiltyje Trasos, yra pravažiuojamasis kelias; kitas seka jo paviršių per sankryžą.
+- **Kelias, kuris baigiasi prie aikštelės** (jos viduje arba maždaug per pusę dangos pločio nuo jos krašto), pasiekia aikštelės lygį ir prie jo prijungiamas per privažiavimą.
+- **Takas** (Kraštovaizdis › Kietosios dangos) sustoja ties kelio išoriniu kraštu, šaligatvio ar pakraščio lygyje, o ne guli ant kelio. Takas, kertantis kelią, tampa dviem dalimis. Galas, nubrėžtas šiek tiek trumpiau nei iki kelio (per dvigubą tako pločio atstumą), tęsiamas iki jo krašto.
+
+**Ypatybėse** nurodoma, ką kiekvienas koridorius sujungė, kiek jame kelias buvo pakeltas arba nuleistas ir kokiu ilgiu. Tas ilgis yra didesnis iš 10 m (30 ft) ir dvidešimties pokyčių, ir niekada neviršija 45 % koridoriaus. **Projektinis profilis nekeičiamas**: profilio rodinys vis dar rodo nubrėžtą nuolydžio liniją, o skyriai, projektuojamas paviršius, apimtys ir 3D rodinys rodo kelią taip, kaip jis sujungtas. Norėdami, kad sujungimas būtų tikslus pagal projektą, perkelkite paskutinį PVI į lygį, kurį nurodo Ypatybės.
+
+Koridoriaus jungiklį išjunkite, jei norite, kad jis liktų tiksliai toks, kaip nurodyta jo profilyje ir sudėtyje; tada jis nedalyvauja jokioje sankryžoje nei kaip šoninis, nei kaip pravažiuojamasis kelias. Keliai, susitinkantys beveik vienoje tiesėje (mažiau nei apie 20°), paliekami nepakeisti, kaip ir žemės keliai.
+
+Ko sankryža dar nedaro: nėra bordiūrų lankų (kampai statūs), nėra posūkio juostų ar salelių, šoninio kelio galas nupjaunamas statmenai savo trasai, o koridorius, sudarytas iš šablonų, atveria savo kraštą tuo pačiu paprastu būdu (griovys ar siena jo galo sąlygoje išlyginami per žiotis, be pralaidos). Plano bordiūrų lankams, matomumo trikampiams ir ženklinimui žr. [Gruntai, keliai, matavimai, kasyklos ir ryšiai](topic:soils-roads-survey-mines-links).
+
+## Kas dar neįgyvendinta
+
+Ribinio šlaito tikslai dar nepasiekiami. Koridoriui, kuris kinta išilgai kelio, kai kairė ir dešinė pusės atskirtos, naudokite [Koridoriaus šablonai](topic:corridor-templates). Žr. [Dar neįgyvendinta](topic:not-built-yet).

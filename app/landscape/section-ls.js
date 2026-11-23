@@ -31,7 +31,7 @@ export function cleanSections(list, units) {
   const out = [];
   for (const s of Array.isArray(list) ? list.slice(0, 200) : []) {
     const pts = (Array.isArray(s?.pts) ? s.pts.slice(0, 2) : []).map(XY).filter(Boolean);
-    if (!/^l\d{1,9}$/.test(String(s?.id)) || pts.length < 2 || Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) < 1e-6) continue;
+    if (!/^l\d{1,16}$/.test(String(s?.id)) || pts.length < 2 || Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) < 1e-6) continue;
     out.push({ id: s.id, name: String(s.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 12) || 'A', pts,
       band: fin(s.band) && s.band >= 0 && s.band <= 1000 ? s.band : units === 'm' ? 3 : 10, vex: [1, 2, 5, 10].includes(s.vex) ? s.vex : 1 });
   }

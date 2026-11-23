@@ -25,14 +25,16 @@ function numberOf(v) {
 }
 
 export function checkPointEdit(points, n, patch = {}) {
-  const i = points.findIndex((p) => p.n === n);
+  // 0.11 (the cap lifted): a point table (project.pointTable) is searched by its names, no object a point; an array as before
+  const table = points && typeof points.indexOfName === 'function' ? points : null;
+  const i = table ? table.indexOfName(n) : points.findIndex((p) => p.n === n);
   if (i < 0) return { ok: false, errors: { n: t('pt.edit.gone', { n }) }, message: t('pt.edit.gone', { n }) };
-  const old = points[i], next = { ...old }, errors = {};
+  const old = table ? table.get(i) : points[i], next = { ...old }, errors = {};
   if ('n' in patch) {
     const v = String(patch.n ?? '').replace(CTRL, '').trim();
     if (!v) errors.n = t('pt.edit.n.empty');
     else if (v.length > 40) errors.n = t('pt.edit.n.long');
-    else if (v !== old.n && points.some((p) => p.n === v)) errors.n = t('pt.edit.n.taken', { n: v });
+    else if (v !== old.n && (table ? table.indexOfName(v) >= 0 : points.some((p) => p.n === v))) errors.n = t('pt.edit.n.taken', { n: v });
     else next.n = v;
   }
   for (const k of ['x', 'y']) {
@@ -61,13 +63,13 @@ export function checkPointEdit(points, n, patch = {}) {
 }
 
 export function editPoint(project, n, patch, { label } = {}) {
-  const r = checkPointEdit(project.points, n, patch);
+  const r = checkPointEdit(project.pointTable || project.points, n, patch);
   if (!r.ok) return r;
   const { old, point, index } = r;
   let followed = 0;
   const moved = point.x !== old.x || point.y !== old.y || point.z !== old.z;
-  project.editPoints(label || t('pt.edit.undo', { n: old.n }), (pts, s) => {
-    pts[index] = point;
+  project.editPointTable(label || t('pt.edit.undo', { n: old.n }), (ed, s) => {   // 0.11 PERF.21: hinted below (the breaklines live in k:surface); the step keeps this one row
+    ed.set(index, point);
     if (moved) {
       for (const b of s.surface.breaklines) {
         for (const v of b.pts) {
@@ -78,8 +80,7 @@ export function editPoint(project, n, patch, { label } = {}) {
         }
       }
     }
-    return pts;
-  });
+  }, { keys: ['k:surface'] });
   const parts = [t('pt.edit.done', { n: point.n })];
   if (point.n !== old.n) parts.push(t('pt.edit.renumbered', { from: old.n, to: point.n }));
   if (followed) parts.push(t('pt.edit.followed', { n: followed }));

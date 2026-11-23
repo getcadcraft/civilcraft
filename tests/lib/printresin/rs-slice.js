@@ -17,6 +17,7 @@
 import { cleanResin, DENSITIES } from './rs-profiles.js';
 import { rasterize } from './rs-raster.js';
 import { encodeLayer, decodeLayer } from './rs-rle.js';
+import { columnsOf, suctionCups, peelEstimate, braceSupports } from './rs-advise.js';
 
 const RAFT_MM = 0.8, TIP_MM = 0.8, FOOT_MM = 0.6;
 
@@ -93,6 +94,11 @@ export async function sliceResin(MF, tris, jobIn, { plateSolid, onProgress = nul
     warnings.push({ kind: 'skipped', n: skipped.length, of: skipped.length + used, share: Math.max(1, Math.round(lost / tris.length * 100)) });
   }
   if (!solid) return fail('open');
+  // RSN.9: a cavity that opens only toward the film holds suction when the layer peels (an estimate from a voxel picture of the part, cells of the cell size said in the warning)
+  try {
+    const cols = columnsOf(flat);
+    if (!cols.open) { const cups = suctionCups(cols).filter((c) => c.kind === 'cup'); if (cups.length) warnings.push({ kind: 'cups', n: cups.length, areaMm2: Math.round(cups.reduce((a, c) => a + c.areaMm2, 0)), cell: Math.round(cols.cell * 100) / 100, at: cups.slice(0, 5).map((c) => ({ x: c.x, y: c.y, z: c.z })) }); }
+  } catch { /* the advice is never worth failing a slice for */ }
   const bb = solid.boundingBox();
   const size = [bb.max[0] - bb.min[0], bb.max[1] - bb.min[1], bb.max[2] - bb.min[2]];
   const liftMm = job.supports ? job.lift : 0;
@@ -168,7 +174,7 @@ export async function sliceResin(MF, tris, jobIn, { plateSolid, onProgress = nul
     // ---- supports: a pillar for every point, down to the raft or to the part below it
     const discs = Array.from({ length: count }, () => []);
     let onModel = 0, onRaft = 0;
-    const rafts = [];
+    const rafts = [], pillars = [];
     if (job.supports) {
       const tipN = Math.max(1, Math.round(TIP_MM / lh)), footN = Math.max(1, Math.round(FOOT_MM / lh));
       for (const p of points) {
@@ -177,6 +183,7 @@ export async function sliceResin(MF, tris, jobIn, { plateSolid, onProgress = nul
         const base = stop >= 0 ? stop + 1 : raftLayers;
         if (base >= p.l) continue;
         if (stop >= 0) onModel++; else { onRaft++; rafts.push(p); }
+        pillars.push({ x: p.x, y: p.y, base, top: p.l, onRaft: stop < 0 });
         for (let l = base; l <= p.l; l++) {
           let r = D.shaft;
           const fromTop = p.l - l, fromBase = l - base;
@@ -184,6 +191,21 @@ export async function sliceResin(MF, tris, jobIn, { plateSolid, onProgress = nul
           if (stop >= 0 && fromBase < tipN) r = Math.min(r, D.tip + (D.shaft - D.tip) * fromBase / tipN);
           if (stop < 0 && fromBase < footN) r = D.base;
           discs[l].push([p.x, p.y, r]);
+        }
+      }
+    }
+    // RSN.9: braces between tall thin pillars, each a bar of the width the layers cut it at; none where the bar's middle would sit inside the part
+    const braces = [];
+    if (job.supports && job.bracing && pillars.length > 1) {
+      const bars = braceSupports(pillars.map((q) => ({ x: q.x, y: q.y, z0: q.base * lh, z1: q.top * lh, r: D.shaft })), { spacing: D.spacing });
+      for (const b of bars) {
+        const l = Math.round(b.z / lh), mx = (b.a[0] + b.b[0]) / 2, my = (b.a[1] + b.b[1]) / 2;
+        if (l >= L0 && l < count && cuts[l] && !cuts[l].isEmpty() && inside(polysOf(l), mx, my)) continue;
+        braces.push(b);
+        const dx = b.b[0] - b.a[0], dy = b.b[1] - b.a[1], L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+        for (let k = Math.max(0, Math.ceil((b.z - b.r) / lh - 0.5)); k < count && (k + 0.5) * lh <= b.z + b.r; k++) {
+          const dz = (k + 0.5) * lh - b.z, w = Math.sqrt(Math.max(0, b.r * b.r - dz * dz));
+          if (w > 0) discs[k].push({ rect: [[b.a[0] - nx * w, b.a[1] - ny * w], [b.b[0] - nx * w, b.b[1] - ny * w], [b.b[0] + nx * w, b.b[1] + ny * w], [b.a[0] + nx * w, b.a[1] + ny * w]] });
         }
       }
     }
@@ -250,15 +272,19 @@ export async function sliceResin(MF, tris, jobIn, { plateSolid, onProgress = nul
     const layers = [];
     let canvas = null;
     let areaSum = 0, supportMm3 = 0;
+    const layerArea = new Float64Array(count);
     for (let l = 0; l < count; l++) {
       await pause(l, 'draw'); sweep();
       const rings = [];
       let base = l >= L0 ? cuts[l] : null;
       if (base && !base.isEmpty() && cores[l]) base = t(base.subtract(cores[l]));   // the skin: the part less its cavity
       if (base && holes[l].length) base = t(base.subtract(t(CS.union(holes[l].map(([x, y, r]) => t(CS.circle(r, 24).translate([x, y])))))));
-      if (base && !base.isEmpty()) { areaSum += base.area() * lh; for (const r of base.toPolygons()) rings.push(r.map((p) => px(p[0], p[1]))); }
+      if (base && !base.isEmpty()) { const ba = base.area(); layerArea[l] = ba; areaSum += ba * lh; for (const r of base.toPolygons()) rings.push(r.map((p) => px(p[0], p[1]))); }
       if (l < raftLayers && raftRegion) { supportMm3 += raftRegion.area() * lh; for (const r of raftRegion.toPolygons()) rings.push(r.map((p) => px(p[0], p[1]))); }
-      for (const [x, y, r] of discs[l]) { supportMm3 += Math.PI * r * r * lh; rings.push(disc(x, y, r).map((p) => px(p[0], p[1]))); }
+      for (const d of discs[l]) {
+        if (d.rect) { const w2 = Math.hypot(d.rect[0][0] - d.rect[3][0], d.rect[0][1] - d.rect[3][1]), len = Math.hypot(d.rect[1][0] - d.rect[0][0], d.rect[1][1] - d.rect[0][1]); supportMm3 += w2 * len * lh; rings.push(d.rect.map((p) => px(p[0], p[1]))); continue; }
+        const [x, y, r] = d; supportMm3 += Math.PI * r * r * lh; rings.push(disc(x, y, r).map((p) => px(p[0], p[1])));
+      }
       canvas = rasterize(rings, w, h, { into: canvas });
       layers.push(encodeLayer(canvas, w, h));
       sweep(); drop(cuts[l]); drop(cores[l]); cuts[l] = null;   // nothing reads this layer again
@@ -267,7 +293,7 @@ export async function sliceResin(MF, tris, jobIn, { plateSolid, onProgress = nul
     const volumeMl = Math.round((areaSum + supportMm3) / 1000 * 100) / 100;
     const motion = 2 * job.liftHeight / (job.liftSpeed / 60) + job.lightOff;   // the plate up and back, per layer (a rough share: the real move depends on the firmware)
     const seconds = Math.round(Math.min(job.bottomLayers, count) * (job.bottomExposure + motion) + Math.max(0, count - job.bottomLayers) * (job.exposure + motion));
-    const stats = { layers: count, seconds, volumeMl, grams: Math.round(volumeMl * job.density_g * 10) / 10, cost: Math.round(volumeMl * job.density_g * job.price / 1000 * 100) / 100, size, supports: points.length, onRaft, onModel, islands: islands.length, lift: liftMm, hollow: job.hollow };
+    const stats = { layers: count, seconds, volumeMl, grams: Math.round(volumeMl * job.density_g * 10) / 10, cost: Math.round(volumeMl * job.density_g * job.price / 1000 * 100) / 100, size, supports: points.length, onRaft, onModel, islands: islands.length, lift: liftMm, hollow: job.hollow, braces: braces.length, peel: peelEstimate(layerArea, { layerHeight: lh, stress: job.peelStress }) };   // peel: the part's own layers, an estimate (rs-advise.js)
     return { ok: true, sliced, stats, warnings, islands };
   } finally {
     for (const c of free) c.delete?.();

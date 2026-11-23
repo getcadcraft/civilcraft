@@ -11,6 +11,8 @@
  *     exactly as engines.rs would: unzip into a fresh folder, node <script> <job>) — Run in the Flow tab runs REAL Icarus + Yosys, and a
  *     syntax error lands in the shared Problems store as an addon.chip.sim error at its line.
  *   node tools/addons-test/browser-chip.mjs [--shots dir]
+ *  4. the REAL tool outputs of 2026-11-21 (lib/chip/run/test/fixtures/real): Verilator's FST in Waves, KLayout's OASIS in Layout, the sky130 DRC
+ *     and the Magic + Netgen LVS results through "Open a result" into Problems.
  * Not tested here: the real Studio shell (engines.rs consent dialog, Windows/macOS) — that needs a Studio build on workstation11a.
  */
 import { execFileSync } from 'node:child_process';
@@ -46,6 +48,9 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cc-chip-browser-'));
 async function open({ studio = false } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, serviceWorkers: 'block', acceptDownloads: true });
   await ctx.addCookies([{ name: cname, value: cvalue, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
+  await ctx.addInitScript(() => localStorage.setItem('cc-autofocus', 'off'));
+  // not this add-on's: the Library auto-connect (30 an hour) and the hardware report (30 an hour) answer 429 after a day of page tests
+  await ctx.route(/\/api\/(library\/connect-auto|v1\/hardware)(\?|$)/, (r) => r.fulfill({ status: 204, body: '' }));   // the shell folds all but one panel section (2026-11-09); the chip section must stay open
   const page = await ctx.newPage();
   const problems = [];
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
@@ -71,7 +76,7 @@ async function open({ studio = false } = {}) {
   await page.goto(BASE + '/lab/cadcraft', { waitUntil: 'domcontentloaded' });
   await page.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('cc-addon:cadcraft:chip:')) localStorage.removeItem(k); const k = 'cc-addons:cadcraft'; const s = JSON.parse(localStorage.getItem(k) || '{}'); if (s.on) delete s.on.chip; localStorage.setItem(k, JSON.stringify(s)); indexedDB.deleteDatabase('cadcraft-chip'); });
   await page.goto(BASE + '/lab/cadcraft', { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => !!window.cadcraft?.host && !!window.ccAddons);
+  await page.waitForFunction(() => !!window.cadcraft?.host && !!window.ccAddons, null, { timeout: 90000 });
   await page.waitForFunction(() => window.ccAddons.list().some((a) => a.id === 'chip' && a.state !== 'loading'), null, { timeout: 15000 }).catch(() => {});
   return { ctx, page, problems };
 }
@@ -191,7 +196,7 @@ try {
   const P = E.page;
   await P.evaluate(() => window.ccAddons.loader.setEnabled('chip', true));
   await P.waitForFunction(() => !!window.ccChip, null, { timeout: 15000 }).catch(() => {});
-  ok(!!(await P.$('[data-chip-honesty]')) && /not a signed-off tape-out system/.test(await P.$eval('[data-chip-honesty]', (e) => e.textContent)) && /OpenROAD \(BSD-3-Clause\): not run by us yet/.test(await P.$eval('[data-chip-honesty]', (e) => e.textContent)), 'the honesty card on the Project tab (no PDK, no foundry claims, tools not run by us yet)');
+  ok(!!(await P.$('[data-chip-honesty]')) && /not a signed-off tape-out system/.test(await P.$eval('[data-chip-honesty]', (e) => e.textContent)) && /OpenROAD \(BSD-3-Clause\): run by us on the sample design/.test(await P.$eval('[data-chip-honesty]', (e) => e.textContent)) && !/not run by us yet/.test(await P.$eval('[data-chip-honesty]', (e) => e.textContent)), 'the honesty card on the Project tab (no PDK, no foundry claims; every tool run by us on the sample, 2026-11-21)');
   P.on('dialog', (d) => d.accept());
   await P.click('[data-chip-sample]');
   await P.waitForFunction(() => window.ccChip.ctx.files.list().includes('out/layout/pebble.gds') && window.ccChip.ctx.project.get().name === 'Pebble (sample)', null, { timeout: 20000 }).catch(() => {});
@@ -265,6 +270,60 @@ try {
   ok(/Yosys 0\.9/.test(lastSyn) && /same as then/.test(lastSyn), 'Flow: the sample\'s recorded Yosys run, inputs the same as then — ' + lastSyn);
   ok(!E.problems.length, 'no console errors', E.problems.slice(0, 5).join(' | '));
   await E.ctx.close();
+
+  console.log('4. REAL tool outputs in the page (workstation11a 2026-11-21, lib/chip/run/test/fixtures/real): FST waves, KLayout\'s OASIS, the sky130 DRC and LVS results');
+  {
+    const RX = (n) => path.join(ROOT, 'lib/chip/run/test/fixtures/real', n);
+    const F = await open();
+    const Q = F.page;
+    await Q.evaluate(() => window.ccAddons.loader.setEnabled('chip', true));
+    await Q.waitForFunction(() => !!window.ccChip, null, { timeout: 15000 }).catch(() => {});
+    const putBytes = (name, file) => Q.evaluate(async ([n, b64]) => { await window.ccChip.ctx.files.write(n, Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))); }, [name, fs.readFileSync(file).toString('base64')]);
+    await putBytes('real/verilator-wave.fst', RX('verilator-wave.fst'));
+    await putBytes('real/klayout-cblock.oas', RX('klayout-cblock.oas'));
+    await Q.waitForTimeout(400);
+    await tab(Q, 'waves');
+    await Q.selectOption('[data-chip-vcd]', 'real/verilator-wave.fst').catch((e) => console.log('    ' + e.message.split('\n')[0]));
+    await Q.waitForTimeout(700);
+    const fl = await Q.$eval('[data-chip-panel="waves"] canvas', (c) => c.getAttribute('aria-label')).catch(() => '');
+    const note = await Q.$eval('[data-chip-panel="waves"]', (e) => e.innerText).catch(() => '');
+    ok(/of 84 signals/.test(fl) && !/could not be read|not read yet/.test(note), 'Waves: Verilator\'s FST file read by our FST reader and drawn (' + fl + ')', note.slice(0, 160));
+    await Q.screenshot({ path: path.join(SHOTS, 'chip-20-real-fst.png') });
+    await tab(Q, 'chip-layout');
+    await Q.waitForTimeout(300);
+    await Q.selectOption('[data-chip-panel="chip-layout"] select >> nth=0', 'real/klayout-cblock.oas').catch((e) => console.log('    ' + e.message.split('\n')[0]));
+    await Q.waitForTimeout(2500);
+    const px = await Q.evaluate(() => { const c = document.querySelector('[data-chip-panel="chip-layout"] canvas'); if (!c) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n; });
+    const ltext = await Q.$eval('[data-chip-panel="chip-layout"]', (e) => e.innerText).catch(() => '');
+    const oasErr = await Q.evaluate(() => (window.ccProblems ? window.ccProblems.store.list({}) : []).filter((p) => /oas\./.test(p.id) && p.severity === 'error').map((p) => p.text));
+    ok(px > 5000 && /pebble_soc/.test(ltext) && !oasErr.length, 'Layout: KLayout\'s OASIS of the routed sky130 chip drawn (' + px + ' pixels, top cell pebble_soc), no OASIS errors', oasErr.join(' | '));
+    await Q.screenshot({ path: path.join(SHOTS, 'chip-21-real-oasis.png') });
+    // a real DRC result and a real LVS result opened with "Open a result" (the zip a run hands back)
+    const zipOf = (files) => { const z = {}; for (const [k, v] of Object.entries(files)) z[k] = v; return z; };
+    const { zipStored } = await import('../../lib/chip/run/zip.js');
+    const rec = (tool) => JSON.stringify({ format: 'cadcraft-chip-run', version: 1, ok: true, steps: [{ tool, label: tool, args: [], code: 0, ms: 1, log: 'out/log-01.txt' }] });
+    const drcZip = path.join(tmp, 'drc-result.zip'), lvsZip = path.join(tmp, 'lvs-result.zip');
+    fs.writeFileSync(drcZip, zipStored(zipOf({ 'out/drc.lyrdb': fs.readFileSync(RX('drc.lyrdb')), 'out/log-01.txt': 'KLayout 0.28.16', 'cc-run.json': rec('klayout') })));
+    fs.writeFileSync(lvsZip, zipStored(zipOf({ 'out/lvs.json': fs.readFileSync(RX('lvs.json')), 'out/lvs.out': fs.readFileSync(RX('lvs.out')), 'out/log-01.txt': 'Netgen 1.5.272', 'cc-run.json': rec('netgen') })));
+    await tab(Q, 'flow');
+    for (const id of ['drc', 'lvs']) { await Q.check(`[data-chip-stage="${id}"] input[type="checkbox"]`).catch((e) => console.log('    ' + e.message.split('\n')[0])); await Q.waitForTimeout(400); }   // switch the stages on, as a person does
+    await Q.waitForSelector('[data-chip-open="drc"]', { timeout: 10000 }).catch(() => {});
+    const [c1] = await Promise.all([Q.waitForEvent('filechooser', { timeout: 10000 }), Q.click('[data-chip-open="drc"]')]);
+    await c1.setFiles(drcZip);
+    await Q.waitForSelector('[data-chip-summary="drc"]', { timeout: 15000 }).catch(() => {});
+    const dsum = await Q.$eval('[data-chip-summary="drc"]', (e) => e.textContent).catch(() => '');
+    const drows = await Q.evaluate(() => (window.ccProblems ? window.ccProblems.store.list({}) : []).filter((p) => /chip\.drc:rule/.test(p.id)).map((p) => ({ text: p.text, at: p.where?.at, cell: (p.about || []).find((a) => a.kind === 'cell')?.id })));
+    ok(/7 design rule violations/.test(dsum) && drows.length === 7 && drows.every((r) => r.cell === 'pebble_soc' && Array.isArray(r.at)), 'DRC: the real sky130 report opens; 7 rows in Problems, each with its cell and place (' + (drows[0]?.text || '') + ')', dsum);
+    const [c2] = await Promise.all([Q.waitForEvent('filechooser', { timeout: 10000 }), Q.click('[data-chip-open="lvs"]')]);
+    await c2.setFiles(lvsZip);
+    await Q.waitForSelector('[data-chip-summary="lvs"]', { timeout: 15000 }).catch(() => {});
+    const lsum = await Q.$eval('[data-chip-summary="lvs"]', (e) => e.textContent).catch(() => '');
+    const lerr = await Q.evaluate(() => (window.ccProblems ? window.ccProblems.store.list({}) : []).filter((p) => /chip\.lvs:/.test(p.id) && p.severity === 'error').length);
+    ok(/Layout and schematic match/.test(lsum) && lerr === 0, 'LVS: the real Magic + Netgen result opens: ' + lsum.slice(0, 100));
+    await Q.screenshot({ path: path.join(SHOTS, 'chip-22-real-drc-lvs.png') });
+    ok(!F.problems.length, 'no console errors', F.problems.slice(0, 5).join(' | '));
+    await F.ctx.close();
+  }
 } catch (err) {
   fail++;
   console.log('  FAIL ' + (err.stack || err.message));

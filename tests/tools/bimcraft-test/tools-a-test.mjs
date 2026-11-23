@@ -35,6 +35,8 @@ export async function toolsAMode({ APP, ROOT, WebIFC, IfcModel, quiet }) {
   const { RULES } = await import(path.join(APP, 'quantities/rules.js'));
   const LANG = JSON.parse(fs.readFileSync(path.join(APP, 'lang/en.json'), 'utf8'));
   I18.init({ locale: 'en', strings: LANG });
+  const MU = await import(path.join(APP, 'model-units.js'));
+  MU.setDisplayUnits('m');   // the tag text follows the display unit (FX.352): the known answers below are the metric ones
   let QS = null;
   try { QS = await import(path.join(APP, 'quantity-schedules.js')); } catch (e) { console.log('  --   quantity-schedules.js could not be loaded (' + String(e.message).slice(0, 120) + '): the schedule checks are skipped'); }
 
@@ -142,6 +144,14 @@ export async function toolsAMode({ APP, ROOT, WebIFC, IfcModel, quiet }) {
   ok(tags[0].text === 'W-01\nWorkshop\n15.32 m²' && near(tags[0].paper, 2.5, 1e-9), 'it says the number, the name and the area (15 320 732 mm2 = 15.32 m2), 2.5 mm tall on paper', tags[0]?.text);
   { const l = ed.api.GetLine(ed.mid, tags[0].id, false);
     ok(l.ObjectType.value === 'ROOMTAG' && l.Name.value === 'W-01 Workshop 15.32 m²' && count(ed, 'IFCTEXTLITERALWITHEXTENT') === 1, 'an IfcAnnotation typed ROOMTAG, with its text as a text literal for other readers'); }
+  // FX.352: in a feet-and-inches project the tag's stored text gives ft2, the same words the plan draws (it said m2 before)
+  MU.setDisplayUnits('ftin');
+  ed.modelChange(SP.placeTags([{ target: leftGuid }]));
+  { const tf = RB.readTags(W(ed)).find((x) => x.target === leftGuid), want = MU.fmtArea(LEFT, 'ftin');
+    ok(/ ft²$/.test(want) && tf && tf.text.split('\n').at(-1) === want && !/m²/.test(tf.text), 'FX.352: a room tag in a feet-and-inches project says ' + want + ' (7 549 332 mm2 = 81.3 ft2), as the plan draws it', tf?.text);
+    const l = ed.api.GetLine(ed.mid, tf.id, false); ok(/ft²$/.test(l.Name.value), 'FX.352: the IfcAnnotation name says ft2 too', l.Name.value); }
+  ed.undo();
+  MU.setDisplayUnits('m');
   // tag all untagged: the left room only
   const untagged = () => { const tg = new Set(RB.readTags(W(ed)).map((x) => x.target)); return roomsOf().filter((r) => !tg.has(r.guid)).map((r) => r.guid); };
   ok(untagged().length === 1 && untagged()[0] === leftGuid, 'one room is untagged');

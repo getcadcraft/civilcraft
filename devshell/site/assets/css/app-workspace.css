@@ -388,9 +388,12 @@ body.shell-tb-nogroups :is(.tbx-group > summary, .tbx-group-title) { display: no
 .tr-row { gap: .25rem; padding-block: .25rem; }
 .tr-group { gap: .125rem; padding-inline: .125rem .375rem; margin-right: .125rem; }
 .tr-more { position: relative; align-self: stretch; }
-.tr-more > summary { list-style: none; cursor: pointer; display: grid; place-items: center; height: 100%; min-width: .875rem; font-size: .625rem; color: var(--ws-muted); border: 1px solid transparent; border-radius: var(--radius, 2px); }
+.tr-more > summary { list-style: none; cursor: pointer; display: grid; place-items: center; height: 100%; min-width: .875rem; font-size: .7rem; color: var(--ws-muted); border: 1px solid transparent; border-radius: var(--radius, 2px); }
 .tr-more > summary::-webkit-details-marker { display: none; }
 .tr-more > summary:hover, .tr-more[open] > summary { border-color: var(--ws-line); color: var(--ink); background: var(--sheet); }
+/* the tool beside the caret and the caret read as one split button: hovering the tool lights the caret softly, hovering the caret darkens it */
+:is(.ws-tool, .tbx-tool):hover + .tr-more > summary { background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); }
+.tr-more > summary:hover { background: color-mix(in srgb, var(--ink) 16%, transparent); color: var(--ink); }
 .tr-more-list { position: fixed; z-index: 50; min-width: 11rem; max-height: 70vh; overflow-y: auto; display: flex; flex-direction: column; padding: .25rem; background: var(--sheet); border: 1px solid var(--ws-line); box-shadow: none; }
 /* a tool that cannot run now is plainly off (its reason is still its tooltip and what a click says) */
 .tr-toolrows .ws-tool[aria-disabled="true"] { opacity: .7; color: var(--ws-muted, var(--ink-2)); cursor: not-allowed; }   /* FX.90: grey by colour (works in labels-only mode), not only faded */
@@ -436,7 +439,8 @@ body[data-shell-tb="icons"] .tbx-ig { padding-block: .2rem; }
 
 /* ---- the CadCraft icon set (app-workspace-icons.js): roles, not colours; two styles; vectors that scale with their size ---- */
 html { --ic-a: #8fd3f5; --ic-b: #ffb870; --ic-c: #ffe07a; --ic-d: #f58b83; --ic-e: #93dca3; --ic-s1: #1d8fd0; --ic-s2: #e2761b; --ic-paper: var(--sheet, #fff); --ic-line: var(--ink, #1d2733); }
-html[data-cc-icons="outline"] { --ic-a: none; --ic-b: none; --ic-c: none; --ic-d: none; --ic-e: none; --ic-paper: none; --ic-line: var(--cc-icon-color, #1b7fb5); --ic-s1: var(--ic-line); --ic-s2: var(--ic-line); }
+/* the body too (owner 2026-11-22): the app colour (--layer, body.layer-*) only exists from the body down */
+html[data-cc-icons="outline"], html[data-cc-icons="outline"] body { --ic-a: none; --ic-b: none; --ic-c: none; --ic-d: none; --ic-e: none; --ic-paper: none; --ic-line: var(--cc-icon-color, var(--layer, #1b7fb5)); --ic-s1: var(--ic-line); --ic-s2: var(--ic-line); }
 .ccic { width: var(--ic-size, 1.75rem); height: var(--ic-size, 1.75rem); flex-shrink: 0; display: block; overflow: visible; fill: none; stroke: var(--ic-line); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .ccic .w { fill: var(--ic-paper); } .ccic .a { fill: var(--ic-a); } .ccic .b { fill: var(--ic-b); } .ccic .c { fill: var(--ic-c); } .ccic .d { fill: var(--ic-d); } .ccic .e { fill: var(--ic-e); }
 .ccic .s1 { stroke: var(--ic-s1); } .ccic .s2 { stroke: var(--ic-s2); } .ccic .t { stroke-width: 1; } .ccic .n { stroke: none; }
@@ -649,6 +653,8 @@ html.sc-noshadow .ws-skin-pro .ws-collapsed.ws-peek > .ws-ribbon { box-shadow: n
 .ws-skin-pro .tr-group .ws-tool:hover { background: var(--pro-hover); border-color: transparent; }
 .ws-skin-pro .tr-more > summary { min-width: 1rem; border-radius: var(--pro-r); color: var(--pro-muted); }
 .ws-skin-pro .tr-more > summary:hover, .ws-skin-pro .tr-more[open] > summary { background: var(--pro-hover); border-color: transparent; color: var(--pro-ink); }
+.ws-skin-pro :is(.ws-tool, .tbx-tool):hover + .tr-more > summary { background: var(--pro-hover); color: var(--pro-ink); }   /* split button: the tool's hover reaches its caret */
+.ws-skin-pro .tr-more > summary:hover { background: color-mix(in srgb, var(--pro-ink) 18%, var(--pro-hover)); }
 .ws-skin-pro .tr-more-list { padding: .25rem; }
 .ws-skin-pro .tr-more-list .ws-tool { height: 1.75rem; font-size: .75rem; }
 .ws-skin-pro .tr-more-list .ws-tool:hover { background: var(--pro-press); }
@@ -720,6 +726,12 @@ body.ws-skin-pro main > .shell-split::after { background: var(--pro-line); }
 .ws-skin-pro .ws-status-slot :is(select, input, button) { height: 1.25rem !important; }
 /* -- the tool chest (toolbox) and the tool palette -- */
 .ws-skin-pro .tbx-toolbox { background: var(--pro-panel); border-color: var(--pro-line); min-width: 11.5rem; }
+/* 0.11 FX.435: the compact bar (icons without labels: Settings › Toolbar buttons, and app-fit.js room(true)) needs no room for names, so the tool chest is its two
+   columns of icons wide (about 4.75rem), not the 11.5rem the names need; its head keeps the grip and the buttons, the name stays on the head's aria-label and the
+   grip's tooltip. Measured at 1920 x 1080 in room(true) (tools/shell-test/browser-drawing-share.mjs): CadCraft Toolbox 72.0 % to 76.5 % (the older styles have the Pro skin
+   since FX.310), CadCraft PRO-cad3 71.3 % to 75.7 %, BimCraft PRO-cad3 74.0 % to 78.4 %. */
+body.ws-skin-pro[data-shell-tb="icons"] .tbx-toolbox { min-width: 0; }
+body[data-shell-tb="icons"] :is(.ws-stage-left, .ws-stage-right) > .tbx-toolbox > .ws-head > .ws-head-name { display: none; }
 .ws-skin-pro .tbx-head { min-height: 1.75rem; padding: 0 .25rem 0 .5rem; background: var(--pro-bar); border-bottom: 1px solid var(--pro-line); font-size: .75rem; }
 .ws-skin-pro :is(.tbx-group > summary, .tbx-group-title) { padding: .3125rem .5rem; font-size: .6875rem; font-weight: 600; color: var(--pro-muted); background: var(--pro-band); border-block: 1px solid var(--pro-line-2); margin-top: -1px; }
 .ws-skin-pro .tbx-tools { gap: 0; padding: .1875rem .25rem .3125rem; }
@@ -805,4 +817,18 @@ body.ws-skin-pro > .ws-cmd-pop li[aria-selected="true"], body.ws-skin-pro > .ws-
 .ws-switch:focus-visible { outline: 2px solid var(--action, #1b7fb5); outline-offset: 1px; }
 .ws-switch-caret { font-size: .625rem; }
 /* the pro skins set --ic-line on their own root (the grey icon ink), which beat the person's Outline colour set on <html> (bin/test-app-workspaces.mjs [6], failing since 0.10 UI.1's first run): the chosen colour wins in every skin */
-html[data-cc-icons="outline"] :is(.ws-skin-pro, .ws-skin-pro .ws-tool, .ws-skin-pro .tbx-tool, .ws-skin-pro .vw-cell, .ws-skin-pro .vw-row) { --ic-line: var(--cc-icon-color, #1b7fb5); }
+html[data-cc-icons="outline"] :is(.ws-skin-pro, .ws-skin-pro .ws-tool, .ws-skin-pro .tbx-tool, .ws-skin-pro .vw-cell, .ws-skin-pro .vw-row) { --ic-line: var(--cc-icon-color, var(--layer, #1b7fb5)); }
+
+/* Owner 2026-11-22 ("these icons should be WHITE on this layout"): on the Pro skins' dark title bar (and menu bar) the CadCraft icon set draws in the
+   bar's own ink, not the app colour or the person's outline colour, which are for the light toolbars. Line only, no fills; disabled = the muted ink. */
+html:root .ws-skin-pro :is(.ws-titlebar, .vw-menubar), html:root .ws-skin-pro :is(.ws-titlebar, .vw-menubar) * {
+  --ic-line: var(--pro-title-ink); --ic-s1: var(--pro-title-ink); --ic-s2: var(--pro-title-ink); --ic-hue: var(--pro-title-ink);
+  --ic-a: none; --ic-b: none; --ic-c: none; --ic-d: none; --ic-e: none; --ic-paper: none;
+}
+html:root .ws-skin-pro :is(.ws-titlebar, .vw-menubar) :is([aria-disabled="true"], :disabled), html:root .ws-skin-pro :is(.ws-titlebar, .vw-menubar) :is([aria-disabled="true"], :disabled) * {
+  --ic-line: var(--pro-title-muted); --ic-s1: var(--pro-title-muted); --ic-s2: var(--pro-title-muted); --ic-hue: var(--pro-title-muted);
+}
+
+/* Owner 2026-11-22 (PRO-cad2 Workbench: "this panel content should be a little wider"): the docked panels' sections keep 6px at the sides instead
+   of 16px, so Properties and the other panels use the panel's width up to its scrollbar. */
+.ws-layout-pro-cad2 .ws-palette .cc-sec { padding-inline: .375rem; }

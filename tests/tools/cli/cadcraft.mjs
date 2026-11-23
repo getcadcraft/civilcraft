@@ -10,6 +10,10 @@
  *   cadcraft convert <in…> <folder> --to dwg|dxf  (several at once; 0.7 MCP-HEADLESS)
  *   cadcraft plot <drawing> <out.pdf|.svg> [--layout <name> | --all] [--paper iso-a3] [--portrait] [--scale 1:50|fit] [--color] [--pen 0.25]
  *   cadcraft plot <drawing…> <folder> [--to pdf|svg]
+ *   cadcraft plot <model.ifc> <out.pdf|.svg> [--level <name>] [--paper a3|a4|letter|tabloid] [--scale 1:50]   (one level's plan, no window)
+ *   cadcraft plot <model.ifc> <out.png>                                                                (the same plan as a picture, no lettering)
+ *   cadcraft bim <script.json> [--from model.ifc] -o <out.ifc> [--usd out.usdz] [--png out.png [--view iso]] [--plan out.pdf] [--overwrite]
+ *                                                {"new":{"levels":2},"steps":[{"tool":"walls_add","args":{...}}]}: build an IFC model with no window (0.11 GH.6)
  *   cadcraft check <drawing…> --rules <rules.json>
  *   cadcraft convert <manual.partcraft-manual.json> <out.pdf|.svg|.html> [--instructions] [--view <name>] [--paper a4] [--layout sheet]
  *   cadcraft count <drawing> (--block <name> | --text <text> | --layer <layer> [--type CIRCLE]) [--sheet <name>] [--drawing]
@@ -39,6 +43,8 @@ const USAGE = `cadcraft ${PACKAGE_VERSION} — the CadCraft apps from the comman
   cadcraft count <drawing> (--block <name> | --text <text> | --layer <layer> [--type CIRCLE]) [--sheet <name>] [--drawing]
                                              TakeoffCraft's exact count on a DWG / DXF (a sheet: what it shows; --drawing: every object once)
   cadcraft plot <drawing> <out.pdf|.svg> [--layout <sheet> | --all] [--paper iso-a3] [--portrait] [--scale 1:50|fit] [--color] [--pen 0.25]
+  cadcraft bim <script.json> [--from model.ifc] -o <out.ifc> [--usd out.usda|.usdc|.usdz] [--png out.png [--view iso|top|front|back|left|right]] [--plan out.pdf|.svg|.png [--level <name>]] [--overwrite]
+                                             build or change an IFC model from a JSON script of BimCraft's edit tools, no window; save it, a picture, OpenUSD, a plan
   cadcraft check <drawing…> --rules <rules.json>
 
   Several files: cadcraft convert <in…> <folder> --to dwg|dxf · cadcraft plot <in…> <folder> [--to pdf|svg]
@@ -50,7 +56,7 @@ const USAGE = `cadcraft ${PACKAGE_VERSION} — the CadCraft apps from the comman
 `;
 
 class Usage extends Error {}
-const FLAGS_WITH_VALUE = new Set(['-o', '--out', '--version', '--format', '--layout', '--paper', '--scale', '--pen', '--rules', '--to', '--view', '--block', '--text', '--layer', '--type', '--sheet']);
+const FLAGS_WITH_VALUE = new Set(['-o', '--out', '--version', '--format', '--layout', '--paper', '--scale', '--pen', '--rules', '--to', '--view', '--block', '--text', '--layer', '--type', '--sheet', '--level', '--from', '--usd', '--png', '--plan']);
 
 function parse(argv) {
   const pos = [], f = {};
@@ -65,7 +71,7 @@ function parse(argv) {
   return { pos, f };
 }
 
-const KNOWN = { info: [], run: ['-o', '--in-place', '--version', '--format'], convert: ['--version', '--format', '--to', '--instructions', '--view', '--paper', '--layout'], count: ['--block', '--text', '--layer', '--type', '--sheet', '--drawing', '--include-hidden'], plot: ['--layout', '--all', '--paper', '--portrait', '--scale', '--color', '--pen', '--to'], check: ['--rules'], tools: [], merge: ['-o'] };
+const KNOWN = { info: [], run: ['-o', '--in-place', '--version', '--format'], convert: ['--version', '--format', '--to', '--instructions', '--view', '--paper', '--layout'], count: ['--block', '--text', '--layer', '--type', '--sheet', '--drawing', '--include-hidden'], plot: ['--layout', '--all', '--paper', '--portrait', '--scale', '--color', '--pen', '--to', '--level'], check: ['--rules'], tools: [], merge: ['-o'], bim: ['-o', '--from', '--usd', '--png', '--plan', '--view', '--level', '--overwrite'] };
 
 function readIn(p) {
   if (!fs.existsSync(p)) throw new Problem('There is no file ' + p + '.');
@@ -256,9 +262,63 @@ const commands = {
     return 0;
   },
 
+  /** GH.6: build or change an IFC model with no window: a script of BimCraft's edit tools (one call, one undo step), saved, and optionally a plan, a picture and OpenUSD of it. */
+  async bim([script], f, out) {
+    if (!script) throw new Usage('cadcraft bim <script.json> [--from model.ifc] -o <out.ifc> [--usd out.usda|.usdc|.usdz] [--png out.png [--view iso|top|front|back|left|right]] [--plan out.pdf|.svg|.png [--level <name>]] [--overwrite]');
+    let j;
+    try { j = JSON.parse(Buffer.from(readIn(script)).toString('utf8')); } catch (e) { throw new Problem(script + ' is not a JSON script: ' + e.message); }
+    const steps = Array.isArray(j) ? j : j.steps;
+    if (!Array.isArray(steps) || !steps.every((s) => s && typeof s.tool === 'string')) throw new Usage('The script is a list of steps [{ "tool": "walls_add", "args": {...} }, ...] or { "new": { "name", "levels", "height" }, "steps": [...] }.');
+    const outs = ['-o', '--usd', '--png', '--plan'].filter((k) => typeof f[k] === 'string');
+    if (!outs.length) throw new Usage('Say what to write: -o <out.ifc>, --usd, --png or --plan.');
+    const { headlessTools, createEnv } = await import('./headless/tools.mjs');
+    const roots = [...new Set([process.cwd(), ...outs.map((k) => path.dirname(path.resolve(f[k]))), ...(f['--from'] ? [path.dirname(path.resolve(f['--from']))] : [])])];
+    const T = Object.fromEntries(headlessTools(createEnv({ roots, undoPrefix: 'Assistant: ' })).map((x) => [x.name, x]));
+    if (!T.ifc_batch) throw new Problem('This copy of the tools has no BimCraft modules (an older package).');
+    const abs = (p) => path.resolve(p), ow = !!f['--overwrite'];
+    try {
+      const m = f['--from'] ? await T.ifc_open.run({ path: abs(f['--from']) }) : await T.ifc_new.run({ name: (j.new && j.new.name) || 'Building', levels: (j.new && j.new.levels) || 2, height: (j.new && j.new.height) || 3000 });
+      const r = steps.length ? await T.ifc_batch.run({ doc: m.doc, steps, label: j.label }) : { steps: [], undoSteps: 0 };
+      const res = { ok: true, steps: r.steps.length, undoSteps: r.undoSteps, wrote: [] };
+      if (typeof f['-o'] === 'string') res.wrote.push((await T.ifc_save.run({ doc: m.doc, path: abs(f['-o']), overwrite: ow })).path);
+      if (typeof f['--usd'] === 'string') res.wrote.push((await T.usd_export.run({ doc: m.doc, path: abs(f['--usd']), overwrite: ow })).path);
+      if (typeof f['--png'] === 'string') res.wrote.push((await T.ifc_render_png.run({ doc: m.doc, out: abs(f['--png']), view: f['--view'] || 'iso', overwrite: ow })).out);
+      if (typeof f['--plan'] === 'string') res.wrote.push((await T.ifc_plan_plot.run({ doc: m.doc, out: abs(f['--plan']), level: f['--level'], overwrite: ow })).out);
+      out.json = res;
+      out.text.push(res.steps + ' step' + (res.steps === 1 ? '' : 's') + ' applied (' + res.undoSteps + ' undo step' + (res.undoSteps === 1 ? '' : 's') + ').', ...res.wrote.map((w) => 'Wrote ' + w));
+      return 0;
+    } catch (e) {
+      const els = e.elements ? ' Elements: ' + e.elements.map((x) => x.guid).join(', ') + '.' : '';
+      throw new Problem(e.message + els);
+    }
+  },
+
   async plot([file, target], f, out) {
-    if (!file || !target) throw new Usage('cadcraft plot <drawing> <out.pdf|.svg>');
+    if (!file || !target) throw new Usage('cadcraft plot <drawing> <out.pdf|.svg> (a model: also .png, .dwg, .dxf)');
     const svg = extOf(target) === 'svg';
+    if (extOf(file) === 'ifc') {   // FIX-0101-PLAN-HEADLESS (bimcraft#21): one level of an IFC model, BimCraft's own plan drawing
+      const png = extOf(target) === 'png';   // FX.377: a PNG is the SVG drawn by headless/ifc-raster.mjs (no lettering)
+      const cad = ['dwg', 'dxf'].includes(extOf(target)) ? extOf(target) : null;   // SU.1994: the plan at true size as DWG (AutoCAD 2018) or DXF (2000)
+      if (extOf(target) !== 'pdf' && !svg && !png && !cad) throw new Usage('The plan is written to a .pdf, .svg, .png, .dwg or .dxf file.');
+      const { IfcSession } = await import('./headless/ifc.mjs');
+      const { load } = await import('./headless/apps.mjs');
+      const ratio = f['--scale'] ? Number(String(f['--scale']).replace(/^1:/, '')) : null;
+      if (f['--scale'] && !(ratio >= 1)) throw new Usage('--scale is a ratio such as 1:50 (or 50).');
+      const paper = String(f['--paper'] || 'a3').replace(/^iso-/, '');
+      if (!['a3', 'a4', 'letter', 'tabloid'].includes(paper)) throw new Usage('--paper for a model plan is a3, a4, letter or tabloid.');
+      let r;
+      try {
+        const sess = await IfcSession.open(readIn(file), file);
+        const { planFile } = await load('bimcraft', 'plan-export.js');
+        r = planFile(await sess.editor(), { level: f['--level'] || null, format: cad || (svg || png ? 'svg' : 'pdf'), paper, scale: ratio, name: path.basename(file).replace(/\.[^.]+$/, '') });
+        if (png) { const { svgToPng } = await import('./headless/ifc-raster.mjs'); r.bytes = svgToPng(new TextDecoder().decode(r.bytes)).bytes; }
+      } catch (e) { if (e instanceof Problem || e instanceof Usage) throw e; throw new Problem('Could not plot ' + file + ': ' + e.message); }
+      writeFileAtomic(path.resolve(target), r.bytes);
+      out.json = { ok: true, out: path.resolve(target), bytes: r.bytes.length, level: r.level, walls: r.walls, openings: r.openings, sheets: [{ sheet: r.level, w: r.sheet.w, h: r.sheet.h, scale: r.scale }] };
+      out.text.push('Wrote ' + target + ' (' + kb(r.bytes.length) + '): ' + r.level + ' ' + r.sheet.w + ' × ' + r.sheet.h + ' mm at ' + r.scale + '; ' + r.walls + ' walls, ' + r.openings + ' doors and windows.');
+      if (!r.walls) out.err.push('note: this level has no walls drawn with BimCraft\'s tools, so the plan is empty.');
+      return 0;
+    }
     if (extOf(target) !== 'pdf' && !svg) throw new Usage('The plot is written to a .pdf or .svg file' + (extOf(target) === 'png' ? ' (PNG is not made: convert the SVG or PDF).' : '.'));
     if (svg && f['--all']) throw new Usage('--all writes one PDF with every sheet; for SVG plot one sheet at a time with --layout.');
     const s = await openDrawing(file);

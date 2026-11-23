@@ -46,7 +46,7 @@ export function publicName(app, local) {
 
 /** A failure the assistant can act on (AI-CONNECT-SPEC § 2.5): code from ERROR_CODES, one plain sentence, 1–3 things to try. */
 export class ToolError extends Error {
-  constructor(code, message, extra = {}) { super(message); this.name = 'ToolError'; this.code = ERROR_CODES.includes(code) ? code : 'failed'; this.next = extra.next || []; this.retry = extra.retry || (this.code === 'busy' ? 'later' : 'never'); if (extra.group) this.group = extra.group; if (extra.refused) this.refused = true; }
+  constructor(code, message, extra = {}) { super(message); this.name = 'ToolError'; this.code = ERROR_CODES.includes(code) ? code : 'failed'; this.next = extra.next || []; this.retry = extra.retry || (this.code === 'busy' ? 'later' : 'never'); if (extra.group) this.group = extra.group; if (extra.refused) this.refused = true; if (extra.elements) this.elements = extra.elements; }
 }
 
 /** A tool result with its own content list (images) and optional structured data. */
@@ -216,8 +216,8 @@ export function createDispatcher(opts = {}) {
       };
       const fail = (msg, outcome = 'error', code = 'failed', extra = {}) => {
         msg = leaving(String(msg), false);
-        const error = { code: ERROR_CODES.includes(code) ? code : 'failed', message: String(msg), next: extra.next || [], retry: extra.retry || (code === 'busy' ? 'later' : 'never'), ...(extra.group ? { group: extra.group } : {}) };
-        const text = error.message + (error.next.length ? ' Try: ' + error.next.join(' ') : '');
+        const error = { code: ERROR_CODES.includes(code) ? code : 'failed', message: String(msg), next: extra.next || [], retry: extra.retry || (code === 'busy' ? 'later' : 'never'), ...(extra.group ? { group: extra.group } : {}), ...(Array.isArray(extra.elements) && extra.elements.length ? { elements: extra.elements.slice(0, 10) } : {}) };   // GH.6: the GlobalIds of the elements the failed call was about
+        const text = error.message + (error.next.length ? ' Try: ' + error.next.join(' ') : '') + (error.elements ? ' Elements: ' + error.elements.map((x) => x.guid + (x.found === false ? ' (not in the model)' : ' (' + [x.class, x.name].filter(Boolean).join(' ') + ')')).join(', ') + '.' : '');
         return finish({ content: [{ type: 'text', text }], structuredContent: { isError: true, error }, isError: true }, outcome, msg);
       };
       if (!t) throw new RpcError(-32602, 'Unknown tool: ' + name);
@@ -281,8 +281,8 @@ export function createDispatcher(opts = {}) {
         if (structured.error && structured.isError) { res.isError = true; return finish(res, 'error', structured.error.message || structured.error); }
         return finish(res, entry.outcome === 'suggested' ? 'suggested' : 'ok');
       } catch (err) {
-        if (err instanceof ToolError || (err && err.name === 'ToolError')) return fail(err.message, err.refused ? 'refused' : 'error', err.code, { next: err.next, retry: err.retry, group: err.group });
-        return fail(err && err.message ? err.message : String(err), err && err.refused ? 'refused' : 'error', 'failed');
+        if (err instanceof ToolError || (err && err.name === 'ToolError')) return fail(err.message, err.refused ? 'refused' : 'error', err.code, { next: err.next, retry: err.retry, group: err.group, elements: err.elements });
+        return fail(err && err.message ? err.message : String(err), err && err.refused ? 'refused' : 'error', 'failed', { elements: err && err.elements });
       }
     },
 

@@ -43,6 +43,32 @@
   (document.head || document.documentElement).appendChild(st);
 
   function ok() { return !!(window.bootstrap && window.bootstrap.Tooltip); }
+  /* Owner 2026-11-22: the cursor's arrow hangs down and right from where it points, so a tip just below a small control sat under it.
+     Below stays the default; when the pointer is in the lower part of the control (or the control is short) and there is room above,
+     the tip goes on top. Keyboard focus (no recent pointer over it) keeps below. Popper still flips at the window edges. */
+  var ptr = null;
+  document.addEventListener('pointermove', function (e) { if (e.pointerType !== 'touch') ptr = { x: e.clientX, y: e.clientY, t: Date.now() }; }, { capture: true, passive: true });
+  var CURSOR_H = 24, ROOM = 44;
+  /* In a ribbon or tool row the tip sits under the whole bar (owner 2026-11-22): it never covers the tools beside the one you point at. */
+  var BAR = '.ws-ribbon, .tr-rows, .tr-row';
+  function bar(el) { return el && el.closest ? el.closest(BAR) : null; }
+  function overPtr(el) { if (!ptr || Date.now() - ptr.t > 4000) return null; var r = el.getBoundingClientRect(); return ptr.x >= r.left - 2 && ptr.x <= r.right + 2 && ptr.y >= r.top - 2 && ptr.y <= r.bottom + 2 ? ptr : null; }
+  /** Popper's distance: past the bar's edge for a bar control, and always past the cursor's arrow when it points at the control. */
+  function gap(o, el) {
+    var r = el.getBoundingClientRect(), b = bar(el), p = overPtr(el), d = 6, below = String(o.placement).indexOf('bottom') === 0, above = String(o.placement).indexOf('top') === 0;
+    if (below) { if (b) d = Math.max(d, b.getBoundingClientRect().bottom - r.bottom + 6); if (p) d = Math.max(d, p.y + CURSOR_H - r.bottom); }
+    else if (above && b) d = Math.max(d, r.top - b.getBoundingClientRect().top + 6);
+    return [0, Math.round(d)];
+  }
+  function side(_inst, _tip, el) {
+    if (bar(el)) return 'bottom';   // under the bar; Popper flips it above the bar when the window has no room below
+    if (!ptr || Date.now() - ptr.t > 4000 || !el || !el.getBoundingClientRect) return 'bottom';
+    var r = el.getBoundingClientRect();
+    if (ptr.x < r.left - 2 || ptr.x > r.right + 2 || ptr.y < r.top - 2 || ptr.y > r.bottom + 2) return 'bottom';   // not over it: focus or a programmatic show
+    var underCursor = r.bottom - ptr.y < CURSOR_H;   // a tip below would start inside the cursor's arrow
+    if (underCursor && r.top > ROOM) return 'top';
+    return 'bottom';
+  }
   /** The words an element wants shown: its reason, its title, or the data-bs-title of an old data-bs-toggle="tooltip" element. */
   function textOf(el) {
     var r = el.getAttribute('data-ws-reason'); if (r && r.trim() !== '') return r;
@@ -69,7 +95,7 @@
     var tip = tips.get(el);
     if (!tip) {
       var dlg = el.closest && el.closest('dialog[open]');
-      tip = new window.bootstrap.Tooltip(el, { trigger: 'manual', container: dlg || 'body', customClass: 'cc-tip', placement: 'bottom', fallbackPlacements: ['top', 'left', 'right'], delay: 0, html: false });
+      tip = new window.bootstrap.Tooltip(el, { trigger: 'manual', container: dlg || 'body', customClass: 'cc-tip', placement: side, fallbackPlacements: ['top', 'bottom', 'right', 'left'], offset: gap, delay: 0, html: false });
       tips.set(el, tip);
     } else if (text !== '') {
       try { tip.setContent({ '.tooltip-inner': text }); } catch (e) { /* the next show reads data-bs-title */ }

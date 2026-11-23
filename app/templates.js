@@ -131,6 +131,80 @@ export function paramValue(tpl, v, overrides = {}) {
   return p ? sg * p.value : NaN;
 }
 
+// ---- 0.11 SU.1941: the binding check, and named values by station
+
+const FIELDS_OF = { slope: ['dx', 'slope'], delta: ['dx', 'dz'], vertical: ['dz'], daylight: ['cut', 'fill'], ground: ['dx'], wall: ['dx'] };
+const KIND_OF_FIELD = { dx: 'len', dz: 'len', slope: 'slope', cut: 'ratio', fill: 'ratio' };
+/**
+ * The binding check of a template AS DRAWN (the editor's draft, before cleanTemplate): which number of which point is tied to which
+ * param, and what is not tied to anything it should be. cleanTemplate keeps a number field only when it is a number or the key of a
+ * param that exists, and otherwise puts the field's default in its place WITHOUT a word (a typo in a key, a param renamed after a
+ * point used it): templateProblems runs on the clean template, where 'noparam' can never happen. This one reads the draft.
+ *   → { bound: [{ key, kind, value, uses: [{ code, field }] }], problems: [{ code, at, vars }] }
+ *   problems: 'badkey' (a param key the file format refuses), 'dupkey', 'missing' (a field names a param the template does not have: the
+ *   default is used instead), 'kind' (a param of one kind in a field of another: a slope in a width), 'unused' (no point uses the param:
+ *   it cannot be a named value that moves anything).
+ */
+export function bindingCheck(raw) {
+  const problems = [], seen = new Set(), params = [];
+  for (const p of Array.isArray(raw?.params) ? raw.params : []) {
+    const key = String(p?.key ?? '');
+    if (!KEY_RE.test(key)) { problems.push({ code: 'badkey', at: key, vars: { key } }); continue; }
+    if (seen.has(key)) { problems.push({ code: 'dupkey', at: key, vars: { key } }); continue; }
+    seen.add(key); params.push({ key, kind: PARAM_KINDS.includes(p.kind) ? p.kind : 'len', value: p.value });
+  }
+  const bound = new Map(params.map((p) => [p.key, { key: p.key, kind: p.kind, value: p.value, uses: [] }]));
+  for (const q of Array.isArray(raw?.points) ? raw.points : []) for (const f of FIELDS_OF[q?.kind] || []) {
+    const v = q[f];
+    if (typeof v !== 'string' || v.trim() === '') continue;
+    const key = v.replace(/^-/, '').trim(), b = bound.get(key);
+    if (!b) { problems.push({ code: 'missing', at: String(q.code), vars: { field: f, key: v } }); continue; }
+    b.uses.push({ code: String(q.code), field: f });
+    if (b.kind !== KIND_OF_FIELD[f]) problems.push({ code: 'kind', at: String(q.code), vars: { field: f, key, kind: b.kind, want: KIND_OF_FIELD[f] } });
+  }
+  for (const b of bound.values()) if (!b.uses.length) problems.push({ code: 'unused', at: b.key, vars: { key: b.key } });
+  return { bound: [...bound.values()], problems };
+}
+
+export const MAX_NAMED = 8, MAX_NAMED_ROWS = 200;
+/** A corridor's named values (untrusted): [{ key (a param key), rows: [{ sta0, sta1, v0, v1 }] }], rows in station order, stop after start. */
+export function cleanNamed(list) {
+  const out = [];
+  for (const n of Array.isArray(list) ? list.slice(0, 64) : []) {
+    if (!n || typeof n !== 'object' || !KEY_RE.test(String(n.key)) || out.some((x) => x.key === n.key)) continue;
+    const rows = [];
+    for (const r of Array.isArray(n.rows) ? n.rows.slice(0, MAX_NAMED_ROWS) : []) {
+      if (!r || !fin(r.sta0) || !fin(r.v0) || Math.abs(r.v0) > 1e5) continue;
+      const sta1 = fin(r.sta1) && r.sta1 >= r.sta0 ? r.sta1 : r.sta0, v1 = fin(r.v1) && Math.abs(r.v1) <= 1e5 ? r.v1 : r.v0;
+      rows.push({ sta0: r.sta0, sta1, v0: r.v0, v1 });
+    }
+    rows.sort((a, b) => a.sta0 - b.sta0);
+    if (rows.length) out.push({ key: n.key, rows });
+    if (out.length >= MAX_NAMED) break;
+  }
+  return out.length ? out : null;
+}
+/** The value of one named value at a station: inside a row it ramps linearly from v0 at sta0 to v1 at sta1; between rows it keeps
+ *  the last row's stop value; before the first row, its start value. null when there are no rows. */
+export function namedValueAt(n, sta) {
+  const rows = n?.rows || [];
+  if (!rows.length) return null;
+  if (sta <= rows[0].sta0) return rows[0].v0;
+  let held = rows[0].v0;
+  for (const r of rows) {
+    if (sta < r.sta0) return held;
+    if (sta <= r.sta1) return r.sta1 > r.sta0 ? r.v0 + ((r.v1 - r.v0) * (sta - r.sta0)) / (r.sta1 - r.sta0) : r.v1;
+    held = r.v1;
+  }
+  return held;
+}
+/** Every named value at a station → { key: value } (what evalTemplate takes as `params`, over a use's own). */
+export function namedAt(named, sta) {
+  const out = {};
+  for (const n of named || []) { const v = namedValueAt(n, sta); if (v !== null) out[n.key] = v; }
+  return out;
+}
+
 /** The end kind of a template: its last top point's kind when that is a daylight, ground or wall point. */
 export function endKind(tpl) {
   const tops = (tpl?.points || []).filter((p) => p.top);
@@ -328,8 +402,8 @@ export function cleanUse(u, ids) {
   if (u.targets && typeof u.targets === 'object') for (const [k, f] of Object.entries(u.targets).slice(0, 8)) {
     if (!CODE_RE.test(k) || !f || typeof f !== 'object') continue;
     const id = String(f.id ?? '');
-    if (f.kind === 'feature' && /^f\d{1,9}$/.test(id)) targets[k] = { kind: 'feature', id };
-    else if (f.kind === 'corridor' && /^a\d{1,9}$/.test(id) && typeof f.line === 'string' && /^[A-Z][A-Z0-9_]{0,24}$/.test(f.line)) targets[k] = { kind: 'corridor', id, line: f.line };
+    if (f.kind === 'feature' && /^f\d{1,16}$/.test(id)) targets[k] = { kind: 'feature', id };
+    else if (f.kind === 'corridor' && /^a\d{1,16}$/.test(id) && typeof f.line === 'string' && /^[A-Z][A-Z0-9_]{0,24}$/.test(f.line)) targets[k] = { kind: 'corridor', id, line: f.line };
   }
   return { tpl: u.tpl, ...(Object.keys(params).length ? { params } : {}), ...(Object.keys(targets).length ? { targets } : {}) };
 }

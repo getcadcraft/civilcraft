@@ -213,6 +213,7 @@ export function createEg(ctx) {
         kids2.push(el('div', { className: 'cv-actions' }, ...list.map((x) => el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-eg-st-src': x.id, title: x.licence, onclick: () => pressSource(x) }, t('eg.st.ask', { name: x.name })))));
         srcBox.replaceChildren(...kids2);
       };
+      let geoCredit = '';   // 0.11 FX.368: the credit of the geocoder that actually answered (it was always OpenStreetMap's, whatever answered)
       const pressSource = async (x) => {
         save('eg63', S);
         status.textContent = t('eg.st.asking', { name: x.name });
@@ -220,6 +221,7 @@ export function createEg(ctx) {
         if (!r.ok) { status.textContent = t('eg.st.why.' + r.why, { name: x.name, status: r.status ?? '' }); return; }
         const res = r.result, tail = r.cached ? ' ' + t('eg.st.cached') : '';
         if (res.point) {
+          geoCredit = String(x.licence || x.name || '');
           S.lat = String(res.point.lat); S.lon = String(res.point.lon);
           const a = body.querySelector('#eg-st-lat'), o = body.querySelector('#eg-st-lon'); if (a) a.value = S.lat; if (o) o.value = S.lon;
           status.textContent = t('eg.st.found', { label: res.point.label }) + tail; return;
@@ -254,7 +256,7 @@ export function createEg(ctx) {
         } catch (e) { status.textContent = t('eg.st.fail', { why: e.message }); }
         drawList();
       });
-      const attrOf = (used) => [...new Set(used.map((u) => SOURCES.find((x) => x.kinds.includes(u.kind === 'parcels' ? 'parcels' : u.kind))?.name).filter(Boolean))].concat('© OpenStreetMap contributors, ODbL (address search)');
+      const attrOf = (used) => [...new Set(used.map((u) => SOURCES.find((x) => x.kinds.includes(u.kind === 'parcels' ? 'parcels' : u.kind))?.name).filter(Boolean))].concat(geoCredit ? [geoCredit] : []);
       const run = () => {
         save('eg63', S);
         const lat = Number(S.lat), lon = Number(S.lon);

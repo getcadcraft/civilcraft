@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process'; import path from 'node:path';
 const ROOT = path.resolve(OUT, '../..'), SITE = 'https://getcadcraft.com';
 const fx = args => execFileSync('sudo', ['-u', 'www-data', 'php', path.join(ROOT, 'bin/lab-sync-fixture.php'), ...args], { encoding: 'utf8' });
 let pass = 0, fail = 0; const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
-const F = JSON.parse(fx(['create']).trim().split('\n').pop());
+const F = JSON.parse(fx(['create', '--trial']).trim().split('\n').pop());
 let browser, close;
 try {
   const api = async (p, body) => { const r = await fetch(SITE + p, { method: body ? 'POST' : 'GET', headers: { Authorization: 'Bearer ' + F.token, Accept: 'application/json', ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined }); return { status: r.status, json: await r.json().catch(() => ({})) }; };
@@ -38,7 +38,15 @@ try {
   const closeDlgs = async () => { await page.evaluate(() => { try { window.superWindow.home.leave(); } catch { /* already on the work area */ } }); await page.waitForTimeout(80); };
   const PG = '[data-home-view="page"]:not([hidden])';   // Teams and Team members are PAGES of the welcome area, not dialogs
   const toWork = async () => { await page.evaluate(() => window.superWindow.home.leave()); await page.waitForTimeout(150); };   // back to the drawing space (the status line lives there)
-  const openTeams = async () => { await run('teams'); await page.waitForSelector(PG + ' [data-tm-new]'); };
+  // the Teams page since 2026-11-11: names on the cards; a team is picked, then Edit shows its name and description
+  const cardNames = () => page.$$eval(PG + ' [data-team-card] .sc-tp-tt b', ns => ns.map(n => n.textContent));
+  const cardId = name => page.$$eval(PG + ' [data-team-card]', (cs, nm) => (cs.find(c => (c.querySelector('.sc-tp-tt b') || {}).textContent === nm) || {}).dataset?.teamCard, name);
+  const editTeam = async (id, fields) => { await page.click(PG + ` [data-team-pick="${id}"]`); await page.click(PG + ` [data-act="team-edit"][data-team="${id}"]`); await page.waitForSelector(PG + ` [data-tm-rename="${id}"]`);
+    if (fields.name !== undefined) await page.fill(PG + ` [data-tm-rename="${id}"]`, fields.name); if (fields.desc !== undefined) await page.fill(PG + ` [data-tm-desc="${id}"]`, fields.desc);
+    await page.click(PG + ` [data-act="team-save"][data-team="${id}"]`); await page.waitForTimeout(300); };
+  const readTeam = async id => { await page.click(PG + ` [data-team-pick="${id}"]`); await page.click(PG + ` [data-act="team-edit"][data-team="${id}"]`); await page.waitForSelector(PG + ` [data-tm-rename="${id}"]`);
+    const v = await page.$$eval(PG + ` [data-tm-rename="${id}"], [data-tm-desc="${id}"]`, ns => ns.map(n => n.value)); await page.click(PG + ' [data-act="team-edit-cancel"]'); return v; };
+  const openTeams = async () => { await run('new-team'); await page.waitForSelector(PG + ' [data-tm-new]'); };   // the name field shows after New team (page since 2026-11-11)
   const top = () => page.evaluate(() => { const d = document.querySelector('dialog[data-sc-plugin="teams"][open]'); if (d) d.scrollTop = 0; });
   const syncNow = async (re = SYNCED) => { await page.click(ST + ' [data-act="pstat:teams:sync"]'); await waitText(re); await page.waitForTimeout(200); };
   const tableRows = async () => page.$$eval(DLG + ' [data-sy-table]', rs => Object.fromEntries(rs.map(r => [r.dataset.syTable, { match: r.dataset.syMatch, cells: [...r.children].map(c => c.textContent) }])));
@@ -48,12 +56,14 @@ try {
   ok(/^Teams: synced/.test(await stText()), 'status line: "' + await stText() + '"');
   // 2. a team and a person made in the dialog reach the real account database by themselves
   await openTeams(); await page.fill(PG + ' [data-tm-new]', 'Live lab team'); await page.click(PG + ' [data-act="team-add"]'); await page.waitForSelector(PG + ' [data-team-card]');
-  await page.click(PG + ' [data-act="team-members"]'); await page.waitForSelector(PG + ' [data-tmm-team]');   // the people of a team have their own page
-  await page.fill(PG + ' [data-tm-p="email"]', 'ann@example.com'); await page.fill(PG + ' [data-tm-p="name"]', 'Ann Live'); await page.fill(PG + ' [data-tm-p="title"]', 'Architect'); await page.click(PG + ' [data-act="member-add"]'); await page.waitForSelector(PG + ' [data-tm-members]');
+  await page.click(PG + ' [data-act="members-add-empty"]'); await page.waitForSelector(PG + ' [data-tm-addsearch]');   // Add people, beside the team list
+  await page.fill(PG + ' [data-tm-addsearch]', 'ann@example.com'); await page.click(PG + ' [data-tm-invite-new]'); await page.waitForSelector(PG + ' [data-tm-addcard]');
+  await page.fill(PG + ' [data-tm-p="name"]', 'Ann Live'); await page.fill(PG + ' [data-tm-p="title"]', 'Architect'); await page.click(PG + ' [data-act="members-add-go"]'); await page.waitForSelector(PG + ' [data-member]');
   await page.waitForFunction(() => !/waiting/.test((document.querySelector('[data-pstat="teams:sync"] .sc-pstat-text') || {}).textContent || '')).catch(() => {});
   await page.waitForTimeout(800);
   const snap = (await api('/api/v1/team/teams')).json.data; const t = snap.teams.find(x => x.name === 'Live lab team');
-  ok(!!t && t.members.length === 1 && t.members[0].person.email === 'ann@example.com' && t.members[0].person.title === 'Architect' && t.members[0].role === 'member', 'the real server has the team, the person (with the profile) and the membership: ' + JSON.stringify(t && t.members.map(m => [m.person.email, m.role])));
+  const ann = t && t.members.find(m => m.person.email === 'ann@example.com');   // the maker of a team is on it as its owner too
+  ok(!!ann && ann.person.title === 'Architect' && ann.role === 'member' && t.members.some(m => m.role === 'owner' && m.person.email === F.email), 'the real server has the team, the person (with the profile) and the membership: ' + JSON.stringify(t && t.members.map(m => [m.person.email, m.role])));
   await toWork();
   // 3. the Sync status dialog next to the real server's own numbers
   await run('sync-status'); await page.waitForSelector(DLG + ' [data-sy-tables]'); await page.waitForTimeout(700);
@@ -74,35 +84,38 @@ try {
   await run('sync-status'); await page.waitForSelector(DLG + ' [data-sy-tables]'); await page.waitForTimeout(900);
   ok((await page.$$eval(DLG + ' [data-sy-match="no"]', n => n.length)) >= 1 && !(await page.$eval(DLG + ' [data-act="sy-sync"]', b => b.disabled)), 'the dialog asked the real account, sees it differs, and turns Sync now ON');
   await page.click(DLG + ' [data-act="sy-sync"]'); await waitText(SYNCED); await page.waitForTimeout(400); await closeDlgs();
-  await openTeams(); ok((await page.$$eval(PG + ' [data-tm-rename]', ns => ns.map(n => n.value))).includes('From the other device'), 'it shows up here after the next sync'); await toWork();
+  await openTeams(); ok((await cardNames()).includes('From the other device'), 'it shows up here after the next sync'); await toWork();
   // 6. the real server refuses a clock far ahead, and a correct edit still wins afterwards
   const ahead = { ...other, name: 'Clock ahead', updated_at: Date.now() + 10 * 60_000 }; const m2 = await api('/api/v1/team/teams', { op: 'merge', tables: { teams: [ahead] } });
   ok(m2.json.data.refused === 1 && m2.json.data.future === 1 && m2.json.data.applied === 0, 'the real server refuses a row stamped 10 minutes ahead: ' + JSON.stringify(m2.json.data));
   ok(!(await names()).includes('Clock ahead'), 'and did not store it');
   // 7. a real conflict: this device renames offline, the other device renames later; the later one wins here, the lost edit can be restored
   offline = true; await openTeams();
-  const card = await page.$(PG + ' [data-team-card] [data-tm-rename]'); const cardVals = await page.$$eval(PG + ' [data-tm-rename]', ns => ns.map(n => [n.value, n.getAttribute('data-tm-rename')]));
-  const target = cardVals.find(v => v[0] === 'Made offline'); await page.fill(PG + ` [data-tm-rename="${target[1]}"]`, 'Browser name'); await page.click(PG + ` [data-team-card="${target[1]}"] [data-act="team-rename"]`); await page.waitForTimeout(300); await toWork();
+  const target = ['Made offline', await cardId('Made offline')];
+  await editTeam(target[1], { name: 'Browser name' }); await toWork();
   const cur = (await rows()).teams.find(x => x.uuid === target[1]); const theirs = { ...cur, name: 'Other device name', updated_at: Date.now() + 5000 };
   const m3 = await api('/api/v1/team/teams', { op: 'merge', tables: { teams: [theirs] } }); ok(m3.json.data.applied === 1, 'the other device renamed the same team, later');
   offline = false; await syncNow(/change replaced/);
-  await openTeams(); const after = await page.$$eval(PG + ' [data-tm-rename]', ns => ns.map(n => n.value));
-  ok(after.includes('Other device name') && !after.includes('Browser name'), 'the later edit wins on this device: ' + after.join(', '));
-  ok((await page.$$(PG + ' [data-tm-lost] li[data-lost]')).length === 1 && (await page.textContent(PG + ' [data-tm-lost]')).includes('Browser name'), 'and the replaced edit is listed with Restore'); await top(); await page.screenshot({ path: path.join(OUT, 'teams-live-3-replaced.png') });
-  await page.click(PG + ' [data-act="lost-restore"]'); await page.waitForTimeout(1200); await toWork();   // online: the restored edit is mirrored at once, so there is nothing left to sync
-  ok((await names()).includes('Browser name') && !(await names()).includes('Other device name'), 'Restore made it a new edit that won on the real server: ' + (await names()).join(', '));
+  await openTeams(); const after = await cardNames();
+  ok(after.includes('Other device name') && !after.includes('Browser name'), 'the later edit wins on this device: ' + after.join(', ')); await toWork();
+  await run('sync-status'); await page.waitForSelector(DLG + ' [data-sy-tables]'); await page.waitForTimeout(500);
+  ok(Number(((await page.textContent(DLG + ' [data-sy-f="lost"]')) || '').replace(/\D+/g, '')) >= 1, 'Sync status counts the replaced edit (kept on this device): ' + (await page.textContent(DLG + ' [data-sy-f="lost"]')).replace(/\s+/g, ' '));
+  await top(); await page.screenshot({ path: path.join(OUT, 'teams-live-3-replaced.png') }); await closeDlgs();
+  ok((await names()).includes('Other device name') && !(await names()).includes('Browser name'), 'the real server holds the later edit: ' + (await names()).join(', '));
   // 7b. the field-level case against the real server: this device edits the DESCRIPTION offline, the other device renames later; the merge keeps both
   offline = true; await openTeams();
-  const tid = (await page.$$eval(PG + ' [data-tm-rename]', ns => ns.map(n => [n.value, n.getAttribute('data-tm-rename')]))).find(v => v[0] === 'Other device name' || v[0] === 'Browser name')[1];
-  await page.fill(PG + ` [data-tm-desc="${tid}"]`, 'Browser description'); await page.click(PG + ` [data-team-card="${tid}"] [data-act="team-desc"]`); await page.waitForTimeout(300); await toWork();
+  const tid = await cardId('Other device name');
+  await editTeam(tid, { desc: 'Browser description' }); await toWork();
   const cur2 = (await rows()).teams.find(x => x.uuid === tid); const named = { ...cur2, name: 'Renamed on the other device', updated_at: Date.now() + 5000 };
   ok((await api('/api/v1/team/teams', { op: 'merge', tables: { teams: [named] } })).json.data.applied === 1, 'the other device renamed the same team (a different field), later');
   offline = false; await syncNow(/synced|replaced/); await page.waitForTimeout(400);
   let srv = (await rows()).teams.find(x => x.uuid === tid); ok(srv.name === 'Renamed on the other device' && srv.description === 'Browser description', 'the REAL server holds both edits after the merge: ' + JSON.stringify([srv.name, srv.description]));
-  await openTeams(); const vals = await page.$$eval(PG + ` [data-tm-rename="${tid}"], [data-tm-desc="${tid}"]`, ns => ns.map(n => n.value)); ok(vals.includes('Renamed on the other device') && vals.includes('Browser description'), 'and so does this device: ' + vals.join(' / ')); await toWork();
+  await openTeams(); const vals = await readTeam(tid); ok(vals.includes('Renamed on the other device') && vals.includes('Browser description'), 'and so does this device: ' + vals.join(' / ')); await toWork();
   // 7c. the Lab page: sign in to the real site as the fixture and read /lab/sync (the server's side of the same numbers)
   { const c2 = await browser.newContext({ viewport: { width: 1280, height: 1000 } }); const p2 = await c2.newPage();
     await p2.goto(SITE + '/login'); await p2.fill('input[name="email"]', F.email); await p2.fill('input[name="password"]', F.password); await Promise.all([p2.waitForNavigation({ waitUntil: 'load' }).catch(() => {}), p2.click('#login button[type="submit"], form[action="/api/auth/login"] button[type="submit"]')]);
+    { const r = await p2.goto(SITE + '/account/super-teams'); const tx = await p2.textContent('main'); const srvNames = await names();
+      ok(r.status() === 200 && srvNames.length > 0 && srvNames.every(n => tx.includes(n)) && tx.includes('ann@example.com'), 'the website page /account/super-teams lists every team the account holds, with its people: ' + srvNames.join(', ')); }
     await p2.goto(SITE + '/lab/sync'); const body = await p2.textContent('main'); const live = (await api('/api/v1/team/teams?stats=1')).json.data;
     ok(/Sync status/.test(body) && body.includes(F.db) && body.includes('Database id'), '/lab/sync opens for a lab tester and names the same database');
     const cells = await p2.$$eval('[data-ls-table]', rs => Object.fromEntries(rs.map(r => [r.dataset.lsTable, [...r.children].slice(1, 3).map(c => Number(c.textContent))])));

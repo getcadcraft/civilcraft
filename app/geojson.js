@@ -18,6 +18,8 @@
  */
 
 import { orient, mapXY } from './gis-geom.js';
+import { TextChunks } from './chunks.js';   // PERF.26
+import { isParts, parseJsonParts, partsOf } from './textin.js';   // PERF.20: a file over V8's string limit arrives as parts
 import { t } from "./i18n.js";
 
 export class GeoJsonError extends Error {}
@@ -35,9 +37,12 @@ function crsFromMember(c, notes) {
   return undefined;
 }
 
+/** The parts of a big file with a leading byte-order mark dropped (a string is stripped by the caller as before). */
+const stripBom = (x) => { const p = partsOf(x); return p.length && p[0].charCodeAt(0) === 0xFEFF ? [p[0].slice(1), ...p.slice(1)] : p; };
+
 export function readGeoJSON(text, name = 'GeoJSON', { maxFeatures = 500000 } = {}) {
   let obj;
-  try { obj = typeof text === 'string' ? JSON.parse(text.replace(/^﻿/, '')) : text; } catch { throw new GeoJsonError(t('geojson.json', { name })); }
+  try { obj = typeof text === 'string' ? JSON.parse(text.replace(/^﻿/, '')) : isParts(text) ? parseJsonParts(stripBom(text)) : text; } catch { throw new GeoJsonError(t('geojson.json', { name })); }
   if (!obj || typeof obj !== 'object') throw new GeoJsonError(t('geojson.not', { name }));
   const notes = [];
   let crsCode = crsFromMember(obj.crs, notes);
@@ -125,11 +130,17 @@ export function fieldsOf(features) {
 const r9 = (v) => Math.round(v * 1e9) / 1e9;
 const r4 = (v) => Math.round(v * 1e4) / 1e4;
 
-export function writeGeoJSON(groups, { toLonLat, zToMetres = (z) => z, name = null } = {}) {
-  const features = [];
+export function writeGeoJSON(groups, o = {}) { return writeGeoJSONChunks(groups, o).string(); }
+
+/** writeGeoJSON as TextChunks (PERF.26): the same text as JSON.stringify of the whole collection, a feature at a time, so a collection past V8's 512 MB string limit can be written. */
+export function writeGeoJSONChunks(groups, { toLonLat, zToMetres = (z) => z, name = null } = {}) {
+  const out = new TextChunks('');
+  out.add('{"type":"FeatureCollection"' + (name ? ',"name":' + JSON.stringify(name) : '') + ',"features":[');
+  let first = true;
+  const emit = (feature) => { out.add((first ? '' : ',') + JSON.stringify(feature)); first = false; };
   for (const gr of groups) {
     for (const f of gr.features) {
-      if (!f.g) { const properties = Object.create(null); properties.kind = gr.kind; for (const fd of gr.fields) { const v = f.p[fd.name]; properties[fd.name === 'kind' ? 'kind_' : fd.name] = v === undefined ? null : v; } features.push({ type: 'Feature', properties, geometry: null }); continue; }   // RFC 7946 §3.2: an unlocated feature
+      if (!f.g) { const properties = Object.create(null); properties.kind = gr.kind; for (const fd of gr.fields) { const v = f.p[fd.name]; properties[fd.name === 'kind' ? 'kind_' : fd.name] = v === undefined ? null : v; } emit({ type: 'Feature', properties, geometry: null }); continue; }   // RFC 7946 §3.2: an unlocated feature
       let g = mapXY(f.g, toLonLat);
       if (g.t === 'pg') g = orient(g, true);
       const P = (p) => (gr.hasZ && p.length > 2 ? [r9(p[0]), r9(p[1]), r4(zToMetres(p[2]))] : [r9(p[0]), r9(p[1])]);
@@ -139,11 +150,9 @@ export function writeGeoJSON(groups, { toLonLat, zToMetres = (z) => z, name = nu
       const properties = Object.create(null);   // a field may be called "__proto__"
       properties.kind = gr.kind;
       for (const fd of gr.fields) { const v = f.p[fd.name]; properties[fd.name === 'kind' ? 'kind_' : fd.name] = v === undefined ? null : v; }
-      features.push({ type: 'Feature', properties, geometry });
+      emit({ type: 'Feature', properties, geometry });
     }
   }
-  const out = { type: 'FeatureCollection' };
-  if (name) out.name = name;
-  out.features = features;
-  return JSON.stringify(out);
+  out.add(']}');
+  return out.finish();
 }

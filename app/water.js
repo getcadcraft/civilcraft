@@ -439,11 +439,15 @@ export function readInp(text, units) {
   }
   const pat = []; for (const r of sec.PATTERNS || []) pat.push(...r.slice(1).map((v) => num(v, 1)));
   if (pat.length) W.settings.pattern = pat;
+  let patStep = 0;
   for (const r of sec.TIMES || []) {
     const k = r[0].toLowerCase();
     const hh = (s) => { const m = String(s || '').match(/^(\d+):?(\d+)?/); return m ? Number(m[1]) + Number(m[2] || 0) / 60 : null; };
     if (k === 'duration') W.settings.duration = hh(r[1]) || W.settings.duration;
     if (k === 'hydraulic' && /timestep/i.test(r[1] || '')) { const h = hh(r[2]); if (h) W.settings.step = Math.round(h * 3600); }
+    if (k === 'pattern' && /timestep/i.test(r[1] || '')) { const h = hh(r[2]); if (h) patStep = Math.round(h * 3600); }   // 0.11 (water-11): the pattern's own step
   }
+  // the pattern's values each last `Pattern Timestep`; this model has one step, so each value is repeated to fill the hydraulic step's multiples
+  if (patStep && W.settings.pattern?.length && patStep !== W.settings.step && patStep % W.settings.step === 0) { const n = patStep / W.settings.step; W.settings.pattern = W.settings.pattern.flatMap((v) => Array(n).fill(v)); }
   return { water: cleanWater(W, u), notes, units: u };
 }

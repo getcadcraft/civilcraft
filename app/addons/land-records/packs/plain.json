@@ -1,0 +1,366 @@
+{
+ "format": "cadcraft-land-templates",
+ "version": 1,
+ "id": "plain",
+ "name": "Plain outlines",
+ "note": "Plain outlines that belong to no authority. They set out what a planning or land office usually needs to see and fill it from your drawing. Use your authority's own form where it has one, and copy the figures across.",
+ "documents": [
+  {
+   "id": "application",
+   "title": "Application outline: {title}",
+   "for": [],
+   "fields": [
+    {
+     "key": "applicant",
+     "label": "Applicant's name",
+     "required": true
+    },
+    {
+     "key": "address",
+     "label": "Applicant's address",
+     "required": true
+    },
+    {
+     "key": "contact",
+     "label": "Applicant's phone or email",
+     "required": true
+    },
+    {
+     "key": "authority",
+     "label": "The authority the application is made to",
+     "required": true
+    },
+    {
+     "key": "site",
+     "label": "Address or description of the land",
+     "required": true
+    },
+    {
+     "key": "agent",
+     "label": "Agent acting for the applicant",
+     "required": false
+    },
+    {
+     "key": "fee_note",
+     "label": "Fee paid or receipt number",
+     "required": false
+    }
+   ],
+   "body": [
+    {
+     "p": "Outline only. This is not the form of {authority}. Where the authority has its own form, use that form and copy these figures into it."
+    },
+    {
+     "h": "1. Applicant"
+    },
+    {
+     "p": "Name: {applicant}"
+    },
+    {
+     "p": "Address: {address}"
+    },
+    {
+     "p": "Phone or email: {contact}"
+    },
+    {
+     "p": "Agent, if any: {agent}"
+    },
+    {
+     "h": "2. The land"
+    },
+    {
+     "p": "{site}"
+    },
+    {
+     "p": "Parcels this application is about: {parents}. Total area {area_before}."
+    },
+    {
+     "table": "before"
+    },
+    {
+     "h": "3. What is proposed"
+    },
+    {
+     "p": "Kind of change: {kind}."
+    },
+    {
+     "p": "{reason}"
+    },
+    {
+     "p": "Parcels after the change: {children} ({lots_after} in all, {area_after})."
+    },
+    {
+     "table": "after"
+    },
+    {
+     "p": "Land gained or lost by the change (after less before): {balance}."
+    },
+    {
+     "h": "4. Lot checks against the limits the applicant typed"
+    },
+    {
+     "p": "The limits are the applicant's own reading of the rules that apply. Lots listed here fall short of them; an empty list means none did, or no limit was typed."
+    },
+    {
+     "table": "checks"
+    },
+    {
+     "h": "5. Attached"
+    },
+    {
+     "check": [
+      "Plan of the parcels as they are, with dimensions",
+      "Plan of the parcels as proposed, with dimensions",
+      "Proof of ownership or the owner's written consent",
+      "Survey by a licensed surveyor, where the authority requires one",
+      "Fee: {fee_note}"
+     ]
+    },
+    {
+     "h": "6. Declaration"
+    },
+    {
+     "p": "The applicant states that the information above is correct to the best of their knowledge."
+    },
+    {
+     "p": "Signed: ______________________    Date: {date}"
+    }
+   ]
+  },
+  {
+   "id": "parcel-change",
+   "title": "Statement of proposed parcel change: {title}",
+   "for": [
+    "subdivision",
+    "consolidation",
+    "boundary"
+   ],
+   "fields": [
+    {
+     "key": "authority",
+     "label": "The authority the application is made to",
+     "required": true
+    },
+    {
+     "key": "site",
+     "label": "Address or description of the land",
+     "required": true
+    }
+   ],
+   "body": [
+    {
+     "p": "Prepared from the drawing \"{project}\" on {date}. Areas are those of the drawing; they are not a survey unless a licensed surveyor has signed the plan."
+    },
+    {
+     "h": "The land"
+    },
+    {
+     "p": "{site}"
+    },
+    {
+     "h": "Parcels as they are"
+    },
+    {
+     "table": "before"
+    },
+    {
+     "h": "Parcels as proposed"
+    },
+    {
+     "p": "{kind}: {parents} would become {children}."
+    },
+    {
+     "table": "after"
+    },
+    {
+     "p": "Balance of land (after less before): {balance}. A balance other than none means the proposed lots do not cover the same ground as the present ones."
+    },
+    {
+     "h": "Reason"
+    },
+    {
+     "p": "{reason}"
+    },
+    {
+     "h": "Lots that fall short of the limits typed"
+    },
+    {
+     "table": "checks"
+    }
+   ]
+  },
+  {
+   "id": "amendment",
+   "title": "Proposed amendment of designation: {title}",
+   "for": [
+    "designation"
+   ],
+   "fields": [
+    {
+     "key": "authority",
+     "label": "The authority the application is made to",
+     "required": true
+    },
+    {
+     "key": "plan_name",
+     "label": "Name of the plan, scheme or ordinance to be amended",
+     "required": true
+    },
+    {
+     "key": "amendment_no",
+     "label": "Amendment number or reference",
+     "required": false
+    },
+    {
+     "key": "site",
+     "label": "Address or description of the land",
+     "required": true
+    }
+   ],
+   "body": [
+    {
+     "p": "Draft wording for discussion with {authority}. It becomes an amendment only when the authority adopts it by its own procedure."
+    },
+    {
+     "h": "1. Title"
+    },
+    {
+     "p": "Amendment {amendment_no} to {plan_name}."
+    },
+    {
+     "h": "2. Land affected"
+    },
+    {
+     "p": "{site}"
+    },
+    {
+     "p": "Parcels: {parents}, {area_before} in all."
+    },
+    {
+     "table": "before"
+    },
+    {
+     "h": "3. The amendment"
+    },
+    {
+     "p": "{plan_name} is amended so that the land described in section 2 is changed from land use \"{from_use}\", zone \"{from_zone}\", to land use \"{to_use}\", zone \"{to_zone}\"."
+    },
+    {
+     "table": "after"
+    },
+    {
+     "h": "4. Reasons"
+    },
+    {
+     "p": "{reason}"
+    },
+    {
+     "h": "5. Land by designation after the amendment"
+    },
+    {
+     "p": "Every parcel in the drawing, counted by the designation its record states, with this amendment applied."
+    },
+    {
+     "table": "landuse"
+    },
+    {
+     "h": "6. Still to be supplied"
+    },
+    {
+     "check": [
+      "Map of the land at the scale the authority asks for",
+      "Statement of how the change fits the plan's objectives",
+      "Assessments the authority requires (traffic, environment, services)",
+      "Record of consultation, where required"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "schedule",
+   "title": "Schedule of parcels: {title}",
+   "for": [],
+   "fields": [],
+   "body": [
+    {
+     "p": "From the drawing \"{project}\", {date}."
+    },
+    {
+     "h": "Before"
+    },
+    {
+     "table": "before"
+    },
+    {
+     "h": "After"
+    },
+    {
+     "table": "after"
+    },
+    {
+     "p": "Balance of land (after less before): {balance}."
+    }
+   ]
+  },
+  {
+   "id": "notice",
+   "title": "Notice of a proposal: {title}",
+   "for": [],
+   "fields": [
+    {
+     "key": "applicant",
+     "label": "Applicant's name",
+     "required": true
+    },
+    {
+     "key": "authority",
+     "label": "The authority the application is made to",
+     "required": true
+    },
+    {
+     "key": "site",
+     "label": "Address or description of the land",
+     "required": true
+    },
+    {
+     "key": "inspect_at",
+     "label": "Where the proposal can be seen",
+     "required": true
+    },
+    {
+     "key": "comments_by",
+     "label": "Date by which comments must be made",
+     "required": true
+    },
+    {
+     "key": "comments_to",
+     "label": "Where to send comments",
+     "required": true
+    }
+   ],
+   "body": [
+    {
+     "p": "Outline only. The wording, the period and the way a notice must be given are set by {authority}; check them before this is sent or posted."
+    },
+    {
+     "h": "Notice"
+    },
+    {
+     "p": "{applicant} proposes the following for the land at {site}: {kind}. Parcels {parents} would become {children}."
+    },
+    {
+     "p": "{reason}"
+    },
+    {
+     "p": "The proposal can be seen at: {inspect_at}"
+    },
+    {
+     "p": "Comments must be made by {comments_by} to: {comments_to}"
+    },
+    {
+     "p": "Dated {date}."
+    }
+   ]
+  }
+ ]
+}

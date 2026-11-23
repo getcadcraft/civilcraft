@@ -291,7 +291,7 @@ export async function install(host) {
         let blk = null;
         if (chosenRefs().length) {
           blk = pointsFromBlocks(br.refs, { blocks: [...bPick], layers: [...lPick], desc: bDesc.value, z: bZ.value, number: bNum.value, existing: P().points });
-          P().editPoints(t('cad.blk.undo', { file }), (pts) => [...pts, ...blk.points]);
+          P().editPointTable(t('cad.blk.undo', { file }), (ed) => { ed.add(blk.points); });
           msgs.push(t('cad.blk.added', { n: blk.points.length, file }));
           if (blk.renumbered) msgs.push(t('cad.blk.renumbered', { n: blk.renumbered }));
           if (blk.skipped.noZ) msgs.push(t('cad.blk.noz', { n: blk.skipped.noZ }));
@@ -303,7 +303,7 @@ export async function install(host) {
           let highest = P().points.reduce((m, q) => (/^\d+$/.test(String(q.n)) ? Math.max(m, Number(q.n)) : m), 0);
           const fresh = () => { do highest++; while (taken.has(String(highest))); taken.add(String(highest)); return String(highest); };
           const add = lv.points.map((q) => ({ n: fresh(), x: q.x, y: q.y, z: q.z, d: (q.src === 'attrib' ? q.block || q.layer : q.layer).slice(0, 200) }));
-          P().editPoints(t('cad.sv.undo', { file }), (pts) => [...pts, ...add]);
+          P().editPointTable(t('cad.sv.undo', { file }), (ed) => { ed.add(add); });
           svN = add.length;
           msgs.push(t('cad.sv.added', { n: svN, file }));
         }

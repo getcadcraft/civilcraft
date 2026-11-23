@@ -152,9 +152,9 @@ section('a closed design feature line: a sloped pad worked by hand');
   // at each corner a quarter cone (3π/4) h³ — 2600 + 103.67 on top of the 20,000 inside
   const corners = [1, 2, 3, 2].reduce((t, h) => t + (3 * Math.PI / 4) * h ** 3, 0);
   near(v2, 20000 + 2600 + corners, (20000 + 2600 + corners) * 0.005, 'with daylight: inside + side-slope prisms + corner cones, worked by hand, within 0.5 %');
-  // an open design line grades nothing
+  // 0.10.1 #1970: an open design line is no longer ignored: it is a breakline of the proposed surface (bin/test-civilcraft-sg1970.mjs)
   p.change('open', (s) => { s.features[0].closed = false; });
-  ok(!p.graded().surface, 'an open design feature line is not a grading item');
+  ok(p.graded().items.length === 1 && p.graded().items[0].kind === 'breakline', 'an open design feature line is a breakline item, not a sloped pad');
 }
 
 section('the project file');

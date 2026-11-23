@@ -1,105 +1,120 @@
 ---
 title: Hambisa ikhoridoro lomgwaqo
-summary: Vula ikhoridoro somzila, setha amanani omgwaqo, amahlombe nokuthambeka kwecala, bese ufunda izigaba, imigqa yokukhanya kwemini nomsebenzi womhlaba okukhiqizayo.
-keywords: ukuphakanyiswa, ukuphakamisa, ukugoba, runoff, runout, ithebhula lezinga, izinga, ukuthambeka kwecala, ukujikeleza, ikhoridoro, ukuhlanganiswa, isigaba esijwayelekile, umgwaqo, umugqa, ihlombe, ukuthambeka komgwaqo, ukukhanya kwemini, ukusika, ukugcwalisa, izigaba, imigomo, izinhloso, ububanzi, ukuthambeka, ukulandela enye ikhoridoro
-from: 91303189
+summary: Vula ikhoridoro lomzila, setha amanani welane, leshoulder kanye nokuthambeka kohlangothi, bese ufunda izigaba, imigqa yokuhlangana nomhlaba kanye nokumba nokugcwalisa okukhiqizwayo.
+keywords: ukuhlangana, umgwaqo uhlangana nomgwaqo, umgwaqo wohlangothi, ukuhlangana kwe-T, ukuwela, izinga lephedi, ukuxhumanisa, tie in, ukuphakama kwecala, super, ukugoba, runoff, runout, ithebula lezinga, ukuthambeka okuqondile, ukuzungeza, ikhoridoro, isakhiwo, typical section, umgwaqo, ilane, ishoulder, ukuthambeka kohlangothi, ukuvela, ukumba, ukugcwalisa, izigaba, injongo, izinjongo, injongo yobubanzi, injongo yokuphakama, injongo yokushiyeka, ukwandisa, umphetho wepavement, ukulandela enye ikhoridoro
+from: 6dcb92b3
 ---
 
-Ikhoridoro lihambisa isigaba esisodwa esijwayelekile (ukuhlanganiswa) emzileni nasiphrofayilini sawo sedizayini, silinganise sibe emhlabeni okhona bese lengeza umphumela kundawo ehlongozwayo. Umzila ungaphatha amakhoridoro amaningi ezindaweni ezihlukile zesiteshi, futhi ikhoridoro lingakhiwa kusuka ezifanekisweni eziphindwa ngesiteshi ([Izifanekiso zekhoridoro](topic:corridor-templates)). Ukuhlanganiswa okulula okungezansi kufanana ezinhlangothini zombili; ukuze unike uhlangothi ngalunye izingxenye zalo, bona [Yakha uhlangothi ngalunye ngezingxenye](topic:corridor#build-each-side-from-parts).
+Ikhoridoro lihambisa isigaba esilula (isakhiwo) emgqeni womzila nasemklamweni wephrofayili yedizayini, lenze ukuthambeka kwalo emhlabeni okhona bese lengeza umphumela ku-umphezulu owuhlongozwayo. Umzila ungaba nezikhoridoro eziningi ezindaweni ezihlukene zesiteshi, futhi ikhoridoro lingakhiwa kusuka ezifanekisweni ezisetshenziswa kabusha ngesiteshi ([Izifanekiso zekhoridoro](topic:corridor-templates)). Isakhiwo esilula esingezansi sifana ngakozombili izinhlangothi; ukuze unikeze uhlangothi ngalunye izingxenye zalo, bheka [Yakha uhlangothi ngalunye ngezingxenye](topic:corridor#build-each-side-from-parts).
 
-## Ukuhlanganiswa
+## Isakhiwo
 
-Kusukela emgqeni omaphakathi kuya ngaphandle, ohlangothini ngalunye:
+Kusuka emgqeni wamaphakathi uye ngaphandle, ngakolunye nakolunye uhlangothi:
 
-1. **umgwaqo** wobubanzi obunikeziwe, wehla usuka ekhanda lomgwaqo ngo-**ukuthambeka komgwaqo**
-2. **ihlombe** lobubanzi obunikeziwe ngo-**ukuthambeka kwehlombe**
-3. **ukuthambeka kwecala** kusuka emphethelweni wehlombe kuya lapho lihlangana khona nomhlaba: **ukuthambeka kokusika** lapho umhlaba ukhuphuka khona, **ukuthambeka kokugcwalisa** lapho wehla khona
+1. **ilane** yobubanzi obuthile, ehla isuka ekuphakameni kwendlela ngokuthambeka kwelane
+2. **ishoulder** yobubanzi obuthile ngokuthambeka kwe-shoulder
+3. **ukuthambeka kohlangothi** kusuka emphethweni weshoulder kuze kuhlangane nomhlaba: **ukuthambeka kokumba** lapho umhlaba ukhuphuka khona, **ukuthambeka kokugcwalisa** lapho umhlaba wehla khona
 
-Amanani okuqala ayizibambi, hhayi isitandade sedizayini:
+Amanani aqalayo ayizinhlamvu nje zesikhashana, hhayi izinga ledizayini:
 
-| Inani | Amafidi wesivivinyo sase-US | Amamitha |
+| Inani | US feet | Mitha |
 |---|---|---|
-| Ububanzi bomgwaqo | 12 ft | 3.6 m |
-| Ukuthambeka komgwaqo | 2% | 2% |
-| Ububanzi behlombe | 4 ft | 1.2 m |
-| Ukuthambeka kwehlombe | 4% | 4% |
-| Ukuthambeka kokusika | 2 : 1 | 2 : 1 |
+| Ububanzi belane | 12 ft | 3.6 m |
+| Ukuthambeka kwelane | 2% | 2% |
+| Ububanzi beshoulder | 4 ft | 1.2 m |
+| Ukuthambeka kweshoulder | 4% | 4% |
+| Ukuthambeka kokumba | 2 : 1 | 2 : 1 |
 | Ukuthambeka kokugcwalisa | 3 : 1 | 3 : 1 |
-| Isigaba ngalinye | 10 ft | 5 m |
+| Isigaba njalo ngama- | 10 ft | 5 m |
 
-Ukuthambeka kwamacala kusekelwa ukuma (H:V): 3 : 1 kusho 3 ngokuthe xaxa kwe-1 phansi.
+Ukuthambeka kohlangothi kukalwa ngokuma kwendlela (H:V): 3 : 1 kusho ukuthi u-3 ngakwesokunxele ngo-1 phansi.
 
 ## Yakha ikhoridoro
 
-Udinga umzila ongenamaphutha nephrofayili yedizayini enama-PVI amabili ngaphansi kwamaphutha.
+Udinga umzila ongenayo iphutha kanye nephrofayili yedizayini enama-PVI amabili noma ngaphezulu futhi ngaphandle kwamaphutha.
 
 1. Khetha umzila.
-2. Esiqwini sesokudla, ngaphansi kwe-**Ikhoridoro**, faka itiki ku-**Hambisa ukuhlanganiswa kuphrofayili yedizayini**.
-   Amabhokisi avela futhi ikhoridoro lakhiwa ngokushesha. Ipulani ibonisa imiphetho yomgwaqo nehlombe nemigqa yokukhanya kwemini; uma {{ui:Okuhlongozwayo (okuqhutshiwe)}} ukhethiwe ngaphansi kwe-**Bonisa**, amakhonthuwa akhombisa umhlaba omusha.
-3. Shintsha noma yiliphi inani: **Ububanzi bomgwaqo**, **Ukuthambeka komgwaqo**, **Ububanzi behlombe**, **Ukuthambeka kwehlombe**, **Ukuthambeka kokusika**, **Ukuthambeka kokugcwalisa**, **Isigaba ngalinye**. Cindezela {{key:Enter}} emva kwalinye. Ukuthambeka kokusika, kokugcwalisa nebanga lezigaba kumele kube ngaphezu kuka-0.
-4. Funda umugqa ongaphansi kwamabhokisi, isibonelo "izigaba ezingu-39 kusukela ku-0+00.00 kuya ku-3+86.36; ukusika 240.2 cu yd, ukugcwalisa 556.0 cu yd."
+2. Ku-**ipaneli yangakwesokudla**, ngaphansi kwe-**Ikhoridoro**, thikha **Hambisa isakhiwo ngasemgqeni weprofayili yedizayini**.
+   Izinkundla ziyavela futhi ikhoridoro likhiwa masinyane. Ipulani likhombisa imiphetho yelane neshoulder kanye namagatsha okuhlangana nomhlaba; uma {{ui:Proposed (graded)}} ikhethwe ngaphansi kwe-**Ukubonisa**, ama-contour akhombisa umhlaba omusha.
+3. Shintsha noma yiliphi inani: **Ububanzi belane**, **Ukuthambeka kwelane**, **Ububanzi beshoulder**, **Ukuthambeka kweshoulder**, **Ukuthambeka kokumba**, **Ukuthambeka kokugcwalisa**, **Isigaba njalo ngama-**. Cindezela {{key:Enter}} emva kwalo ngalinye. Ukumba, ukugcwalisa kanye nokubekwa kwezigaba kufanele kube ngaphezu kuka-0.
+4. Funda umugqa ongaphansi kwezinkundla, isibonelo "izigaba ezingu-39 kusuka ku-0+00.00 kuya ku-3+86.36; ukumba 240.2 cu yd, ukugcwalisa 556.0 cu yd."
 
-Izigaba zisikwa ngalo lonke ukunyakaza kwe-**Isigaba ngalinye**, emaphethelweni, nasekuqaleni nasekugcineni kwalo lonke ijika elibanzi nelibukeka. Ngayinye isigaba nemigqa edlula kuyo (umgca omaphakathi, imiphetho yomgwaqo nehlombe, ukukhanya kwemini) iba imigqa yokwephula yendawo ehlongozwayo.
+Izigaba zisikwa njalo ngesinyathelo se-**Isigaba njalo ngama-**, emaphethelweni, nasekuqaleni nasekugcineni kwawo wonke amajika athe xaxa nawavundlile. Isigaba ngasinye nemigqa edlula kuso (umugqa wamaphakathi, imiphetho yelane neshoulder, nomugqa wokuhlangana) ziba yimigqa yokuphula yomphezulu owuhlongozwayo.
 
-Ukuvala ikhoridoro, susa itiki ebhokisini. Amanani ayo agcinwa kokulandelayo.
+Ukuvala ikhoridoro, susa ukukhetha ebhokisini. Amanani ayo agcinwa ukuze kusetshenziswe ngokulandelayo.
 
-## Lapho ingakhiwa
+## Lapho ingakhi khona
 
-Ibhokisi elibomvu ngaphansi kwamabhokisi lichaza ngani:
+Ibhokisi elibomvu ngaphansi kwezinkundla lisho ukuthi kungani:
 
-| Umlayezo | Yenzani ini |
+| Umlayezo | Yini okufanele uyenze |
 |---|---|
-| "Ikhoridoro ludinga iphrofayili yedizayini engenamaphutha." | Engeza ama-PVI, noma lungisa amajika aqondile ahlangene (bona [Yenza iphrofayili eqondile](topic:profile)). |
-| "Iphrofayili yedizayini ayihlanganisi nomzila." | Hambisa ama-PVI aye ebanzini lesiteshi somzila. |
-| "Ikhoridoro ludinga okungenani izigaba ezimbili endaweni." | Iningi lekhoridoroliphuma emhlabeni okhona. |
-| "Izithambeka zecala ezi-4 zishiya indawo ngaphambi kokuhlangana nomhlaba." | Eduze komphetho wendawo ukuthambeka akukwazi ukufinyelela emhlabeni. Gcina umgwaqo kude nomphetho, noma wehlise ukuphakama kokugcwalisa noma kokusika lapho. |
-| "Imigqa yokukhanya kwemini yekhoridoro iyaphambana (izigaba ziyahlangana, isibonelo ngaphakathi kwejika elibukhali). Sebenzisa umsakazo omkhulu noma ukuhlanganiswa okuncane." | Izigaba ngaphakathi kwejika elibukhali ziyahlangana. Khulisa umsakazo noma ncipisha ukuhlanganiswa. |
+| "Ikhoridoro lidinga iphrofayili yedizayini engenayo iphutha." | Engeza ama-PVI, noma lungisa amajika avundlile ahlanganayo (bheka [Yakha iphrofayili ethe xaxa](topic:profile)). |
+| "Iphrofayili yedizayini ayihlanganisi nomzila." | Hambisa ama-PVI ngaphakathi kwebanga lesiteshi somzila. |
+| "Ikhoridoro lidinga okungenani izigaba ezimbili phezu komphezulu." | Ikhoridoro eliningi lisendaweni engaphezu komhlaba okhona. |
+| "Ukuthambeka kohlangothi aluyi-4 kuphuma phezu komphezulu ngaphambi kokuhlangana nomhlaba." | Eduze komphetho womphezulu ukuthambeka akufinyeleli umhlaba. Gcina umgwaqo ukude nomphetho, noma yehlisa ukuphakama kokugcwalisa noma kokumba lapho. |
+| "Imigqa yokuvela kwekhoridoro iyahlangana (izigaba ziyahlangana, isibonelo ngaphakathi kwejika elibukhali). Sebenzisa ijika elikhulu noma isakhiwo esincane." | Izigaba ngaphakathi kwejika elibukhali ziyahlangana. Khulisa umsebenzi noma ncipha isakhiwo. |
 
-Ikhoridoro elinenkinga alihlelwa ngaphakathi futhi alibalwa emsebenzini womhlaba.
+Ikhoridoro elinenkinga alibekwa ku-umphezulu futhi alibali ekumbeni nasekugcwalisweni komhlaba.
 
-## Amakhoridoro namapedi ndawonye
+## Amakhoridoro namaphedi ndawonye
 
-Indawo ehlongozwayo yakhiwa ngokulandelana: wonke amakhoridoro kuqala, bese wonke amapedi. Lapho ukulinganisa kwepedi kuhlanganisa nekhoridoro, ipedi liyanqoba. Imithamo ibalwa ngaphakathi kuyo yonke imigqa yokukhanya kwemini ndawonye; bona [Imithamo yomsebenzi womhlaba](topic:volumes).
+Umphezulu owuhlongozwayo wakhiwa ngokulandelana: wonke amakhoridoro kuqala, bese kulandela wonke amaphedi. Lapho ukugoba kwephedi kudlula ikhoridoro, iphedi iyanqoba. Lapho into elandelayo idlula umgwaqo, kuphela ingxenye yomgwaqo ephakathi kwemigqa yokuvela yento elandelayo iyashintshwa; enye yomgwaqo, nanoma yimuphi umugqa womhlaba udlula umgwaqo, ugcina ukwakheka kwawo. Imithamo ibalwa ngaphakathi kwemigqa yokuvela yonke ndawonye; bheka [Imithamo yokumba nokugcwalisa](topic:volumes).
 
-## Ukuphakanyiswa kwejika
+## Ukuphakanyiswa kwecala
 
-Ngejika umgwaqo ungathambeka ngakwangaphakathi, ngakho izimoto zicindezelwa kancane ngaphandle. Faka itiki ku-**Phakamisa amajika** ngaphansi kwe-**Ukuphakanyiswa** ku-**Izici** zomzila:
+Ejikeni umgwaqo ungathambama uye ngaphakathi, ukuze izimoto ziphoqwe kancane ngaphandle. Thikha **Phakamisa amajika** ngaphansi kwe-**Ukuphakanyiswa kwecala** kuma-**Izici** ze-alignment:
 
-- Ijika ngalinye lesekeli linikeza izinga **e** kusuka kuthebhula lezinga: umugqa wokuqala umsakazo wawo ufinyelela kuwo (umugqa onezinga elingenalutho ugcina ikhanda elijwayelekile). Ithebhula kanye ne-**Ukuthambeka okukhulu okuhlobene** (0.5 % ukuqala) azizibambi, hhayi isitandade: zisethe ngokwemigomo yakho yedizayini. Engeza noma susa imigqa njengoba udinga.
-- Imigwaqo ijikeleza ngokuzungeze umgca omaphakathi. Ngaphambi kwejika umgwaqo wangaphandle uyasikeka ngaphezu kwe-**runout** (ikhanda ejwayelekile ÷ e × runoff), bese ngaphezu kwe-**runoff** (ububanzi bomgwaqo × e ÷ ukuthambeka) umgwaqo wangaphandle uqhubeka ujikeleza kuze umgwaqo wonke uthambeke ngo-e ngakwangaphakathi; izingxenye ezimbili kwezintathu zerunoff zisendaweni yangaphambi kwejika nengxenye yesithathu kuwo. Ngemva kwejika kwenzeka okufanayo ngokuphambene.
-- Ihlombe ohlangothini oluphansi alikaze libe lisikeke kunomgwaqo walo; ohlangothini oluphezulu ligcina ukuthambeka kwalo (liyagoqeka).
-- Ithebhula elingaphansi kwawo lihlu umsakazo, izinga, i-runoff ne-runout kwalo lonke ijika nokuthi ukuphakanyiswa okugcwele kuqala nokuphela kuphi. **Umdwebo wokuphakanyiswa** udweba ukuthambeka okuhlangene kwemigwaqo yombili emasiteshini (umgwaqo wangakwesobunxele uqinile, owesokudla udashiwe).
-- Ijika elifushane kakhulu lokufinyelela ukuphakanyiswa okugcwele, noma amajika amabili amagudlu awo ahlanganayo, litshelwa ebhokisini ngaphezulu kwethebhula.
+- Ijika ngalinye lesangqa lithola izinga **e** kuthebula lezinga: umugqa wokuqala lapho ubukhulu bejika bufinyelela khona (umugqa onezinga elingenalutho ugcina ukuphakama kwejwayelekile). Ithebula kanye ne-**Ukuthambeka okukhulu okuhlobene** (0.5 % ukuqala) ziyizinhlamvu zesikhashana, hhayi izinga: zisethe ngokusekelwe ezindleleni zakho zedizayini. Engeza noma susa imigqa njengoba udinga.
+- Amalane aguquka mayelana nomugqa wamaphakathi. Ngaphambi kwejika ilane langaphandle liyancipha phezu kwe-**runout** (ukuphakama kwejwayelekile ÷ e × runoff), bese phezu kwe-**runoff** (ububanzi belane × e ÷ ukuthambeka) ilane langaphandle liqhubeka liguquka kuze konke umgwaqo uthambame ku-e uya ngaphakathi; izingxenye ezimbili kwezintathu ze-runoff zisendaweni ngaphambi kwejika, nengxenye yesithathu ejikeni. Ngemuva kwejika kwenzeka okuphambene nalokho.
+- Ishoulder ohlangothini oluphansi alikaze libe lincane kunelane lalo; ohlangothini oluphezulu ligcina ukuthambeka kwalo (liyagingqika).
+- Ithebula elingaphansi kwalo lidweba ububanzi bejika ngalinye, izinga, i-runoff ne-runout kanye nelapho ukuphakanyiswa okugcwele kuqala khona nakuphela khona. **Idayagremu yokuphakanyiswa kwecala** idweba ukuthambeka kwamalane omabili ngokuya ezindaweni (ilane lesokunxele liqinile, elesokudla lilandelwa yimigqa).
+- Ijika elifushane kakhulu ukuze lifinyelele ukuphakanyiswa okugcwele, noma amajika amabili ayo amasinga ahlanganayo, kubonisa ibhokisi elingaphezulu kwethebula.
 
-Izigaba, imithamo, umbono we-3D namashidi konke kubonisa umgwaqo othambekile. Yonke inguquko yisinyathelo esisodwa: {{key:Mod+Z}} iyayihlehlisa.
+Izigaba, imithamo, ukubukwa kwe-3D namashidi konke kubonisa umgwaqo ophendekile. Ushintsho ngalunye lungesinyathelo esisodwa: {{key:Mod+Z}} iyalihlehlisa.
 
-## Izinhloso
+## Izinjongo
 
-Umgomo unyakazisa iphoyinti elilodwa ngohlangothi lomgwaqo lisiye emgqeni: **Umphetho wepavement** noma **Umphetho wehlombe**, ngakwesobunxele noma **ngakwesokudla**. Ngayinye isigaba sihlangana nomugqa ngokuthe xaxa nomgca omaphakathi, siphuma kuhlangothi lwalo kuphela, ngakho umgomo ohlangothini lwesokudla awukaze unyakazise uhlangothi lwesobunxele.
+Injongo ihambisa ingqikithi eyodwa yohlangothi olulodwa lomgwaqo ukuya kumugqa: **Umphetho wepavement** noma **Umphetho weshoulder**, ngakwesokunxele noma ngakwesokudla. Isigaba ngasinye sihlangana nomugqa ngokuthe xaxa emgqeni wamaphakathi, siphuma kuhlangothi olulodwa kuphela, ngakho injongo yakwesokudla ayisoze yashintsha uhlangothi lwesokunxele.
 
-| Ibeka | Okwenzekayo lapho isigaba sihlangana nomugqa |
+| Isetha | Yini eyenzeka lapho isigaba sihlangana nomugqa |
 |---|---|
-| **Ububanzi** | Iphoyinti lihlala emgqeni: umgwaqo (noma ihlombe) uyanda noma uncipha kuwo, ugcina ukuthambeka kwawo okuhlangene. |
-| **Ukuphakama** | Iphoyinti lithatha ukuphakama komugqa lapho, endaweni yalo: ukuthambeka okuhlangene komgwaqo (noma lehlombe) kuyalandela. |
+| **Ububanzi** | Ingqikithi ihlala emgqeni: ilane (noma ishoulder) liyanda noma linciphe kuwo, ligcine ukuthambeka kwalo. |
+| **Ukuphakama** | Ingqikithi ithatha ukuphakama komugqa lapho, endaweni yayo: ukuthambeka kwelane (noma kweshoulder) kuyalandela. |
 
-Umugqa ungaba umugqa wesici (noma yini i-**Ukusetshenziswa** kwawo) noma umugqa wenye ikhoridoro: umgca wawo omaphakathi, imiphetho yepavement, imiphetho yehlombe noma imigqa yokukhanya kwemini. Umgqa wekhoridoro ulandela leyo khoridoro: shintsha omunye umgwaqo nalo uyalandela. I-CivilCraft yakha ikhoridoro elinye kuqala; amakhoridoro amabili ayobekana ngomjikelezo ayenqatshwa ohlangothini olulodwa, nethebhula lisho ukuthi yiliphi.
+Umugqa ungaba umugqa wesici (noma yiluphi **Ukusetshenziswa** kwawo) noma umugqa wenye ikhoridoro: umugqa wayo wamaphakathi, imiphetho yephavement, imiphetho yeshoulder noma imigqa yokuvela. Umugqa wekhoridoro ulandela leyo khoridoro: uma kushintsha omunye umgwaqo, nalo uyalandela. I-CivilCraft yakha ikhoridoro lenye kuqala; amakhoridoro amabili ayobe enza izinjongo zawo ngokuzungezayo ayavinjelwa ohlangothini olulodwa, nethebula liyakutshela ukuthi yiphi.
 
-1. Khetha umzila bese uvula ikhoridoro lawo.
-2. Ngaphansi kwe-**Izinhloso**, chofoza {{ui:Engeza umgomo}}.
-3. Khetha **Uhlangothi**, **Iphoyinti**, ukuthi lisetha **ini** kanye **nomugqa**. Yonke inguquko yisinyathelo esisodwa sokuhlehlisa.
+1. Khetha umzila uvule ikhoridoro lawo.
+2. Ngaphansi kwe-**Izinjongo**, chofoza {{ui:Engeza umgomo}}.
+3. Khetha i-**Uhlangothi**, i-**Iphoyinti**, okuyoyisetha kanye ne-**Kumugqa**. Ushintsho ngalunye lungesinyathelo sokuhlehlisa esisodwa.
 
-**Umphumela** utshela ukuthi umugqa wafinyelelwa ezigabeni ezingakanani. Izigaba ezingafinyeleli kuwo (ngaphezu kwemiphetho yawo, noma lapho zingemuva komgca omaphakathi) zigcina amanani wokuhlanganiswa. Umugqa osusiwe ushiya ikhoridoro njengalokhu lalinjalo ngaphambi komgomo, nethebhula liyasho lokho. Uhlangothi olulodwa lungaba nomgomo wobubanzi owodwa nomgomo wokuphakama owodwa ngephoyinti ngalinye.
+**Umphumela** utshela ukuthi izigaba ezingaki ezifinyelele umugqa. Izigaba ezingafinyeleli (ngaphandle kwemiphetho yalo, noma lapho lisemuva komugqa wamaphakathi) zigcina amanani e-assembly. Umugqa ogxothiwe ushiya ikhoridoro njengalo bekunjalo ngaphambi kwenjongo, nethebula liyakusho lokho. Uhlangothi olulodwa lungaba nobubanzi bunye nenjongo yokuphakama nge-point ngayinye.
 
 ## Yakha uhlangothi ngalunye ngezingxenye
 
-Vula **Yakha uhlangothi ngalunye ngezingxenye** ngaphansi kwezilungiselelo zekhoridoro. Ngalokho uhlangothi ngalunye linohlu lwalo, kusukela emgcini omaphakathi kuya ngaphandle: imigwaqo, ihlombe, umfantu, umphetho, ibhande lokutshala, indlela yezinyawo, futhi kokugcina, ukuthambeka kwecala kuya emhlabeni (nezilinganiso zalo zokusika nokugcwalisa). Qala kusuka ku-{{ui:Umgwaqo wasemakhaya}} noma ku-{{ui:Isitaladi sasedolobheni}}, engeza futhiususe izingxenye, uzihambise ngamatshwebe, bese ukopisha uhlangothi olulodwa ukuya kolunye ngu-{{ui:Kopisha}}. Yonke inguquko yisinyathelo esisodwa sokuhlehlisa.
+Vula **Yakha uhlangothi ngalunye ngezingxenye** ngaphansi kwezilungiselelo zekhoridoro. Uhlangothi ngalunye lunohlu lwalo, kusuka emgqeni wamaphakathi uye ngaphandle: amalane, ishoulder, igatsha lamanzi, ikherbhu, ibhande lokutshala, indlela yabahambi, kanye, ekugcineni, ukuthambeka kohlangothi kuye emhlabeni (nezilinganiso zalo zokumba nokugcwalisa). Qala ku-{{ui:Rural road}} noma {{ui:Urban street}}, engeza futhiususe izingxenye, uzinyakazise ngamatshazi, bese {{ui:Copy}} uhlangothi lulodwa lulandele lolunye. Ushintsho ngalunye lungesinyathelo sokuhlehlisa esisodwa.
 
-Ukuthambeka okuhlangene kuwukwehla kusuka emgwaqweni, ngakho indlela yezinyawo ehlanza amanzi ngaseduze komgwaqo ibe negethivu. Umphetho uyisisefo sokuphakama okunikezwayo, uphezulu bobubanzi obunikezwayo nokwehla okukhethekayo ngasemuva. Ukuphakanyiswa kujikeleza yonke imigwaqo esigabeni sokuqala; umfantu, umphetho, ibhande nendlela yezinyawo kuncika emphethweni wemigwaqo njengoba yakhiwe. Imigomo isanyakazisa ukuphela kwemigwaqo nengxenye yokugcina. Izigaba ezihlangene zimaka umugqa wezansi womfantu, phezulu nangemuva komphetho, nokunye. Ejikeni elinezibhakela i-runoff yisibhakela: ikhanda eliyinqa e-TS, ukuphakanyiswa okugcwele e-SC.
+Ukuthambeka kwesigaba kuyindlela ehla ngayo kude nomgwaqo, ngakho indlela yabahambi eyenza amanzi aphuma ngasemgwaqweni inegatsha elingaphansi kwezeru. Ikherbhu ingubuso bokuphakama okunikezwayo, phezulu obubanzi obunikezwayo kanye nokwehla okungokukhetha ngasemuva. Ukuphakanyiswa kwecala kuphendukisa wonke amalane esigabeni sokuqala; igatsha lamanzi, ikherbhu, ibhande kanye nendlela yabahambi kuncika emphethweni wamalane njengoba akhiwe. Izinjongo zisahambisa isiphetho samalane kanye nengxenye yokugcina. Izigaba zohlangothi zikhombisa umugqa wegatsha lamanzi, phezulu nangasemuva kwekherbhu, nokunye. Ejikeni elinama-spiral, i-runoff iyi-spiral: ukuphakama okulinganayo ku-TS, ukuphakanyiswa okugcwele ku-SC.
 
 ## Izingqimba zomgwaqo
 
-Umgwaqo, ihlombe, umfantu, ibhande lokutshala noma indlela yezinyawo ingathwala ukwakheka kwayo: ngaphansi kwengxenye, {{ui:Engeza ungqimba}} yengeza ungqimba olunegama, impahla, ubukhulu nohlobo lwalo (indawo yokugcina, ibhayindi, isisekelo, ingaphansi kwesisekelo, ukumboza noma okunye), kusukela phezulu kuye phansi. Izingqimba azinyakazisi indawo yomgwaqo (phezulu kwayo kuyindawo yedizayini); ngayinye ilele ngaphansi kwengxenye yayo, ukujula kwayo kukalwa uqondile phansi. Izigaba eziphambanayo zidweba ingaphansi ngayinye njengomugqa oshiwo, futhi {{ui:Izingqimba zomgwaqo: izinani}} ihlu indawo yepulani nomthamo wengqimba ngayinye (indawo emgwaqeni ngezigaba zawo, umthamo = indawo × ubukhulu). Ukuthumela kwe-IFC kubhala ungqimba ngalunye njengento yalo enobukhulu nempahla yalo (bona [Ukuthumela nokungenisa kwe-IFC](topic:ifc)). Ubukhulu obuthayiphile buyobakho: i-CivilCraft ayilinganisi izingqimba zomgwaqo.
+Ilane, ishoulder, igatsha lamanzi, ibhande lokutshala noma indlela yabahambi ingaba nesakhiwo sayo: ngaphansi kwengxenye, {{ui:Engeza ungqimba}} yengeza ungqimba onegama, impahla, ukuqina kanye nohlobo lwalo (phezulu, ibhinda, isisekelo, isisekelo esingaphansi, ukugqoka noma okunye), kusuka phezulu kuya ezansi. Izingqimba azishintshi phezulu komgwaqo (phezulu kwawo kuyindawo yedizayini); ngayinye ingaphansi kwengxenye yayo, ukujula kwayo kukalwa ngqo ezansi. Izigaba zohlangothi zidweba isisekelo sengqimba ngayinye njengomugqa oqhekeziwe, futhi {{ui:Izingqimba zomgwaqo: izinani}} ikhombisa indawo yepulani nevolumu yengqimba ngayinye (indawo emugqeni wekhoridoro ibalwa kusuka ezigabeni, ivolumu = indawo × ukuqina). Ukuthumela kwe-IFC kubhala ingqimba ngayinye njengento yayo nokuqina nempahla yayo (bheka [Ukuthumela nokungenisa kwe-IFC](topic:ifc)). Ukuqina oyibhalayo kungokwakho: i-CivilCraft ayilungisi amapavement.
 
-## Okungakakhiwa
+## Lapho imigwaqo ihlangana namaphedi nezindlela
 
-Imigomo yokuthambeka kokukhanya kwemini akukatholakali okwamanje. Ukuze uthole ikhoridoro elishintsha emgwaqeni, kwesobunxele nakwesokudla kuhlukene, sebenzisa [Izifanekiso zekhoridoro](topic:corridor-templates). Bona [Akukakhiwa](topic:not-built-yet).
+Ngokuvulwa kwe-{{ui:Hlanganisa imigwaqo namaphedi ahlangana nawo}} (ivulekile kukho konke ikhoridoro), i-CivilCraft ixhumanisa ikhoridoro nalokho okuhlangana nakho epulanini:
+
+- **Umgwaqo oqeda komunye umgwaqo** (ukuphela komzila waso kusemgwaqweni omunye, noma ngaphakathi kwe-ngamamitha ayisigamu sobubanzi bayo bephavement emphethweni walowo mgwaqo) uyindlela yangasohlangothini yesixhumi. Umgwaqo ohlangana nawo uvula umphetho wawo ukuze kwenziwe iphavement yomgwaqo wangasohlangothini: ngomlomo wawo ishoulder, ikherbhu, igatsha kanye nendlela yabahambi kubekwa ngokuthambeka kwelane futhi kudwetshwe njengephavement. Umgwaqo wangasohlangothini ubekwa phezu komphezulu womgwaqo omkhulu lapho omabili edlulana khona, uphakanyiselwe noma wehliselwe kuwo ngaphezu kokusondela.
+- **Imigwaqo emibili edlulanayo** ixhunywa ngendlela efanayo ngakozombili izinhlangothi. Umgwaqo olethwe kuqala ngaphansi kwe-Imizila uyiwona omkhulu; omunye ulandela umphezulu walo odlula.
+- **Umgwaqo oqeda ephedini** (ngaphakathi kwayo, noma ngaphakathi kwe-ngamamitha ayisigamu sobubanzi bephavement emphethweni wayo) ufika ezingeni lephedi futhi uphakanyiselwa kulo ngokusondela.
+- **Indlela** (Landscape › Hardscape) imi emphethweni wangaphandle womgwaqo, ezingeni lendlela yabahambi noma leshoulder lapho, esikhundleni sokuba phezu komgwaqo. Indlela edlula umgwaqo iba izingxenye ezimbili. Ukuphela okudwetshwe kancane kakhulu emgwaqweni (ngaphakathi kwamaphindwe amabili obubanzi bendlela) kuyaqhubeka kuze kufike emphethweni wayo.
+
+Ngaphansi kwe-**Izici** kuchazwa ukuthi ikhoridoro ngalinye lixhumene nani, ngokuphakanyiswa noma ngokwehliswa kwalo lapho nangobude bayo. Lobo bude ngu-10 m (30 ft) noma amaphindwe angu-20 alokho kushintsha, kanti ngaphezu kuka-45% wekhoridoro. **Iphrofayili yedizayini ayishintshi**: umbono wephrofayili ukhombisa umugqa wezinga owudweba wena, kanti izigaba, umphezulu owuhlongozwayo, imithamo nokubukwa kwe-3D kukhombisa umgwaqo njengoba uxhunyiwe. Ukuze ukuxhumana kube ngokunembile ngokuklama, hambisa i-PVI yokugcina ibe ezingeni elibikwa yi-Properties.
+
+Vala iswichi ekhoridoro ukuze ihlale njengephrofayili nesakhiwo sayo; ngalokho ayisadlali ndima ekuxhumaneni njengomgwaqo wangasohlangothini noma omkhulu. Imigwaqo ehlangana cishe ngomugqa (ngaphansi kwe-20°) iyashiywa, kanjalo nemizila.
+
+Okungakenziwa yijunction okwamanje: azikho izigoqo zamakheli (amakhona ayisikwele), azikho izingalo zokuphendula noma izihlahla, ukuphela komgwaqo wangasohlangothini kusikwa kusikwele ngokusho umzila waso, futhi ikhoridoro elakhiwe ngezifanekiso livula umphetho walo ngendlela efanayo elula (umfudlana noma udonga embuthweni walo wokuphela wenziwa ulingane emlonyeni, ngaphandle kwe-culvert). Ngezigoqo zamakheli epulani, izigonxo zokubona nokumaka bheka [Imigwaqo, umhlaba, ukuhlola, izimayini nezixhumi](topic:soils-roads-survey-mines-links).
+
+## Akukakhiwa okwamanje
+
+Izinjongo zethambeka lokuvela azikatholakali. Ikhoridoro elishintsha ngomgwaqo, nezinhlangothi zombili zihlukaniswe, bheka [Izifanekiso zekhoridoro](topic:corridor-templates). Bona [Akukakhiwa okwamanje](topic:not-built-yet).

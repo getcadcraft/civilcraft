@@ -252,30 +252,79 @@ export class IfcFile {
   }
 
   /** The whole file as bytes. Untouched lines are copied exactly; the header is kept (FILE_NAME time stamp renewed). */
-  save({ timeStamp = new Date().toISOString().slice(0, 19) } = {}) {
+  save(opts = {}) {
     const chunks = [];
     let size = 0;
-    const put = (x) => { const u = typeof x === 'string' ? enc.encode(x) : x; chunks.push(u); size += u.length; };
-    put('ISO-10303-21;\nHEADER;\n');
-    put(this.headerText(timeStamp));
-    put('ENDSEC;\nDATA;\n');
-    const ix = this.ix, b = this.bytes, NL = new Uint8Array([10]);
-    for (let i = 0; i < ix.count; i++) {
-      const id = ix.ids[i];
-      if (this.gone.has(id)) continue;
-      const e = this.edits.get(id);
-      if (e) { if (this.rec(id) === i) put(this.formatLine(id, e.type, e.params) + '\n'); continue; }
-      const t = ix.names[ix.types[i]];
-      put('#' + id + '=' + t);
-      put(b.subarray(ix.starts[i], ix.ends[i] + 1));
-      put(NL);
-    }
-    for (const id of this.newIds()) { const e = this.edits.get(id); put(this.formatLine(id, e.type, e.params) + '\n'); }
-    put('ENDSEC;\nEND-ISO-10303-21;\n');
+    for (const c of this.saveParts(opts)) { chunks.push(c); size += c.length; }
+    if (chunks.length === 1) return chunks[0].slice();
     const out = new Uint8Array(size);
     let o = 0;
     for (const c of chunks) { out.set(c, o); o += c.length; }
     return out;
+  }
+
+  /**
+   * 0.11 PERF.23: save() as a run of byte ranges, in file order (the same bytes save() returns). Untouched lines that the file already holds in
+   * the form save() writes ("#id=TYPE(...);" and a line feed) come out as ONE view of the opened bytes per run of such lines, not three pieces a
+   * line (115 MB: 1.8 M lines); any other line is written as before. The ranges are views of `bytes`: write them out before the next edit.
+   */
+  *saveParts({ timeStamp = new Date().toISOString().slice(0, 19) } = {}) {
+    yield enc.encode('ISO-10303-21;\nHEADER;\n' + this.headerText(timeStamp) + 'ENDSEC;\nDATA;\n');
+    const ix = this.ix, b = this.bytes, NL = new Uint8Array([10]);
+    const noEdits = !this.gone.size && !this.edits.size;
+    let r0 = -1, r1 = -1;   // the run of verbatim lines being gathered: [r0, r1)
+    for (let i = 0; i < ix.count; i++) {
+      const id = ix.ids[i];
+      if (!noEdits) {
+        if (this.gone.has(id)) continue;
+        const e = this.edits.get(id);
+        if (e) {
+          if (this.rec(id) === i) { if (r0 >= 0) { yield b.subarray(r0, r1); r0 = -1; } yield enc.encode(this.formatLine(id, e.type, e.params) + '\n'); }
+          continue;
+        }
+      }
+      const t = ix.names[ix.types[i]], s = ix.starts[i], end = ix.ends[i];
+      const h = verbatimStart(b, s, end, id, t);
+      if (h >= 0) {
+        if (r0 >= 0 && h === r1) { r1 = end + 2; continue; }
+        if (r0 >= 0) yield b.subarray(r0, r1);
+        r0 = h; r1 = end + 2;
+        continue;
+      }
+      if (r0 >= 0) { yield b.subarray(r0, r1); r0 = -1; }
+      yield enc.encode('#' + id + '=' + t);
+      yield b.subarray(s, end + 1);
+      yield NL;
+    }
+    if (r0 >= 0) yield b.subarray(r0, r1);
+    let tail = '';
+    for (const id of this.newIds()) { const e = this.edits.get(id); tail += this.formatLine(id, e.type, e.params) + '\n'; }
+    yield enc.encode(tail + 'ENDSEC;\nEND-ISO-10303-21;\n');
+  }
+
+  /**
+   * 0.11 PERF.23: save() into a writer, range by range, without the whole file in one more buffer: `write(u8)` may return a promise (a
+   * FileSystemWritableFileStream's write, a Node stream wrapped in one). Ranges are gathered up to `chunk` bytes (default 8 MB) before a write.
+   * → bytes written.
+   */
+  async saveTo(write, { chunk = 8 << 20, ...opts } = {}) {
+    let buf = [], n = 0, total = 0;
+    const flush = async () => {
+      if (!buf.length) return;
+      let out = buf[0];
+      if (buf.length > 1) { out = new Uint8Array(n); let o = 0; for (const c of buf) { out.set(c, o); o += c.length; } }
+      else out = out.slice();
+      buf = []; n = 0;
+      await write(out);
+    };
+    for (const c of this.saveParts(opts)) {
+      total += c.length;
+      if (c.length >= chunk) { await flush(); await write(c.slice()); continue; }
+      buf.push(c); n += c.length;
+      if (n >= chunk) await flush();
+    }
+    await flush();
+    return total;
   }
 
   headerText(timeStamp) {
@@ -291,6 +340,21 @@ export class IfcFile {
     for (const [k, v] of Object.entries(h)) if (!['FILE_DESCRIPTION', 'FILE_NAME', 'FILE_SCHEMA'].includes(k)) out += k + '(' + v.map(f).join(',') + ');\n';
     return out;
   }
+}
+
+/**
+ * Where record (id, keyword t, "(" at s, ";" at end) starts when the file holds it exactly as save() writes it: "#<id>=<t>" right before s and a
+ * line feed right after the ";" (→ the "#"'s offset), else -1 (spaces, lower case, a CR LF file, a comment between: save() normalises those).
+ */
+function verbatimStart(b, s, end, id, t) {
+  if (b[end + 1] !== 10) return -1;
+  let p = s - 1;
+  for (let k = t.length - 1; k >= 0; k--, p--) if (b[p] !== t.charCodeAt(k)) return -1;
+  if (b[p] !== 61) return -1;   // '='
+  p--;
+  let n = id;
+  do { if (b[p] !== 48 + (n % 10)) return -1; n = Math.floor(n / 10); p--; } while (n > 0);
+  return b[p] === 35 && (p === 0 || b[p - 1] !== 35) ? p : -1;   // '#'
 }
 
 export { formatString };

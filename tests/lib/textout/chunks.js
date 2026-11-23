@@ -17,11 +17,14 @@
  *   out.string()   → string                       // only while it fits one string, else RangeError that names blob()
  *   await out.pipe(async (part) => writable.write(part))   // to a file handle's createWritable() or a Node stream, a part at a time
  *   out.length     → characters so far
+ *   out.output(type) → the string while the text is up to BLOB_FROM (300 M) characters, else blob(type)   what a Save or Download hands the host
+ *                    (host.js takes a string or a Blob): below the size nothing changes for the caller; above it no string is ever made (perf-finish-11)
  *
  * The text is exactly lines.join(separator) (+ separator when finish(true)); tests/dwg-perf compares it with the old join.
  */
 const FLUSH = 1 << 20;            // characters per part
 const V8_MAX_STRING = 0x1FFFFFE8; // 536,870,888
+export const BLOB_FROM = 300 * 1048576;   // PERF.26: callers hand a Blob above ~300 MB of text (the string and its Blob would be twice the output in memory)
 
 export class TextChunks {
   constructor(separator = '\n') {
@@ -42,6 +45,8 @@ export class TextChunks {
     this.lines++;
     return this;
   }
+  /** Array-style: a writer that built `const L = []; L.push(a, b)` and ended `L.join(sep)` becomes `const L = new TextChunks(sep)` and `L.finish()`. */
+  push(...lines) { for (let i = 0; i < lines.length; i++) this.add(lines[i]); return this.lines; }
   addAll(lines) { for (let i = 0; i < lines.length; i++) this.add(lines[i]); return this; }
   /** Close the text: the last part, with a trailing separator if `trailing`. Safe to call twice. */
   finish(trailing = false) {
@@ -60,4 +65,6 @@ export class TextChunks {
     return this.parts.join('');
   }
   async pipe(write) { this.finish(); for (const p of this.parts) await write(p); }
+  /** For a save or a download: the string, as before, while the text has at most `blobFrom` characters; a Blob of the parts past that. */
+  output(type = 'text/plain', { blobFrom = BLOB_FROM } = {}) { this.finish(); return this.length > Math.min(blobFrom, V8_MAX_STRING) ? this.blob(type) : this.string(); }
 }

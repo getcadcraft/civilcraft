@@ -79,6 +79,8 @@ export function previewSection() {
 
 /** Object map (ch. 23): pages of at most 2032 bytes, big-endian size and CRC; each page restarts at 0/0. */
 export function objectMap(map) {
+  // map: [[handle, offset], …], or (perf-finish-11, PERF.30) { handle: Float64Array, loc: Float64Array, length }: no array per object
+  const pairs = Array.isArray(map);
   const out = new ByteWriter(map.length * 6 + 64);
   // Spec gap (our R2000 writer): every page starts again from handle 0 and offset 0, as in AutoCAD's files.
   let i = 0;
@@ -87,7 +89,7 @@ export function objectMap(map) {
     const start = i;
     let lastH = 0, lastLoc = 0;
     while (i < map.length && sec.pos < 2020) {
-      const [h, loc] = map[i];
+      const h = pairs ? map[i][0] : map.handle[i], loc = pairs ? map[i][1] : map.loc[i];
       sec.MC(h - lastH); sec.MC(loc - lastLoc);
       lastH = h; lastLoc = loc; i++;
     }
@@ -265,14 +267,59 @@ const PAGE_DATA = 0x4163043B, PAGE_MAP = 0x41630E3B, SECTION_MAP = 0x4163003B;
 const PAGE_BUFS = new Map();
 const pageBuf = (size) => { let b = PAGE_BUFS.get(size); if (!b) PAGE_BUFS.set(size, b = new Uint8Array(size)); return b; };
 
+/**
+ * perf-finish-11 (PERF.30): the AcDbObjects section without its whole buffer. It was the objects copied into one growing buffer (up to twice
+ * their size, plus a copy at every doubling and one more at the end) next to the objects themselves; at a million objects that was more than a
+ * gigabyte of bytes the page writer only read 0x7400 at a time. Here the map (handle, offset) is two typed arrays, and each page is filled
+ * straight from the objects, in order. The pages are the same bytes.
+ */
+function objectsSection(objects) {
+  let n = 0;
+  for (const o of objects) { void o; n++; }
+  const map = { handle: new Float64Array(n), loc: new Float64Array(n), length: n };
+  let pos = 4, i = 0;
+  for (const o of objects) { map.handle[i] = o.handle; map.loc[i] = pos; pos += o.data.length; i++; }
+  const it = objects[Symbol.iterator]();
+  let cur = null, curAt = 0, head = 4;   // the object being copied and how much of it is copied; the 4 bytes of RL 0x0DCA first
+  const source = {
+    length: pos,
+    // the next `dst.length` bytes (pages are asked for in order, each from where the last one ended)
+    fill(dst, k) {
+      let p = 0;
+      if (head) { const lead = [0xCA, 0x0D, 0, 0]; while (head && p < k) { dst[p++] = lead[4 - head]; head--; } }
+      while (p < k) {
+        if (!cur || curAt >= cur.length) { const r = it.next(); if (r.done) break; cur = r.value.data; curAt = 0; continue; }
+        const m = Math.min(k - p, cur.length - curAt);
+        dst.set(cur.subarray(curAt, curAt + m), p); p += m; curAt += m;
+      }
+      return p;
+    },
+  };
+  return { source, map };
+}
+
+/** The file being written, kept as 4 MB blocks and joined once at the end (a growing buffer copied itself at every doubling). */
+class BlockOut {
+  constructor() { this.blocks = []; this.cur = new Uint8Array(1 << 22); this.at = 0; this.pos = 0; }
+  _next() { this.blocks.push(this.cur.subarray(0, this.at)); this.cur = new Uint8Array(1 << 22); this.at = 0; }
+  raw(arr) { let a = 0; while (a < arr.length) { if (this.at === this.cur.length) this._next(); const m = Math.min(arr.length - a, this.cur.length - this.at); this.cur.set(a === 0 && m === arr.length ? arr : arr.subarray(a, a + m), this.at); this.at += m; a += m; this.pos += m; } }
+  RC(v) { if (this.at === this.cur.length) this._next(); this.cur[this.at++] = v & 0xFF; this.pos++; }
+  zeros(n) { for (let i = 0; i < n; i++) this.RC(0); }
+  /** One buffer of the file; `head` goes over its first bytes. */
+  bytes(head) {
+    const all = new Uint8Array(this.pos); let p = 0;
+    for (const b of [...this.blocks, this.cur.subarray(0, this.at)]) { all.set(b, p); p += b.length; }
+    this.blocks = []; this.cur = null;
+    if (head) all.set(head, 0);
+    return all;
+  }
+}
+
 export function layoutR2004(parts, version) {
   const { code, maint } = VERSION_INFO[version];
   const CODEPAGE = 30;
   // AcDb:AcDbObjects: RL 0x0DCA then the objects (20); the object map's offsets are relative to this section.
-  const ob = new ByteWriter(1 << 16);
-  ob.RL(0x0DCA);
-  const map = [];
-  for (const o of parts.objects) { map.push([o.handle, ob.pos]); ob.raw(o.data); }
+  const { source: objData, map } = objectsSection(parts.objects);
   const sections = [
     // [name, data, compressed (2) / not (1), max page size]
     ['AcDb:SummaryInfo', summaryInfo(version, parts.jd), 1, 0x100],
@@ -280,7 +327,7 @@ export function layoutR2004(parts, version) {
     // R2013+ ACIS data storage (builder S: acds.js), compressed, its pages right after the preview's as AutoCAD writes them
     ...(parts.acds ? [['AcDb:AcDsPrototype_1b', parts.acds, 2, 0x7400]] : []),
     ['AcDb:RevHistory', revHistory(version), 2, 0x7400],
-    ['AcDb:AcDbObjects', ob.bytes(), 2, 0x7400],
+    ['AcDb:AcDbObjects', objData, 2, 0x7400],
     ['AcDb:ObjFreeSpace', objFreeSpace(map.length, parts.jd.updated, 0, version), 2, 0x7400],
     ['AcDb:Template', templateSection(parts.measurement, version), 2, 0x7400],
     ['AcDb:Handles', objectMap(map), 2, 0x7400],
@@ -293,7 +340,7 @@ export function layoutR2004(parts, version) {
     'AcDb:Handles', 'AcDb:Classes', 'AcDb:AuxHeader', 'AcDb:Header'];
   const ids = new Map(mapOrder.map((n, i) => [n, mapOrder.length - i]));
 
-  const out = new ByteWriter(1 << 16);
+  const out = new BlockOut();
   out.zeros(0x100);
   const pages = [];                                            // [{id, addr, size}]
   const descs = [];                                            // section map entries
@@ -303,8 +350,8 @@ export function layoutR2004(parts, version) {
     const id = ids.get(name);
     const desc = { name, size: data.length, maxSize, compressed, id, pages: [] };
     for (let start = 0; start < Math.max(1, data.length); start += maxSize) {
-      const logical = data.subarray(start, Math.min(data.length, start + maxSize));
-      const full = pageBuf(maxSize); full.fill(0); full.set(logical);   // pages are stored / compressed whole (spec 4.5); the buffer is reused (PERF.5)
+      const full = pageBuf(maxSize); full.fill(0);   // pages are stored / compressed whole (spec 4.5); the buffer is reused (PERF.5)
+      if (data.fill && !(data instanceof Uint8Array)) data.fill(full, Math.min(maxSize, data.length - start)); else full.set(data.subarray(start, Math.min(data.length, start + maxSize)));
       const payload = compressed === 2 ? compressR2004(full, { literalOnly: !!globalThis.__LZ_LITERAL }) : full;
       const addr = out.pos;
       const pageSize = (32 + payload.length + 0x1F) & ~0x1F;
@@ -403,8 +450,7 @@ export function layoutR2004(parts, version) {
   head.zeros(0x80 - head.pos);
   head.raw(enc);
   head.raw(MAGIC.subarray(0xEC, 0x100));
-  out.buf.set(head.bytes(), 0);
-  return out.bytes();
+  return out.bytes(head.bytes());
 }
 function desc0() { /* placeholder kept for symmetry; the empty section has no pages */ }
 

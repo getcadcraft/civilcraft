@@ -503,7 +503,7 @@ export async function install(host) {
       const proj = host.project, before = proj.state.crs;
       const wasEmpty = !proj.points.length && !proj.state.surface.tin && !proj.state.alignments.length;
       let changed = false;
-      proj.editPoints(label, (old, s) => { changed = setCrs(proj, epc, s); return old.concat(pts); });
+      proj.editPointTable(label, (ed, s) => { changed = setCrs(proj, epc, s); ed.add(pts); });   // 0.11: the step keeps the added rows only
       if (changed) for (const f of reg.crsChange) { try { f(before, proj.state.crs); } catch { /* a part's problem stays its own */ } }
       host.refresh();
       if (wasEmpty) host.fitAll();

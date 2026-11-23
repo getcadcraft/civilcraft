@@ -111,13 +111,18 @@ export function buildAlignment({ pis, start = 0 }) {
   const n = Q.length;
   // curve at each interior PI
   const curves = new Array(n).fill(null);
+  // 0.11 SU.1944: a PI may carry `lsc`, the length of a spiral joining its curve to the NEXT PI's curve (compound or reverse); that pair
+  // is one block (compoundBlock) and the spiral takes the place of the tangent between them, so the first curve has no spiral out
+  // and the second none in.
+  const compNext = new Array(n).fill(false);
+  for (let i = 1; i < n - 2; i++) compNext[i] = finPos(Q[i].lsc) > 0 && Number(Q[i].r) > 0 && Number(Q[i + 1].r) > 0;
   for (let i = 1; i < n - 1; i++) {
     const r = Number(Q[i].r) || 0;
     const a1 = Math.atan2(Q[i].y - Q[i - 1].y, Q[i].x - Q[i - 1].x), a2 = Math.atan2(Q[i + 1].y - Q[i].y, Q[i + 1].x - Q[i].x);
     const d = normAng(a2 - a1);
     if (r <= 0 || Math.abs(d) < 1e-9) { curves[i] = { r: 0, d, T: 0, T1: 0, T2: 0, a1, a2 }; continue; }
     if (Math.abs(Math.abs(d) - Math.PI) < 1e-6) { errors.push(t('al.err.back', { pi: i + 1 })); curves[i] = { r: 0, d, T: 0, T1: 0, T2: 0, a1, a2 }; continue; }
-    const ls1 = finPos(Q[i].ls1) || finPos(Q[i].ls), ls2 = finPos(Q[i].ls2) || finPos(Q[i].ls);
+    const ls1 = compNext[i - 1] ? 0 : finPos(Q[i].ls1) || finPos(Q[i].ls), ls2 = compNext[i] ? 0 : finPos(Q[i].ls2) || finPos(Q[i].ls);
     if (!ls1 && !ls2) { const T = r * Math.tan(Math.abs(d) / 2); curves[i] = { r, d, T, T1: T, T2: T, a1, a2, ls1: 0, ls2: 0 }; continue; }
     // 0.7 D7.35: spirals. The circle's centre sits (r + p) from each tangent, on the inside; the spiral's end is k along the tangent from the foot.
     const tr = trOf(Q[i].tr), S1 = spiralConstants(r, ls1, tr), S2 = spiralConstants(r, ls2, tr);   // tr: 0.7.1 71.26
@@ -133,20 +138,30 @@ export function buildAlignment({ pis, start = 0 }) {
   for (let i = 0; i < n - 1; i++) {
     const L = Math.hypot(Q[i + 1].x - Q[i].x, Q[i + 1].y - Q[i].y);
     const need = (curves[i]?.T2 || 0) + (curves[i + 1]?.T1 || 0);
+    if (compNext[i]) { if (!(curves[i]?.r > 0 && curves[i + 1]?.r > 0)) errors.push(t('al.err.comp.pair', { a: i + 1, b: i + 2 })); continue; }   // the spiral takes the tangent's place
     if (need > L + 1e-9) errors.push(t('al.err.overlap', { a: i + 1, b: i + 2, need: need.toFixed(2), dist: L.toFixed(2) }));
   }
   if (errors.length) return new Alignment([], start, errors, Q);
 
   let sta = start, cur = { x: Q[0].x, y: Q[0].y };
   const records = [];
+  let afterComp = false;
   for (let i = 1; i < n; i++) {
     const c = i < n - 1 ? curves[i] : null;
     const dir = Math.atan2(Q[i].y - Q[i - 1].y, Q[i].x - Q[i - 1].x);
     const ux = Math.cos(dir), uy = Math.sin(dir);
     const T = c?.T1 || 0;
     const end = { x: Q[i].x - ux * T, y: Q[i].y - uy * T };   // PC / TS (or the PI / last point)
+    if (afterComp && (end.x - cur.x) * ux + (end.y - cur.y) * uy < -1e-6) { errors.push(t('al.err.comp.fit', { a: i, b: i + 1 })); break; }   // the compound run ended past the next curve's start
+    afterComp = false;
     const len = Math.hypot(end.x - cur.x, end.y - cur.y);
     if (len > 1e-9) { elements.push({ type: 'line', p0: cur, p1: end, dir, sta, len }); sta += len; }
+    if (compNext[i]) {   // 0.11 SU.1944: this curve, the spiral between, and the next curve, as one block
+      const k = compoundBlock({ start: end, a1: dir, c1: c, c2: curves[i + 1], Q1: Q[i], Q2: Q[i + 1], Q3: Q[i + 2], lsc: finPos(Q[i].lsc), tr: trOf(Q[i].tr), tr2: trOf(Q[i + 1].tr), sta, i });
+      if (k.error) { errors.push(k.error); break; }
+      elements.push(...k.elements); records.push(...k.records); sta = k.sta; cur = k.end; i++; afterComp = true;
+      continue;
+    }
     if (c && c.r > 0 && !(c.ls1 || c.ls2)) {
       const ccw = c.d > 0, r = c.r, delta = Math.abs(c.d);
       const nx = ccw ? -uy : uy, ny = ccw ? ux : -ux;   // toward the centre
@@ -196,9 +211,84 @@ export function buildAlignment({ pis, start = 0 }) {
       void outStart; void sc;
     } else cur = { x: Q[i].x, y: Q[i].y };
   }
+  if (errors.length) return new Alignment([], start, errors, Q);
   const al = new Alignment(elements, start, [], Q);
   al.curves = records;
   return al;
+}
+
+// ---- 0.11 SU.1944: a spiral between two curves of different radii (compound: same way, reverse: the other way)
+const GP = (n) => Math.max(8, Math.ceil(n));
+/** A spiral whose curvature runs LINEARLY from k1 to k2 (signed, 1 / length, + = left) over length L, starting at p with heading h:
+ *  the point and heading at distance s. θ(s) = h + k1·s + (k2 − k1)·s² / 2L; x, y by Gauss–Legendre on cos θ, sin θ (exact to ~1e-12).
+ *  With k1 = 0 this is the usual clothoid (alignment spirals); with k1 and k2 both set it is a piece of the same Euler spiral
+ *  (rate c = (k2 − k1) / L), from the point where its curvature is k1: the Fresnel integrals' own segment (Abramowitz & Stegun 7.3). */
+export function linearCurvatureAt(p, h, k1, k2, L, s) {
+  const th = (u) => h + k1 * u + ((k2 - k1) * u * u) / (2 * L);
+  const panels = GP((Math.abs(th(s) - h) * 8) + 1);
+  return { x: p.x + gauss((u) => Math.cos(th(u)), 0, s, panels), y: p.y + gauss((u) => Math.sin(th(u)), 0, s, panels), dir: th(s) };
+}
+/** The spiral-out of a curve forward from its start (curvature sg/r at heading h, to 0 over Ls of kind tr): point and heading at its end. */
+function outEnd(p, h, r, Ls, sg, tr) {
+  const K = spiralConstants(r, Ls, tr), th = (s) => h + sg * (K.th - transitionAt(tr, Math.max(0, K.len - s), r, Ls).th);
+  const panels = GP(K.th * 8 + 1);
+  return { x: p.x + gauss((u) => Math.cos(th(u)), 0, K.len, panels), y: p.y + gauss((u) => Math.sin(th(u)), 0, K.len, panels), dir: h + sg * K.th, len: K.len, th: K.th };
+}
+function arcEl(p, h, r, sg, m, sta, piIndex) {
+  const ccw = sg > 0, nx = ccw ? -Math.sin(h) : Math.sin(h), ny = ccw ? Math.cos(h) : -Math.cos(h);
+  const ctr = { x: p.x + nx * r, y: p.y + ny * r }, a0 = Math.atan2(p.y - ctr.y, p.x - ctr.x), a1 = a0 + sg * m;
+  const p1 = { x: ctr.x + Math.cos(a1) * r, y: ctr.y + Math.sin(a1) * r }, dirOut = h + sg * m, Tc = r * Math.tan(m / 2);
+  return { type: 'arc', p0: p, p1, c: ctr, r, ccw, delta: m, a0, sta, len: r * m, pi: { x: p.x + Math.cos(h) * Tc, y: p.y + Math.sin(h) * Tc }, piIndex, T: Tc, E: r * (1 / Math.cos(m / 2) - 1), M: r * (1 - Math.cos(m / 2)), chord: 2 * r * Math.sin(m / 2), dirIn: h, dirOut };
+}
+/**
+ * Curve 1 (PI i), the spiral of length lsc, curve 2 (PI i+1) as one run between the tangent lines before PI i and after PI i+1.
+ * It starts where curve 1 would (the TS of its own spiral-in, or its PC), keeps both radii, and turns curve 1 by the one angle at
+ * which the run ends ON the last tangent line; the turn of curve 2 is what is left of the total deflection. (The middle line, PI i to
+ * PI i+1, only fixes the two deflections: nothing of the alignment lies on it.) A bisection on that angle, scanned for its roots first.
+ */
+function compoundBlock({ start, a1, c1, c2, Q1, Q2, Q3, lsc, tr, tr2, sta, i }) {
+  const sg1 = c1.d > 0 ? 1 : -1, sg2 = c2.d > 0 ? 1 : -1, r1 = c1.r, r2 = c2.r, k1 = sg1 / r1, k2 = sg2 / r2;
+  const D = c1.d + c2.d, a3 = a1 + D, thC = ((k1 + k2) / 2) * lsc;   // total turn; the spiral's own (signed)
+  const S1 = c1.ls1 > 0 ? spiralConstants(r1, c1.ls1, tr) : { th: 0 }, S2 = c2.ls2 > 0 ? spiralConstants(r2, c2.ls2, tr2) : { th: 0 };
+  const u3 = { x: Math.cos(a3), y: Math.sin(a3) };
+  // pieces for an arc-1 turn m1
+  const run = (m1, build) => {
+    const els = []; let p = start, h = a1, s = sta;
+    const push = (e, len, p1, h1) => { if (build) els.push(e); p = p1; h = h1; s += len; };
+    if (c1.ls1 > 0) { const sp = spiralElement('in', { p0: p, dir0: h, r: r1, Ls: c1.ls1, ccw: sg1 > 0, sta: s, piIndex: i, tr }); push(sp, sp.len, sp.p1, sp.dir1); }
+    const m2 = sg2 * (D - sg1 * (S1.th + m1) - thC - sg2 * S2.th);
+    if (!(m1 >= -1e-12) || !(m2 >= -1e-12)) return null;
+    const A = arcEl(p, h, r1, sg1, Math.max(0, m1), s, i); push(A, A.len, A.p1, A.dirOut); const arc1 = A;
+    const cs = { type: 'spiral', io: 'cs', ccw: sg1 > 0, r: r1, r1, r2, k1, k2, Ls: lsc, Lp: lsc, tr: 'clothoid', len: lsc, sta: s, piIndex: i, p0: p, dir0: h, dirIn: h, delta: Math.abs(thC), theta: Math.abs(thC) };
+    const e1 = linearCurvatureAt(p, h, k1, k2, lsc, lsc); cs.p1 = { x: e1.x, y: e1.y }; cs.dir1 = e1.dir;
+    push(cs, lsc, cs.p1, cs.dir1);
+    const B = arcEl(p, h, r2, sg2, Math.max(0, m2), s, i + 1); push(B, B.len, B.p1, B.dirOut);
+    let out = null;
+    if (c2.ls2 > 0) { const q = outEnd(p, h, r2, c2.ls2, sg2, tr2); out = { start: p, h, len: q.len }; p = { x: q.x, y: q.y }; h = q.dir; s += q.len; }
+    return { els, end: p, h, s, arc1, cs, arc2: B, out, m1, m2 };
+  };
+  const f = (m1) => { const q = run(m1, false); return q ? (q.end.x - Q2.x) * u3.y - (q.end.y - Q2.y) * u3.x : NaN; };
+  // m2 = sg2·(D − sg1·(θs1 + m1) − θc − sg2·θs2) ≥ 0 bounds the turn m1 of curve 1: above by the total (compound), below by the rest (reverse)
+  const same = sg1 === sg2, lo = same ? 0 : Math.max(0, S2.th - S1.th - sg2 * (D - thC)), hi = same ? sg1 * (D - thC) - S1.th - S2.th : lo + Math.PI;
+  const guess = Math.max(0, Math.abs(c1.d) - S1.th);
+  const N = 2000; let best = null, prev = null;
+  for (let k = 0; k <= N; k++) {
+    const m = lo + ((hi - lo) * k) / N, v = f(m);
+    if (Number.isFinite(v)) { if (prev && Math.sign(prev.v) !== Math.sign(v)) { const root = { a: prev.m, b: m, va: prev.v }; if (!best || Math.abs((root.a + root.b) / 2 - guess) < Math.abs((best.a + best.b) / 2 - guess)) best = root; } prev = { m, v }; } else prev = null;
+  }
+  if (!best) return { error: t('al.err.comp.none', { a: i + 1, b: i + 2 }) };
+  let { a, b, va } = best;
+  for (let k = 0; k < 80; k++) { const m = (a + b) / 2, v = f(m); if (Math.sign(v) === Math.sign(va)) { a = m; va = v; } else b = m; }
+  const q = run((a + b) / 2, true);
+  const els = q.els, recs = [];
+  const th1 = c1.ls1 > 0 ? S1.th : 0;
+  recs.push({ piIndex: i, r: r1, ccw: sg1 > 0, d: c1.d, ls1: c1.ls1 || 0, ls2: 0, lp1: c1.ls1 || 0, lp2: 0, theta1: th1, theta2: 0, tr, T1: c1.T1, T2: c1.T2, Es: c1.Es ?? 0, Lc: q.arc1.len, ts: sta, sc: q.arc1.sta, cs: q.arc1.sta + q.arc1.len, st: q.arc1.sta + q.arc1.len, lsc });
+  recs.push({ piIndex: i + 1, r: r2, ccw: sg2 > 0, d: c2.d, ls1: 0, ls2: c2.ls2 || 0, lp1: 0, lp2: c2.ls2 || 0, theta1: 0, theta2: c2.ls2 > 0 ? S2.th : 0, tr: tr2, T1: c2.T1, T2: c2.T2, Es: c2.Es ?? 0, Lc: q.arc2.len, ts: q.arc2.sta, sc: q.arc2.sta, cs: q.arc2.sta + q.arc2.len, st: q.s, lsc, compoundWith: i });
+  if (q.out) {
+    const so = spiralElement('out', { p1: q.end, dir1: a3, r: r2, Ls: c2.ls2, ccw: sg2 > 0, sta: q.arc2.sta + q.arc2.len, piIndex: i + 1, tr: tr2 });
+    els.push(so);
+  }
+  return { elements: els, records: recs, end: q.end, sta: q.s, error: null };
 }
 
 /** A spiral element. 'in': from p0 (tangent dir0) curvature 0 → 1/r; 'out': ends at p1 (tangent dir1), curvature 1/r → 0. */
@@ -217,6 +307,7 @@ function spiralElement(io, { p0, dir0, p1, dir1, r, Ls, ccw, sta, piIndex, tr = 
 /** The point and forward direction on a spiral element at distance s from its start. */
 export function spiralAt(e, s) {
   const sg = e.ccw ? 1 : -1;
+  if (e.io === 'cs') return linearCurvatureAt(e.p0, e.dir0, e.k1, e.k2, e.len, s);   // 0.11 SU.1944: between two curves
   if (e.io === 'in') {
     const c = transitionAt(e.tr, s, e.r, e.Lp ?? e.Ls), co = Math.cos(e.dir0), si = Math.sin(e.dir0);
     return { x: e.p0.x + c.x * co - sg * c.y * si, y: e.p0.y + c.x * si + sg * c.y * co, dir: e.dir0 + sg * c.th };

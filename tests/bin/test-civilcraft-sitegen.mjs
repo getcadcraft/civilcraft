@@ -115,6 +115,25 @@ ok(PA.removeLot(p, 'pk999') === false, 'removing an unknown lot is false');
 const pn = new PJ.Project(); pn.state.units = 'm'; const rn = PA.buildLot(pn, { boundary: rect(55, 18.3) , opts: { orientation: 0 } }, { zAt: () => null, seed: PS });
 ok(rn.ok && rn.problems.some((q) => q.code === 'noground'), 'without ground it lays out and says no cut or fill'); 
 
+// ---- inbox-11b: other regions and street access (SU.1815)
+{
+  const LR = await import(pathToFileURL(path.join(REPO, 'lib/landscape/parking-regions.js')).href);
+  for (const id of ['uk', 'au', 'eu']) {
+    const l = K.layout(rect(60, 30), { region: id, units: 'm', orientation: 0 }), R = LR.REGIONS[id];
+    ok(l.counts.total > 20 && l.region === id && l.tables.unread === true, id + ': lays out with the library values and says unread', l.counts);
+    ok(Math.abs(K.defaults('m', { region: id }).stallW - R.stall.w) < 0.051 && l.counts.accessible === 0 && l.counts.required === 0, id + ': stall width from the table, no accessible count entered', K.defaults('m', { region: id }));
+  }
+  ok(K.layout(rect(60, 30), { region: 'nowhere', units: 'm' }).region === 'us' && PA.cleanOpts({ region: 'au' }, 'm').region === 'au' && PA.cleanOpts({ region: 'zz' }, 'm').region === 'us', 'an unknown region falls back to us; au is kept');
+  const rec = { id: 'pk1', boundary: rect(60, 30, 100, 100), opts: { region: 'uk', orientation: 0 } };
+  const far = PA.computeLot(rec, { units: 'm', streets: [[{ x: 0, y: 0 }, { x: 50, y: 0 }]] });
+  ok(far.access && far.access.ok === false && far.layout.problems.some((q) => q.code === 'nostreet' && q.count > 0), 'a street far away: "aisles do not reach a street"', far.access?.unreachableAisles);
+  const near = PA.computeLot(rec, { units: 'm', streets: [[{ x: 99.5, y: 95 }, { x: 99.5, y: 135 }]] });
+  ok(near.access && near.access.ok === true && !near.layout.problems.some((q) => q.code === 'nostreet'), 'a street along the lot edge: reached', near.access?.unreachableAisles);
+  ok(PA.computeLot(rec, { units: 'm' }).access === null && PA.computeLot(rec, { units: 'm', streets: [] }).access === null, 'no streets drawn: nothing said');
+  ok(PA.computeLot(rec, { units: 'm' }).layout.notes.some((q) => q.code === 'region.unread'), 'a non-US region carries the unread note');
+  const en = JSON.parse(fs.readFileSync(path.join(APP, 'lang/en.json'), 'utf8'));
+  ok(['pk.r.uk', 'pk.r.au', 'pk.r.eu', 'pk.tables.unread', 'pk.p.region.unread', 'pk.p.nostreet'].every((k) => en[k]), 'the words are in en.json');
+}
 // ---- assistant tools
 let changed = 0; const pt = mk();
 const tools = Object.fromEntries(AG.siteGenTools({ project: () => pt, seed: () => PS, zAt: (x, y) => { const z = pt.eg().surface?.elevationAt(x, y); return Number.isFinite(z) ? z : null; }, changed: () => changed++ }).map((d) => [d.name, d]));
@@ -131,16 +150,23 @@ const fb = tools.fence_build.run({ points: [{ x: 0, y: 0 }, { x: 24, y: 0 }], he
 ok(/^fc\d+$/.test(fb.id) && fb.posts === 13 && fb.gates === 1 && pt.state.fences.length === 1 && fb.schedule.some((r2) => r2.item === 'gate'), 'fence_build', fb);
 ok(tools.fence_list.run().length === 1 && tools.fence_list.run()[0].length === 24, 'fence_list');
 pt.state.parcels = [{ id: 'r2', name: 'Yard', pts: rect(10, 10) }]; const fp = tools.fence_build.run({ feature: 'Yard', postSpacing: 2.5 }); ok(fp.posts === 16 && fp.length === 40, 'a parcel is fenced as a closed path', fp);
+// inbox-11b: a Library fence-type item sets the style and size; an explicit argument still wins; a bad item is an error
+const fl = tools.fence_build.run({ points: [{ x: 0, y: 30 }, { x: 12, y: 30 }], libraryItem: { kind: 'fence-type', name: 'Picket 1.2', uuid: 'abcd1234ef', params: { style: 'pickets', height: 1.2, postSpacing: 2, picketW: 0.09, picketGap: 0.05 } }, height: 1.5 });
+const flRec = pt.state.fences.find((f) => f.id === fl.id);
+ok(flRec.style === 'pickets' && flRec.type === 'Picket 1.2' && flRec.height === 1.5 && flRec.postSpacing === 2, 'fence_build takes typeFromItem, an explicit height wins', flRec);
+let err2 = ''; try { tools.fence_build.run({ points: [{ x: 0, y: 0 }, { x: 5, y: 0 }], libraryItem: { kind: 'door' } }); } catch (e) { err2 = e.message; } ok(/fence-type/.test(err2), 'a libraryItem that is not a fence type is an error');
 // fence save and load, copy is the lib
-ok(JSON.parse(JSON.stringify(pt.toJSON())).fences.length === 2 && PJ.Project.fromJSON(JSON.parse(JSON.stringify(pt.toJSON()))).project.state.fences.length === 2, 'fences save and load');
+ok(JSON.parse(JSON.stringify(pt.toJSON())).fences.length === 3 && PJ.Project.fromJSON(JSON.parse(JSON.stringify(pt.toJSON()))).project.state.fences.length === 3, 'fences save and load');
 ok(fs.readFileSync(path.join(REPO, 'lib/fence/index.js'), 'utf8') === fs.readFileSync(path.join(APP, 'fence/index.js'), 'utf8'), 'the CivilCraft copy is the lib (tools/fence/sync.mjs)'); void FE; void LIBF;
 // ---- IFC
 const IM = await mod('ifc-civil-model.js'), IC = await mod('ifc-civil.js');
 const model = IM.civilIfcModel(pt);
 ok(!!model, 'an IFC model is built', Object.keys(IM));
 if (model) {
-  ok(model.fences?.length === 2 && model.fences[0].posts.length === 13 && IM.modelEmpty(model) === false, 'the model carries the fences');
+  ok(model.fences?.length === 3 && model.fences[0].posts.length === 13 && IM.modelEmpty(model) === false, 'the model carries the fences');
   const text = IC.writeCivilIfc(model, {}).text;
   ok(/IFCMEMBER\(/.test(text) && /IFCRAILING\(/.test(text) && /IFCDOOR\(/.test(text) && /\.POST\./.test(text) && /\.GATE\./.test(text), 'IFC holds posts, panels and a gate', text.length);
+  const pm = model.fences.find((f) => f.pickets?.length);
+  ok(pm && pm.panels.length === 0 && /Fence picket/.test(text) && (text.match(/Fence picket/g) || []).length === pm.pickets.length, 'a pickets fence writes one IfcMember per picket and no solid panel', pm && pm.pickets.length);
 }
 console.log(`civilcraft sitegen: ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

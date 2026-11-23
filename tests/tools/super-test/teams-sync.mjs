@@ -43,7 +43,7 @@ const DLG = '[data-home-view="page"]:not([hidden])';
 const closeDlgs = async () => { await page.evaluate(() => { try { window.superWindow.home.leave(); } catch { /* already on the work area */ } }); await page.waitForTimeout(80); };
 const PG = '[data-home-view="page"]:not([hidden])';   // Teams and Team members are PAGES of the welcome area, not dialogs
 const toWork = async () => { await page.evaluate(() => window.superWindow.home.leave()); await page.waitForTimeout(150); };   // back to the drawing space (the status line lives there)
-const openTeams = async () => { await run('teams'); await page.waitForSelector(PG + ' [data-tm-new]'); };
+const openTeams = async () => { await run('new-team'); await page.waitForSelector(PG + ' [data-tm-new]'); };   // the name field shows after New team (page since 2026-11-11)
 const run = key => page.evaluate(k => window.superWindow.plugins.run(k), 'teams:' + key);
 
 // the plugin is there and the status item shows in the window's status line
@@ -63,22 +63,23 @@ await page.screenshot({ path: path.join(OUT, 'teams-sync-1-synced.png'), clip: {
 // a team made in the Teams dialog reaches the account by itself (online edits are mirrored at once)
 await openTeams();
 await page.fill(PG + ' [data-tm-new]', 'Lab team'); await page.click(PG + ' [data-act="team-add"]'); await page.waitForSelector(PG + ' [data-team-card]');
-await page.click(PG + ' [data-act="team-members"]'); await page.waitForSelector(PG + ' [data-tmm-team]');   // the people of a team have their own page
-await page.fill(PG + ' [data-tm-p="email"]', 'ann@example.com'); await page.fill(PG + ' [data-tm-p="name"]', 'Ann Lab'); await page.click(PG + ' [data-act="member-add"]');
-await page.waitForSelector(PG + ' [data-tm-members]');
+await page.click(PG + ' [data-act="members-add-empty"]'); await page.waitForSelector(PG + ' [data-tm-addsearch]');   // Add people opens beside the team list (page since 2026-11-11)
+await page.fill(PG + ' [data-tm-addsearch]', 'ann@example.com'); await page.click(PG + ' [data-tm-invite-new]'); await page.waitForSelector(PG + ' [data-tm-addcard]');
+await page.fill(PG + ' [data-tm-p="name"]', 'Ann Lab'); await page.click(PG + ' [data-act="members-add-go"]');
+await page.waitForSelector(PG + ' [data-member]');
 await page.waitForTimeout(400);
 await page.waitForFunction(sel => !/waiting/.test((document.querySelector(sel) || {}).textContent || ''), TXT, { timeout: 5000 }); ok(!/waiting/.test(await stText()), 'the status line does not stay on "waiting" after the background send: "' + await stText() + '"');
 ok(server.teams.some(t => t.name === 'Lab team') && server.people.some(p => p.email === 'ann@example.com') && server.team_members.length === 1, 'the team, the person and the membership reached the account without pressing anything: ' + JSON.stringify([server.teams.length, server.people.length, server.team_members.length]));
 await page.screenshot({ path: path.join(OUT, 'teams-page-2-members.png') });
-await page.click(PG + ' [data-act="members-back"]'); await page.waitForSelector(PG + ' [data-tm-new]');   // Back to Teams: the page counts the person
-ok(/1 people/.test(await page.textContent(PG + ' [data-tm-count]')), 'the Teams page shows "1 people" for the team');
-await page.fill(PG + ' [data-tm-new]', 'Site crew'); await page.click(PG + ' [data-act="team-add"]'); await page.waitForTimeout(300);
+ok(/1 person/.test(await page.textContent(PG + ' [data-tm-count]')), 'the team card counts its person: "1 person"');
+await page.click(PG + ' [data-act="team-new"]'); await page.waitForSelector(PG + ' [data-tm-new]'); await page.fill(PG + ' [data-tm-new]', 'Site crew'); await page.click(PG + ' [data-act="team-add"]'); await page.waitForTimeout(300);
 await page.screenshot({ path: path.join(OUT, 'teams-page-1-teams.png') });
-const siteId = await page.$$eval(PG + ' [data-tm-rename]', ns => ns.map(n => [n.value, n.getAttribute('data-tm-rename')]).find(v => v[0] === 'Site crew')[1]);
-await page.click(PG + ` [data-team-card="${siteId}"] [data-act="team-members"]`); await page.waitForSelector(PG + ' [data-tm-existing]');
-ok(/Ann Lab/.test(await page.textContent(PG + ' [data-tm-existing]')), 'a second team offers Ann, who is already known, without retyping');
-await page.selectOption(PG + ' [data-tm-existing]', { index: 0 }); await page.click(PG + ' [data-act="member-add-existing"]'); await page.waitForSelector(PG + ' [data-tm-also]');
-ok(/Also in: Lab team/.test(await page.textContent(PG + ' [data-tm-also]')), 'Ann is now on two teams and the roster says so');
+const siteId = await page.$$eval(PG + ' [data-team-card]', cs => (cs.find(c => /Site crew/.test(c.textContent)) || {}).dataset?.teamCard);
+await page.click(PG + ` [data-team-pick="${siteId}"]`); await page.waitForSelector(PG + ` [data-act="members-add-empty"][data-team="${siteId}"]`);
+await page.click(PG + ` [data-act="members-add-empty"][data-team="${siteId}"]`); await page.waitForSelector(PG + ' [data-tm-known]');
+ok(/Ann Lab/.test(await page.textContent(PG + ' [data-tm-known]')), 'a second team offers Ann, who is already known, without retyping');
+await page.check(PG + ' [data-tm-existing]'); await page.click(PG + ' [data-act="members-add-go"]'); await page.waitForSelector(PG + ' [data-member]'); await page.waitForTimeout(600);
+ok(server.team_members.filter(m => m.deleted_at === null).length === 2 && server.people.length === 1, 'Ann is on two teams, and the account holds one person with two memberships');
 await page.screenshot({ path: path.join(OUT, 'teams-page-3-two-teams.png') });
 await toWork();
 
@@ -120,7 +121,7 @@ const other = D.emptyDoc(); D.createTeam(other, { name: 'From another device' },
 await run('sync-status'); await page.waitForSelector(DLG + ' [data-sy-tables]'); await page.waitForTimeout(600);
 ok((await page.$$eval(DLG + ' [data-sy-match="no"]', n => n.length)) >= 1 && !(await page.$eval(DLG + ' [data-act="sy-sync"]', b => b.disabled)), 'the dialog asked the account, sees it differs, and turns Sync now ON');
 await page.click(DLG + ' [data-act="sy-sync"]'); await waitText(/synced (just now|\d+ min)/); await page.waitForTimeout(400); await closeDlgs();
-await openTeams(); ok((await page.$$eval(PG + ' [data-tm-rename]', ns => ns.map(n => n.value))).includes('From another device'), 'a team made on another device shows up here after the sync'); await toWork();
+await openTeams(); ok((await page.$$eval(PG + ' [data-team-card]', cs => cs.map(c => c.textContent))).some(x => x.includes('From another device')), 'a team made on another device shows up here after the sync'); await toWork();
 await run('sync-status'); await page.waitForSelector(DLG + ' [data-sy-tables]'); await page.waitForTimeout(300); rows = await rowsOf(); ok(rows.teams.match === 'yes' && rows.teams.cells[1] === '4', 'the two copies match again with 4 teams: ' + JSON.stringify(rows.teams.cells));
 await page.evaluate(() => { const b = document.querySelector('dialog[data-sc-plugin="teams"][open]'); if (b) b.scrollTop = 0; }); await page.screenshot({ path: path.join(OUT, 'teams-sync-5-status-final.png') }); await closeDlgs();
 

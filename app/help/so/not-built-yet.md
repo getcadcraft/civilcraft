@@ -1,189 +1,190 @@
 ---
 title: Wali lama dhisin
-summary: Waxa dhismaha CivilCraft ee hadda aan wali samayn, iyo waxa aad maanta samayn karto halkii.
-keywords: maqan, xaddidaadyo, khariidad waddo, ma jiro, qanso, ballaarin, dwg, dxf, afka galinta, kaydinta, wadista kaydinta, goyn, dhinac goyn, soo socda, xadka
-from: a2d970ef
+summary: Waxa dhismahan CivilCraft ee hadda aan wali sameyn, iyo waxa aad maanta sameyso halkiisa.
+keywords: maqan, xaddidaadyo, waddo-marin, aan diyaarneen, kuwa qaybta cad, dwg, dxf, galka, faaqidda, qaybaha, la imaanaya, xadka
+from: b91588d4
 ---
 
-CivilCraft wuu bilowga yahay. Bogan wuxuu liistaa waxa dhismahan hadda aan samayn, si aanad u raadin. Wax halkan ku jira lama balan qabo taariikh.
+CivilCraft waa bilow. Bogganku wuxuu tusaa waxa dhismahan hadda aan sameyn, si aadan u raadin. Waxba halkan ku jira taariikh lagu balan qaadin.
 
 ## Barooyinka
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Ku darista fayl barooyin labaad kan koowaad | Isku xidh faylasha tafatir qoraal ama spreadsheet marka hore |
-| Dhoofinta fayl qoraal oo barooyin ah | Dhoofi LandXML (barooyinka waxay u baxaan sida CgPoints), isticmaal GIS {{ui:Dhoofi}} (barooyin leh goobaha P, N, E, Z iyo D), ama {{ui:Koobiyee}} barooyinka spreadsheet |
-| Qaababka calaamadaha barta, astaamaha sida furaha sharraxaadda, qalloocanka (qaansooyinka) ee koodhka xariiqa, fayl furaha sharraxaadda oo la wadaagi karo mashruucyada | Calaamadaha waxay muujiyaan lambarka, sare-u-kaca iyo sharraxaadda, ama ka yar ([Dejinta CivilCraft](topic:settings)); furayaashu waxay ku jiraan faylka mashruuca |
-| Beddelka unitiyada | Beddel faylka ka hor intaadan soo dejin; **Unitiyada** waxa kaliya ay dib u calaamadeysaa |
+| Ku darista faylka barooyinka labaad kii hore | Isku xir faylalka tafatire qoraal ama spreadsheet marka hore |
+| Dhoofinta fayl qoraal oo barooyin ah | Dhoofi LandXML (barooyinka waxa loo dhoofaa sida CgPoints), isticmaal GIS {{ui:Dhoofi}} (barooyinka oo leh garoonka P, N, E, Z iyo D), ama {{ui:Koobiyee}} barooyinka spreadsheet ku dhaj |
+| Qaabka calaamadaha barta, astaamaha furaha sharaxaadda kasta, qalloocyo (qaansooyin) ka xariiqyada koodhka, fayl furaha sharaxaadda oo mashruucyo wada isticmaalaan | Calaamadaha waxay tusaan lambarka, sare-marka iyo sharaxaadda, ama ka yar ([Dejinta CivilCraft](topic:settings)); furayaasha waxa lagu kaydiyaa faylka mashruuca |
+| Beddelka unugyada | Fayl ka beddel ka hor inta aadan soo gelin; **Unugyada** wuxuu sumadda oo keliya bedelaa |
 
-## Dusha
+## Dusaha
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| In ka badan hal dusha oo laga dhisay barooyin | Hal mashruuc halkii dusha |
-| Qarinta xuduudaha (gudaha) | Isticmaal **Longest outside edge** ama xuduud dibadda |
-| Dooro ama wax ka beddel hal khadka jejebinta la sawiray | {{key:Mod+Z}}, ama {{ui:Tirtir khadadka jejebinta ee la sawiray}} oo dib u sawir |
-| Wax ka beddelka dusha laga akhriyay LandXML (khadadka jejebinta, xuduudda) | {{ui:Dib u dhis dusha barooyinka}} |
-| Wax ka beddelka dusha laga sameeyay shabakad sare-u-kac | Dib u soo geli shabakadda oo doorasho kale ah |
-| Beddelka dusha laga akhriyay LandXML marka nidaamka isku-xirka uu isbeddelo | {{ui:Dib u dhis dusha barooyinka}} marka hore |
-| Sare-u-kacyada goobta leh calaamado iyo qiimayaasha janjeerka | Akhri xariiqa xaaladda, ama midab dusha janjeerka adigoo isticmaalaya **Falanqaynta janjeerka** ee goobta Landscape ([Simaynta beerta](topic:landscape-grading#grading-checks)) |
+| Dusha in ka badan midkood oo barooyin laga dhisay | Hal mashruuc oo dusha kasta |
+| Qarinta xuduudaha (gudaha) | Isticmaal **Geedka dibadda ee ugu dheer** ama xuduud dibadda |
+| Doorashada ama wax-beddelka hal khad jejebin oo la sawiray | {{key:Mod+Z}}, ama {{ui:Tirtir khadadka jejebinta ee la sawiray}} oo mar kale sawir |
+| Wax-beddelka dusha laga akhriyay LandXML (khadadka jejebinta, xuduudda) | {{ui:Dib u dhis dusha barooyinka}} |
+| Wax-beddelka dusha laga sameeyay shabakad sare-marka | Shabakadda mar kale soo geli doorasho kale |
+| Beddelka dusha laga akhriyay LandXML marka nidaamka isku-xidhka isbeddelo | {{ui:Dib u dhis dusha barooyinka}} marka hore |
+| Sare-marka barta calaamadaysan iyo qiimayaasha jeexjeexa | Ka akhri qoraalka hoose (status bar), ama midabee dusha jeexjeexa adoo isticmaalaya **Falanqaynta jeexjeexa** goobta beerta ([Naqshadda beerta](topic:landscape-grading#grading-checks)) |
 
-## Khadadka waddada iyo muuqaalka dherer
+## Khadadka waddada iyo muuqaalka
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Qanso aan ahayn clothoid; qanso u dhexaysa laba qalloocan (isbeddel isku dhafan) | Qansooyinka clothoid ee dhamaadka qalloocanka way diyaar yihiin; kuwa kale waa la magacaabaa, waana la dhaafaa marka LandXML la soo geliyo |
-| Geli PI u dhexaysa laba kale | Dib u sawir khadka waddada, ama dib u qor isku-xirka PI |
-| Khadadka waddada ee shayaadka, kaadhdhaqaadka (offsets), ballaarinta | Sawir adigoo isticmaalaya PI |
-| Qorista K qalloocan toosan | Qor L (K waa la muujiyay) |
-| Qalloocan toosan oo wareeg ah iyo kuwa aan simanayn | Qalloocan toosan oo simanaya oo parabolic ah oo keliya |
-| In ka badan hal muuqaal naqshadeed khadka waddo kasta | Hal khadka waddo halkii variant |
-| Weynaynta muuqaalka dherer, qaybaha muuqaalka hoosta muuqaalka dherer | Muuqaalka dherer wuxuu ku habboonaadaa khadka waddada oo dhan; ku daabac [xaashiyada qorshaha iyo dherer](topic:plan-profile-sheets) |
-| Goyn ku jira DWG ama LandXML | Xaashiyada goynta PDF; {{ui:CSV}} ee bedadka iyo mugga |
-| Khadadka tusaalaha xagal, ama ballacyo kala duwan oo ku dhex jira waddada | Hal ballac xagga kasta oo khadka waddada oo dhan |
+| Spiral-yada aan ahayn clothoid; spiral u dhexeeya laba wareeg (isbedel isku-dhafan) | Spiral-yada clothoid ee dhamaadka wareeg waa la heli karaa; kuwa kale waa la magacaabaa oo waa la dhaafaa marka LandXML la soo gelinayo |
+| Ku darista PI u dhexeeya laba kale | Khadka dib u sawir, ama dib u qor isku-xidhka PI |
+| Khadadka waddada laga sameeyay shayada, ka-saaridda, ballacaadinta | Sawir adoo isticmaalaya PI-yo |
+| Ku qorista K wareeg toosan | Ku qor L (K waa la muujinayaa) |
+| Wareegyada toosan ee goobo iyo kuwa aan simanayn | Wareeg parabolic-ka simanta ah oo keliya |
+| Muuqaal dherer naqshadeed in ka badan hal khadka waddo kasta | Hal khad waddo mid kasta oo kala duwan |
+| Muuqaalka dherer oo la weyneeyo, kayd-jeexjeexyada hoosta muuqaalka | Muuqaalka dherer wuxuu buuxiyaa khadka waddo oo dhan; ku sawir [xaashiyada qorshaha iyo muuqaalka](topic:plan-profile-sheets) |
+| Qaybaha DWG ama LandXML | Xaashiyada qaybaha PDF; {{ui:CSV}} ee bedka iyo mugyada |
+| Xariiqyada muunadda xagga, ama ballac kala duwan dhinaca waddada | Hal ballac dhinac kasta khadka oo dhan |
 
-## Korridorada
+## Kooridorrada
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Dhexe, xannaano iyo sare-u-kac (superelevation) oo wareejiya qaababka | Ku sawir qaababka ([Qaababka korridorka](topic:corridor-templates)); qaababka station-ka ma qaadaan superelevation weli |
-| Isbeddel tartiib ah oo u dhexeeya qaababka laba gobol (isbeddel, dhumuc yaraysa) | Beddel qaabka station-ka, ama sii bartilmaameed ballac barta khadka lagu sawiray sida dhumuc yaraysa |
-| Wareejinta ku xeeran geeska, superelevation ee LandXML | Superelevation wuxuu wareegaa xariiqa dhexe ee qalloocanka wareegga; ballac waddo adigoo bartilmaameed ballac u dhig khadka muuqaalka |
-| Bartilmaameedyada janjeerrada dhinacyada (dhamaadka jeexa ilaa khad ama dusha), dusha korridor gaar ah | Bartilmaameedyadu waxay dhaqaajiyaan geesaha waddada iyo garbaha ([Korridorada](topic:corridor)); korridorku waxa uu u simaa dusha la soo jeediyay |
-| Korridorada loo dhoofiyo sida LandXML roadways; korridor labaad khadka waddada ku jira dhoofinta IFC | Dusha la soo jeediyay ayaa la dhoofiyaa |
-| Qaababka dhulka ee beddela dusha la soo jeediyay, 3D ama goynta | Waxay siiyaan bedadka iyo mugga layer kasta ([Qaababka dhulka](topic:corridor-templates#terrain-templates)) |
-| Jidadka mashiinka oo leh xawaare, dhaqaajinta taayarka, waqtiga wadista, trailer-yada wadista ama masaafada jirka; maktabad gaadiidyo naqshadeed oo caadi ah; jid la sawiro adigoo jiidaya gaadiidka | Jidadka xawaaraha hoose ee ku xeeran khadka muuqaalka ama khadka waddada, adigoo isticmaalaya cabirrada gaadiidkaaga ([Jidadka gaadiidka](topic:swept-paths)) |
+| Dhexdhexaadka, xannibaadda, iyo kor-u-kac wareejiya qaababka | Qaab ahaan ku sawir ([Qaababka kooridorka](topic:corridor-templates)); qaababka isteeshanka kor-u-kac ma qaadan weli |
+| Isbedel tartiib ah u dhexeeya qaababka laba goobood (isbedel, yaraanta) | Beddel qaabka isteeshanka, ama siiyo barta bartilmaameedka ballac khad la sawiray sida yaraanta |
+| Wareeg ku saabsan cidla, kor-u-kac LandXML | Kor-u-kaca wuxuu ku wareegaa dhexdhexaadka wareegyada goobo; ballacaadi dariiqa adoo bartilmaameed ballac ah u geynaya xariiq muuqaal |
+| Bartilmaameedyada jeexjeexyada dhinaca (iftiinka ilaa khad ama dusha), dusha kooridor gaar ah | Bartilmaameedyadu waxay dhaqaajiyaan cidlada waddada iyo garabyada ([Kooridorada](topic:corridor)); kooridorka waxa lagu jeexjeexaa dusha la soo jeediyay |
+| Kerbi-soo-celin, dariiqyo rogmada iyo jasiiradaha lagu jeexjeexay isgoys; dhamaadka waddada dhinaca oo lagu jaray cidlada waddada weyn xagga xaaqada; jid lagu xidhay waddo qorshaha ku jira, dhererkeeda iyo ballaceeda | Waddooyinka kulma waa la xidhaa toos ah, cidlada waddada weyn waa la furaa, waddada dhinaca waa la siman tahay ([Meelaha waddooyinku ku kulmaan](topic:corridor#where-roads-meet-roads-pads-and-paths)); jidku wuxuu ku joogsadaa cidlada waddada dusha la soo jeediyay iyo 3D |
+| Kooridorada loo dhoofiyo sida waddooyinka LandXML; kooridor labaad khad waddo ku jira dhoofinta IFC | Dusha la soo jeediyay ayaa la dhoofiyaa |
+| Qaababka dhulka ee beddela dusha la soo jeediyay, 3D ama qaybaha | Waxay siiyaan aagga iyo mugga lakab kasta ([Qaababka dhulka](topic:corridor-templates#terrain-templates)) |
+| Jidad wareejin oo leh xawaare, socodka taayarka, waqtiga wadista, gaadiid dhinac-socod ah ama fogaanta jirka; maktabad gaadiidyo naqshadeed caadi ah; jid wareejin oo lagu sawiro jiidista gaadiidka | Jidadka wareejinta xawaaraha hooseeya ee xariiqa muuqaalka ama khadka waddada, adigoo isticmaalaya cabbirrada gaadiidkaaga ([Jidadka wareejinta gaadiidka](topic:swept-paths)) |
 
-## Simaynta iyo mugga
+## Jeexjeexa iyo mugyada
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Kursiyo, khadad muuqaal furan oo loo simay naqshadda, simaynta ilaa khad muuqaal ka soo jeeda meel kale | Xidh khadka muuqaalka ([Khadadka muuqaalka](topic:feature-lines)), ama isticmaal sida khadka jejebinta ee dhulka jira |
-| Geli ama ka saar geesta khadka muuqaalka | Dib u sawir khadka, ama samee offset tallaabo leh |
-| Qaansooyinka khadadka jejebinta la sawiray (marka barooyin sahan dhex maraan), qaansooyinka khadadka muuqaalka | Sawir khadka muuqaalka qaansooyin leh oo isticmaal sida khadka jejebinta ee dhulka jira |
-| Simaynta ilaa masaafo, sare-u-kac ama dusha kale | Janjeer ilaa dhulka jira oo keliya |
-| Ku darista ama ka saarista geesta pad-ka | Tirtir pad-ka oo dib u sawir |
-| Mugga TIN ilaa TIN (prism), doorashada cabirka unugga shabakadda | Habka shabakadda, cabirka unugga oo lagu doorto adiga |
-| Kordhinta iyo yaraynta, lakabka sare ee dhulka, qoto-dheerka jidka | Ku dabaq factors xaddiga tirooyinka la soo sheegay adigu |
-| Kharashaadka free-haul iyo overhaul, qaadista u dhexaysa khadadka waddo kala duwan, godadka amaahda iyo meelaha qashinka ee lagu meel-marinayo qorshaha | Jaantuska mass-haul ee leh barta isbarbardhigga, mugga la guuray iyo masaafada qaadista celceliska |
+| Benchi-yo, xariiqyo muhiim furan oo naqshadda lagu jeexjeexay, jeexjeexa ilaa xariiq muhiim meel kale ka timid | Xariiqa muhiimka ah xir ([Xariiqyada muhiimka ah](topic:feature-lines)), ama isticmaal sidii khadka jejebinta dhulka jira |
+| Ku darista ama ka saarista geed xariiq muhiim | Khadka mar kale sawir, ama samee ka-saarid tallaabo tallaabo ah |
+| Qalloocyo khadadka jejebinta la sawiray (barooyinka sahanka ayay mara), spiral-yo xariiqyada muhiimka ah | Xariiq muhiim qalloocyo ku sawir oo isticmaal sidii khadka jejebinta dhulka jira |
+| Jeexjeexa masaafo, sare-mar ama dusha kale | Dhulka jira keliya ayaa la iftiimiyaa |
+| Ku darista ama ka saarista geed pad | Padka tirtir oo mar kale sawir |
+| Mugyada TIN-ilaa-TIN (prism), doorashada cabbirka unugga shabakadda | Habka shabakadda, cabbirka unugga waxaa kuu doorta |
+| Kor-u-kac iyo yaraan, dhulka sare, dhumucda dusha | Factors-ka ku dabaqo tirooyinka la soo sheegay adigu |
+| Kharashyada gaadiidka bilaashka ah iyo dib-u-habeynta, gaadiidka u dhexeeya khadadka kala duwan, godadka amaahda iyo meelaha qashinka ee qorshaha lagu meeleeyo | Dhaqdhaqaaqa mugga oo leh barta isku-dheelitirka, mugga la raray iyo masaafada gaadiidka celceliska ah |
 
 ## Shabakadaha tuubooyinka
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| In ka badan hal shabakad mashruuc kasta | Mashruucyo kala duwan oo storm iyo sanitary |
-| Dhuumaha biyaha: tayada iyo da'da biyaha, xeerar-ku-salaysan xakamayn, nooca kale ee valve-ka (xakamaynta socodka, throttle, sustaining), bambo oo laga bixiyo korontada, baahi ku xidhan cadaadiska, xulasho Darcy–Weisbach, katalog tuubooyin oo leh dhumucda darbiga iyo fasalka cadaadiska. Inta kale ee shabakadaha cadaadiska waxay ku jirtaa shaybaarka: [Dhuumaha biyaha](topic:water-mains) | Hubi kuwaas software-ka qaybinta biyaha; qulqulka naqshadaha qashinka waxa ku jira [Qulqulka naqshadaha qashinka](topic:sanitary-design) |
-| Qulqulka qashinka wakhtiga (hydrographs, dynamic routing, storage, bambooyin, overflows) | [Qulqulka naqshadaha qashinka](topic:sanitary-design) wuxuu siinayaa qulqulka sare ee joogtada ah ee jadwalka naqshadda isticmaasho |
-| Awoodda afka galinta, faafidda biyaha ee ereyga, wadista kaydinta, hydrographs, luminta tamarta marka aan ahayn hal coefficient oo isgoyska | Hubi software kale; qulqulka, cabbirrada iyo khadadka heerka waa ku jira [Biyo-mareenka roobka](topic:storm-drainage) |
-| Biyo-ururinta (catchments) ee PDF plot, DWG, DXF ama LandXML; biyo-ururinta laga helo dusha (watersheds) | Gacanta ku sawir biyo-ururinta; waxa lagu kaydiyaa faylka mashruuca |
-| Katalogyada tuubooyinka, tuubooyin aan wareegga ahayn, dhismayaal aan sanduuq toosan ama silinder ahayn (koonyo, tallaabo, benching), qaybta biyo-mareenka maktabadda | Noocyada dhismaha ee laga sameeyay cabirrada ([Shabakadda tuubooyinka](topic:pipe-network)); tuubooyin leh dhexroor |
-| Tuubooyinka muuqaalka dherer, tuubooyin qalloocan | Akhri hoos u dhaca iyo daboolka panel-ka midig |
+| Shabakad in ka badan hal mashruuc | Mashruuc kala gaar ah storm iyo sanitary |
+| Tuubooyinka biyaha: tayada iyo da'da biyaha, xakamaynta xeerka, nooca kale ee valve-ka (xakamaynta socodka, throttle, sustaining), pump-yada loo siiyay quwad, baahida oo ku xidhan cadaadiska, ikhtiyaar Darcy–Weisbach, katalogga tuubooyinka oo leh dhumucda derbiga iyo fasalka cadaadiska. Inta kale ee shabakadaha cadaadiska waa shaybaarka: [Tuubooyinka biyaha](topic:water-mains) | Kuwaas hubi barnaamijka qaybinta biyaha; qaybaha naqshadaynta sanitary-ga waa [Socodka naqshadda sanitary-ga](topic:sanitary-design) |
+| Socodka biyaha ceelka ee waqti ku saabsan (hydrograph, jidbaxa firfircoon, kaydinta, pump-yada, ka-burburka) | [Socodka naqshadda sanitary-ga](topic:sanitary-design) wuxuu siiyaa socodka sare ee joogtada ah ee xaashida naqshadda isticmaasho |
+| Awoodda galka, faafitaanka marinka, jidbaxa dib-u-xidhka, hydrograph-yada, luminta tamarta marka laga reebo hal isgoys-coefficient | Kuwaas ku hubi barnaamij kale; socodka, cabbirrada iyo khadadka heerka waxay ku jiraan [Biyaha duufaanta](topic:storm-drainage) |
+| Dhulka biyaha ku-urayaa ee qorshaha PDF, DWG, DXF ama LandXML; dhulka biyaha ka dusha (biyo-kala-qaybiyeyaasha) | Dhulka biyaha gacanta ku sawir; waa la kaydiyaa faylka mashruuca |
+| Katalogyada tuubooyinka, tuubooyin aan goobo ahayn, dhismo aan sanduuq toosan ama silinder ahayn (koonooyin, tallaabooyin, benching), qayb biyo-qaadka maktabadda ku jirta | Noocyada dhismaha laga helo cabbirrada ([Shabakadda tuubooyinka](topic:pipe-network)); tuubooyin leh dhexroor |
+| Tuubooyinka muuqaalka dherer ku jira, tuubooyin qalloocan | Akhri inverts iyo daboolka panel midig |
 
-## Qaybaha dhulka
+## Sagxadaha
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Qaybinta dhulka sida bedka ama wejiga, qaybaha laga sameeyay xariiqyada ku wareegsan, xuquuqda waddada (right-of-way) | Qayb kasta sawir geesaheeda, ama geli wicitaankeeda |
-| Miiska qalloocanka iyo miiska xariiqyada ee sawirka; calaamadaha gacanta lagu dhaqaajiyo | Qayb kasta si toos ah ayaa lagu calaamadaa dhinaceeda |
-| Qaybaha dhulka ee LandXML | Qaybaha dhulka waxa lagu kaydiyaa faylka mashruuca, waxayna u baxaan PDF, DWG iyo DXF |
+| Qaybinta lotyada bedka ama jabhadda, sagxadaha xariiqyada ku wareegsan, xuquuqda waddada | Sagxad kasta geedkeeda ku sawir, ama geli wicitaankeeda |
+| Miisaska wareegyada iyo miisaska xariiqyada qorshaha; calaamadaha gacanta lagu dhaqaajiyo | Qayb kasta waxa lagu calaamadeeyaa dhererkeeda |
+| Sagxadaha LandXML | Sagxadaha waxa lagu kaydiyaa faylka mashruuca oo waxay u gudbaan PDF, DWG iyo DXF |
 
-## Traverse-ka
+## Traverses
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Habaynta least-squares, xeerka transit-ka, miisaanka xagasha marka la barbardhigo masaafada | Xeerka compass |
-| Xagasha deflection, xagasha zenith iyo masaafooyinka janjeerka, sare-u-kaca trigonometric leveling | Hoos u yeel masaafooyinka toosan iyo xagasha si sax ah, ama bearing-ka |
-| Sawirrada dhinaca, faylasha xogta ceeriin ah ee ururiyeyaasha xogta | Soo geli barooyinka sida fayl barooyin |
+| Hagaajinta least-squares, xeerka transit, miisaanka xagaasha iyo masaafooyinka | Xeerka compass |
+| Xagaasha leexashada, xagaasha zenith iyo masaafooyinka jeexjeexa, sare-marka sinji-kaaseedka | Ku celi masaafooyinka iyo xagaasha toosan si sax ah, ama bearing-yada |
+| Dhinac-dhinac ah, faylalka xogta kulul ee ururiyeyaasha | Barooyinka u soo geli sida fayl barooyin |
 
-## Ceelasha
+## Ulinta
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Ceelasha kaadhdhaqaadka (offset) (barooyinka tixraaca laga dhigay ceelka), ceelasha janjeerka ee barta qabashada | Ceel meelaha aad u baahan tahay, oo ay ku jiraan meelaha wadada ka gudba |
-| Ceelasha si toos ah loogu diro qaabka ururiyeyaasha xogta | CSV waxa uu furmaa software-ka xafiiska ee ururiyeyaasha xogta badankood |
-| Ceelka tuubooyinka, pad-ka iyo qaybaha dhulka | Isticmaal barooyinka sahanka ee u dhow khadka waddada, ama geesaha qaybta dhulka |
+| Ulammaha ka-saarka (barooyinka tixraaca oo ka soo laabanaya ulinta), ulammaha jeexjeexa barta qabashada | U kaadi ka-saarka aad u baahan tahay, oo ay ku jiraan wixii ka dambeeya garabka |
+| Ulammaha toos loogu diro qaabka ururiyaha xogta | CSV waxa uu furmaa barnaamijyada xafiiska ee ururiyeyaasha xogta badankood |
+| Ulinta tuubooyinka, padyada iyo sagxadaha | Isticmaal barooyinka sahanka ku dhow khad waddo, ama geedaha sagxadda |
 
-## Faylasha iyo wax soo saarka
+## Faylalka iyo wax soo saarka
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Qoraal, xarriijin iyo cabbir laga helo DWG ama DXF; paper space; naqshado xiriiran (xrefs); DXF binary | Khadadka meesha moodeelka ayaa furma ([Fur DWG ama DXF sida khadad](topic:open-dwg-dxf)); naqshadaha xiriiran si gaar ah u fur |
-| Guuritaanka barooyin badan isku mar jiidasho | Jar oo ku dhaji, ama tafatir mid-mid |
-| Xaashiyo taagan (portrait), xaashiyo block-ka magaca oo gaar ah, daaqado aad ku habayso, xaashiyada qorshaha iyo dherer ee DWG | Hal xaashi qorshe oo laga bilaabo PDF, ama xaashiyada qorshaha iyo dherer ee khadka waddada (PDF) |
-| Qaybaha sare-u-kaca iyo muuqaalka dherer ee daabacaadda | Qaybaha waa shaashad oo keliya; qaado sawirka shaashadda haddii aad u baahan tahay |
-| Beddelka magacyada layer-ka, midabada ama qaababka calaamadaha | Ku beddel barnaamij CAD ka dib markii DXF la dhoofiyo |
-| Kaydinta cloud-ka iyo taariikhda nooca | Kaydi faylasha `.civilcraft.json` oo ku hay nuqul dhowr; si aad hal mashruuc wada u shaqeyso, isticmaal kal-fadhi toos ah oo CadCraft Studio ([Hal goob oo wada naqshadee hadda](topic:work-live)) |
-| CadCraft Studio ee iPad iyo iPhone, iyo Google Play | Isticmaal CivilCraft browser-ka qalabka; Android, CadCraft Studio waa lagu rakibaa APK-ga getcadcraft.com/download |
-| Furidda faylal barooyin ama mashruuc badan isku mar | Hal fayl mar kasta; faylasha GIS ee isku xiran, sida qaybaha shapefile-ka, isku mar ayay furmaan |
+| Qoraal, xarriijin iyo cabbir DWG ama DXF; meel warqad; naqshado isku xidhan (xrefs); DXF binary | Khadadka meesha moodelka waa la furaa ([Fur DWG ama DXF sida khadad](topic:open-dwg-dxf)); naqshadaha isku xidhan ka fur gacanta |
+| Dhaqaajinta barooyin dhowr mar oo jiidis | Gooy oo ku dheji, ama wax ka beddel mar mar |
+| Xaashiyo toosan, xarigga cinwaanka gaarka ah, daaqadaha aad habayso, xaashiyada qorshaha iyo muuqaalka DWG | Hal xaashi qorshe oo toosan PDF kasta, ama xaashiyada qorshaha iyo muuqaalka waddada sida PDF |
+| Sawirka sare-marka iyo muuqaalada | Kayd-jeexjeexyadu waa shaashad keliya; sawir shaashadda haddii aad u baahan tahay |
+| Beddelka magacyada lakabyada, midabka ama qaabka calaamadaha | Ka beddel barnaamij CAD ka dib marka DXF la dhoofiyo |
+| Kaydinta daruurta iyo taariikhda nooca | Kaydi faylalka `.civilcraft.json` oo ilaali; si aad mashruuc wada shaqayso, isticmaal kal-fadhi toos ah CadCraft Studio ([Hal goob oo wada naqshadda, toos](topic:work-live)) |
+| CadCraft Studio iPad iyo iPhone, iyo Google Play | Isticmaal CivilCraft browser-ka aaladda; Android, CadCraft Studio waa la rakibaa APK-ga ka yimid getcadcraft.com/download |
+| Furista faylal barooyin ama mashruuc dhowr mar | Hal fayl mar kasta (faylalka GIS ee wada jira, sida qaybaha shapefile-ka, ayaa wada furmaa) |
 
 ## Beerta
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Madaxyada iyo afafka biyaha ee soo saarayaasha | Madaxyada guud, ama ku dar madaxyadaada faylka; xogta soo saarayaasha waxay imaanaysaa marka ay oggolaadaan |
-| Dhererka ugu badan ee tuubada dhinaca ee xariiqyada dhusaha, qulqulka wakhtiga, bambooyinka, shabakadaha tuubada ee wareega | Ilaali dhererka dhamaystiran ee soo saaraha; hubinta waxay u baahan tahay shabakad laanta |
-| Qaabka saxda ah ee shay qaab xor ah oo dhex-fiiqsan; mugga hoosta dhulka ee si sax ah loo cabbiro | Hubka shayga (convex hull) waa la simaa, mugga hoosta dhulka waa qiyaas (lagu sheegay Properties) |
-| Dhirta ku jirta Place from library ee BimCraft iyo ModelCraft | Dhoofi landscape IFC oo ku fur BimCraft oo dhinac dhismaha |
-| Moodeelada dhirta faahfaahsan (caleemo, laan, xilliyada) muuqaalka 3D; shayada qaab xor ah iyo waraabinta muuqaalka 3D | Dhirta 3D waxay muuqdaan sida qaababka fudud ee cabirkoodu ka soo baxo liiska dhirta ([Fiiri beerta 3D](topic:site-3d)); scatter-ka ModelCraft wuxuu sameeyaa sawirrada beerta |
-| Derbiyada hardscape ee haya heer simaynta ah dhinacooda dambe dusha | Ka dhig kor-u-kac ama pad geesaha toosan: waa derbiyada xakameynta dusha ([Simaynta](topic:grading)) |
-| Beddelka SVG ee astaamahaaga; textures iyo midabyada moodeelada dhirta GLB ee aad leedahay; joomatari GLB la cadaadiyey | Ka dhig beddelkaaga sawirka barnaamijkaaga; moodeelada waxay muuqdaan midabka dhirta; dhoofi GLB adoon cadaadin ([Sawirka dhirta](topic:plant-graphics)) |
-| Liiska dhirtaada gaarka ah ee lagu hayo akoonkaaga Library (lagu tafatiro app-ka) | Tafatir liiska mashruuca ee Miiska dhirta oo kaydi faylka dhirta |
-| Qalabka beerta ee kaaliyayaasha aan daaqadda lahayn (server-ka faylka iyo sadarka amarka) | Waa shaqeeyaan daaqadda CivilCraft oo furan ([Ka shaqee goobtaada kaaliyaha AI](topic:assistants)) |
+| Madaxyada iyo afka-biyaha ee soo saarayaasha | Madaxyo guud, ama ku dar madaxyadaada faylal; xogta soo saarayaasha way imanaysaa marka ay oggolaadaan |
+| Dhererka ugu badan ee xariiqyada dusha-biyo-dhigga, socodka waqtiga, pump-yada, shabakadaha tuubada xalqadda | Xariiqyada dusha-biyo-dhigga ku xidh dhererka ay soo saaraha daabacay; hubinta waxay u baahan tahay shabakad laanta |
+| Hareerta sax ah ee shay freeform oo qoto ah; mugga hoos-dhulka oo si sax ah loo cabbiray | Qolofta convex-ka waa la jeexjeexaa, mugga hoos-dhulka waa qiyaas (sheegan Sifooyinka) |
+| Dhirta ku jirta BimCraft iyo ModelCraft ee Ku dhig maktabadda | Dhoofi landscape IFC oo ku fur BimCraft dhinaca dhismaha |
+| Moodelada dhirta faahfaahsan (caleemo, laan, xilli) muuqaalka 3D; shayada freeform iyo biyo-dhigga muuqaalka 3D | Dhirta waxay 3D ku muuqdaan sida qaabab fudud oo cabbirkooda laga qaaday liiska dhirta ([Arag goobta 3D](topic:site-3d)); scatter-ka ModelCraft wuxuu sameeyaa sawirada beerta |
+| Darbiyada dhul adag ee dusha ku hayn heer jeexjeexan gadaashooda | Dhig madal ama pad garbaha toosan: waa darbiyada dhulka celiya ee dusha ([Jeexjeexa](topic:grading)) |
+| Isbedelada SVG astaamahaaga; tekstuur iyo midabka moodelada dhirta GLB ee aad leedahay; geometry GLB la cadaadiyay | Isbedelada hore u rido barnaamijka sawirkaaga; moodelada waxa lagu sawiraa midabka dhirta; dhoofi GLB aan la cadaadin ([Sawirka dhirta](topic:plant-graphics)) |
+| Liiska dhirtaada gaarka ah ee lagu kaydiyay akoonkaaga Maktabadda (lagu wax ka beddelo barnaamijka) | Wax ka beddel liiska mashruuca ee miiska dhirta oo kaydi faylal dhirta |
+| Qalabka beerta ee kaaliyeyaasha aan daaqada lahayn (server-ka faylka iyo sadarka amarka) | Waxay shaqeeyaan markii daaqadda CivilCraft la furan yahay ([Kaaliye AI ha kugu shaqeeyo goobtaada](topic:assistants)) |
 
-## Xariiqyada korantada
+## Xariiqyada korontada
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Heerka dal kasta oo dhex ku dhisan (xaaladaha culeyska, masaafooyinka, factors) | Dejii qiyamka heerkaaga {{ui:Xaaladaha culeyska iyo xaddidaadda…}} oo kaydi, adigoo maktabadda ku jira, sida xirmo aad dib u isticmaali karto oo wadaagi karto ([Xirmooyinka](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
-| Masaafada dhinaca ee silig ilaa dhirta ama derbiga ku dhow xariiqa | Masaafada toos u sarreysa ee dhirta iyo derbiyada ay xariiqu gudubto ([Hubinta korantada](topic:power-line-checks#clearances)) |
-| Silig-ka oo si tartiib ah u socda (creep) iyo fidinta silig cusub | Ogolow iyaga iyada oo loo marayo heerkulka miiska silig-ka |
-| Qiimaynta kulaylka kabalyada hoostooda lagu aasay (qiimaha korontada ka timaada habka lagu dhigay) | Geli qiimaha korontada ee bixiyaha kabalka ee shayga kabalka |
-| Daraasadaha short-circuit, ilaalinta iyo dhulka-u-xidhka | Isticmaal barnaamij koronto oo gaar ah; CivilCraft wuxuu siinayaa dhererka shabakadda iyo kabalyada |
-| Tiirarka lattice ee lagu naqshadeeyay xubin xubin, iyo xidhka xidhka ee dhulka | Tiirarka waa la hubiyaa xoogga magaca ah; xidhayaasha waa xoogga la qiimeeyay |
-| Faylka daraasadda `.DON` oo lagu hubiyo barnaamijka akhrinaya | Halkaas hubi faylka; noogu dir muuqaal aan ugu tijaabino mid dhab ah |
-| Xariiqyada korantada muuqaalka 3D iyo IFC | Qorshaha, muuqaalka dherer ee xariiqa, xaashiyada iyo layer-yada GIS |
-| Qalabka xariiqyada korantada ee kaaliyayaasha aan daaqadda lahayn | Waa shaqeeyaan daaqadda CivilCraft oo furan ([Ka shaqee goobtaada kaaliyaha AI](topic:assistants)) |
+| Heer dal oo gudaha lagu dhisay (xaaladaha culeyska, fogaanta, factors) | Dejii qiyamka heerkaaga {{ui:Xaaladaha culeyska iyo xaddidaadda…}} oo kaydi, mar wada maktabadda, sidii pack aad mar kale isticmaasho oo aad wada-wadaagto ([Packs](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
+| Masaafada dhinac-dhinaca ah ee sare-marka conductor-ka iyo timaha geedka ama darbiga xariiqa ku teedsan | Fogaanta toosan ee sare-marka dhirta iyo darbiyada xariiqa gooyo ([Hubinta xariiqa korontada](topic:power-line-checks#clearances)) |
+| Ku guuritaanka conductor-ka iyo ballaadhinta conductor cusub | Ogolow iyaga heerkulka miiska xariiqa |
+| Qiimaynta kulaylka kaabalada qoto (qiimaynta korontada ee sida loo dhigay) | Geli qiimaynta korontada ee bixiyahaaga shayga kaabalka |
+| Daraasadaha short-circuit, ilaalinta iyo dhulka xidhka | Isticmaal barnaamij koronto gaar ah; CivilCraft wuxuu siiyaa dhererka shabakadda iyo kaabalada |
+| Tiirarka lattice ee gacan-gacan loo naqshadeeyay, iyo ilaalinta xagaaga dhulka | Taageeradu waxa lagu hubiyaa culeyska magacaaban; kaabada xagaaga waxa lagu hubiyaa culeyska la qiimeeyay |
+| Fayl daraasad `.DON` oo barnaamijka akhriya lagu hubiyo | Halkaas hubi; soo dir tusaale si aan uga tijaabinno mid dhab ah |
+| Xariiqyada korontada muuqaalka 3D iyo IFC | Qorshaha, muuqaalka xariiqa, xaashiyada iyo lakabyada GIS |
+| Qalabka xariiqa korontada ee kaaliyeyaasha aan daaqada lahayn | Waxay shaqeeyaan markii daaqadda CivilCraft la furan yahay ([Kaaliye AI ha kugu shaqeeyo goobtaada](topic:assistants)) |
 
-## Masaafooyinka dhismaha
+## Masses-ka dhismaha
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Maktabad xeerarka qeybinta ama xeerarka magaalo kasta | Qor xaddidaadyada xeerkaaga ([Xaddidaadyada qeybinta](topic:zoning-limits)) |
-| Iftiinka samada ee derbiyada (iftiinka wejiga), dabaysha | [Saacadaha qorraxda](topic:sun-hours) wuxuu tirinayaa qorraxda toosan oo keliya |
-| Hooska dhirta, geedaha ama wax kasta oo aan loo sawirin sida mass | Sawir dhismayaasha deriska ah sida masaafooyin (masses) |
-| Qaababka saqafka masaafooyinka | Masaafooyin sare-u-taagan oo sare-u-taagan |
-| Furitaanka, saqafyada iyo noocyada derbiyada marka mass-ka laga horumariyo BimCraft | BimCraft wuxuu dhisaa derbiyo dibadeed oo caadi ah dabaq kasta iyo dhul; ku dar kuwa kale halkaas |
+| Maktabad koodhadka qeybinta ama xeerarka magaalo kasta | Ku qor xadka amarka ee aad leedahay ([Xaddidaadda qeybinta](topic:zoning-limits)) |
+| Iftiinka samada ee darbiyada (iftiinka wejiga), dabaysha | [Saacadaha qorraxda](topic:sun-hours) waxa uu tiraa qorraxda toosan oo keliya |
+| Hooska geedaha, dhirta ama wax kasta oo aan lagu sawirin mass | Sawir dhismayaasha deriska ah sida masses |
+| Qaabka saqafka masses-ka | Masses sare-ka fidsan |
+| Furaha, saqafyada iyo noocyada darbiyada marka mass la horumariyo BimCraft | BimCraft wuxuu dhisaa darbiyo dibadeed oo fudud heer kasta iyo dabaq; ku dar kuwa kale halkaas |
 
-## GIS iyo nidaamyada isku-xirka
+## GIS iyo nidaamyada isku-xidhka
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| File Geodatabase; qaababka KML, astaamaha, overlays-ka dhulka iyo xiriirada shabakadda | Ku beddel GeoPackage, shapefile ama GeoJSON marka hore; KML placemarks waa la akhriyaa adoon qaababkooda |
-| Tafatirka astaamaha GIS ama sifooyinkooda | Tafatir barnaamij GIS ah oo mar kale soo geli. Panel-ka Analyze wuxuu sameeyaa layer cusub (buffer, overlay, join, selection) wuxuuna ku daraa goobo bedka iyo dhererka, laakiin ma tafatiro astaamaha |
-| Falanqaynta shabakadda iyo raster-ka, buffers oo leh dhammaad siman ama laba-geesood iyo buffer dhinac keliya, ku darista ama tirtirka safafka iyo beddelka nooca goobta miiska sifooyinka, midabada fasalka gacanta, sharraxaadda qaabka plot-ka | Isticmaal Dooro si aad astaamo u doorato oo layer ka samee; dhammaadka simanka lama siiyo. Midabka sifada iyo miiska sifooyinka waa la dhisay: eeg [Qaabee layer sifo](topic:gis-symbology) iyo [Shaqee miiska sifooyinka layer-ka](topic:gis-table) |
-| Qaababka calaamadaha (cabbir, meel) iyo calaamado iska ilaaliya | Calaamadaha cabbir isku mid ah; way isku dhejin karaan marka astaamuhu ku dhow yihiin |
-| Datums-ka toosan iyo moodeelada geoid | Sare-u-kacyada waxa loo isticmaalaa sida faylku siiyo; hubi datum-ka toosan adigu |
-| Isbeddelka grid-ka ka duwan NAD27 ilaa NAD83 ee gobolka lagu soo jeediyay (OSTN15, NTv2 datum kale ayaa shaqeeya marka aad faylka ku darto), gridyo badan isku mar, gridyada toosan | Ku dar faylka gridka datum-kaaga adigu; hal grid mashruuc kasta |
-| Layer-yada khariidadda ee DXF ama dhoofinta 3D | Layer-yada khariidadda waxay galaan PDF plot, waxayna DWG-ka ku yaallaan sawir ahaan |
-| Server-yada khariidadda ee u baahan galitaan, fur ama token | Isticmaal adeegyo dadweyne, ama fayl sawir oo georeferenced ah |
-| Qorista faylasha LAS ama LAZ ee dusha, moodeelka dhulka ama qalabka shabakadda sare-u-kaca iyo LiDAR | Dhoofi dusha sida shabakadda sare-u-kaca GeoTIFF. Add-on-ka [Daruurta barta](topic:point-clouds) wuxuu qoraa daruur nadiif ah oo LAS 1.4 ama LAZ |
-| Xoogga LiDAR, midabka iyo soo noqoshada; shabakado sare-u-kac oo leh band-ka badan; faylasha grid ama LiDAR ka badan 200 MB | LiDAR waxa lagu shaandhaysaa fasalka keliya, shabakadaha waxay isticmaalaan band-ka koowaad; faylasha waaweyn marka hore u jeexa tile-yo |
+| File Geodatabase; qaabka KML, astaamaha, dusha-dhulka korka iyo xidhiidhka shabakadda | U beddel GeoPackage, shapefile ama GeoJSON marka hore; KML placemarks waa la akhriyaa iyada oo aan qaabkoodi lahayn |
+| Wax-beddelka astaamaha GIS ama sifooyinkooda | Ku wax ka beddel barnaamij GIS oo mar kale soo geli. **Falanqee** wuxuu sameeyaa lakabyo cusub (buffer, overlay, join, selection) oo wuxuu ku daraa goobaha aagga iyo dhererka, laakiin ma wax-beddelo astaamaha meesha |
+| Falanqaynta shabakadda iyo raster, buffers oo leh dhamaad fidsan ama afeef, iyo buffers dhinac keliya, ku darista ama tirtirista safafka iyo beddelka nooca goobta miiska sifooyinka, midabka fasalka gacanta, sharaxaadda qaabka qorshaha | Isticmaal Dooro si aad astaamo u dooranaysid oo lakab uga samayso; dhamaadyada fidsan lama bixiyo. Midabka iyo miiska sifooyinka waa la dhisay: eeg [Qaabee lakab sifo ku salaysan](topic:gis-symbology) iyo [Ku shaqee miiska sifooyinka lakabka](topic:gis-table) |
+| Qaabka calaamadaha (cabbirka, meesha) iyo calaamado iska ilaaliya | Calaamadaha waa hal cabbir, waxay isku dhaafi karaan marka astaamuhu kaadi yihiin |
+| Datums-ka sare-marka iyo moodeelada geoid-ka | Sare-marka waxa loo isticmaalaa sida faylka siiyo; hubi datum-ka sare-marka adigu |
+| Kala-guuritaanka grid-ka kaas oo ka duwan NAD83 oo laga soo jeediyay NAD27 aagga ku saabsan (OSTN15, NTv2 datums kale waxay shaqeeyaan markaad faylka ku darto), dhowr grid isla mar, grid-ka toosan | Faylka grid-ka datum-kaaga adigu ku dar; hal grid mashruuc kasta |
+| Lakabyada khariidadda DXF ama dhoofinta 3D | Lakabyada khariidadda waxay galaan PDF plot, waxayna DWG dhinaca sawir ahaan u dhowdahay |
+| Server-yada khariidadda ee u baahan galitaan, fure ama token | Adeegyo dadweyne isticmaal, ama fayl sawir oo georeferenced ah |
+| Qorista faylalka LAS ama LAZ laga soo bilaabo dusha, moodelka dhulka ama qalabka shabakadda sare-marka iyo LiDAR | Dhoofi dusha sida shabakad sare-marka GeoTIFF ah. [Daruurta barta](topic:point-clouds) add-on-ku wuxuu qoraa daruur nadiifsan sida LAS 1.4 ama LAZ |
+| Xoogga LiDAR, midabka iyo soo noqoshada; shabakadaha sare-marka oo leh dhowr band; faylalka grid ama LiDAR ee ka weyn 200 MB | LiDAR waa la shaandhaynayaa fasalka keliya, shabakadaha waxay isticmaalaan band-ka koowaad; faylalka waaweyn marka hore u jar tiles |
 
 ## Gelinta
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Dooro sanduuq taabasho (waxay u baahan tahay {{key:Shift}}) | Taabo daqiiqad dheer barta sahanka kasta si aad ugu darto |
-| Isku-xirka ama masaafooyinka la qoray marka la sawirayo | Si qiyaas ah sawir, kadibna ku qor isku-xirka PI saxda ah miiska PI ee khadka waddada |
-| Qorista isku-xirka geesaha pad-ka iyo dhismayaasha | Jiid gripsyadooda; weynee si aad sax u noqoto oo eeg E iyo N ee status bar-ka |
-| Ku dhejinta shayada (marka laga reebo barooyinka sahanka khadadka jejebinta) | Weynee oo eeg status bar-ka |
+| Doorashada sanduuqa taabashada (waxay u baahan tahay {{key:Shift}}) | Riix muddo dheer barta sahan kasta si aad ugu darto |
+| Isku-xidhka ama masaafooyinka la qoray intii la sawirayay | Si qiyaas ah u sawir, kadibna ku qor isku-xidhka PI saxda ah miiska PI khadka waddada |
+| Ku qorista isku-xidhka geedaha padyada iyo dhismayaasha | Jiid gacmahooda; ku weyn meelaha si sax ah, ka eeg E iyo N status bar-ka |
+| Qabsashada shayada (ka soo horjeeda barooyinka sahanka ee khadadka jejebinta) | Ku weyn oo fiiri status bar-ka |
 
 ## Muuqaalka 3D
 
-| Wali lama dhisin | Taas bedelkeeda, maanta |
+| Wali lama dhisin | Halkii taas, maanta |
 |---|---|
-| Sawirka ama tafatirka muuqaalka 3D | Sawir oo tafatir qorshaha; muuqaalka 3D wuu raacaa tafatir kasta |
-| Doorashada khadadka muuqaalka korridorka ama astaamaha GIS adigoo gujinaya 3D | Guji qorshaha |
-| Dhoofinta muuqaalka la weyneeyay ama fiidada | Dhoofinta waa cabbir run ah oo mitir ku jira; eeg [Dhoofi beerta 3D](topic:export-3d) |
-| Calaamadaha dhoofinta GLB ama OBJ, cabbirrada iyo qaababka calaamadaha 3D | Calaamadaha waxay muuqdaan muuqaalka 3D oo keliya, hal cabbir; eeg [Fiiri beerta 3D](topic:site-3d) |
-| Textures ka sawirada, duubista wadista fiidiyo ahaan, hooska ka baxsan goobta, saacadaha qorraxda ee muuqaalka 3D | Khariidadda layer-yada dusha ku saaran; wadista iyo meesha qorraxda hal waqti; [saacadaha qorraxda](topic:sun-hours) maalin ama xilli qorshaha |
+| Sawirka ama wax-beddelka muuqaalka 3D | Sawir oo wax ka beddel qorshaha; muuqaalka 3D wuxuu raacaa wax-beddel kasta |
+| Doorashada xariiqyada muhiimka ah ee kooridorka ama astaamaha GIS guji 3D | Guji qorshaha |
+| Dhoofinta muuqaalka la weyneeyay ama feet | Dhoofintu waa cabbir run ah oo meetir ah; eeg [Dhoofi goobta 3D](topic:export-3d) |
+| Calaamadaha dhoofinta GLB ama OBJ, cabbirka iyo qaabka calaamadaha 3D | Calaamadaha waxay muuqdaan muuqaalka 3D oo keliya, hal cabbir; eeg [Arag goobta 3D](topic:site-3d) |
+| Tekstuurada sawirrada, duulid lagu duubo video, hoos-ka goobta ka baxsan, saacadaha qorraxda muuqaalka 3D | Lakabyada khariidadda ee dusha lagu dhigay; wadista iyo booska qorraxda waqti; [saacadaha qorraxda](topic:sun-hours) maalin ama xilli qorshaha |

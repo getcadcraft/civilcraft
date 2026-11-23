@@ -9,14 +9,15 @@
  *   materialAt(pack, id, prop, T [K])   → { value, unit, ref, fitError, range, pack:{id,version} }; throws EngError('range') outside the curve's range,
  *                                          EngError('material') for an unknown material or property. Never extrapolates.
  *   listMaterials(pack)                 → [{ id, name, props:[{ prop, name, unit, range }] }]
+ * Forms: ret-exp  y = r5 + (1 - r5) exp(-1/2 (T* over c3)^c1 - 1/2 (T* over c4)^c2), T* = T - 293.15 K (NIST TN 1907 steel at temperature; r5 = 0 for E, times E0 as `scale`)
  * Forms: log10poly  y = 10^(a + b L + c L^2 + ... + i L^8), L = log10 T      poly4  y = a + bT + cT^2 + dT^3 + eT^4 (constant `below` under `tlow`)
  * The value returned is y * scale, in `unit` (linear expansion: scale 1e-5, so the value is the dimensionless (L - L293)/L293).
  */
 import { EngError } from './eng-data.js';
 import { F } from './host.js';
 
-export const FORMS = ['log10poly', 'poly4'];
-const NEED = { log10poly: 9, poly4: 5 };
+export const FORMS = ['log10poly', 'poly4', 'ret-exp'];
+const NEED = { log10poly: 9, poly4: 5, 'ret-exp': 5 };
 const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
 const pow10 = (x) => (F.dpow ? F.dpow(10, x) : Math.pow(10, x));
 const log10 = (x) => (F.dlog10 ? F.dlog10(x) : Math.log10(x));
@@ -36,7 +37,7 @@ export function validatePack(pack) {
       const w = mid + '.' + pid;
       if (!p.unit || !p.name) bad.push(w + ': name and unit');
       if (!isNum(p.scale) || p.scale <= 0) bad.push(w + ': scale');
-      if (!isNum(p.fitError) || p.fitError <= 0 || p.fitError >= 1) bad.push(w + ': fit error is a fraction between 0 and 1');
+      if (p.fitError !== null && (!isNum(p.fitError) || p.fitError <= 0 || p.fitError >= 1)) bad.push(w + ': fit error is a fraction between 0 and 1, or null when the source states none');
       if (!Array.isArray(p.segments) || !p.segments.length) { bad.push(w + ': no segments'); continue; }
       let prevHi = null;
       p.segments.forEach((s, i) => {
@@ -64,6 +65,10 @@ export async function packHash(pack) {
 function evalSeg(s, T) {
   const c = s.coeffs;
   if (s.form === 'log10poly') { const L = log10(T); let a = 0; for (let i = c.length - 1; i >= 0; i--) a = a * L + c[i]; return pow10(a); }
+  if (s.form === 'ret-exp') {   // NIST TN 1907 Eq. (2.2)/(2.4)/(2.14): y = r5 + (1 - r5) exp(-1/2 (Tstar/c3)^c1 - 1/2 (Tstar/c4)^c2), Tstar = T - 20 degC; coeffs [c1, c2, c3, c4, r5]
+    const Ts = T - 293.15;
+    return c[4] + (1 - c[4]) * Math.exp(-0.5 * Math.pow(Ts / c[2], c[0]) - 0.5 * Math.pow(Ts / c[3], c[1]));
+  }
   if (s.tlow != null && T < s.tlow) return s.below;
   return c[0] + T * (c[1] + T * (c[2] + T * (c[3] + T * c[4])));
 }
@@ -79,7 +84,7 @@ export function materialAt(pack, id, prop, T) {
   return {
     value: evalSeg(s, T) * p.scale, unit: p.unit, T,
     fitError: p.fitError, range: [lo, hi],
-    ref: 'NIST Cryogenics Technologies Group, ' + m.page + ' (' + p.name + ', ' + s.form + ' fit, ' + (p.fitError * 100) + '% vs data, accessed ' + pack.source.accessed + ')',
+    ref: (pack.refBy || 'NIST Cryogenics Technologies Group') + ', ' + m.page + ' (' + p.name + ', ' + s.form + ' fit, ' + (p.fitError === null ? 'scatter not stated by the source' : (p.fitError * 100) + '% vs data') + ', accessed ' + pack.source.accessed + ')',
     pack: { id: pack.id, version: pack.packVersion },
   };
 }
@@ -100,6 +105,26 @@ export function installPack(pack, hash = '') {
   return pack.id;
 }
 export const installedPacks = () => [...INSTALLED.values()];
+/** Remove an installed pack (an add-on switched off or removed). → true when it was installed. (0.11 CE.13) */
+export const uninstallPack = (id) => INSTALLED.delete(String(id));
+/** The packs to hand to a CraftScript worker with a run: the worker has its own copy of this module (0.11 CE.13). Plain data only. */
+export const packsForWorker = () => installedPacks().map(({ pack, hash }) => ({ pack, hash }));
+/** Install the packs a page handed over with a run (cs-worker.js): the worker then holds exactly the page's packs (one the page dropped since the last
+ *  run is dropped here too; packs this module installed itself stay). A pack that does not validate is skipped; → the ids installed. */
+const FROM_PAGE = new Set();
+export function installFromPage(list) {
+  const ids = [];
+  const want = new Set((Array.isArray(list) ? list : []).map((x) => x && x.pack && x.pack.id));
+  for (const id of [...FROM_PAGE]) if (!want.has(id)) { INSTALLED.delete(id); FROM_PAGE.delete(id); }
+  for (const x of Array.isArray(list) ? list.slice(0, 50) : []) {
+    if (!x || typeof x !== 'object') continue;
+    const have = INSTALLED.get(x.pack && x.pack.id);
+    if (have && have.hash && have.hash === x.hash) { ids.push(x.pack.id); continue; }
+    if (have) continue;   // the module's own pack of that id stays
+    try { ids.push(installPack(x.pack, x.hash)); FROM_PAGE.add(x.pack.id); } catch { /* not a valid pack: not installed */ }
+  }
+  return ids;
+}
 /** → { ...materialAt result, hash } from the first installed pack that has the material; EngError('material') when none does. */
 export function materialAtAny(id, prop, T) {
   for (const { pack, hash } of INSTALLED.values()) if (pack.materials && pack.materials[id]) return { ...materialAt(pack, id, prop, T), hash };

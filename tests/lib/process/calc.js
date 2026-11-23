@@ -10,6 +10,7 @@
  * Every number is only as good as its input: the engines' own review notes (typed constants "not confirmed") come back as Problems.
  */
 import { makeCalcs4 } from './calc4.js';
+import { makeCalcsTreat } from './calc-treat.js';   // CH.35-38 (water-b-11): ASM model picker, digester, membranes, dosing
 const NOTE = 'A calculation aid, not an engineering approval: constants were typed without the standards open and are marked for review.';
 
 export function flatten(obj, { max = 80, prefix = '' } = {}) {
@@ -260,13 +261,37 @@ export const CALCS = [
       const lines = flatten({ worstCase: sc.max }, { max: 20 }); if (sc.averaging) lines.push(...flatten(sc.averaging, { max: 12, prefix: 'averaging' }));
       return { lines, problems: fromEngine(sc.problems).concat([prob('air.review', 'info', D.REVIEW.note), prob('air.notpermit', 'info', 'A screening aid. It is not a permit model and not an engineering approval. AERMOD is not built in this release.')]) };
     } },
-  { id: 'water', group: 'environment', rows: ['CH.20'], title: 'Activated sludge plant, screens, clarifier and disinfection',
-    input: { plant: { tanks: [{ id: 'A1', V: 1000 }, { id: 'A2', V: 1000 }, { id: 'O1', V: 1333, aerated: true, KLa: 240 }, { id: 'O2', V: 1333, aerated: true, KLa: 240 }], Qin: 18446, Qint: 55338, Qr: 18446, Qw: 385, capture: 0.998, influent: { SI: 30, SS: 69.5, XI: 51.2, XS: 202.3, XBH: 28.2, XBA: 0, XP: 0, SO: 0, SNO: 0, SNH: 31.6, SND: 6.9, XND: 10.6, SALK: 7 } },
-      clarifier: { Q: 0.2, A: 400, vs: 0.0003 }, disinfection: { k: 0.2, n: 1, C: 2, t: 30 } },
+  { id: 'water', group: 'environment', rows: ['CH.20', 'CH.33', 'CH.34'], title: 'Activated sludge plant, screens, clarifier and disinfection',
+    // CH.33/34 (water-a-11): the sample is the BSM1 open-loop plant with its 10-layer Takacs settler (`settler: {}` = BSM1's; or { area, height, layers, feedLayer,
+    // params, blanketAt }); `capture` (0..1) instead of `settler` keeps the old clarifier by capture; `T` (C) corrects the ASM1 rates, `soSatFromT` the oxygen saturation
+    input: { plant: { tanks: [{ id: 'A1', V: 1000 }, { id: 'A2', V: 1000 }, { id: 'O1', V: 1333, aerated: true, KLa: 240 }, { id: 'O2', V: 1333, aerated: true, KLa: 240 }, { id: 'O3', V: 1333, aerated: true, KLa: 84 }], Qin: 18446, Qint: 55338, Qr: 18446, Qw: 385, settler: { area: 1500, height: 4, layers: 10, feedLayer: 6 }, T: 15, influent: { SI: 30, SS: 69.5, XI: 51.2, XS: 202.32, XBH: 28.17, XBA: 0, XP: 0, SO: 0, SNO: 0, SNH: 31.56, SND: 6.95, XND: 10.59, SALK: 7 } },
+      clarifier: { Q: 0.2, A: 400, vs: 0.0003 }, disinfection: { k: 0.2, n: 1, C: 2, t: 30 }, site: { depth: 4, gap: 5 } },
     async run(i) {
       const W = await import('./env/water.js'); const r = W.activatedSludge(i.plant), lines = flatten({ converged: r.converged, balances: r.balances, effluent: r.effluent, srt: r.srt }, { max: 40 });
+      if (r.settler) {
+        const s = r.settler, f4 = (v) => +(+v).toPrecision(4);
+        lines.push({ k: 'settler blanket height (m)', v: f4(s.blanket.height) + ' (layers at or above ' + s.blanket.threshold + ' g SS/m3, of ' + s.height + ' m)' }, { k: 'settler effluent TSS (g/m3)', v: f4(s.effluentTSS) },
+          { k: 'settler underflow TSS (g/m3)', v: f4(s.underflowTSS) }, { k: 'settler feed TSS (g/m3)', v: f4(s.feedTSS) }, { k: 'settler surface overflow rate (m/d)', v: f4(s.vup) }, { k: 'settler solids loading (kg/m2/d)', v: f4(s.solidsLoading / 1000) },
+          { k: 'settler profile, bottom to top (g SS/m3)', v: s.layers.map((l) => f4(l.X)).join(', ') });
+        if (r.sludgeAge) lines.push({ k: 'sludge age on biomass, reactors and settler (d)', v: f4(r.sludgeAge.biomass) });
+      }
+      if (r.temperature) lines.push({ k: 'water temperature (C)', v: r.temperature.T }, ...Object.entries(r.temperature.factors).map(([k, f]) => ({ k: 'temperature factor ' + k, v: +f.toPrecision(6) })), { k: 'oxygen saturation used (g/m3)', v: +r.temperature.soSat.toPrecision(6) });
       if (i.clarifier) lines.push(...flatten(W.idealClarifier(i.clarifier), { prefix: 'clarifier' })); if (i.disinfection) lines.push(...flatten(W.chickWatson(i.disinfection), { prefix: 'disinfection' }));
-      return { lines, problems: fromEngine(r.problems).concat([prob('water.review', 'info', W.REVIEW.note)]) };
+      // CH.20 site links (chem-finish-11): the basin footprints for the site plan; `site.depth` is one water depth (m) or { tankId: m }
+      const sp = W.basinPlan(i.plant, { depths: i.site?.depth ?? 4, gap: i.site?.gap ?? 5 });
+      for (const b of sp.basins) lines.push({ k: 'site basin ' + b.id + (b.aerated ? ' (aerated)' : ''), v: +b.area.toPrecision(6) + ' m2, ' + +b.side.toPrecision(4) + ' m square, ' + b.depth + ' m deep' });
+      return { lines, settler: r.settler, basins: sp.basins, geojson: JSON.stringify(sp.geojson), dxf: sp.dxf, problems: fromEngine(r.problems).concat(fromEngine(sp.problems), [prob('water.review', 'info', W.REVIEW.note)]) };
+    } },
+  { id: 'bsm1', group: 'environment', rows: ['CH.39'], title: 'BSM1 benchmark: steady state against the published table',
+    // CH.39 (water-a-11): builds the BSM1 open-loop plant (Alex et al. 2008) and lists every value of its Appendix 4 next to this run, within max(rel x published, abs)
+    input: { tolerance: { rel: 0.001, abs: 0.001 } },
+    async run(i) {
+      const W = await import('./env/water.js'); const r = W.activatedSludge(W.bsm1Plant()), cmp = W.compareBsm1(r, { ...W.BSM1_TOLERANCE, ...(i.tolerance || {}) });
+      const lines = [{ k: 'benchmark values within tolerance', v: cmp.within + ' of ' + cmp.total }, { k: 'tolerance', v: 'max(' + (i.tolerance?.rel ?? W.BSM1_TOLERANCE.rel) * 100 + ' % of the published value, ' + (i.tolerance?.abs ?? W.BSM1_TOLERANCE.abs) + ' g/m3)' },
+        { k: 'largest deviation', v: cmp.worst.what + ': ' + +cmp.worst.ours.toPrecision(7) + ' against ' + cmp.worst.published + ' (' + +(100 * cmp.worst.deviation / cmp.worst.limit).toPrecision(3) + ' % of its limit)' }, { k: 'converged', v: String(r.converged) }];
+      for (const row of cmp.rows) lines.push({ k: row.what, v: +row.ours.toPrecision(6) + ' (published ' + row.published + (row.within ? ')' : ', OUTSIDE the tolerance)') });
+      const problems = cmp.within === cmp.total ? [] : [prob('bsm1.mismatch', 'warning', (cmp.total - cmp.within) + ' published BSM1 values are not reproduced within the tolerance.')];
+      return { lines, problems: problems.concat(fromEngine(r.problems), [prob('bsm1.source', 'info', 'Published values: ' + W.SOURCES.benchmark + '.')]) };
     } },
   { id: 'emissions', group: 'environment', rows: ['CH.21'], title: 'Emissions and carbon per stream and unit',
     input: { thermo: { components: ['methane', 'co2'], model: 'ideal' }, streams: { v: { F: 1, T: 300, P: 101325, z: [0.9, 0.1] } }, units: { H1: { Q: 2e6 } }, tags: { v: 'vent' }, fired: { H1: { fuel: 'natural_gas', efficiency: 0.85 } }, electric: {}, hours: 8000 },
@@ -345,11 +370,14 @@ export const CALCS = [
       return { lines: sn.rows.map((r) => ({ k: r.tag + (r.label ? ' ' + r.label : ''), v: `${+Number(r.raw).toPrecision(5)} ${r.unit} -> ${r.value == null ? '--' : +Number(r.value).toPrecision(6)} SI, ${r.state}` })), problems: fromEngine(sn.problems).concat([prob('historian.note', 'info', H.DISCLAIMER)]) };
     } },
   ...makeCalcs4({ flatten, prob, fromEngine, strip, trendSvg }),   // chem-draw_PART_4: the round-4 engines (calc4.js)
+  ...makeCalcsTreat({ flatten, prob, fromEngine }),                  // 0.11 CH.35-38 water treatment (calc-treat.js)
 ];
 
 export const list = () => CALCS.map(({ id, group, rows, title }) => ({ id, group, rows, title }));
 /** A calculator with a picker (CH.10 fittings): the options to choose from, [{ label, set: { …input fields } }]. null = none. */
 export async function pickerOf(id) {
+  const own = CALCS.find((x) => x.id === id);
+  if (own && typeof own.options === 'function') return own.options();   // a calculator that lists its own choices (CH.35 model picker, CH.36 feeds, CH.38 chemicals)
   if (id !== 'fittingk') return null;
   const F = await import('./equip/fittingk.js'), b = await F.bundled();
   return F.listFittings(b.pack).map((f) => ({ label: '[' + f.method + '] ' + f.label, set: { method: f.method, fitting: f.id } }));

@@ -260,7 +260,7 @@ function moreTools(app, P, findAl) {
           if (Math.abs(q.x) > 1e9 || Math.abs(q.y) > 1e9 || (q.z !== undefined && q.z !== null && Math.abs(q.z) > 1e6)) throw new Error('Point ' + n + ' is too far out to be a coordinate. Nothing was added.');
           add.push({ n, x: q.x, y: q.y, z: q.z ?? null, d: String(q.d || '').replace(/[\u0000-\u001f]/g, ' ') });
         }
-        p.editPoints('Assistant: add points', (all) => all.concat(add));
+        p.editPointTable('Assistant: add points', (ed) => { ed.add(add); });
         app.changed?.();
         return { added: add.map((q) => q.n), total: p.points.length, undo: 'Assistant: add points' };
       },

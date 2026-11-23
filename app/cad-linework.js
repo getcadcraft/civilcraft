@@ -33,6 +33,7 @@
 
 import { t } from './i18n.js';
 import { featureFromCad, CAD_TAG } from './featureline.js';
+import { cross3 as cross } from './geom-vec.js';   // shared helpers (0.11 PERF.74)
 
 const isFeatureLine = (e) => e?.type === 'POLYLINE_3D' && e.xdata?.CADCRAFT?.[0]?.[1] === CAD_TAG;
 /** CivilCraft feature lines written into this drawing (top-level model space only), in project units. */
@@ -98,7 +99,6 @@ export function ocs(ext) {
   if (!L) return null;
   const az = [ext.x / L, ext.y / L, ext.z / L];
   if (Math.abs(az[0]) < 1e-12 && Math.abs(az[1]) < 1e-12 && az[2] > 0) return null;
-  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
   let ax = Math.abs(az[0]) < 1 / 64 && Math.abs(az[1]) < 1 / 64 ? cross([0, 1, 0], az) : cross([0, 0, 1], az);
   const n = Math.hypot(...ax); ax = ax.map((v) => v / n);
   const ay = cross(az, ax);

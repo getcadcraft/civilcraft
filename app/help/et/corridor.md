@@ -1,105 +1,119 @@
 ---
-title: Teekoridori läbimine
-summary: Lülita trassile koridor sisse, määra sõidurea, äärikuala ja külgkalde väärtused ning loe lõiked, piirijooned ja mullatööd, mida see annab.
-keywords: ülekallutus, ülekallutus, kallutamine, üleminek, väljaulatus, määrade tabel, põikkalle, pöörlemine, koridor, koost, alamkoost, tüüplõige, tee, sõidurada, äärik, külgkalle, piirijoon, lõige, täide, lõiked, siht, sihid, laiuse siht, kõrguse siht, nihke siht, laiendus, sõiduteeserv, järgi teist koridori
-from: 91303189
+title: Teekoridori trassi mööda ehitamine
+summary: Lülita trassi jaoks koridor sisse, määra sõidurea, ääriala ja külgnõlvade väärtused ning loe sellest tekkivaid lõikeid, päevavalguse jooni ja pinnasetöid.
+keywords: ristmik, ristumine, tee ja tee kohtumine, kõrvaltee, T-ristmik, ristumine, platvormi kõrgus, ühendamine, sidumine, ülekallutus, ülekallutus, kallutus, üleminek, tasanduspikkus, mõõtetabel, põikkalle, pöörlemine, koridor, koostis, tüüpristlõige, tee, sõidurada, ääriala, põikkalle, külgnõlv, päevavalgus, kaevand, täide, lõiked, sihik, laiussihik, kõrgussihik, nihkesihik, laiendamine, sõiduteekatte serv, teise koridori järgimine
+from: 6dcb92b3
 ---
 
-Koridor läbib trassi ühe lihtsa tüüplõike (koosti) ja selle projekteerimisprofiili, sobitab tulemuse olemasolevasse maapinda ja lisab selle valmis pinnale. Trassil võib olla mitu koridori erinevates jaamavahemikes ning koridor saab koostada korduvkasutatavatest mallidest jaamade kaupa ([Koridori mallid](topic:corridor-templates)). Allpool kirjeldatud lihtne koost on mõlemal küljel sama; et anda igale küljele oma osad, vaata [Ehita iga külg osadest](topic:corridor#build-each-side-from-parts).
+Koridor lõikab ühe lihtsa tüüpristlõike (koostise) mööda trassi ja selle projekteeritud pikiprofiili, planeerib selle olemasoleva maapinna järgi ja lisab tulemuse projekteeritud pinnale. Ühel trassil võib olla mitu koridori erinevatel jaamavahemikel ning koridori saab ehitada korduvkasutatavate mallide järgi jaamade kaupa ([Koridori mallid](topic:corridor-templates)). Allpool olev lihtne koostis on mõlemal pool sama; et igal pool oma osad oleksid, vaata [Ehita iga pool osadest](topic:corridor#build-each-side-from-parts).
 
-## Koost
+## Koostis
 
-Keskjoonest väljapoole, igal küljel:
+Keskjoonest väljapoole, igal pool:
 
-1. **sõiduriba** antud laiusega, langedes teljelt **sõidurea kalde** järgi
-2. **äärik** antud laiusega **äärikukalde** järgi
-3. **külgkalle** äärikuservast kuni maapinnani: **lõikekalle**, kus maapind on kõrgemal, ja **täitekalle**, kus see on madalamal
+1. **sõidurada** antud laiusega, langedes keskjoonest **sõidurea kalde** võrra
+2. **ääriala** antud laiusega **ääriala kalde** järgi
+3. **külgnõlv** ääriala servast kuni maapinnani: **kaevandi nõlv**, kui maapind on kõrgemal, ja **täitenõlv**, kui maapind on madalamal
 
-Algväärtused on kohatäitjad, mitte projekteerimisstandard:
+Algväärtused on kohatäited, mitte projekteerimisnorm:
 
-| Väärtus | USA jalgades | Meetrites |
+| Väärtus | US feet | Meetrid |
 |---|---|---|
-| Sõiduraja laius | 12 ft | 3.6 m |
+| Sõidurea laius | 12 ft | 3.6 m |
 | Sõidurea kalle | 2% | 2% |
-| Äärikulaius | 4 ft | 1.2 m |
-| Äärikukalle | 4% | 4% |
-| Lõikekalle | 2 : 1 | 2 : 1 |
-| Täitekalle | 3 : 1 | 3 : 1 |
+| Ääriala laius | 4 ft | 1.2 m |
+| Ääriala kalle | 4% | 4% |
+| Kaevandi nõlv | 2 : 1 | 2 : 1 |
+| Täitenõlv | 3 : 1 | 3 : 1 |
 | Lõige iga | 10 ft | 5 m |
 
-Külgkallete kallded on horisontaalne vertikaalse suhtes (H:V): 3 : 1 tähendab 3 ühikut horisontaalselt 1 ühiku kohta vertikaalselt.
+Külgnõlvade kalded on horisontaalsed ja vertikaalsed (H:V): 3 : 1 tähendab 3 ühikut horisontaalselt 1 vertikaalse ühiku kohta.
 
-## Koridori koostamine
+## Koridori ehitamine
 
-Vajad trassi ilma vigadeta ja projekteerimisprofiili, millel on vähemalt kaks PVI-d ja ükski viga.
+Vajad vigadeta trassi ja projekteeritud pikiprofiili, millel on vähemalt kaks PVI-d ja ei ole vigu.
 
 1. Vali trass.
-2. Parempoolses paneelis jaotises **Koridor** märgi ära **Pühi koost mööda projekteerimisprofiili**.
-   Väljad ilmuvad ja koridor koostatakse kohe. Plaanil on näha sõidurea ja äärikuga piirid ning piirijooned; kui jaotises **Kuva** on valitud {{ui:Projekteeritud (planeeritud)}}, näitavad samakõrgusjooned uut maapinda.
-3. Muuda mis tahes väärtust: **Sõiduraja laius**, **Sõidurea kalle**, **Äärikulaius**, **Äärikukalle**, **Lõikekalle**, **Täitekalle**, **Lõige iga**. Vajuta iga järel {{key:Enter}}. Lõikekalle, täitekalle ja lõigete vahe peavad olema suuremad kui 0.
-4. Loe väljade all olevat rida, näiteks „39 lõiget jaamast 0+00.00 kuni 3+86.36; lõige 240.2 cu yd, täide 556.0 cu yd.“
+2. Paremas paneelis jaotises **Koridor** märgi **Pühi koost mööda projekteeritud pikiprofiili**. Väljad ilmuvad ja koridor ehitatakse kohe. Plaanil näed sõidurea ja ääriala servi ning päevavalguse jooni; kui jaotises **Kuva** on valitud {{ui:Projekteeritud (planeeritud)}}, näitavad kõrgusjooned uut maapinda.
+3. Muuda mis tahes väärtust: **Sõidurea laius**, **Sõidurea kalle**, **Ääriala laius**, **Ääriala kalle**, **Kaevandi nõlv**, **Täitenõlv**, **Lõige iga**. Pärast igat vajuta {{key:Enter}}. Kaevandi nõlv, täitenõlv ja lõigu samm peavad olema suuremad kui 0.
+4. Loe väljade all olevat rida, näiteks „39 lõiget jaamast 0+00.00 kuni jaamani 3+86.36; kaevand 240.2 cu yd, täide 556.0 cu yd.“
 
-Lõiked tehakse igal **Lõige iga** sammul, otstes ning iga horisontaal- ja vertikaalkõvera alguses ja lõpus. Iga lõige ja neid läbivad jooned (keskjoon, sõiduraja ja äärikuservad, piirijoon) muutuvad valmis pinna murdejoonteks.
+Lõiked lõigatakse igal **Lõige iga** sammul, otstes ning iga horisontaal- ja vertikaalkõvera alguses ja lõpus. Iga lõige ja neid läbivad jooned (keskjoon, sõidurea ja ääriala servad, päevavalgus) saavad projekteeritud pinna murdjoonteks.
 
-Koridori väljalülitamiseks eemalda märge. Väärtused jäävad järgmiseks korraks alles.
+Koridori väljalülitamiseks eemalda märge. Selle väärtused jäävad järgmiseks korraks alles.
 
-## Kui see ei koostu
+## Kui see ei ehitu
 
-Väljade all olev punane kast ütleb, miks:
+Punane kast väljade all ütleb, miks:
 
 | Teade | Mida teha |
 |---|---|
-| „Koridor vajab projekteerimisprofiili ilma vigadeta.“ | Lisa PVI-sid või paranda kattuvad vertikaalkõverad (vaata [Vertikaalprofiili projekteerimine](topic:profile)). |
-| „Projekteerimisprofiil ei kattu trassiga.“ | Liiguta PVI-d trassi jaamavahemikule. |
+| „Koridor vajab vigadeta projekteeritud pikiprofiili.“ | Lisa PVI-d või paranda kattuvad vertikaalkõverad (vt [Projekteeritud pikiprofiili koostamine](topic:profile)). |
+| „Projekteeritud pikiprofiil ei kattu trassiga.“ | Liiguta PVI-d trassi jaamavahemikule. |
 | „Koridor vajab pinnal vähemalt kahte lõiget.“ | Suurem osa koridorist on olemasolevast maapinnast väljas. |
-| „4 külgkallet ulatuvad pinnast välja enne maapinnaga kohtumist.“ | Pinna servas ei jõua kalle maapinnani. Hoia tee pinna servast eemal või langeta sel kohal täite või lõike kõrgust. |
-| „Koridori piirijooned ristuvad (lõiked kattuvad, näiteks tihedalt kõvera sisepoolel). Kasuta suuremat raadiust või kitsamat koosti.“ | Terava kõvera sisepoolel olevad lõiked kattuvad. Suurenda raadiust või kitsenda koosti. |
+| „4 külgnõlva jooksevad pinnast välja enne maapinnani jõudmist.“ | Pinna servas ei jõua nõlv maapinnani. Hoia tee pinna servast eemal või langeta seal täite- või kaevandikõrgust. |
+| „Koridori päevavalgusjooned ristuvad (lõiked kattuvad, näiteks terava kõvera sisemisel küljel). Kasuta suuremat raadiust või kitsamat koostist.“ | Terava kõvera sisemise külje lõiked kattuvad. Suurenda raadiust või kitsenda koostist. |
 
-Koridor, millel on probleem, ei lähe pinda ega loe mullatöödesse.
+Probleemiga koridori ei planeerita sisse ega arvata pinnasetöödesse.
 
-## Koridorid ja platsid koos
+## Koridorid ja platvormid koos
 
-Projekteeritud pind koostatakse järjekorras: kõigepealt kõik koridorid, siis kõik platsid. Kui platsi kujundus kattub koridoriga, võidab plats. Mahud arvutatakse kõigi piirijoonte sees koos; vaata [Mullatöömahud](topic:volumes).
+Projekteeritud pind ehitatakse järjekorras: esmalt kõik koridorid, seejärel kõik platvormid. Kui platvormi planeering kattub koridoriga, võidab platvorm. Kui hilisem objekt kattub teega, asendatakse tee osast ainult see, mis jääb hilisema objekti päevavalgusjoone sisse; ülejäänud tee ja iga maapinna murdjoon, mida tee läbib, säilitavad oma kuju. Mahud arvutatakse kõigi päevavalgusjoonte sees koos; vt [Pinnasetöömahud](topic:volumes).
 
 ## Ülekallutus
 
-Kõvera läbimisel võib tee kalduda sissepoole, nii et liiklust surutakse väljapoole vähem. Märgi jaotises **Ülekallutus** trassi **Omadustes** märge **Kalluta kõverad**:
+Kõvera läbimisel võib tee kalduda sisepoole, nii et liiklust surutakse väljapoole vähem. Märgi trassi **Atribuutides** jaotises **Ülekallutus** märge **Ülekalluta kõverad**:
 
-- Iga ringkõver võtab määrade tabelist kiiruse **e**: esimese rea, mille raadiusesse kõver ulatub (tühja määraga rida jätab tavalise sõiduteekalde). Tabel ja **Maksimaalne suhteline kalle** (algväärtus 0.5 %) on kohatäitjad, mitte standard: määra need oma projekteerimiskriteeriumide järgi. Lisa või eemalda ridu, kui vaja.
-- Sõidurajad pöörlevad keskjoone ümber. Enne kõverat lameneb väliskülgriba üle **väljajooksu** (normaalne sõiduteekalle ÷ e × üleminek), seejärel üle **ülemineku** (sõiduraja laius × e ÷ kalle) keerab väliskülgriba edasi, kuni kogu tee kaldub kiirusega e sissepoole; kaks kolmandikku üleminekust jääb enne kõverat ja üks kolmandik sellele. Pärast kõverat toimub sama vastupidises järjekorras.
-- Madalal küljel olev äärik ei ole kunagi lamedam kui oma sõidurada; kõrgel küljel säilitab ta oma kalde (see veereb üle).
-- Selle all olev tabel loetleb iga kõvera raadiuse, määra, ülemineku ja väljajooksu ning kohad, kus täis ülekallutus algab ja lõpeb. **Ülekallutuse diagramm** joonistab mõlema sõidurea põikkalded jaamade kaupa (vasak sõidurada tahkjoonega, parem katkendjoonega).
-- Liiga lühike kõver, et jõuda täieliku ülekallutuseni, või kaks kõverat, mille üleminekud kattuvad, on öeldud kasti kujul tabeli kohal.
+- Iga ringkõver saab mõõtetabelist määra **e**: esimese rea, mille raadiuse kõver ulatub (rida tühja määraga säilitab tavapärase kumeruse). Tabel ja **Maksimaalne suhteline kalle** (algselt 0.5 %) on kohatäited, mitte standard: määra need oma projekteerimisnõuete järgi. Lisa või eemalda ridu vastavalt vajadusele.
+- Sõidurajad pöörlevad keskjoone ümber. Enne kõverat lameneb väljapoolne sõidurada üle **tasanduspikkuse** (tavapärane kumerus ÷ e × üleminek), seejärel üle **ülemineku** (sõidurea laius × e ÷ kalle) pöördub väljapoolne sõidurada edasi, kuni kogu tee kaldub e võrra sisepoole; kaks kolmandikku ülemineku pikkusest jääb enne kõverat ja üks kolmandik kõvera peale. Pärast kõverat toimub sama vastupidises järjekorras.
+- Madalal poolel olev ääriala ei ole kunagi lamedam kui oma sõidurada; kõrgemal poolel säilitab ta oma kalde (ta veereb üle).
+- Selle all olev tabel loetleb iga kõvera raadiuse, määra, ülemineku ja tasanduspikkuse ning kohad, kus täielik ülekallutus algab ja lõpeb. **Ülekallutuse diagramm** joonistab mõlema sõidurea ristkalded jaamade kaupa (vasak sõidurada tahkjoonena, parem katkendjoonena).
+- Liiga lühike kõver täieliku ülekallutuse saavutamiseks või kaks kõverat, mille üleminekud kattuvad, on öeldud kastis tabeli kohal.
 
 Lõiked, mahud, 3D-vaade ja joonised näitavad kõik kallutatud teed. Iga muudatus on üks samm: {{key:Mod+Z}} võtab selle tagasi.
 
-## Sihid
+## Sihikud
 
-Sihk liigutab tee ühe külje ühte punkti joonele: **Sõiduteeserv** või **Äärikuserv**, **Vasakul** või **Paremal**. Iga lõige kohtub joonega ristiselt keskjoonega, minnes väljapoole ainult sel küljel, nii et parema külje siht ei liiguta kunagi vasakut külge.
+Sihik viib tee ühe külje ühe punkti joonele: **Sõiduteekatte serv** või **Ääriala serv**, **Vasakul** või **Paremal**. Iga lõige kohtub joonega risti keskjoonega, minnes välja ainult sel küljel, nii et parema poole sihik ei liiguta kunagi vasakut külge.
 
-| Seab | Mis juhtub kohas, kus lõige kohtub joonega |
+| Määrab | Mis juhtub, kui lõige kohtub joonega |
 |---|---|
-| **Laius** | Punkt asub joonel: sõiduriba (või äärik) laieneb või kitseneb sinnani, säilitades oma põikkalde. |
-| **Kõrgus** | Punkt võtab seal joone kõrguse oma nihkel; sõiduraja (või äärikuala) põikkalle järgib seda. |
+| **Laius** | Punkt asub joonel: sõidurada (või ääriala) laieneb või kitseneb sinnani, säilitades oma ristkalde. |
+| **Kõrgus** | Punkt võtab sealsel joonel kõrguse oma nihkel: sõidurea (või ääriala) ristkalle järgib seda. |
 
-Joon võib olla tunnusjoon (mis tahes oma **Kasutuse** järgi) või teise koridori joon: selle keskjoon, sõiduteeservad, äärikuservad või piirijooned. Koridori joon järgib seda koridori: muuda teist teed ja see tee järgib. CivilCraft koostab enne teise koridori; kaks koridori, mis sihiksid üksteist ringis, keeldutakse ühel küljel ja tabel ütleb, milline.
+Joon võib olla tunnusjoon (mis tahes oma **Kasutusega**) või teise koridori joon: selle keskjoon, sõiduteekatte servad, ääriala servad või päevavalgusjooned. Koridori joon järgib seda koridori: muuda teist teed ja see järgib. CivilCraft ehitab esmalt teise koridori; kaks koridori, mis sihiksid teineteist ringis, lükatakse ühel küljel tagasi ja tabel ütleb, kumb.
 
 1. Vali trass ja lülita selle koridor sisse.
-2. Jaotises **Sihid** klõpsa {{ui:Lisa siht}}.
-3. Vali **Pool**, **Punkt**, mida see **Seab**, ja **Joon**, millele see **Joonele**. Iga muudatus on üks võtmistagasi samm.
+2. Jaotises **Sihikud** klõpsa {{ui:Lisa sihik}}.
+3. Vali **Pool**, **Punkt**, mida ta **Määrab** ja **Joonele**. Iga muudatus on üks tagasivõtmise samm.
 
-**Tulemus** ütleb, mitmel lõikel joon saavutati. Lõiked, mis joonele ei jõua (joone otsadest mööda või kohas, kus see on keskjoonest taga), säilitavad koosti väärtused. Kustutatud joon jätab koridori sellisesse seisu, nagu see oli enne sihti, ja tabel ütleb seda. Ühel küljel võib igale punktile olla üks laiuse siht ja üks kõrguse siht.
+**Tulemus** ütleb, mitmel lõikel joonele jõuti. Lõiked, mis joonele ei jõua (selle otstest mööda või seal, kus see on keskjoonest taga), säilitavad koostise väärtused. Kustutatud joon jätab koridori sellisena nagu enne sihikut ja tabel ütleb seda. Ühel küljel võib olla iga punkti kohta üks laiussihik ja üks kõrgussihik.
 
-## Koosta iga külg osadest
+## Iga pool osadest
 
-Lülita koridori seadete all sisse **Koosta iga külg osadest**. Iga küljel on siis oma loend keskjoonest väljapoole: sõidurajad, äärik, kraav, bordüür, haljasriba, kõnnitee ja viimasena külgkalle maapinnani (oma lõike- ja täitesuhetega). Alusta {{ui:Maantee}} või {{ui:Linnatänav}}; lisa ja eemalda osi, teisalda neid nooltega ning {{ui:Kopeeri}} üks külg teisele. Iga muudatus on üks võtmistagasi samm.
+Lülita koridori seadistuste all sisse **Ehita iga pool osadest**. Iga poolel on siis oma loend keskjoonest väljapoole: sõidurajad, ääriala, vihmaveerenn, äärekivi, haljasriba, kõnnitee ja viimasena külgnõlv maapinnani (oma kaevandi- ja täitekordajatega). Alusta jaotisest {{ui:Maantee}} või {{ui:Linnatänav}}, lisa ja eemalda osi, liiguta neid nooltega ning {{ui:Kopeeri}} ühe poole teisele. Iga muudatus on üks tagasivõtmise samm.
 
-Põikkalle on kalle tee eemale, nii et kõnnitee, mis kallutab tee poole, on negatiivne. Bordüür on antud kõrgusega nägu, antud laiusega pealispind ja valikuline langus tagaküljel. Ülekallutus pöörab kõiki sõidurradu esimeses reas; rennkivi, bordüür, riba ja kõnnitee rippuvad valmis sõiduradade servast. Siht liigutab ikka sõiduradade lõppu ja viimast osa. Ristlõigetel on märgitud rennkivi voolujoon, bordüüri ülaosa ja tagakülg ning muu. Kõveral, kus on üleminekukõverad, on üleminek spiraal: tasane kalle TS-il, täielik ülekallutus SC-l.
+Ristkalle on kalle tee eemale, nii et tee suunas kallutav kõnnitee on negatiivne. Äärekivi on antud kõrgusega tahk, antud laiusega pealispind ja valikuline tagumine langus. Ülekallutus pöörab kõik sõidurajad esimeses reas; vihmaveerenn, äärekivi, haljasriba ja kõnnitee rippuvad ehitatud sõidurea servast. Sihikud liigutavad ikka veel sõiduridade lõppu ja viimast osa. Ristlõiked märgivad vihmaveerenni voolujoont, äärekivi pealis- ja tagaserva ning ülejäänu. Kõveral, kus on spiraalid, on üleminek spiraal: tasane kumerus TS-punktis, täielik ülekallutus SC-punktis.
 
-## Sõiduteekihid
+## Katendi kihid
 
-Sõiduraja, äärikut, rennkivi, haljasriba või kõnnitee saab varustada oma konstruktsiooniga: osa all klõpsa {{ui:Lisa kiht}}, et lisada kiht nime, materjali, paksuse ja liigiga (pealmine, sidekiht, alus, aluskiht, katte alus või muu), ülevalt alla. Kihid ei liiguta tee pinda (selle ülaosa on projekteeritud pind); iga kiht asub oma osa all ja selle sügavus mõõdetakse otse allapoole. Ristlõigetel joonistatakse iga kihi alumine serv katkendjoonena ja {{ui:Sõidutee kihid: kogused}} loetleb iga kihi plaanipindala ja mahu (pindala koridori kaudu oma lõigetest, maht = pindala × paksus). IFC-eksport kirjutab iga kihi oma elemendina koos paksuse ja materjaliga (vaata [IFC-eksport ja -import](topic:ifc)). Paksus, mille sisestad, on sinu oma: CivilCraft ei dimensioneeri sõiduteid.
+Sõidurajal, ääriala, vihmaveerennil, haljasribal või kõnniteel võib olla oma kihtide kiht: osa all {{ui:Lisa kiht}} lisab kihi nime, materjali, paksuse ja liigi (pealmine, sidekiht, alus, alusealus, kaitsekiht või muu), ülevalt alla. Kihid ei nihuta tee pinda (selle pealispind on projekteeritud pind); iga kiht asub oma osa all ja selle sügavus mõõdetakse otse allapoole. Ristlõiked joonistavad iga kihi alumise serva katkendjoonena ja {{ui:Sõidutee kihid: kogused}} loetleb iga kihi plaanipinna ja mahu (pindala mööda koridori tema lõigetest, maht = pindala × paksus). IFC eksport kirjutab iga kihi oma elemendina koos paksuse ja materjaliga (vt [IFC eksport ja import](topic:ifc)). Paksus, mille sisestad, on sinu: CivilCraft ei dimensioneeri katendeid.
 
-## Mida ei ole veel koostatud
+## Kus teed kohtuvad teede, platvormide ja radadega
 
-Päevavalguse kalde sihid ei ole veel saadaval. Koridori puhul, mis muutub mööda teed ning kus vasak ja parem on eraldi, kasuta [Koridori malle](topic:corridor-templates). Vaata [Pole veel koostatud](topic:not-built-yet).
+Kui {{ui:Ühenda teed ja platvormid, millega see kohtub}} on sees (see on sees iga koridori puhul), ühendab CivilCraft koridori sellega, millega ta plaanil kohtub:
+
+- **Tee, mis lõpeb teisel teel** (selle trassi lõpp jääb teisele teele või umbes poole oma sõiduteekatte laiuse piiresse selle tee servast) on ristmiku kõrvaltee. Tee, millega ta kohtub, avab oma serva kõrvaltee sõiduteekatte jaoks: suudme ulatuses paigutatakse ääriala, äärekivi, riba ja kõnnitee sõidurea ristkalde järgi ning joonistatakse katendina. Kõrvatee paigutatakse peamise tee pinnale seal, kus nad kattuvad, ja tõstetakse või lastakse lähenemisel sellele järele.
+- **Kaks ristuvat teed** ühendatakse mõlemal küljel samamoodi. Tee, mis on trasside loendis esimesena, on läbiv tee; teine järgib selle pinda üle ristumise.
+- **Tee, mis lõpeb platvormil** (selle sees või umbes poole sõiduteekatte laiuse piires selle servast), jõuab platvormi tasemele ja lastakse sellele lähenemisel järele.
+- **Rada** (Haljastus › Kõvad pinnad) peatub tee välisserval, sama kõrguse juures, mis on seal kõnnitee või ääriala tase, selle asemel et lasta sellel tee peal olla. Rada, mis ristub teega, muutub kaheks tükiks. Lõpp, mis on joonistatud veidi lühikeseks teest (raja laiuse kahekordses kauguses), viiakse tee servani.
+
+Atribuudid ütlevad, mida iga koridor ühendas, kui palju seal tõsteti või langetati ja mis pikkusel. See pikkus on suurem kahest: 10 m (30 ft) ja kakskümmend korda muutus, ega ole kunagi rohkem kui 45% koridorist. **Projekteeritud pikiprofiili ei muudeta**: pikiprofiilivaade näitab endiselt joonistatud kalde joont, aga lõiked, projekteeritud pind, mahud ja 3D-vaade näitavad teed nii, nagu see on ühendatud. Et ühendus oleks projektis täpne, liiguta viimane PVI tasemele, mille atribuudid näitavad.
+
+Lülita koridori lüliti välja, et jätta see täpselt sellisena, nagu tema profiil ja koostis ütlevad; siis ei võta ta osa ühestki ristmikust, ei kõrvateena ega läbiva teena. Peaaegu ühel joonel kohtuvad teed (alla umbes 20°) jäetakse puutumata, nagu ka rajad.
+
+Mida ristmik veel ei tee: nurgakõveraid ei ole (nurgad on ristkülikukujulised), pöörderadu ja saari ei ole, kõrvatee lõpp lõigatakse ristkülikuna oma trassi suhtes ning malli järgi ehitatud koridor avab oma serva samuti lihtsalt (ots, kraav või sein, mis on lõpus, tasandatakse suudme ulatuses, ilma kulvertita). Plaani nurgakõverate, nähtavuskolmnurkade ja markeeringute kohta vt [Pinnased, teed, mõõdistus, kaevandused ja lingid](topic:soils-roads-survey-mines-links).
+
+## Veel valmimata
+
+Päevavalguse nõlva sihikud pole veel saadaval. Koridori puhul, mis muutub mööda teed, vasaku ja parema küljega eraldi, kasuta [Koridori mallid](topic:corridor-templates). Vt [Veel valmis pole](topic:not-built-yet).

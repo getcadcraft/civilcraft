@@ -1,51 +1,53 @@
 ---
-title: Ukufakwa kwamatshe, udonga nezitebhisi
-summary: Ukufakwa kwamatshe okunokwehla kudreni noma ukwehla okuphambene, iphethini nesakhiwo sayo; izindlela ezilandela umhlaba; udonga lokubamba nodonga oluzimele olunezisekelo ezinezinyathelo; amakhabhu; amarampu nezitebhisi ezihlolwa ngemikhawulo yazo; ukuphuma kwe-IFC.
-keywords: izakhiwo ezinzima zangaphandle, ukufakwa kwamatshe, amatshe okufaka, ipatio, iterasi, ukwehla, udreni, ukwehla okuphambene, iherringbone, indlela, umzila wokuhamba, udonga lokubamba, udonga lwasegadini, isisekelo, ikhaphu, ikhabhu, umphetho, irampu, ukufinyelela, izitebhisi, izinyathelo, izindawo zokuma, isiteji
-from: 51475877
+title: Ukufaka amatshe, izindonga nezinyathelo
+summary: Ukufaka amatshe anokwehla emgodini noma ukuthambeka okuqondile, iphethini nesakhiwo sawo; izindlela ezilandela umhlaba; izindonga zokubamba nezimile ezinezisekelo ezinyathelo; amakherbhu; amarempu nezinyathelo ezihlolwa ngemikhawulo yazo; i-IFC ephumayo.
+keywords: hardscape, ukufaka amatshe, amatshe, isitebhisi, ukwehla, umgodi, crossfall, herringbone, stretcher bond, indlela, indlela yabahambi, udonga lokubamba, udonga lwegadi, isisekelo sodonga, ukumbozwa, ikherbhu, kerb, curb, ukuhlobisa emaphethelweni, irempu, ukufinyelela, izinyathelo, izinyathelo ezithile, isiteshi sokuphumula
+from: d34b4466
 ---
 
-Izakhiwo ezinzima zangaphandle ziyabalwa kabusha ngomhlaba njalo, ngakho zilandela ubuso bomhlaba futhi ziyavuselelwa lapho umhlaba noma umugqa wawo unyakaza. Hudula amakhona awo epulanini njengomugqa wanoma yimuphi. Vula ngomyalo {{ui:Hardscape}} eqenjini le-Landscape.
+Hardscape ibalwa kabusha ngomhlaba njalo, ngakho ilandela ubuso bomhlaba futhi ivuselelwe lapho umhlaba noma umugqa wawo unyakaza. Hudula amagumbi awo epulani njengomugqa wanoma yimuphi. Vula kusuka ku-{{ui:Hardscape}} eqenjini le-Landscape.
 
-## Ukufakwa kwamatshe
+## Ukufaka amatshe
 
-Chofoza amakhona bese ucindezela {{key:Enter}}. Ku-Properties:
+Chofoza amagumbi bese ucindezela {{key:Enter}}. Ku-Izici:
 
-- **Izinga**: ingenalutho = ingxube yomhlaba ngaphansi kwawo.
-- **Ukwehla**: izinga, **ukwehla okuphambene** (% ngaqondile othile) noma **udreni**: i-CivilCraft ikubuza ukuthi uchofoze lapho udreni ufika khona, bese yonke ikhona iphakama ivela kudreni ngokwehla. Imicibisholo epulanini ibonisa ukwehla.
-- **Iphethini** (igridi, ibhondi yomugqa, iherringbone) nosayizi weyunithi, ukuhlangana kanye ne-engeli; **Umphetho** ububanzi. Esheethini, izixhumi ezisondele kunomillimitha eyodwa ziyasuswa.
-- Ukufakwa kwamatshe kuyingxenye yomphezulu ohlongozwayo. Izendlalelo zakho (amatshe okufaka, ukubeka, isisekelo) zingena ku-IFC nasezilinganisweni.
+- **Izinga**: kungenalutho = isilinganiso somhlaba ngaphansi kwawo.
+- **Ukwehla**: izinga elilinganayo, **ukwehla okuqondile** (i-% ngokuya ohlangothini oluthile) noma **emgodini**: i-CivilCraft ikucela ukuthi uchofoze lapho umgodi uyokwenza khona, bese igagulu ngalinye likhuphuka emgodini ngokwehla. Imicibisholo epulani ikhombisa ukwehla.
+- **Iphethini** (igridi, stretcher bond, herringbone) kanye nosayizi weyunithi, ukuhlangana kanye nengosi; **Ukuhlobisa emaphethelweni** ububanzi. Ephepheni, okuhlangene okungaphansi kwemilimitha eyodwa kuyasuswa.
+- Ukufakwa kwamatshe kuyingxenye yomphezulu owuhlongozwayo. Izingqimba zakho (amatshe, ukubekwa, isisekelo) ziya ku-IFC nakuzibalo.
 
 ## Izindlela
 
-Chofoza ngasemgqeni wendlela bese ucindezela {{key:Enter}}. Ilandela umhlaba, ngokwehla kwayo **Ukwehla okuphambene** ngohlangothi lwayo lwesokudla. Indlela ethambeke kakhulu kunobuningi **Okuthambeka okukhulu okuvunyelwe** ifakwa `!` epulanini lapho ikhona, futhi i-Properties ithi ithambeka kangakanani.
+Chofoza ngakho konke ukuya ezansi kwendlela bese ucindezela {{key:Enter}}. Ilandela umhlaba, nokwehla kwayo okuqondile kuya ngakwesokudla. Indlela ethe xaxa kunalokho **Okuvunyelwe ukuthamba kakhulu** imakwa ngu-`!` epulani lapho yenza khona, kanti izici zitshela ukuthi iyathamba kangakanani.
+
+Lapho indlela ihlangana nomgwaqo owakhiwe yikhoridoro iyame emphethweni wangaphandle womgwaqo, ezingeni lendlela yabahambi noma leshoulder lapho, emphumeleni womphezulu owuhlongozwayo nasekubukweni kwe-3D. Indlela edlula umgwaqo iyaqinisekiswa futhi ibonakale njengezingxenye ezimbili, nendonga eqedwa ngaphansi kwamaphindwe amabili obubanzi bendlela iyaqhubeka kuze kufike emphethweni wayo. Ipulani likhombisa indlela njengoba uyidwetshe, kanti ubude nendawo yayo kubala umugqa wonke. Bheka [Hambisa ikhoridoro lomgwaqo](topic:corridor).
 
 ## Izindonga
 
-Chofoza ngasemgqeni wodonga bese ucindezela {{key:Enter}}. Udonga luba **lokubamba** noma **oluzimele**. Ngaphandle kwe-**Phezulu**, lumi phezu komhlaba ngobude bayo **Ukuphakama** lonke; thayipha izinga eliphezulu ukuze ulibambe lilingene. Isisekelo sawo sihlala ngokujulile okuthile ngaphansi komhlaba futhi siwehla ngezinyathelo ezigcwele, ngakho sisala silingene phakathi kwazo. Ama-Properties azinikeza ubude bodonga, ukuphakama, indawo yobuso kanye nezinyathelo zesisekelo; ipulani ibhala phezulu nangaphansi kodonga (TW / BW) ekugcineni ngakunye.
+Chofoza ngakho konke udonga bese ucindezela {{key:Enter}}. Udonga luba **lokubamba** noma **lokuma bodwa**. Ngaphandle kwe-**Phezulu**, lime phezu komhlaba ngobude be-**Ukuphakama** lonke; faka phezulu ukuze uyibambe ilingane. Isisekelo sayo sihlala ngaphansi komhlaba ngokujula okuthile futhi sehla ngezinyathelo eziphelele, ngakho ihlala ilingana phakathi kwawo. Izici zinikeza ubude bayo, ukuphakama, indawo yobuso kanye nezinyathelo zesisekelo; ipulani ibhala phezulu nangaphansi kodonga (TW / BW) emaphethelweni ngamaphethelo ngamaphethelo.
 
 :::warning
-Udonga lokubamba oluphakeme kunama-1.2 m (4 ft) luyamaka: unjiniyela yiwo owuklamayo.
+Udonga lokubamba oludlula u-1.2 m (4 ft) luyamakwa: umhlaziyi kufanele awuklame.
 :::
 
-## Amakhabhu
+## Amakherbhu
 
-Chofoza ngasemgqeni wekhabhu bese ucindezela {{key:Enter}}; setha ububanzi bayo kanye nokuphakama kwayo okungaphezulu.
+Chofoza ngakho konke ikherbhu bese ucindezela {{key:Enter}}; setha ububanzi nokuphakama kwayo.
 
-## Amarampu
+## Amarempu
 
-Chofoza kusuka phansi kuya phezulu bese ucindezela {{key:Enter}}. Amazinga athathwa emhlabeni ngasemakhoneni ngamunye uma ungawathayipha. Irampu ithola isiteji njalo ngokukhuphuka okungu-750 mm (2.5 ft) futhi ihlolwa ngokuthi **Okuthambeka okukhulu okuvunyelwe** (1:12 ekuqaleni) nangobubanzi obuncane kakhulu; ama-Properties athi ingadingeka ibe nobude obuphi.
+Chofoza kusuka phansi kuya phezulu bese ucindezela {{key:Enter}}. Amazinga athatha umhlaba kuleso sigaba ngasinye ngaphandle uma uwathayipha. Irempu lithola ibhalansi njalo lapho kukhuphuka i-750 mm (2.5 ft) futhi lihlolwa ngokuthi **Okuvunyelwe ukuthamba kakhulu** (1:12 ukuqala) nangobubanzi obuncane; izici zitshela ukuthi kuyodingeka ubude obungakanani.
 
-## Izitebhisi
+## Izinyathelo
 
-Chofoza ngasemphethweni wangaphambili wesinyathelo esiphansi, bese uchofoza lapho izitebhisi zifika phezulu, bese ucindezela {{key:Enter}}. Inani lezinyathelo lithathwa ngokuphakama kanye ne-**Isinyathelo esikhulu kakhulu**; ububanzi bokunyathela buthathwa ngomthetho wokuthokoza 2R + G ≈ 630 mm, ungaphansi kwe-**Ububanzi obuncane bokunyathela** ngokuphelele; isiteji ngasinye **Izinyathelo ngesihlahla esiphezulu**. Ama-Properties athi zilingana yini phakathi kwamaphoyinti amabili noma zidinga kangakanani ubude obengeziwe.
+Chofoza ngaphambili kwenyathelo lokuqala, bese ukhuphuka kuze kufike phezulu, bese ucindezela {{key:Enter}}. Inani lamarayisa lithathwa ekuphakameni nasekuthi **Irayisa elikhulu kakhulu**; ukuhamba kuthathwa ekumelaneni 2R + G ≈ 630 mm, ungaze wehle ngaphansi kwe-**Ukuhamba okuncane kakhulu**; ibhalansi njalo lapho **Amarayisa ngaphezulu kwesikhwama ngamunye**. Izici zitshela ukuthi azilingani phakathi kwamaphuzu amabili yini noma kumele zibe mude kangakanani.
 
 :::note
-Imikhawulo yamarampu nezitebhisi ngamanani ajwayelekile amakiwe. Setha alawo ikhodi yakho yokwakha ayidingayo.
+Imikhawulo yamarempu nezinyathelo ilebula njengezivamile. Setha leyo ikhodi yakho yokwakha iyidingayo.
 :::
 
 ## Ngaphandle kwe-CivilCraft
 
-- Okuningi › {{ui:Export landscape IFC}}: ukufakwa kwamatshe nezindlela njenge-`IfcPavement`, izindonga njenge-`IfcWall` (izindonga zokubamba njenge-RETAININGWALL) nezendlalelo zazo, amakhabhu njenge-`IfcKerb`, amarampu njenge-`IfcRamp`, nezitebhisi njenge-`IfcStair` nezinyathelo zazo nezindawo zokuma.
-- **Thumela ku-TakeoffCraft** kuhlu lwezitshalo kuthwala izindawo zokufakwa kwamatshe namavolumu ezendlalelo, izindawo zobuso bodonga nobude, ubude bamakhabhu kanye nenani lezitebhisi.
-- Ishidi lemininingwane lidweba isigaba sodonga ngasinye, isakhiwo sokufakwa ngakunye kanye nesitebhisi ngasinye. Bona [Amashidi wezitshalo](topic:landscape-sheets).
+- Okuningi › {{ui:Thumela i-IFC yesikhala sangaphandle}}: ukufakwa kwamatshe nezindlela njenge-`IfcPavement`, izindonga njenge-`IfcWall` (izindonga zokubamba njenge-RETAININGWALL) nezingqimba zazo, amakherbhu njenge-`IfcKerb`, amarempu njenge-`IfcRamp`, izinyathelo njenge-`IfcStair` nezinyathelo zazo namatreyd.
+- I-**Thumela ku-TakeoffCraft** ye-plant schedule ithwala izindawo zokufaka amatshe nevolumu yezingqimba, izindawo zobuso bodonga nobude, ubude bamakherbhu nenani lezinyathelo.
+- Ishidi lemininingwane likhombisa isigaba sodonga ngasinye, ukwakheka kokufaka ngakunye namafulaythi ezinyathelo ngalinye. Bheka [Amashidi e-Landscape](topic:landscape-sheets).

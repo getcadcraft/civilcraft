@@ -95,7 +95,7 @@ export function defaults(ruleId = DEFAULT_RULE) {
   return {
     gen: 1, rule: ru.id, dir: 0, rise: 3000, run: 0, width: 1000, treadType: 'folded', stringer: 'C10x15.3', material: 'A36',
     tread: { t: 4, nosing: 25, fold: 40, bolt: 12, barDepth: 25, barT: 5, barPitch: 30 },
-    fix: 'auto', landings: -1, landingDepth: 0, landingPosts: true, postSection: 'HSS4x4x1/4', crossSection: 'L3x3x1/4',
+    fix: 'auto', endCuts: 'floor', postBase: true, baseT: 12, anchor: 16, landings: -1, landingDepth: 0, landingPosts: true, postSection: 'HSS4x4x1/4', crossSection: 'L3x3x1/4',
     rails: 'both', railTop: Math.round(hr), railSection: 'Pipe1-1/2STD', postSection2: 'PL25x25', postSpacing: 1200, infill: 'balusters', balusterBar: 'PL16x16', balusterGap: ru.opening ? Math.min(ru.opening, 100) : 100,
   };
 }
@@ -111,6 +111,8 @@ export function clean(rec) {
     treadType: TREAD_TYPES.includes(rec.treadType) ? rec.treadType : d.treadType, stringer: str(rec.stringer, d.stringer), material: str(rec.material, d.material, 30),
     tread: { t: num(tr.t, 2, 25, dt.t), nosing: num(tr.nosing, 0, 100, dt.nosing), fold: num(tr.fold, 20, 100, dt.fold), bolt: num(tr.bolt, 6, 24, dt.bolt), barDepth: num(tr.barDepth, 15, 80, dt.barDepth), barT: num(tr.barT, 2, 12, dt.barT), barPitch: num(tr.barPitch, 15, 80, dt.barPitch) },
     fix: ['auto', 'weld', 'bolt'].includes(rec.fix) ? rec.fix : d.fix, landings: num(rec.landings, -1, 4, d.landings), landingDepth: num(rec.landingDepth, 0, 5000, d.landingDepth),
+    // 0.11 SU.1814c: a stair stored before the end cuts and base plates existed has neither (its geometry stays as it was); a new one carries both fields
+    endCuts: rec.endCuts === 'floor' ? 'floor' : 'square', postBase: rec.postBase === undefined ? false : !!rec.postBase, baseT: num(rec.baseT, 6, 40, d.baseT), anchor: num(rec.anchor, 8, 36, d.anchor),
     landingPosts: rec.landingPosts === undefined ? d.landingPosts : !!rec.landingPosts, postSection: str(rec.postSection, d.postSection), crossSection: str(rec.crossSection, d.crossSection),
     rails: ['both', 'left', 'right', 'none'].includes(rec.rails) ? rec.rails : d.rails, railTop: num(rec.railTop, 500, 1500, rec.rule && RULES[rec.rule] ? defaults(rec.rule).railTop : d.railTop), railSection: str(rec.railSection, d.railSection),
     postSection2: str(rec.postSection2, d.postSection2), postSpacing: num(rec.postSpacing, 400, 3000, d.postSpacing), infill: ['balusters', 'none'].includes(rec.infill) ? rec.infill : d.infill,
@@ -197,8 +199,15 @@ export function build(rec0, { profileOf = () => null } = {}) {
     const a0 = s + drop / k - g, a1 = s + (nk * r + drop) / k - g;
     const mainKey = fk + 'stringerL';
     for (const [sk, sign, role] of [['stringerL', 1, roleOf.stringerL], ['stringerR', -1, roleOf.stringerR]]) {
+      // end cuts (0.11 SU.1814c): the lower end level on the floor (the cut face is horizontal, at the floor's top), the upper end plumb against the floor's edge (the cut face is vertical,
+      // square to the climb, where the upper floor ends). `planes` = outward normal and a point on each face, world coordinates; build.js turns them into the part's cut ends. The holes stay
+      // measured from the nominal start (the axis meets the floor), build.js moves them to the cut start.
+      // the cut part's length (worked in the plane of the stair, slope angle A with tan A = riser / going, section depth sd): the level cut's face meets the section's two edges sd/2 / tan A either side of the axis point on the floor,
+      // so the part starts (sd/2) / tan A before it; the plumb cut at along = s + (nk - 1) g meets them (sd/2) tan A either side along the axis, so it ends (sd/2) tan A after the axis point there: length = (that along distance) / cos A + (sd/2) tan A + (sd/2) / tan A
+      const cutLength = ((s + (nk - 1) * g) - a0) / cosA + (sd / 2) * k + (sd / 2) / k;
+      const planes = rec.endCuts === 'floor' ? { start: { n: [0, 0, -1], p: P(a0, sign * half, z) }, end: { n: [c, sn, 0], p: P(s + (nk - 1) * g, sign * half, z + nk * r) } } : null;
       add({ key: fk + sk, type: 'stringer', group: asm, role, profileName: rec.stringer, material: rec.material, start: P(a0, sign * half, axisZ(a0)), end: P(a1, sign * half, axisZ(a1)),
-        rotation: sp && sp.kind === 'C' ? (sign > 0 ? 180 : 0) : isPL ? 90 : 0, attachTo: sk === 'stringerL' ? null : mainKey, holes: [], _L: Math.hypot(a1 - a0, axisZ(a1) - axisZ(a0)) });
+        rotation: sp && sp.kind === 'C' ? (sign > 0 ? 180 : 0) : isPL ? 90 : 0, attachTo: sk === 'stringerL' ? null : mainKey, holes: [], planes, _L: planes ? cutLength : Math.hypot(a1 - a0, axisZ(a1) - axisZ(a0)) });
     }
     const L = parts.find((p) => p.key === mainKey), Rr = parts.find((p) => p.key === fk + 'stringerR');
     const treadKeys = [];
@@ -239,7 +248,18 @@ export function build(rec0, { profileOf = () => null } = {}) {
         const ps = profileOf(rec.postSection), pw = ps ? (ps.width || 100) : 100;
         for (const [pk, sign] of [['postL', 1], ['postR', -1]]) {
           const px = s + D - pw / 2 - 5, top2 = beamZ - sd / 2;
-          if (top2 > 100) add({ key: lk + pk, type: 'column', group: lasm, role: 'Landing post', profileName: rec.postSection, material: rec.material, start: P(px, sign * w2, 0), end: P(px, sign * w2, top2), attachTo: lm });
+          const bt = rec.postBase ? rec.baseT : 0;
+          if (top2 > bt + 100) {
+            add({ key: lk + pk, type: 'column', group: lasm, role: 'Landing post', profileName: rec.postSection, material: rec.material, start: P(px, sign * w2, bt), end: P(px, sign * w2, top2), attachTo: lm });
+            if (rec.postBase) {
+              // a square base plate under the post: the post's width plus 50 mm each side, to the next 10 mm; four anchor holes 30 mm in from the edges. A starting detail: the anchors, the plate's thickness
+              // and the floor are not checked (say so in the help); the numbers are defaults the person can change, not values read from a standard
+              const B = Math.ceil((pw + 100) / 10) * 10, e = 30, hd = rec.anchor + 2, key = lk + pk + 'base';
+              add({ key, type: 'plate', group: lasm, role: 'Post base plate', profileName: 'PL' + bt + 'x' + B, material: rec.material, start: P(px, sign * w2 + B / 2, bt / 2), end: P(px, sign * w2 - B / 2, bt / 2), attachTo: lk + pk,
+                holes: [[e, e], [e, B - e], [B - e, e], [B - e, B - e]].map(([x, y]) => ({ face: 'plate', x, y: y - B / 2, d: hd })) });
+              welds.push({ between: [lk + pk, key], size: Math.min(6, bt), length: 4 * pw, where: 'post to base plate', bolted: false });
+            }
+          }
         }
       }
       landings.push({ n: fi + 1, along: [s, s + D], up: top, depth: D, width: rec.width, group: lasm });
@@ -313,7 +333,7 @@ export function build(rec0, { profileOf = () => null } = {}) {
   return { ...so, parts, welds, flights, landings, rails, steps, stats, problems, rec };
 }
 
-const lenOf = (p) => Math.hypot(p.end[0] - p.start[0], p.end[1] - p.start[1], p.end[2] - p.start[2]);
+const lenOf = (p) => p.length ?? Math.hypot(p.end[0] - p.start[0], p.end[1] - p.start[1], p.end[2] - p.start[2]);
 
 /** The cut list: one row per section and length, the quantity, the mass of one and of all. Grating's mass is the equivalent plate (noted). */
 export function cutList(layout, { profileOf = () => null } = {}) {

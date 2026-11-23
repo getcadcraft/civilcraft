@@ -69,13 +69,27 @@
  * before the daylight, DL] as before; sec.comps[side] = the components' shapes in (o, z), sec.compsBefore at a region's first
  * station = the region before's (so volumes never mix two templates). info.components = componentQuantities (average end
  * areas along the centreline, per side, region and component). Superelevation and WL.25 targets are not used in this mode.
+ *
+ * Junctions (0.10.1, /suggest #1977; junction.js finds them, project.js passes them): corridorPatch(…, { ties, openings }).
+ *   openings = [{ side 'L'|'R', from, to }] (stations): where another road's pavement meets this road's side. There every point
+ *     past the edge of pavement is laid on the lane's own cross slope (no curb, shoulder break, strip or walk standing across the
+ *     mouth) and carries `open: true` (the 3D view draws it as pavement); the section has sec.open = { L|R: true }.
+ *   ties = [{ kind 'road'|'pad', id, name, end 'start'|'end'|null, inside(x, y) → bool, zAt(x, y) → z | null, lines?: [[{x, y}]] }]:
+ *     something this corridor joins. The TIE ZONE is every section whose centreline point is inside it (with a section exactly
+ *     where the centreline enters or leaves, and where it crosses `lines`); a tie with `end` whose zone is empty (the road stops
+ *     just short) ties that end section alone. In the zone every point takes zAt (the other road's surface, the pad's level), so
+ *     the road lies ON what it joins; sec.tie = { kind, id }. Before and after the zone, over the blend length (asm.tieLen, else
+ *     the larger of 10 m / 30 ft and 20 × the centreline's difference, at most 45% of the corridor), each point is moved by the
+ *     difference its own line has at the zone's edge, eased in by 3u² − 2u³ (no kink at either end); sec.blend = that weight.
+ *     The design profile itself is not changed. info.ties = [{ kind, id, name, from, to (the zone), dz (the centreline's change
+ *     at the zone's edge), len (the blend length) }]. Not used on a track.
  */
 
 import { t } from "./i18n.js";
 import { castSlope, selfCrosses } from './grading.js';
 import { superPlan, slopesAt, keyStations as superStations } from './superelev.js';   // 0.4 V18
 import { cantPlan, cantAt, trackShape, trackQuantities } from './rail.js';   // 0.7.1 71.26: a track instead of a road
-import { evalTemplate, regionAt } from './templates.js';   // 0.9 SU.1110: templates by station
+import { evalTemplate, regionAt, namedAt } from './templates.js';   // 0.9 SU.1110: templates by station
 
 export function defaultAssembly(units = 'ft') {
   return units === 'm'
@@ -167,8 +181,8 @@ export function cleanTargets(list) {
     if (!g || typeof g !== 'object' || !TARGET_SIDES.includes(g.side) || !TARGET_WHAT.includes(g.what) || !TARGET_PARTS.includes(g.part)) continue;
     const f = g.from, id = String(f?.id ?? '');
     let from = null;
-    if (f?.kind === 'feature' && /^f\d{1,9}$/.test(id)) from = { kind: 'feature', id };
-    else if (f?.kind === 'corridor' && /^a\d{1,9}$/.test(id) && CORRIDOR_LINES.includes(f.line)) from = { kind: 'corridor', id, line: f.line };
+    if (f?.kind === 'feature' && /^f\d{1,16}$/.test(id)) from = { kind: 'feature', id };
+    else if (f?.kind === 'corridor' && /^a\d{1,16}$/.test(id) && CORRIDOR_LINES.includes(f.line)) from = { kind: 'corridor', id, line: f.line };
     if (!from) continue;
     const key = g.side + g.what + g.part;   // one target per side, kind and point
     if (seen.has(key)) continue;
@@ -251,7 +265,8 @@ function walkSide(parts, c) {
  * A use's `lines` ({ CODE: 3D polyline }) are its resolved targets.
  */
 function walkTemplates(sideDef, c) {
-  const { p, ux, uy, z0, cl, A, surface, step, far, tplMiss, eps } = c;
+  const { p, ux, uy, z0, cl, A, surface, step, far, tplMiss, eps, sta } = c;
+  const named = A.named?.length ? namedAt(A.named, sta) : null;   // 0.11 SU.1941: the corridor's named values at this station (they win over a use's fixed value)
   const W = (o) => ({ x: p.x + ux * o, y: p.y + uy * o });
   const ground = (o) => { const q = W(o), z = surface.elevationAt(q.x, q.y, 1e-6); return z === null || !Number.isFinite(z) ? null : z; };
   const cast = (b, cut, fill) => { const q = W(b.o), r = castSlope(surface, q, ux, uy, b.z, cut, fill, { step: Math.max(0.1, step / 20), far }); return { o: b.o + r.d, z: r.z, kind: r.kind }; };
@@ -264,7 +279,7 @@ function walkTemplates(sideDef, c) {
     const tpl = A.templates.get(u.tpl);
     if (!tpl) { tplMiss.add(u.tpl); return; }
     const hit = (cd, what) => { const line = u.lines?.[cd]; if (!line || line.length < 2) return null; const h = sectionHit(p, ux, uy, line); return h ? (what === 'width' ? { o: h.t } : { z: h.z }) : null; };
-    const r = evalTemplate(tpl, { params: u.params || {}, origin: base, ground, cast, hit });
+    const r = evalTemplate(tpl, { params: named ? { ...(u.params || {}), ...named } : u.params || {}, origin: base, ground, cast, hit });
     for (const q of r.top) {
       // the surface is one height per offset: a point straight above or below the last one (a wall face, a curb face) is
       // nudged out by eps, a point that would step back inward is kept just outside the last one
@@ -319,7 +334,7 @@ export function componentQuantities(sections) {
   return [...out.values()];
 }
 
-export function corridorPatch(surface, alignment, profile, asm, { targets = [], units = 'ft' } = {}) {
+export function corridorPatch(surface, alignment, profile, asm, { targets = [], units = 'ft', ties = [], openings = [] } = {}) {
   const problems = [];
   const empty = (msg) => ({ problems: [msg], region: null, points: [], breaklines: [], info: { sections: [], lines: {} } });
   if (!alignment?.ok) return empty(t('corr.err.al'));
@@ -339,6 +354,7 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   for (const k of alignment.keyStations()) if (k.sta > from && k.sta < to) st.add(k.sta);
   for (const c of profile.curves) for (const s of [c.bvc, c.evc]) if (s > from && s < to) st.add(s);
   // 0.9: every region starts with a section, and the region before ends just short of it (the change of template is abrupt, as built)
+  if (tplOn) for (const n of A.named || []) for (const r of n.rows) for (const q of [r.sta0, r.sta1]) if (q > from && q < to) st.add(q);   // 0.11 SU.1941: a named value's row ends
   if (tplOn) for (const r of A.regions) if (r.from > from && r.from < to) { st.add(r.from); const e = Math.min((A.step > 0 ? A.step : 10) * 0.01, units === 'm' ? 0.1 : 0.3); if (r.from - e > from) st.add(Number((r.from - e).toFixed(6))); }
   const railOn = !!A.rail?.on;   // 0.7.1 71.26
   const rp = railOn ? cantPlan(alignment, A.rail, { speed: A.rail.speed, minSpeed: A.rail.minSpeed, units, id: A.rail.id, name: A.rail.name }) : null;
@@ -347,6 +363,37 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   const nc = custom ? ncOf(A) : A.laneSlope;
   const sp = !railOn && !tplOn && A.super?.on ? superPlan(alignment, { super: A.super, nc, lane: custom ? laneRunWidth(A) : A.lane }) : null;   // 0.4 V18
   if (sp) { for (const s of superStations(sp)) if (s > from && s < to) st.add(Number(s.toFixed(6))); problems.push(...sp.problems); }
+  // 0.10.1 #1977: a section at each end of an opening (and one just outside it, so the edge drops at once), and a section
+  // where the centreline enters or leaves what the corridor ties to and where it crosses the other road's lines
+  const opens = railOn ? [] : (openings || []).filter((o) => (o?.side === 'L' || o?.side === 'R') && o.to > o.from && o.to > from && o.from < to);
+  // (a station within a millimetre or so of one already there is that one: no two sections on top of each other)
+  const addSta = (s) => { for (const x of st) if (Math.abs(x - s) < 1e-3) return x; const v = Number(s.toFixed(6)); if (v > from && v < to) st.add(v); return v; };
+  for (const o of opens) { const e = Math.min(step * 0.01, units === 'm' ? 0.1 : 0.3); for (const [s, d] of [[o.from, -e], [o.to, e]]) if (s > from && s < to) { addSta(s); if (s + d > from && s + d < to) addSta(s + d); } }
+  const tieList = railOn ? [] : (ties || []).filter((g) => g && typeof g.inside === 'function' && typeof g.zAt === 'function').map((g) => ({ ...g, edges: [] }));
+  if (tieList.length) {
+    const fine = Math.max(step / 8, (to - from) / 4000), n = Math.max(2, Math.ceil((to - from) / fine));
+    const cl = []; for (let k = 0; k <= n; k++) { const s = from + ((to - from) * k) / n, p = alignment.pointAt(s); cl.push({ s, x: p.x, y: p.y }); }
+    for (const g of tieList) {
+      let was = g.inside(cl[0].x, cl[0].y);
+      for (let k = 1; k <= n; k++) {
+        const now = g.inside(cl[k].x, cl[k].y);
+        if (now !== was) {
+          let a = cl[k - 1].s, b = cl[k].s;   // a on the side `was`
+          for (let it = 0; it < 40 && b - a > 1e-5; it++) { const m = (a + b) / 2, p = alignment.pointAt(m); if (g.inside(p.x, p.y) === was) a = m; else b = m; }
+          g.edges.push(addSta(was ? a : b));   // the last station still inside
+        }
+        was = now;
+      }
+      let extra = 0;
+      for (const line of g.lines || []) for (let i = 0; i + 1 < line.length && extra < 64; i++) for (let k = 1; k <= n; k++) {
+        const a = cl[k - 1], b = cl[k], c = line[i], d = line[i + 1], dx = b.x - a.x, dy = b.y - a.y, ex = d.x - c.x, ey = d.y - c.y, den = dx * ey - dy * ex;
+        if (Math.abs(den) < 1e-15) continue;
+        const u = ((c.x - a.x) * ey - (c.y - a.y) * ex) / den, v = ((c.x - a.x) * dy - (c.y - a.y) * dx) / den;
+        if (u < 0 || u >= 1 || v < 0 || v > 1) continue;
+        addSta(a.s + u * (b.s - a.s)); extra++;
+      }
+    }
+  }
   const stations = [...st].sort((a, b) => a - b).filter((s, i, a) => !i || s - a[i - 1] > 1e-6);
 
   const sb = surface.bounds, far = 2 * Math.hypot(sb.maxX - sb.minX, sb.maxY - sb.minY);
@@ -387,7 +434,7 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
         // 0.9 SU.1110: this station's region, its templates on this side
         cl.code = 'CL';
         const ri = Math.max(0, regionAt(A.regions, sta));
-        const side0 = { side, p, ux, uy, z0, cl, A, surface, step, far, tplMiss, eps: units === 'm' ? 0.003 : 0.01 };
+        const side0 = { side, p, ux, uy, z0, cl, A, surface, step, far, tplMiss, sta, eps: units === 'm' ? 0.003 : 0.01 };
         const r = walkTemplates(A.regions[ri][side], side0);
         if (r.dl.kind === 'off') off++;
         sec[side] = [cl, r.eop, r.sh, r.dl];
@@ -421,6 +468,67 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
       sec[side] = [cl, eop, sh, { x: r.x, y: r.y, z: r.z, kind: r.kind }];
     }
     sections.push(sec);
+  }
+  // 0.10.1 #1977: openings, then ties (see the header). Both move points of sections already built, then cast that side's
+  // daylight again from its last point.
+  const sidePts = (s, side) => (s.det ? s.det[side] : s[side]);
+  const recast = (s, side) => {
+    const pts = sidePts(s, side), sh = pts[pts.length - 2], dl = pts[pts.length - 1], p = alignment.pointAt(s.sta), sx = side === 'L' ? -1 : 1;
+    const day = custom ? (A.parts[side] || []).find((q) => q.type === 'daylight') : null;
+    const r = castSlope(surface, sh, Math.sin(p.dir) * sx, -Math.cos(p.dir) * sx, sh.z, day?.cut || A.cut, day?.fill || A.fill, { step: Math.max(0.1, step / 20), far });
+    dl.x = r.x; dl.y = r.y; dl.z = r.z; dl.kind = r.kind;
+  };
+  for (const s of sections) for (const o of opens) {
+    if (s.sta < o.from - 1e-6 || s.sta > o.to + 1e-6) continue;
+    const pts = sidePts(s, o.side), cl = pts[0], eop = s[o.side][1], ie = pts.indexOf(eop);
+    if (ie < 0 || ie >= pts.length - 2) continue;   // nothing between the pavement and the daylight
+    const d0 = Math.hypot(eop.x - cl.x, eop.y - cl.y), sl = d0 > 1e-9 ? (cl.z - eop.z) / d0 : 0;
+    for (let k = ie + 1; k < pts.length - 1; k++) { pts[k].z = eop.z - Math.hypot(pts[k].x - eop.x, pts[k].y - eop.y) * sl; pts[k].open = true; }
+    (s.open ||= {})[o.side] = true;
+    recast(s, o.side);
+  }
+  const tieInfo = [];
+  if (tieList.length && sections.length >= 2) {
+    const N = sections.length, ease = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
+    const zOf = (g, q) => { const z = g.zAt(q.x, q.y); return z === null || z === undefined || !Number.isFinite(z) ? null : z; };
+    const taken = new Uint8Array(N);   // sections already in a zone
+    for (const g of tieList) {
+      const inZone = sections.map((s) => { const c = sidePts(s, 'L')[0]; return g.inside(c.x, c.y) || g.edges.some((e) => Math.abs(e - s.sta) < 1e-5); });
+      if (!inZone.some(Boolean)) { if (g.end === 'start') inZone[0] = true; else if (g.end === 'end') inZone[N - 1] = true; else continue; }
+      for (let i0 = 0; i0 < N; i0++) {
+        if (!inZone[i0]) continue;
+        let i1 = i0; while (i1 + 1 < N && inZone[i1 + 1]) i1++;
+        // each line's difference at the zone's two edge sections, before anything moves
+        const snap = (i) => { const m = {}; for (const side of ['L', 'R']) sidePts(sections[i], side).slice(0, -1).forEach((q, k) => { const z = zOf(g, q); if (z !== null) m[side + (k ? q.code || k : 'CL')] = z - q.z; }); return m; };
+        const dA = snap(i0), dB = snap(i1), clA = dA.LCL ?? dA.RCL ?? 0, clB = dB.LCL ?? dB.RCL ?? 0;
+        const cap = 0.45 * (to - from), base = units === 'm' ? 10 : 30;
+        const lenOf = (d) => Math.min(cap, A.tieLen > 0 ? A.tieLen : Math.max(base, 20 * Math.abs(d)));
+        const LA = lenOf(clA), LB = lenOf(clB), sA = sections[i0].sta, sB = sections[i1].sta;
+        for (let i = i0; i <= i1; i++) {
+          const s = sections[i];
+          for (const side of ['L', 'R']) {
+            const pts = sidePts(s, side), c = zOf(g, pts[0]), dc = c !== null ? c - pts[0].z : (i - i0 <= i1 - i ? clA : clB);
+            for (let k = 0; k < pts.length - 1; k++) { const z = zOf(g, pts[k]); pts[k].z = z !== null ? z : pts[k].z + dc; }
+            recast(s, side);
+          }
+          s.tie = { kind: g.kind, id: g.id }; taken[i] = 1;
+        }
+        const blend = (i, w, d, dcl) => {
+          const s = sections[i];
+          if (taken[i] || !(w > 0)) return;
+          for (const side of ['L', 'R']) {
+            const pts = sidePts(s, side);
+            for (let k = 0; k < pts.length - 1; k++) pts[k].z += w * (d[side + (k ? pts[k].code || k : 'CL')] ?? dcl);
+            recast(s, side);
+          }
+          s.blend = Math.max(s.blend || 0, w);
+        };
+        for (let i = i0 - 1; i >= 0 && sA - sections[i].sta < LA; i--) blend(i, ease(1 - (sA - sections[i].sta) / LA), dA, clA);
+        for (let i = i1 + 1; i < N && sections[i].sta - sB < LB; i++) blend(i, ease(1 - (sections[i].sta - sB) / LB), dB, clB);
+        tieInfo.push({ kind: g.kind, id: g.id, name: g.name || '', ...(g.end ? { end: g.end } : {}), from: sA, to: sB, dz: i0 > 0 ? clA : clB, len: i0 > 0 ? LA : LB });
+        i0 = i1;
+      }
+    }
   }
   if (sections.length < 2) return empty(t('corr.err.two'));
   if (off) problems.push(t('corr.off', { n: off }));
@@ -473,7 +581,7 @@ export function corridorPatch(surface, alignment, profile, asm, { targets = [], 
   // 0.7.1 71.26: the track's plan, quantities and any station's shape (absolute z) for the sections
   const rail = rp ? { plan: rp, rail: A.rail, units, quantities: trackQuantities(sections, A.rail, units), at: (sta) => { const z0 = profile.elevationAt(sta); if (z0 === null) return null; const h = cantAt(rp, sta); return { z0, E: h.E, shape: trackShape(A.rail, { hL: h.L, hR: h.R }, units) }; } } : null;
   const components = tplOn ? componentQuantities(sections) : null;   // 0.9 SU.1110
-  return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo, courses, ...(rail ? { rail } : {}), ...(components ? { components } : {}) } };
+  return { problems, region, points, breaklines, info: { sections, lines, from, to, assembly: A, super: sp, targets: tgInfo, courses, ...(tieInfo.length ? { ties: tieInfo } : {}), ...(rail ? { rail } : {}), ...(components ? { components } : {}) } };
 }
 
 function cross(a, b, c, d) {

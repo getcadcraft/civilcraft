@@ -57,9 +57,16 @@ try {
   await page.fill('[data-eg48-time]', '5').catch(() => {});
   await page.evaluate(() => { const s = document.querySelector('[data-eg48-time]'); s.value = Math.floor(s.max / 2); s.dispatchEvent(new Event('input', { bubbles: true })); });
   ok(/\d s$/.test(await page.textContent('[data-eg48-clock]')), 'the clock follows the slider: ' + await page.textContent('[data-eg48-clock]'));
+  // PERF.75 (perf-finish-11 code): playback advances while playing and stops on pause
+  const at48 = () => page.evaluate(() => Number(document.querySelector('[data-eg48-time]').value));
+  const g0 = await at48();
   await page.click('[data-eg48-play]');
   await page.waitForTimeout(600);
+  const g1 = await at48();
   await page.click('[data-eg48-play]');
+  const g2 = await at48(); await page.waitForTimeout(300); const g3 = await at48();
+  ok(g1 > g0, 'Play moves the time slider (' + g0 + ' to ' + g1 + ' in 0.6 s)');
+  ok(g3 === g2, 'Pause holds it (' + g2 + ', 0.3 s later ' + g3 + ')');
   await shot(page, 'people-evac');
 
   console.log('== Shut a door, run again');

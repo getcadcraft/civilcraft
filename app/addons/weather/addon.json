@@ -1,0 +1,23 @@
+{
+  "id": "weather",
+  "name": "Weather files",
+  "version": "0.11.0",
+  "apps": [
+    "bimcraft",
+    "civilcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "files",
+    "storage",
+    "network"
+  ],
+  "description": "Typical-year weather for the place a model stands: the nearest stations with their design temperatures and degree-days, the hourly year as a 3D surface, flat map, wind rose and tables for every quantity in the file, and the .epw file itself on request. Fills Heating and cooling loads and hands the year to the EnergyPlus check.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

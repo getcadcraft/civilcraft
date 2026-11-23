@@ -101,23 +101,47 @@ export function decodeObject(buf, offset, ctx) {
     r.str = s;
   }
   r.end = Math.min(objEnd, dataEnd ?? objEnd);
-  const h = new BitReader(buf, { version: ver, decode: ctx.decode, startBit: endbit ?? objEnd, endBit: objEnd });
   rec._dataEnd = dataEnd;
-
-  // common handles
-  try {
-    if (rec.isEntity) commonEntityHandles(h, rec, ctx);
-    else commonObjectHandles(h, rec, ctx);
-  } catch (e) { rec._error = 'handles: ' + e.message; }
-
-  rec._dataStart = r.pos;
-  rec._hPos = h.pos; rec._endbit = endbit ?? objEnd; rec._objEnd = objEnd; rec._buf = buf;   // raw passthrough (passthrough.js)
   const dec = DECODERS[CLASS_ALIAS[name] || name];
-  if (dec) {
-    try { dec(r, h, rec, ctx); }
-    catch (e) { rec._error = (rec._error ? rec._error + '; ' : '') + e.message; }
-  } else rec._unknown = true;
-  rec._dataLeft = r.end - r.pos;
+  const dataPos = r.pos, strPos = r.str ? r.str.pos : 0;
+  const decodeRest = (rec, forcePs) => {   // common handles, then the type's own data and handles
+    const h = new BitReader(buf, { version: ver, decode: ctx.decode, startBit: endbit ?? objEnd, endBit: objEnd });
+    try {
+      if (rec.isEntity) commonEntityHandles(h, rec, ctx, forcePs);
+      else commonObjectHandles(h, rec, ctx);
+    } catch (e) { rec._error = 'handles: ' + e.message; }
+    rec._dataStart = r.pos;
+    rec._hPos = h.pos; rec._endbit = endbit ?? objEnd; rec._objEnd = objEnd; rec._buf = buf;   // raw passthrough (passthrough.js)
+    if (dec) {
+      try { dec(r, h, rec, ctx); }
+      catch (e) { rec._error = (rec._error ? rec._error + '; ' : '') + e.message; }
+    } else rec._unknown = true;
+    rec._dataLeft = r.end - r.pos;
+    return h;
+  };
+  const h = decodeRest(rec, false);
+  // Spec gap: some writers put a plot style handle in the handle stream while the plot style flags say ByLayer (0), so every
+  // later handle is read one place early (Plans.dwg: INSERTs whose block came out as the plot style placeholder, MTEXT whose
+  // style did). AutoCAD's handle stream holds exactly the handles the flags name, padded to under a byte. So when a whole
+  // handle is left over after the decoder, the entity is read again with the plot style handle, and that reading is kept when
+  // it uses the stream up exactly without an error; read.js then keeps it only when that handle names an ACDBPLACEHOLDER
+  // (the plot style placeholder), else it goes back to the first reading (both are listed in `ctx.psRetried`; nothing is added to the record itself).
+  if (dec && rec.isEntity && ver >= 15 && rec._psflags !== 3 && !rec._error && h.bitsLeft() >= 8) {
+    if (h.pos === rec._hPos) {   // the decoder read no handles of its own (LINE, 3DFACE, LWPOLYLINE …): only the common ones move
+      const ah = new BitReader(buf, { version: ver, decode: ctx.decode, startBit: endbit ?? objEnd, endBit: objEnd });
+      const tmp = { handle: rec.handle, _entmode: rec._entmode, _nreact: rec._nreact, _noXdic: rec._noXdic, _colorBook: rec._colorBook,
+        _ltflags: rec._ltflags, _matflags: rec._matflags, _psflags: rec._psflags, _vsFull: rec._vsFull, _vsFace: rec._vsFace, _vsEdge: rec._vsEdge, _h: {} };
+      try {
+        commonEntityHandles(ah, tmp, ctx, true);
+        if (ah.bitsLeft() < 8) { (ctx.psRetried ||= []).push({ rec, h: rec._h, hPos: rec._hPos }); rec._h = tmp._h; rec._hPos = ah.pos; }
+      } catch { /* the first reading stands */ }
+    } else {
+      const alt = { ...rec, _h: {} };   // the data is the same both times: the second reading sets the same fields again
+      r.pos = dataPos; if (r.str) r.str.pos = strPos;
+      const ah = decodeRest(alt, true);
+      if (!alt._error && ah.bitsLeft() < 8) { (ctx.psRetried ||= []).push({ rec: alt, first: rec }); return alt; }
+    }
+  }
   return rec;
 }
 
@@ -210,7 +234,7 @@ function commonEntity(r, rec, ctx) {
   rec.invisible = !!(r.BS() & 1);
   if (ver >= 15) rec._lw = r.RC();
 }
-function commonEntityHandles(h, rec, ctx) {
+function commonEntityHandles(h, rec, ctx, forcePs = false) {
   const ver = ctx.ver, H = rec._h;
   if (rec._entmode === 0) H.owner = h.H(rec.handle);
   if (rec._nreact) H.reactors = hrefs(h, rec, rec._nreact);
@@ -225,7 +249,7 @@ function commonEntityHandles(h, rec, ctx) {
     H.layer = h.H(rec.handle);
     if (rec._ltflags === 3) H.ltype = h.H(rec.handle);
     if (ver >= 21 && rec._matflags === 3) H.material = h.H(rec.handle);
-    if (rec._psflags === 3) H.plotstyle = h.H(rec.handle);
+    if (rec._psflags === 3 || forcePs) H.plotstyle = h.H(rec.handle);
     if (ver >= 24) {
       if (rec._vsFull) H.vsFull = h.H(rec.handle);
       if (rec._vsFace) H.vsFace = h.H(rec.handle);

@@ -1,52 +1,70 @@
 ---
 title: Proovijooned ja ristlõiked
-summary: Lõika lõiked trassiga risti, vaata maapinda, projekti ning kaevamist ja täidet igal pikketil ning saa mahud keskmiste otsapindade meetodil.
-keywords: massiskeem, tasakaalupunkt, kahanemine, paisumine, veodistants, laen, ülejääk, lõikude lehed, ristlõigete lehed, põikprofiilide lehed, lõiked, ristlõiked, proovijooned, lõikevaade, kaevamine, täide, pindalad, keskmise otsapinna meetod, pinnase mahud, pikett, nihe, CSV
-from: 5060173c
+summary: Lõika lõiked trassi suhtes ristkülikuna, vaata maapinda, projekti ning kaevandit ja täidet igal jaamal ning saa mahud keskmiste otsapindade järgi.
+keywords: massi ülekandmine, massi diagramm, tasakaalupunkt, kahanemine, paisumine, veokaugus, laen, jäätmed, lõigete lehed, ristlõigete lehed, lõigete PDF, lõiked, ristlõiked, proovijooned, lõikevaade, kaevand, täide, pinnad, mõõtmine, keskmise otsapinna meetod, otsapinna mahud, pinnasetööd, jaam, nihe, CSV
+from: 09639ce2
 ---
 
-Ristlõige näitab teed sellisena, nagu see ehitatakse: trassiga risti ühel pikketil olemasolev maapind, projekt (koridor või plats profileeritud) ning kaevamine ja täide nende vahel.
+Ristlõige näitab teed nii, nagu see ehitatakse: trassi ristsuunas ühes jaamas on olemasolev maapind, projekt (koridor või platvorm sisse planeeritud) ning kaevand ja täide nende vahel.
 
-## Lisa proovijooned
+## Proovijoonte lisamine
 
-1. Vali trass. Jaotises **Proovijooned** (**Omadustes**) klõpsa {{ui:Add sample lines}}.
-2. Määra **Iga** (vahe; algul 50 ft või 20 m), **Vasak laius** ja **Parem laius** (kui kaugele iga lõige keskjoonest ulatub).
-3. Et lõigata lõige kindlal pikketil, sisesta see väljale **Lisa pikett** (näiteks `2+35`) ja vajuta {{key:Enter}}.
+1. Vali trass. Atribuutides jaotises **Proovijooned** klõpsa {{ui:Lisa proovijooned}}.
+2. Määra **Iga** (vahe: algselt 50 ft või 20 m), **Vasak laius** ja **Parem laius** (kui kaugele iga lõige ulatub keskjoonest).
+3. Et lõigata lõige kindlas jaamas, kirjuta see kasti **Lisa jaam** (näiteks `2+35`) ja vajuta {{key:Enter}}.
 
-Lõiked lõigatakse iga terve kordse järel, trassi mõlemas otsas, iga kõvera alguses ja lõpus (PC ja PT) ning lisatud piketil. Proovijooned kuvatakse plaanil hallide joontena trassi üle; need lähevad ka DXF-, DWG- ja PDF-faili kihile C-ROAD-SCTN. Iga muudatus on üks samm: {{key:Mod+Z}} võtab selle tagasi.
+Lõiked lõigatakse igal kordsel vahemiku täisarvul, mõlemal trassi otsal, iga kõvera alguses ja lõpus (PC ja PT) ning jaamades, mille lisad. Proovijooned on plaanil hallid jooned üle trassi; need lähevad ka DXF-, DWG- ja PDF-i kihile C-ROAD-SCTN. Iga muudatus on üks samm: {{key:Mod+Z}} võtab tagasi.
 
 ## Lõikevaade
 
-Ava see {{ui:Section view}} trassi **Omadustest**, {{ui:Sections}} jaotisest **Pind** › {{ui:More}} või klahviga {{key:X}}. See asendab plaani all oleva pikiprofiili vaate.
+Ava see nupuga {{ui:Lõike vaade}} trassi atribuutidest, {{ui:Lõiked}} jaotises **Pind** › {{ui:Veel}}, või {{key:X}}. See asendab pikiprofiilivaate plaani all.
 
-- Liigu lõigete vahel nooltega tema ribal, pikettide loendiga või klahvidega {{key:Left}} ja {{key:Right}}, kui lõikevaade on fookuses ({{key:Home}} ja {{key:End}} esimese ja viimase jaoks).
-- Hall joon on olemasolev maapind, punane joon projekt. Kaevamine on oranžilt, täide roheliselt varjutatud. Koridori punktid on märgitud: CL (keskjoon), EOP (kattekihi serv), SH (õlaala) ja DL (nõlvajoon).
-- Päis näitab pikketti, selle lõike kaevamis- ja täidepindalu ning vertikaalset liialdust. **Sobita** täidab paneeli; vali 1×, et näha lõiku tõelises mõõtkavas.
-- Plaanil olev paks joon näitab, milline lõige on ekraanil.
+- Liigu lõigete vahel noolte abil vaate ribal, jaamade loendiga või klahvidega {{key:Left}} ja {{key:Right}}, kui lõikevaade on fookuses ({{key:Home}} ja {{key:End}} esimese ja viimase jaoks).
+- Hall joon on olemasolev maapind, punane joon projekt. Kaevand on oranžiga varjutatud, täide roheliga. Koridori punktid on märgitud: CL (keskjoon), EOP (sõiduteekatte serv), SH (ääriala) ja DL (päevavalgus).
+- Päis näitab jaama, selle lõike kaevandi ja täite pindu ning vertikaalset liialdust. {{ui:Sobita}} täidab paneeli; vali 1×, et näha lõiget tõelises mõõtkavas.
+- Plaanil näitab paks joon, milline lõige on ekraanil.
+- **Suum ja nihe:** ratas suumib osuti kohal ja lohistamine liigutab vaadet. {{ui:Sobita}} (või {{key:F}}, või topeltklõps) sobitab kogu lõike uuesti.
 
-## Lõikelehed
+## Mõõtmine lõikes
 
-{{ui:Section sheets (PDF)}} jaotises **Proovijooned** paneb iga lõike PDF-lehtedele, ridades vasakult paremale ja ülevalt alla pikettide järjekorras. Vali **Paber**, **Plaani mõõtkava** (lõigete horisontaalne mõõtkava) ja **Profiili liialdus** (1×, 2×, 5× või 10×); dialoog ütleb, mitu lõiget mahub lehele ja mitu lehte sellest tuleb.
+1. Klõpsa {{ui:Mõõda}} lõikeribal või vajuta {{key:M}}. Vihje ütleb: „Klõpsa esimest punkti, seejärel teist.“
+2. Klõpsa kahte punkti. Igaüks haakub joone otsa või koridori punkti (CL, EOP, SH, DL) külge; hoia {{key:Alt}} vaba punkti jaoks.
+3. Näit annab horisontaalkauguse (ΔH), vertikaalkauguse (ΔV), kalde protsendina koos suhtega ja sirge pikkuse projekti ühikutes.
 
-Iga lõige näitab ruudustikku nihete ja kõrgustega, maapinda (katkendjoon), projekti, kaevamist ja täidet (oranž ja roheline varjutus), koridori punkte ning all oma pikketti ja kaevamis- ja täitepindalu. Kõik lehtede lõiked on joonistatud samas suuruses, piisavalt kõrged suurimale; kui see ei mahu lehele sinu liialduse juures, kasutab CivilCraft suurimat, mis mahub, ja ütleb seda. Tiitelriba nimetab trassi, lehel olevad pikketid, mõõtkavad ja „Leht 1 / 3“.
+Klõpsa uuesti, et alustada uut mõõtmist. {{key:Esc}} tühjendab mõõtmise ja {{key:M}} lülitab mõõtmise välja.
 
-## Mahud keskmiste otsapindade meetodil
+## Põikprofiilide lehed
 
-Kahe naaberlõike vahel on maht nende kahe pindala keskmine korda nende pikettide vahe. Riba näitab trassi koguväärtusi ja {{ui:CSV}} laadib alla iga lõike pindalad ja mahud jooksvate summadega (kuupjardid jala-projektides, kuupmeetrid meetri-projektides).
+{{ui:Põikprofiilide lehed (PDF)}} jaotises **Proovijooned** paneb iga lõike PDF-lehtedele, ridades vasakult paremale ja ülevalt alla jaama järjekorras. Vali **Paber**, **Plaani mõõtkava** (lõigete horisontaalne mõõtkava) ja **Profiili liialdus** (1×, 2×, 5× või 10×); dialoog ütleb, mitu lõiget mahub lehele ja mitu lehte sellest tuleb.
 
-**Omadused** näitavad samu summasid kõrvuti ruudustikumeetodi mahtudega jaotisest [Pinnasetööde mahud](topic:volumes). Need on kaks erinevat lähendust: lähedamad lõiked toovad need lähemale ning sirgel teel tasasel maal on need samad.
+Iga lõige näitab ruudustikku nihkete ja kõrgustega, maapinda (katkendjoon), projekti, kaevandit ja täidet varjutatuna (oranž ja roheline), koridori punkte ning all oma jaama ja kaevandi ning täite pindu. Kõik lehe lõiked on joonistatud ühesuurused, piisavalt kõrged suurimale neist; kui see ei mahu lehele sinu liialdusega, kasutab CivilCraft suurimat, mis mahub, ja ütleb seda. Pealkirjariba nimetab trassi, lehel olevad jaamad, mõõtkavad ja „Leht 1 / 3“.
+
+## Mida kaevand ja täide mõõdetakse
+
+Koridoril võib olla kihte katte all: katendikihid, malli komponendid, rada. Valik **Mahud mõõdetakse** lõikeribal määrab, kuni kuhu kaevand ja täide ulatuvad:
+
+- **Alumine pind** (algväärtus): kuni nende komponentide alumise servani, nii et kaevand sisaldab katte sügavust.
+- **Ülemine pind**: ainult projekti ülemise pinnani, nagu varem, kui komponente ei arvestatud.
+
+Päise pindalad, allolevad mahud, CSV ja massi ülekandmine järgivad seda valikut ning see salvestatakse projektiga.
+
+## Mahud keskmiste otsapindade järgi
+
+Kahe naabruses oleva lõike vahel on maht nende kahe pindala keskmine korrutatuna nende jaamade vahekaugusega. Riba näitab trassi kogusummasid ja {{ui:CSV}} laeb alla iga lõike pindalad ja mahud jooksvate summadega (kuupjardid jalgade projektidel, kuupmeetrid meetrilistel).
+
+Atribuutides on samad summad kõrvuti ruudustiku meetodi mahtudega [Pinnasetöömahtudest](topic:volumes). Need on kaks erinevat ligikaudset väärtust: lähemad lõiked viivad need lähemale, ja sirgel teel tasasel maal on need samad.
 
 :::note
-Kaevamine ja täide arvestatakse ainult profileeritud aladel (koridori või platsi nõlvajoonte sees), nagu ruudustikumeetodgi. Ilma koridori või platsita on projekt maapind, nii et lõige ei näita kaevamist ega täidet.
+Kaevand ja täide arvestatakse ainult planeeritud aladel (koridori või platvormi päevavalguse joontes), nagu ruudustiku meetod teeb. Ilma koridori või platvormita on projekt maapind, nii et lõige ei näita kaevandit ega täidet.
 :::
 
-## Massiskeem
+## Massi ülekandmine
 
-**Massiskeem** jaotises **Proovijooned** joonistab massiskeemi samadest keskmiste otsapindade mahtudest: pikettide järgi jooksev summa kaevamine miinus täide.
+**Massi ülekandmine** jaotises **Proovijooned** joonistab massi ülekandmise diagrammi samadest keskmise otsapinna mahtudest: jaamade kaupa jooksev summa kaevandist miinus täide.
 
-- **Kahanemine (−) või paisumine (+) kaevamisel** ütleb, mida üks kuupjard kaevamist annab pärast täitena paigaldamist: −10 % (algväärtus, kohatäide) tähendab, et see kahaneb 0.9-ni; paisuv kivi võib olla +5 %. Kasuta oma geotehnilise aruande arvu.
-- Kus joon tõuseb, on tee kaevamises; kus langeb, täites. Nullist kõrgemal (oranž varjutus) liigub muld pikketi suunas üles; nullist madalamal (roheline) allapoole.
-- **Tasakaalupunktid** on kohad, kus joon ületab nulli: kahe nende vahel kaevamine ja täide tasakaalustuvad. Tabel loetleb iga tasakaalustatud lõigu, liigutatud mahu (selle kõrgeima või madalaima punkti) ja keskmise veodistants (varjutatud pindala jagatud selle mahuga).
-- Kus joon lõpeb nullist eemal, on see, mis järele jääb, **ülejääk** (üleval) või **laen** (all). Selles viimases lõigus loetakse liigutatuks ainult muld sellest tasemest kaugemal, millel joon lõpeb.
+- **Kaevandi kahanemine (−) või paisumine (+)** ütleb, mida kuupjard kaevandit teeb, kui see on laotud täiteks: −10 % (algväärtus, kohatäide) tähendab, et see kahaneb 0.9-ni; paisuv kivi võib olla +5 %. Kasuta oma geotehnilise aruande arvu.
+- Kus joon tõuseb, on tee kaevandis; kus langeb, on täitel. Nulli kohal (oranž varjutus) liigub muld jaama suunas üles; nulli all (roheline) alla.
+- **Tasakaalupunktid** on kohad, kus joon lõikab nulli: kahe sellise vahel kaevand ja täide on tasakaalus. Tabel loetleb iga tasakaalustatud lõigu, liigutatud mahu (tema kõrgeim või madalaim punkt) ja keskmise veokauguse (varjutatud pindala jagatud selle mahuga).
+- Kus joon lõpeb nullist eemal, on järele jääv **jäätmed** (üle nulli) või **laen** (alla nulli). Selles viimases lõigus loetakse liigutatuks ainult muld sellest tasemest kaugemal, kus see lõpeb.
 
-**CSV** salvestab massiordinaadi igal lõikel, lõigud ja teguri.
+**CSV** salvestab massi ordinaadi igal lõikel, lõigud ja teguri.

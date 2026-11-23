@@ -113,7 +113,7 @@ export function gravityTree(opt) {
     // just past the trap arm: along the first horizontal leg, an elbow's room from the tail
     const a = pts[0], b = pts[1], L = dist(a, b), d = Math.min(L * 0.5, Math.max(150, (t.size.od || 50) * 2));
     const q = [a[0] + (b[0] - a[0]) * d / L, a[1] + (b[1] - a[1]) * d / L, zStart - slope * d];
-    vents.push({ id: t.id, at: q, up: opt.ventLength ?? 300 });
+    vents.push({ id: t.id, at: q, up: opt.ventLength ?? 300, trapToVent: Math.round((Math.max(0, t.p[2] - zStart) + d) * 10) / 10 });
   };
   mainRuns.forEach((r, k) => {
     const P = pieces[k], zStart = zOut + rise(P.a + P.len);
@@ -132,12 +132,42 @@ export function gravityTree(opt) {
     ventAt(x.t, flat, zStart, sl);
   }
   if (tees.length) notes.push('junction-wye');
+  // the developed length from each trap (its connector) down the tail and along the drains to the outlet: where a fixture is vented
+  // through the stack alone, this is its trap-to-vent distance
+  const toOutlet = {};
+  toOutlet[endT.id] = Math.round((Math.max(0, drops[endT.id]) + mainLen) * 10) / 10;
+  for (const x of tees) toOutlet[x.t.id] = Math.round((Math.max(0, drops[x.t.id]) + lengthOf(x.run.points) + x.s) * 10) / 10;
+  // a 45-degree wye where a drain meets a drain (a drain never takes a square tee): the run model draws what it can, the kind is named here
+  const junctions = tees.map((x) => ({ kind: 'wye', angle: 45, at: x.run.points[0].slice(), branch: x.t.id, size: x.t.size.key, nominal: x.t.size.nominal }));
   // the promise, checked on the real (sloped) centre lines
   const real = runs.map((r) => { const p = r.points.map(pt), out = [];
     let z = null; for (let i = 0; i < p.length; i++) { if (z === null) z = p[i][2]; else if (Math.abs(p[i][0] - p[i - 1][0]) + Math.abs(p[i][1] - p[i - 1][1]) > EPS) z -= r.slope * dist([p[i][0], p[i][1], 0], [p[i - 1][0], p[i - 1][1], 0]); else z = p[i][2]; out.push([p[i][0], p[i][1], z]); }
     return out; });
   const clash = real.some((pts, i) => { const c = (runs[i].od || 50) / 2 + (opt.clearance ?? 25) - 1; return pts.length > 1 && hitsObstacle(pts, opt.obstacles || [], c); });
-  return { ok: !failed.length, runs, vents, failed, notes, zOut, drops, net, clash, tees: net.tees };
+  return { ok: !failed.length, runs, vents, failed, notes, zOut, drops, net, clash, tees: net.tees, junctions, toOutlet };
+}
+
+/**
+ * Trap-to-vent distances (0.11 MEP.2). `opt.vent`: 'own' (default: each fixture has its own vent stub just past its trap arm; the distance is the
+ * developed length from the trap down the tail to the stub) or 'stack' (no stub: the fixture is vented through the stack; the distance is the
+ * developed length from the trap to the stack). The most a code allows is the PERSON'S (or the host's cited table): `rules.ventLimit(trapNominal,
+ * slope) → mm | null`, or `opt.ventLimit` (one number, mm). With none, the distances are reported and nothing is checked (note 'vent-limit-not-set').
+ * Never a claim of compliance: it compares two numbers the person can see.
+ */
+function ventChecks(opt, fixtures, vents, toOutlet, runs, failed) {
+  const R = opt.rules, mode = opt.vent === 'stack' && (opt.stacks || []).length ? 'stack' : 'own';
+  const rows = [];
+  for (const f of fixtures) {
+    const own = (vents || []).find((v) => v.id === f.id);
+    const d = mode === 'stack' ? toOutlet?.[f.id] : own?.trapToVent;
+    if (!Number.isFinite(d)) continue;
+    const run = (runs || []).find((r) => r.terminal === f.id);
+    const lim = Number.isFinite(opt.ventLimit) ? opt.ventLimit : R.ventLimit ? R.ventLimit(f.dn, run?.slope) : null;
+    const row = { id: f.id, mode, distance: d, limit: Number.isFinite(lim) ? lim : null, ok: !Number.isFinite(lim) || d <= lim + 1e-9 };
+    rows.push(row);
+    if (!row.ok) failed.push({ id: f.id, error: 'vent-distance', over: Math.round((d - lim) * 10) / 10 });
+  }
+  return { ventChecks: rows, vents: mode === 'stack' ? [] : vents };
 }
 
 export function planDrainage(opt) {
@@ -148,7 +178,8 @@ export function planDrainage(opt) {
   const base = { rules: R, minTail, clearance: opt.clearance, obstacles: opt.obstacles || [], ventLength: opt.ventLength };
   if (!stacks.length) {
     const r = gravityTree({ ...base, outlet: opt.outlet, terminals: fixtures });
-    return { ...r, stacks: [] };
+    const vc = ventChecks(opt, fixtures, r.vents, r.toOutlet, r.runs, r.failed);
+    return { ...r, stacks: [], ...vc, ok: r.ok && !r.failed.length };
   }
   // fixtures to stacks
   const groups = new Map(stacks.map((s) => [s.id, []]));
@@ -158,28 +189,40 @@ export function planDrainage(opt) {
     if (!s) { failed.push({ id: f.id, error: 'no-stack' }); continue; }
     groups.get(s.id).push(f);
   }
-  const runs = [], vents = [], notes = new Set(), stackOut = [], feet = [], drops = {};
+  const runs = [], vents = [], notes = new Set(), stackOut = [], feet = [], drops = {}, toOutlet = {}, junctions = [];
   let clash = false;
   const stackBox = (s, od) => ({ min: [s.p[0] - od / 2, s.p[1] - od / 2, -1e7], max: [s.p[0] + od / 2, s.p[1] + od / 2, 1e7] });
   for (const s of stacks) {
     const g = groups.get(s.id);
     if (!g.length) continue;
-    const cx = g.reduce((n, f) => n + f.p[0], 0) / g.length, cy = g.reduce((n, f) => n + f.p[1], 0) / g.length;
+    // 0.11: several storeys in one go: the fixtures of one stack are split by their `storey` (the host's key); each storey's laterals are
+    // routed flat at their own level and tap the one stack there; the stack runs from above the highest tap to the foot below the lowest
+    const byStorey = new Map();
+    for (const f of g) { const k = f.storey ?? ''; if (!byStorey.has(k)) byStorey.set(k, []); byStorey.get(k).push(f); }
     const others = stacks.filter((x) => x.id !== s.id).map((x) => stackBox(x, 150));
-    const tree = gravityTree({ ...base, obstacles: [...base.obstacles, ...others], outlet: { p: [s.p[0], s.p[1], 0], out: dirOut(s.p, [cx, cy]) }, terminals: g.map((f) => ({ ...f, stack: false })) });
-    for (const f of tree.failed) failed.push(f);
-    if (!tree.runs.length) continue;
-    Object.assign(drops, tree.drops);
-    for (const n of tree.notes) notes.add(n);
-    clash = clash || tree.clash;
-    runs.push(...tree.runs); vents.push(...tree.vents);
-    const taps = tree.runs.filter((r) => r.role === 'main').slice(0, 1).map((r) => ({ z: r.inverts[1], units: r.units }));
+    const taps = [];
+    for (const [key, gs] of byStorey) {
+      const cx = gs.reduce((n, f) => n + f.p[0], 0) / gs.length, cy = gs.reduce((n, f) => n + f.p[1], 0) / gs.length;
+      const tree = gravityTree({ ...base, obstacles: [...base.obstacles, ...others], outlet: { p: [s.p[0], s.p[1], 0], out: dirOut(s.p, [cx, cy]) }, terminals: gs.map((f) => ({ ...f, stack: false })) });
+      for (const f of tree.failed) failed.push(f);
+      if (!tree.runs.length) continue;
+      Object.assign(drops, tree.drops); Object.assign(toOutlet, tree.toOutlet || {});
+      for (const n of tree.notes) notes.add(n);
+      junctions.push(...(tree.junctions || []));
+      clash = clash || tree.clash;
+      for (const r of tree.runs) r.storey = key;
+      for (const v of tree.vents) v.storey = key;
+      runs.push(...tree.runs); vents.push(...tree.vents);
+      const m = tree.runs.filter((r) => r.role === 'main')[0];
+      if (m) taps.push({ z: m.inverts[1], units: gs.reduce((n, f) => n + f.units, 0), storey: key });
+    }
+    if (!taps.length) continue;
     const units = g.reduce((n, f) => n + f.units, 0);
-    const lateral = Math.max(0, ...tree.runs.filter((r) => r.role === 'main').map((r) => r.nominal));
-    const size = R.sizes.find((z) => z.nominal + 1e-9 >= Math.max(lateral, ...g.map((f) => f.dn || 0)) && R.capacity(z.nominal, R.slopeOf(z.nominal) ?? 0.01, 'branch') >= units);
+    const lateral = Math.max(0, ...runs.filter((r) => r.role === 'main' && g.some((f) => f.id === r.terminal)).map((r) => r.nominal), ...g.map((f) => f.dn || 0));
+    const size = R.sizes.find((z) => z.nominal + 1e-9 >= lateral && R.capacity(z.nominal, R.slopeOf(z.nominal) ?? 0.01, 'branch') >= units);
     if (!size) { failed.push({ id: 'stack:' + s.id, error: 'too-big' }); continue; }
     const tapZ = Math.min(...taps.map((x) => x.z)), topZ = Math.max(...taps.map((x) => x.z));
-    stackOut.push({ id: s.id, units, size: size.key, nominal: size.nominal, od: size.od, top: topZ, taps, p: s.p, tap: tapZ });
+    stackOut.push({ id: s.id, units, size: size.key, nominal: size.nominal, od: size.od, top: topZ, taps, storeys: byStorey.size, p: s.p, tap: tapZ });
     feet.push({ id: 'stack:' + s.id, p: [s.p[0], s.p[1], tapZ - footBelow], units, dn: size.nominal, stack: true, noTail: true, _s: s });
   }
   // the building drain: from each stack's foot to the outlet
@@ -187,7 +230,10 @@ export function planDrainage(opt) {
   for (const f of bd.failed) failed.push(f);
   for (const n of bd.notes) notes.add(n);
   clash = clash || bd.clash;
+  const lowKey = (st) => st.taps.reduce((m, x) => (x.z < m.z ? x : m), st.taps[0]).storey;
   for (const r of bd.runs) {
+    const st = stackOut.find((x) => 'stack:' + x.id === r.terminal);
+    r.storey = st ? lowKey(st) : stackOut.length ? lowKey(stackOut[0]) : undefined;
     // the stack's foot is where its own run ends: the first, vertical part of the building drain's first run is the stack (no tail drawn)
     runs.push(r);
   }
@@ -195,7 +241,10 @@ export function planDrainage(opt) {
     const fr = bd.runs.find((r) => r.terminal === 'stack:' + st.id);
     const foot = fr ? fr.inverts[0] : st.tap - footBelow;
     st.foot = foot;
-    runs.push({ role: 'stack', points: [[st.p[0], st.p[1], st.top + (opt.stackAbove ?? 300)], [st.p[0], st.p[1], foot]], size: st.size, nominal: st.nominal, od: st.od, slope: 0, units: st.units, terminal: null, from: 'stack', inverts: [st.top, foot] });
+    runs.push({ role: 'stack', storey: lowKey(st), points: [[st.p[0], st.p[1], st.top + (opt.stackAbove ?? 300)], [st.p[0], st.p[1], foot]], size: st.size, nominal: st.nominal, od: st.od, slope: 0, units: st.units, terminal: null, from: 'stack', inverts: [st.top, foot] });
   }
-  return { ok: !failed.length && bd.ok, runs, vents, stacks: stackOut.map(({ p, tap, ...s }) => s), failed, notes: [...notes], drops: { ...drops, ...bd.drops }, zOut: bd.zOut, clash, net: bd.net };
+  junctions.push(...(bd.junctions || []));
+  // the stack's own distance to the outlet is part of every fixture's way to the building drain; trap-to-vent is measured to the stack
+  const vc = ventChecks(opt, fixtures, vents, toOutlet, runs, failed);
+  return { ok: !failed.length && bd.ok, runs, vents: vc.vents, ventChecks: vc.ventChecks, stacks: stackOut.map(({ p, tap, ...s }) => s), failed, notes: [...notes], drops: { ...drops, ...bd.drops }, zOut: bd.zOut, clash, net: bd.net, junctions };
 }

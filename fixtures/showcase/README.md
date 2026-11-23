@@ -267,3 +267,18 @@ without `--force`. All CC0, ours, made up to show the tools (not engineered desi
 - `scan-rim-can.stl` and `scan-var-fillet-block.stl` (binary STL; CC0, ours; 0.9 SU.1082, video 18-scan-fit, 2026-11-09): synthetic "scans" with known truth, written once from `tools/nurbs/scan-fixtures.mjs` (`roundedCan(20, 40, 4, 96, 8, 0.01)`: a can R 20, H 40 mm with a rim fillet of 4 mm, 0.01 mm noise; `varFilletBlock(60, 40, 30, x => 2 + 4x/60, 10, 0.01)`: a 60 x 40 x 30 mm block whose edge radius runs 2 to 6 mm). Shots: import in /lab/modelcraft, Surfaces › Scan › Fit (tolerance 0.1 mm) lists the Torus / Variable fillet rows, then Stitch. Not a real scan.
 - `detailcraft-frame-live-load.detailcraft.json` (CC0, ours; 0.9 SU.1056, video 19-pdelta, 2026-11-09): DetailCraft's built-in sample frame with a 20 kN/m live load (case L) on its first beam, saved from the app's own model (`model.toJSON()`). Shots: open it in /lab/detailcraft, Analysis tab, Run, tick Second order (P-Delta), Run again.
 - `modelcraft-step-part.modelcraft` (CC0, ours; 0.9 TW.13, video 20-conveyor-from-step, 2026-11-09): `fixtures/step/box.step` (50 x 40 x 30 mm) imported through ModelCraft's own Import and saved with `modelcraft.file()`. Shots: open it in /lab/modelcraft with the Digital twin add-on on, Behaviours on imported parts › Pick a face (top), Conveyor, Test. A plain box, not a real machine part.
+- `bimcraft-hillside-ranch.ifc` (IFC4, ~2.9 MB; CC0; 2026-11-20): "Hillside ranch", a one-story 60'-0" x 30'-0" house (1,800 sq ft over the
+  outside faces) on a lot that falls about 14 % from the street (north) to the back. Its own wall type `wall-stucco-2x6` (7/8" stucco,
+  membrane, 1/2" OSB, 2x6 studs, 1/2" gypsum) painted Sand stucco, 2x4 partitions, 14 named rooms (living room, kitchen / dining, hall,
+  laundry, 2 baths, 4 bedrooms, 4 closets), 13 doors, 12 windows, a floor and a ceiling per room, a 5/12 hip roof with 24" eaves painted
+  roof tile, a crawlspace foundation whose stem walls and footings step down the slope, terrain, driveway, walk, two entry landings,
+  section lines A and B, and stick framing for every wall and the roof. Plumbing (added 2026-11-20): 9 fixtures (kitchen sink, laundry
+  tub, tub, shower, 2 water closets, 3 lavatories) and 17 PVC runs: fixture drains, two 3" collectors under the floor, a 4" building
+  drain and sewer leaving through the south stem wall, an 8" public sewer main running east-west 30'-0" south of the project origin
+  with its centre 4'-0" below the ground, three 2" vent stacks through the roof; 17 drainage fixture units reach the main. Water
+  heater WH-1 (a Navien NPE-240A2 gas tankless, drawn as the generic water heater) in the laundry with a 1" cold service, 3/4" hot and
+  cold trunks under the floor, 1/2" branches, a 3/4" gas line and a flue through the roof (40 runs in all). Place: Sanger, California
+  (IfcSite latitude / longitude), true north = plan -x, so the back (downhill) side faces due west. The terrain hides the buried pipes in 3D: hide Terrain or use the plan. Made once through BimCraft's own ops by
+  `node tools/bimcraft-test/make-hillside-ranch.mjs` (keeps an existing file; `--force` makes it again). A copy is served at
+  `/lab-files/hillside-ranch.ifc`; `/lab/bimcraft?open=hillside-ranch.ifc` opens it (lab only). Shots: viewer direction (-0.6, 0.35, -1)
+  for the street side, (0.7, 0.35, 1) or (1, 0.12, 0.15) for the slope and the stepped foundation.

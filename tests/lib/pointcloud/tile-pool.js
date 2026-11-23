@@ -9,8 +9,8 @@
  */
 import { PcError } from './util.js';
 
-export async function defaultSpawn() {
-  const url = new URL('./tile-worker.js', import.meta.url);
+export async function defaultSpawn(file = './tile-worker.js') {
+  const url = new URL(file, import.meta.url);
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     const { Worker: NW } = await import('node:worker_threads');
     return () => {

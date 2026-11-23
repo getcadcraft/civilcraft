@@ -66,6 +66,7 @@ export function check({ devices = [], tags = [] } = {}, { loopback = false } = {
     if (!id) { P2.push(problem('map.tag', 'error', 'A tag needs an id.', about)); continue; }
     if (seen.has(id)) { P2.push(problem('map.dup', 'error', `The tag id ${id} is used twice.`, about)); continue; }
     seen.add(id);
+    if (String(g.address ?? '').trim() === '') { P2.push(problem('map.unbound', 'note', `${id}: no address yet, so it is not read (fill in the device and the address).`, about)); continue; }   // 0.11 IND.12: a row filled from the drawing
     const d = dev.get(g.device);
     if (!d) { P2.push(problem('map.nodevice', 'error', `${id}: there is no device called "${g.device || ''}".`, about)); continue; }
     const a = checkAddress(d.protocol, g.address, g.type);
@@ -123,10 +124,10 @@ export function planReads(devices, tags) {
   const out = [];
   for (const d of devices) {
     const mine = tags.filter((g) => g.device === d.id); if (!mine.length) continue;
-    const plan = { device: d.id, protocol: d.protocol, host: d.host, port: d.port ?? PROTOCOLS[d.protocol], nodes: [], requests: [] };
+    const plan = { device: d.id, protocol: d.protocol, host: d.host, port: d.port ?? PROTOCOLS[d.protocol], nodes: [], tags: [], requests: [] };
     for (const g of mine) {
       const a = checkAddress(d.protocol, g.address, g.type); if (!a.ok) continue;
-      plan.nodes.push(g.address);
+      plan.nodes.push(g.address); plan.tags.push({ node: g.address, type: g.type || undefined });
       if (d.protocol === 'modbus') { const words = modbus.TYPES[g.type || 'u16'] || 1; plan.requests.push({ node: g.address, bytes: modbus.readRequest({ tid: plan.requests.length + 1, unit: d.unit ?? 1, fc: a.parsed.fc, address: a.parsed.address, quantity: a.parsed.fc <= 2 ? 1 : words }) }); }
       else if (d.protocol === 'bacnet') plan.requests.push({ node: g.address, bytes: bacnet.readProperty({ invoke: plan.requests.length & 255, object: a.parsed, property: 'present-value' }) });
       else if (d.protocol === 'mqtt') plan.requests.push({ node: g.address, filter: g.address.split('#json.')[0] });
@@ -137,7 +138,16 @@ export function planReads(devices, tags) {
 }
 
 /** A store ready for the map, and the problems of defining it. */
-export function makeStore(tags, opts = {}) { const s = new LiveStore(opts), r = s.define(toStoreMap(tags)); return { store: s, problems: r.problems }; }
+export function makeStore(tags, opts = {}) { const s = new LiveStore(opts), r = s.define(toStoreMap(bound(tags))); return { store: s, problems: r.problems }; }
+/** Tags that have an address (rows filled from a drawing wait for one and are left out of the store). */
+export const bound = (tags) => tags.filter((g) => String(g.address ?? '').trim() !== '');
+/** 0.11 IND.12: map rows for drawing tags the map does not show yet (target = the tag, the address left for the person). Returns { tags, added }. */
+export function fillFromDrawing(tags, drawingTags, device = '') {
+  const have = new Set(); for (const g of tags) { have.add(String(g.id)); const tg = String(g.target || g.id || ''); have.add(tg.replace(/^pid:/, '')); }
+  const out = tags.slice(), added = [];
+  for (const raw of drawingTags || []) { const tag = cleanText(raw, 120); if (!tag || have.has(tag)) continue; have.add(tag); const g = { id: tag, label: tag, target: tag }; if (device) g.device = device; out.push(g); added.push(tag); }
+  return { tags: out, added };
+}
 
 /** Readings from a CSV export (tag,time,value,quality) applied to a store by tag id: how a map is tried with no device at all. */
 export function applyCsvReadings(store, tags, text) {
@@ -145,7 +155,9 @@ export function applyCsvReadings(store, tags, text) {
   const head = rows[0].map((h) => h.trim().toLowerCase()), ix = (n) => head.indexOf(n), unknown = [];
   const byId = new Map(tags.map((g) => [g.id, g]));
   let applied = 0;
-  for (const r of rows.slice(1)) {
+  const tix = ix('time'), body = rows.slice(1).map((r, i) => ({ r, i, at: tix >= 0 && r[tix] ? Date.parse(r[tix]) : NaN }));
+  body.sort((a, b) => (Number.isFinite(a.at) && Number.isFinite(b.at) ? a.at - b.at : 0) || a.i - b.i);   // 0.11 IND.12: a historian export in any order still builds the trend
+  for (const { r } of body) {
     const id = String(r[ix('tag')] ?? '').trim(), g = byId.get(id);
     if (!g) { if (id) unknown.push(id); continue; }
     const v = Number(r[ix('value')]), q = String(r[ix('quality')] ?? 'good').toLowerCase(), at = r[ix('time')] ? Date.parse(r[ix('time')]) : Date.now();

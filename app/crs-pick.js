@@ -169,18 +169,29 @@ export function groundFactor(crs, x, y, z = 0) {
 }
 
 /** Converts every coordinate of a project (state + survey points) with map(x, y) → [x, y]. Call inside one undo step
- *  (Project.editPoints). Refuses a surface read from LandXML (its TIN is kept outside the undo snapshots). */
+ *  (Project.editPointTable with ed.table → { xs, ys } for ed.setXY; or Project.editPoints with the array → { points }). Refuses a surface read from LandXML (its TIN is kept outside the undo snapshots). */
 export function reprojectProject(state, points, map) {
   if (state.surface?.tin) return { points, moved: 0, refused: t('crs.reproject.tin') };
   let moved = 0;
   const xy = (q) => { const [x, y] = map(q.x, q.y); if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error(t('crs.reproject.coord')); q.x = x; q.y = y; moved++; };
-  const pts = points.map((p) => { const [x, y] = map(p.x, p.y); if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error(t('crs.reproject.point', { n: p.n })); moved++; return { ...p, x, y }; });
+  // 0.11 (the cap lifted): the project's point table (Project.editPointTable's ed.table) → the new x and y as two arrays, for ed.setXY;
+  // an array of point objects → new objects, as before
+  let pts = null, xs = null, ys = null;
+  if (points && typeof points.setXY === 'function' && Array.isArray(points.blocks)) {
+    xs = new Float64Array(points.length); ys = new Float64Array(points.length);
+    let i = 0;
+    for (const b of points.blocks) for (let k = 0; k < b.n; k++, i++) {
+      const o = b.irr && b.irr.get(k), [x, y] = map(o ? o.x : b.x[k], o ? o.y : b.y[k]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error(t('crs.reproject.point', { n: o ? o.n : points.rowName(b, k) }));
+      xs[i] = x; ys[i] = y; moved++;
+    }
+  } else pts = points.map((p) => { const [x, y] = map(p.x, p.y); if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error(t('crs.reproject.point', { n: p.n })); moved++; return { ...p, x, y }; });
   for (const b of state.surface?.breaklines || []) b.pts.forEach(xy);
   if (state.surface?.boundary) state.surface.boundary.forEach(xy);
   for (const a of state.alignments || []) a.pis.forEach(xy);
   for (const d of state.pads || []) d.pts.forEach(xy);
   for (const s of state.network?.structures || []) xy(s);
-  return { points: pts, moved, refused: null };
+  return xs ? { xs, ys, moved, refused: null } : { points: pts, moved, refused: null };
 }
 
 export { METRES_PER };

@@ -143,6 +143,16 @@ export async function acousticsMode({ APP, WebIFC, IfcModel, quiet }) {
   const dry = AM.acousticsRooms(ed, { env: { RH: 20 } }).find((r) => r.id === west.id);
   ok(dry.res.bands[5].T < west.res.bands[5].T && near(dry.res.bands[1].T, west.res.bands[1].T, 0.01), 'drier air (20 % humidity) absorbs more at 4 kHz and shortens it (' + west.res.bands[5].T.toFixed(2) + ' → ' + dry.res.bands[5].T.toFixed(2) + ' s), the bass is unchanged');
 
+  console.log('== 0.11 XE.3 S2: the same rooms as a traced model (simplify.js through acousticsGeometry)');
+  ok0(Buffer.compare(fsx.readFileSync(path.join(ROOTX, 'lib/acoustics/simplify.js')), fsx.readFileSync(path.join(APP, 'simplify.js'))) === 0, 'lib/acoustics/simplify.js = the BimCraft copy (tools/acoustics/sync.mjs)');
+  for (const rm of [west, east]) {
+    const g = AM.acousticsGeometry(rm, {}), st = Object.fromEntries(rm.surfaces.map((x) => [x.name, x.area_m2]));
+    const op = (key) => g.surfaces.filter((x) => x.part === 'opening' && x.key === key).reduce((a2, x) => a2 + x.area_m2, 0);
+    ok(g.ok && g.closure < 1e-9 && near(g.volume_m3, rm.area_m2 * rm.height_m, 0.02 * rm.volume_m3), rm.name + ': closed traced model of ' + g.surfaces.length + ' surfaces, ' + g.volume_m3.toFixed(2) + ' m³ (the room says ' + rm.volume_m3 + ')');
+    ok(near(op('door'), st.doors || 0, 0.01) && near(op('glass'), st.windows || 0, 0.01), rm.name + ': its doors (' + op('door').toFixed(2) + ' m²) and windows (' + op('glass').toFixed(2) + ' m²) are the ones the statistical room counts');
+    const rs = A.reverb(g.spec), rb = A.reverb({ volume_m3: rm.area_m2 * rm.height_m, surfaces: rm.surfaces.map((x) => ({ area_m2: x.area_m2, alpha: A.MATERIALS[x.key].alpha })) });
+    ok(rs.ok && Math.abs(rs.mid.T - rb.mid.T) / rb.mid.T < 0.03, rm.name + ': reverb() on the traced model\'s areas is the room\'s within 3 % (' + rs.mid.T.toFixed(3) + ' vs ' + rb.mid.T.toFixed(3) + ' s)');
+  }
   console.log('== EG.49 round 3: finishes read from the model, people and furniture, a source and a listener the person places');
   ok(west.finishSource.wall === 'model' || west.finishSource.wall === 'default', 'the room says where each finish came from: ' + JSON.stringify(west.finishSource));
   // a house of masonry walls: the inside layer is concrete, which the room now reads from the wall type

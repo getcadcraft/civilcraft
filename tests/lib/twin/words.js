@@ -138,5 +138,9 @@ export const WORDS = {
   'twin.bh.res.joint': 'Moving to {target} at {rate} per second takes {t} s{limit}.', 'twin.bh.res.jointLimit': '; stopped at the {which} limit, {value}',
   'twin.bh.res.sensor': 'A test load on the first conveyor surface breaks the beam at {on} s and clears it at {off} s.', 'twin.bh.res.sensorNone': 'A test load on the first conveyor surface never breaks the beam.',
   'twin.bh.outcome.arrived': 'arrived', 'twin.bh.outcome.stuck': 'stuck', 'twin.bh.outcome.fell': 'fell off', 'twin.bh.outcome.tipped': 'tipped',
+  'twin.bh.flow': 'Material flow item', 'twin.bh.flowNone': '(none)', 'twin.bh.job.read': 'Material flow reads: {set}.',
+  'twin.bh.job.why.off': 'Switched off: the flow item keeps its own numbers.', 'twin.bh.job.why.no-item': 'That item is not in the flow layout.', 'twin.bh.job.why.wrong-item': 'That kind of item cannot take this job.',
+  'twin.bh.job.why.no-face': 'The part or face is not found: the flow item keeps its own numbers.', 'twin.bh.job.why.belt-not-a-job': 'The belt this sensor is on is not a conveyor job.', 'twin.bh.job.why.needs-plane': 'The sensor needs a flat face.',
+  'twin.bh.job.why.face-down': 'The belt face points down.', 'twin.bh.job.why.leans': 'The belt face leans across its direction.', 'twin.bh.job.why.dir': 'The belt direction is not along the face.', 'twin.bh.job.why.no-points': 'The belt face has no outline.',
   'twin.bh.note': 'The face is taken as its bounding rectangle along the direction. Not a safety validation.',
 };

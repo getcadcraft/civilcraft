@@ -1,0 +1,29 @@
+{
+  "format": "cadcraft-barrier-starter-types",
+  "version": 1,
+  "note": "0.11 su-finish-11 barriers: CadCraft's starter Barriers types (Library kind type, category types/barriers). Sizes are ordinary product sizes in mm, chosen as usual examples; none is a code value and none was checked against a standard. bin/library-seed-barriers.php saves them as drafts (staff only); --publish is the owner's go at release.",
+  "types": [
+    { "key": "fence-post-rail-1200", "name": "Post and rail fence 1.2 m", "description": "Timber post and rail fence: three rails between square posts. Usual product sizes, not a code check; check local rules before you build.",
+      "barrier": { "subtype": "fence", "height": 1200, "style": "rails", "postSize": 125, "postSpacing": 2400, "rails": 3, "railSize": 90, "embed": 600 } },
+    { "key": "fence-panel-1800", "name": "Panel fence 1.8 m", "description": "Close-boarded panel fence: one solid panel between posts. Usual product sizes, not a code check; check local rules before you build.",
+      "barrier": { "subtype": "fence", "height": 1800, "style": "panel", "postSize": 100, "postSpacing": 1830, "panelThk": 40, "gap": 50, "embed": 600 } },
+    { "key": "fence-picket-1000", "name": "Picket fence 1.0 m", "description": "Picket fence: pickets on two rails between posts. Usual product sizes, not a code check; check local rules before you build.",
+      "barrier": { "subtype": "fence", "height": 1000, "style": "pickets", "postSize": 100, "postSpacing": 2400, "rails": 2, "railSize": 75, "picketW": 90, "picketGap": 60, "gap": 50, "embed": 600 } },
+    { "key": "fence-chain-link-1800", "name": "Chain-link fence 1.8 m", "description": "Chain-link mesh on round steel posts, drawn as a thin panel between posts. Usual product sizes, not a code check; check local rules before you build.",
+      "barrier": { "subtype": "fence", "height": 1800, "style": "panel", "postSize": 60, "postSpacing": 3000, "panelThk": 4, "gap": 50, "embed": 600 } },
+    { "key": "guard-glass-1070", "name": "Glass panel guard 1070 mm", "description": "Guard with glass infill panels and a top rail. Usual product sizes, not a code check: guard height and openings are set by your building code.",
+      "barrier": { "subtype": "guard", "height": 1070, "infill": "panel", "postSize": 50, "postSpacing": 1500, "railSize": 50, "infillSize": 12 } },
+    { "key": "guard-baluster-1070", "name": "Baluster guard 1070 mm", "description": "Guard with square balusters between a top and a bottom rail. Usual product sizes, not a code check: guard height and openings are set by your building code.",
+      "barrier": { "subtype": "guard", "height": 1070, "infill": "balusters", "postSize": 90, "postSpacing": 1800, "railSize": 65, "infillSize": 20, "infillGap": 90 } },
+    { "key": "handrail-round-40", "name": "Round handrail 40 mm", "description": "Round wall-mounted handrail on brackets. Usual product sizes, not a code check: handrail height and grip size are set by your building code.",
+      "barrier": { "subtype": "handrail", "height": 900, "profile": "round", "railSize": 40, "wallGap": 50, "bracketSpacing": 1200 } },
+    { "key": "handrail-rect-60", "name": "Rectangular timber handrail 60 mm", "description": "Rectangular timber handrail on brackets. Usual product sizes, not a code check: handrail height and grip size are set by your building code.",
+      "barrier": { "subtype": "handrail", "height": 900, "profile": "rect", "railSize": 60, "wallGap": 50, "bracketSpacing": 1200 } },
+    { "key": "balustrade-steel-1100", "name": "Steel baluster balustrade 1100 mm", "description": "Steel balustrade with round balusters and a flat top rail. Usual product sizes, not a code check: height and openings are set by your building code.",
+      "barrier": { "subtype": "balustrade", "height": 1100, "infill": "balusters", "postSize": 50, "postSpacing": 1500, "railSize": 50, "infillSize": 16, "infillGap": 90 } },
+    { "key": "guardrail-w-beam", "name": "W-beam road guardrail", "description": "Steel W-beam guardrail on posts along a road. Usual product sizes, not a road safety check: road restraint systems are chosen and tested under your road authority's rules.",
+      "barrier": { "subtype": "guardrail", "height": 790, "beam": "w-beam", "postSize": 150, "postSpacing": 1905, "beamDepth": 310 } },
+    { "key": "guardrail-thrie-beam", "name": "Thrie-beam road guardrail", "description": "Steel thrie-beam guardrail on posts along a road. Usual product sizes, not a road safety check: road restraint systems are chosen and tested under your road authority's rules.",
+      "barrier": { "subtype": "guardrail", "height": 860, "beam": "thrie-beam", "postSize": 150, "postSpacing": 1905, "beamDepth": 510 } }
+  ]
+}

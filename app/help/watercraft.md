@@ -9,7 +9,7 @@ keywords: watercraft, water distribution, demands, customers, peaking factor, de
 WaterCraft is an add-on that works on the water network you already drew with the Water mains tools. It adds a tab to the right-hand panel with four sections.
 
 :::warning
-A calculation aid only. It was checked against hand answers on made-up networks, not on a real utility model. A water engineer must check every result. There are no booster stations, no second-order decay and no scenarios yet.
+A calculation aid only. It was checked against hand answers on made-up networks, not on a real utility model. A water engineer must check every result. Scenarios, control rules, valves and field readings have their own topics, "Scenarios" and "Studies", in the WaterCraft add-on's help.
 :::
 
 ## What you'll do

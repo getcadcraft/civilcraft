@@ -10,13 +10,37 @@
  *       "Netlists do not match.", pin-list lines and the final result
  *   parseLvsJson(text) → the same shape from Netgen's -json file (an array of circuit records: name, devices, nets, badnets, badelements, pins)
  *   lvsRows(result) → rows   (a mismatched circuit = error on that cell; device/net count differences with req/found; property errors = warning)
+ *   extractSteps({ gds, cell, tech, out = 'out/layout.spice' }) → Magic (the person's own; a separate program) reads the GDSII with the PDK's
+ *       Magic tech file and writes the transistor-level layout netlist (cc_extract.tcl, ours). lvsSteps({ gds, tech, … }) puts it first.
+ *   lvsSteps({ …, cells: [spice…] }) → the schematic side is the cells' SPICE + a Verilog netlist (readnet spice, readnet verilog), run
+ *       as `netgen -batch source cc_lvs.tcl` (the standard-cell netlist on its own has no transistors to compare)
  */
 import { row } from './rows.js';
 
-export function lvsSteps({ layout, layoutCell, schematic, schematicCell, setup, out = 'out/lvs.out' } = {}) {
+const CELLNAME = (c) => String(c || '').replace(/[^\w$.-]/g, '');
+const TCLWORD = (f) => '{' + String(f).replace(/[{}\\]/g, '') + '}';
+
+export function extractSteps({ gds, cell, tech, out = 'out/layout.spice' } = {}) {
+  if (!gds || !cell || !tech) throw new Error('extractSteps: a GDSII file, its top cell and the Magic tech file');
+  const tcl = ['# made by CadCraft\'s Chip design add-on: layout netlist for LVS', 'drc off', 'gds readonly true', 'gds read ' + TCLWORD(gds), 'load ' + CELLNAME(cell),
+    'select top cell', 'extract no all', 'extract do local', 'extract all', 'ext2spice lvs', 'ext2spice -o ' + TCLWORD(out), 'quit -noprompt', ''].join('\n');
+  return { steps: [{ tool: 'magic', label: 'magic extract', args: ['-dnull', '-noconsole', '-T', tech, 'cc_extract.tcl'] }], extra: { 'cc_extract.tcl': tcl }, out };
+}
+
+export function lvsSteps({ layout, layoutCell, schematic, schematicCell, setup, out = 'out/lvs.out', cells = [], gds = '', tech = '' } = {}) {
+  let pre = { steps: [], extra: {} };
+  if (gds && tech && !layout) { pre = extractSteps({ gds, cell: layoutCell, tech }); layout = pre.out; }
   if (!layout || !schematic || !setup) throw new Error('lvsSteps: layout, schematic and setup');
-  const cell = (f, c) => (c ? f + ' ' + String(c).replace(/[^\w$.-]/g, '') : f);
-  return { steps: [{ tool: 'netgen', label: 'netgen lvs', args: ['-batch', 'lvs', cell(layout, layoutCell), cell(schematic, schematicCell || layoutCell), setup, out, '-json'] }], extra: {}, collect: ['out/'] };
+  const cell = (f, c) => (c ? f + ' ' + CELLNAME(c) : f);
+  if (cells.length) {
+    const sc = CELLNAME(schematicCell || layoutCell), lc = CELLNAME(layoutCell);
+    const read = (f) => (/\.s?v$/i.test(f) ? 'readnet verilog ' : 'readnet spice ') + TCLWORD(f) + ' $source';
+    const tcl = ['# made by CadCraft\'s Chip design add-on: layout versus schematic', 'set layout [readnet spice ' + TCLWORD(layout) + ']',
+      'set source [readnet spice ' + TCLWORD(cells[0]) + ']', ...cells.slice(1).map(read), read(schematic),
+      `lvs "$layout ${lc}" "$source ${sc}" ${TCLWORD(setup)} ${TCLWORD(out)} -json`, 'quit', ''].join('\n');
+    return { steps: [...pre.steps, { tool: 'netgen', label: 'netgen lvs', args: ['-batch', 'source', 'cc_lvs.tcl'] }], extra: { ...pre.extra, 'cc_lvs.tcl': tcl }, collect: ['out/'] };
+  }
+  return { steps: [...pre.steps, { tool: 'netgen', label: 'netgen lvs', args: ['-batch', 'lvs', cell(layout, layoutCell), cell(schematic, schematicCell || layoutCell), setup, out, '-json'] }], extra: pre.extra, collect: ['out/'] };
 }
 
 export function parseLvsText(text) {
@@ -52,6 +76,7 @@ export function parseLvsJson(text) {
   const res = { match: true, unique: false, circuits: [] };
   for (const c of list) {
     if (!c || typeof c !== 'object') continue;
+    if (!c.name) continue;   // Netgen 1.5.272 also writes records with only "pins" (device classes it compared): not a circuit
     const name = Array.isArray(c.name) ? c.name : [c.name, c.name];
     const devCount = (d) => (Array.isArray(d) ? d.reduce((s, x) => s + (Array.isArray(x) ? Number(x[1]) || 0 : 0), 0) : null);
     const devices = Array.isArray(c.devices) ? [devCount(c.devices[0]), devCount(c.devices[1])] : [null, null];

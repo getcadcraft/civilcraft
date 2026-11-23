@@ -20,6 +20,8 @@ import { fin } from './geom.js';
 export const FORMAT = 'cadcraft-vehicle-pack';
 export const KINDS = ['road', 'aircraft', 'rail'];
 export const MAX_TRAILERS = 3;
+/** The figure fields a vehicle must cite to be shown as checked (SW.2). */
+export const FIGURES = { road: ['width', 'front', 'wheelbase', 'rear', 'track', 'maxSteer'], aircraft: ['length', 'span', 'noseToMain', 'noseToNose', 'track', 'fuselage', 'maxNoseSteer'], rail: ['width', 'bogies', 'front', 'rear', 'gap'] };
 const FT = 1 / 0.3048;
 const clean = (s, n) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, n);
 const num = (v, lo, hi) => (fin(v) && v >= lo && v <= hi ? v : null);
@@ -57,6 +59,14 @@ export function cleanVehicle(o) {
     if (!Number.isInteger(f.cars)) return miss('cars');
     Object.assign(v, f); v.gauge = num(o.gauge, 500, 2000) ?? 1435;
   }
+  // citations: { field: 'document, clause or table' }. A vehicle is "checked" only when it says so AND every figure field cites its source;
+  // anything else is a placeholder and says which figures have no source (SW.2: every dimension cited or marked a placeholder)
+  const cite = {};
+  if (o.cite && typeof o.cite === 'object') for (const k of Object.keys(o.cite).slice(0, 60)) { const c = clean(o.cite[k], 160); if (/^[A-Za-z][A-Za-z0-9.]{0,30}$/.test(k) && c) cite[k] = c; }
+  v.cite = cite;
+  v.uncited = FIGURES[kind].filter((f) => !cite[f]);
+  if (kind === 'road') v.trailers.forEach((t, i) => { for (const f of ['hitch', 'wheelbase', 'front', 'rear', 'width', 'track', 'maxArticulation']) if (!cite['trailer' + (i + 1) + '.' + f]) v.uncited.push('trailer' + (i + 1) + '.' + f); });
+  if (v.verified && (v.uncited.length || !v.source)) { v.verified = false; v.note = clean((v.note ? v.note + ' ' : '') + 'Marked checked but ' + (v.source ? 'figures without a source: ' + v.uncited.join(', ') : 'no source named') + ': shown as a placeholder.', 300); }
   return v;
 }
 

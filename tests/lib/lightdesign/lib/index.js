@@ -13,3 +13,7 @@ export * from './emergency.js';
 export * from './night.js';
 export * from './site.js';
 export * from './view.js';
+export * from './isolines.js';
+export * from './catalogue.js';
+export * from './surface3d.js';
+export * from './road.js';

@@ -15,6 +15,7 @@
  *   effectsXml(effects) / materialsXml(materials)                    lambert effects ({ id, rgb: [0..1 ×3], alpha }) and materials ({ id, name, effect })
  *   geoExtraXml(geo)                                                 the root <extra> with where the model is on the earth
  *   documentXml({ tool, date, effects, materials, geometries, libraryNodes, scene, extra })   the whole file (Z up, metres)
+ *   documentParts(same) → [string]                                  the same text as pieces (joined by '\n'): for lib/textout's TextChunks
  *   kmlModel({ name, href, lon, lat, alt, altitudeMode, heading })   Google Earth's doc.kml for a .kmz (KML 2.2 <Model>)
  *
  * Geolocation: Collada 1.4.1 has no place for it (1.5's <coverage> came later), so the .dae carries it in a root <extra>
@@ -100,19 +101,27 @@ export function geoExtraXml(geo) {
 }
 
 /** The whole file: Collada 1.4.1, Z up, metres. `scene` = the <visual_scene> text (id "scene"). */
-export function documentXml({ tool, date = new Date(), effects = [], materials = [], geometries = [], libraryNodes = [], scene, extra = '' }) {
+export function documentXml(o) {
+  return documentParts(o).join('\n');
+}
+/**
+ * 0.11 PERF.26: documentXml's text as its pieces, one per geometry and library node: documentParts(o).join('\n') is exactly
+ * documentXml(o), so a host can write them into lib/textout's TextChunks (separator '\n') instead of making one string.
+ */
+export function documentParts({ tool, date = new Date(), effects = [], materials = [], geometries = [], libraryNodes = [], scene, extra = '' }) {
   const iso = date.toISOString().replace(/\.\d+Z$/, 'Z');
   const out = ['<?xml version="1.0" encoding="utf-8"?>',
     '<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">',
     `<asset><contributor><authoring_tool>${xmlText(tool)}</authoring_tool></contributor><created>${iso}</created><modified>${iso}</modified><unit name="meter" meter="1"/><up_axis>Z_UP</up_axis></asset>`];
   if (effects.length) out.push(effectsXml(effects), materialsXml(materials));
-  if (geometries.length) out.push('<library_geometries>' + geometries.join('\n') + '</library_geometries>');
-  if (libraryNodes.length) out.push('<library_nodes>' + libraryNodes.join('\n') + '</library_nodes>');
+  const wrap = (open, list, close) => list.forEach((x, i) => out.push((i ? '' : open) + x + (i === list.length - 1 ? close : '')));
+  if (geometries.length) wrap('<library_geometries>', geometries, '</library_geometries>');
+  if (libraryNodes.length) wrap('<library_nodes>', libraryNodes, '</library_nodes>');
   out.push('<library_visual_scenes>' + scene + '</library_visual_scenes>');
   out.push('<scene><instance_visual_scene url="#scene"/></scene>');
   if (extra) out.push(extra);
   out.push('</COLLADA>', '');
-  return out.join('\n');
+  return out;
 }
 
 /** Google Earth's doc.kml for a .kmz holding the model at `href` (KML 2.2; heading clockwise from north, degrees). */

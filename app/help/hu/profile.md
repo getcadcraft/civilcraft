@@ -1,73 +1,88 @@
 ---
-title: Függőleges hossz-szelvény tervezése
-summary: Nyissa meg a hossz-szelvény nézetet, kezdjen tervezési hossz-szelvényt a terepről, adjon hozzá és húzzon PVI-ket, állítson be ívhosszakat, és olvassa le a lejtéseket, K-értékeket és a magas- és mélypontokat.
-keywords: hossz-szelvény, nyomvonal, pvi, függőleges ív, lejtés, k-érték, domb, homorulat, bvc, evc, hossz-szelvény nézet, végleges terep, fg, meglévő terep hossz-szelvénye, jellemzővonalak a hossz-szelvényben, keresztezések, vetített, szegély, árok, címkék
-from: e9182bfa
+title: Tervezett hossz-szelvény készítése
+summary: Nyissa meg a hossz-szelvény-nézetet, kezdjen tervezett hossz-szelvényt a terepről, adjon hozzá és húzzon PVI-ket, állítson be magassági ív-hosszakat, és olvassa le a lejtéseket, K-értékeket, valamint a legmagasabb és legalacsonyabb pontokat.
+keywords: hossz-szelvény, magassági nyomvonal, PVI, magassági ív, lejtés, K-érték, gerinc, völgy, BVC, EVC, hossz-szelvény-nézet, tervezett szint, FG, meglévő terep hossz-szelvénye, jellemzővonalak a hossz-szelvényben, keresztezések, vetítve, szegély, árok, feliratok
+from: dbb1f32d
 ---
 
-Minden nyomvonalnak egy tervezési hossz-szelvénye van: PVI-k listája (szelvényszám és magasság), amelyeket egyenes lejtők kötnek össze, és minden belső, ívhosszal rendelkező PVI-nél szimmetrikus parabolikus függőleges ív van. A meglévő terep hossz-szelvénye automatikusan a felületből kerül mintavételezésre.
+Minden nyomvonalnak egy tervezett hossz-szelvénye van: PVI-k (szelvényszám és magasság) listája, amelyeket egyenes lejtők kötnek össze, és minden olyan belső PVI-nél, amelynek van hossza, szimmetrikus parabolikus magassági ív van. A meglévő terep hossz-szelvényét a program a felületből veszi mintának.
 
-## A hossz-szelvény nézet megnyitása
+## A hossz-szelvény-nézet megnyitása
 
-1. Jelölje ki a nyomvonalat (kattintson rá a {{ui:Kijelölés}} eszközzel).
-2. Nyomja meg a {{key:R}} billentyűt, vagy kattintson az eszköztáron a {{ui:Hossz-szelvény}} gombra, vagy a jobb oldali panel alján a {{ui:Hossz-szelvény nézet}} gombra.
-   A hossz-szelvény nézet a tervrajz alatt nyílik meg, a nyomvonal mentén a meglévő terepet mutatva. Két vagy több nyomvonal esetén a hossz-szelvény eszköztár bal oldali listájában lehet egyet kiválasztani.
+1. Jelölje ki a nyomvonalat ({{ui:Kijelölés}} eszközzel kattintva).
+2. Nyomja meg az {{key:R}} billentyűt, vagy kattintson a {{ui:Hossz-szelvény}} gombra az eszköztáron, vagy a jobb oldali panel alján lévő {{ui:Hossz-szelvény nézet}} gombra.
+   A hossz-szelvény-nézet az alaprajz alatt nyílik meg, a meglévő terep a nyomvonal mentén. Két vagy több nyomvonal esetén a hossz-szelvénysáv bal oldali listájából válasszon egyet.
 
-A nézet mindig a teljes nyomvonalat mutatja, és a magasságokat a panel kitöltésére nyújtja; a függőleges nagyítás a bal alsó sarokban látszik, például „Függőleges nagyítás 10×”. Nem nagyít és nem tol el.
+A nézet eleinte a teljes nyomvonalat mutatja, és a magasságokat kinyújtja, hogy kitöltsék a panelt; a függőleges nagyítás a bal alsó sarokban látható, például „Függőleges nagyítás 10×”.
 
-Mozgassa a mutatót a hossz-szelvény mentén: az eszköztár megmutatja a szelvényszámot, a terep- és a tervezett magasságot, a lejtést és az ott lévő bevágást vagy feltöltést, a tervrajzon pedig egy pont követi a nyomvonalon.
+## A hossz-szelvény nagyítása és mozgatása
 
-## Tervezési hossz-szelvény kezdése
+- **Nagyítás:** forgassa az egérgörgőt (vagy csippentsen a touchpaden), és a nézet a mutató körül nagyít. A {{key:Shift}} tartásával csak a szelvényszámokat, a {{key:Alt}} tartásával csak a magasságokat nagyíthatja (ez a nagyítást is megváltoztatja). Ha a hossz-szelvény-nézet van fókuszban, a plusz- és mínuszbillentyűk a közepe körül nagyítanak.
+- **Mozgatás:** húzzon a jobb vagy a középső egérgombbal, vagy húzzon két ujjal a touchpaden.
+- **Illesztés:** kattintson duplán a hossz-szelvényre, vagy nyomja meg az {{key:F}} billentyűt, hogy újra a teljes nyomvonal látsszon.
 
-1. A jobb oldali panelen a **Tervezési hossz-szelvény** alatt kattintson a {{ui:Kezdés a terepről}} gombra.
-   Két PVI kerül a terepre a nyomvonal két végén, egy egyenes lejtővel összekötve. Az állapotsor ezt írja: „A tervezési hossz-szelvény a terepről indult mindkét végén. Kapcsolja be a PVI-k hozzáadása funkciót, és kattintson a lejtéstörések hozzáadásához; a táblázatban adjon meg hozzájuk ívhosszt.”
+A PVI szerkesztése megtartja az Ön által választott nagyítást; nem ugrik vissza az illesztett nézetre.
 
-Ha a nyomvonal nem metszi a felületet, ez jelenik meg: „Ennek a nyomvonalnak nincs alatta terep, ahonnan indulni lehetne.” Ekkor a következő szakasz szerint, kattintással adjon hozzá PVI-ket.
+Mozgassa a mutatót a hossz-szelvény mentén: a sáv megmutatja a szelvényszámot, a terep- és tervezett magasságot, a lejtést, valamint az ott lévő bevágást vagy töltést, és egy pont követi a nyomvonalat az alaprajzon.
+
+## A tervezett hossz-szelvény kezdése
+
+1. A jobb oldali panelen, a **Tervezett hossz-szelvény** alatt kattintson a {{ui:Kezdés a terepről}} gombra.
+   Két PVI kerül a terepre a nyomvonal két végén, amelyeket egy egyenes lejtő köt össze. Az állapotsor ezt írja: „A tervezett hossz-szelvény mindkét végén a terepről indult. Kapcsolja be a PVI-k hozzáadását, és kattintson a lejtés-törések hozzáadásához; a táblázatban adjon nekik ívhosszt.”
+
+Ha a nyomvonal nem metszi a felületet, ezt kapja: „Ennek a nyomvonalnak nincs alatta terep, ahonnan indulhatna.” Ekkor a PVI-kat kattintással adja hozzá (a következő szakasz).
 
 ## PVI-k hozzáadása
 
-1. Nyomja meg az {{key:I}} billentyűt, vagy kattintson a hossz-szelvény eszköztárban a {{ui:PVI-k hozzáadása}} gombra. A gomb benyomva marad.
-2. Kattintson a hossz-szelvénybe oda, ahol lejtéstörést szeretne. Egy PVI kerül a megadott szelvényszámhoz és magassághoz, 0,01-re kerekítve, és kijelölődik.
-3. Adjon hozzá annyit, amennyire szükség van, majd a hozzáadás befejezéséhez nyomja meg újra az {{key:I}} billentyűt.
+1. Nyomja meg az {{key:I}} billentyűt, vagy kattintson a {{ui:PVI-k hozzáadása}} gombra a hossz-szelvénysávban. Az bennmarad lenyomva.
+2. Kattintson a hossz-szelvényre ott, ahol lejtés-törést szeretne. Egy PVI kerül a szelvényszámra és magasságra, 0,01-re kerekítve, és kijelölődik.
+3. Adjon hozzá annyit, amennyit szükséges, majd nyomja meg újra az {{key:I}} billentyűt a hozzáadás befejezéséhez.
 
-Olyan helyre kattintva, ahol már van PVI, a program elutasítja („Már van PVI itt: …”). A PVI-k mindig szelvényszám szerinti sorrendben maradnak.
+Ha ott már van PVI, a kattintás nem fogadódik el („Már van PVI itt: …”). A PVI-k mindig szelvényszám szerinti sorrendben maradnak.
 
-## PVI-k igazítása
+## Fogás hozzáadáskor vagy húzáskor
 
-- **Húzással** mozgassa a PVI-t a hossz-szelvényen. Nem haladhat át a szomszédjain. A mozgatás egy visszavonási lépés.
-- **Begépeléssel** adja meg a pontos értékeket a jobb oldali panel PVI-táblázatában: **Szelvényszám**, **Magasság** és **Ív L** (függőleges ívhossz). Minden érték után nyomja meg az {{key:Enter}} billentyűt.
-- **Eltávolítás**: a sor végén lévő x-szel, vagy kijelöléssel (kattintás rá) és az {{key:Delete}} billentyűvel. Ha a hossz-szelvény nézet kapta a fókuszt, a {{key:Backspace}} is eltávolítja.
+A hossz-szelvénysáv **Fogás** gombja kezdetben be van kapcsolva. Amíg be van kapcsolva, a hozzáadott vagy húzott PVI a legközelebbi PVI-re, terepponttára, PVI szelvényszámra vagy a terepvonalra kerül, és a jelölő melletti felirat megmondja, melyikre. A {{key:Alt}} tartásával bárhol szabad pontot kap.
+
+## PVI-k módosítása
+
+- **Húzzon** egy PVI-t a hossz-szelvényen a mozgatáshoz. Nem haladhatja meg a szomszédait. A mozgatás egy visszavonható lépés.
+- **Írja be** a pontos értékeket a jobb oldali panel PVI-táblázatába: **Szelvényszám**, **Magasság**, **Lejtés %** és **Ívhossz L** (magassági ív hossza). Minden érték után nyomja meg az {{key:Enter}} billentyűt.
+- **Válasszon** értéket a hossz-szelvényről: a PVI szelvényszáma vagy magassága melletti kis gomb egy kattintásra vár a hossz-szelvény-nézetben, és beírja az értéket. A kattintás úgy fog, mint a PVI-k hozzáadásakor; a {{key:Alt}} tartásával szabad pontot kap; az {{key:Esc}} megszakít.
+- A **Lejtés %** annak az érintőnek a lejtése, amely ettől a PVI-től indul és a következőig tart. Ennek beírása a **következő** PVI magasságát mozgatja (szelvényszáma soha nem mozdul). Ha a következő PVI zárolva van, helyette az előző PVI magassága mozdul.
+- **Zárolja** a PVI-t a sora végén lévő lakatral. A zárolt PVI nem húzható, és a lejtés-szerkesztés sem mozdítja el. Ha egy érintő mindkét vége zárolva van, a lejtése nem változtatható: az állapotsor ezt jelzi, és előbb az egyik végét kell feloldani. A zárolás a fájlban mentődik.
+- **Távolítsa el** a PVI-t a sora végén lévő x-szel, vagy jelölje ki (kattintson rá), és nyomja meg a {{key:Delete}} billentyűt. Ha a hossz-szelvény-nézet van fókuszban, a {{key:Backspace}} is eltávolítja.
 
 Az első és az utolsó PVI soha nem kap ívet.
 
-## Függőleges ívek
+## Magassági ívek
 
-1. Írjon be egy hosszt az **Ív L** mezőbe egy belső PVI-hez, például 200.
-2. Az ív a PVI-re központosítva rajzolódik. A hossz-szelvény és a jobb oldali panel megmutatja a fajtáját (domb vagy homorulat), az L-t és a K-t, a BVC és EVC szelvényszámait és magasságait, valamint a magas- vagy mélypontját, ha az ív belsejében van.
+1. Adjon meg hosszt az **Ívhossz L** mezőben egy belső PVI-nél, például 200.
+2. Az ív a PVI-re középre rajzolódik. A hossz-szelvény és a jobb oldali panel megmutatja a típusát (gerinc vagy völgy), az L és K értékét, a BVC és EVC szelvényszámait és magasságait, valamint a legmagasabb vagy legalacsonyabb pontját, ha az ív belsejében van ilyen.
 
-A K-t az L-ből számítja (K = L osztva a lejtések algebrai különbségével, százalékban). Az L-t kell beírni; a K közvetlen beírása még nem érhető el.
+A K-t az L-ből számítjuk ki (K = L osztva a lejtések algebrai különbségével, százalékban). Ön az L-t írja be; a K közvetlen beírása még nem érhető el.
 
-Ha a függőleges ív nem fér el, piros doboz mondja meg az okát: visszanyúlik az előtte lévő PVI-be vagy ívbe, vagy túlnyúlik a következő PVI-n, és megmondja, mennyi hely van ezen az oldalon (az ívnek a PVI-je mindkét oldalán a hosszának felére van szüksége). Gombja a **legnagyobb elférő ívet** állítja be a K-értékével együtt, egy lépésként ({{key:Mod+Z}} visszavonja). Vagy távolítsa el egymástól a PVI-ket.
+Ha egy magassági ív nem fér el, piros keret mondja meg az okát: visszanyúlik az előtte lévő PVI-be vagy ívbe, vagy túlnyúlik a következő PVI-n, és megmondja, mennyi hely van azon az oldalon (az ívnek a PVI mindkét oldalán a hosszának felére van szüksége). Gombja egy lépésben beállítja **a leghosszabb ívet, amely elfér**, a K-jával együtt ({{key:Mod+Z}} visszavonja). Vagy távolítsa egymástól a PVI-ket.
 
-## A tények leolvasása
+## Az adatok olvasása
 
-A PVI-táblázat alatti listában minden lejtés szerepel százalékban („Lejtés 1: +1.25%”), és minden ív, például „Domb 2+00.00-nál: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)”, majd „Magaspont 1+62.40, 254.12”.
+A PVI-táblázat alatti listában minden lejtés százalékban szerepel („1. lejtés: +1.25%”), és minden ív, például „Gerinc a 2+00.00-nál: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)”, majd „Legmagasabb pont 1+62.40, 254.12”.
 
-Ha a PVI-k nem érik el a nyomvonal mindkét végét, egy megjegyzés ezt jelzi. Sáv (korridor) csak ott épül, ahol a hossz-szelvény és a nyomvonal átfedésben van.
+Ha a PVI-k nem érik el a nyomvonal mindkét végét, egy megjegyzés ezt jelzi. Sáv csak ott épül, ahol a hossz-szelvény és a nyomvonal átfedi egymást.
 
-## Jellemzővonalak a hossz-szelvényben
+## Jellemzővonalak a hossz-szelvényen
 
-A jellemzővonalak a hossz-szelvény nézetben is megjelennek, így egy szegély, egy árok vagy egy falkorona az út hossz-szelvényéhez képest is látszik.
+A jellemzővonalak a hossz-szelvény-nézetben is megjelennek, így az úthoz tartozó hossz-szelvénnyel szemben láthatja a szegélyt, az árkot vagy a fal tetejét.
 
-- Ahol egy jellemzővonal **keresztezi** a nyomvonalat, a hossz-szelvényen kis rombusz jelenik meg a megfelelő szelvényszámnál és magasságnál, a vonal nevével és ottani magasságával feliratozva (a vonal saját magassága, a keresztező szakasz mentén számítva).
-- Írjon egy távolságot a {{ui:Mellette ezen belül}} mezőbe, hogy a nyomvonal **mellett futó** jellemzővonalak is megjelenjenek, a saját magasságukon, szaggatott vonalként. Üres vagy 0 esetén csak a keresztezések látszanak.
-- A jelölések és feliratok minden változást követnek: mozgassa a csúcspontot, írjon be lejtést vagy emelje a vonalat, és a hossz-szelvény azonnal az új magasságokat mutatja.
-- A keresztezés rombuszára kattintva kijelöli a jellemzővonalat; a kijelölt vonal kiemelő színnel rajzolódik.
-- A hossz-szelvény eszköztár {{ui:Jellemzővonalak}} gombja mindet elrejti vagy megjeleníti. Mindkét beállítás a projektben mentődik.
+- Ahol egy jellemzővonal **keresztezi** a nyomvonalat, a hossz-szelvény kis rombuszt mutat ennél a szelvényszámnál és magasságnál, a vonal nevével és az ottani magasságával feliratozva (a vonal saját magassága, a keresztező szakasz mentén számítva).
+- Adjon meg egy távolságot a {{ui:Mellette ezen belül}} mezőben, hogy a nyomvonal mellett **futó** jellemzővonalakat is megrajzolja ezen a távolságon belül, szaggatott vonallal, a saját magasságukon. Üresen vagy 0 esetén csak a keresztezések látszanak.
+- A jelölések és feliratok minden módosítást követnek: mozgassa a csúcsot, írjon be lejtést vagy emelje meg a vonalat, és a hossz-szelvény azonnal az új magasságokat mutatja.
+- Kattintson egy keresztezés rombuszára a jellemzővonal kijelöléséhez; a kijelölt vonal a kiemelő színnel rajzolódik.
+- A hossz-szelvénysáv {{ui:Jellemzővonalak}} gombja mindet elrejti vagy megjeleníti. Mindkét beállítás a projekttel mentődik.
 
 Lásd: [Jellemzővonalak](topic:feature-lines).
 
 ## Tovább
 
-- Készítsen [útkorridort](topic:corridor) a nyomvonal és ez a hossz-szelvény mentén.
-- A hossz-szelvény a nyomvonallal együtt LandXML-be íródik; lásd: [LandXML-csere](topic:landxml).
+- [Útsáv végigvezetése](topic:corridor) a nyomvonal és ez a hossz-szelvény mentén.
+- A hossz-szelvény a nyomvonallal együtt kerül a LandXML-be; lásd: [LandXML-csere](topic:landxml).

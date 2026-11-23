@@ -73,15 +73,39 @@ export function split(state, spec = {}) {
  * The chunks named in `keys` only, as a Map key → string (null = that chunk is not in the state now). The element index of an
  * array is built once per call (pointers, no serializing). A key that is no chunk of the state's present shape gives null.
  */
+// perf-finish-11 (PERF.21, the civil lane's Inbox): the id index of a by-id list is kept between calls, per array object, so a hinted edit IN PLACE of a few
+// elements of a 20,000-element list does not rebuild it (7 ms a step). It is used only when the hint names no structural chunk of that list (`o:` / `k:`),
+// the array is the same object of the same length, and every element the hint names is still at its indexed place with that id; anything else (a list that
+// grew, shrank, was reordered or replaced, an id that moved or changed) rebuilds the index from the whole list, as every call did before. A hint names every
+// chunk that changed (ChunkHistory's contract: Project.verifyHints checks it), so elements it does not name kept their ids and the index stays true.
+const INDEX = new WeakMap();   // array → { prop, len, ids, pos: Map id → index }
+function freshIndex(arr, prop) {
+  const ids = idsOf(arr, prop);
+  if (!ids) { INDEX.delete(arr); return null; }
+  const pos = new Map(); for (let i = 0; i < ids.length; i++) pos.set(ids[i], i);
+  const c = { prop, len: arr.length, ids, pos }; INDEX.set(arr, c); return c;
+}
 export function serializeKeys(state, spec, keys) {
   const src = spec.view ? spec.view(state) : state;
   const out = new Map(), idx = new Map();
+  const wanted = new Map();   // list name → the element ids the hint names, or true when it names the list's order or its whole value
+  for (const key of keys) {
+    const kind = key.slice(0, 2);
+    if (kind === 'o:' || kind === 'k:') wanted.set(key.slice(2), true);
+    else if (kind === 'e:') { const rest = key.slice(2), c = rest.indexOf(':'), name = rest.slice(0, c); const w = wanted.get(name); if (w !== true) { if (w) w.push(rest.slice(c + 1)); else wanted.set(name, [rest.slice(c + 1)]); } }
+  }
   const index = (name) => {
     let m = idx.get(name);
     if (!m) {
       const arr = src[name];
-      const ids = isByIdArray(spec, name, arr) ? idsOf(arr, idProp(spec, name)) : null;
-      m = ids ? { ids, byId: new Map(ids.map((id, i) => [id, arr[i]])) } : { ids: null };
+      let c = null;
+      if (isByIdArray(spec, name, arr)) {
+        const prop = idProp(spec, name), w = wanted.get(name);
+        c = INDEX.get(arr);
+        const ok = c && c.prop === prop && c.len === arr.length && Array.isArray(w) && w.every((id) => { const i = c.pos.get(id); return i !== undefined && idOf(arr[i], prop) === id; });
+        if (!ok) c = freshIndex(arr, prop);
+      }
+      m = c ? { ids: c.ids, has: (id) => c.pos.has(id), get: (id) => arr[c.pos.get(id)] } : { ids: null };
       idx.set(name, m);
     }
     return m;
@@ -99,7 +123,7 @@ export function serializeKeys(state, spec, keys) {
     } else if (kind === 'e:') {
       const c = rest.indexOf(':'), name = rest.slice(0, c), id = rest.slice(c + 1);
       const m = src[name] !== undefined ? index(name) : null;
-      out.set(key, m && m.ids && m.byId.has(id) ? JSON.stringify(m.byId.get(id)) : null);
+      out.set(key, m && m.ids && m.has(id) ? JSON.stringify(m.get(id)) : null);
     }
   }
   return out;

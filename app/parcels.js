@@ -24,6 +24,7 @@
 
 import { t } from './i18n.js';
 import { bearing, dms, fixed, grouped, unitOf } from './units.js';
+import { signedArea } from './geom2d.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 const TAU = Math.PI * 2;
@@ -35,7 +36,7 @@ export function cleanParcel(o) {
     .map((p) => (fin(p.b) && p.b !== 0 && Math.abs(p.b) <= 1 ? { x: p.x, y: p.y, b: p.b } : { x: p.x, y: p.y }));
   if (pts.length < 2 || (pts.length === 2 && !pts.some((p) => p.b))) return null;
   const pob = String(o.pob ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 200);
-  return { id: /^r\d{1,9}$/.test(String(o.id)) ? String(o.id) : null, name: String(o.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120) || 'Parcel', pts, ...(pob ? { pob } : {}) };
+  return { id: /^r\d{1,16}$/.test(String(o.id)) ? String(o.id) : null, name: String(o.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120) || 'Parcel', pts, ...(pob ? { pob } : {}) };
 }
 
 // ------------------------------------------------------------------ bearings
@@ -195,7 +196,6 @@ export function parcelLabels(parcel, { units = 'ft', unitPerMm = 1 } = {}) {
     text: grouped(a, 0) + ' ' + U.area + '  ' + (ft ? fixed(a / 43560, 3) + ' ac' : fixed(a / 10000, 4) + ' ha'), mask: true });
   return items;
 }
-function signedArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p.x * q.y - q.x * p.y; } return a / 2; }
 export function centroid(pts) {
   const A = signedArea(pts);
   if (Math.abs(A) < 1e-12) return { x: pts.reduce((m, p) => m + p.x, 0) / pts.length, y: pts.reduce((m, p) => m + p.y, 0) / pts.length };

@@ -237,6 +237,7 @@ section('older files open and save as before');
   ok(j.version === 1 && !('templates' in j) && !('terrainTemplates' in j) && !('corridors' in j.alignments[0]), 'saved again: file version 1, no new keys');
   ok(!('from' in j.alignments[0].corridor) && !('regions' in j.alignments[0].corridor), 'its corridor has no new keys');
   delete oldFile.saved; delete j.saved;
+  delete j.formatVersion;   // 0.11 DC.27 (b): files saved since say formatVersion 2 (ids from session blocks); the released build does not write it
   if (j.display && !('secBasis' in (oldFile.display || {}))) delete j.display.secBasis;   // 0.10 (Sections): the volume basis, a display setting the released build does not have yet
   ok(JSON.stringify(j) === JSON.stringify(oldFile), 'opened and saved again: byte for byte what the released build writes');
   const before = old.graded().items[0], after = r.project.graded().items[0];

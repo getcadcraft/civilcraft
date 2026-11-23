@@ -1,0 +1,22 @@
+- Walk a property with a phone and mark each corner with one press, without looking at the screen.
+- Use a watch, a headset button or a Bluetooth clicker as the button.
+- Read a route or waypoints saved as a GPX file and reduce a walked route to its corners.
+- See the area of a walk with a "give or take" worked out from the accuracy the device reported.
+- Turn a walk into survey points and a parcel, placed through the drawing's coordinate system.
+- Keep a record for each parcel and read records from a CSV file or the fields of a GIS polygon layer.
+- Compare each parcel's drawn area with the area its record states, against your own tolerance.
+- Find parcels that share ground, corners that nearly meet a neighbor's line, outlines that cross themselves and numbers used twice.
+- Cut a parcel into equal lots, into lots of given areas, or by a line.
+- Make adjoining parcels one, or move the line between two.
+- Change a land use or zone as a proposal and see the land by designation.
+- Check new lots against the smallest lot and shortest frontage you typed.
+- Fill an application, an amendment draft, a statement of parcel change, a schedule and a notice from a proposal.
+- Open your authority's own wording as a template pack.
+- See what stands on each parcel: the drawing's building masses give every lot its footprint, floor area, coverage and floor area ratio. {#lr-buildings}
+- Take off the land: area, outline and corners per lot, the boundary on the ground with shared lines counted once, saved for TakeoffCraft or as CSV. {#lr-takeoff}
+- Pin a note to a parcel, or turn the check's warnings into notes. They are the drawing's own issues and print in the papers.
+- Switch on a place's rules (its own add-on) and compare your lots with the minimums its texts print, each with its source. {#lr-place}
+- Print a sheet of the rules that apply to a proposal and worksheets for a place's own forms.
+- Read the buildings of an IFC model from any BIM program: each building's outline is traced from its elements and laid over the parcels, with its storeys, height and floor area. {#lr-ifc}
+- Turn a model's buildings into building masses of the drawing with one press.
+- Send the parcel plan and its notes to MarkupCraft as a PDF and a BCF file, and read the marked-up notes back: changed ones are updated, new ones are pinned where they were drawn. {#lr-markup}

@@ -58,8 +58,8 @@ export async function readBcf(bytes) {
       const topic = { guid, title: clip(textOf(t, 'Title'), BCF_LIMITS.title) || 'Issue', status: clip(t.attrs.TopicStatus, 40), type: clip(t.attrs.TopicType, 40),
         author: clip(textOf(t, 'CreationAuthor'), 120), created: clip(textOf(t, 'CreationDate'), 40), description: clip(textOf(t, 'Description'), BCF_LIMITS.text),
         labels: all(t, 'Labels').map(l => clip(l.text.trim(), 120)).filter(Boolean).slice(0, 20), comments: [], viewpoints: [] };
-      for (const c of all(mx, 'Comment').slice(0, BCF_LIMITS.comments)) { const text = clip(textOf(c, 'Comment'), BCF_LIMITS.text); if (text) topic.comments.push({ guid: String(c.attrs.Guid || '').toLowerCase(), date: clip(textOf(c, 'Date'), 40), author: clip(textOf(c, 'Author'), 120), text }); }
-      const wanted = all(mx, 'Viewpoints').map(v => textOf(v, 'Viewpoint').toLowerCase()).filter(Boolean);
+      for (const c of [...all(find(t, 'Comments'), 'Comment'), ...all(mx, 'Comment')].slice(0, BCF_LIMITS.comments)) { const text = clip(textOf(c, 'Comment'), BCF_LIMITS.text); if (text) topic.comments.push({ guid: String(c.attrs.Guid || '').toLowerCase(), date: clip(textOf(c, 'Date'), 40), author: clip(textOf(c, 'Author'), 120), text }); }
+      const wanted = [...all(mx, 'Viewpoints').map(v => textOf(v, 'Viewpoint')), ...all(find(t, 'Viewpoints'), 'ViewPoint').map(v => textOf(v, 'Viewpoint'))].map(v => v.toLowerCase()).filter(Boolean);   // BCF 2.1 beside <Topic>, BCF 3.0 inside it (CV.4)
       const files = views[folder] || {}; const pick = (wanted.length ? wanted : Object.keys(files)).filter(f => files[f]);
       for (const f of pick.slice(0, 5)) { try { topic.viewpoints.push(readViewpoint(await z.text(files[f]))); } catch { notes.push('badviewpoint:' + folder.slice(0, 40)); } }
       topics.push(topic);

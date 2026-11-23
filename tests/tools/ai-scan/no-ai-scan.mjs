@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* SPDX-License-Identifier: Apache-2.0 */
 /**
- * no-ai-scan.mjs — "the apps contain no AI" as a check that can fail (0.10 BK.83; KICKOFF rules 34 to 38, docs/AI-TRUST-SPEC.md:
- * the person brings the assistant, the apps only offer tools).
+ * no-ai-scan.mjs — "no AI engine in the apps: it belongs to the Studios and is passed down" as a check that can fail (0.10 BK.83,
+ * corrected by the owner 2026-11-20; KICKOFF rules 34 to 38, docs/AI-TRUST-SPEC.md: the person brings the model, the apps only offer tools).
  *
  *   node tools/ai-scan/no-ai-scan.mjs [--json] [--root <repo>]      exit 0 = nothing found, 1 = something found
  *   import { scan, scanAddons, addonChecks, CHECKS, ADDON, selfTest } from './no-ai-scan.mjs'
@@ -27,20 +27,29 @@
  *   site-ai          the website's own staff-side AI gateway, which no app may call
  *   model-file       a model weights or tokenizer file shipped in an app folder
  *
- * NO EXCEPTIONS (0.10, owner 2026-11-11: "no AI in the apps" with no exception). Until then ONE shell file was excepted, the client
- * for a person's own key or local model in Studio's Ask box (0.8 AC.11 / AC.7). That client is now an add-on a person adds on purpose,
- * and the three scanned scopes above must be clean with no allow list at all: a match in ANY file there fails the scan.
+ * THE RULE (owner 2026-11-20, which corrects how "no AI in the apps" was read on 2026-11-11): AI BELONGS TO THE STUDIOS AND IS PASSED
+ * DOWN TO THE APPS. What was meant was never "no AI anywhere": it was "not the same engine repeated in each of the eight apps". So:
+ *   the apps, the shared shell and lib/ hold NO engine: the three scanned scopes above must be clean with no allow list at all, and a
+ *     match in ANY file there fails the scan. The shell keeps only a seam (assets/js/app-ai-ownkey.js) that reads what the host put on the page;
+ *   the engine is the Studio's (CadCraft Studio, SuperCad Studio): one copy, tools/mcp/byok.mjs, packed as the hub's byok.mjs and handed
+ *     to every app window by Studio's own window script (studio/hub/ask-engine.js, window.js). Nothing is added by the person;
+ *   the SAME engine is also the "Your own AI key" add-on, for ONE app in a browser without Studio. Inside a Studio the add-on registers nothing.
  *
  * THE ADD-ON RULE (ADDON below; a rule of its own, not an exception to the one above). addons/ in the repo holds the first-party
  * add-ons that are never part of an app build and reach a person only as a signed Library package they added. Every file there is
  * scanned with the same checks, and:
  *   only addons/own-ai-key/byok.js may match, and only vendor-host, model-endpoint and model-request; any other match in addons/ fails;
- *   that file is byte-identical to tools/mcp/byok.mjs (the tested source), holds no key (secret-key is never allowed anywhere) and no
- *     address of ours;
+ *   that file is byte-identical to tools/mcp/byok.mjs (the tested source, the engine Studio runs), holds no key (secret-key is never
+ *     allowed anywhere) and no address of ours;
  *   the add-on is in no app build: no folder of that id under any assets/apps/<app>/dev/addons/, in no addons/index.json, and no
  *     scanned file imports from addons/ or names the add-on's files in an import;
  *   the old shell files (assets/js/ai-byok.js, app-ai-byok.js) are gone;
- *   added but not set up, or outside Studio, it makes no engine (studio.js studioEngine → null: run here with an empty store).
+ *   added but not set up it makes no engine (browser.js browserEngine → null: run here with an empty store), and inside a Studio it
+ *     registers nothing (main.js: the Studio's own engine is the one in use).
+ *
+ * THE STUDIO RULE (HOST below; checked only where the Studio tree is on this machine, CADCRAFT_STUDIO or ../studio): the file that passes
+ * the engine down exists, imports the engine from the hub's own byok.mjs, the pack copies that from tools/mcp/byok.mjs and ships the
+ * file, and Studio's window script calls it.
  *
  * WHAT IT DOES NOT PROVE: it reads text, it does not run the apps. Code that built an address from pieces at run time, or
  * fetched and ran other code, would not be seen. A vendor's NAME in a sentence is allowed (Settings › Assistants tells the
@@ -89,8 +98,12 @@ export const CHECKS = [
  * The add-on rule: the folder of Library-only add-ons, and the one file in it that may hold a model provider's address and request shape
  * (the engine of the person's own-key add-on; see the header). Nothing here loosens the scan of the apps, the shell or lib/.
  */
-export const ADDON = { home: 'addons', id: 'own-ai-key', engine: 'addons/own-ai-key/byok.js', studio: 'addons/own-ai-key/studio.js', source: 'tools/mcp/byok.mjs',
+export const ADDON = { home: 'addons', id: 'own-ai-key', engine: 'addons/own-ai-key/byok.js', browser: 'addons/own-ai-key/browser.js', main: 'addons/own-ai-key/main.js', source: 'tools/mcp/byok.mjs',
   may: ['vendor-host', 'model-endpoint', 'model-request'], gone: ['public_html/assets/js/ai-byok.js', 'public_html/assets/js/app-ai-byok.js'] };
+
+/** The Studio rule: where the engine lives and how it reaches the apps (the Studio tree is a repo of its own). */
+export const HOST = { engine: 'hub/ask-engine.js', window: 'hub/window.js', pack: 'pack/suite.mjs' };
+export const studioHome = (root = here()) => { const d = process.env.CADCRAFT_STUDIO || path.resolve(root, '../studio'); return fs.existsSync(path.join(d, HOST.engine)) || fs.existsSync(path.join(d, HOST.window)) ? d : null; };
 
 /** Extensions never read as text (the file-name check still sees them). */
 const BINARY = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'avif', 'ico', 'bmp', 'tif', 'tiff', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'wasm', 'zip', 'gz', 'br', 'zst', '7z', 'pdf', 'dwg', 'ifc', 'ifczip', 'rvt', 'rfa', 'skp', '3dm', 'glb', 'gltf-bin', 'bin', 'dat', 'exr', 'hdr', 'ktx2', 'basis',
@@ -192,14 +205,26 @@ export async function addonChecks({ root = here(), result = null, addons = null 
   }
   add('in-no-build', built.length === 0, 'the add-on is in no app build (no ' + ADDON.id + ' folder among any app\'s add-ons, in no addons/index.json)', built.join(', '));
   add('nothing-loads-it', importers.length === 0, 'no file of an app, the shell or lib/ imports the add-on\'s files', importers.slice(0, 5).join(', '));
-  // added but not set up, or outside Studio: no engine at all
+  // added but not set up: no engine at all; inside a Studio: nothing registered (the Studio's engine is the one in use)
   try {
-    const M = await import(path.join(root, ADDON.studio));
-    const empty = { getItem: () => null, setItem: () => {} }, set = { getItem: (k) => (k === M.SETTINGS_KEY ? '{}' : null), setItem: () => {} };
-    const hub = { post: () => {}, on: () => () => {} };
-    add('inert', M.studioEngine({ studio: hub, store: empty }) === null && M.studioEngine({ studio: null, store: set }) === null && M.studioEngine({ studio: hub, store: set }) !== null && M.hasSettings(empty) === false,
-      'added but with nothing set up by the person, or outside Studio, it makes no engine (studioEngine is null); one exists only once they stored their own settings');
-  } catch (e) { add('inert', false, 'the add-on\'s Studio module could be loaded to check it is inert', String(e.message || e)); }
+    const B = await import(path.join(root, ADDON.browser)), M = await import(path.join(root, ADDON.main));
+    const mem = (init = {}) => { const m = new Map(Object.entries(init)); return { get: (k) => (m.has(k) ? m.get(k) : null), set: (k, v) => { m.set(k, v); return true; }, remove: (k) => m.delete(k) }; };
+    const noFetch = async () => { throw new Error('the scan calls no one'); };
+    const set = mem({ settings: { provider: 'anthropic', model: 'a-model' }, 'key.default': 'not-a-real-key' });
+    add('inert', B.browserEngine({ storage: mem(), fetch: noFetch }) === null && B.browserEngine({ storage: mem({ settings: { provider: 'anthropic', model: 'a-model' } }), fetch: noFetch }) === null && B.browserEngine({ storage: set, fetch: noFetch }) !== null,
+      'added but with nothing set up by the person it makes no engine (browserEngine is null); one exists only once they named a model and stored a key');
+    add('yields-to-studio', M.inStudio({ cadcraftDesktop: {} }) === true && M.inStudio({ cadcraftStudio: {} }) === true && M.inStudio({}) === false && /if \(inStudio\(g\)\) return;/.test(fs.readFileSync(path.join(root, ADDON.main), 'utf8')),
+      'inside a Studio the add-on registers nothing: the Studio passes its own engine down');
+  } catch (e) { add('inert', false, 'the add-on\'s modules could be loaded to check it is inert', String(e.message || e)); }
+  // the Studio rule: the engine is the Studio's and its window script passes it down (only where the Studio tree is here)
+  const home = studioHome(root);
+  if (home) {
+    const rd = (f) => { try { return fs.readFileSync(path.join(home, f), 'utf8'); } catch (e) { return ''; } };
+    const eng = rd(HOST.engine), win = rd(HOST.window), pack = rd(HOST.pack);
+    add('studio-passes-it-down', /from '\.\/byok\.mjs'/.test(eng) && /export function passDown\b/.test(eng) && /from '\.\/ask-engine\.js'/.test(win) && /\bpassDown\(/.test(win),
+      'Studio holds the engine and its window script hands it to every app window (' + HOST.engine + ', ' + HOST.window + ')');
+    add('studio-packs-the-source', /tools\/mcp\/byok\.mjs'\), path\.join\(DEST, 'hub\/byok\.mjs'\)/.test(pack) && /'ask-engine\.js'/.test(pack), 'the Studio pack ships ' + HOST.engine + ' and copies its engine from ' + ADDON.source);
+  }
   return out;
 }
 /** Each check against a planted sample: the scan must catch what it is for. */
@@ -217,7 +242,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const bad = selfTest().filter((x) => !x.caught);
     if (bad.length) console.log('  FAIL the scan misses its own samples: ' + bad.map((x) => x.id).join(', '));
     const a = scanAddons(ri > 0 ? { root: path.resolve(process.argv[ri + 1]) } : {});
-    console.log('no exception list. The add-on rule, ' + ADDON.home + '/ (' + a.files + ' files; ' + a.allowed.length + ' provider matches, all in ' + ADDON.engine + '):');
+    console.log('no engine in the apps, the shell or lib/ (no allow list): the engine is the Studio\'s, passed down. The add-on rule, ' + ADDON.home + '/ (' + a.files + ' files; ' + a.allowed.length + ' provider matches, all in ' + ADDON.engine + '):');
     for (const x of a.hits.slice(0, 40)) console.log('  FAIL ' + x.check + '  ' + x.file + (x.line ? ':' + x.line : '') + '  ' + x.match);
     const ex = await addonChecks({ result: r, addons: a, ...(ri > 0 ? { root: path.resolve(process.argv[ri + 1]) } : {}) });
     for (const x of ex) console.log((x.ok ? '  ok   ' : '  FAIL ') + x.id + ': ' + x.what + (!x.ok && x.detail ? ' (' + x.detail + ')' : ''));

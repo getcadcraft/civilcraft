@@ -24,10 +24,14 @@
 .tr-toolrows:has(> .ws-head-grip) > .tr-rows { flex: 1 1 auto; min-width: 0; }
 
 /* a group's grip: far left of the group's name */
-.ws-group-grip { width: 1.125rem; height: 1rem; margin-inline-end: .125rem; opacity: .55; vertical-align: middle; }
+.ws-group-grip { width: 1.25rem; height: 1.5rem; margin-inline-end: .125rem; opacity: .55; vertical-align: middle; }
+/* the grip's drawing fits its box (it was drawn at the tool size, 1.75rem, and spilled right and down past the hover square) */
+/* the chrome's generic `:is(.ws-ribbon-box, …) button` padding (.1875rem .375rem) left a 4px content box in an 18px grip, so the drawing started 7px in and spilled past the hover square */
+:is(.ws-group-title, .tr-group, .tbx-group, .ws-head, .ws-ribbon-tabs, .tr-toolrows, .ws-statusbar) > button:is(.ws-group-grip, .ws-head-grip) { padding: 0; }
+:is(.ws-group-grip, .ws-head-grip) > :is(svg, .ccic) { width: 100%; height: 100%; max-width: 1.25rem; max-height: 1.25rem; margin: auto; }
 .ws-group-grip:hover, .ws-group-grip:focus-visible, .ws-group-grip[aria-expanded="true"] { opacity: 1; }
 .ws-group-title .ws-group-grip { float: left; }
-.tr-group > .ws-group-grip { align-self: center; width: .875rem; }
+.tr-group > .ws-group-grip { align-self: center; width: 1rem; }
 
 /* a palette: a unit docked in a side zone; the zone decides the orientation (a column) */
 .ws-dock-palette { display: flex; flex-direction: column; min-width: 0; background: var(--ws-panel-bg, var(--sheet)); border-bottom: 1px solid var(--ws-line, var(--line)); }
@@ -51,3 +55,23 @@ body.ws-dock-dragging, body.ws-dock-dragging * { cursor: grabbing !important; }
 
 /* "Restore my windows" (UI.3) sits where the panels window's own offer does */
 .ws-win-offer { z-index: 1040; }
+
+/* 0.11 ui-finish-11 (lab only: the parts app-dock.js draws there) */
+/* UI.26 Pin: a pinned block or palette keeps its head but loses its close; its grip says so with a pin mark and does not drag */
+.ws-head-close.is-pinned, .ws-head.is-pinned .ws-head-close, .ws-group-close.is-pinned { display: none; }
+.ws-head-grip.is-pinned, .ws-group-grip.is-pinned { cursor: default; position: relative; }
+.ws-head-grip.is-pinned::after, .ws-group-grip.is-pinned::after { content: ''; position: absolute; right: 1px; top: 1px; width: .3125rem; height: .3125rem; border-radius: 50%; background: var(--layer, var(--action)); }
+/* UI.26 a ribbon group's close, far right of its name, at 40 % until the group is hovered */
+.ws-group-title .ws-group-close { float: right; width: 1rem; height: 1rem; padding: 0; margin-inline-start: .125rem; opacity: .4; vertical-align: middle; }
+.ws-group:hover .ws-group-close, .ws-group-close:focus-visible { opacity: 1; }
+/* UI.26 Float: a palette over the drawing, where its grip put it */
+.ws-dock-palette.ws-dock-float { position: absolute; z-index: 40; width: 10rem; max-height: calc(100% - 1rem); overflow: auto; border: 1px solid var(--ws-line, var(--line)); }
+.ws-dock-float .ws-dock-body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* UI.6 true stacks: the second stack in the other panel sits on top of that panel's own content */
+.ws-palettes.ws-stack-away { flex: 0 1 auto; max-height: 45%; min-height: 6.25rem; border-bottom: 1px solid var(--ws-line, var(--line)); }
+/* UI.5 a stack's grip (moves the palette it shows) sits first in its heading; a tab that drags says so */
+.ws-palette-heading > .ws-pal-grip { flex: 0 0 auto; align-self: center; width: 1.125rem; height: 1rem; padding: 0; opacity: .55; }
+.ws-palette-heading > .ws-pal-grip:hover, .ws-palette-heading > .ws-pal-grip:focus-visible { opacity: 1; }
+.ws-palette-heading:has(> .ws-pal-grip) { display: flex; align-items: center; gap: .125rem; }
+.ws-palette-heading:has(> .ws-pal-grip) > .ws-lower-tabs { flex: 1 1 auto; min-width: 0; }
+[data-dock-pal] { touch-action: none; }

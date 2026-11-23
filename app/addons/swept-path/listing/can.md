@@ -6,3 +6,8 @@
 - Lay out parking bays inside a closed line at any angle and count them, then check how a vehicle pulls into the hardest bay. Swept path tab, Parking. {#sp-park}
 - Draw the result into the project as plain lines, in one undo step, and save the report as a CSV that a spreadsheet opens without running a name as a formula. Draw into the project, Save report as CSV. {#sp-report}
 - Keep your own vehicles: copy a vehicle, change its figures, save it. Your copy is marked unverified until you check it. Swept path tab, Vehicle.
+- Every vehicle figure can carry a citation; a vehicle counts as checked only when every figure is cited and a source is named, and the uncited figures are listed by name. Swept path tab, Vehicle. {#sp-cite}
+- Read a step error in metres beside each run, and a tightest radius for each movement; halving the step cuts the error to about a quarter. Swept path tab, Run along a path. {#sp-step}
+- Print a report page (PDF) with the vehicle, whether it is checked, the steering and the swath. Swept path tab, Report. {#sp-pdf}
+- Save the run as a DXF on named layers, and jump from a problem in Problems to the place along the path where it happens. Draw into the project. {#sp-jump}
+- Get a smooth envelope on a long run: a 1.68 km diagonal keeps a cell of 0.1 m or finer instead of a staircase of metres. {#sp-env}

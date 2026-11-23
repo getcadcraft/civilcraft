@@ -27,5 +27,289 @@
   "price": null,
   "criteria": {},
   "tables": {},
-  "rules": []
+  "rules": [
+    {
+      "id": "guard.height.min",
+      "applies": "railing",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CRC R321.1.2",
+      "label": "Guard height",
+      "note": "California 42 in.; the model code says 36 in. The amendment is listed on the official matrix. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 1066.8
+    },
+    {
+      "id": "guard.drop.min",
+      "applies": "railing",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CRC R321.1.1",
+      "label": "Drop above which a guard is required",
+      "note": "Same as the model code. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 762
+    },
+    {
+      "id": "guard.opening.max",
+      "applies": "railing",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "CRC R321.1.3",
+      "label": "Guard opening: largest sphere that must not pass",
+      "note": "Same as the model code. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 101.6
+    },
+    {
+      "id": "elec.wall.spacing.max",
+      "applies": "room",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "CEC 210.52(A)(1)",
+      "label": "Wall outlets: farthest point from an outlet",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 1828.8
+    },
+    {
+      "id": "elec.light.room.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "CEC 210.70(A)",
+      "label": "Switched lighting outlet",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 1
+    },
+    {
+      "id": "elec.bath.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "CEC 210.52(D)",
+      "label": "Bathroom outlet",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 1
+    },
+    {
+      "id": "elec.laundry.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "CEC 210.52(F)",
+      "label": "Laundry outlet",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 1
+    },
+    {
+      "id": "elec.garage.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "CEC 210.52(G)(1)",
+      "label": "Garage outlet",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 1
+    },
+    {
+      "id": "elec.hall.outlet.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "count",
+      "clause": "CEC 210.52(H)",
+      "label": "Hallway outlet (halls 10 ft or longer)",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 1
+    },
+    {
+      "id": "elec.outdoor.outlet.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "count",
+      "clause": "CEC 210.52(E)(1)",
+      "label": "Outdoor outlets (front and back)",
+      "note": "Electrical Code (Part 3), not the model code's chapter 39; no California amendment to it is listed in the official amendments file. The number is the model's. Official text: https://link.nfpa.org/free-access/publications/70%20CA/2025 (read on a secondary copy).",
+      "value": 2
+    },
+    {
+      "id": "aging.grabbar.blocking.height",
+      "applies": "room",
+      "op": "between",
+      "unit": "mm",
+      "clause": "CRC R328.1.1",
+      "label": "Grab bar reinforcement, height above the floor",
+      "note": "California-only (aging in place). Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "min": 812.8,
+      "max": 996.9499999999999
+    },
+    {
+      "id": "aging.outlet.height",
+      "applies": "room",
+      "op": "between",
+      "unit": "mm",
+      "clause": "CRC R328.1.2",
+      "label": "Outlets and switches, height above the floor",
+      "note": "California-only; exceptions apply. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "min": 381,
+      "max": 1219.1999999999998
+    },
+    {
+      "id": "aging.door.clear.min",
+      "applies": "door",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CRC R328.1.3",
+      "label": "Interior doorway clear opening, one bath and one bedroom on the entry level",
+      "note": "California-only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 812.8
+    },
+    {
+      "id": "aging.doorbell.height.max",
+      "applies": "building",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "CRC R328.1.4",
+      "label": "Doorbell button height",
+      "note": "California-only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 1219.1999999999998
+    },
+    {
+      "id": "bath.finish.height.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CRC R327.2",
+      "label": "Nonabsorbent wall finish above tubs and in showers",
+      "note": "Same as the model code. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 1828.8000000000002
+    },
+    {
+      "id": "alarm.smoke.cooking.min",
+      "applies": "room",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CRC R310.3.3",
+      "label": "Smoke alarm from a fixed cooking appliance",
+      "note": "State Fire Marshal text; 10 ft with a silence switch, 6 ft photoelectric in tight plans. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on a secondary copy).",
+      "value": 6096
+    },
+    {
+      "id": "sprinkler.adu.area.max",
+      "applies": "building",
+      "op": "<=",
+      "unit": "m2",
+      "clause": "CRC R309.2",
+      "label": "Detached ADU floor area for the sprinkler exception",
+      "note": "California text; the sprinkler requirement itself is the model code's. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CARC2025P2 (read on an official page).",
+      "value": 111.5
+    },
+    {
+      "id": "calgreen.waste.diversion.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "CALGreen 4.408.1",
+      "label": "Construction waste diverted from landfill",
+      "note": "Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAGBC2025P3 (read on an official page).",
+      "value": 65
+    },
+    {
+      "id": "calgreen.ev.length.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CALGreen 4.106.4.2.2.1.1",
+      "label": "Electric vehicle space length (multifamily)",
+      "note": "18 by 9 ft. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAGBC2025P3 (read on an official page).",
+      "value": 5486.400000000001
+    },
+    {
+      "id": "calgreen.ev.width.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CALGreen 4.106.4.2.2.1.1",
+      "label": "Electric vehicle space width (multifamily)",
+      "note": "18 by 9 ft. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAGBC2025P3 (read on an official page).",
+      "value": 2743.2000000000003
+    },
+    {
+      "id": "calgreen.framing.moisture.max",
+      "applies": "building",
+      "op": "<=",
+      "unit": "pct",
+      "clause": "CALGreen 4.505.3",
+      "label": "Framing moisture content before enclosure",
+      "note": "Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAGBC2025P3 (read on a secondary copy).",
+      "value": 19
+    },
+    {
+      "id": "calgreen.flooring.resilient.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "pct",
+      "clause": "CALGreen 4.504.4",
+      "label": "Resilient flooring that meets the low-emission limits",
+      "note": "Share of the resilient floor area. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAGBC2025P3 (read on an official page).",
+      "value": 80
+    },
+    {
+      "id": "wui.wall.flashing.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CWUIC 504.5.1",
+      "label": "Wall flashing above the ground",
+      "note": "Wildland-urban interface areas only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAWUIC2025P2 (read on an official page).",
+      "value": 152.39999999999998
+    },
+    {
+      "id": "wui.material.flamespread.max",
+      "applies": "building",
+      "op": "<=",
+      "unit": "ratio",
+      "clause": "CWUIC 503.2.4.1",
+      "label": "Flame spread index of the listed materials",
+      "note": "Wildland-urban interface areas only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAWUIC2025P2 (read on an official page).",
+      "value": 25
+    },
+    {
+      "id": "wui.vent.mesh",
+      "applies": "building",
+      "op": "between",
+      "unit": "mm",
+      "clause": "CWUIC 504.10.2",
+      "label": "Vent opening mesh",
+      "note": "Wildland-urban interface areas only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAWUIC2025P2 (read on a secondary copy).",
+      "min": 1.5875,
+      "max": 3.175
+    },
+    {
+      "id": "wui.vent.lotline.min",
+      "applies": "building",
+      "op": ">=",
+      "unit": "mm",
+      "clause": "CWUIC 504.10.3",
+      "label": "Vent distance from a lot line",
+      "note": "Wildland-urban interface areas only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAWUIC2025P2 (read on a secondary copy).",
+      "value": 3048
+    },
+    {
+      "id": "wui.garage.gap.max",
+      "applies": "building",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "CWUIC 504.9.2",
+      "label": "Garage door gap",
+      "note": "Wildland-urban interface areas only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAWUIC2025P2 (read on a secondary copy).",
+      "value": 3.175
+    },
+    {
+      "id": "wui.skylight.mesh.max",
+      "applies": "building",
+      "op": "<=",
+      "unit": "mm",
+      "clause": "CWUIC 504.8.2",
+      "label": "Skylight mesh opening",
+      "note": "Wildland-urban interface areas only. Listed, not yet checked. Official text: https://codes.iccsafe.org/content/CAWUIC2025P2 (read on a secondary copy).",
+      "value": 3.175
+    }
+  ]
 }

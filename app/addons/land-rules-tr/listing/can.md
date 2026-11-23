@@ -1,0 +1,5 @@
+- Shows 22 parcel figures from Article 6 (frontage, depth, and the one minimum area it gives), by use and building arrangement, each with its paragraph and the Turkish words.
+- Shows 38 figures and conditions from Law 3194, the Spatial Plans Regulation and the 2020 Land and Plot Arrangement Regulation, such as the ceiling of the readjustment contribution share and the periods for notice and decision.
+- Shows the sizes outside planned areas: settled areas without a plan (20 m by 30 m), villages (15 m by 20 m), land outside settlement (5,000 m² and 25 m on a public road), and the floors Law 5403 sets for dividing agricultural land (2, 0.5 and 0.3 hectares), with 83 more figures of those texts.
+- Compares the lots of the drawing and of a proposal with the printed figures. A record's zone may name two cases, for example KT-BIT-4, KT-OBZ.
+- Prints the list of documents the 2020 regulation asks for with a subdivision or consolidation.

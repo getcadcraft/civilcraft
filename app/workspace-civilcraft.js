@@ -12,8 +12,9 @@
  *               as its toolbar button does)
  *   slots       level (the workspace), document (the surface shown), layout (3D, profile, sections), units, detail (contour interval),
  *               fit — copies of the app's own controls that set them (the originals stay in their panels)
- *   palettes    browser (the project browser: surfaces, alignments, sheets), panel (the left panel's own content). Properties stay in
- *               the right panel, where CivilCraft has them (no properties palette)
+ *   palettes    properties (0.11 FX.305: the right panel's own Properties, heading and body, moved into the palette while a layout shows it and
+ *               back when the layout goes: the app keeps one Properties, so nothing is copied), browser (the project browser: surfaces,
+ *               alignments, sheets), panel (the left panel's own content)
  *   views       Plan and 3D (the plan's profile and section panels stay under the plan)
  *
  *   mountCivilWorkspace({ root }) → the engine's api (window.civilcraftWorkspace for tests)
@@ -176,7 +177,7 @@ export function mountCivilWorkspace({ root }) {
     const setSurface = (v) => { const s = root.querySelector('[data-show-surface]'); if (!s) return; s.value = v; s.dispatchEvent(new Event('change', { bubbles: true })); browserSig = ''; soon(); };
     const surfaces = [hasEg ? item(t('surface.eg'), { 'data-cv-pb-surface': 'eg' }, () => setSurface('eg'), shown === 'eg') : null,
       hasFg ? item(t('ui.display.fg'), { 'data-cv-pb-surface': 'fg' }, () => setSurface('fg'), shown === 'fg') : null].filter(Boolean);
-    const alignments = als.map(([id, name]) => item(name, { 'data-cv-pb-alignment': id }, () => c.select({ kind: 'alignment', id }), c.sel?.kind === 'alignment' && c.sel.id === id));
+    const alignments = als.map(([id, name]) => item(name, { 'data-cv-pb-alignment': id }, () => { if (!window.ccState?.select([{ kind: 'alignment', id }])) c.select({ kind: 'alignment', id }); }, c.sel?.kind === 'alignment' && c.sel.id === id));
     const sheets = [...als.map(([id, name]) => item(t('cv.ws.pb.pp', { name }), { 'data-cv-pb-pp': id }, () => c.sheets.open(id))),
       ls ? item(textOf(ls), { 'data-cv-pb-sheets': 'ls-sheets' }, () => c.command('ls-sheets')) : null,
       pl ? item(textOf(pl), { 'data-cv-pb-sheets': 'pl-sheets', 'aria-disabled': why(pl) ? 'true' : null, title: why(pl) || null }, () => { const w = why(pl); if (w) c.say(w); else c.command('pl-sheets'); }) : null].filter(Boolean);
@@ -188,6 +189,24 @@ export function mountCivilWorkspace({ root }) {
   const is3D = () => { const h = root.querySelector('[data-view3d]'); return !!h && !h.hidden; };
   const VIEWS = () => [{ id: 'plan', kind: 'plan', name: t('cv.ws.view.plan'), icon: 'bi-map' }, { id: '3d', kind: '3d', name: t('ui.view3d'), icon: 'bi-badge-3d' }];
 
+  // ---- Properties (FX.305): the app's own heading and body, borrowed by the properties palette ----
+  const propsHead = right?.querySelector('[data-props-h]'), propsBody = right?.querySelector('[data-props]');
+  const propsHome = propsBody ? { parent: propsBody.parentNode, head: propsHead?.nextSibling === propsBody ? propsHead : null } : null;
+  /** The palette went away with its layout: Properties go back to the right panel, heading first, as the page made them. */
+  function propsHome_() {
+    if (!propsBody || !propsHome) return;
+    if (propsHead && propsHead.parentNode !== propsHome.parent) propsHome.parent.insertBefore(propsHead, propsHome.parent.firstChild);
+    if (propsBody.parentNode !== propsHome.parent) propsHome.parent.append(propsBody);
+  }
+
+  function pickRefs(ids) {
+    const c = C(), r = window.ccState?.refs(ids) || []; if (!c || !r.length) return false;
+    const pts = r.filter((x) => x.kind === 'point').map((x) => x.id);
+    if (pts.length) { c.pick(pts); soon(); return true; }
+    const st = c.project.state, LISTS = { alignment: st.alignments, pad: st.pads };
+    for (const x of r) { const hit = (LISTS[x.kind] || []).find((o) => String(o.id) === x.id); if (hit) { c.select({ kind: x.kind, id: hit.id }); soon(); return true; } }
+    return false;
+  }
   const adapter = {
     app: 'civilcraft', root, stage, panels: { left, right }, status: statusEl,
     t: (k, v) => t(k, v), say: (text) => C()?.say(text),
@@ -196,8 +215,12 @@ export function mountCivilWorkspace({ root }) {
       const c = C(); if (!c) return { document: null, name: '', selection: [] };
       const tool = c.tool || 'select', b = tool === 'select' ? null : root.querySelector('.cv-tools [data-cmd="' + tool + '"]');
       return { document: c.project, name: c.project.state.name || t('cv.ws.untitled'), dirty: !!c.project.dirty, busy: !(root.querySelector('[data-busy]')?.hidden ?? true),
-        selection: c.sel ? [c.sel] : c.picked, tool, toolLabel: tool === 'select' ? '' : textOf(b), other: false };   // '' = the engine's own word for "the tool"
+        selection: c.sel ? [c.sel] : c.picked, tool, toolLabel: tool === 'select' ? '' : textOf(b), other: false,   // '' = the engine's own word for "the tool"
+        kinds: c.sel ? [c.sel.kind] : c.picked.length ? ['point'] : [], mode: is3D() ? '3d' : 'plan' };   // 0.11 UI.25: into ccState
     },
+    // 0.11 UI.25: ccState.select / reveal / highlight. Refs: { kind: 'alignment' | 'pad', id } (one object, as a click picks it) or survey points
+    // ({ kind: 'point', id: <number> }, any number of them). Anything else is not taken (false): a Problems line then uses CivilCraft's own adapter.
+    select: (ids) => pickRefs(ids), reveal: (ids) => pickRefs(ids), highlight: (ids) => pickRefs(ids),
     endTool() { if (C() && C().tool !== 'select') C().setTool('select'); },
     ribbon, contextTab: () => (wsNow() === 'civil' ? null : wsNow()), toolbox,
     tool(id) {
@@ -234,7 +257,7 @@ export function mountCivilWorkspace({ root }) {
       return { title: running ? s.toolLabel : t('cv.ws.opt.select'), text: running ? root.querySelector('[data-toolhint]')?.textContent || '' : s.selection.length ? t('cv.ws.opt.picked') : t('cv.ws.opt.idle') };
     },
     toolOptions: () => null,
-    showProperties() { right?.querySelector('[data-props-h]')?.scrollIntoView({ block: 'nearest' }); right?.querySelector('[data-props] :is(input, select, button)')?.focus(); },
+    showProperties() { (propsHead || root.querySelector('[data-props-h]'))?.scrollIntoView({ block: 'nearest' }); (propsBody || root.querySelector('[data-props]'))?.querySelector(':is(input, select, button)')?.focus(); },
     slots: {
       level: { label: t('ls.ws.group'), nodes: () => slotNodes.level },
       document: { label: t('ui.surface'), nodes: () => slotNodes.document },
@@ -244,6 +267,7 @@ export function mountCivilWorkspace({ root }) {
       fit: { label: t('ui.tb.fit'), nodes: (c) => [c.tool('view.fit', 'viewbar', true)] },
     },
     palettes: {
+      properties: { label: t('ui.props'), title: propsHead, body: () => propsBody },
       browser: { label: t('cv.ws.browser'), hint: t('cv.ws.browser.hint'), body: () => browser },
       panel: { label: t('cv.ws.panel') },
     },
@@ -255,8 +279,8 @@ export function mountCivilWorkspace({ root }) {
     toolbar: () => root.querySelector(':scope > .cv-tools'),
     hide: [],
     entered(ctx) { root.classList.toggle('cv-ws-palettes', ctx.has('palettes')); soon(); },
-    left() { root.classList.remove('cv-ws-palettes'); },
-    refresh() { for (const m of mirrors) m.ccSync?.(); renderBrowser(); },
+    left() { root.classList.remove('cv-ws-palettes'); propsHome_(); },
+    refresh() { if (propsBody && (!propsBody.isConnected || (propsHead && !propsHead.isConnected))) propsHome_(); for (const m of mirrors) m.ccSync?.(); renderBrowser(); },
     resized() { C()?.view?.resize?.(); C()?.view3d?.view?.resize?.(); },
   };
 
@@ -268,7 +292,7 @@ export function mountCivilWorkspace({ root }) {
   watch.observe(root, { attributes: true, attributeFilter: ['data-landscape', 'data-powerlines'] });
 
   inputReady().then((x) => { I = x; soon(); });
-  engine = mountWorkspaces(adapter);
+  engine = mountWorkspaces(window.ccState?.adapt ? window.ccState.adapt(adapter) : adapter);   // 0.11 UI.25: kinds, mode, view, problems into ccState
   window.civilcraftWorkspace = { engine, adapter };
   return engine;
 }

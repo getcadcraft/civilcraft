@@ -13,6 +13,7 @@ import { cleanRoom, polyArea, autoSpacing } from './calc.js';
 import { gridPoints, stats, DEFAULT_LLF } from './photometry.js';
 import { directAt, hiddenByObstacle } from './obstruct.js';
 import { checkResult } from './standards.js';
+import { genericPhoto } from './generic.js';
 
 export const SITE_NOTES = ['note.site', 'note.llf'];
 export function runSite({ room: roomIn, luminaires, llf = DEFAULT_LLF.value, spacing = 0, obstacles = null, requirements = {} }) {
@@ -41,4 +42,26 @@ export function runSite({ room: roomIn, luminaires, llf = DEFAULT_LLF.value, spa
 /** The lux (maintained) at one point of the ground [x, y] mm, for the false-colour view: the same sum as the grid. */
 export function siteLuxAt(luminaires, x, y, z, { llf = DEFAULT_LLF.value, obstacles = null } = {}) {
   return directAt(luminaires, [x, y, z], [0, 0, 1], obstacles) * llf;
+}
+
+/**
+ * Landscape lights (0.11 SU.1816): luminaires for what a landscape drawing holds. features = { trees: [{ x, y, h?, r? }] mm, paths: [{ pts: [[x, y], ...], width? }] mm,
+ * spots: [[x, y]] }. A tree gets an up-light at its foot (a floodlight aimed up and a little in, 0.4 m from the trunk), a path gets a bollard every `pathStep` mm along its length
+ * (the first and last included), a spot a pole. Synthetic generic types (not a maker's). Returns [{ photo, p, aim, rot, kind }] in the same shape as the design's luminaires.
+ */
+export function landscapeLuminaires(features = {}, { pathStep = 5000, bollardHeight = 900, poleHeight = 5000, uplightHeight = 200 } = {}) {
+  const out = [], flood = genericPhoto('floodlight'), bol = genericPhoto('bollard'), pole = genericPhoto('pole');
+  for (const t of features.trees || []) {
+    out.push({ photo: flood, p: [t.x + 400, t.y, uplightHeight], aim: [-0.35, 0, 0.94], rot: 0, kind: 'tree' });
+  }
+  for (const path of features.paths || []) {
+    const P = path.pts || []; let walked = 0, next = 0;
+    for (let i = 0; i < P.length - 1; i++) {
+      const len = Math.hypot(P[i + 1][0] - P[i][0], P[i + 1][1] - P[i][1]);
+      while (next <= walked + len + 1e-9) { const f = len ? (next - walked) / len : 0; out.push({ photo: bol, p: [P[i][0] + (P[i + 1][0] - P[i][0]) * f, P[i][1] + (P[i + 1][1] - P[i][1]) * f, bollardHeight], aim: [0, 0, -1], rot: 0, kind: 'path' }); next += pathStep; }
+      walked += len;
+    }
+  }
+  for (const s of features.spots || []) out.push({ photo: pole, p: [s[0], s[1], poleHeight], aim: [0, 0, -1], rot: 0, kind: 'pole' });
+  return out;
 }

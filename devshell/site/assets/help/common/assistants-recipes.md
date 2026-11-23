@@ -131,6 +131,10 @@ block_insert {doc, block: "TITLEBLOCK-ARCHD", at: [0, 0], attributes: {"SHEET-NO
 
 Needs Edit. One undo step; the attributes it does not name keep their defaults.
 
+## Recipes you can run
+
+[github.com/getcadcraft/examples](https://github.com/getcadcraft/examples) has recipes as files you can run yourself: `mcp-tidy-a-drawing` makes an assistant's calls step by step (check a drawing against office standards, fix it with a LISP routine, save and plot), and `cli-check-standards` and `cli-convert-and-plot` do the same jobs with the `cadcraft` command line.
+
 ## Your files and your assistant
 
 The apps never send your files anywhere. **But what your assistant reads goes to whoever runs that assistant:** a cloud assistant's maker sees the parts of the drawing it is shown. If that matters for a job, use an assistant that runs on your own computer, or keep that job's folders out of the ones you allow.

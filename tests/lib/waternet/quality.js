@@ -6,7 +6,7 @@
  * mixed junctions and tanks) — no vendored code. The hydraulics are the host's extended run; this walks the water through them.
  *
  *   waterQuality(water, units, opts) → { times, nodes: Map id → { kind, c: [value per hydraulic step], last, max, min } (junctions and tanks), pipes: Map id → { c } , mass, problems }
- *   opts: { mode: 'age' | 'chlorine' | 'trace', hours, step (hydraulic step s), qstep (quality step s, default min(300, step)),
+ *   opts: { mode: 'age' | 'chlorine' | 'trace', eps (an hydraulic run to walk the water through, { steps, dt }), hours, step (hydraulic step s), qstep (quality step s, default min(300, step)),
  *           bulk (1/day, chlorine bulk decay, > 0 means decay), wall (m/day, wall coefficient, used as 2·kw/D in 1/day), sources: { nodeId: c } (chlorine mg/L,
  *           reservoirs default to `reservoirC`), reservoirC (default 0 for age, 1 for chlorine), traceNode (trace: the source node), minC, maxAge (hours) }
  *   Units: age in hours; chlorine in mg/L; trace in percent. Decay uses first order: c(t) = c0·exp(−k·t), k in 1/day.
@@ -19,7 +19,7 @@ export function waterQuality(water, units, opts = {}) {
   const hyd = hydraulics(), K = si(units);
   const mode = opts.mode === 'chlorine' || opts.mode === 'trace' ? opts.mode : 'age';
   if (typeof hyd.extended !== 'function') throw problem('not_configured');
-  const eps = hyd.extended(water, units, { hours: opts.hours, step: opts.step });
+  const eps = opts.eps || hyd.extended(water, units, { hours: opts.hours, step: opts.step });   // opts.eps: a run made elsewhere (control.js simulate: { steps: rows, dt }), so rules and valves carry through
   const W = hyd.cleanWater ? hyd.cleanWater(water, units) : water;
   const dt = eps.dt, steps = eps.steps;
   const qstep = Math.max(1, Math.min(dt, pos(opts.qstep, Math.min(300, dt))));

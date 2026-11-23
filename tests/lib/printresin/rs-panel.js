@@ -14,8 +14,10 @@
  */
 import { PRINTERS, RESINS, DENSITIES, cleanResin } from './rs-profiles.js';
 import { runResin } from './rs-run.js';
+import { autoOrient } from './rs-advise.js';
 
 export function createResinPanel({ t, formats = () => [], tools = () => [] }) {
+  let orient = null;   // the last tilt suggestion, in words
   let job = null, result = null, resultSig = '', busy = null, progress = null, abort = null, message = null, layer = 0;
   const rerender = [];   // the current ctx's host.rerender, set on each build
   const plateSig = (ctx) => { const tr = ctx.host.plate(); let a = 0; for (const tri of tr) for (const p of tri) a += p[0] * 1.3 + p[1] * 1.7 + p[2] * 2.3; return tr.length + ':' + Math.round(a * 100) + ':' + JSON.stringify(job); };
@@ -59,7 +61,15 @@ export function createResinPanel({ t, formats = () => [], tools = () => [] }) {
         return null;
       } finally { busy = null; progress = null; abort = null; host.rerender(); }
     };
-    const warnText = (w) => (w.kind === 'skipped' ? t(w.n === 1 ? 'rs.warn.skipped_one' : 'rs.warn.skipped', { n: w.n, share: w.share }) : w.kind === 'sheets' ? t('rs.warn.sheets', { n: w.n }) : w.kind === 'floating' ? t('rs.warn.floating') : w.kind === 'islands' ? t('rs.warn.islands', { n: w.n }) : w.kind === 'overhangs' ? t('rs.warn.overhangs', { n: w.n }) : w.kind === 'nodrain' ? t('rs.warn.nodrain', { n: w.n }) : '');
+    const warnText = (w) => (w.kind === 'skipped' ? t(w.n === 1 ? 'rs.warn.skipped_one' : 'rs.warn.skipped', { n: w.n, share: w.share }) : w.kind === 'sheets' ? t('rs.warn.sheets', { n: w.n }) : w.kind === 'floating' ? t('rs.warn.floating') : w.kind === 'islands' ? t('rs.warn.islands', { n: w.n }) : w.kind === 'overhangs' ? t('rs.warn.overhangs', { n: w.n }) : w.kind === 'nodrain' ? t('rs.warn.nodrain', { n: w.n }) : w.kind === 'cups' ? t('rs.warn.cups', { n: w.n, area: w.areaMm2, cell: w.cell }) : '');
+    const suggestTilt = () => {
+      const tr = host.plate();
+      if (!tr.length) { say(t('rs.empty'), true); return; }
+      const r = autoOrient(tr, job);
+      const flat = r.candidates[0], b = r.best;
+      orient = b.tilt === job.tilt ? t('rs.orient.same', { tilt: b.tilt }) : t('rs.orient.result', { tilt: b.tilt, peak: Math.round(b.peakMm2), peak0: Math.round(flat.peakMm2), over: Math.round(b.overhangMm2), over0: Math.round(flat.overhangMm2), cups: b.cups });
+      if (b.tilt !== job.tilt) set({ tilt: b.tilt }); else host.rerender();
+    };
     const baseName = () => (String(host.fileName?.() || 'plate').replace(/\.[a-z0-9]+$/i, '') || 'plate');
     const metaOf = (j, r, fmt) => ({ name: baseName(), printer: { id: j.printer, ...j.printerSpec }, resin: { name: t('rs.resin.' + j.resin), exposure: j.exposure, bottomExposure: j.bottomExposure, bottomLayers: j.bottomLayers, liftHeight: j.liftHeight, liftSpeed: j.liftSpeed, retractSpeed: j.retractSpeed, lightOff: j.lightOff, density: j.density_g, price: j.price },
       layerHeight: j.layerHeight, volumeMl: r.stats.volumeMl, seconds: r.stats.seconds, options: fmt ? optsOf(fmt) : {} });
@@ -113,11 +123,16 @@ export function createResinPanel({ t, formats = () => [], tools = () => [] }) {
         number('liftSpeed', t('rs.field.liftspeed'), { min: 10, max: 600, step: 10, data: 'rsLiftSpeed' }),
         number('retractSpeed', t('rs.field.retractspeed'), { min: 10, max: 900, step: 10, data: 'rsRetractSpeed' }),
         number('lightOff', t('rs.field.lightoff'), { min: 0, max: 20, step: 0.5, data: 'rsLightOff' }),
-        number('price', t('rs.field.price'), { min: 0, max: 1000, step: 1, data: 'rsPrice', digits: 0 })),
+        number('price', t('rs.field.price'), { min: 0, max: 1000, step: 1, data: 'rsPrice', digits: 0 }),
+        number('peelStress', t('rs.field.peelstress'), { min: 0, max: 500, step: 0.5, data: 'rsPeelStress' })),
       number('tilt', t('rs.field.tilt'), { min: 0, max: 60, step: 1, data: 'rsTilt', digits: 0 }),
+      el('div', { className: C.row, dataset: { rsOrient: '' } },
+        el('button', { type: 'button', className: C.btn, disabled: !!busy, dataset: { rsSuggestTilt: '' }, onclick: suggestTilt }, t('rs.orient.go')),
+        orient ? el('p', { className: C.note, role: 'status', dataset: { rsOrientResult: '' } }, orient) : null),
       check('hollow', t('rs.field.hollow'), 'rsHollow'),
       job.hollow ? el('div', { className: C.row }, number('wall', t('rs.field.wall'), { min: 0.8, max: 6, step: 0.1, data: 'rsWall' }), number('drain', t('rs.field.drain'), { min: 1.5, max: 6, step: 0.5, data: 'rsDrain' })) : null,
       check('supports', t('rs.field.supports'), 'rsSupports'),
+      job.supports ? check('bracing', t('rs.field.bracing'), 'rsBracing') : null,
       job.supports ? el('div', {},
         field(t('rs.field.density'), el('select', { className: C.select, dataset: { rsDensity: '' }, onchange: (e) => set({ density: e.target.value }) }, ...Object.keys(DENSITIES).map((k) => el('option', { value: k, selected: k === job.density }, t('rs.density.' + k))))),
         el('div', { className: C.row }, number('lift', t('rs.field.liftpart'), { min: 1, max: 10, step: 0.5, data: 'rsLiftPart' }), number('overhang', t('rs.field.overhang'), { min: 10, max: 70, step: 1, data: 'rsOverhang', digits: 0 })),
@@ -152,7 +167,8 @@ export function createResinPanel({ t, formats = () => [], tools = () => [] }) {
       const s = r.stats;
       out.push(el('div', { className: C.block, dataset: { rsPreview: 'ok' } }, el('h3', { className: C.head }, t('rs.h.preview')), canvas, range, label,
         el('p', { className: C.note, dataset: { rsStats: '' } }, t('rs.stats', { layers: s.layers, time: duration(s.seconds), ml: s.volumeMl, g: s.grams, cost: s.cost })),
-        s.supports ? el('p', { className: C.note }, t('rs.stats.supports', { n: s.supports, raft: s.onRaft, model: s.onModel })) : null,
+        s.supports ? el('p', { className: C.note }, t('rs.stats.supports', { n: s.supports, raft: s.onRaft, model: s.onModel }) + (s.braces ? ' ' + t('rs.stats.braces', { n: s.braces }) : '')) : null,
+        s.peel ? el('p', { className: C.note, dataset: { rsPeel: '' } }, s.peel.forceN !== null ? t('rs.stats.peel_force', { cm2: Math.round(s.peel.maxMm2 / 10) / 10, layer: s.peel.atLayer + 1, n: Math.round(s.peel.forceN * 10) / 10, stress: job.peelStress }) : t('rs.stats.peel', { cm2: Math.round(s.peel.maxMm2 / 10) / 10, layer: s.peel.atLayer + 1 })) : null,
         ...r.warnings.map(warnText).filter(Boolean).map((x) => el('p', { className: C.error, role: 'status' }, x))));
     } else if (result) out.push(el('div', { className: C.block, dataset: { rsPreview: 'stale' } }, el('h3', { className: C.head }, t('rs.h.preview')), el('p', { className: C.note }, t('rs.preview.stale'))));
 

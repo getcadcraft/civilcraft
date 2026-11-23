@@ -4,6 +4,7 @@
  *   reportHtml(res, { t, title, project, luminaireNames, requirementsNote }) → string        reportCsv(res, { t }) → string
  *   scaleColor(v, max) → '#rrggbb' (a dark-blue to yellow sequential scale, so lowest to highest reads in print and for most colour-vision types)
  */
+import { gridField, niceLevels, isolines } from './isolines.js';
 const STOPS = [[0.0, [38, 24, 94]], [0.25, [28, 94, 150]], [0.5, [24, 150, 140]], [0.75, [120, 190, 84]], [1.0, [250, 230, 80]]];
 export function scaleColor(v, max) {
   const f = max > 0 ? Math.min(1, Math.max(0, v / max)) : 0;
@@ -36,6 +37,9 @@ function mapSvg(res, W = 640) {
     s += `<rect x="${f(X(p[0] - sp / 2), 1)}" y="${f(Y(p[1] + sp / 2), 1)}" width="${f(sp * k + 0.5, 1)}" height="${f(sp * k + 0.5, 1)}" fill="${c}"/>`;
     if (label) s += `<text x="${f(X(p[0]), 1)}" y="${f(Y(p[1]) + 3.5, 1)}" font-size="10" text-anchor="middle" fill="${dark ? '#fff' : '#111'}" font-family="sans-serif">${Math.round(v)}</text>`;
   });
+  if (res.grid.nx && res.grid.ny && res.grid.points.length > 8) {   // isolines (0.11 IL.7): lines of equal lux, labelled once each
+    try { for (const { level, segments } of isolines(gridField(res), niceLevels(res.emin, res.emax, 6))) { if (!segments.length) continue; s += `<path d="${segments.map((g) => 'M' + f(X(g[0][0]), 1) + ' ' + f(Y(g[0][1]), 1) + 'L' + f(X(g[1][0]), 1) + ' ' + f(Y(g[1][1]), 1)).join('')}" fill="none" stroke="#111" stroke-opacity=".55" stroke-width="1"/>`; const g0 = segments[Math.floor(segments.length / 2)][0]; s += `<text x="${f(X(g0[0]), 1)}" y="${f(Y(g0[1]), 1)}" font-size="9" fill="#111" stroke="#fff" stroke-width="2.5" paint-order="stroke" font-family="sans-serif">${Math.round(level * 10) / 10}</text>`; } } catch (e) { /* the map stays without lines */ }
+  }
   s += `<polygon points="${P.map((p) => f(X(p[0]), 1) + ',' + f(Y(p[1]), 1)).join(' ')}" fill="none" stroke="#111" stroke-width="2"/>`;
   for (const L of res.luminaires || []) s += `<circle cx="${f(X(L.p[0]), 1)}" cy="${f(Y(L.p[1]), 1)}" r="4" fill="#fff" stroke="#111" stroke-width="1.5"/>`;
   return s + '</svg>';

@@ -4,6 +4,7 @@ export * as modbus from './modbus.js';
 export * as mqtt from './mqtt.js';
 export * as bacnet from './bacnet.js';
 export * from './store.js';
+export { makeReader, studioBridge } from './read.js';
 export * as policy from './policy.js';
 export { ProtocolError } from './bytes.js';
 export const VERSION = 1;

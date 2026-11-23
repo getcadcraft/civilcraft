@@ -1,34 +1,38 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
 /**
- * browser-ask-ownkey.mjs: the Ask box and the "Your own AI key" add-on in the real /lab pages (0.10, owner 2026-11-11: "no AI in the apps"
- * with no exception; session bk-aiaddon-10). Headless Chromium, run as root, one browser.
+ * browser-ask-ownkey.mjs: the Ask box and a model the person brings, in the real /lab pages (owner 2026-11-20: AI belongs to the Studios
+ * and is passed down to the apps; the "Your own AI key" add-on is the same engine for one app without Studio). Headless Chromium, run
+ * as root, one browser.
  *
  *   node tools/shell-test/browser-ask-ownkey.mjs [--apps cadcraft,bimcraft] [--shots <dir>]
  *
- * What is real: the app page, the shell's Ask box, the app's add-on loader and its package store, the add-on's own files (read from
- * addons/own-ai-key/ and put in the store in the package shape the account client writes), the engine and its limits.
+ * What is real: the app page, the shell's Ask box, Studio's own engine file and the engine it runs (studio/hub/ask-engine.js + the
+ * tested tools/mcp/byok.mjs, served to the page as Studio's pack serves them), the app's add-on loader and its package store, the
+ * add-on's own files (read from addons/own-ai-key/), its set-up dialog, the limits.
  * What is stood in, and why:
- *   Studio            window.cadcraftStudio is a page script (post / on / hub), because the test runs in a browser. Its "hub" hands each
- *                     'ask.call' to this Node process (as Studio's hub hands it to the native side), which makes the HTTP request.
- *   the provider      a local HTTP server on 127.0.0.1 in this process, speaking the OpenAI-compatible format. No real provider is called
- *                     and no key exists anywhere in the test (a model on this computer needs none).
- *   the Library       "Add it" is clicked for real, but the account's add-on client is replaced by a stand-in whose add + ensure put the
- *                     package in the loader's store, which is what the real one does after fetching and checking it. The real Library has
- *                     no listing for the add-on until the lead publishes it, and this test must not write to the account's list.
+ *   Studio            window.cadcraftStudio is a page script (post / on / hub), because the test runs in a browser, and Studio's
+ *                     passDown() is called by a page script as Studio's window.js calls it. Its "hub" hands each 'ask.call' to this
+ *                     Node process (as Studio's hub hands it to the native side), which makes the HTTP request.
+ *   the provider      a local HTTP server on 127.0.0.1 in this process, speaking the OpenAI-compatible format, and for the one check
+ *                     with a key a route in the browser that answers for the provider's address. No real provider is called and no
+ *                     real key exists anywhere in the test.
+ *   the Library       the add-on is put in the loader's store through the loader's own install check, which is what the account
+ *                     client does after fetching and checking it. Nothing is written to an account's list.
  *   the signature     the package is not signed here (signing is the Library's step), so the page runs with the loader's developer
  *                     mode on (localStorage cc-addons-dev = 1), which is what lets an unsigned package load.
  *
  * Checks, per app:
- *   WITHOUT the add-on, inside Studio: the box says what is needed and names the add-on, with an "Add it" button; a question gets no
- *     model answer; nothing is posted to the hub; the stand-in provider gets no request; no request of the page goes to a model provider.
- *     With settings stored before 0.10 the note says they are kept. With no account client the offer shows the Library page.
- *   "Add it": the stand-in client is asked to add and fetch own-ai-key; the box says it starts the next time the app is opened.
- *   WITH the add-on (after a reload): the add-on is active, the note is gone, the box says "Answered here with Your own model", a question
- *     is answered by the stand-in provider after one tool step, the limits count the calls, the settings stored before are unchanged,
- *     no key is in anything, and every request of the page went to this site.
- *   Switched off in the loader: the engine is gone at once and the note is back.
- *   Outside Studio (no window.cadcraftStudio): no note, no engine, with or without the add-on.
+ *   A browser tab, no Studio, no add-on: no note, no engine.
+ *   INSIDE STUDIO, nothing added: Studio's engine is on the page. With no model set up the box says where to set one up (Studio › Your own
+ *     AI model) and offers no add-on; a question gets no model answer and nothing is posted to the hub. With a model set up the box says
+ *     "Answered here with Your own model" and a question is answered through the hub after one tool step; the limits count the calls;
+ *     no key is in anything; every request of the page went to this site.
+ *   INSIDE STUDIO with the add-on also added: the add-on registers nothing; Studio's engine is the only one.
+ *   ONE APP IN A BROWSER with the add-on: the box says the add-on is added and offers its set-up; the set-up dialog saves a provider,
+ *     a model and an address on this computer; the page itself then calls the stand-in provider and a question is answered. With a
+ *     (made-up) key and a hosted provider's address, the call carries the key and the browser header and goes nowhere but the route.
+ *     Switched off in Add-ons the engine is gone at once.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -48,7 +52,9 @@ const SETTINGS_KEY = 'cadcraft.studio.byok.settings', LEDGER_KEY = 'cadcraft.stu
 
 // ---------------------------------------------------------------------------------------------- the stand-in provider (this computer only)
 const provider = { requests: [] };
+const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-private-network': 'true' };
 const server = http.createServer((req, res) => {
+  if (req.method === 'OPTIONS') { res.writeHead(204, CORS); res.end(); return; }   // a browser page asks first
   let body = '';
   req.on('data', (c) => { body += c; });
   req.on('end', () => {
@@ -60,7 +66,7 @@ const server = http.createServer((req, res) => {
     const reply = !hadTool && pick
       ? { choices: [{ message: { content: null, tool_calls: [{ id: 'call_1', type: 'function', function: { name: pick, arguments: '{}' } }] }, finish_reason: 'tool_calls' }], usage: { prompt_tokens: 40, completion_tokens: 8 } }
       : { choices: [{ message: { content: 'Stand-in answer: I looked at the file with your tools.' }, finish_reason: 'stop' }], usage: { prompt_tokens: 60, completion_tokens: 12 } };
-    res.writeHead(200, { 'content-type': 'application/json' }); res.end(JSON.stringify(reply));
+    res.writeHead(200, { 'content-type': 'application/json', ...CORS }); res.end(JSON.stringify(reply));
   });
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -97,13 +103,27 @@ const studioStub = () => {
   };
 };
 
+/** Page script: what Studio's window.js does once the channel is up: hand Studio's engine to this page. The two files are Studio's own, served as its pack serves them. */
+const passDownStub = () => { import('/__studio/hub/ask-engine.js').then((m) => { window.__passedDown = true; m.passDown({ g: window, studio: window.cadcraftStudio, name: 'Your own model' }); }, (e) => { window.__passedDown = String(e); }); };
+const STUDIO = process.env.CADCRAFT_STUDIO || '/var/www/CADCRAFT/studio';
+const studioFiles = { '/__studio/hub/ask-engine.js': path.join(STUDIO, 'hub/ask-engine.js'), '/__studio/hub/byok.mjs': path.join(REPO, 'tools/mcp/byok.mjs') };
+
 const askState = (page) => page.evaluate(() => {
   const s = window.ccAsk.state();
   const panel = document.querySelector('[data-k="ownkey"]');
-  return { attached: s.attached, routes: s.routes, note: panel ? panel.textContent : null, addBtn: !!document.querySelector('[data-k="ownkey-add"]'), added: !!document.querySelector('[data-k="ownkey-added"]'),
-    why: document.querySelector('[data-k="ownkey-why"]')?.textContent || '', page: document.querySelector('[data-k="ownkey-page"]')?.href || '',
+  return { attached: s.attached, routes: s.routes, note: panel ? panel.textContent : null, noteState: panel ? panel.getAttribute('data-state') : null,
+    studioBtn: !!document.querySelector('[data-k="ownkey-studio"]'), setupBtn: !!document.querySelector('[data-k="ownkey-setup"]'), addBtn: !!document.querySelector('[data-k="ownkey-add"]'),
     noroute: document.querySelector('[data-k="noroute"]')?.textContent || '', engines: (window.ccAskEngines || []).map((p) => p.id) };
 });
+const installAddon = (page, slug) => page.evaluate(async ([manifest, files, app]) => {
+  const build = JSON.parse(document.getElementById('cc-addons-account').textContent).build;
+  const mod = await import(new URL('addons.js', new URL(build, location.href)).href);
+  const loader = new mod.AddonLoader({ app, apiVersion: '1.4', appName: app, packages: mod.packageStore(), fetchJson: async () => null });
+  return loader.installPackage({ manifest, files, signature: null, source: 'test:own-ai-key' });
+}, [manifest, pkgFiles, slug]);
+/** Back to the model on this computer, so the add-on has an engine again before it is switched off. */
+const setFieldBack = async (page) => { await page.evaluate(() => (window.ccAskEngines || []).find((p) => p.id === 'own-ai-key').setup()); await page.waitForSelector('dialog[data-ownkey-setup][open]', { timeout: 10000 }); await setField(page, '[data-ownkey-provider]', 'compatible'); await page.click('[data-ownkey-close]'); await page.waitForTimeout(300); };
+const setField = (page, sel, value) => page.evaluate(([sel, value]) => { const e = document.querySelector('dialog[data-ownkey-setup] ' + sel); e.value = value; e.dispatchEvent(new Event('change', { bubbles: true })); }, [sel, value]);
 /** Open the Ask panel once the app attached the box. An app that attaches only with a document open (BimCraft) gets its document hook again if a slow first load swallowed it. */
 const openAsk = async (page, slug) => {
   for (let i = 0; i < 4; i++) {
@@ -119,72 +139,25 @@ const lab = await openLab('bkaiaddon');
 const reopen = async (page, slug) => { const hooks = await import(pathToFileURL(path.join(REPO, 'tools/workspace-test/apps', slug + '.mjs')).href).catch(() => ({})); if (hooks.prepare) await hooks.prepare(page); await page.waitForTimeout(600); };
 try {
   for (const slug of APPS) {
-    console.log('== ' + slug + ': the Ask box WITHOUT the add-on, inside Studio');
+    console.log('== ' + slug + ': a browser tab, no Studio, no add-on');
     provider.requests.length = 0;
     const { ctx, page, errors } = await lab.page(slug, { viewport: { width: 1600, height: 1000 }, storage: { ['cadcraft.assistants.' + slug]: JSON.stringify({ enabled: true, groups: ['read'] }), ...(slug === 'bimcraft' ? { 'bimcraft.settings': JSON.stringify({ assistants: { enabled: true, groups: ['read'] } }) } : {}), 'cc-addons-dev': '1' } });   // Settings › Assistants: on, Read only
     const hosts = new Map();
-    page.on('request', (r) => { try { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol)) hosts.set(u.host, (hosts.get(u.host) || 0) + 1); if (VENDOR.test(r.url())) hosts.set('PROVIDER ' + u.host, 1); } catch { /* data: */ } });
+    page.on('request', (r) => { try { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol)) hosts.set(u.host, (hosts.get(u.host) || 0) + 1); } catch { /* data: */ } });
     await ctx.exposeFunction('__hubCall', hubCall);
+    await ctx.route('**/__studio/**', (route) => { const f = studioFiles[new URL(route.request().url()).pathname]; if (f) route.fulfill({ status: 200, contentType: 'text/javascript', body: fs.readFileSync(f, 'utf8') }); else route.fulfill({ status: 404, body: '' }); });
+    const hosted = [];   // the one check with a key: the provider's address is answered here, in the browser, and never reaches the network
+    await ctx.route('https://api.anthropic.com/**', (route) => { const r = route.request(); hosted.push({ url: r.url(), method: r.method(), headers: r.headers() }); if (r.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+      return route.fulfill({ status: 200, headers: CORS, contentType: 'application/json', body: JSON.stringify({ content: [{ type: 'text', text: 'Stand-in hosted answer.' }], usage: { input_tokens: 9, output_tokens: 4 }, stop_reason: 'end_turn' }) }); });
 
-    // first, outside Studio: nothing about the add-on, no engine
     await openAsk(page, slug);
     let s = await askState(page);
-    ok(s.attached && s.note === null && !s.routes[0].ready, 'outside Studio (a browser tab): no add-on note and no engine of the person\'s own', JSON.stringify(s).slice(0, 200));
+    ok(s.attached && s.note === null && !s.routes[0].ready && s.engines.length === 0, 'a browser tab with no add-on: no note and no engine of the person\'s own', JSON.stringify(s).slice(0, 200));
 
-    // now inside "Studio"
-    await ctx.addInitScript(studioStub);
-    await page.reload({ waitUntil: 'networkidle' });
-    await reopen(page, slug);
-    await openAsk(page, slug);
-    s = await askState(page);
-    ok(s.note && /"Your own AI key" add-on/.test(s.note) && /no AI of their own/.test(s.note) && s.addBtn, 'the box says plainly what is needed and offers to add it: "' + (s.note || '').slice(0, 150) + '…"');
-    ok(!s.routes[0].ready && s.engines.length === 0, 'there is no engine for the person\'s own model in the page');
-    if (SHOTS) { await page.screenshot({ path: path.join(SHOTS, slug + '-ask-without-light.png') }); }
-    const q0 = await ask(page, 'What is in this file?');
-    ok(['no_route', 'waiting'].includes(q0.state) && !q0.answer, 'a question gets no model answer (' + q0.state + ': ' + (q0.error || 'it waits for a connected AI app') + ')');
-    const posts0 = await page.evaluate(() => window.__studio.posts.filter((p) => p.type === 'ask.call').length);
-    ok(posts0 === 0 && provider.requests.length === 0, 'nothing was posted to the hub and the stand-in provider got no request');
-
-    // settings from before 0.10: the note says they are kept
-    const before = JSON.stringify({ provider: 'compatible', model: 'local-test', baseUrl: BASE, keyName: 'default', maxOutputTokens: 512, maxToolSteps: 4, caps: { dayAmount: 5, monthAmount: 50, dayTokens: 400000, callsPerHour: 9 }, currency: 'USD', prices: {} });
-    await page.evaluate(([k, v]) => { localStorage.setItem(k, v); window.ccAsk.close(); window.ccAsk.open(); }, [SETTINGS_KEY, before]);
-    s = await askState(page);
-    ok(/set up your own model before/.test(s.note || '') && /kept/.test(s.note || '') && s.addBtn && !s.routes[0].ready, 'with settings stored before: the note says they and the key are kept, and still no engine without the add-on');
-
-    // no account client on the page → "Add it" cannot, and shows the Library page
-    await page.waitForFunction(() => !!window.ccAddonsAccount, null, { timeout: 70000 }).catch(() => {});
-    const realAcc = await page.evaluate(() => { window.__realAcc = window.ccAddonsAccount; window.ccAddonsAccount = undefined; return !!window.__realAcc; });
-    await page.click('[data-k="ownkey-add"]'); await page.waitForSelector('[data-k="ownkey-why"]', { timeout: 10000 });
-    s = await askState(page);
-    ok(/cannot add from the Library by itself/.test(s.why) && /\/library\/addons\/own-ai-key$/.test(s.page), 'a page with no account add-on client: the box says so and links the add-on\'s Library page (' + s.page + ')');
-
-    console.log('== ' + slug + ': "Add it"');
-    // the stand-in account client: add + ensure put the package where the real one does (the loader's store), through the loader's own install check
-    const build = await page.evaluate(() => JSON.parse(document.getElementById('cc-addons-account').textContent).build);
-    await page.evaluate(([build, manifest, files, app]) => {
-      window.__accCalls = [];
-      window.ccAddonsAccount = {
-        signedIn: () => true,
-        add: async (id) => { window.__accCalls.push('add ' + id); return { ok: true, added: [id] }; },
-        ensure: async (id) => {
-          window.__accCalls.push('ensure ' + id);
-          const mod = await import(new URL('addons.js', new URL(build, location.href)).href);
-          const loader = new mod.AddonLoader({ app, apiVersion: '1.4', appName: app, packages: mod.packageStore(), fetchJson: async () => null });
-          const r = await loader.installPackage({ manifest, files, signature: null, source: 'test:own-ai-key' });
-          window.__accCalls.push('installed ' + JSON.stringify(r));
-          return r.ok ? { ok: true, installed: [id + '@' + manifest.version] } : { ok: false, reason: r.reason };
-        },
-      };
-    }, [build, manifest, pkgFiles, slug]);
-    await page.click('[data-k="ownkey-add"]'); await page.waitForSelector('[data-k="ownkey-added"]', { timeout: 15000 }).catch(() => {});
-    s = await askState(page);
-    const calls = await page.evaluate(() => window.__accCalls);
-    ok(s.added && calls[0] === 'add own-ai-key' && calls[1] === 'ensure own-ai-key' && /"ok":true/.test(calls[2] || ''), 'Add it: the account client is asked to add and fetch own-ai-key, the loader takes the package, and the box says it starts next time (' + calls.join(' | ').slice(0, 140) + ')');
-    ok(realAcc, 'the page has the account add-on client (window.ccAddonsAccount), which the offer uses in the lab');
-    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, slug + '-ask-added.png') });
-    ok(provider.requests.length === 0, 'adding it called no provider');
-
-    console.log('== ' + slug + ': the Ask box WITH the add-on');
+    console.log('== ' + slug + ': ONE APP IN A BROWSER with the add-on');
+    await page.waitForFunction(() => !!document.getElementById('cc-addons-account'), null, { timeout: 70000 }).catch(() => {});
+    const inst = await installAddon(page, slug);
+    ok(inst && inst.ok, 'the add-on is put in the loader\'s store through the loader\'s own install check', JSON.stringify(inst).slice(0, 160));
     await page.reload({ waitUntil: 'networkidle' });
     await reopen(page, slug);
     await page.waitForFunction(() => (window.ccAskEngines || []).some((p) => p.id === 'own-ai-key'), null, { timeout: 70000 }).catch(() => {});
@@ -192,45 +165,109 @@ try {
     s = await askState(page);
     const listed = await page.evaluate(() => { try { return (window.ccAddons.list() || []).filter((a) => a.id === 'own-ai-key').map((a) => ({ state: a.state, source: a.source, version: a.version, reason: a.reason })); } catch (e) { return [{ state: 'no list: ' + e.message }]; } });
     ok(listed.length === 1 && listed[0].state === 'active' && listed[0].source === 'installed', 'after opening the app again the add-on is active, as an added package (never bundled): ' + JSON.stringify(listed));
-    ok(s.note === null && s.routes[0].ready && s.routes[0].name === 'Your own model' && s.engines.join() === 'own-ai-key', 'the note is gone and the box has the person\'s own model as its engine ("' + s.routes[0].name + '")');
-    const sum = await page.evaluate(() => [...document.querySelectorAll('body *:not(script):not(style)')].find((e) => e.children.length === 0 && (e.textContent || '').length < 120 && /Answered here with/.test(e.textContent || ''))?.textContent || '');
-    ok(/Answered here with Your own model/.test(sum), 'the panel says: "' + sum + '"');
+    ok(s.engines.join() === 'own-ai-key' && s.noteState === 'addon' && s.setupBtn && !s.routes[0].ready, 'added but not set up: the box says so and offers the add-on\'s own set-up: "' + (s.note || '').slice(0, 120) + '…"', JSON.stringify(s).slice(0, 200));
+    await page.click('[data-k="ownkey-setup"]'); await page.waitForSelector('dialog[data-ownkey-setup][open]', { timeout: 10000 });
+    const warn = await page.evaluate(() => document.querySelector('[data-ownkey-where]')?.textContent || '');
+    ok(/not encrypted/.test(warn) && /never sent to CadCraft/.test(warn), 'the set-up says plainly where a key is kept in a browser: "' + warn.slice(0, 110) + '…"');
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, slug + '-addon-setup.png') });
+    await setField(page, '[data-ownkey-provider]', 'compatible');
+    await setField(page, '[data-ownkey-base]', BASE);
+    await setField(page, '[data-ownkey-model]', 'local-test');
+    const ready = await page.evaluate(() => ({ ready: document.querySelector('[data-ownkey-ready]')?.getAttribute('data-ownkey-ready'), local: !!document.querySelector('[data-ownkey-local]'), key: !!document.querySelector('[data-ownkey-key]') }));
+    ok(ready.ready === 'yes' && ready.local && !ready.key, 'a model on this computer: the set-up says ready, asks for no key and counts no money');
+    await page.click('[data-ownkey-close]'); await page.waitForTimeout(300);
+    s = await askState(page);
+    ok(s.note === null && s.routes[0].ready && s.routes[0].name === 'Your own model', 'set up: the note is gone and the box has the person\'s own model as its engine, with no reload ("' + s.routes[0].name + '")', JSON.stringify(s).slice(0, 200));
     const q1 = await ask(page, 'What is in this file?');
-    ok(q1.state === 'answered' && /Stand-in answer/.test(q1.answer || ''), 'a question is answered by the stand-in provider: "' + (q1.answer || q1.error || '') + '"');
+    ok(q1.state === 'answered' && /Stand-in answer/.test(q1.answer || ''), 'a question is answered by the stand-in provider, called by the page itself: "' + (q1.answer || q1.error || '') + '"');
     const toolSteps = q1.steps.filter((x) => x.kind === 'tool');
-    ok(toolSteps.length === 1 && toolSteps[0].ok && provider.requests.length === 2, 'through one tool step of the app (' + (toolSteps[0] && toolSteps[0].tool) + '), in two calls to the stand-in provider', JSON.stringify(q1.steps).slice(0, 200) + ' requests ' + provider.requests.length);
-    ok(provider.requests.every((r) => r.method === 'POST' && r.url === '/v1/chat/completions' && r.auth === '' && r.body && r.body.model === 'local-test' && r.body.max_tokens === 512), 'each call: the compatible chat path, the stored model and output limit, and no key (a model on this computer needs none)');
-    const after = await page.evaluate(([k, l]) => ({ settings: localStorage.getItem(k), ledger: JSON.parse(localStorage.getItem(l) || '[]'), keys: Object.keys(localStorage).filter((x) => /byok|own-ai-key/.test(x)) }), [SETTINGS_KEY, LEDGER_KEY]);
-    ok(after.settings === before, 'the settings stored before the add-on are byte for byte as they were (nothing migrated, nothing lost)');
-    ok(after.ledger.length === 2 && after.ledger.every((e) => e.cost === 0 && e.model === 'local-test') && after.keys.sort().join() === [LEDGER_KEY, SETTINGS_KEY].sort().join(), 'the limits counted both calls in the same ledger as before; no new stored entry (' + after.keys.join(', ') + ')');
-    const posts = await page.evaluate(() => window.__studio.posts);
-    ok(posts.filter((p) => p.type === 'ask.call').length === 2 && !/sk-|Bearer|authorization|x-api-key/i.test(JSON.stringify(posts)), 'the app window sent two calls to the hub, naming the key store entry and carrying no key or key header');
-    if (SHOTS) {
-      await page.screenshot({ path: path.join(SHOTS, slug + '-ask-with-light.png') });
-    }
+    const posted = provider.requests.filter((r) => r.method === 'POST');
+    ok(toolSteps.length === 1 && toolSteps[0].ok && posted.length === 2, 'through one tool step of the app (' + (toolSteps[0] && toolSteps[0].tool) + '), in two calls to the stand-in provider', JSON.stringify(q1.steps).slice(0, 200) + ' requests ' + posted.length);
+    ok(posted.every((r) => r.url === '/v1/chat/completions' && r.auth === '' && r.body && r.body.model === 'local-test'), 'each call: the compatible chat path, the model typed in the set-up, and no key (a model on this computer needs none)');
+    const kept = await page.evaluate((app) => Object.keys(localStorage).filter((k) => k.startsWith('cc-addon:' + app + ':own-ai-key:')).map((k) => k.split(':').pop()).sort().join(), slug);
+    ok(kept === 'ledger,settings' && !(await page.evaluate((k) => localStorage.getItem(k), SETTINGS_KEY)), 'the add-on keeps its settings and its record of calls in its own entries for this app; nothing of Studio\'s is written (' + kept + ')');
 
-    // switched off: the engine goes at once, the note is back
+    // a hosted provider with a (made-up) key: answered by the route above, so nothing leaves this browser
+    await page.evaluate(() => (window.ccAskEngines || []).find((p) => p.id === 'own-ai-key').setup());
+    await page.waitForSelector('dialog[data-ownkey-setup][open]', { timeout: 10000 });
+    await setField(page, '[data-ownkey-provider]', 'anthropic');
+    await setField(page, '[data-ownkey-model]', 'stand-in-model');
+    const FAKE = 'made-up-key-for-this-test-only';
+    await page.fill('dialog[data-ownkey-setup] [data-ownkey-key]', FAKE); await page.click('dialog[data-ownkey-setup] [data-ownkey-save]'); await page.waitForSelector('[data-ownkey-state="stored"]', { timeout: 10000 });
+    const shown = await page.evaluate((k) => document.querySelector('dialog[data-ownkey-setup]').outerHTML.includes(k) || document.querySelector('dialog[data-ownkey-setup] [data-ownkey-key]').value !== '', FAKE);
+    ok(!shown, 'a saved key is not shown again');
+    await page.click('[data-ownkey-close]'); await page.waitForTimeout(300);
+    const q2 = await ask(page, 'And now?');
+    const call = hosted.find((h) => h.method === 'POST');
+    ok(q2.state === 'answered' && /Stand-in hosted answer/.test(q2.answer || '') && call && /\/v1\/messages$/.test(call.url) && call.headers['x-api-key'] === FAKE && call.headers['anthropic-dangerous-direct-browser-access'] === 'true', 'with a key and a hosted provider the page sends the key only to that provider\'s address, with the header a browser caller needs: "' + (q2.answer || q2.error || '') + '"');
+    ok(!JSON.stringify(q2).includes(FAKE), 'the key is not in the answer or its steps');
+    await page.evaluate(() => (window.ccAskEngines || []).find((p) => p.id === 'own-ai-key').setup()); await page.waitForSelector('dialog[data-ownkey-setup] [data-ownkey-remove]', { timeout: 10000 });
+    await page.click('dialog[data-ownkey-setup] [data-ownkey-remove]'); await page.waitForSelector('[data-ownkey-state="none"]', { timeout: 10000 }); await page.click('[data-ownkey-close]'); await page.waitForTimeout(300);
+    s = await askState(page);
+    ok(!s.routes[0].ready && s.noteState === 'addon' && !(await page.evaluate((k) => JSON.stringify(Object.entries(localStorage)).includes(k), FAKE)), 'Remove the key: it is gone from the browser and the engine with it');
+    const outside = [...hosts.keys()].filter((h) => h !== 'getcadcraft.com').sort().join();
+    ok(outside === ['127.0.0.1:' + server.address().port, 'api.anthropic.com'].sort().join(), 'the page reached this site, the stand-in on this computer, and the routed provider address, nothing else (' + outside + ')');
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, slug + '-addon-ask.png') });
+
+    // switched off: the engine goes at once
+    await setFieldBack(page);
     const off = await page.evaluate(async () => { const l = window.ccAddons.loader; if (!l || typeof l.setEnabled !== 'function') return 'no loader'; await l.setEnabled('own-ai-key', false); return 'off'; });
     await page.waitForTimeout(300);
     s = await askState(page);
-    ok(off === 'off' && s.engines.length === 0 && !s.routes[0].ready && /Your own AI key/.test(s.note || ''), 'switched off in Add-ons: the engine is gone at once and the note is back', off + ' ' + JSON.stringify(s).slice(0, 160));
+    ok(off === 'off' && s.engines.length === 0 && !s.routes[0].ready && s.note === null, 'switched off in Add-ons: the engine is gone at once', off + ' ' + JSON.stringify(s).slice(0, 160));
     await page.evaluate(async () => { await window.ccAddons.loader.setEnabled('own-ai-key', true); });
     await page.waitForTimeout(300);
+
+    console.log('== ' + slug + ': INSIDE STUDIO with the add-on also added');
+    hosts.clear(); provider.requests.length = 0;
+    await ctx.addInitScript(studioStub);
+    await ctx.addInitScript(passDownStub);
+    await page.reload({ waitUntil: 'networkidle' });
+    await reopen(page, slug);
+    await page.waitForFunction(() => (window.ccAskEngines || []).some((p) => p.id === 'studio'), null, { timeout: 30000 }).catch(() => {});
+    await page.waitForFunction(() => { try { return (window.ccAddons.list() || []).some((a) => a.id === 'own-ai-key' && a.state === 'active'); } catch (e) { return false; } }, null, { timeout: 70000 }).catch(() => {});
+    await openAsk(page, slug);
     s = await askState(page);
-    ok(s.routes[0].ready && s.note === null, 'switched on again: the engine is back');
+    ok(s.engines.join() === 'studio', 'Studio handed its engine to the page, and the add-on, active there too, registers nothing (' + s.engines.join() + ')', String(await page.evaluate(() => window.__passedDown)));
+    await page.evaluate(async () => { try { await window.ccAddons.uninstall('own-ai-key'); } catch (e) { /* removed below with the context */ } });
 
+    console.log('== ' + slug + ': INSIDE STUDIO, nothing added');
+    await page.reload({ waitUntil: 'networkidle' });
+    await reopen(page, slug);
+    await page.waitForFunction(() => (window.ccAskEngines || []).some((p) => p.id === 'studio'), null, { timeout: 30000 }).catch(() => {});
+    await openAsk(page, slug);
+    s = await askState(page);
+    const listed0 = await page.evaluate(() => { try { return (window.ccAddons.list() || []).filter((a) => a.id === 'own-ai-key').length; } catch (e) { return -1; } });
+    ok(s.engines.join() === 'studio' && listed0 === 0, 'the engine is on the page with no add-on at all: nothing was added by the person');
+    ok(s.noteState === 'studio' && /Your own AI model/.test(s.note || '') && s.studioBtn && !s.addBtn && !/add-on/i.test(s.note || ''), 'no model set up yet: the box says where to set one up in Studio and offers no add-on: "' + (s.note || '').slice(0, 150) + '…"');
+    ok(!s.routes[0].ready, 'and there is no engine ready until then');
+    if (SHOTS) { await page.screenshot({ path: path.join(SHOTS, slug + '-ask-studio-setup.png') }); }
+    const q0 = await ask(page, 'What is in this file?');
+    ok(['no_route', 'waiting'].includes(q0.state) && !q0.answer, 'a question gets no model answer (' + q0.state + ': ' + (q0.error || 'it waits for a connected AI app') + ')');
+    const posts0 = await page.evaluate(() => window.__studio.posts.filter((p) => p.type === 'ask.call').length);
+    ok(posts0 === 0 && provider.requests.length === 0, 'nothing was posted to the hub and the stand-in provider got no request');
+
+    // the person sets a model up in Studio (the hub card writes these settings; another window's write arrives as a storage event)
+    const before = JSON.stringify({ provider: 'compatible', model: 'local-test', baseUrl: BASE, keyName: 'default', maxOutputTokens: 512, maxToolSteps: 4, caps: { dayAmount: 5, monthAmount: 50, dayTokens: 400000, callsPerHour: 9 }, currency: 'USD', prices: {} });
+    await page.evaluate(([k, v]) => { localStorage.setItem(k, v); window.dispatchEvent(new StorageEvent('storage', { key: k, newValue: v })); }, [SETTINGS_KEY, before]);
+    await page.waitForTimeout(300);
+    s = await askState(page);
+    ok(s.note === null && s.routes[0].ready && s.routes[0].name === 'Your own model', 'set up in Studio: the note is gone and the box has the person\'s own model as its engine, with no reload and no add-on ("' + s.routes[0].name + '")', JSON.stringify(s).slice(0, 200));
+    const sum = await page.evaluate(() => [...document.querySelectorAll('body *:not(script):not(style)')].find((e) => e.children.length === 0 && (e.textContent || '').length < 120 && /Answered here with/.test(e.textContent || ''))?.textContent || '');
+    ok(/Answered here with Your own model/.test(sum), 'the panel says: "' + sum + '"');
+    const q3 = await ask(page, 'What is in this file?');
+    ok(q3.state === 'answered' && /Stand-in answer/.test(q3.answer || ''), 'a question is answered through Studio\'s hub: "' + (q3.answer || q3.error || '') + '"');
+    const steps3 = q3.steps.filter((x) => x.kind === 'tool');
+    ok(steps3.length === 1 && steps3[0].ok && provider.requests.length === 2, 'through one tool step of the app (' + (steps3[0] && steps3[0].tool) + '), in two calls to the stand-in provider', JSON.stringify(q3.steps).slice(0, 200) + ' requests ' + provider.requests.length);
+    ok(provider.requests.every((r) => r.method === 'POST' && r.url === '/v1/chat/completions' && r.auth === '' && r.body && r.body.model === 'local-test' && r.body.max_tokens === 512), 'each call: the compatible chat path, the stored model and output limit, and no key');
+    const after = await page.evaluate(([k, l]) => ({ settings: localStorage.getItem(k), ledger: JSON.parse(localStorage.getItem(l) || '[]') }), [SETTINGS_KEY, LEDGER_KEY]);
+    ok(after.settings === before && after.ledger.length === 2 && after.ledger.every((e) => e.cost === 0 && e.model === 'local-test'), 'the settings are byte for byte as Studio stored them, and the limits counted both calls in Studio\'s shared ledger');
+    const posts = await page.evaluate(() => window.__studio.posts);
+    ok(posts.filter((p) => p.type === 'ask.call').length === 2 && !/sk-|Bearer|authorization|x-api-key/i.test(JSON.stringify(posts)), 'the app window sent two calls to the hub, naming the key store entry and carrying no key or key header');
     const others = [...hosts.keys()].filter((h) => h !== 'getcadcraft.com');
-    ok(others.length === 0, 'every request of the page went to this site (' + [...hosts].map(([h, n]) => h + ' ' + n).join(', ') + '); none to a model provider; the two model calls were made by the stand-in hub in this process, to 127.0.0.1', others.join(', '));
+    ok(others.length === 0, 'inside Studio every request of the page went to this site (' + [...hosts].map(([h, n]) => h + ' ' + n).join(', ') + '); the model calls were made by the stand-in hub in this process', others.join(', '));
     ok(errors.length === 0, 'no page error', errors.slice(0, 3).join(' | '));
-
-    if (SHOTS) {   // the note in the dark (model) space, for the eye: add-on switched off again, the site's own theme switch
-      await page.evaluate(async () => { await window.ccAddons.loader.setEnabled('own-ai-key', false); });
-      await page.evaluate(() => { const b = document.querySelector('[data-space="model"]') || [...document.querySelectorAll('.space-toggle button')].pop(); if (b) b.click(); });
-      await page.waitForTimeout(1500);
-      if (await page.evaluate(() => !!(window.ccAsk && window.ccAsk.state().attached))) { await page.evaluate(() => window.ccAsk.open()); await page.waitForTimeout(300); await page.screenshot({ path: path.join(SHOTS, slug + '-ask-without-dark.png') }); }
-    }
-    // leave the browser profile as found (a context is thrown away, but be exact): remove the package
-    await page.evaluate(async () => { try { await window.ccAddons.uninstall('own-ai-key'); } catch (e) { /* context is closed next */ } });
+    if (SHOTS) await page.screenshot({ path: path.join(SHOTS, slug + '-ask-studio-answer.png') });
     await ctx.close();
   }
 } catch (e) { ok(false, 'stopped: ' + (e.stack || e.message || e)); } finally { await lab.close(); server.close(); }

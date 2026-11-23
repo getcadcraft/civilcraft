@@ -55,18 +55,18 @@ const SHOW_MAX = 200;   // rows listed in the Plants section at a time
 export function createLandscape(ctx) {
   const { el, root } = ctx;
   const P = () => ctx.project();
-  const U = () => (ctx.units() === 'm' ? 'm' : 'ft');
-  const lang = () => { try { return locale() || 'en'; } catch { return 'en'; } };
-  const LS = () => P().state.landscape || emptyLandscape();
+  function U() { return ctx.units() === 'm' ? 'm' : 'ft'; }
+  function lang() { try { return locale() || 'en'; } catch { return 'en'; } }
+  function LS() { return P().state.landscape || emptyLandscape(); }
   let on = false, seed = [], cur = null, query = '', filters = {};
   let idxCache = { key: '', idx: new Map() };
-  const gr = createGradeUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.3
-  const hd = createHardUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.4
-  const ir = createIrrUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.5
-  const ff = createFfUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // LD.7
-  const pa = createAreaUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U(), index: () => index(), current: () => cur,   // 0.8 LA.5
-    speciesSelect: (...x) => speciesSelect(...x), variantPick: (id, m, set) => { const sp = index().get(m.key); return pt.hasVariants(sp) ? [pt.variantSelect(id, sp, m.cv, m.sup, set, supLabel)] : []; } });
-  const st = createStackUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U() });   // 0.8 LA.4
+  const gr = createGradeUi(ctx, { edit, LS, U });   // LD.3
+  const hd = createHardUi(ctx, { edit, LS, U });   // LD.4
+  const ir = createIrrUi(ctx, { edit, LS, U });   // LD.5
+  const ff = createFfUi(ctx, { edit, LS, U });   // LD.7
+  const pa = createAreaUi(ctx, { edit, LS, U, index, current: () => cur,   // 0.8 LA.5
+    speciesSelect, variantPick: (id, m, set) => { const sp = index().get(m.key); return pt.hasVariants(sp) ? [pt.variantSelect(id, sp, m.cv, m.sup, set, supLabel)] : []; } });
+  const st = createStackUi(ctx, { edit, LS, U });   // 0.8 LA.4
   /** LA.2: make an object of `kind` on a line's points, linked to it (one undo step); returns the selection. */
   const makers = { make(kind, pts, link) {
     const id = P().nextId('l'), list = LIST_OF[kind];
@@ -96,18 +96,18 @@ export function createLandscape(ctx) {
     if (list === 'hedges') { const n = LS().hedges.length + 1; edit(t('ls.undo.hedge'), (l) => l.hedges.push({ id, name: t('ls.hedge.name', { n }), pts, key: cur, spacing: null, rows: 1, rowGap: 0.4, link })); return { kind: 'ls-hedge', id }; }
     return null;
   } };
-  const lk = createLinkUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U(), makers });   // 0.8 LA.2
+  const lk = createLinkUi(ctx, { edit, LS, U, makers });   // 0.8 LA.2
   /** LA.4/LA.8: each modifier's cut and fill (the Ground modifiers dialog's numbers), for worksheets. */
   const modCut = () => { const m = st.modifiers().filter((x) => x.region); const cf = cutFillBy(ctx.existing?.() || null, P().graded().surface || null, m.map((x) => ({ id: String(x.id), pts: x.region }))); return m.map((x) => ({ name: x.name, kind: x.kind, cut: cf.by[String(x.id)]?.cut || 0, fill: cf.by[String(x.id)]?.fill || 0 })); };
-  const ws = createWsUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), rows: (source) => wsRows(source, { ls: LS(), index: index(), units: U(), surface: ctx.surface(), lang: lang(),
+  const ws = createWsUi(ctx, { edit, LS, rows: (source) => wsRows(source, { ls: LS(), index: index(), units: U(), surface: ctx.surface(), lang: lang(),
     quantities: () => [...hd.quantities(), ...pa.quantities(), ...ir.quantities()], modifiers: modCut }) });   // 0.8 LA.8
-  const gx = createGraphicsUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), index: () => index() });   // 0.8 LA.7
+  const gx = createGraphicsUi(ctx, { edit, LS, index });   // 0.8 LA.7
   let forcedLevel = null;   // LA.7: a sheet's own plant detail level while its scene is built
-  const sec = createSectionUi(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), U: () => U(), index: () => index(), makeSheets: (...x) => makeSheets(...x) });   // 0.8 LA.9
+  const sec = createSectionUi(ctx, { edit, LS, U, index, makeSheets });   // 0.8 LA.9
   st.menu.querySelector('.cv-menu-list')?.append(el('button', { type: 'button', role: 'menuitemcheckbox', dataset: { cmd: 'ls-section' }, title: t('ls.sec.tool.title') }, t('ls.sec.tool')));
   const TOOLS = [...PLANT_TOOLS, ...gr.tools, ...hd.tools, ...ir.tools, ...ff.tools, ...pa.tools, ...st.tools, ...lk.tools, ...sec.tools];
   const parts = [gr, hd, ir, ff, pa, st, sec];
-  const pt = createPlantTable(ctx, { edit: (label, fn) => edit(label, fn), LS: () => LS(), index: () => index(), lang: () => lang(), current: () => cur, importList: (f) => importList(f) });   // 0.8 LA.6
+  const pt = createPlantTable(ctx, { edit, LS, index, lang, current: () => cur, importList });   // 0.8 LA.6
   const supLabel = (s) => supplyLabel(s, supplyWords());
   /** LA.6: the cultivar + supplied-size picker for a placement (shown only when the record has them). */
   const variantRow = (id, key, o, set) => { const sp = index().get(key); return pt.hasVariants(sp) ? [el('label', { for: id }, t('ls.v.label')), pt.variantSelect(id, sp, o.cv, o.sup, (cv, sup) => edit(t('ls.undo.variant'), () => set(cv, sup)), supLabel)] : []; };
@@ -149,7 +149,7 @@ export function createLandscape(ctx) {
     if (idxCache.key !== key) idxCache = { key, idx: speciesIndex(seed, pal) };
     return idxCache.idx;
   }
-  const edit = (label, fn) => P().change(label, (s) => { if (!s.landscape) s.landscape = emptyLandscape(); fn(s.landscape); });
+  function edit(label, fn) { return P().change(label, (s) => { if (!s.landscape) s.landscape = emptyLandscape(); fn(s.landscape); }); }
   const find = (kind, id) => (LS()[kind === 'plant' ? 'plants' : kind === 'bed' ? 'beds' : 'hedges'] || []).find((x) => x.id === id) || null;
   const nameOf = (key) => { const sp = index().get(key); return sp ? `${displayName(sp, lang())} (${sp.botanical})` : key; };
   const um = () => unitM(U());
@@ -206,7 +206,7 @@ export function createLandscape(ctx) {
   // ---- the Plants section (left panel, top) ----
   const left = root.querySelector('.cv-left');
   const plantsSec = el('section', { className: 'cv-sec cv-ls-plants', dataset: { lsPlants: '' }, hidden: true, 'aria-labelledby': 'cv-ls-plants-h' });
-  const tp = createToolPanels(ctx, { LS: () => LS() });   // Hardscape, Areas and Levels have a section of their own too
+  const tp = createToolPanels(ctx, { LS });   // Hardscape, Areas and Levels have a section of their own too
   if (left) left.prepend(plantsSec, ...tp.sections, gr.section, ir.section);
   plantsSec.dataset.afId = 'plants'; gr.section.dataset.afId = 'checks'; ir.section.dataset.afId = 'irr';
   // Auto-focus panel (Settings › Global): while Landscape is on, a command opens the section it works with and the others close
@@ -292,7 +292,7 @@ export function createLandscape(ctx) {
       count, list, detail,
       el('div', { className: 'cv-actions' },
         el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-import': '', onclick: () => fileIn.click() }, t('ls.pl.import')),
-        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-export': '', onclick: () => exportList() }, t('ls.pl.export')),
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-export': '', onclick: exportList }, t('ls.pl.export')),
         el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-ls-ptable': '', onclick: () => pt.open() }, t('ls.tb.ptable'))),
       el('p', { className: 'cv-note' }, t('ls.pl.own.note', { n: (LS().palette || []).length })), fileIn);
     renderList(); renderDetail();
@@ -464,14 +464,14 @@ export function createLandscape(ctx) {
     ctx.say(t('ls.deleted', { name: item.name || nameOf(item.key) }));
     return true;
   }
-  const speciesSelect = (id, value, onPick) => {
+  function speciesSelect(id, value, onPick) {
     const all = [...index().values()].sort((a, b) => displayName(a, lang()).localeCompare(displayName(b, lang())));
     const s = el('select', { className: 'cv-select', id }, ...all.map((sp) => el('option', { value: sp.key }, `${displayName(sp, lang())} (${sp.botanical})`)));
     if (!index().has(value)) s.prepend(el('option', { value }, t('ls.missing', { key: value })));
     s.value = value;
     s.addEventListener('change', () => onPick(s.value));
     return s;
-  };
+  }
   const delBtn = () => el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => ctx.command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete')));
   const facts = (rows) => el('div', { className: 'cv-props', 'data-ls-facts': '' }, ...rows.flatMap(([k, v]) => [el('span', { className: 'k' }, k), el('span', { className: 'v' }, String(v))]));
 

@@ -49,7 +49,8 @@ try {
   section('the demo project (fixture) and what the export collects');
   const json = fs.readFileSync(path.join(FIX, 'demo.civilcraft.json'), 'utf8');
   const p = PJ.Project.fromJSON(JSON.parse(json)).project;
-  ok(JSON.stringify({ ...demoProject().toJSON(), saved: '2026-10-26T00:00:00.000Z' }, null, 1) + '\n' === json, 'the fixture project is the one make-ifc-fixture.mjs builds');
+  { const { formatVersion, ...gen } = demoProject().toJSON(); void formatVersion;   // 0.11 DC.27 (b): the fixture predates formatVersion
+    ok(JSON.stringify({ ...gen, saved: '2026-10-26T00:00:00.000Z' }, null, 1) + '\n' === json, 'the fixture project is the one make-ifc-fixture.mjs builds'); }
   const model = IM.civilIfcModel(p, { lat: 48.75, lon: 9 });
   const a = model.alignments[0], al = p.alignment(p.state.alignments[0]), prof = p.designProfile(p.state.alignments[0]);
   ok(model.alignments.length === 1 && al.ok && prof.ok, 'one alignment with its design profile');

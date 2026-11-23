@@ -406,6 +406,15 @@
     });
     // Every floating panel out of the grid before any is measured against it (band, dock cap).
     if (FIT) panels.forEach(function (p) { if (eff(p) === 'float' && p.el.ownerDocument === document) p.el.classList.add('shell-float'); });
+    // Floating groups (owner 2026-11-22): the members share the showing one's place; the others are tabs (hidden until picked).
+    frames('float').forEach(function (f) {
+      var src = S.p[f.active.id].float;
+      f.members.forEach(function (p) {
+        if (src && p !== f.active) S.p[p.id].float = { x: src.x, y: src.y, w: src.w, h: src.h };
+        p.el.classList.toggle('shell-tab-off', f.members.length > 1 && p !== f.active);
+        if (f.members.length > 1) p.el.setAttribute('data-shell-tabs', String(f.members.length)); else p.el.removeAttribute('data-shell-tabs');
+      });
+    });
     panels.forEach(function (p) {
       if (eff(p) === 'float' && p.el.ownerDocument === document) placeFloat(p);
     });
@@ -477,6 +486,7 @@
     var rp = remPx(), mw = main.clientWidth / rp;
     var b = band();
     var wish = st.float || floatDefault(mw, b, p);
+    if (!(wish.w >= MIN_W / 2) || !(wish.h >= 1)) { var dflt = floatDefault(mw, b, p); wish = { x: isFinite(wish.x) ? wish.x : dflt.x, y: isFinite(wish.y) ? wish.y : dflt.y, w: dflt.w, h: dflt.h }; st.float = wish; }   // a size of 0 (saved while hidden, before 2026-11-22): the default size
     var hi = Math.max(gh(p), b.h);
     // Never taller than the band (unless it can't show its grip); never shorter than 6 rem when the person sizes it, but a
     // default place on a short window may be (down to the grip), so it doesn't cover the sheet tabs at the drawing's foot.
@@ -511,6 +521,7 @@
     var st = S.p[p.id];
     var rp = remPx(), mw = main.clientWidth / rp, mh = main.clientHeight / rp;
     var f = st.float || { w: Math.min(20, mw * 0.4), h: Math.min(28, mh * 0.7), x: mw * 0.5, y: 2 };
+    if (!(f.w >= MIN_W / 2) || !(f.h >= 1)) { f.w = Math.min(20, mw * 0.4); f.h = Math.min(28, mh * 0.7); }   // a size of 0 saved while hidden
     f.w = clamp(f.w, MIN_W, Math.max(MIN_W, mw - 1));
     f.h = clamp(f.h, MIN_H, Math.max(MIN_H, mh - 1));
     f.x = clamp(f.x, 0, Math.max(0, mw - f.w));
@@ -577,11 +588,21 @@
   function placeSizer(p) {
     var f = (FIT && p.shown) || S.p[p.id].float, h = p.sizer;
     if (!h || !f) return;
+    // Owner 2026-11-22 ("the resize anchor isn't attached to the panel -- it is really far bottom right"): the grip goes on the corner the panel is
+    // DRAWN at (measured), not at its remembered size, so CSS that limits or scales the panel can never leave it behind. Remembered numbers only
+    // when the panel is not drawn (yet).
+    var r = p.el.getBoundingClientRect(), mr = main.getBoundingClientRect();
+    if (r.width && r.height && main.offsetWidth) {
+      var k = mr.width / main.offsetWidth || 1, gs = h.offsetWidth || 1.1 * remPx();
+      h.style.left = ((r.right - mr.left) / k - main.clientLeft + main.scrollLeft - gs) + 'px';
+      h.style.top = ((r.bottom - mr.top) / k - main.clientTop + main.scrollTop - gs) + 'px';
+      return;
+    }
     h.style.left = 'calc(' + (f.x + f.w) + 'rem - 1.1rem)';   // i18n-ignore (CSS)
     h.style.top = 'calc(' + (f.y + f.h) + 'rem - 1.1rem)';   // i18n-ignore (CSS)
   }
   function hideSizers() {
-    panels.forEach(function (p) { if (p.sizer && !(eff(p) === 'float' && p.el.ownerDocument === document && managed)) p.sizer.hidden = true; });
+    panels.forEach(function (p) { if (p.sizer && (!(eff(p) === 'float' && p.el.ownerDocument === document && managed) || p.el.classList.contains('shell-tab-off'))) p.sizer.hidden = true; });
   }
 
   /* Handles: dock sizes (inner edge of a side dock, top edge of the bottom dock) and the split between
@@ -871,7 +892,7 @@
    * frame first, so a group never keeps a link to a panel that went elsewhere. */
   function frameOf(p) {
     var d = eff(p);
-    if (DOCKS.indexOf(d) === -1 || p.el.ownerDocument !== document) return null;
+    if ((DOCKS.indexOf(d) === -1 && d !== 'float') || p.el.ownerDocument !== document) return null;   // floating panels group as tabs too (owner 2026-11-22: a "super panel")
     var fr = frames(d);
     for (var k = 0; k < fr.length; k++) if (fr[k].members.indexOf(p) !== -1) return fr[k];
     return null;
@@ -889,6 +910,7 @@
   function setActive(q, focusTab) {
     var f = frameOf(q);
     if (!f) return;
+    if (eff(q) === 'float' && f.active !== q) { var cf = S.p[f.active.id].float || f.active.shown; if (cf) S.p[q.id].float = { x: cf.x, y: cf.y, w: cf.w, h: cf.h }; }   // a floating group keeps where it was moved or sized to
     f.members.forEach(function (m) { if (m === q) S.p[m.id].act = true; else delete S.p[m.id].act; });
     layout(); save();
     announce(T('shell.panels.tab.shown', { panel: q.name }));
@@ -902,6 +924,7 @@
     var d = eff(target), st = S.p[p.id];
     leaveFrame(p);
     delete st.pinned; delete st.hidden;
+    if (d === 'float') { var tfl = S.p[tf.active.id].float || S.p[tf.head.id].float || target.shown; if (tfl) st.float = { x: tfl.x, y: tfl.y, w: tfl.w, h: tfl.h }; }   // joins the floating group where it shows
     if (st.dock !== d && st.dock !== 'window') st.prev = st.dock;
     st.dock = d; delete st.win;
     st.tabs = tf.head.id;
@@ -1215,7 +1238,7 @@
   function gripAt(x, y, except) {
     var hit = null;
     panels.forEach(function (q) {
-      if (q === except || !q.grip || q.el.ownerDocument !== document || DOCKS.indexOf(eff(q)) === -1 || q.el.classList.contains('shell-tab-off')) return;
+      if (q === except || !q.grip || q.el.ownerDocument !== document || (DOCKS.indexOf(eff(q)) === -1 && eff(q) !== 'float') || q.el.classList.contains('shell-tab-off')) return;   // a floating panel's title bar takes a drop too (owner 2026-11-22)
       var r = q.grip.getBoundingClientRect();
       if (r.width && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) hit = q;
     });
@@ -1336,9 +1359,13 @@
   if (window.ResizeObserver) {
     var fro = new ResizeObserver(function () {
       var changed = false;
+      panels.forEach(function (p) { if (p.sizer && !p.sizer.hidden) placeSizer(p); });   // the grip stays on the drawn corner
       panels.forEach(function (p) {
         var st = S.p[p.id];
         if (st.dock !== 'float' || !st.float || p.el.ownerDocument !== document || !p.el.classList.contains('shell-float')) return;
+        // Owner 2026-11-22 ("panels are not restoring on click"): a closed panel, or a floating group's hidden tab, measures 0 x 0; that is not a
+        // size the person chose, and remembering it brought the panel back at no size at all.
+        if (st.hidden || p.el.classList.contains('shell-tab-off') || !p.el.offsetWidth || !p.el.offsetHeight) return;
         var rp = remPx(), w = p.el.offsetWidth / rp, h = p.el.offsetHeight / rp;
         if (FIT) {   // a CSS corner resize: compared with what shows, not with the remembered place
           var sh = p.shown || st.float;
@@ -1763,7 +1790,8 @@
     if (FIT) [].forEach.call(main.children, function (ch) { if (ch.tagName !== 'ASIDE') ro.observe(ch); });
   }
   // Toolbars showing/hiding (screen modes) move the docks without resizing <main>.
-  new MutationObserver(function () { requestAnimationFrame(FIT ? refit : placeHandles); }).observe(body, { attributes: true, attributeFilter: ['class'] });
+  var lastBodyClass = body.className;   // PERF.56 (0.11): a class write that leaves the class string as it was (re-adding a class) moves nothing
+  new MutationObserver(function () { if (body.className === lastBodyClass) return; lastBodyClass = body.className; requestAnimationFrame(FIT ? refit : placeHandles); }).observe(body, { attributes: true, attributeFilter: ['class'] });
   if (FIT) {   // app-phone.js switching the phone layout on or off
     var wasPhone = root.classList.contains('cc-phone');
     new MutationObserver(function () {

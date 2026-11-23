@@ -674,5 +674,176 @@
     "eq": 13
    }
   ]
+ },
+ {
+  "id": "batch-house",
+  "title": "Build a room with a door and a window in one call",
+  "prompt": "Make a new model with a 6 x 4 m room, a door and a window, in one call, and save it.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "ifc_batch",
+    "args": {
+     "doc": "$n.doc",
+     "steps": [
+      {
+       "tool": "walls_add",
+       "args": {
+        "level": "Level 1",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6000,
+          0
+         ],
+         [
+          6000,
+          4000
+         ],
+         [
+          0,
+          4000
+         ]
+        ],
+        "closed": true
+       }
+      },
+      {
+       "tool": "opening_add",
+       "args": {
+        "wall": "@1.walls.0",
+        "kind": "door"
+       }
+      },
+      {
+       "tool": "opening_add",
+       "args": {
+        "wall": "@1.walls.1",
+        "kind": "window",
+        "offset": 1500
+       }
+      }
+     ]
+    },
+    "as": "b",
+    "expect": [
+     {
+      "path": "undoSteps",
+      "eq": 1
+     }
+    ]
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "batch.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "batch.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "eq": 4
+   },
+   {
+    "file": "batch.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCDOOR",
+    "eq": 1
+   },
+   {
+    "file": "batch.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWINDOW",
+    "eq": 1
+   }
+  ]
+ },
+ {
+  "id": "batch-refused",
+  "title": "A refused step in a batch changes nothing and names the GlobalId",
+  "prompt": "Add a wall and a door on a wall that does not exist, in one call.",
+  "fixtures": {},
+  "allow": [
+   "read",
+   "edit",
+   "save"
+  ],
+  "steps": [
+   {
+    "tool": "ifc_new",
+    "args": {},
+    "as": "n"
+   },
+   {
+    "tool": "ifc_batch",
+    "args": {
+     "doc": "$n.doc",
+     "steps": [
+      {
+       "tool": "walls_add",
+       "args": {
+        "level": "Level 1",
+        "points": [
+         [
+          0,
+          0
+         ],
+         [
+          6000,
+          0
+         ]
+        ]
+       }
+      },
+      {
+       "tool": "opening_add",
+       "args": {
+        "wall": "AAAAAAAAAAAAAAAAAAAAAA",
+        "kind": "door"
+       }
+      }
+     ]
+    },
+    "fail": "Elements: AAAAAAAAAAAAAAAAAAAAAA"
+   },
+   {
+    "tool": "ifc_save",
+    "args": {
+     "doc": "$n.doc",
+     "path": "none.ifc"
+    }
+   }
+  ],
+  "check": [
+   {
+    "file": "none.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCBUILDINGSTOREY",
+    "eq": 2
+   },
+   {
+    "file": "none.ifc",
+    "kind": "ifc",
+    "path": "classes.IFCWALL",
+    "exists": false
+   }
+  ]
  }
 ]

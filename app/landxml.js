@@ -14,7 +14,7 @@
  *                   Property use / closed. An arc's ends may sit at different elevations (z along the arc, one grade).
  *     crs         state.crs (GIS) → <CoordinateSystem name epsgCode (when it has one) ogcWktCode (a .prj's WKT, no code)
  *                   desc (ground/local coordinates: the scale and base, so a reader knows they are not grid)>
- *   readLandXml(text) → { units, linearUnit, name, points, surfaces, alignments, networks, coordinateSystem, notes }
+ *   readLandXml(text, { fast = true }) → { units, linearUnit, name, points, surfaces, alignments, networks, coordinateSystem, notes }
  *     coordinateSystem  null | { name, epsgCode (number | null), ogcWktCode (text | null), desc } (GIS: offered as the
  *                       project's system when opened)
  *     surfaces    [{ name, desc, pts:[{x,y,z}|null], faces:[[i,j,k]], breaklines:[{name,pts}], boundary:[{x,y}]|null }]
@@ -30,9 +30,11 @@
 
 import { t } from "./i18n.js";
 import { parseXml, kids, kid, textOf, esc } from './xml.js';
+import { cutLists } from './landxml-lists.js';   // 0.11 PERF.33: the TIN's <Pnts> / <Faces> read as a stream, no element tree
+import { TextChunks } from './chunks.js';   // PERF.26: lib/textout/chunks.js, copied by tools/textout/sync.mjs
 import { METRES_PER } from './units.js';
 import { groupKey } from './points.js';
-import { cubicParamFor, buildAlignment } from './alignment.js';   // 0.7.1 71.26: rail transitions in and out; CV.1: the curves' stations for a Cant read back
+import { cubicParamFor, buildAlignment, spiralAt } from './alignment.js';   // 0.7.1 71.26: rail transitions in and out; CV.1: the curves' stations for a Cant read back
 
 /** 0.7.1 71.26: LandXML spiType ↔ alignment.js transition kinds (other spiral types are named and skipped on reading). */
 export const SPI_TYPES = { clothoid: 'clothoid', cubic: 'cubicParabola', bloss: 'bloss', helmert: 'biquadratic', sinehalf: 'cosine', sine: 'sinusoid' };
@@ -44,6 +46,22 @@ const num = (v, d = 6) => {
   const s = (Math.abs(v) < 0.5 * 10 ** -d ? 0 : v).toFixed(d);
   return s.includes('.') ? s.replace(/0+$/, '').replace(/\.$/, '') : s;
 };
+/** The <Spiral> element(s) of a spiral between two curves (alignment.js io 'cs'): see the writer. */
+function csSpirals(e) {
+  const pieces = e.k1 * e.k2 < 0 ? [[0, e.k1 / (e.k1 - e.k2)], [e.k1 / (e.k1 - e.k2), 1]] : [[0, 1]];
+  return pieces.map(([f0, f1]) => {
+    const s0 = e.len * f0, s1 = e.len * f1, a = spiralAt(e, s0), b = spiralAt(e, s1), ka = e.k1 + ((e.k2 - e.k1) * s0) / e.len, kb = e.k1 + ((e.k2 - e.k1) * s1) / e.len;
+    const turn = AN((b.dir - a.dir)), sgn = (Math.abs(ka) > Math.abs(kb) ? ka : kb) > 0 ? 1 : -1;
+    const rad = (k) => (Math.abs(k) < 1e-12 ? 'INF' : num(1 / Math.abs(k)));
+    const ux = Math.cos(a.dir), uy = Math.sin(a.dir), vx = Math.cos(b.dir), vy = Math.sin(b.dir), den = ux * vy - uy * vx, dx = b.x - a.x, dy = b.y - a.y;
+    const t1 = Math.abs(den) > 1e-12 ? (dx * vy - dy * vx) / den : Math.hypot(dx, dy) / 2, pi = { x: a.x + ux * t1, y: a.y + uy * t1 }, t2 = Math.hypot(b.x - pi.x, b.y - pi.y);
+    const lx = dx * ux + dy * uy, ly = -(dx * uy - dy * ux) * sgn;
+    const c = Math.abs(kb - ka) > 1e-15 ? Math.sqrt(Math.abs((s1 - s0) / (kb - ka))) : 0;
+    return `        <Spiral rot="${sgn > 0 ? 'ccw' : 'cw'}" spiType="clothoid" length="${num(s1 - s0)}" radiusStart="${rad(ka)}" radiusEnd="${rad(kb)}" staStart="${num(e.sta + s0)}" theta="${num(Math.abs(turn) * 180 / Math.PI, 8)}" totalX="${num(lx)}" totalY="${num(ly)}" tanLong="${num(Math.max(t1, t2))}" tanShort="${num(Math.min(t1, t2))}"${c > 0 ? ` constant="${num(c)}"` : ''}>` +
+      `<Start>${ne(a)}</Start><PI>${ne(pi)}</PI><End>${ne(b)}</End></Spiral>`;
+  });
+}
+const AN = (x) => { x %= 2 * Math.PI; if (x <= -Math.PI) x += 2 * Math.PI; if (x > Math.PI) x -= 2 * Math.PI; return x; };
 const ne = (p, d) => num(p.y, d) + ' ' + num(p.x, d);
 const nez = (p, d) => ne(p, d) + ' ' + num(p.z, d);
 
@@ -76,8 +94,11 @@ export function cantXml({ name = '', plan, rail, units = 'm', speed = null, spee
 }
 
 // i18n-ignore: the default <Project name> written into the file (file content)
-export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points = [], surfaces = [], alignments = [], networks = [], features = [], date = new Date(), crs = null }) {
-  const L = [];
+export function writeLandXml(o) { return writeLandXmlChunks(o).string(); }
+
+/** writeLandXml as TextChunks (PERF.26): the same lines, kept as parts so a file past V8's 512 MB string limit can be written: `.blob(type)`, `.pipe(write)`, `.parts`. */
+export function writeLandXmlChunks({ name = 'CivilCraft project', units = 'ft', points = [], surfaces = [], alignments = [], networks = [], features = [], date = new Date(), crs = null }) {
+  const L = new TextChunks('\n');
   const pad = (x) => String(x).padStart(2, '0');
   const ds = date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
   const ts = pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
@@ -117,6 +138,10 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
       for (const e of al.elements) {
         if (e.type === 'line') {
           L.push(`        <Line staStart="${num(e.sta)}" length="${num(e.len)}"><Start>${ne(e.p0)}</Start><End>${ne(e.p1)}</End></Line>`);
+        } else if (e.type === 'spiral' && e.io === 'cs') {
+          // 0.11 SU.1944: a spiral between two curves. Same way: ONE Spiral with both radii. Reverse: LandXML's Spiral has one rotation, so it
+          // is written as two (radius → INF, INF → radius) cut where the curvature is zero; the two lengths add up to the spiral's.
+          for (const x of csSpirals(e)) L.push(x);
         } else if (e.type === 'spiral') {
           // 0.7 D7.35: a clothoid. Radius INF at the straight end; theta in decimal degrees like Curve's delta; PI = where the end tangents meet
           const inn = e.io === 'in';
@@ -142,8 +167,12 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
         }
         if (fg?.profile?.pvis?.length) {
           L.push(`        <ProfAlign name="${esc(fg.name)}">`);
+          const circAt = new Map();   // 0.11 PERF.76: the first true-circle curve at each PVI, found once
+          for (const q of fg.profile.curves || []) if (q.circ && !circAt.has(q.i)) circAt.set(q.i, q);
           fg.profile.pvis.forEach((v, i) => {
             const curve = i > 0 && i < fg.profile.pvis.length - 1 && v.L > 0;
+            const cc = v.R > 0 ? circAt.get(i) || null : null;   // 0.11 FX.366: a true circle is a CircCurve (its length = the arc, R·|Δθ|)
+            if (cc && curve) { L.push(`          <CircCurve length="${num(cc.R * Math.abs(Math.atan(cc.g2) - Math.atan(cc.g1)))}" radius="${num(cc.R)}">${num(v.sta)} ${num(v.z)}</CircCurve>`); return; }
             L.push(curve ? `          <ParaCurve length="${num(v.L)}">${num(v.sta)} ${num(v.z)}</ParaCurve>` : `          <PVI>${num(v.sta)} ${num(v.z)}</PVI>`);
           });
           L.push('        </ProfAlign>');
@@ -201,17 +230,22 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
     L.push(`  <PipeNetworks name="${esc(name)}">`);
     L.push(`    <PipeNetwork name="${esc(n.name)}" pipeNetType="${n.type === 'sanitary' ? 'sanitary' : n.type === 'water' ? 'water' : 'storm'}">`);
     L.push('      <Structs>');
+    // 0.11 PERF.76: each structure's inverts, its pipes in file order (out before in for one pipe), from one pass over the pipes
+    const invOf = new Map(), structAt = new Map(), typeAt = new Map();
+    const addInv = (id, s) => { const l = invOf.get(id); if (l) l.push(s); else invOf.set(id, [s]); };
+    for (const p of pipes) {
+      addInv(p.from, `<Invert elev="${num(p.invUp)}" flowDir="out" refPipe="${esc(p.name)}"/>`);
+      addInv(p.to, `<Invert elev="${num(p.invDn)}" flowDir="in" refPipe="${esc(p.name)}"/>`);
+    }
+    for (const x of structs) if (!structAt.has(x.id)) structAt.set(x.id, x);
+    for (const q of n.types || []) if (!typeAt.has(q.id)) typeAt.set(q.id, q);
     for (const x of structs) {
-      const inv = [];
-      for (const p of pipes) {
-        if (p.from === x.id) inv.push(`<Invert elev="${num(p.invUp)}" flowDir="out" refPipe="${esc(p.name)}"/>`);
-        if (p.to === x.id) inv.push(`<Invert elev="${num(p.invDn)}" flowDir="in" refPipe="${esc(p.name)}"/>`);
-      }
+      const inv = (invOf.get(x.id) || []).slice();
       if (!inv.length) inv.push(`<Invert elev="${num(x.sump ?? 0)}" flowDir="both" refPipe=""/>`);
       const rim = Number.isFinite(x.rimShown) ? ` elevRim="${num(x.rimShown)}"` : '';
       const sump = Number.isFinite(x.sump) ? ` elevSump="${num(x.sump)}"` : '';
       // 0.6 WL.27: a structure of a type writes its inside size, wall thickness and type name; a rectangular type RectStruct
-      const k = x.type ? (n.types || []).find((q) => q.id === x.type) : null;
+      const k = x.type ? typeAt.get(x.type) || null : null;
       const shapeEl = !k ? `<CircStruct diameter="${num(x.dia)}"/>`
         : k.shape === 'rect' ? `<RectStruct length="${num(k.l)}" width="${num(k.w)}" thickness="${num(k.wall || 0)}" desc="${esc(k.name)}"/>`
         : `<CircStruct diameter="${num(k.dia)}" thickness="${num(k.wall || 0)}" desc="${esc(k.name)}"/>`;
@@ -220,7 +254,7 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
     L.push('      </Structs>');
     L.push('      <Pipes>');
     for (const p of pipes) {
-      const a = structs.find((x) => x.id === p.from), b = structs.find((x) => x.id === p.to);
+      const a = structAt.get(p.from), b = structAt.get(p.to);
       const len = Math.hypot(b.x - a.x, b.y - a.y);
       L.push(`        <Pipe name="${esc(p.name)}" refStart="${esc(sName.get(p.from))}" refEnd="${esc(sName.get(p.to))}" length="${num(len)}" slope="${num(len ? (p.invUp - p.invDn) / len : 0, 8)}"><CircPipe diameter="${num(p.dia)}"/></Pipe>`);
     }
@@ -249,15 +283,18 @@ export function writeLandXml({ name = 'CivilCraft project', units = 'ft', points
     L.push('  </PlanFeatures>');
   }
   L.push('</LandXML>');
-  return L.join('\n') + '\n';
+  return L.finish(true);
 }
 
 // ---------------------------------------------------------------------------
 
 const nums = (s) => { const t = String(s || '').trim(); return t ? t.split(/[\s,]+/).map(Number) : []; };
 
-export function readLandXml(text) {
-  const root = parseXml(text);
+export function readLandXml(text, { fast = true, cut: given = null } = {}) {
+  // `given`: the lists already read (open-async.js readLandXmlListsAsync, in the Worker) and `text` the rest of the file as it gave it
+  const cut = given || (fast ? cutLists(text) : null);   // null: no plain list in the file, or something odd: the tree reads everything, as before
+  const root = parseXml(cut ? cut.rest : text);
+  const blockOf = (el) => { const a = cut && el.attrs.ccfast; if (!a) return null; const c = a.lastIndexOf(':'); return a.slice(0, c) === cut.tag ? cut.blocks[Number(a.slice(c + 1))] || null : null; };
   if (root.name !== 'LandXML') throw new Error(t('lx.err.root', { tag: '<' + root.name + '>' }));
   const notes = [];
   const note = (m) => { if (!notes.includes(m)) notes.push(m); };
@@ -322,18 +359,32 @@ export function readLandXml(text) {
     }
     if (def) {
       const id = new Map();
-      for (const pnts of kids(def, 'Pnts')) for (const p of kids(pnts, 'P')) {
-        const v = nums(textOf(p));
-        if (v.length < 3 || v.some((x) => !Number.isFinite(x))) continue;
-        id.set(p.attrs.id, rec.pts.length);
-        rec.pts.push({ x: v[1], y: v[0], z: v[2] });
+      const pend = [];   // blocks whose ids are not in the map yet: put in, in file order, only when a face needs the map (the Worker's resolved faces do not)
+      const ensureMap = () => { for (const [b, at0] of pend) for (let k = 0; k < b.ids.length; k++) id.set(b.ids[k], at0 + k); pend.length = 0; };
+      let only = null, others = 0;   // the one block the id map was made from (a Worker's Faces block may come resolved against it)
+      for (const pnts of kids(def, 'Pnts')) {
+        const b = blockOf(pnts);
+        if (b) { if (!rec.pts.length && !others && !only) only = b; else others++; pend.push([b, rec.pts.length]); for (let k = 0; k < b.pts.length; k++) rec.pts.push(b.pts[k]); continue; }
+        others++; ensureMap();
+        for (const p of kids(pnts, 'P')) {
+          const v = nums(textOf(p));
+          if (v.length < 3 || v.some((x) => !Number.isFinite(x))) continue;
+          id.set(p.attrs.id, rec.pts.length);
+          rec.pts.push({ x: v[1], y: v[0], z: v[2] });
+        }
       }
       let hidden = 0;
-      for (const fs of kids(def, 'Faces')) for (const f of kids(fs, 'F')) {
-        if (f.attrs.i === '1') { hidden++; continue; }
-        const ids = textOf(f).split(/\s+/);
-        if (ids.length < 3) continue;
-        rec.faces.push(ids.slice(0, 3).map((k) => (id.has(k) ? id.get(k) : -1)));
+      const at = (k) => { if (pend.length) ensureMap(); return id.has(k) ? id.get(k) : -1; };
+      for (const fs of kids(def, 'Faces')) {
+        const b = blockOf(fs);
+        if (b && b.resolved && only && !others && cut.blocks[b.against] === only) { hidden += b.hidden; const r = b.resolved; for (let k = 0; k < r.length; k += 3) rec.faces.push([r[k], r[k + 1], r[k + 2]]); continue; }
+        if (b) { hidden += b.hidden; const w = b.faces; for (let k = 0; k < w.length; k += 3) rec.faces.push([at(w[k]), at(w[k + 1]), at(w[k + 2])]); continue; }
+        for (const f of kids(fs, 'F')) {
+          if (f.attrs.i === '1') { hidden++; continue; }
+          const ids = textOf(f).split(/\s+/);
+          if (ids.length < 3) continue;
+          rec.faces.push(ids.slice(0, 3).map(at));
+        }
       }
       if (hidden) note(t('lx.faces.hidden', { n: hidden }));
     }
@@ -375,6 +426,7 @@ export function readLandXml(text) {
           const v = nums(textOf(c));
           if (c.name === 'PVI' && v.length >= 2) pvis.push({ sta: v[0], z: v[1], L: 0 });
           else if (c.name === 'ParaCurve' && v.length >= 2) pvis.push({ sta: v[0], z: v[1], L: Number(c.attrs.length) || 0 });
+          else if (c.name === 'CircCurve' && v.length >= 2 && Number(c.attrs.radius) > 0) pvis.push({ sta: v[0], z: v[1], L: 0, R: Number(c.attrs.radius) });   // 0.11 FX.366
           else if (c.name === 'CircCurve' || c.name === 'UnsymParaCurve') note(t('lx.vc.other')), v.length >= 2 && pvis.push({ sta: v[0], z: v[1], L: 0 });
         }
         if (pvis.length >= 2) rec.profiles.push({ name: pa.attrs.name || t('lx.def.profile'), pvis });

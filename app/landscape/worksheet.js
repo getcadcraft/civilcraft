@@ -174,7 +174,7 @@ export function evalExpr(ast, row) {
 // ---- worksheets ----
 export function cleanWorksheet(raw, sources = null) {
   if (!raw || typeof raw !== 'object') return null;
-  const id = /^w\d{1,9}$/.test(String(raw.id)) ? String(raw.id) : null;
+  const id = /^w\d{1,16}$/.test(String(raw.id)) ? String(raw.id) : null;
   const source = clean(raw.source, 40);
   if (!id || !source || (sources && !sources.includes(source))) return null;
   const parses = (x) => { try { parseExpr(x); return true; } catch { return false; } };

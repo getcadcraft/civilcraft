@@ -3,15 +3,15 @@ title: Work in the toolbox and info box layout
 summary: Switch the app to a column of tools on the left with slots for your own, an info box across the top that follows the running tool or what you picked, a navigator on the right, a tab for every view, quick options and an edit palette, and switch back to the classic layout whenever you like.
 section: start
 order: 37
-keywords: layout, workspace, toolbox, tool column, info box, info bar, navigator, project map, quick bar, quick options, edit palette, pet palette, my tools, favorite tools, view tabs, toolbox window, classic layout, change layout, switch layout
+keywords: interface style, layout, workspace, toolbox, tool column, info box, info bar, navigator, project map, quick bar, quick options, edit palette, pet palette, my tools, favorite tools, view tabs, toolbox window, classic layout, change layout, switch layout
 ---
 
-**Toolbox and info box** is one of the app's three workspace layouts. The drawing tools stand in a column on the left, an info box across the top shows what the running tool needs or what you have selected, every view has a tab, and a quick bar under the drawing holds a few everyday options. The tools are the app's own: everything you can do in the classic layout works here too, and your drawing, your menu style and your keys stay as they are.
+**Toolbox and info box** is one of the app's interface styles. The drawing tools stand in a column on the left, an info box across the top shows what the running tool needs or what you have selected, every view has a tab, and a quick bar under the drawing holds a few everyday options. The tools are the app's own: everything you can do in the classic layout works here too, and your drawing, your menu style and your keys stay as they are.
 
 ## Pick it
 
 1. Open {{ui:Settings}} (the gear, or {{key:Mod+,}}).
-2. Choose the {{ui:Global}} tab, then go to {{ui:Layout}} › {{ui:Workspace}}.
+2. Choose the {{ui:Global}} tab, then go to {{ui:Interface style}} › {{ui:Pick a style}}.
 3. Choose {{ui:Toolbox and info box}}.
 
 The layout changes at once. The choice is one for every app in this browser: each app opens in it from then on, and it is in place before the page draws, so you never see the classic layout first.
@@ -43,7 +43,7 @@ The left and right panels keep everything described in [Arrange the panels](comm
 
 ## Go back to the classic layout
 
-Open {{ui:Settings}} › {{ui:Global}} › {{ui:Layout}} › {{ui:Workspace}} and choose {{ui:CadCraft classic}}. Every toolbar, tab and panel goes back where it was.
+Open {{ui:Settings}} › {{ui:Global}} › {{ui:Interface style}} › {{ui:Pick a style}} and choose {{ui:CadCraft classic}}. Every toolbar, tab and panel goes back where it was.
 
 :::note
 On a phone, or in a window 760 pixels wide or narrower, the app uses its phone layout whatever you picked. A wider window brings your layout back.

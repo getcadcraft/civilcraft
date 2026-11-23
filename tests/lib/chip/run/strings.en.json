@@ -58,6 +58,8 @@
  "chip.tool.verilator": "Verilator",
  "chip.tool.yosys": "Yosys",
  "chip.tool.openroad": "OpenROAD",
+ "chip.tool.sta": "OpenSTA",
+ "chip.tool.magic": "Magic",
  "chip.tool.klayout": "KLayout",
  "chip.tool.netgen": "Netgen",
  "chip.flow.studio": "Runs in Studio with your own tools.",
@@ -89,6 +91,7 @@
  "chip.sum.cells": "{n} cells in {top}.",
  "chip.sum.area": "Cell area: {area}.",
  "chip.sum.delay": "Longest path after mapping: {ps} ps.",
+ "chip.sum.sta": "Timing after synthesis (OpenSTA, before wires): worst slack {worst} ns, total negative slack {tns} ns.",
  "chip.sum.pnr": "Design area {area} µm², utilization {util} %, worst slack {wns}.",
  "chip.sum.nodef": "The layout came back, but the DEF reader is not in this add-on yet.",
  "chip.sum.drc": "{n} design rule violations.",
@@ -107,7 +110,7 @@
  "chip.wave.read": "{label}: {n} signals, to {end} × {unit}.",
  "chip.wave.cut": "Only the first part was read (very large file).",
  "chip.wave.bad": "This is not a VCD file this viewer can read.",
- "chip.wave.fst": "This is an FST file. FST is not read yet: ask your simulator for VCD (Icarus: $dumpfile(\"x.vcd\"); Verilator: --trace, not --trace-fst).",
+ "chip.wave.fst": "This FST file could not be read: {why}",
  "chip.wave.filter": "Filter signals",
  "chip.wave.radix": "Number base",
  "chip.wave.fit": "Fit",
@@ -158,5 +161,6 @@
  "chip.honest.tool": "{name} ({licence}): {state}",
  "chip.honest.ran": "run by us on the sample design",
  "chip.honest.notrun": "not run by us yet",
- "chip.cmd.dialog": "The Chip design panel is open in a window of its own (this page has no right panel for add-ons)."
+ "chip.cmd.dialog": "The Chip design panel is open in a window of its own (this page has no right panel for add-ons).",
+ "chip.wave.fstPart": "Part of the FST file was not read: {why}"
 }

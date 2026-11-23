@@ -401,10 +401,12 @@ export function createOpenSolvers(host) {
     }
 
     // what you need on your computer (collapsible; caret on the right, down = open)
+    // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
     kids.push(el('button', { type: 'button', class: 'osc-fold', 'aria-expanded': String(S.needOpen), data: { oscAct: 'need' }, onclick: () => app.toggleNeed() }, el('span', { textContent: t('h.need') }), el('i', { class: 'bi bi-chevron-' + (S.needOpen ? 'down' : 'up'), 'aria-hidden': 'true' })));
     if (S.needOpen) {
       const box = el('div', { data: { oscNeed: '1' } }, el('p', { textContent: t('need.separate') }));
       for (const pr of PROGRAMS) box.append(el('div', { class: 'osc-need' }, el('strong', { textContent: pr.name }), el('div', { textContent: t('need.for_' + pr.target) }),
+        // i18n-ignore: CSS, selector, class name or search keywords: no words a person reads (words-11)
         el('div', {}, t('need.licence') + ' ', el('span', { textContent: pr.licence })), el('div', {}, t('need.get') + ' ', el('a', { href: pr.url, target: '_blank', rel: 'noopener noreferrer', textContent: pr.url }))));
       box.append(el('p', { class: 'osc-note', textContent: t('need.never') }));
       kids.push(box);

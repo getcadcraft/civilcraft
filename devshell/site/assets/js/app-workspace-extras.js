@@ -21,6 +21,7 @@ import { blockIcon } from './app-workspace-icons.js';
  * E = the engine's helpers: { A (adapter), app, T, el, btn, can, tool, runTool, explain, say, soon, state, stage }.
  */
 export const MINE_SLOTS = 8;
+export const MINE_DEFAULT = 6;   // FX.308: the tools a new Toolbox starts with
 export const PET_IDS = ['modify.move', 'edit.move', 'modify.copy', 'modify.rotate', 'modify.mirror', 'modify.offset', 'modify.stretch', 'modify.scale',
   'modify.array', 'edit.duplicate', 'edit.copy', 'edit.cut', 'edit.delete'];
 const PET_MAX = 8;
@@ -58,7 +59,11 @@ function labelOf(c) {
 export function myTools(E) {
   const KEY = 'cc-ws-mytools:' + E.app;
   const read = () => { try { const v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
-  const slots = () => { const v = read(); return Array.from({ length: MINE_SLOTS }, (_, i) => (typeof v[i] === 'string' && /^(tbx|cmd):[\w.:-]{1,80}$/.test(v[i]) ? v[i] : null)); };
+  /** 0.11 FX.308 (rule 62: lab / data-cc-ws-edit only, E.seed()): a person who has not touched My tools yet (no stored list) gets the first built tools of the toolbox
+   *  instead of eight empty slots. Not stored until they change something, so a later change of the toolbox still shows. */
+  const seeded = () => { if (!(E.seed && E.seed())) return null; try { if (localStorage.getItem(KEY) !== null) return null; } catch (e) { return null; }
+    const out = []; for (const g of E.A.toolbox ? E.A.toolbox() : []) for (const id of g.tools) { if (out.length >= MINE_DEFAULT) break; const t = E.A.tool(id, 'toolbox'); if (t.built !== false) out.push('tbx:' + id); } return out; };
+  const slots = () => { const v = seeded() || read(); return Array.from({ length: MINE_SLOTS }, (_, i) => (typeof v[i] === 'string' && /^(tbx|cmd):[\w.:-]{1,80}$/.test(v[i]) ? v[i] : null)); };
   const write = (v) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) { E.say(E.T('shell.ws.mine.nostore'), true); } E.redraw(); };
   const toolboxIds = () => new Set((E.A.toolbox ? E.A.toolbox() : []).flatMap((g) => g.tools));
   /** What a slot holds: {kind, id, label, icon, built} or null. */

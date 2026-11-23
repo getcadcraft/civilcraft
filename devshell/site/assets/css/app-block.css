@@ -130,3 +130,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .blk-tool, .blk-toggle, .blk-pin, .blk-menu-item { transition: background-color 120ms linear, border-color 120ms linear; }
 }
+
+/* 0.11 UI.8: the engine's menu bar sits in the title bar block's dock; the document name is the title bar's own, so the bar's copy goes (no second name) */
+.blk-tb-dock .vw-menubar > .vw-title { display: none; }
+.blk-tb-dock .vw-menubar { background: transparent; border: 0; box-shadow: none; }

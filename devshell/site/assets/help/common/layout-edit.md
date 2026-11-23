@@ -3,7 +3,7 @@ title: Change a layout on the screen
 summary: Drag a block to another place, right-click a tool to remove, move or add one, and keep the result as a layout of your own that you can export.
 section: start
 order: 40
-keywords: layout, arrange, drag, handle, move block, right-click, tool, remove tool, add tool, new group, rename group, my layout, reset, undo, workspace, customize ribbon, customize toolbox
+keywords: layout, arrange, drag, handle, move block, right-click, tool, remove tool, add tool, new group, rename group, my layout, reset, undo, workspace, customize ribbon, customize toolbox, window, palette stack, large tools, small tools, more tools
 ---
 
 You can change a layout without leaving the drawing. The built-in layout is never changed: your first change makes a copy named {{ui:My}} and the layout's name, and every later change edits that copy.
@@ -26,6 +26,16 @@ Right-click a tool in the ribbon, the tool rows or the toolbox:
 - {{ui:Add a tool}} lists the app's tools and then every command the app has; the one you pick goes after the tool you clicked.
 - {{ui:New group}} and {{ui:Rename the group}} make a group and name it.
 - {{ui:Reset this block}} gives the block back the tools the app offers.
+- {{ui:Show the first … tools}} keeps that many tools of the group in view; the rest wait under the group's {{ui:▾}}. {{ui:Show all its tools}} undoes it.
+- In the ribbon, {{ui:Large tools}} and {{ui:Small tools}} draw every tool of the group one size; {{ui:Sizes as the app draws them}} goes back.
+
+## A block in a window of its own
+
+In Arrange mode the map of places also has {{ui:In a window}} for the ribbon, the tool rows, the toolbox and the status bar. The block stays in its place until you click {{ui:Open in windows}} in the note at the bottom: a browser opens a window only when you click. A layout file can ask for the same with the place `window`.
+
+## Palettes in two stacks
+
+The panel's palettes can stand in two stacks, one over the other, each with its own tabs. Drag a palette by its tab (or use the grip at the left of its stack's tabs) to the other stack, to a stack of its own, or to the other panel. Each move is one step of {{ui:Undo}}. The panel's own content always stays in its panel.
 
 ## Switch layouts
 

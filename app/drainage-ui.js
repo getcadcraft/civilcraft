@@ -14,12 +14,14 @@ import { t } from './i18n.js';
 import { HYDRO_DEFAULTS, cleanHydro, catchmentArea, rationalFlows, sizePipes, hydraulicGrade } from './hydro.js';
 import { DIA_UNIT } from './pipes.js';
 import { createRoute } from './storm-route-ui.js';   // 0.8 LC.16
+import { createRulesets } from './rulesets-ui.js';   // 0.11 SU.1937b
 import { fixed } from './units.js';
 import { pointInPolygon } from './geom2d.js';
 
 export function createDrainage(ctx) {
   const { el } = ctx;
   const rtUi = createRoute(ctx);
+  const rsUi = createRulesets(ctx);
   const P = () => ctx.project(), U = () => ctx.units(), N = () => P().state.network;
   const qU = () => (U() === 'm' ? 'm³/s' : 'cfs'), aU = () => (U() === 'm' ? 'ha' : 'ac'), iU = () => (U() === 'm' ? 'mm/h' : 'in/h'), lU = () => (U() === 'm' ? 'm' : 'ft');
   const diaName = () => DIA_UNIT[U() === 'm' ? 'm' : 'ft'].name;
@@ -60,6 +62,7 @@ export function createDrainage(ctx) {
       ...ctx.row(t('dr.kj'), kj, 'cv-dr-kj'),
       ...ctx.row(t('dr.tw'), el('div', { className: 'cv-row' }, tw, el('span', { className: 'cv-unit' }, lU())), 'cv-dr-tw')));
     out.push(el('p', { className: 'cv-note' }, t('dr.idf.formula')), el('p', { className: 'cv-note' }, t('dr.note', { i: iU(), q: qU(), a: aU() })));
+    out.push(...rsUi.block(n, h));   // 0.11 SU.1937b
     // catchments
     const cs = n.catchments || [];
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-dr-draw': '', onclick: () => ctx.tool('catchment') }, el('i', { className: 'bi bi-bounding-box-circles', 'aria-hidden': 'true' }), ' ', t('dr.draw'))));
@@ -207,7 +210,7 @@ export function createDrainage(ctx) {
     }
     c2d.restore();
   }
-  return { block, structureRows, pipeRows, props, finish, pick, overlay, remove, results, find: findC };
+  return { block, structureRows, pipeRows, props, finish, pick, overlay, remove, results, find: findC, rulesets: rsUi };
 }
 
 function inPoly(x, y, pts) { return pointInPolygon(x, y, pts); }

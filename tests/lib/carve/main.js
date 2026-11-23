@@ -73,18 +73,20 @@ export function activate(api) {
     const g = gcode(plan.ops, job, postOf());
     const bed = num(S.bedW, 0) > 0 && num(S.bedH, 0) > 0 ? { x0: 0, y0: 0, x1: num(S.bedW, 0), y1: num(S.bedH, 0) } : null;
     R.plan = plan; R.program = g;
-    R.check = checkProgram(g.text, { bed, maxDepth: plan.depth + 0.01 });
+    R.check = checkProgram(g.parts, { bed, maxDepth: plan.depth + 0.01 });   // perf-finish-11 (PERF.26): the parts, so a program past one string is checked too
     const summary = { ops: plan.ops.length, lines: g.lines, minutes: Math.max(1, Math.round(g.stats.minutes)), length: Math.round(g.stats.length / 10) / 100 };
     render();
     return { ok: true, summary, message: '' };
   }
   function download() {
     if (!R.program) return;
-    const blob = new Blob([R.program.text], { type: 'text/plain' });
+    const blob = new Blob(R.program.parts, { type: 'text/plain' });   // perf-finish-11 (PERF.26): the parts, never one joined string (same bytes)
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = fileName() + '.' + (S.post === 'fanuc' ? 'nc' : 'gcode'); a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
+  // perf-finish-11 (PERF.26): what an export hands the host: the text as before while it is up to 300 M characters, a Blob of the parts past that
+  const programData = () => { const p = R.program.parts; let n = 0; for (const x of p) n += x.length; return n > 300 * 1048576 ? new Blob(p, { type: 'text/plain' }) : R.program.text; };
   const fileName = () => String(t('job.name')).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'carving';
   const app = { run: () => make(), draw: () => (host && R.plan ? host.draw(R.plan.ops) : { n: 0 }), download };
 
@@ -237,7 +239,7 @@ export function activate(api) {
   // ------------------------------------------------------------------------------------------------ mounting
   styleEl = document.createElement('style'); styleEl.textContent = CSS; document.head.append(styleEl);
   api.ui.panelTab({ id: 'carving', title: t('tab'), render: (el) => { pane = el; render(); } });
-  api.files.exporter({ id: 'gcode', label: t('export.gcode'), extension: 'gcode', mime: 'text/plain', write: async () => { const r = make(); if (!r.ok) throw new Error(r.message); return R.program.text; } });
+  api.files.exporter({ id: 'gcode', label: t('export.gcode'), extension: 'gcode', mime: 'text/plain', write: async () => { const r = make(); if (!r.ok) throw new Error(r.message); return programData(); } });
   if (host && typeof host.start === 'function') { try { host.start(app); } catch (e) { api.log('host start failed', e); /* i18n-ignore */ } }
   api.onDeactivate(() => { pane = null; try { styleEl.remove(); } catch { /* no page */ } });
   window.ccCarving = { state: S, result: R, make, download, render, host };   // for the tests and the console

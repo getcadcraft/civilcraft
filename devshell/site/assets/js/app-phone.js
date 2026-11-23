@@ -673,6 +673,9 @@
         seen: function () { return P.seen; },
         down: function () { return penDown; },
         state: function () { return Object.assign({ at: penAt }, last); },
+        // 0.11 SU.1807: would the palm rule drop this touch? (an app's own window listener that takes fingers first, e.g. CadCraft's
+        // finger crosshair, asks and leaves it to the rule below; nothing else changes)
+        palm: function (e) { return !!(e && e.pointerType === 'touch' && P.seen && P.palm && (penDown || now() - penAt < PALM_MS || palmSized(e))); },
         prefs: function () { return Object.assign({}, P); },
         set: setPref,
         forget: function () { P.seen = false; root.classList.remove('cc-pen'); savePen(); syncSet(); },   // tests, and "no pen here any more"

@@ -3,7 +3,7 @@
  * post.js — the toolpaths as G-code, through a post-processor you can edit (lib/carve). DOM-free.
  *   POSTS                     the built-in posts: grbl, linuxcnc, mach3, fanuc (generic dialects: check the first run on your machine)
  *   cleanPost(o)              an untrusted post (a file, the panel) → a safe one
- *   gcode(ops, job, post)     → { text, lines, stats }
+ *   gcode(ops, job, post)     → { text, lines, parts, stats }   (parts: the same text in 50,000-line slices, for a program past one string; PERF.26)
  *     job  = { unit: 'mm' | 'in', safeZ (10), clearZ (2), feed (XY, mm/min), plunge (mm/min), rpm, name }, each op may carry its own feed / plunge / rpm / number / name
  *     post = { id, name, header[], toolChange[], spindleOn, spindleOff, footer[], comment: 'paren' | 'semi' | 'none', decimals, lineNumbers, modal }
  *   The text lines of a post are templates with {rpm} {tool} {name} {safe} {feed} {unit}; {safe} is the safe Z in the job's unit.
@@ -80,16 +80,36 @@ export function gcode(ops, job = {}, postIn = POSTS.grbl) {
   }
   for (const l of post.footer) emit(sub(l, {}));
   if (post.lineNumbers) out.push('%');
-  return { text: out.join('\n') + '\n', lines: out.length, stats: { length, rapid: rapidLen, cut: cutLen, minutes: time, moves, tools: toolNo } };
+  // PERF.26: the program as parts (slices of 50,000 lines, each ending in a line feed) next to `text`, which is their join and so only exists while the program
+  // fits one string (V8: 512 MB); a program past that is written from `parts` (new Blob(parts), or one part at a time to a stream).
+  const parts = [];
+  for (let i = 0; i < out.length; i += 50000) parts.push(out.slice(i, i + 50000).join('\n') + '\n');
+  if (!parts.length) parts.push('\n');
+  return { get text() { return parts.length === 1 ? parts[0] : parts.join(''); }, lines: out.length, parts, stats: { length, rapid: rapidLen, cut: cutLen, minutes: time, moves, tools: toolNo } };
 }
 
 const WORD = /([A-Za-z])\s*(-?\d*\.?\d+)/g;
+/** The lines of `text` one at a time, exactly String(text).split(/\r?\n/): `text` is a string, or the parts of a file too big for one string
+ *  (PERF.20: textin.js TextParts, or an array of strings; a part may end anywhere, the line is joined across the cut). */
+export function* gcodeLines(text) {
+  const parts = typeof text === 'string' ? [text] : Array.isArray(text) ? text : (text && Array.isArray(text.parts) ? text.parts : [String(text)]);
+  let carry = '';
+  for (const part of parts) {
+    if (!part) continue;
+    const lines = (carry ? carry + part : part).split(/\r?\n/);
+    carry = lines.pop();
+    for (let i = 0; i < lines.length; i++) yield lines[i];
+  }
+  yield carry;
+}
+
 export function parseGcode(text) {
   const moves = [];
-  let g = null, x = null, y = null, z = null, f = null, s = null, mm = true;
-  String(text).split(/\r?\n/).forEach((raw, idx) => {
+  let g = null, x = null, y = null, z = null, f = null, s = null, mm = true, idx = -1;
+  for (const raw of gcodeLines(text)) {
+    idx++;
     const code = raw.replace(/\([^)]*\)/g, '').replace(/;.*$/, '').replace(/^N\d+\s*/i, '').trim();
-    if (!code || code === '%') return;
+    if (!code || code === '%') continue;
     let moved = false, mg = null;
     for (const m of code.matchAll(WORD)) {
       const c = m[1].toUpperCase(), v = parseFloat(m[2]);
@@ -98,6 +118,6 @@ export function parseGcode(text) {
       else if (c === 'F') f = v; else if (c === 'S') s = v;
     }
     if (moved && g !== null) moves.push({ line: idx + 1, g, x, y, z, f, s, mm, raw: raw.trim(), explicit: mg !== null });
-  });
+  }
   return moves;
 }

@@ -25,6 +25,8 @@
  *   segments(f) → [{ i, j, len, chord, len3d, dz, grade, arc }]       grade null for a zero-length segment
  *   setElevation(f, i, z) · setGrade(f, i, grade) (segment i: the far vertex moves; the rest stay) · raise(f, dz)
  *   evenGrade(f, i, j) → vertices between i and j at one grade from z_i to z_j (along the plan length)
+ *   moveVertex(f, i, x, y) · insertVertex(f, i, u = 0.5) (on segment i, shape and grade kept) · removeVertex(f, i) → f | null
+ *   nearestOnFeature(f, x, y) → { i, u, x, y, z, d }   (0.10.1, suggestion #1970)
  *   fromSurface(f, surface, which = all) → { f, missing: [i] }   vertices off the surface keep their elevation
  *   offsetFeature(f, dist, { dz, slope }) → { f | null, problem }   a stepped offset: the line moved `dist` to its right
  *       (negative = left; mitred corners, refused when the result folds over itself) and raised by dz, or by dist × slope
@@ -32,6 +34,7 @@
  *   featureBreaklines(features, use) → [{ name, pts }]   the lines with that use, closed ones closed
  *   featureItem(f) → a grading item for project.gradeItems (closed design lines): { kind: 'feature', id, name, pts, z, cut,
  *       fill, daylight } — with daylight off its patch is the outline itself (region = the polygon, its edge a breakline)
+ *   breaklineItem(f) → a grading item for an OPEN design line: a breakline of the proposed surface (0.10.1 #1970)
  *   gradeLabel(g) → '+2.00%'
  *
  * In a profile view (0.5 WL.20), against an Alignment (alignment.js):
@@ -74,7 +77,7 @@ export function cleanFeature(o, units = 'ft') {
   // a bulge needs a segment with length after it (and none after the last vertex of an open line)
   pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length]; if (p.b && ((!closed && i === pts.length - 1) || !(segLen(p, q) > 1e-12))) delete p.b; });
   return {
-    id: /^f\d{1,9}$/.test(String(o.id)) ? String(o.id) : null,
+    id: /^f\d{1,16}$/.test(String(o.id)) ? String(o.id) : null,
     name: String(o.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120) || t('toolbar.feature'),
     pts, closed,
     use: USES.includes(o.use) ? o.use : d.use,
@@ -203,6 +206,56 @@ export function setGrade(f, i, grade) {
 }
 export function raise(f, dz) { return fin(dz) ? withPts(f, f.pts.map((p) => ({ ...p, z: p.z + dz }))) : f; }
 
+// ---- vertices added, removed and moved (0.10.1, suggestion #1970) ----
+/** Vertex i moved in plan to (x, y); its elevation and the arcs on either side (their bulges) stay. */
+export function moveVertex(f, i, x, y) {
+  if (!f.pts[i] || !fin(x) || !fin(y)) return f;
+  return withPts(f, f.pts.map((p, k) => (k === i ? { ...p, x, y } : p)));
+}
+/** A new vertex ON segment i (from vertex i to the next) at fraction u of its length (0 < u < 1): the line keeps its shape and
+ *  grade, an arc becomes two arcs of the same circle; the elevation is the segment's there. The same line when it cannot. */
+export function insertVertex(f, i, u = 0.5) {
+  const n = f.pts.length, m = f.closed ? n : n - 1;
+  if (!Number.isInteger(i) || i < 0 || i >= m || !(u > 1e-9) || !(u < 1 - 1e-9) || n >= MAX_VERTICES) return f;
+  const a = f.pts[i], b = f.pts[(i + 1) % n], A = arcOf(a, b, a.b);
+  if (!(segLen(a, b) > 1e-12)) return f;
+  const at = pointOnSeg(a, b, a.b, u), q = { x: at.x, y: at.y, z: a.z + (b.z - a.z) * u };
+  const first = { ...a };
+  if (A) { first.b = Math.tan((A.sweep * u) / 4); q.b = Math.tan((A.sweep * (1 - u)) / 4); }
+  const pts = f.pts.slice();
+  pts[i] = first;
+  pts.splice(i + 1, 0, q);
+  return withPts(f, pts);
+}
+/** Vertex i taken out: its two segments become one straight segment. null when the line would be left with too few
+ *  vertices (2 for an open line, 3 for a closed one). */
+export function removeVertex(f, i) {
+  const n = f.pts.length;
+  if (!f.pts[i] || n - 1 < (f.closed ? 3 : 2)) return null;
+  const pts = f.pts.map((p) => ({ ...p }));
+  const before = f.closed ? (i - 1 + n) % n : i - 1;
+  if (before >= 0) delete pts[before].b;   // the segment that ended here now runs straight to the next vertex
+  pts.splice(i, 1);
+  if (!f.closed && pts.length) delete pts[pts.length - 1].b;
+  return withPts(f, pts);
+}
+/** The place on the line closest to (x, y): { i (segment), u (0…1 along it), x, y, z, d } (arcs exactly), or null. */
+export function nearestOnFeature(f, x, y) {
+  let best = null;
+  for (const s of segments(f)) {
+    if (!(s.len > 1e-12)) continue;
+    const a = f.pts[s.i], b = f.pts[s.j];
+    let u;
+    if (s.arc) {
+      u = arcFrac(s.arc, Math.atan2(y - s.arc.cy, x - s.arc.cx));
+      if (u === null) u = Math.hypot(x - a.x, y - a.y) <= Math.hypot(x - b.x, y - b.y) ? 0 : 1;
+    } else u = Math.max(0, Math.min(1, ((x - a.x) * (b.x - a.x) + (y - a.y) * (b.y - a.y)) / (s.chord * s.chord)));
+    const p = pointOnSeg(a, b, a.b, u), d = Math.hypot(p.x - x, p.y - y);
+    if (!best || d < best.d) best = { i: s.i, u, x: p.x, y: p.y, z: a.z + s.dz * u, d };
+  }
+  return best;
+}
+
 export function evenGrade(f, i, j) {
   const n = f.pts.length;
   if (!(i >= 0 && j < n && j > i + 1)) return f;
@@ -280,6 +333,32 @@ export function featureItem(f) {
   return {
     id: f.id, kind: 'feature', name: f.name,
     patch: () => ({ problems: [], region: pts, points: [], breaklines: [{ name: f.name, pts: [...pts, pts[0]] }], info: { poly: pts } }),
+  };
+}
+
+/**
+ * 0.10.1 #1970: an OPEN design feature line as a breakline of the proposed surface (grading.js gradedSurface, an `overlay`
+ * item): the surface passes through the line at its elevations wherever it runs — inside a pad it shapes the pad's interior
+ * (a swale, a ridge, a ramp), outside it changes the ground beside it. Only the stretches lying on the surface are used.
+ * Closed lines and other uses → null (a closed design line is featureItem's).
+ */
+export function breaklineItem(f) {
+  if (f.use !== 'design' || f.closed || f.pts.length < 2) return null;
+  const flat = flatten(f).map((p) => ({ x: p.x, y: p.y, z: p.z }));
+  return {
+    id: f.id, kind: 'breakline', name: f.name, about: { kind: 'feature', id: f.id },
+    patch: (surf) => {
+      const runs = [];
+      let run = [], off = 0;
+      for (const p of flat) {
+        if (surf.elevationAt(p.x, p.y, 1e-6) === null) { off++; if (run.length >= 2) runs.push(run); run = []; continue; }
+        if (!run.length || Math.hypot(p.x - run[run.length - 1].x, p.y - run[run.length - 1].y) > 1e-9) run.push(p);
+      }
+      if (run.length >= 2) runs.push(run);
+      const info = { line: runs, off, inside: false };
+      if (!runs.length) return { overlay: true, problems: [t('fl.bl.off')], region: null, points: [], breaklines: [], info };
+      return { overlay: true, problems: [], region: null, points: [], breaklines: runs.map((pts) => ({ name: f.name, pts, feature: f.id })), info };
+    },
   };
 }
 

@@ -1,0 +1,5 @@
+- Shows 115 lot figures: area and width for the Chapter 1 zones (A1 to R5, with RZ and RMP), the hillside lot-averaging minimums of Section 17.05 H (zones ending -H), and the lot area and width of 36 Form Districts of the new zoning code (zones starting 1A:).
+- Shows 162 more figures and conditions of the code and the city's filing instructions: definitions of lot area, width and depth, the hillside floor area ratios by slope band, lot coverage, the slope density formula, where Chapter 1A applies.
+- Compares the lots of the drawing and the lots a proposal would make with the printed minimums.
+- Fills worksheets for the City Planning Application (CP13-7771.1), the Preliminary Parcel Map list (CP13-1801) and the Lot Line Adjustment list (CP-1840.1) from the drawing.
+- Shows California's Subdivision Map Act figures behind its own when the California add-on is on.

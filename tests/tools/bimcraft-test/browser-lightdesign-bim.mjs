@@ -33,7 +33,7 @@ page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
 const ld = (k) => `[data-ld="${k}"]`;
 /** The light fixtures this add-on placed, read from the open model (fresh each call). */
 const fixtures = () => page.evaluate(async () => {
-  const E = await import(performance.getEntriesByType('resource').map((r) => r.name).find((n) => /\/res-elec\.js/.test(n)));
+  const E = await import(performance.getEntriesByType('resource').map((r) => r.name).find((n) => /\/res-elec\.js/.test(n)) || '/assets/apps/bimcraft/dev/res-elec.js');   // light-finish-11: res-elec is loaded on first use now, so before the first Draw it is not in the page's resources yet
   return window.ccLightDesign.api.model.read((w) => E.readDevices(w).filter((d) => w.readPset(d.id, 'CadCraft_LightDesign')).map((d) => ({ kind: d.kind, tag: d.tag, load: d.load, at: d.at, height: d.height, lux: w.readPset(d.id, 'CadCraft_LightDesign').RoomMeanLux })));
 });
 const planNumbers = () => page.evaluate(() => window.ccLightDesign.api.model.read((w) => {

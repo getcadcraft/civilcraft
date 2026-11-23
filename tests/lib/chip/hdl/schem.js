@@ -6,7 +6,7 @@
  *   layoutNetlist(netlist, S?) → drawing model: auto-placement by levelization (longest path from the inputs, feedback edges broken),
  *                                columns ordered by the mean height of their drivers, orthogonal wires with one track per net in each channel
  *   renderSvg(layout, {highlight, title}) → SVG text (no DOM; colours from CSS variables with fallbacks so it follows the page theme)
- * `S` is the cc-schematic module namespace (import * as S from '<path>/schematic/index.js'). It is passed in, not imported, so this file
+ * `S` is the cc-schematic module namespace (the namespace of the schematic library's index.js). It is passed in, not imported, so this file
  * works wherever the add-on's sync script puts the two libraries. When S is given, the layout takes its connectivity from S.buildNets,
  * so the drawing shows what the engine sees. DOM-free.
  */

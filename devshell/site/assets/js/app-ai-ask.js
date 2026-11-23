@@ -4,9 +4,9 @@
  * "ai-ask": true (AppBuilds::extras; dev builds only). Reads #cc-ai-ask {app, appName}.
  *
  * A box in the app where the person types a question for the AI they connected. It answers by using this app's tools: through an AI app
- * connected over MCP (the question waits there until the AI picks it up), or through the person's own key / a local model once they added
- * the "Your own AI key" add-on (0.10: the client for it is that add-on, never a shell file; app-ai-ownkey.js is the seam). Without the add-on
- * the box says so inside Studio and offers to add it. Plain text only; the box shows which tools were used. Nothing in an answer or a tool result is run or opened.
+ * connected over MCP (the question waits there until the AI picks it up), or through the person's own key / a local model: in CadCraft Studio
+ * and SuperCad Studio the engine is Studio's and is passed down to the app (nothing to add); in one app without Studio the "Your own AI key"
+ * add-on brings the same engine (owner 2026-11-20). The shell holds no engine; app-ai-ownkey.js is the seam. Plain text only; the box shows which tools were used. Nothing in an answer or a tool result is run or opened.
  *
  *   window.ccAsk = {
  *     attach({ control, context, system, engine, openSettings }) → ask   control = the app's host.control; context() → { document, selection };
@@ -20,7 +20,7 @@ import { createAsk, registerTools as askTools, WAIT_SENTENCE } from './ai-ask.js
 import { splitTool } from './ai-activity.js';
 import { T, h, readCfg, makePanel, palette } from './app-tools-ui.js';
 import { aiStyles } from './app-ai-ui.js';
-import { ownEngine, ownState, watchOwn, addOwnKey, listingUrl } from './app-ai-ownkey.js';
+import { ownEngine, ownState, watchOwn, ownSetup } from './app-ai-ownkey.js';
 import { mountAssist } from './app-ai-assist.js';   // bk-r3-assistant-10: model data only, the history ("Why did this happen?"), Report a problem, the step card, the knowledge pack   // the seam for the "Your own AI key" add-on: no provider code in the shell
 
 const cfg = readCfg('cc-ai-ask');
@@ -28,12 +28,12 @@ if (cfg && cfg.app && !window.ccAsk) boot();
 
 function boot() {
   aiStyles();
-  let ask = null, control = null, off = () => {}, draft = '', toSettings = null, starters = [], offOwn = () => {}, own = { busy: false, done: false, why: '' };
+  let ask = null, control = null, off = () => {}, draft = '', toSettings = null, starters = [], offOwn = () => {};
   const assist = mountAssist({ app: cfg.app, appName: cfg.appName });
   let why = null;   // BK.147: the steps shown under "Why did this happen?" (null = not asked)
   assist.on(() => render());
   // AC.5: the tested prompt starters of this app's skill packs, as a gallery under the box (a click fills the box; the person edits and sends). Absent where the packs file is not reachable.
-  import('/assets/js/skill-packs.js').then((m) => { starters = (m.PACKS || []).filter((x) => x.app === cfg.app).flatMap((x) => x.prompts || []); render(); }, () => {});
+  import('./skill-packs.js').then((m) => { starters = (m.PACKS || []).filter((x) => x.app === cfg.app).flatMap((x) => x.prompts || []); render(); }, () => {});
   const P = makePanel({ key: 'ask', icon: 'chat-dots', titleKey: 'shell.ask.title', buttonKey: 'shell.ask.button', hidden: true, onOpen: () => { render(); const t = P.body.querySelector('textarea'); if (t) t.focus(); } });
   P.btn.title = T('shell.ask.button.title');
 
@@ -107,27 +107,18 @@ function boot() {
   }
 
   /**
-   * Inside Studio, without the "Your own AI key" add-on: say plainly what asking a model with your own key needs, and offer to add it.
-   * Nothing here calls a provider. With the add-on (or outside Studio, where no key store exists) there is no note.
+   * A model the person brings (owner 2026-11-20: AI belongs to the Studios and is passed down to the apps). Inside Studio the engine is
+   * Studio's and is already on the page: the only thing left to say is where to set a model up. In one app without Studio the
+   * "Your own AI key" add-on brings the same engine and its own set-up. Nothing here calls a provider; with an engine ready there is no note.
    */
   function ownKeyNote() {
     const s = ownState();
-    if (!s.inStudio || s.added) return null;
-    const kids = [h('span', { text: T(s.hadSettings ? 'shell.ask.ownkey.had' : 'shell.ask.ownkey.need') })];
-    if (own.done) kids.push(' ', h('strong', { 'data-k': 'ownkey-added', role: 'status', text: T('shell.ask.ownkey.added') }));
-    else {
-      kids.push(' ', h('button', { type: 'button', class: 'cct-btn', 'data-k': 'ownkey-add', ...(own.busy ? { disabled: 'disabled' } : {}), onclick: addOwn }, T(own.busy ? 'shell.ask.ownkey.adding' : 'shell.ask.ownkey.add')));
-      if (own.why) kids.push(' ', h('span', { class: 'cct-err', 'data-k': 'ownkey-why', role: 'alert', text: T('shell.ask.ownkey.failed', { why: T('shell.ask.ownkey.r.' + own.why) }) }),
-        ' ', h('a', { href: listingUrl(), target: '_blank', rel: 'noopener', 'data-k': 'ownkey-page', text: T('shell.ask.ownkey.page') }));
-    }
-    return h('p', { class: 'cct-note', 'data-k': 'ownkey' }, ...kids);
-  }
-  async function addOwn() {
-    if (own.busy) return;
-    own = { busy: true, done: false, why: '' }; render();
-    const r = await addOwnKey();
-    own = r.ok ? { busy: false, done: true, why: '' } : { busy: false, done: false, why: { 'no-client': 'noclient', 'sign-in': 'signin', offline: 'offline', 'no-package': 'nopackage' }[r.reason] || 'other' };
-    render();
+    if (s.ready) return null;
+    if (s.host) return h('p', { class: 'cct-note', 'data-k': 'ownkey', 'data-state': 'studio' }, h('span', { text: T('shell.ask.studio.setup') }), ' ',
+      h('button', { type: 'button', class: 'cct-btn', 'data-k': 'ownkey-studio', onclick: () => { try { window.cadcraftStudio.hub(); } catch (e) { /* no hub window */ } } }, T('shell.ask.studio.open')));
+    if (!s.inStudio && s.standalone) return h('p', { class: 'cct-note', 'data-k': 'ownkey', 'data-state': 'addon' }, h('span', { text: T('shell.ask.ownkey.setup') }), ' ',
+      h('button', { type: 'button', class: 'cct-btn', 'data-k': 'ownkey-setup', onclick: () => { ownSetup(); } }, T('shell.ask.ownkey.setup.open')));
+    return null;
   }
 
   // BK.60 the teacher: no assistant needed. What was typed is searched in the app's own help, ranked with the layout, tool and stage in use.
@@ -156,8 +147,8 @@ function boot() {
       assist.attach({ control, context: a.context });   // the filter is on the control before a question can be asked
       ask = createAsk({ control, engine: a.engine || null, context: () => assist.context(), system: a.system, check: (text, q) => assist.check(text, q) });
       off = ask.on(() => render());
-      // AC.11, an add-on since 0.10: inside Studio the person's own model answers the box once they added "Your own AI key" (the key stays in the hub).
-      // The add-on registers its engine on the page (app-ai-ownkey.js reads it); switched off or removed, the box drops that engine again.
+      // AC.11: the person's own model answers the box. Inside Studio the engine is Studio's, passed down to this page (the key stays in the hub);
+      // in one app without Studio it is the "Your own AI key" add-on's. app-ai-ownkey.js reads whichever is registered; when it goes, the box drops the engine.
       offOwn();
       if (!a.engine) {
         const useOwn = () => {

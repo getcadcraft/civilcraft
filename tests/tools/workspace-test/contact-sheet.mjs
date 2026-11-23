@@ -2,7 +2,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /**
  * contact-sheet.mjs — UI.17: every app x every layout x both themes x three widths (plus the six screen sizes of UI.29) on one contact sheet,
- * with the checks that say what is wrong with each picture. Re-run before every release; the sheet and results.json go in docs/results/0.10/ui-check/.
+ * with the checks that say what is wrong with each picture. Re-run before every release; the sheet and results.json go in docs/results/<release>/ui-check/ (--out).
+ * On workstation11a (0.11): tools/gpu-remote/run.sh --session ui-finish-icons --lab --with tools/super-test --with public_html/assets/apps/<each app>/dev/manifest.json -- tools/workspace-test/contact-sheet.mjs --out tmp/ui-check --full tmp/ui-check/full
+ * (thumbs are made here afterwards: --thumbs-only --out <dir> --full <dir>).
  *
  *   node tools/workspace-test/contact-sheet.mjs [--apps a,b] [--layouts classic,docked,...] [--themes paper,model] [--widths 1920,1280,760]
  *        [--sizes 1280x800,...|none] [--out dir] [--full dir] [--resume] [--no-sheet]
@@ -58,15 +60,19 @@ function sheet() {
   fs.writeFileSync(path.join(OUT, 'index.html'), h); console.log('sheet: ' + path.join(OUT, 'index.html') + ' (' + list.length + ' views, ' + bad.length + ' with a problem)');
 }
 if (has('--sheet-only')) { sheet(); process.exit(0); }
+if (has('--thumbs-only')) {   // after a workstation11a run: the thumbs from the full pictures, then the sheet
+  for (const f of fs.readdirSync(FULL).filter((n) => n.endsWith('.jpg'))) { const t = path.join(OUT, 'thumbs', f); if (!fs.existsSync(t)) try { execFileSync('convert', [path.join(FULL, f), '-resize', '420x', '-quality', '60', t]); } catch (e) { /* no thumb */ } }
+  sheet(); process.exit(0);
+}
 
 const done = new Set(); if (has('--resume') && fs.existsSync(RESULTS)) for (const l of fs.readFileSync(RESULTS, 'utf8').split('\n').filter(Boolean)) { const r = JSON.parse(l); done.add([r.app, r.layout, r.theme].join('|')); }
-const { chromium } = await import('playwright-core');
 const { patchIdle } = await import(pathToFileURL(path.join(REPO, 'tools/super-test/idle.mjs')).href);
-const cacheDir = path.join(process.env.HOME || '/root', '.cache/ms-playwright');
-const build = fs.readdirSync(cacheDir).filter((d) => /^chromium-\d+$/.test(d)).sort((a, b) => parseInt(b.split('-')[1]) - parseInt(a.split('-')[1]))[0];
-const exe = ['chrome-linux64/chrome', 'chrome-linux/chrome'].map((s) => path.join(cacheDir, build, s)).find((p) => fs.existsSync(p));
-const minted = JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', path.join(REPO, 'tools/cadcraft-test/admin.php'), 'session', 'bimres'], { encoding: 'utf8' }));
-const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--host-resolver-rules=MAP getcadcraft.com 127.0.0.1', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+// 0.11 UI.17 part 5: the same sheet on workstation11a (tools/gpu-remote/run.sh --lab ... -- tools/workspace-test/contact-sheet.mjs --out tmp/...): the Windows Chrome there, the
+// lab cookie run.sh minted here; on the VPS, Playwright's Chromium with SwiftShader and the bimres admin's session as before.
+const GR = await import(pathToFileURL(path.join(REPO, 'tools/gpu-remote/browser.mjs')).href);
+const minted = GR.remote ? GR.labCookie()[0] : JSON.parse(execFileSync('sudo', ['-u', 'www-data', 'php', path.join(REPO, 'tools/cadcraft-test/admin.php'), 'session', 'bimres'], { encoding: 'utf8' }));
+const browser = await GR.launch({ webgl: true });
+if (GR.remote) console.log('machine: workstation11a (CC_GPU_REMOTE=1, Windows Chrome)');
 
 /** What is measured in the page: the part of the contact sheet that is not a picture. */
 const MEASURE = () => {
@@ -79,11 +85,22 @@ const MEASURE = () => {
   const clipped = [...document.querySelectorAll('.ws-ribbon,.ws-top .tr-row,.ws-top .vw-menus,.ws-bottom .ws-bar,.ws-stage-top')].filter(vis).filter((n) => {
     if (n.scrollWidth <= n.clientWidth + 3) return false;
     const ov = getComputedStyle(n).overflowX; if (ov === 'auto' || ov === 'scroll') return false;                // scrolls: reachable
+    // 0.11 UI.17: a bar inside the region that scrolls sideways itself (Toolbar rows "1 row" / Automatic: .shell-tb overflow-x auto) is
+    // reachable by its own scroll; the region then reports the bar's content width (Chrome, seen in PartCraft Toolbox) though nothing spills
+    if ([...n.children].some((c) => /^(auto|scroll)$/.test(getComputedStyle(c).overflowX) && c.scrollWidth > c.clientWidth + 3 && c.getBoundingClientRect().right <= n.getBoundingClientRect().right + 3)) return false;
     return !n.querySelector('[data-ws-more],.ws-more,.vw-more,[aria-label*="More"]');                         // a ⋯ control: reachable
   }).map((n) => (n.className || n.tagName).toString().split(' ')[0] + ' ' + n.scrollWidth + '>' + n.clientWidth);
-  // the drawing area = the largest visible canvas (an app that draws its sheet some other way is not measured)
+  // the drawing area = in a layout, the stage the layout leaves free (the stage minus the regions it puts on its edges: 0.11 UI.17, with no file open an
+  // app shows an empty card and no canvas, which the canvas measure read as a sliver); in the classic page, the largest visible canvas
   let frac = null; for (const c of document.querySelectorAll('main canvas')) { if (!vis(c)) continue; const r = c.getBoundingClientRect(); const f = Math.round((Math.min(r.right, innerWidth) - Math.max(r.left, 0)) * (Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)) / (innerWidth * innerHeight) * 100) / 100; if (frac === null || f > frac) frac = f; }
-  return { layout: main?.dataset.wsLayout || '', hscroll: document.documentElement.scrollWidth - innerWidth, names: names.length, switches: switches.length, ribbons: ribbons.length, cmd: cmd.length, clipped, frac,
+  const canvasFrac = frac, stage = [...document.querySelectorAll('main .ws-stage')].find(vis);
+  if (stage) {
+    const S = stage.getBoundingClientRect(); let L = S.left, R = S.right, T = S.top, B = S.bottom;
+    for (const g of stage.querySelectorAll(':scope > .ws-region')) { if (!vis(g) || !g.children.length) continue; const r = g.getBoundingClientRect(), c = g.className;
+      if (/ws-(stage|view)-top/.test(c)) T = Math.max(T, r.bottom); else if (/ws-(stage|view)-bottom/.test(c)) B = Math.min(B, r.top); else if (/-left/.test(c)) L = Math.max(L, r.right); else if (/-right/.test(c)) R = Math.min(R, r.left); }
+    frac = Math.round(Math.max(0, Math.min(R, innerWidth) - Math.max(L, 0)) * Math.max(0, Math.min(B, innerHeight) - Math.max(T, 0)) / (innerWidth * innerHeight) * 100) / 100;
+  }
+  return { layout: main?.dataset.wsLayout || '', hscroll: document.documentElement.scrollWidth - innerWidth, names: names.length, switches: switches.length, ribbons: ribbons.length, cmd: cmd.length, clipped, frac, canvasFrac,
     step: document.documentElement.dataset.wsDensity || document.body.dataset.wsDensity || '' };
 };
 
@@ -111,7 +128,9 @@ for (const slug of APPS) {
     const loadErrors = errors.slice(0, 3);
     for (const [w, h, name] of views) {
       await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(w > 3000 ? 900 : 500);
-      const m = await page.evaluate(MEASURE).catch(() => null);
+      let m = await page.evaluate(MEASURE).catch(() => null);
+      // 0.11: a page still laying out after the resize (SuperCad under a loaded VPS) is measured again once it has had time to settle: a person never sees the first frame
+      if (m && (m.hscroll > 0 || m.clipped.length)) { await page.waitForTimeout(2000); m = (await page.evaluate(MEASURE).catch(() => null)) || m; }
       const problems = [];
       if (!m) problems.push('measure: page did not answer');
       else {
@@ -129,8 +148,8 @@ for (const slug of APPS) {
       if (name === views[0][2] && loadErrors.length) problems.push('errors: ' + loadErrors.join(' | '));
       const base = [slug, layout, theme, name].join('_') + '.png';
       await page.screenshot({ path: path.join(FULL, base.replace(/\.png$/, '.jpg')), type: 'jpeg', quality: 55 }).catch(() => {});
-      const thumb = jpg(base); try { execFileSync('convert', [path.join(FULL, thumb), '-resize', '420x', '-quality', '60', path.join(OUT, 'thumbs', thumb)]); } catch (e) { /* no thumb */ }
-      fs.appendFileSync(RESULTS, JSON.stringify({ app: slug, layout, theme, view: name, w, h, file: thumb, thumb, step: m?.step || '', frac: m?.frac, problems }) + '\n');
+      const thumb = jpg(base); if (!GR.remote) try { execFileSync('convert', [path.join(FULL, thumb), '-resize', '420x', '-quality', '60', path.join(OUT, 'thumbs', thumb)]); } catch (e) { /* no thumb */ }
+      fs.appendFileSync(RESULTS, JSON.stringify({ app: slug, layout, theme, view: name, w, h, file: thumb, thumb, step: m?.step || '', frac: m?.frac, canvas: m?.canvasFrac, problems }) + '\n');
     }
     console.log(slug + ' ' + layout + ' ' + theme + ' (' + Math.round((Date.now() - t0) / 1000) + ' s)' + (loadErrors.length ? ' errors: ' + loadErrors[0] : ''));
     await ctx.close();

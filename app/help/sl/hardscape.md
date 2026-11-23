@@ -1,51 +1,53 @@
 ---
 title: Tlakovanje, zidovi in stopnice
-summary: Tlakovanje s padci proti odtoku ali prečnim nagibom, vzorec in njegova zgradba; poti, ki sledijo terenu; podporni in prostostoječi zidovi s stopničastimi temelji; robniki; klančine in stopnice, preverjene glede na mejne vrednosti; izvoz v IFC.
-keywords: utrjene površine, tlakovanje, tlakovci, teras, terasa, padci, odtok, prečni nagib, riba, tekaška vez, pot, sprehajalna pot, podporni zid, vrtni zid, temeljna stopa, zaključna kapa, robnik, curb, obroba, klančina, dostopnost, stopnice, stopnišče, višine stopnic, gazišča, podest
-from: 51475877
+summary: Tlakovanje s padci do odtoka ali s prečnim naklonom, vzorec in njegova sestava; poti, ki sledijo terenu; podporni in prosto stoječi zidovi s stopničastimi temelji; robniki; klančine in stopnice, preverjene glede na omejitve; izvoz IFC.
+keywords: utrjene površine, tlakovanje, tlakovci, vrtna terasa, terasa, padci, odtok, prečni naklon, riba kost, zamikana vezava, pot, sprehajalna pot, podporni zid, vrtni zid, temelj, venec, robnik, obrobje, klančina, dostopnost, stopnice, stopnišče, stopničaste višine, gazišča, podest
+from: d34b4466
 ---
 
-Utrjene površine se vsakič znova izračunajo iz terena, zato sledijo reliefu in se ponovno ustvarijo, kadar se teren ali njegova črta premakne. Vogale povlecite na tlorisu kot katero koli črto. Odprete jih prek {{ui:Utrjene površine}} v skupini Landscape.
+Utrjene površine se vsakič znova izračunajo iz terena, zato sledijo reliefu in se ponovno ustvarijo, ko se teren ali njegova črta premakne. Njegove vogale povlecite v tlorisu kot katero koli črto. Odprite jih iz {{ui:Utrjene površine}} v skupini Krajina.
 
 ## Tlakovanje
 
 Kliknite vogale in pritisnite {{key:Enter}}. V **Lastnostih**:
 
-- **Kota**: prazno = povprečna kota terena pod njim.
-- **Padci**: kota, **prečni nagib** (v % v določeno smer) ali **do odtoka**: CivilCraft vas prosi, da kliknete, kam gre odtok, nato se vsak vogal dvigne od odtoka z določenim padcem. Puščice na tlorisu kažejo padce.
-- **Vzorec** (mreža, tekaška vez, riba) z velikostjo enote, stikom in kotom; **Širina obrobe**. Na listu se stiki, ožji od milimetra, izpustijo.
-- Tlakovanje je del predvidene površine. Njegove plasti (tlakovci, posteljica, podlaga) gredo v IFC in v količine.
+- **Nivo**: prazno = povprečje terena pod njim.
+- **Padci**: vodoravno, **prečni naklon** (v % v določeni smeri) ali **do odtoka**: CivilCraft vas prosi, da kliknete, kam gre odtok, nato se vsak vogal dvigne od odtoka s padcem. Puščice v tlorisu prikazujejo padce.
+- **Vzorec** (mreža, zamikana vezava, riba kost) z velikostjo enote, stikom in kotom; širina **Obrobja**. Na listu se stiki, ki so bližje kot milimeter, izpustijo.
+- Tlakovanje je del predvidenega površja. Njegovi sloji (tlakovci, posteljica, nosilna plast) gredo v IFC in v količine.
 
 ## Poti
 
-Kliknite vzdolž poti in pritisnite {{key:Enter}}. Pot sledi terenu, njen **prečni nagib** pa je na desni strani poti. Pot, ki je strmejša od **Največjega dovoljenega naklona**, je na tlorisu označena z `!`, v **Lastnostih** pa piše, kako strma postane.
+Kliknite vzdolž poti in pritisnite {{key:Enter}}. Pot sledi terenu, z **Prečnim naklonom** na svoji desni strani. Pot, strmejša od **Najstrmejše dovoljene**, je v tlorisu označena z `!` na mestu, kjer je, **Lastnosti** pa povedo, kako strma je.
+
+Kjer pot naleti na cesto, zgrajeno s koridorjem, se ustavi na zunanjem robu ceste, na nivoju pločnika ali bankine tam, v predvidenem površju in v pogledu 3D. Pot, ki seka cesto, se izravna in prikaže kot dva kosa, konec, narisan do dvakratne širine poti pred cesto, pa se podaljša do njenega roba. Načrt še vedno prikazuje pot tako, kot ste jo narisali, njena dolžina in površina pa štejeta celotno črto. Glejte [Cestni koridor s potegom](topic:corridor).
 
 ## Zidovi
 
-Kliknite vzdolž zidu in pritisnite {{key:Enter}}. Zid je **podporni** ali **prostostoječ**. Brez **Vrha** stoji njegova **Višina** nad terenom vzdolž celotne dolžine; vpišite vrh, da ga držite v ravni črti. Njegov **temelj** sega za določeno globino pod teren in se stopničasto spušča v celih stopnjah, zato je med njimi raven. Lastnosti podajo dolžino, višine, površino čela in stopnice temelja; na tlorisu oznake navajajo zgornji in spodnji rob zidu (TW / BW) na vsakem koncu.
+Kliknite vzdolž zidu in pritisnite {{key:Enter}}. Zid je **podporni** ali **prosto stoječ**. Brez **Vrha** stoji njegova **Višina** nad terenom vzdolž celotne dolžine; vnesite vrh, da ga držite v nivoju. Njegov **temelj** je na nastavljeni globini pod terenom in se spušča v celih stopnicah, tako da med njimi ostane v nivoju. **Lastnosti** navajajo njegovo dolžino, višine, površino lica in stopnice temelja; načrt na vsakem koncu označi vrh in dno zidu (TW / BW).
 
 :::warning
-Podporni zid, višji od 1.2 m (4 ft), je označen: zasnuje ga inženir.
+Podporni zid, višji od 1.2 m (4 ft), je označen: zanj zasnuje načrt inženir.
 :::
 
 ## Robniki
 
-Kliknite vzdolž robnika in pritisnite {{key:Enter}}; nastavite njegovo širino in izstopno višino.
+Kliknite vzdolž robnika in pritisnite {{key:Enter}}; nastavite njegovo širino in višino nad površino.
 
 ## Klančine
 
-Kliknite od spodaj navzgor in pritisnite {{key:Enter}}. Kote se vzamejo iz terena na vsakem koncu, razen če jih vpišete. Klančina dobi podest na vsakih 750 mm (2.5 ft) višinske razlike in se preveri glede na **Največji dovoljeni naklon** (privzeto 1:12) in najmanjšo širino; Lastnosti povedo, kako dolga bi morala biti.
+Kliknite od spodaj navzgor in pritisnite {{key:Enter}}. Nivoji pridejo iz terena na vsakem koncu, razen če jih vnesete sami. Klančina dobi podest na vsakih 750 mm (2.5 ft) višinske razlike in je preverjena glede na **Najstrmejše dovoljeno** (na začetku 1:12) in najmanjšo širino; **Lastnosti** povedo, kako dolga bi morala biti.
 
 ## Stopnice
 
-Kliknite sprednji rob spodnje stopnice, nato mesto, kjer stopnice dosežejo vrh, in pritisnite {{key:Enter}}. Število višin stopnic je odvisno od višine in **Največje višine stopnice**; gazišče po pravilu udobja 2R + G ≈ 630 mm, nikoli manj kot **Najmanjše gazišče**; podest na vsakih **Največ stopnic v enem kosu**. Lastnosti povedo, ali se stopnice prilegajo med obe točki ali koliko dolge morajo biti.
+Kliknite sprednji rob spodnje stopnice, nato mesto, kjer stopnice dosežejo vrh, in pritisnite {{key:Enter}}. Število stopničastih višin je odvisno od višine in **Največje višine stopnice**; globina gazišča izhaja iz pravila udobja 2R + G ≈ 630 mm, nikoli pa ne pod **Najmanjšo globino gazišča**; podest je na vsakih **Največ stopnic v enem tiru**. **Lastnosti** povedo, ali se stopnice prilegajo med obema točkama ali koliko daljše morajo biti.
 
 :::note
-Mejne vrednosti za klančine in stopnice so označene privzete vrednosti. Nastavite tiste, ki jih zahteva vaš gradbeni predpis.
+Omejitve za klančine in stopnice so označene kot privzete vrednosti. Nastavite tiste, ki jih zahteva vaš gradbeni predpis.
 :::
 
-## Zunaj programa CivilCraft
+## Izven CivilCraft
 
-- Več › {{ui:Izvozi IFC krajinske ureditve}}: tlakovanje in poti kot `IfcPavement`, zidovi kot `IfcWall` (podporni zidovi kot RETAININGWALL) s svojimi plastmi, robniki kot `IfcKerb`, klančine kot `IfcRamp`, stopnice kot `IfcStair` z njihovimi višinami stopnic in gazišči.
-- **Pošlji v TakeoffCraft** v razpredelnici rastlin prenese površine tlakovanja in prostornine plasti, površine čel zidov in njihove dolžine, dolžine robnikov ter število stopnic.
-- List s podrobnostmi nariše prerez vsakega zidu, zgradbo vsakega tlakovanja in vsak kos stopnic. Glejte [Krajinski listi](topic:landscape-sheets).
+- Več › {{ui:Izvozi IFC krajinske ureditve}}: tlakovanje in poti kot `IfcPavement`, zidovi kot `IfcWall` (podporni zidovi kot RETAININGWALL) s svojimi sloji, robniki kot `IfcKerb`, klančine kot `IfcRamp`, stopnice kot `IfcStair` s svojimi stopničastimi višinami in gazišči.
+- **Pošlji v TakeoffCraft** v razporedu rastlin prenese površine tlakovanja in prostornine slojev, površine lic in dolžine zidov, dolžine robnikov ter števila stopnic.
+- List podrobnosti nariše prerez vsakega zidu, sestavo vsakega tlakovanja in vsak tir stopnic. Glejte [Listi krajine](topic:landscape-sheets).

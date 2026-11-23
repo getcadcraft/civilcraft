@@ -107,7 +107,9 @@
 .help-search-count, .help-search-none { color: var(--ink-2); margin: 0 0 1rem; }
 .help-search-results mark { background: color-mix(in srgb, var(--layer-ochre) 35%, transparent); color: inherit; padding: 0 .1em; border-radius: 2px; }
 .help-search-band { padding-bottom: 0; }
+.help-about { display: flex; flex-wrap: wrap; align-items: center; column-gap: 1.25rem; row-gap: .4rem; }
 .help-about .help-link { display: inline-flex; align-items: center; gap: .3rem; }
+.help-about .help-link[hidden] { display: none; }
 
 /* Screenshots in a topic: ![what it shows](file.webp) */
 .hfig { margin: 1.5rem 0; }

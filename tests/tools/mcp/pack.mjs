@@ -100,7 +100,7 @@ for (const f of ['ai-model-only.js', 'knowledge-pack.js']) cp(path.join(ROOT, 'p
 cp(path.join(ROOT, 'tools/cli/cadcraft.mjs'), path.join(OUT, 'cli/cadcraft.mjs'));
 for (const f of fs.readdirSync(path.join(ROOT, 'tools/cli/headless'))) if (f.endsWith('.mjs')) cp(path.join(ROOT, 'tools/cli/headless', f), path.join(OUT, 'cli/headless', f));
 for (const a of APPS) copyCode(path.join(ROOT, 'public_html/assets/apps', a, 'dev'), path.join(OUT, 'cli/apps', a));
-copyClosure(path.join(ROOT, 'public_html/assets/apps/bimcraft/dev'), path.join(OUT, 'cli/apps/bimcraft'), ['agents.js', 'ifc-edit.js', 'new-model.js'], { staticOnly: ['render-tools.js'] });
+copyClosure(path.join(ROOT, 'public_html/assets/apps/bimcraft/dev'), path.join(OUT, 'cli/apps/bimcraft'), ['agents.js', 'ifc-edit.js', 'new-model.js', 'plan-export.js', 'usd-bimcraft.js', 'trust-agents.js'], { staticOnly: ['render-tools.js'] });   // 0.11: plan-export.js (ifc_plan_plot, FIX-0101-PLAN-HEADLESS) and usd-bimcraft.js (usd_export on a model, FX.377) are loaded by name, so they are roots
 // SuperCad Studio (0.10 BK.59): the project tools (super-agents.js) and the project file reader they import
 copyClosure(path.join(ROOT, 'public_html/assets/apps/supercadcraft/dev'), path.join(OUT, 'cli/apps/supercadcraft'), ['super-agents.js', 'super-project.js']);
 // CivilCraft (0.7 AS.3): its project and assistant tools, the libraries they import by name (as its import map maps them)

@@ -5,7 +5,8 @@
  * into the same model: its streams are checked, re-flashed with OUR thermodynamics so they are complete, and put through OUR balance report,
  * so a wrong answer from any engine shows up as Problems instead of as a number.
  *
- *   checkLicense(spdx)                  → { ok, reason }   permissive licences only (MIT, BSD-2/3-Clause, Apache-2.0, ISC, Zlib, Unlicense, CC0-1.0)
+ *   checkLicense(spdx)                  → { ok, reason }   permissive licences only (MIT, BSD-2/3-Clause, Apache-2.0, ISC, Zlib, Unlicense, CC0-1.0,
+ *                                                          LicenseRef-US-Gov-PD = US-government work, public domain: owner approved 2026-10-29 rec05, applied 2026-11-21)
  *   createRegistry(extra?)              → { register(engine), list(), get(id), usable(id) }   `ours` is always there
  *   makeCase(def, engineId, request)    → the case file (`cadcraft-process-case` v1) a program engine reads
  *   readBack(def, output, { engineId }) → { result, problems }  validated, completed and balance-checked
@@ -21,7 +22,7 @@ import { solve, thermoFor } from './flowsheet.js';
 import { balanceReport, problem } from './report.js';
 import { fromFlash } from './stream.js';
 
-export const PERMISSIVE = ['MIT', 'BSD-2-Clause', 'BSD-3-Clause', 'Apache-2.0', 'ISC', 'Zlib', 'Unlicense', 'CC0-1.0'];
+export const PERMISSIVE = ['MIT', 'BSD-2-Clause', 'BSD-3-Clause', 'Apache-2.0', 'ISC', 'Zlib', 'Unlicense', 'CC0-1.0', 'LicenseRef-US-Gov-PD'];
 export function checkLicense(spdx) {
   const s = String(spdx || '').trim();
   if (!s) return { ok: false, reason: 'no licence is given' };
@@ -47,7 +48,7 @@ export function createRegistry(extra = []) {
     },
     list: () => [...engines.values()].map(({ solve: _s, ...e }) => e),
     get: (id) => engines.get(id) || null,
-    usable: (id) => { const e = engines.get(id); return !!(e && e.allowed); },
+    usable: (id) => { const e = engines.get(id); return !!(e && e.allowed && e.available !== false); },   // available:false = licence fine, no engine built yet (AERMOD)
   };
   for (const e of [...BUILTIN, ...extra]) reg.register(e);
   return reg;

@@ -18,6 +18,7 @@
  *   CreateIFCGloballyUniqueId · WriteLine(mid, line) (a new line gets the next free id) · DeleteLine · SaveModel → bytes
  * Geometry: StreamAllMeshes(mid, cb(mesh, index, total)) · StreamAllMeshesWithTypes(mid, codes, cb) · GetFlatMesh(mid, id)
  *   · StreamAllMeshesAsync(mid, cb, { sliceMs, release }) · StreamAllMeshesWithTypesAsync(mid, codes, cb, opts): the same, in slices that give the page back (0.10 PERF.8)
+ *   · the whole pass in a Worker: mesh-stream.js meshesInWorker (0.11 PERF.8) · SetCoordinationMatrix(mid, C)
  *   · GetGeometry(mid, geometryExpressID) → { GetVertexData, GetVertexDataSize, GetIndexData, GetIndexDataSize, delete }
  *   · GetVertexArray(data, size) / GetIndexArray(data, size) · GetCoordinationMatrix · GetWorldTransformMatrix(mid, placementId)
  *   · GetGeoReference(mid) (map conversion: CRS, eastings/northings/height, rotation, scale, model → map matrix)
@@ -293,6 +294,9 @@ export class IfcAPI {
   toYupMetres(mid, matrix) { const u = this.geometry(mid).g.lengthUnit; return mul(YUP, mul(scaling(u), matrix)); }
 
   GetCoordinationMatrix(mid) { return this.ensureC(mid).slice(); }
+  /** 0.11 PERF.8: take the coordination matrix another engine found for the same file (mesh-stream.js's worker), so the page need not mesh the
+   *  first element again to find it. 16 finite numbers, column-major; anything else is ignored. */
+  SetCoordinationMatrix(mid, C) { if (C && C.length === 16 && [...C].every(Number.isFinite)) this.m(mid).C = [...C]; }
 
   /** The project's georeference (IfcMapConversion / IfcRigidOperation), or null. See geo-ctx.js georef(). */
   GetGeoReference(mid) { return this.geometry(mid).g.georef(); }

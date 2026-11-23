@@ -3,7 +3,7 @@ title: Sweep a road corridor
 summary: Turn on a corridor for an alignment, set lane, shoulder and side slope values, and read the sections, daylight lines and earthwork it produces.
 section: tasks
 order: 60
-keywords: superelevation, super, banking, runoff, runout, rate table, cross slope, rotation, corridor, assembly, subassembly, typical section, road, lane, shoulder, cross slope, side slope, daylight, cut, fill, sections, target, targets, width target, elevation target, offset target, widening, edge of pavement, follow another corridor
+keywords: junction, intersection, road meets road, side road, T junction, crossing, pad level, join, tie in, superelevation, super, banking, runoff, runout, rate table, cross slope, rotation, corridor, assembly, subassembly, typical section, road, lane, shoulder, cross slope, side slope, daylight, cut, fill, sections, target, targets, width target, elevation target, offset target, widening, edge of pavement, follow another corridor
 ---
 
 A corridor sweeps one simple typical section (an assembly) along an alignment and its design profile, grades it into the existing ground and adds the result to the proposed surface. An alignment can carry several corridors on different station ranges, and a corridor can be built from reusable templates by station ([Corridor templates](topic:corridor-templates)). The simple assembly below is the same on both sides; to give each side its own parts, see [Build each side from parts](topic:corridor#build-each-side-from-parts).
@@ -60,7 +60,7 @@ A corridor with a problem is not graded in and does not count in the earthwork.
 
 ## Corridors and pads together
 
-The proposed surface is built in order: every corridor first, then every pad. Where a pad's grading overlaps a corridor, the pad wins. Volumes are worked out inside all the daylight lines together; see [Earthwork volumes](topic:volumes).
+The proposed surface is built in order: every corridor first, then every pad. Where a pad's grading overlaps a corridor, the pad wins. Where a later item overlaps a road, only the part of the road inside the later item's daylight line is replaced; the rest of the road, and any ground breakline the road crosses, keeps its shape. Volumes are worked out inside all the daylight lines together; see [Earthwork volumes](topic:volumes).
 
 ## Superelevation
 
@@ -100,6 +100,21 @@ A cross slope is the fall away from the road, so a sidewalk that drains toward t
 ## Pavement courses
 
 A lane, shoulder, gutter, planting strip or sidewalk can carry its build-up: under the part, {{ui:Add a course}} adds a course with a name, a material, a thickness and its kind (surface, binder, base, subbase, capping or other), top down. The courses do not move the road's surface (its top is the design surface); each lies under its part, its depth measured straight down. Cross sections draw each course bottom as a dashed line, and {{ui:Pavement courses: quantities}} lists the plan area and volume of every course (area along the corridor from its sections, volume = area × thickness). The IFC export writes each course as its own element with its thickness and material (see [IFC export and import](topic:ifc)). The thickness you type is yours: CivilCraft does not size pavements.
+
+## Where roads meet roads, pads and paths
+
+With {{ui:Join the roads and pads it meets}} on (it is on for every corridor), CivilCraft joins a corridor to what it meets in plan:
+
+- **A road that ends on another road** (its alignment's end lies on the other road, or within about half its own pavement width of that road's edge) is the side road of a junction. The road it meets opens its edge for the side road's pavement: across the mouth the shoulder, curb, strip and walk are laid on the lane's cross slope and drawn as pavement. The side road is laid on the main road's surface where the two overlap, and eased up or down to it over the approach.
+- **Two roads that cross** are joined the same way on both sides. The road listed first under Alignments is the through road; the other one follows its surface across.
+- **A road that ends at a pad** (inside it, or within about half its pavement width of its edge) arrives at the pad's level and is eased to it over the approach.
+- **A path** (Landscape › Hardscape) stops at a road's outer edge, at the level of the walk or shoulder there, instead of lying over the road. A path that crosses a road becomes two pieces. An end drawn a little short of a road (within twice the path's width) is carried on to its edge.
+
+Properties says what each corridor joined, by how much it was raised or lowered there and over what length. That length is the larger of 10 m (30 ft) and twenty times the change, and never more than 45% of the corridor. **The design profile is not changed**: the profile view still shows the grade line you drew, and the sections, the proposed surface, the volumes and the 3D view show the road as joined. To make the join exact by design, move the last PVI to the level Properties reports.
+
+Turn the switch off on a corridor to leave it exactly as its profile and assembly say; it then takes no part in any junction, as the side road or the through road. Roads that meet nearly in line (under about 20°) are left alone, and so are tracks.
+
+What a junction does not do yet: there are no curb returns (corners are square), no turning lanes or islands, the side road's end is cut square to its own alignment, and a corridor built from templates opens its edge in the same plain way (a ditch or wall in its end condition is levelled across the mouth, with no culvert). For plan curb returns, sight triangles and striping see [Soils, roads, survey, mines and links](topic:soils-roads-survey-mines-links).
 
 ## What is not built yet
 

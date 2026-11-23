@@ -105,6 +105,7 @@
   "regs.auth.professional": "Επαγγελματικός φορέας",
   "regs.auth.community": "Κοινότητα",
   "regs.where.egress": "Πόρτα διαφυγής",
+  "regs.where.guard": "Κιγκλίδωμα",
   "regs.sheet.button": "Φύλλο σύνοψης κανονισμών",
   "regs.sheet.title": "Σύνοψη κανονισμών",
   "regs.sheet.file": "σύνοψη κανονισμών",

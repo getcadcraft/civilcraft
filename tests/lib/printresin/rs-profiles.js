@@ -35,7 +35,7 @@ export const RESINS = {
 export const DEFAULT_JOB = {
   printer: 'generic-4k', resin: 'standard', layerHeight: 0.05,
   hollow: false, wall: 2, drain: 3,
-  supports: false, density: 'medium', overhang: 40, lift: 4, tilt: 0,
+  supports: false, density: 'medium', overhang: 40, lift: 4, tilt: 0, bracing: false, peelStress: 0,   // bracing: cross braces on tall thin supports; peelStress: N per cm2, the person's own measured number (0 = unset, so no force is shown)
   screen: null,   // { px: [w, h], mm: [x, y, z] } when the printer is "custom"
 };
 
@@ -69,6 +69,7 @@ export function cleanResin(j) {
     hollow: !!o.hollow, wall: num(o.wall, 0.8, 6, DEFAULT_JOB.wall), drain: num(o.drain, 1.5, 6, DEFAULT_JOB.drain),
     supports: !!o.supports, density: has(DENSITIES, o.density) ? o.density : DEFAULT_JOB.density,
     overhang: num(o.overhang, 10, 70, DEFAULT_JOB.overhang), lift: num(o.lift, 1, 10, DEFAULT_JOB.lift), tilt: num(o.tilt, 0, 60, 0),
+    bracing: !!o.bracing, peelStress: num(o.peelStress, 0, 500, 0),
     exposure: num(o.exposure, 0.2, 60, R.exposure), bottomExposure: num(o.bottomExposure, 1, 300, R.bottomExposure), bottomLayers: Math.round(num(o.bottomLayers, 1, 30, R.bottomLayers)),
     liftHeight: num(o.liftHeight, 1, 30, R.liftHeight), liftSpeed: num(o.liftSpeed, 10, 600, R.liftSpeed), retractSpeed: num(o.retractSpeed, 10, 900, R.retractSpeed),
     lightOff: num(o.lightOff, 0, 20, R.lightOff), density_g: R.density, price: num(o.price, 0, 1000, R.price),

@@ -13,12 +13,12 @@
  *       critical water surface along the river (flow left to right), axes, legend and the review line
  */
 
+import { escXml as esc } from './util.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 const U = {
   m: { len: 'm', vel: 'm/s', q: 'm³/s', area: 'm²' },
   ft: { len: 'ft', vel: 'ft/s', q: 'ft³/s', area: 'ft²' },
 };
 const f = (v, d) => (Number.isFinite(v) ? v.toFixed(d) : '');
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export const COLUMNS = [
   { key: 'rs', label: 'sx.su957.c.rs', unit: 'len', d: 2 },

@@ -95,14 +95,16 @@ export function memoryKeystore(init = {}) {
 /**
  * The reference transport: adds the key, calls the provider, returns {status, json} only. Refuses an http address unless it is this computer,
  * never follows a redirect (a key must not follow a redirect to another host), times out, caps the response, and returns no headers.
+ * `browser: true` is for a page that makes the call itself (no native side): it adds the header a provider asks of a browser caller.
  */
-export function directTransport({ keystore, fetch: doFetch = globalThis.fetch, timeoutMs = 120000, maxBytes = 4 * 1024 * 1024 } = {}) {
+export function directTransport({ keystore, fetch: doFetch = globalThis.fetch, timeoutMs = 120000, maxBytes = 4 * 1024 * 1024, browser = false } = {}) {
   return async function call({ provider, baseUrl, keyName, request, signal }) {
     const base = (baseUrl || (provider === 'anthropic' ? 'https://api.anthropic.com' : provider === 'openai' ? 'https://api.openai.com/v1' : '')).replace(/\/+$/, '');
     if (!base) return { status: 0, error: 'no_address' };
     const local = isLocalUrl(base);
     if (!base.startsWith('https://') && !local) return { status: 0, error: 'insecure_address' };
     const headers = { ...request.headers };
+    if (browser && provider === 'anthropic') headers['anthropic-dangerous-direct-browser-access'] = 'true';   // a browser tab calling with the person's own key (the own-ai-key add-on outside Studio): the provider refuses a cross-origin call without it
     if (!(provider === 'compatible' && local)) {
       const key = await keystore._get(keyName);
       if (!key) return { status: 0, error: 'no_key' };

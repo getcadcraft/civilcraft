@@ -58,7 +58,7 @@ export function readGisState(gis, gisFeatures, notes = []) {
   const src = gisFeatures && typeof gisFeatures === 'object' ? gisFeatures : {};
   const seen = new Set();
   for (const l of Array.isArray(gis.layers) ? gis.layers.slice(0, MAX_LAYERS) : []) {
-    if (!l || typeof l !== 'object' || !/^g\d{1,9}$/.test(String(l.id)) || seen.has(l.id) || !['pt', 'ln', 'pg'].includes(l.geom)) { dropped++; continue; }
+    if (!l || typeof l !== 'object' || !/^g\d{1,16}$/.test(String(l.id)) || seen.has(l.id) || !['pt', 'ln', 'pg'].includes(l.geom)) { dropped++; continue; }
     seen.add(l.id);
     const fieldNames = new Set();
     const fields = (Array.isArray(l.fields) ? l.fields.slice(0, 500) : []).map((f) => ({ name: clean(f?.name, 64), type: ['text', 'number', 'date', 'bool'].includes(f?.type) ? f.type : 'text' })).filter((f) => f.name && !fieldNames.has(f.name) && fieldNames.add(f.name));

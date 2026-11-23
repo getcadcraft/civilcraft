@@ -9,6 +9,9 @@
  * (file:<id>, the same untrusted path: importText → validateLayout → resolveLayout) and switches to it, so it works in every app that
  * has layouts, exports from Settings like any other, and the panel manager still docks, floats and pops out every panel it fills.
  *
+ * 0.11 UI.5 (session ui-finish-11): in the lab (the switch and a lab build) this form is retired: Settings › Arrange and the engine's form() open Arrange mode
+ * on the screen instead (the classic layout starts from the toolbox built-in, as this form did). Released pages keep the form (rule 62).
+ *
  *   arrangeDialog(E) → open(): E = { A, F, T, el, btn, caps(), current() → the layout in use | null, builtin(id) → a layout,
  *                                    slotLabel(name), paletteLabel(name), importText(text) → {ok, key, message}, use(key) }
  */

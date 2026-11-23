@@ -1,31 +1,33 @@
 ---
-title: Qoplama, devorlar va zinalar
-summary: Drenajga yoki koʻndalang qiyalikka nishablikli qoplama, naqsh va uning qatlamlari; relyefga ergashadigan yoʻlkalar; poydevorli tutib turuvchi va erkin turgan devorlar; bordyurlar; chegaralari bilan tekshirilgan pandus va zinalar; IFC ga eksport.
-keywords: qattiq qoplama, qoplama, qoplama plitalari, hovli, teras, nishablik, drenaj, koʻndalang qiyalik, baliqsuyak, yotiq terish, yoʻlka, piyodalar yoʻlagi, tutib turuvchi devor, bogʻ devori, poydevor, tepa qoplamasi, bordyur, chegaralash, pandus, qulaylik, zinalar, pogʻonalar, pogʻona balandligi, pogʻona yuzasi, oraliq sahn
-from: 51475877
+title: Plitkali qoplamalar, devorlar va pogʻonalar
+summary: Drenajga yoki koʻndalang ogʻishga ega plitkali qoplama, uning naqshi va qatlamlari; relyefga ergashadigan yoʻlkalar; poydevor pogʻonalari bilan tutib turuvchi va erkin turgan devorlar; bordyurlar; pandus va pogʻonalar chegaralar boʻyicha tekshirilgan; IFC chiqarish.
+keywords: qattiq qoplama, plitkalar, plitkali qoplama, patio, terassa, ogʻishlar, drenaj, koʻndalang ogʻish, baliqsuyagi, yotiq terish, yoʻlka, piyodalar yoʻlagi, tutib turuvchi devor, bogʻ devori, poydevor, devor qopqogʻi, bordyur, chegaralash, pandus, qulaylik, pogʻonalar, zinalar, pogʻona balandligi, yurish kengligi, sahn
+from: d34b4466
 ---
 
-Qattiq qoplama har safar yer asosida qayta hisoblanadi, shuning uchun u relyefga moslashadi va yer yoki uning chizigʻi siljiganda qayta yaratiladi. Rejada uning burchaklarini boshqa chiziqlar kabi sudrang. Uni Landshaft guruhida joylashgan {{ui:Qattiq qoplamalar}} orqali oching.
+Qattiq qoplama har safar yerdan qayta hisoblanadi, shuning uchun u relyefga ergashadi va yer yoki uning chizigʻi siljiganda qayta yaratiladi. Uning burchaklarini rejada boshqa chiziqlar kabi sudrang. Uni Landshaft guruhidagi {{ui:Qattiq qoplamalar}} dan oching.
 
-## Qoplama
+## Plitkali qoplama
 
-Burchaklarini bosing va {{key:Enter}} ni bosing. **Xususiyatlar**da:
+Burchaklarni bosing va {{key:Enter}} ni bosing. Xususiyatlarda:
 
-- **Sath**: boʻsh = ostidagi yerning oʻrtacha sathi.
-- **Nishablik**: sath, **koʻndalang qiyalik** (yoʻnalish tomon foizda) yoki **drenajga**: CivilCraft drenaj qayerga joylashishini bosib koʻrsatishni soʻraydi, soʻng har bir burchak drenajdan belgilangan nishablik bilan koʻtariladi. Rejadagi strelkalar nishablikni koʻrsatadi.
-- **Naqsh** (toʻr, yotiq terish, baliqsuyak) birlik oʻlchami, chok va burchak bilan; **Chegaralash** kengligi. Varaqda bir millimetrdan yaqinroq choklar hisobga olinmaydi.
-- Qoplama loyihaviy yuzaning bir qismidir. Uning qatlamlari (qoplama plitalari, yotqizish qatlami, asos) IFC va miqdorlarga kiradi.
+- **Sath**: boʻsh = uning ostidagi yerning oʻrtacha sathi.
+- **Ogʻishlar**: tekis, **koʻndalang ogʻish** (yoʻnalish tomon foizda) yoki **drenajga**: CivilCraft drenaj qayerga borishini bosishingizni soʻraydi, soʻng har bir burchak drenajdan ogʻish bilan koʻtariladi. Rejadagi koʻrsatkichlar ogʻishlarni koʻrsatadi.
+- **Naqsh** (setka, yotiq terish, baliqsuyagi) birlik oʻlchami, chok va burchak bilan; **Chegaralash** kengligi. Varaqda 1 millimetrdan yaqinroq choklar chiqarib tashlanadi.
+- Plitkali qoplama loyihalangan yuzaning bir qismi. Uning qatlamlari (plitkalar, yotqizish qatlami, asos) IFC va miqdorlarga kiradi.
 
 ## Yoʻlkalar
 
-Yoʻl boʻylab bosing va {{key:Enter}} ni bosing. U yer boʻylab kuzatadi, oʻzining **koʻndalang qiyaligi** oʻng tomoniga qaratiladi. **Ruxsat etilgan eng tik qiyalik**dan tikroq yoʻl rejada oʻsha joyda `!` belgisi bilan qayd etiladi, va **Xususiyatlar** uning qanchalik tik boʻlishini koʻrsatadi.
+Yoʻlka boʻylab bosing va {{key:Enter}} ni bosing. U yerga ergashadi, **Koʻndalang ogʻish** oʻng tomonida. **Ruxsat etilgan eng katta qiyalik** dan tik yoʻlka rejada shu joyda `!` bilan belgilanadi, va Xususiyatlar u qanchalik tikligini aytadi.
+
+Yoʻlka koridor qurgan yoʻlga yetganda, u yoʻlning tashqi chetida toʻxtaydi, oʻsha yerdagi piyodalar yoʻlagi yoki chekka bilan bir sathda, loyihalangan yuzada va 3D koʻrinishda. Yoʻlni kesib oʻtgan yoʻlka tekislanadi va ikki boʻlak sifatida koʻrsatiladi; yoʻldan yoʻlka kengligining ikki barobarigacha qisqa chizilgan uchi chetigacha davom ettiriladi. Reja yoʻlkani siz chizganingizdek koʻrsatadi, uning uzunligi va maydoni esa butun chiziqni hisoblaydi. Qarang: [Yoʻl koridorini trassa boʻylab yaratish](topic:corridor).
 
 ## Devorlar
 
-Devor boʻylab bosing va {{key:Enter}} ni bosing. Devor **tutib turuvchi** yoki **erkin turgan** boʻladi. **Tepa** kiritilmasa, u butun uzunligi boʻylab yerdan **Balandlik** masofasida turadi; tepani kiritsangiz, u shu sathda ushlab turiladi. Uning **poydevori** yerdan belgilangan chuqurlikda joylashadi va butun pogʻonalarda pastga tushadi, shuning uchun ular orasida sath saqlanadi. **Xususiyatlar** devorning uzunligi, balandliklari, old yuza maydoni va poydevor pogʻonalarini koʻrsatadi; reja har bir uchida devorning yuqori va past nuqtalarini (TW / BW) belgilaydi.
+Devor boʻylab bosing va {{key:Enter}} ni bosing. Devor **tutib turuvchi** yoki **erkin turuvchi** boʻladi. **Yuqori qismi** kiritilmasa, u butun uzunligi boʻylab yerdan **Balandlik** bilan turadi; uni tekis ushlash uchun yuqori qismni kiriting. Uning **poydevori** yerdan belgilangan chuqurlikda joylashadi va butun pogʻonalarda pastga pogʻonalanadi, shuning uchun ular orasida tekis qoladi. Xususiyatlar uning uzunligi, balandliklari, old yuzasi maydoni va poydevor pogʻonalarini beradi; reja har bir uchida devor yuqori va pastki qismini (TW / BW) belgilaydi.
 
 :::warning
-1.2 m (4 ft) dan baland tutib turuvchi devor belgilanadi: uni muhandis loyihalaydi.
+Balandligi 1.2 m (4 ft) dan katta tutib turuvchi devor belgilanadi: uni muhandis loyihalaydi.
 :::
 
 ## Bordyurlar
@@ -34,18 +36,18 @@ Bordyur boʻylab bosing va {{key:Enter}} ni bosing; uning kengligi va koʻtarili
 
 ## Pandus
 
-Pastdan yuqoriga bosing va {{key:Enter}} ni bosing. Sathlar oxirgi nuqtalardagi yerdan olinadi, agar siz ularni kiritmasangiz. Pandus har 750 mm (2.5 ft) koʻtarilishda oraliq sahn oladi va **Ruxsat etilgan eng tik qiyalik** (dastlab 1:12) hamda eng kichik kengligi boʻyicha tekshiriladi; **Xususiyatlar** unga qanchalik uzun boʻlishi kerakligini koʻrsatadi.
+Pastdan yuqorigacha bosing va {{key:Enter}} ni bosing. Sathlar siz kiritmasangiz, har bir uchidagi yerdan olinadi. Pandusda har 750 mm (2.5 ft) koʻtarilishda sahn boʻladi va **Ruxsat etilgan eng katta qiyalik** (boshida 1:12) hamda eng kichik kengligi boʻyicha tekshiriladi; Xususiyatlar uning qancha uzun boʻlishi kerakligini aytadi.
 
-## Zinalar
+## Pogʻonalar
 
-Pastki zinaning old qirrasini, soʻng zinalar yuqoriga yetgan joyni bosing va {{key:Enter}} ni bosing. Pogʻonalar soni balandlikdan va **Eng baland pogʻona**dan olinadi; tekislik chuqurligi (G) qulaylik qoidasi 2R + G ≈ 630 mm dan olinadi, lekin **Eng kichik pogʻona chuqurligi**dan kam boʻlmaydi; har bir **Bir marshdagi pogʻonalar soni eng koʻpi bilan** pogʻonadan keyin oraliq sahn boʻladi. **Xususiyatlar** zinalar ikki nuqta orasiga sigʻishini yoki qancha uzun boʻlishi kerakligini koʻrsatadi.
+Pastki pogʻonaning old qirrasini bosing, soʻng pogʻonalar yuqoriga yetgan joyni bosing va {{key:Enter}} ni bosing. Pogʻonalar soni balandlik va **Eng katta pogʻona balandligi** dan chiqadi; yurish kengligi qulaylik qoidasidan 2R + G ≈ 630 mm, hech qachon **Eng kichik yurish kengligi** dan kam emas; **Bir marshda eng koʻp pogʻona** boʻyicha har bir marshda sahn boʻladi. Xususiyatlar ularning ikki nuqta orasiga sigʻishini yoki qancha uzun boʻlishi kerakligini aytadi.
 
 :::note
-Pandus va zinalarning chegaralari belgilangan standart qiymatlardir. Qurilish kodingiz talab qiladigan qiymatlarni oʻrnating.
+Pandus va pogʻonalar uchun chegaralar belgilangan standart qiymatlar. Bino kodeksingiz talab qiladigan qiymatlarni belgilang.
 :::
 
 ## CivilCraft dan tashqari
 
-- Yana › {{ui:Export landscape IFC}}: qoplama va yoʻllar `IfcPavement` sifatida, devorlar `IfcWall` sifatida (tutib turuvchi devorlar RETAININGWALL bilan) ularning qatlamlari bilan, bordyurlar `IfcKerb` sifatida, pandus `IfcRamp` sifatida, zinalar esa pogʻonalari va tekisliklari bilan `IfcStair` sifatida eksport qilinadi.
-- O'simliklar jadvalidagi **TakeoffCraft**ga yuborish qoplama maydonlarini va qatlam hajmlarini, devorlarning old yuza maydonlari va uzunliklarini, bordyur uzunliklarini va zinalar sonini olib boradi.
-- Batafsil varaq har bir tutib turuvchi devorning kesimini, har bir qoplamaning tuzilishini va zinalarning har bir marshini chizadi. Qarang: [Landshaft varaqlari](topic:landscape-sheets).
+- Yana › {{ui:Landshaft IFC ni eksport qilish}}: plitkali qoplama va yoʻlkalar `IfcPavement` sifatida, devorlar `IfcWall` sifatida (tutib turuvchi devorlar RETAININGWALL sifatida) ularning qatlamlari bilan, bordyurlar `IfcKerb` sifatida, pandus `IfcRamp` sifatida, pogʻonalar `IfcStair` sifatida ularning pogʻonalari va yuzalari bilan.
+- Oʻsimliklar jadvalining **TakeoffCraftʼga yuborish** funksiyasi plitkali qoplama maydonlari va qatlam hajmlari, devor old yuzalari maydoni va uzunliklari, bordyur uzunliklari hamda pogʻonalar sonini olib boradi.
+- Tafsilotlar varagi har bir devor kesimini, har bir plitkali qoplama tuzilishini va har bir pogʻonalar marshini chizadi. Qarang: [Landshaft varaqlari](topic:landscape-sheets).

@@ -60,7 +60,7 @@ async function fresh() {
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
   page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
   await page.goto(BASE + '/lab/bimcraft?space=paper', { waitUntil: 'networkidle' });
-  await page.evaluate(() => { try { localStorage.setItem('bimcraft.model.units', 'mm'); } catch (e) { /* none */ } });
+  await page.evaluate(() => { try { localStorage.setItem('cc-autofocus', 'off'); localStorage.setItem('bimcraft.model.units', 'mm'); } catch (e) { /* none */ } });
   await page.reload({ waitUntil: 'networkidle' });
 }
 const waitStatus = (re, timeout = 60000) => page.waitForFunction((src) => new RegExp(src).test(document.querySelector('[data-status]')?.textContent || ''), re.source, { timeout });

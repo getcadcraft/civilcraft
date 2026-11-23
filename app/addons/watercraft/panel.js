@@ -4,6 +4,7 @@
  * Long runs go a few nodes or outages at a time with a pause between, so the page stays alive and Stop works.
  */
 import { el, field, numInput, select, table, download } from './ui.js';
+import { mountStudies } from './studies.js';
 
 const fx = (v, d = 1) => (Number.isFinite(v) ? Number(v).toLocaleString('en-US', { maximumFractionDigits: d }) : '–');
 
@@ -134,6 +135,8 @@ export function mountPanel(ctx, root) {
   qFold.addEventListener('toggle', refreshTrace);
   refreshTrace();
 
-  root.append(el('p', { className: 'wn-note' }, t('wn.numbers')), el('p', { className: 'wn-note' }, t('wn.privacy')), demands, fire, critFold, qFold, stopBtn, status);
-  ctx.run = { demandRun, fireRun, critRun, qRun, get last() { return { alloc: lastAlloc, fire: lastFire, crit: lastCrit, quality: lastQ }; }, set: { loads: (s) => { loadsBox.value = s; }, mode: (m) => { mode.value = m; }, trace: (id) => { traceSel.value = id; }, by: (v) => { by.value = v; } } };
+  root.append(el('p', { className: 'wn-note' }, t('wn.numbers')), el('p', { className: 'wn-note' }, t('wn.privacy')), demands, fire, critFold, qFold);
+  const studies = mountStudies(ctx, root, { say, needNet, errWords, fold });
+  root.append(stopBtn, status);
+  ctx.run = { studies, demandRun, fireRun, critRun, qRun, get last() { return { alloc: lastAlloc, fire: lastFire, crit: lastCrit, quality: lastQ }; }, set: { loads: (s) => { loadsBox.value = s; }, mode: (m) => { mode.value = m; }, trace: (id) => { traceSel.value = id; }, by: (v) => { by.value = v; } } };
 }

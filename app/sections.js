@@ -31,6 +31,7 @@
  */
 
 import { t } from './i18n.js';
+import { pointInPolygon as pip2d } from './geom2d.js';   // 0.11 PERF.74: one copy of the ray cast (lib/geom2d)
 
 export const MAX_SECTIONS = 2000;
 
@@ -248,7 +249,7 @@ export function regionSpans(line, regions) {
   const xs = [...ts].sort((m, n) => m - n), out = [];
   // inside, or on the outline (a section along a corridor's end edge is the corridor's end section)
   const onEdge = (x, y, r) => r.some((p, i) => { const q = r[(i + 1) % r.length], ex = q.x - p.x, ey = q.y - p.y, L = ex * ex + ey * ey, u = L ? Math.max(0, Math.min(1, ((x - p.x) * ex + (y - p.y) * ey) / L)) : 0; return Math.hypot(x - p.x - u * ex, y - p.y - u * ey) <= 1e-6 * Math.max(1, Math.sqrt(L)); });
-  const inside = (x, y) => (regions || []).some((r) => { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) if ((r[i].y > y) !== (r[j].y > y) && x < ((r[j].x - r[i].x) * (y - r[i].y)) / (r[j].y - r[i].y) + r[i].x) c = !c; return c || onEdge(x, y, r); });
+  const inside = (x, y) => (regions || []).some((r) => pip2d(x, y, r) || onEdge(x, y, r));
   for (let i = 1; i < xs.length; i++) {
     const tm = (xs[i - 1] + xs[i]) / 2;
     if (xs[i] - xs[i - 1] < 1e-12 || !inside(a.x + dx * tm, a.y + dy * tm)) continue;

@@ -1,0 +1,1941 @@
+{
+  "as_of": "2026-11-20",
+  "subject": "2025 California Building Standards Code (Cal. Code Regs., Title 24), effective 2026-01-01",
+  "parts_meta": {
+    "edition": "2025 California Building Standards Code (Cal. Code Regs., Title 24), 2024 Triennial Code Adoption Cycle",
+    "count": "13 parts (1, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12); CRC 1.1.1 and CEC 89.101.1 both say 'thirteen parts'",
+    "applies_to": "permit applications on or after 2026-01-01 (Health and Safety Code 18938.5; HCD IB 2025-03)",
+    "cycle_end": "2028-12-31 (BSC home page, via search summary; secondary)",
+    "intervening_cycle": "A 2025 Intervening Code Adoption Cycle is in progress (BSC rulemaking files for a 2026-08-25 commission meeting exist for Part 11 HCD 01/25 and Part 7 SFM 04/25). Publication and effective dates of the resulting supplement: unconfirmed.",
+    "ab_130": {
+      "fact": "AB 130 (Chapter 22, Statutes of 2025), effective 2025-06-30, sets a moratorium on new state and local building standards affecting residential units from 2025-10-01 to 2031-06-01, with listed exceptions (emergency health and safety standards, home hardening, and others). It amended Health and Safety Code 17958, 17958.5, 17958.7 and 18941.5.",
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2025/BSC-Bulletin-25-03-AB130-FINAL.pdf",
+      "read_in_source": true
+    },
+    "sources": [
+      "https://www.dgs.ca.gov/bsc/codes",
+      "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/ib-2025-03.pdf",
+      "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf",
+      "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2025/BSC-Bulletin-25-01-FINAL.pdf"
+    ]
+  },
+  "parts": [
+    {
+      "part": "1",
+      "name": "California Administrative Code",
+      "based_on": null,
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "california-only part (no model code); guide lists it as ICC-published",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAAC2025P1",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2024-12-17/19",
+      "errata": [],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes",
+      "notes": "A search summary said Part 1 took effect earlier than the rest (2025-04-06); not confirmed on a primary page: unconfirmed."
+    },
+    {
+      "part": "2 (Vol. 1 and 2)",
+      "name": "California Building Code",
+      "based_on": "IBC 2024",
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "indirect: BSC guide names ICC 2024 model codes for Parts 2, 2.5, 7, 9, 10; the exact words 'International Building Code 2024' were not read on a code page",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CABC2025P2",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2025-02-26/28",
+      "errata": [
+        {
+          "kind": "errata",
+          "volume": 1,
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Building-Code-Part-2-Vol-1-Errata-eff.-January-2026_COMPLETE.pdf"
+        },
+        {
+          "kind": "errata",
+          "volume": 2,
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Building-Code-Part-2-Vol-2-Errata-eff.-January-2026.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    },
+    {
+      "part": "2.5",
+      "name": "California Residential Code",
+      "based_on": "IRC 2024",
+      "based_on_source": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+      "based_on_confirmed": "read in source: History Note Appendix (errata page HIST-1) and CRC 1.1.1",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2025-02-26 (filed with Secretary of State 2025-03-07)",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes",
+      "rulemaking_files": "HCD 07/24, SFM 05/24",
+      "notes": "IRC Parts IV-VIII (energy, mechanical, fuel gas, plumbing, electrical; IRC chapters 11-43) are not printed/adopted in the CRC per the secondary viewer's table of contents; California uses Parts 6, 4, 5 and 3 of Title 24 instead. Not read on an official page: unconfirmed."
+    },
+    {
+      "part": "3",
+      "name": "California Electrical Code",
+      "based_on": "NEC 2023 (NFPA 70-2023)",
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "based_on_confirmed": "read in an official BSC document (California amendments file, preface)",
+      "publisher": "NFPA",
+      "free_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2024-12-17/19 (filed with Secretary of State 2025-01-10)",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/Errta-01012026-Pt3-CEC-locked.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes",
+      "california_amendments_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "california_amendments_revision": "2025-11-20 (from the file name)",
+      "viewer_note": "NFPA requires a user login for its free viewer (stated on the BSC codes page)."
+    },
+    {
+      "part": "4",
+      "name": "California Mechanical Code",
+      "based_on": "UMC 2024",
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "indirect: BSC guide points to the '2024 Uniform Mechanical and Plumbing Code' for Parts 4 and 5",
+      "publisher": "IAPMO",
+      "free_viewer_url": "https://epubs.iapmo.org/2025/CMC/index.html",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2024-12-17/19",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://iapmo.org/media/xqep1nos/2025-cmc-errata-packet.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    },
+    {
+      "part": "5",
+      "name": "California Plumbing Code",
+      "based_on": "UPC 2024",
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "indirect: as Part 4",
+      "publisher": "IAPMO",
+      "free_viewer_url": "https://epubs.iapmo.org/2025/CPC/",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2024-12-17/19",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://iapmo.org/media/akdnibyo/2025-cpc-errata-packet.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    },
+    {
+      "part": "6",
+      "name": "California Energy Code",
+      "based_on": null,
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "california-only part (no model code)",
+      "publisher": "ICC (standards written by the California Energy Commission)",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAEC2025P2",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2024-12-17/19",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Energy-Code-Part-6-Errata-eff.-January-2026.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [
+        {
+          "kind": "emergency supplement (blue pages)",
+          "effective": "2026-01-01",
+          "bsc_approved": "2025-10-15",
+          "filed": "2025-11-04",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Wildland-Urban-Code-Part-7-Emergency-Supplement-eff.-January-1-2026.pdf",
+          "scope": "Chapters 1, 2 and 5: extends Part 7 to High Fire Hazard Severity Zones in Local Responsibility Areas, defines home hardening, fixes open-eave clause 504.3.1",
+          "note": "Emergency standards last 180 days with two possible 90-day extensions unless made permanent (stated on the supplement record). Permanent status as of 2026-11-20: unconfirmed. The supplement's own cover line reads '2022 Title 24, Part 7' (a misprint on the record; the pages are 2025 CWUIC).",
+          "read_in_source": true
+        }
+      ],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    },
+    {
+      "part": "7",
+      "name": "California Wildland-Urban Interface Code",
+      "based_on": "IWUIC 2024",
+      "based_on_source": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Wildland-Urban-Code-Part-7-Emergency-Supplement-eff.-January-1-2026.pdf",
+      "based_on_confirmed": "read in source: History Note Appendix on the emergency supplement pages",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAWUIC2025P2",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2025-02-26 (filed 2025-03-07)",
+      "errata": [],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes",
+      "is_new_wui_code_in_2025": true,
+      "confirmation": "Confirmed. Part 7 of the 2025 edition is the California Wildland-Urban Interface Code (BSC codes page; HCD IB 2025-03; history note). It adopts IWUIC 2024 with amendments relocated from the CBC (former Chapter 7A), CRC (former R337) and CFC. CRC R337 is now only a user note pointing to Part 7, and CRC R102.7 applies Part 7 in WUI areas.",
+      "rulemaking_files": "SFM 08/24; emergency SFM EF 01/25"
+    },
+    {
+      "part": "8",
+      "name": "California Historical Building Code",
+      "based_on": null,
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "california-only part; carried forward from the 2022 edition without amendment (BSC guide)",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAHBC2025P1",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": null,
+      "errata": [],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes",
+      "notes": "Printed in a shared binder with Parts 10 and 12."
+    },
+    {
+      "part": "9",
+      "name": "California Fire Code",
+      "based_on": "IFC 2024",
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "indirect: as Part 2",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAFC2025P2",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2025-02-26/28",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Fire-Code-Part-9-Errata-eff.-January-2026.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    },
+    {
+      "part": "10",
+      "name": "California Existing Building Code",
+      "based_on": "IEBC 2024",
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "indirect: as Part 2",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAEBC2025P2",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2025-02-26/28",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Existing-Bldg-Code-Part-10-Errata-eff.-January-2026.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    },
+    {
+      "part": "11",
+      "name": "California Green Building Standards Code (CALGreen)",
+      "based_on": null,
+      "based_on_source": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+      "based_on_confirmed": "california-only part (no model code); history note read on errata page HIST-1",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CAGBC2025P3",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": "2024-12-17 (filed 2025-01-10)",
+      "errata": [
+        {
+          "kind": "errata",
+          "effective": "2026-01-01",
+          "url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+          "announced": "BSC Information Bulletin 26-01, 2026-03-03",
+          "announce_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2026/BSC-Information-Bulletin-26-01-Errata.pdf"
+        }
+      ],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes",
+      "rulemaking_files": "BSC 03/24, HCD 04/24, DSA-SS 03/24, CEC 02/24",
+      "notes": "HCD's CALGreen resources page links the viewer as CAGBC2025P1; the BSC codes page links CAGBC2025P3 (later printing)."
+    },
+    {
+      "part": "12",
+      "name": "California Referenced Standards Code",
+      "based_on": null,
+      "based_on_source": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "based_on_confirmed": "california-only part; no significant updates (BSC guide)",
+      "publisher": "ICC",
+      "free_viewer_url": "https://codes.iccsafe.org/content/CARSC2025P1",
+      "published": "2025-07-01",
+      "effective": "2026-01-01",
+      "bsc_approved": null,
+      "errata": [],
+      "supplements": [],
+      "source_url": "https://www.dgs.ca.gov/bsc/codes"
+    }
+  ],
+  "crc_checks_meta": {
+    "numbering": {
+      "finding": "The 2025 CRC kept the IRC 2024 chapter 3 numbering (R309 sprinklers, R310 smoke alarms, R311 CO alarms, R312 room areas, R313 ceiling height, R318 egress, R319 escape openings, R320 handrails, R321 guards, R325 light/ventilation). California-only sections sit at R300, R328 (aging-in-place; was R327 in the 2022 CRC), R334 to R340.",
+      "read_in_source": true,
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+      "where": "Chapter 3 Matrix Adoption Table and section headings on errata pages 3-1 to 3-4, 3-35 to 3-38, 3-83, 3-84"
+    },
+    "value_source_note": "Numeric values for building checks were read on up.codes' full-text copy of the 2025 CRC (a secondary source), so read_in_source is false for them. The official ICC viewer could not be read (see blocked_sources). Amendment status for chapter 3 was cross-checked against the official Matrix Adoption Table in the January 2026 errata PDF."
+  },
+  "crc_checks": [
+    {
+      "id": "stair.riser.max",
+      "pack_rule_id": "stair.riser.max",
+      "label": "Stair riser height, maximum",
+      "crc_clause": "R318.7.5.1",
+      "irc_2024_clause": "R318.7.5.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "7 3/4",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 196,
+        "mm_exact": 196.85
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.7.5.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Variation within a flight max 3/8 in (9.5 mm).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "stair.tread.min",
+      "pack_rule_id": "stair.tread.min",
+      "label": "Stair tread depth, minimum",
+      "crc_clause": "R318.7.5.2",
+      "irc_2024_clause": "R318.7.5.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "10",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 254
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.7.5.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Winders: 10 in at walkline, 6 in minimum anywhere (R318.7.5.2.1). Nosing 3/4 to 1 1/4 in unless tread is 11 in or more (R318.7.5.3).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "stair.width.min",
+      "pack_rule_id": "stair.width.min",
+      "label": "Stair clear width, minimum",
+      "crc_clause": "R318.7.1",
+      "irc_2024_clause": "R318.7.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "36",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 914
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.7.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "At and below handrail height: 31 1/2 in (787 mm) with one handrail, 27 in with two (the viewer prints 698 mm for 27 in; 27 in = 685.8 mm).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "stair.headroom.min",
+      "pack_rule_id": "stair.headroom.min",
+      "label": "Stair headroom, minimum",
+      "crc_clause": "R318.7.2",
+      "irc_2024_clause": "R318.7.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "6 ft 8 in",
+      "unit": "ft-in",
+      "value_si": {
+        "mm_printed": 2032
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.7.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "stair.rise.flight.max",
+      "pack_rule_id": null,
+      "label": "Flight vertical rise, maximum",
+      "crc_clause": "R318.7.3",
+      "irc_2024_clause": "R318.7.3",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "12 ft 7 in",
+      "unit": "ft-in",
+      "value_si": {
+        "mm_printed": 3835
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.7.3",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "stair.landing.depth.min",
+      "pack_rule_id": null,
+      "label": "Stair landing depth in direction of travel, minimum (straight run)",
+      "crc_clause": "R318.7.6",
+      "irc_2024_clause": "R318.7.6",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "36",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 914
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.7.6",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "stair.rail.height",
+      "pack_rule_id": "stair.rail.height",
+      "label": "Handrail height above nosing line",
+      "crc_clause": "R320.2",
+      "irc_2024_clause": "R320.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "34 to 38",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": [
+          864,
+          965
+        ]
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R320.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Handrail required on at least one side of flights with 4 or more risers (R318.7.8).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "guard.height.min",
+      "pack_rule_id": null,
+      "label": "Guard height, minimum",
+      "crc_clause": "R321.1.2",
+      "irc_2024_clause": "R321.1.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "42",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 1067
+      },
+      "amended_by_california": true,
+      "amendment_basis": "'42 inches (1067 mm)' is in California italics in the secondary full-text copy, and R321.1.2 is listed as an HCD amendment in the official Chapter 3 Matrix Adoption Table (errata page 3-2, read in source). The number itself was read on the secondary copy only.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R321.1.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "IRC 2024 value is 36 in (914 mm). California value 42 in. On open sides of stairs the guard may be 34 in (864 mm) above the nosing line; where the guard top is also the handrail, 34 to 38 in.",
+      "irc_2024_value": "36 in (914 mm)",
+      "amendment_status_read_in_source": true,
+      "amendment_status_source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "guard.required.drop",
+      "pack_rule_id": null,
+      "label": "Guard required where walking surface is higher than this above floor/grade below",
+      "crc_clause": "R321.1.1",
+      "irc_2024_clause": "R321.1.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "30",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 762
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R321.1.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Measured at any point within 36 in (914 mm) horizontally of the open edge.",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "guard.opening.max",
+      "pack_rule_id": null,
+      "label": "Guard opening, largest sphere that must not pass",
+      "crc_clause": "R321.1.3",
+      "irc_2024_clause": "R321.1.3",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "4",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 102
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R321.1.3",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Stair riser/tread/bottom-rail triangle: 6 in (153 mm). Open side of stairs: 4 3/8 in (111 mm).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "window.fall.sill",
+      "pack_rule_id": null,
+      "label": "Window fall protection trigger: sill lower than 24 in above floor and more than 72 in above grade",
+      "crc_clause": "R321.2.1",
+      "irc_2024_clause": "R321.2.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "24 / 72",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": [
+          610,
+          1829
+        ]
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R321.2.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "room.ceiling.min",
+      "pack_rule_id": "room.ceiling.min",
+      "label": "Ceiling height, habitable space and hallways, minimum",
+      "crc_clause": "R313.1",
+      "irc_2024_clause": "R313.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "7 ft",
+      "unit": "ft",
+      "value_si": {
+        "mm_printed": 2134
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R313.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Bathrooms, toilet rooms, laundry rooms: 6 ft 8 in (2032 mm). Sloped ceilings: 5 ft minimum and at least 50 percent of required area at 7 ft. Basement obstructions: 6 ft 4 in (1931 mm).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "room.light.min",
+      "pack_rule_id": "room.light.min",
+      "label": "Natural light: glazed area as share of room floor area, minimum",
+      "crc_clause": "R325.1.1",
+      "irc_2024_clause": "R325.1.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "8",
+      "unit": "percent of floor area",
+      "value_si": {
+        "pct": 8
+      },
+      "amended_by_california": false,
+      "amendment_basis": "Number not in italics in the secondary copy; R325.1.1 is listed as an HCD amendment in the official matrix because of an added exception only.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R325.1.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "The 8 percent figure is unamended. California added one exception (glazing may open into a passive solar energy collector), so the clause is listed as amended in the official matrix. Artificial-light exception: 6 footcandles (65 lux) at 30 in above floor.",
+      "clause_has_california_text": true,
+      "amendment_status_read_in_source": true,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "room.vent.min",
+      "pack_rule_id": "room.vent.min",
+      "label": "Natural ventilation: openable area as share of room floor area, minimum",
+      "crc_clause": "R325.1.2",
+      "irc_2024_clause": "R325.1.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "4",
+      "unit": "percent of floor area",
+      "value_si": {
+        "pct": 4
+      },
+      "amended_by_california": false,
+      "amendment_basis": "Number not in italics; clause listed as amended in the official matrix because of exception wording.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R325.1.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "The 4 percent figure is unamended. California changed the mechanical-ventilation exceptions to refer to the California Mechanical Code (0.35 air changes per hour whole-house system) and added a passive solar collector exception.",
+      "clause_has_california_text": true,
+      "amendment_status_read_in_source": true,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "bath.glazing.min",
+      "pack_rule_id": null,
+      "label": "Bathroom window glazing, minimum (half openable), unless artificial light plus exhaust",
+      "crc_clause": "R325.2",
+      "irc_2024_clause": "R325.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "3",
+      "unit": "sq ft",
+      "value_si": {
+        "m2_printed": 0.3
+      },
+      "amended_by_california": true,
+      "amendment_basis": "Exhaust rates are in California italics; R325.2 and R325.2.1 are listed as HCD amendments in the official matrix.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R325.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "3 sq ft is the IRC figure. California wrote the exhaust rates into the exception: 50 cfm (25 L/s) intermittent or 20 cfm (10 L/s) continuous, per California Mechanical Code Chapter 4. California-only R325.2.1: every bathroom with a tub or shower must have a mechanical exhaust fan (window alone does not count).",
+      "amendment_status_read_in_source": true,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "room.area.min",
+      "pack_rule_id": "room.area.min",
+      "label": "Habitable room floor area, minimum (kitchens exempt)",
+      "crc_clause": "R312.1",
+      "irc_2024_clause": "R312.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "70",
+      "unit": "sq ft",
+      "value_si": {
+        "m2_printed": 6.5
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R312.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "room.dim.min",
+      "pack_rule_id": "room.dim.min",
+      "label": "Habitable room least horizontal dimension, minimum (kitchens exempt)",
+      "crc_clause": "R312.2",
+      "irc_2024_clause": "R312.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "7",
+      "unit": "ft",
+      "value_si": {
+        "mm_printed": 2134
+      },
+      "amended_by_california": false,
+      "amendment_basis": "Number not in italics; clause listed as an HCD amendment in the official matrix because of an added exception only.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R312.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Value unamended. California added an exception for limited-density owner-built rural dwellings (R301.1.1.1), so the clause is listed as amended in the official matrix.",
+      "clause_has_california_text": true,
+      "amendment_status_read_in_source": true,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "hall.width.min",
+      "pack_rule_id": "hall.width.min",
+      "label": "Hallway width, minimum",
+      "crc_clause": "R318.6",
+      "irc_2024_clause": "R318.6",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "3",
+      "unit": "ft",
+      "value_si": {
+        "mm_printed": 914
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.6",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "door.egress.width.min",
+      "pack_rule_id": "door.egress.width.min",
+      "label": "Egress door clear width, minimum",
+      "crc_clause": "R318.2",
+      "irc_2024_clause": "R318.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "32",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 813
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "At least one side-hinged egress door per dwelling unit; measured door face to stop with door open 90 degrees.",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "door.egress.height.min",
+      "pack_rule_id": "door.egress.height.min",
+      "label": "Egress door clear height, minimum",
+      "crc_clause": "R318.2",
+      "irc_2024_clause": "R318.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "78",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 1981
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R318.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "escape.area.min",
+      "pack_rule_id": "escape.area.min",
+      "label": "Emergency escape and rescue opening net clear area, minimum",
+      "crc_clause": "R319.2.1",
+      "irc_2024_clause": "R319.2.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "5.7 (5.0 at grade floor)",
+      "unit": "sq ft",
+      "value_si": {
+        "m2_printed": [
+          0.53,
+          0.465
+        ]
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R319.2.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Required in basements, habitable attics and every sleeping room (R319.1). R319.1 carries State Fire Marshal exceptions (for example basements with ceiling under 80 in, or not over 200 sq ft with no habitable space).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "escape.height.min",
+      "pack_rule_id": "escape.height.min",
+      "label": "Emergency escape opening net clear height, minimum",
+      "crc_clause": "R319.2.2",
+      "irc_2024_clause": "R319.2.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "24",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 610
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R319.2.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "escape.width.min",
+      "pack_rule_id": "escape.width.min",
+      "label": "Emergency escape opening net clear width, minimum",
+      "crc_clause": "R319.2.2",
+      "irc_2024_clause": "R319.2.2",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "20",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 508
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R319.2.2",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "escape.sill.max",
+      "pack_rule_id": "escape.sill.max",
+      "label": "Emergency escape opening sill height above floor, maximum",
+      "crc_clause": "R319.2.3",
+      "irc_2024_clause": "R319.2.3",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "44",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 1118
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy, and the clause is not listed as amended by HCD in the official Chapter 3 Matrix Adoption Table (errata pages 3-1 to 3-4). Value equals IRC 2024.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R319.2.3",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Area wells: 9 sq ft minimum, 36 in minimum projection and width; ladder or steps if deeper than 44 in (R319.4).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "alarm.smoke.locations",
+      "pack_rule_id": "alarm.smoke.bedroom.min / alarm.smoke.story.min",
+      "label": "Smoke alarm locations",
+      "crc_clause": "R310.3",
+      "irc_2024_clause": "R310.3",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "each sleeping room; outside each sleeping area near the bedrooms; each additional story incl. basements and habitable attics; not less than 3 ft from a bathroom door with tub/shower; hallway plus adjoining room where that room's ceiling is 24 in or more higher; room a sleeping loft opens to",
+      "unit": "list",
+      "value_si": {
+        "mm_printed": {
+          "bathroom_door_distance": 914,
+          "ceiling_step": 610
+        }
+      },
+      "amended_by_california": true,
+      "amendment_basis": "List items are not in italics; the pointer to R310.3.3 and all of R310.3.3, R310.4, R310.6 are California text in the secondary copy. Section R310 is an SFM adoption in the official matrix (SFM amendments are not itemised there).",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R310.3",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "The location list matches IRC 2024. California (State Fire Marshal) adds R310.3.3, an NFPA 72 extract: 20 ft from fixed cooking appliances (10 ft for photoelectric or ionization with silence switch, 6 ft photoelectric in tight plans), 36 in from forced-air supply registers and ceiling fan blade tips, not in spaces below 40 F or above 100 F. Interconnection (R310.4) and power source (R310.6) are California text. Alarms must be State Fire Marshal listed.",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "alarm.co.locations",
+      "pack_rule_id": null,
+      "label": "Carbon monoxide alarm locations",
+      "crc_clause": "R311.3",
+      "irc_2024_clause": "R311.3",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "outside each sleeping area near the bedrooms; every occupiable level incl. basements; inside a bedroom that has a fuel-burning appliance in it or its bathroom",
+      "unit": "list",
+      "value_si": null,
+      "amended_by_california": true,
+      "amendment_basis": "'every occupiable level' is California italics; R311.2.1, R311.2.2, R311.3, R311.5, R311.6, R311.7.2 are listed as HCD amendments in the official matrix (read in source).",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R311.3",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-3-building-planning",
+      "read_in_source": false,
+      "note": "Required where the dwelling has a fuel-fired appliance or fireplace, or an attached garage with an opening into the dwelling (R311.2.1); California applies this to existing buildings too (Health and Safety Code 17926).",
+      "amendment_status_read_in_source": true,
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "found.footing.depth.min",
+      "pack_rule_id": "found.footing.depth.min",
+      "label": "Exterior footing depth below undisturbed ground, minimum",
+      "crc_clause": "R403.1.4",
+      "irc_2024_clause": "R403.1.4",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "12",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 305
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on this clause in the secondary full-text copy. The Chapter 4 matrix was not on the errata pages read, so amendment status is from the secondary copy only.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/4/foundations#R403.1.4",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-4-foundations",
+      "read_in_source": false,
+      "note": "Also below the frost line of Table R301.2 where frost applies (R403.1.4.1); Table R301.2 values are set by each local jurisdiction.",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "found.footing.width.min",
+      "pack_rule_id": "found.footing.width.min",
+      "label": "Concrete footing width, minimum",
+      "crc_clause": "R403.1.1",
+      "irc_2024_clause": "R403.1.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "12",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 305
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on the clause in the secondary copy; tables not compared.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/4/foundations#R403.1.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-4-foundations",
+      "read_in_source": false,
+      "note": "Actual width from Tables R403.1(1) to R403.1(3) by soil bearing value, stories and load; table cells were not compared cell by cell with IRC 2024: table values unconfirmed.",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "found.footing.thick.min",
+      "pack_rule_id": "found.footing.thick.min",
+      "label": "Concrete footing thickness, minimum",
+      "crc_clause": "R403.1.1",
+      "irc_2024_clause": "R403.1.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "6",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 152
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on the clause in the secondary copy.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/4/foundations#R403.1.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-4-foundations",
+      "read_in_source": false,
+      "note": "Footing projection 2 in minimum and not more than footing thickness.",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "found.slab.thick.min",
+      "pack_rule_id": "found.slab.thick.min",
+      "label": "Concrete slab-on-ground thickness, minimum",
+      "crc_clause": "R506.1",
+      "irc_2024_clause": "R506.1",
+      "crc_kept_irc_2024_numbering": true,
+      "value": "3 1/2",
+      "unit": "in",
+      "value_si": {
+        "mm_printed": 89,
+        "mm_exact": 88.9
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No California italics on the clause in the secondary copy.",
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/5/floors#R506.1",
+      "official_viewer_url": "https://codes.iccsafe.org/content/CARC2025P2/chapter-5-floors",
+      "read_in_source": false,
+      "note": "Vapor retarder 6 mil with 6 in laps (R506.3.3). On expansive soils the CRC sends design to California Building Code 1808.6 (R403.1.8, California reference).",
+      "group": "building (CRC, Part 2.5)"
+    },
+    {
+      "id": "elec.wall.spacing.max",
+      "pack_rule_id": "elec.wall.spacing.max",
+      "label": "Wall receptacle spacing: no point along the floor line farther than this from a receptacle",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(A)(1)",
+      "irc_2024_clause": null,
+      "value": "6",
+      "unit": "ft",
+      "value_si": {
+        "m": 1.8
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "Wall space counts from 2 ft (600 mm) wide (210.52(A)(2)). Floor receptacles count only within 18 in (450 mm) of the wall.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.counter.spacing.max",
+      "pack_rule_id": null,
+      "label": "Kitchen countertop: no point along the wall line farther than this from a receptacle",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(C)(1)",
+      "irc_2024_clause": null,
+      "value": "24",
+      "unit": "in",
+      "value_si": {
+        "mm": 600
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "Applies to countertop wall spaces 12 in (300 mm) or wider; receptacle not more than 20 in (500 mm) above the countertop (210.52(C)(3)). Two or more 20 A small-appliance circuits (210.11(C)(1), 210.52(B)): from general knowledge, unconfirmed here.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.bath.outlet.min",
+      "pack_rule_id": "elec.bath.outlet.min",
+      "label": "Bathroom: at least one receptacle within this distance of the outside edge of each basin",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(D)",
+      "irc_2024_clause": null,
+      "value": "3",
+      "unit": "ft",
+      "value_si": {
+        "mm": 900
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "Not more than 12 in (300 mm) below the top of the basin.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.outdoor.outlet.min",
+      "pack_rule_id": "elec.outdoor.outlet.min",
+      "label": "Outdoor receptacles, one- and two-family dwellings: one at front and one at back, not higher than this above grade",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(E)(1)",
+      "irc_2024_clause": null,
+      "value": "2 receptacles; 6 1/2 ft max height",
+      "unit": "count / ft",
+      "value_si": {
+        "count": 2,
+        "m": 2.0
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "Balconies, decks and porches reachable from inside: one receptacle not more than 6 1/2 ft above the surface (210.52(E)(3)).",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.laundry.outlet.min",
+      "pack_rule_id": "elec.laundry.outlet.min",
+      "label": "Laundry area receptacle, minimum",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(F)",
+      "irc_2024_clause": null,
+      "value": "1",
+      "unit": "count",
+      "value_si": {
+        "count": 1
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "CEC 210.50(C) (printed in the official California file): appliance receptacle within 6 ft (1.8 m) of the intended appliance location.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.garage.outlet.min",
+      "pack_rule_id": "elec.garage.outlet.min",
+      "label": "Garage receptacles: at least one per vehicle bay, not higher than this above the floor",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(G)(1)",
+      "irc_2024_clause": null,
+      "value": "1 per vehicle bay; 5 1/2 ft max height",
+      "unit": "count / ft",
+      "value_si": {
+        "count_per_bay": 1,
+        "m": 1.7
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "Applies to attached garages and detached garages with power. The secondary source prints 5 ft 6 in.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.hall.outlet.min",
+      "pack_rule_id": "elec.hall.outlet.min",
+      "label": "Hallway receptacle: at least one where the hallway is this long or longer",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(H)",
+      "irc_2024_clause": null,
+      "value": "1 receptacle; hallway 10 ft or more",
+      "unit": "count / ft",
+      "value_si": {
+        "count": 1,
+        "m": 3.0
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "note": "Measured along the centreline without passing through a doorway.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.foyer.outlet",
+      "pack_rule_id": null,
+      "label": "Foyers larger than 60 sq ft: receptacle in each wall space 3 ft or wider",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.52(I)",
+      "irc_2024_clause": null,
+      "value": "60 sq ft; 3 ft",
+      "unit": "sq ft / ft",
+      "value_si": {
+        "m2": 5.6,
+        "mm": 900
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.mikeholt.com/files/PDF/23_UNEC1_210.52.pdf",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    },
+    {
+      "id": "elec.light.room.min",
+      "pack_rule_id": "elec.light.room.min",
+      "label": "Lighting outlets: at least one switch-controlled lighting outlet in every habitable room, kitchen, laundry area and bathroom; also hallways, stairways, attached garages and detached garages with power, and at outdoor entrances; interior stairs with 6 or more risers need a control at each floor level and entry landing",
+      "code": "California Electrical Code 2025 (Title 24 Part 3)",
+      "cec_article": "210.70(A)",
+      "irc_2024_clause": null,
+      "value": "1 per listed space; 6 risers",
+      "unit": "count",
+      "value_si": {
+        "count": 1
+      },
+      "amended_by_california": false,
+      "amendment_basis": "No amendment to this article in the official BSC California-amendments file for the 2025 CEC (read in that official file).",
+      "amendment_source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+      "source_url": "https://www.ecmweb.com/national-electrical-code/code-qa-lighting-outlet-requirements",
+      "official_viewer_url": "https://link.nfpa.org/free-access/publications/70%20CA/2025",
+      "read_in_source": false,
+      "confidence": "secondary, partly unconfirmed",
+      "note": "In habitable rooms other than kitchens, laundry areas and bathrooms a switched receptacle may stand in for the lighting outlet. Wording summarised from trade commentary; laundry areas added in NEC 2023 per one secondary source: unconfirmed against the NEC text.",
+      "scope_note": "California Electrical Code (Part 3) = NEC 2023 with California amendments. The official BSC California-amendments file shows no California amendment to 210.52 or 210.70 (Article 210 amendments shown there: 210.12, and 210.50 with [DPH] items). CRC Part VIII (IRC chapters 34-43, E39xx clauses) is not used in California. NEC values below come from a secondary summary plus general knowledge; the NFPA free viewer needs a login and was not read.",
+      "group": "electrical (CEC, Part 3)"
+    }
+  ],
+  "california_only": [
+    {
+      "id": "sprinkler.required",
+      "label": "Automatic fire sprinklers required in new one- and two-family dwellings and townhouses",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R309.1, R309.2",
+      "value": "required",
+      "unit": "boolean",
+      "value_si": null,
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+      "read_in_source": true,
+      "note": "Not required for additions or alterations to buildings without sprinklers. ADU exception: detached ADU not over 1,200 sq ft (111.5 m2) on the same lot where the primary home has no sprinklers (Government Code 66313 definition). Design per R309 or NFPA 13D. IRC 2024 has the same R309 requirement; the ADU exception is California text. In the 2022 CRC this was R313."
+    },
+    {
+      "id": "sprinkler.adu.area.max",
+      "label": "Detached ADU floor area at or below which the sprinkler exception can apply",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R309.2 exception 2",
+      "value": "1200",
+      "unit": "sq ft",
+      "value_si": {
+        "m2": 111.5
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+      "read_in_source": true
+    },
+    {
+      "id": "guard.height.min",
+      "label": "Guard height minimum (IRC: 36 in)",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R321.1.2",
+      "value": "42",
+      "unit": "in",
+      "value_si": {
+        "mm": 1067
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R321.1.2",
+      "read_in_source": false,
+      "note": "See crc_checks. Amendment status read on the official matrix."
+    },
+    {
+      "id": "aging.grabbar.blocking.height",
+      "label": "Grab bar wall reinforcement band, at least one bathroom on the entry level: between these heights above finished floor",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R328.1.1",
+      "value": "32 to 39 1/4",
+      "unit": "in",
+      "value_si": {
+        "mm": [
+          812.8,
+          997
+        ]
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R328.1.1",
+      "read_in_source": false,
+      "note": "Reinforcement at least 2x8 nominal (1 1/2 in by 7 1/4 in actual). Tub: back-wall reinforcement for a lower bar with bottom edge not more than 6 in (152.4 mm) above the rim. Not needed in floors on concrete slab. R328 is California-only (HCD), listed in the official matrix; was R327 in the 2022 CRC."
+    },
+    {
+      "id": "aging.outlet.height",
+      "label": "Receptacles, switches and controls: top of box not above 48 in, bottom of box not below 15 in above finished floor",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R328.1.2",
+      "value": "15 to 48",
+      "unit": "in",
+      "value_si": {
+        "mm": [
+          381,
+          1219.2
+        ]
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R328.1.2",
+      "read_in_source": false,
+      "note": "Exceptions: dedicated and floor receptacles, controls on appliances and ceiling fans/lights, and required receptacles under a low built-in feature."
+    },
+    {
+      "id": "aging.door.clear.min",
+      "label": "Interior doorway net clear opening for at least one bathroom and one bedroom on the entry level, minimum",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R328.1.3",
+      "value": "32",
+      "unit": "in",
+      "value_si": {
+        "mm": 812.8
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R328.1.3",
+      "read_in_source": false,
+      "note": "Measured with the door open 90 degrees. Where no bathroom or bedroom is on the entry level, applies on the second or third floor."
+    },
+    {
+      "id": "aging.doorbell.height.max",
+      "label": "Doorbell button height above exterior floor or landing, maximum",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R328.1.4",
+      "value": "48",
+      "unit": "in",
+      "value_si": {
+        "mm": 1219.2
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R328.1.4",
+      "read_in_source": false
+    },
+    {
+      "id": "alarm.co.required",
+      "label": "Carbon monoxide alarms where the dwelling has a fuel-fired appliance, fireplace or attached garage; on every occupiable level and outside each sleeping area",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R311.2.1, R311.3",
+      "value": "required",
+      "unit": "boolean",
+      "value_si": null,
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R311.3",
+      "read_in_source": false,
+      "note": "R311 subsections are listed as HCD amendments on the official matrix (read in source)."
+    },
+    {
+      "id": "alarm.smoke.cooking.distance",
+      "label": "Smoke alarm distance from a fixed cooking appliance, minimum",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R310.3.3 (NFPA 72 extract, SFM)",
+      "value": "20 (10 for photoelectric or ionization with silence switch; 6 photoelectric in open plans)",
+      "unit": "ft",
+      "value_si": {
+        "m": [
+          6.1,
+          3.0,
+          1.8
+        ]
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R310.3.3",
+      "read_in_source": false
+    },
+    {
+      "id": "bath.exhaust.fan",
+      "label": "Each bathroom with a tub or shower needs a mechanical exhaust fan; ENERGY STAR fan ducted outside with humidity control adjustable from 50 percent or less up to 80 percent",
+      "code": "California Residential Code 2025 (Part 2.5) / CALGreen 2025 (Part 11)",
+      "clause": "R325.2.1; CALGreen 4.506.1",
+      "value": "required; 50 to 80",
+      "unit": "boolean / percent RH",
+      "value_si": null,
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code. Exhaust rates 50 cfm intermittent or 20 cfm continuous (CRC R325.2)."
+    },
+    {
+      "id": "bath.wall.finish.height",
+      "label": "Nonabsorbent wall finish above tubs with showerheads and in showers, minimum height above floor",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R327.2",
+      "value": "6",
+      "unit": "ft",
+      "value_si": {
+        "mm": 1829
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R327.2",
+      "read_in_source": false,
+      "note": "Same value as IRC 2024; listed here because R327 is where the California fixture-spacing reference (R327.1, California Plumbing Code) sits."
+    },
+    {
+      "id": "garage.door.dwelling",
+      "label": "Garage-to-dwelling door: solid wood or steel at least 1 3/8 in thick or 20-minute rated, self-latching with self-closing device",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R302.5.1",
+      "value": "1 3/8; 20",
+      "unit": "in / minutes",
+      "value_si": {
+        "mm": 35
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R302.5.1",
+      "read_in_source": false,
+      "note": "California adds an exception (text not recorded). IRC 2024 baseline for the self-closing requirement was not compared: unconfirmed whether self-closing is California-only."
+    },
+    {
+      "id": "balcony.vent",
+      "label": "Enclosed framing in exterior balconies and elevated walking surfaces exposed to water: net free cross-ventilation area, minimum share of each enclosed space",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R304.1.3",
+      "value": "1/150",
+      "unit": "ratio of area",
+      "value_si": {
+        "ratio": 0.006667
+      },
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R304.1.3",
+      "read_in_source": false,
+      "note": "California text (HCD), listed on the official matrix."
+    },
+    {
+      "id": "design.professional.stories",
+      "label": "Stamp by a California licensed architect or engineer required for wood-frame dwellings above this height",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R301.1.3.2",
+      "value": "more than 2 stories and basement",
+      "unit": "stories",
+      "value_si": null,
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R301.1.3.2",
+      "read_in_source": false,
+      "note": "Also for any portion that departs from conventional framing (R301.1.3.1) and for cold-formed steel, concrete, masonry or SIP structural elements (R301.1.3.3). Business and Professions Code 5537 and 6737.1."
+    },
+    {
+      "id": "waste.diversion.min",
+      "label": "Construction and demolition waste recycled or salvaged, minimum",
+      "code": "CALGreen 2025 (Part 11) / California Residential Code 2025 (Part 2.5)",
+      "clause": "4.408.1; CRC R334.1",
+      "value": "65",
+      "unit": "percent",
+      "value_si": {
+        "pct": 65
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+      "read_in_source": true,
+      "note": "Alternative: landfill waste not over 3.4 lb/sq ft (low-rise, 4.408.4) or 2 lb/sq ft (4.408.4.1) of building area."
+    },
+    {
+      "id": "ev.capable.1-2family",
+      "label": "EV capable: new one- and two-family dwellings and townhouses with attached private garages: listed raceway for a dedicated 208/240 V branch circuit per dwelling unit; panel capacity for a 40 A minimum circuit",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.106.4.1",
+      "value": "raceway trade size 1 (1 in nominal inside diameter) minimum; 40 A; 208/240 V",
+      "unit": "in / A / V",
+      "value_si": {
+        "mm": 25.4,
+        "amp": 40
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code. Raceway not required if a 40 A 208/240 V dedicated EV circuit is installed. Panel directory and raceway end marked 'EV CAPABLE' (4.106.4.1.1). ADUs and JADUs without added parking are exempt (4.106.4 exception 2)."
+    },
+    {
+      "id": "ev.multifamily",
+      "label": "EV, new multifamily: one low power Level 2 EV charging receptacle per dwelling unit with parking; plus 25 percent of unassigned/common spaces not already served get Level 2 EV chargers",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.106.4.2.2",
+      "value": "1 per dwelling unit; 25",
+      "unit": "count / percent",
+      "value_si": {
+        "pct": 25
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code. Charger circuits 40 A minimum with chargers not less than 30 A; load management must deliver at least 3.3 kW per station. Hotels and motels: 40 percent receptacles and 25 percent chargers (4.106.4.2.6)."
+    },
+    {
+      "id": "ev.space.size",
+      "label": "EV charging station space with charger: minimum length and width",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.106.4.2.2.1.1",
+      "value": "18 x 9",
+      "unit": "ft",
+      "value_si": {
+        "mm": [
+          5486,
+          2743
+        ]
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+      "read_in_source": true,
+      "note": "One in every 25 such spaces (at least one) also needs an 8 ft (2438 mm) aisle, or 5 ft (1524 mm) aisle if the space is 12 ft (3658 mm) wide; slope not over 1:48 (2.083 percent)."
+    },
+    {
+      "id": "bike.parking",
+      "label": "Bicycle parking, multifamily: short-term 1 space per 10,000 sq ft (at least 2) within 200 ft of an entrance; long-term 1 space per 2 dwelling units",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.106.4.4.1, 4.106.4.4.2",
+      "value": "1 per 10,000 sq ft (min 2); 200 ft; 1 per 2 units",
+      "unit": "count / ft",
+      "value_si": {
+        "m2_per_space": 929,
+        "m": 61
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+      "read_in_source": true,
+      "note": "Hotels and motels long-term: 1 per 25,000 sq ft, at least 2 (4.106.4.4.3)."
+    },
+    {
+      "id": "plumb.wc.flush.max",
+      "label": "Water closet flush volume, maximum",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.303.1.1",
+      "value": "1.28",
+      "unit": "gal/flush",
+      "value_si": {
+        "L_per_flush": 4.85
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code."
+    },
+    {
+      "id": "plumb.urinal.flush.max",
+      "label": "Urinal flush volume, maximum: wall mounted / other",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.303.1.2",
+      "value": "0.125 / 0.5",
+      "unit": "gal/flush",
+      "value_si": {
+        "L_per_flush": [
+          0.47,
+          1.89
+        ]
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code."
+    },
+    {
+      "id": "plumb.shower.flow.max",
+      "label": "Showerhead flow rate at 80 psi, maximum (multiple heads on one valve: combined)",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.303.1.3.1, 4.303.1.3.2",
+      "value": "1.8",
+      "unit": "gpm at 80 psi",
+      "value_si": {
+        "L_per_min": 6.81,
+        "kPa": 552
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code."
+    },
+    {
+      "id": "plumb.lav.flow",
+      "label": "Residential lavatory faucet flow: maximum at 60 psi / minimum at 20 psi",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.303.1.4.1",
+      "value": "1.2 max / 0.8 min",
+      "unit": "gpm",
+      "value_si": {
+        "L_per_min": [
+          4.54,
+          3.03
+        ]
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code. Common and public use areas: 0.5 gpm at 60 psi (4.303.1.4.2). Metering faucets: 0.2 gal per cycle (4.303.1.4.3)."
+    },
+    {
+      "id": "plumb.kitchen.flow.max",
+      "label": "Kitchen faucet flow rate at 60 psi, maximum",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.303.1.4.4",
+      "value": "1.8 (temporary 2.2 allowed, must default back to 1.8)",
+      "unit": "gpm at 60 psi",
+      "value_si": {
+        "L_per_min": [
+          6.81,
+          8.33
+        ]
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code."
+    },
+    {
+      "id": "slab.capillary.break",
+      "label": "Capillary break under slabs that need a vapor retarder: clean aggregate base thickness and aggregate size",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.505.2.1",
+      "value": "4 in thick base of 1/2 in or larger aggregate",
+      "unit": "in",
+      "value_si": {
+        "mm": [
+          101.6,
+          12.7
+        ]
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code. Or an equivalent approved design."
+    },
+    {
+      "id": "framing.moisture.max",
+      "label": "Wall and floor framing moisture content before enclosure, maximum",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.505.3",
+      "value": "19",
+      "unit": "percent",
+      "value_si": {
+        "pct": 19
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code."
+    },
+    {
+      "id": "flooring.resilient.voc",
+      "label": "Resilient flooring area meeting the CDPH emission standard, minimum share",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.504.4",
+      "value": "80",
+      "unit": "percent of resilient floor area",
+      "value_si": {
+        "pct": 80
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+      "read_in_source": true
+    },
+    {
+      "id": "recycling.area.units",
+      "label": "Occupant recycling area required where this many multifamily units or more are built on a site",
+      "code": "CALGreen 2025 (Part 11)",
+      "clause": "4.410.2",
+      "value": "5",
+      "unit": "dwelling units",
+      "value_si": {
+        "count": 5
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Green-Code-Part-11-Errata-eff.-January-2026.pdf",
+      "read_in_source": true
+    },
+    {
+      "id": "stormwater.site",
+      "label": "Sites disturbing less than this area must still manage construction storm water",
+      "code": "CALGreen 2025 (Part 11) / California Residential Code 2025 (Part 2.5)",
+      "clause": "4.106.2; CRC R300.1",
+      "value": "1",
+      "unit": "acre",
+      "value_si": {
+        "m2": 4047
+      },
+      "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-625.pdf",
+      "read_in_source": false,
+      "note": "Read on HCD's official summary form SHL 625 (Rev. 11/25), not on a page of the code."
+    },
+    {
+      "id": "wui.applies",
+      "label": "Buildings in a wildland-urban interface area must meet Part 7 Chapter 5 (ignition-resistant construction)",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7) / California Residential Code 2025 (Part 2.5)",
+      "clause": "CRC R102.7, R337 user note; CWUIC 501.1, 503.1",
+      "value": "required",
+      "unit": "boolean",
+      "value_si": null,
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+      "read_in_source": true,
+      "note": "Exempt: Group U accessory structures not over 120 sq ft (11 m2) at least 50 ft (15 240 mm) from applicable buildings; Group U agricultural buildings at least 50 ft away (CWUIC 501.1, read on emergency supplement pages). WUI area mapping is by State Fire Marshal Fire Hazard Severity Zones; a model needs the site's zone as an input."
+    },
+    {
+      "id": "wui.roof.class",
+      "label": "Roof assembly fire classification in WUI areas",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.2",
+      "value": "Class A",
+      "unit": "classification (ASTM E108 / UL 790)",
+      "value_si": null,
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Wildland-Urban-Code-Part-7-Emergency-Supplement-eff.-January-1-2026.pdf",
+      "read_in_source": true,
+      "note": "Valley flashing at least 0.019 in (0.48 mm, No. 26 gage) over a 36 in (914 mm) wide cap-sheet underlayment (504.2.2)."
+    },
+    {
+      "id": "wui.wall.flashing.min",
+      "label": "Metal or noncombustible flashing at ground, deck and roof intersections of exterior walls, minimum vertical height",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.5.1",
+      "value": "6",
+      "unit": "in",
+      "value_si": {
+        "mm": 152
+      },
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Wildland-Urban-Code-Part-7-Emergency-Supplement-eff.-January-1-2026.pdf",
+      "read_in_source": true
+    },
+    {
+      "id": "wui.material.flamespread.max",
+      "label": "Ignition-resistant building material flame spread index, maximum",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "503.2.4.1",
+      "value": "25",
+      "unit": "index",
+      "value_si": null,
+      "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Wildland-Urban-Code-Part-7-Emergency-Supplement-eff.-January-1-2026.pdf",
+      "read_in_source": true,
+      "note": "Flame front not beyond 10 ft 6 in (3200 mm) in the extended test (503.2.4.2)."
+    },
+    {
+      "id": "wui.vent.mesh",
+      "label": "Vent mesh opening size for roof-slope vents (prescriptive path): minimum and maximum",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.10.2",
+      "value": "1/16 to 1/8",
+      "unit": "in",
+      "value_si": {
+        "mm": [
+          1.6,
+          3.2
+        ]
+      },
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/03-Rulemaking/2024-Triennial-Cycle/Commission-Meetings/2025-02-26/SFM-08-24-FET-PT7.docx",
+      "read_in_source": false,
+      "note": "Read on the SFM Final Express Terms (official rulemaking file), not on a published code page. Mesh and vent noncombustible and corrosion resistant. Performance path: SFM-listed or ASTM E2886 vents (504.10.1)."
+    },
+    {
+      "id": "wui.vent.lotline.min",
+      "label": "Gable-end and dormer vents: distance from lot lines, minimum",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.10.3",
+      "value": "10",
+      "unit": "ft",
+      "value_si": {
+        "mm": 3048
+      },
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/03-Rulemaking/2024-Triennial-Cycle/Commission-Meetings/2025-02-26/SFM-08-24-FET-PT7.docx",
+      "read_in_source": false,
+      "note": "Read on the Final Express Terms only."
+    },
+    {
+      "id": "wui.garage.gap.max",
+      "label": "Garage door perimeter gap, maximum",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.9.2",
+      "value": "1/8",
+      "unit": "in",
+      "value_si": {
+        "mm": 3.2
+      },
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/03-Rulemaking/2024-Triennial-Cycle/Commission-Meetings/2025-02-26/SFM-08-24-FET-PT7.docx",
+      "read_in_source": false,
+      "note": "Read on the Final Express Terms only. Garage door openers need battery backup (504.9.1)."
+    },
+    {
+      "id": "wui.skylight.mesh.max",
+      "label": "Operable skylight screen opening, maximum",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.8.2",
+      "value": "1/8",
+      "unit": "in",
+      "value_si": {
+        "mm": 3.2
+      },
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/03-Rulemaking/2024-Triennial-Cycle/Commission-Meetings/2025-02-26/SFM-08-24-FET-PT7.docx",
+      "read_in_source": false,
+      "note": "Read on the Final Express Terms only. Exterior glazing: at least one tempered pane in multilayer units, glass block, 20-minute rated, or SFM 12-7A-2 (504.8)."
+    },
+    {
+      "id": "wui.accessory",
+      "label": "Accessory buildings near an applicable building: under 3 ft any size; over 120 sq ft between 3 ft and 50 ft: noncombustible or ignition-resistant construction",
+      "code": "California Wildland-Urban Interface Code 2025 (Part 7)",
+      "clause": "504.11.2, 504.11.3",
+      "value": "3; 50; 120",
+      "unit": "ft / sq ft",
+      "value_si": {
+        "mm": [
+          914,
+          15240
+        ],
+        "m2": 11.15
+      },
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/03-Rulemaking/2024-Triennial-Cycle/Commission-Meetings/2025-02-26/SFM-08-24-FET-PT7.docx",
+      "read_in_source": false,
+      "note": "Read on the Final Express Terms only."
+    },
+    {
+      "id": "criteria.frost",
+      "label": "Frost depth, snow load, wind speed, seismic design category: no statewide number; each jurisdiction fills CRC Table R301.2",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "Table R301.2; R403.1.4.1",
+      "value": "set locally",
+      "unit": "n/a",
+      "value_si": null,
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/3/building-planning#R301.2",
+      "read_in_source": false,
+      "note": "A checker needs the local Table R301.2 values. Footings go below the local frost line where frost applies."
+    },
+    {
+      "id": "criteria.seismic.footings",
+      "label": "Seismic Design Categories D0, D1, D2: continuous footings under exterior walls and required interior braced wall panels, with minimum footing and stem wall reinforcement",
+      "code": "California Residential Code 2025 (Part 2.5)",
+      "clause": "R403.1.2, R403.1.3",
+      "value": "required in SDC D0-D2",
+      "unit": "boolean",
+      "value_si": null,
+      "source_url": "https://up.codes/viewer/california/ca-residential-code-2025/chapter/4/foundations#R403.1.2",
+      "read_in_source": false,
+      "note": "Bar sizes and Table R403.1.2 cells not recorded: unconfirmed. Irregular buildings in SDC C to D2 need engineered design (R301.2.2.6). Most of California is SDC D or higher: general knowledge, unconfirmed."
+    },
+    {
+      "id": "solar.ready",
+      "label": "Solar-ready zones and the new-home photovoltaic requirement are in the California Energy Code (Part 6), not the CRC; CRC R329 covers installation and roof access pathways only",
+      "code": "California Residential Code 2025 (Part 2.5) / California Energy Code",
+      "clause": "CRC R329; Energy Code 110.10 and 150.1(c)14 (section numbers from general knowledge)",
+      "value": "unconfirmed",
+      "unit": "n/a",
+      "value_si": null,
+      "source_url": "https://codes.iccsafe.org/content/CAEC2025P2",
+      "read_in_source": false,
+      "note": "Part 6 was not read in this pass: section numbers and values unconfirmed.",
+      "confidence": "unconfirmed"
+    }
+  ],
+  "copyright": {
+    "scope": "Facts and citations only. Not advice.",
+    "publishers": {
+      "ICC": "publishes Parts 1, 2, 2.5, 6, 7, 8, 9, 10, 11, 12",
+      "IAPMO": "publishes Parts 4 and 5",
+      "NFPA": "publishes Part 3",
+      "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/05-Resources/Guidebooks/2025-Title-24-CA-Code-Changes---New-07-25.pdf",
+      "read_in_source": true
+    },
+    "copyright_holders": [
+      {
+        "fact": "The printed copyright notices of the 2025 parts could not be read: the ICC viewer blocked automated access and the errata PDFs carry no copyright page.",
+        "status": "unconfirmed"
+      },
+      {
+        "fact": "The official California amendments file for Part 3 describes the NEC as 'authored and published by the National Fire Protection Association' and marks the title line with a copyright sign after 'National Electrical Code'.",
+        "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/02-Codes/2025-CEC_rev2025-11-20_locked.docx",
+        "read_in_source": true
+      },
+      {
+        "fact": "Older BSC publication agreements posted by Public.Resource.Org are reported to name the Commission as sole copyright owner of the California-only parts (for example the 2008 Part 11, and Parts 1, 6, 7, 8, 12) and to license ICC to publish the model-code-based parts. From a search summary; the agreements were not opened, and they predate the 2025 edition.",
+        "source_url": "https://law.resource.org/pub/us/cfr/regulations.gov.foia/bsc.ca.gov.20161209/",
+        "status": "unconfirmed"
+      },
+      {
+        "fact": "Model codes (IBC, IRC, IFC, IEBC, IWUIC by ICC; UMC, UPC by IAPMO; NEC by NFPA) are published under their developers' copyright claims; ICC runs a copyright permission request process.",
+        "source_url": "https://www.iccsafe.org/about/copyright/",
+        "read_in_source": true
+      }
+    ],
+    "free_viewer_terms": [
+      {
+        "viewer": "ICC Digital Codes (codes.iccsafe.org)",
+        "fact": "Free access is read-only; the page shell states printing needs a Digital Codes Premium subscription. The U.S. Copyright Office case summary describes ICC as giving 'free, read-only access'. Full terms of use not read (captcha).",
+        "source_url": "https://www.copyright.gov/fair-use/summaries/intlcodecouncil-upcodes-sdny2020.pdf",
+        "terms_read": false
+      },
+      {
+        "viewer": "NFPA free access (link.nfpa.org)",
+        "fact": "Requires creating a user login (stated on the BSC codes page). Terms not read.",
+        "source_url": "https://www.dgs.ca.gov/bsc/codes",
+        "terms_read": false
+      },
+      {
+        "viewer": "IAPMO ePubs (epubs.iapmo.org)",
+        "fact": "Page-image flipbook viewer reachable without login. Terms not read.",
+        "source_url": "https://epubs.iapmo.org/2025/CPC/",
+        "terms_read": false
+      },
+      {
+        "viewer": "State Document Depository Libraries",
+        "fact": "BSC states Title 24 is viewable at no cost through several State Document Depository Libraries.",
+        "source_url": "https://www.dgs.ca.gov/bsc/codes",
+        "read_in_source": true
+      }
+    ],
+    "california_statutes": [
+      {
+        "cite": "Health and Safety Code 18942",
+        "fact": "(a) Commission publishes the code in full every three years, with supplements in between and separate emergency supplements. (d) The Commission may itself print and sell the code and incorporated materials only if they are not readily or reasonably available to the public; each state department concerned and each city and county must keep a current copy available for public inspection. (e) Each city and county must hold at least one current copy of Titles 8, 19, 20, 24 and 25 standards in the building official's office.",
+        "source_url": "https://california.public.law/codes/health_and_safety_code_section_18942",
+        "note": "Read on a third-party rendering; leginfo.legislature.ca.gov returned 403."
+      },
+      {
+        "cite": "Health and Safety Code 18938.5",
+        "fact": "Only building standards in effect when the permit application is made apply to the project.",
+        "source_url": "https://www.iccsafe.org/wp-content/uploads/errata_central/2025-California-Residential-Code-Part-2.5-Errata-eff.-January-2026.pdf",
+        "note": "As described on the official errata record."
+      },
+      {
+        "cite": "Health and Safety Code 18928, 18928.1",
+        "fact": "Model code adoption and publication provisions; one older publication agreement cites 18928.1. Text not read.",
+        "status": "unconfirmed"
+      },
+      {
+        "cite": "Health and Safety Code 17913",
+        "fact": "HCD notice duty for code adoptions and changes (cited in HCD IB 2025-03).",
+        "source_url": "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/ib-2025-03.pdf"
+      },
+      {
+        "cite": "AB 130 (Stats. 2025, ch. 22)",
+        "fact": "Residential building standards moratorium 2025-10-01 to 2031-06-01; see parts_meta.ab_130.",
+        "source_url": "https://www.dgs.ca.gov/-/media/Divisions/BSC/06-News/Information-Bulletins/2025/BSC-Bulletin-25-03-AB130-FINAL.pdf"
+      }
+    ],
+    "case_law": [
+      {
+        "cite": "International Code Council, Inc. v. UpCodes, Inc., No. 17 Civ. 6261 (VM), 2020 U.S. Dist. LEXIS 92324 (S.D.N.Y. May 27, 2020)",
+        "fact": "On cross-motions for summary judgment the court concluded model codes as adopted into law are likely in the public domain and that posting them verbatim was fair use; fact disputes remained on redline versions showing unadopted model text offered to paying users.",
+        "source_url": "https://www.copyright.gov/fair-use/summaries/intlcodecouncil-upcodes-sdny2020.pdf",
+        "read": "U.S. Copyright Office summary",
+        "later_history": "A Second Circuit docket No. 21-826 exists; outcome and the current status of the S.D.N.Y. case: unconfirmed."
+      },
+      {
+        "cite": "American Society for Testing & Materials v. UpCodes, Inc., 172 F.4th 253 (3d Cir. 2026) (No. 24-2965, decided 2026-04-07)",
+        "fact": "Affirmed denial of a preliminary injunction: UpCodes was likely to succeed on fair use for posting, free and verbatim, ASTM standards incorporated by reference into law (via the 2018 IBC as adopted). Preliminary-injunction stage, not a final judgment.",
+        "source_url": "https://www.copyright.gov/fair-use/summaries/ASTM-v-UpCodes-Inc-172-F-4th-253-3d-Cir-2026.pdf",
+        "opinion_url": "https://www2.ca3.uscourts.gov/opinarch/242965p.pdf",
+        "read": "U.S. Copyright Office summary and opinion text"
+      },
+      {
+        "cite": "American Society for Testing & Materials v. Public.Resource.Org, Inc., 82 F.4th 1262 (D.C. Cir. 2023); earlier 896 F.3d 437 (D.C. Cir. 2018)",
+        "fact": "Non-commercial posting of standards incorporated by reference into law held fair use (2023). Followed by the Third Circuit in 2026 per a secondary report.",
+        "source_url": "https://www.lawnext.com/2026/04/third-circuit-rules-that-upcodes-publication-of-incorporated-building-standards-is-likely-fair-use.html",
+        "status": "citation from general knowledge; opinion not opened in this pass"
+      },
+      {
+        "cite": "Veeck v. Southern Building Code Congress International, 293 F.3d 791 (5th Cir. 2002) (en banc)",
+        "fact": "Model building codes, once enacted as law, could be copied as 'the law' of the enacting jurisdictions.",
+        "status": "citation from general knowledge; not opened in this pass"
+      },
+      {
+        "cite": "Georgia v. Public.Resource.Org, Inc., 590 U.S. 255 (2020)",
+        "fact": "Government edicts doctrine: works authored by judges and legislators in the course of official duties are not copyrightable. Concerned annotations authored by a legislative body, not privately authored model codes.",
+        "status": "citation from general knowledge; not opened in this pass"
+      },
+      {
+        "cite": "Building Officials & Code Administrators v. Code Technology, Inc., 628 F.2d 730 (1st Cir. 1980)",
+        "fact": "Early case doubting enforceable copyright in a model code adopted as state law.",
+        "status": "citation from general knowledge; not opened in this pass"
+      },
+      {
+        "cite": "County of Santa Clara v. Superior Court (2009) 170 Cal.App.4th 1301",
+        "fact": "California public agencies may claim copyright in public records only where a statute expressly allows it (Public Records Act context).",
+        "status": "citation from general knowledge; relevance to Title 24 not established; not opened in this pass"
+      }
+    ],
+    "pending_legislation": [
+      {
+        "name": "Pro Codes Act (federal)",
+        "fact": "Bills have been introduced to preserve copyright in standards incorporated by reference while requiring free online viewing. Status as of 2026-11-20: unconfirmed."
+      }
+    ],
+    "secondary_republishers": [
+      {
+        "name": "UpCodes",
+        "fact": "Hosts a full-text copy of the 2025 CRC; its 2025 CALGreen chapters sit behind a free-account wall; no 2025 California Electrical Code or Part 7 viewer found at the guessed addresses.",
+        "source_url": "https://up.codes/viewer/california/ca-residential-code-2025"
+      }
+    ],
+    "pack_practice_note": "This file records numbers, units, clause numbers and own-word labels only; no code text was copied into it."
+  },
+  "blocked_sources": [
+    {
+      "source": "codes.iccsafe.org (official ICC viewer for Parts 1, 2, 2.5, 6-12)",
+      "result": "HTTP 403 to the fetch tool; captcha page to a plain download. Internet Archive copies exist but are empty page shells without code text.",
+      "effect": "No value was read on the official viewer. CRC values come from up.codes; official PDFs (errata, emergency supplement) were used where they print the clause."
+    },
+    {
+      "source": "link.nfpa.org free access (Part 3)",
+      "result": "login required; not attempted",
+      "effect": "NEC 2023 values from a secondary summary; California amendment status from the official BSC amendments file."
+    },
+    {
+      "source": "nfpa.org free-access information page",
+      "result": "HTTP 404 at the address tried",
+      "effect": "NFPA viewer terms not read."
+    },
+    {
+      "source": "leginfo.legislature.ca.gov",
+      "result": "HTTP 403",
+      "effect": "Health and Safety Code 18942 read on california.public.law instead."
+    },
+    {
+      "source": "up.codes 2025 CALGreen chapter 4",
+      "result": "free-account wall",
+      "effect": "CALGreen values from HCD's official summary form and the official errata pages."
+    },
+    {
+      "source": "up.codes 2025 California Electrical Code and Part 7",
+      "result": "HTTP 404 at guessed addresses",
+      "effect": "none beyond the above"
+    },
+    {
+      "source": "epubs.iapmo.org (Parts 4 and 5)",
+      "result": "reachable, but pages are images in a flipbook; not parsed",
+      "effect": "No plumbing or mechanical code values recorded from Parts 4 and 5."
+    },
+    {
+      "source": "energy.ca.gov / Part 6",
+      "result": "not visited in this pass",
+      "effect": "Solar-ready and PV items left unconfirmed."
+    },
+    {
+      "source": "osfm.fire.ca.gov",
+      "result": "no page found by search; not fetched",
+      "effect": "Part 7 facts come from BSC rulemaking files and the ICC-hosted emergency supplement."
+    }
+  ],
+  "notes": [
+    "Main finding: of the checks listed, California changed one number: guard height is 42 in (IRC 2024: 36 in), CRC R321.1.2. All other listed building values equal IRC 2024, though several clauses carry added California exceptions or references.",
+    "The 2025 CRC keeps IRC 2024 chapter 3 numbering. Aging-in-place is R328 (not R327); sprinklers are R309 (not R313); WUI materials left the CRC for Part 7 (R337 is a pointer only).",
+    "Receptacle and lighting-outlet rules come from the California Electrical Code (NEC 2023), with no California amendment to 210.52 or 210.70; the IRC E39xx clause numbers in the us-irc-2024 pack do not apply in California. CRC R328.1.2 adds outlet and switch heights (15 to 48 in).",
+    "read_in_source is true only where the value or status was seen on an official code page (errata buff pages, emergency supplement blue pages) or, for edition facts, on an official BSC/HCD document. up.codes readings, HCD summary forms and rulemaking express terms are marked false.",
+    "California amendments were identified on up.codes by its italic styling of California text, then cross-checked for chapter 3 against the official Matrix Adoption Table. Chapters 4 and 5 were not cross-checked against a matrix.",
+    "Footing tables R403.1(1)-(3), framing span tables and energy values were not compared with IRC 2024 in this pass. California energy values come from Part 6, not IRC chapter 11.",
+    "SI figures under mm_printed / m2_printed are the code's own printed conversions; other SI figures are computed here.",
+    "Local amendments: cities and counties may amend Title 24 for local climatic, geological or topographical conditions with findings filed with BSC; AB 130 restricts new residential amendments from 2025-10-01 to 2031-06-01.",
+    "Errata and the checked clauses: the January 2026 CRC errata replaced chapter 3 pages 3-1 to 3-4 (matrix), 3-23/24 (R302), 3-35 to 3-38 and 3-41 to 3-46 (R305 to R309 sprinkler text) and 3-83/84 (R336 to R340). None of the checked clauses R310 to R328 is on a replaced page, so the errata did not change them."
+  ]
+}

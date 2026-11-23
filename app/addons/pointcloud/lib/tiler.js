@@ -68,7 +68,7 @@ async function openSource(source) {
       run: async (onPoint, o) => {
         const cb = (x, y, z, c) => onPoint(x, y, z, c, null);
         if (h.compressed && typeof las.lazPerf === 'function' && !(o && o.wholeFile)) {
-          try { return await scanLazChunks(source, h, cb, { ...o, lazPerf: () => las.lazPerf() }); }
+          try { return await scanLazChunks(source, h, cb, { ...o, lazPerf: () => las.lazPerf(), threads: o && o.lazThreads != null ? o.lazThreads : 1, workerInit: o && o.lazWorkerInit || null, spawnWorker: o && o.lazSpawnWorker || null }); }
           catch (e) { if (e.code !== 'laz_stream_unsupported') throw e; }
         }
         return las.scanPoints(source, h, cb, o);
@@ -205,7 +205,7 @@ export async function buildCloud(source, store, opts = {}) {
     };
     let err = null;
     try {
-      await src.run(onPoint, { signal, wholeFile: !!opts.wholeFile, progress: (f) => { rep(f * 0.4, 'read'); if (opts.onSlice) opts.onSlice(seen); } });
+      await src.run(onPoint, { signal, wholeFile: !!opts.wholeFile, lazThreads: opts.lazThreads != null ? opts.lazThreads : (st.count >= 4e6 ? Math.min(4, Math.max(1, hardwareThreads() - 1)) : 1), lazWorkerInit: opts.lazWorkerInit, lazSpawnWorker: opts.lazSpawnWorker, progress: (f) => { rep(f * 0.4, 'read'); if (opts.onSlice) opts.onSlice(seen); } });
     } catch (e) { err = e; }
     if (!err) { try { throwIfAborted(signal); } catch (e) { err = e; } }
     if (!err && seen !== st.count) st.count = seen;   // a file cut short, or a header that is wrong: the points read are the truth
@@ -286,23 +286,44 @@ export async function buildCloud(source, store, opts = {}) {
   }
   const upKeys = await store.list(P + 'build/up/'), byAnc = new Map();
   for (const k of upKeys) { const r = k.slice((P + 'build/up/').length).split('/'); if (!byAnc.has(r[0])) byAnc.set(r[0], []); byAnc.get(r[0]).push({ bin: Number(r[1].replace('.bin', '')), key: k }); }
-  for (const [anc, list] of [...byAnc].sort((a, b) => (a[0] < b[0] ? -1 : 1))) {
+  // 0.11 PERF.25: the upper nodes are independent of each other, so the merge (decode the parts, join, encode) runs in the same kind of worker pool
+  // as the tile pass; the bytes are the same either way (tested). Below 4 M points or with workers: 0 it runs in this thread as before.
+  const ancList = [...byAnc].sort((x, y) => (x[0] < y[0] ? -1 : 1));
+  const mergeWorkers = opts.workers != null ? opts.workers : (st.count >= 4e6 ? Math.min(4, Math.max(0, hardwareThreads() - 1)) : 0);
+  let mpool = null;
+  if (mergeWorkers >= 1 && ancList.length > 4) mpool = await createTilePool(Math.min(mergeWorkers, ancList.length), opts.spawnWorker || null);
+  const mergeOne = async ([anc, list]) => {
     list.sort((p, q) => p.bin - q.bin);
-    const parts = []; let total = 0;
-    for (const e of list) { const d = decodeNode(await store.get(e.key)); parts.push(d); total += d.n; }
     const hasRgb = st.hasRgb, hasInt = st.hasInt;
-    const a = { n: total, x: new Int32Array(total), y: new Int32Array(total), z: new Int32Array(total), cls: new Uint8Array(total), flags: new Uint8Array(total), inten: hasInt ? new Uint16Array(total) : null, rgb: hasRgb ? new Uint8Array(3 * total) : null };
-    let o = 0, minZ = Infinity, maxZ = -Infinity;
-    for (const d of parts) {
-      a.x.set(d.x, o); a.y.set(d.y, o); a.z.set(d.z, o); a.cls.set(d.cls, o); a.flags.set(d.flags, o);
-      if (hasInt) a.inten.set(d.inten, o); if (hasRgb) a.rgb.set(d.rgb, 3 * o);
-      for (let k = 0; k < d.n; k++) { if (d.z[k] < minZ) minZ = d.z[k]; if (d.z[k] > maxZ) maxZ = d.z[k]; }
-      o += d.n;
+    let total, bytes, minZ, maxZ;
+    if (mpool) {
+      const parts = [];
+      for (const e of list) parts.push(await store.get(e.key));
+      const r = await mpool.run({ kind: 'merge', parts, hasRgb, hasInt });
+      total = r.n; bytes = r.bytes; minZ = r.minZ; maxZ = r.maxZ;
+    } else {
+      const parts = []; total = 0;
+      for (const e of list) { const d = decodeNode(await store.get(e.key)); parts.push(d); total += d.n; }
+      const a = { n: total, x: new Int32Array(total), y: new Int32Array(total), z: new Int32Array(total), cls: new Uint8Array(total), flags: new Uint8Array(total), inten: hasInt ? new Uint16Array(total) : null, rgb: hasRgb ? new Uint8Array(3 * total) : null };
+      let o = 0; minZ = Infinity; maxZ = -Infinity;
+      for (const d of parts) {
+        a.x.set(d.x, o); a.y.set(d.y, o); a.z.set(d.z, o); a.cls.set(d.cls, o); a.flags.set(d.flags, o);
+        if (hasInt) a.inten.set(d.inten, o); if (hasRgb) a.rgb.set(d.rgb, 3 * o);
+        for (let k = 0; k < d.n; k++) { if (d.z[k] < minZ) minZ = d.z[k]; if (d.z[k] > maxZ) maxZ = d.z[k]; }
+        o += d.n;
+      }
+      bytes = encodeNode(a, hasRgb, hasInt);
     }
-    const bytes = encodeNode(a, hasRgb, hasInt);
     await store.put(P + 'n/' + anc + '.bin', bytes);
     rows.set(anc, { count: total, minZ: total ? minZ * scale[2] : 0, maxZ: total ? maxZ * scale[2] : 0, cellSize: size / 2 ** (anc.length - 1) / G, byteLength: bytes.length });
-  }
+  };
+  try {
+    let nextAnc = 0, mfail = null;
+    await Promise.all(Array.from({ length: mpool ? mpool.size : 1 }, async () => {
+      while (!mfail && nextAnc < ancList.length) { throwIfAborted(signal); try { await mergeOne(ancList[nextAnc++]); } catch (e) { mfail = mfail || e; } }
+    }));
+    if (mfail) throw mfail;
+  } finally { if (mpool) mpool.close(); }
   // every ancestor of a node is in the table
   for (const nid of [...rows.keys()]) for (let l = nid.length - 1; l >= 1; l--) { const a = nid.slice(0, l); if (!rows.has(a)) rows.set(a, { count: 0, minZ: 0, maxZ: 0, cellSize: size / 2 ** (a.length - 1) / G, byteLength: 0 }); }
   if (!rows.has('r')) rows.set('r', { count: 0, minZ: 0, maxZ: 0, cellSize: size / G, byteLength: 0 });
@@ -328,7 +349,8 @@ export async function buildCloud(source, store, opts = {}) {
     classCounts: cm, clamped: st.clamped || 0, built: opts.now ? opts.now() : new Date().toISOString(), tilerVersion: TILER_VERSION,
   };
   await putJson('cloud.json', meta);
-  for (const k of await store.list(P + 'build/')) await store.delete(k);
+  // 0.11 PERF.25: the build folder holds every spilled chunk (20 bytes a point: 4.8 GB for 241 M points); deleting those one at a time took 26 s, 32 at a time is a few
+  { const old = await store.list(P + 'build/'); for (let i = 0; i < old.length; i += 32) await Promise.all(old.slice(i, i + 32).map((k) => store.delete(k))); }
   rep(1, 'merge');
   return openCloud(store, id, opts);
 }

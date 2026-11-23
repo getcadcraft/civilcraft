@@ -24,12 +24,30 @@ Open it with {{ui:Section view}} in the alignment's **Properties**, {{ui:Section
 - The gray line is the existing ground, the red line the design. Cut is shaded orange, fill green. Corridor points are marked: CL (centerline), EOP (edge of pavement), SH (shoulder) and DL (daylight).
 - The header gives the station, this section's cut and fill areas and the vertical exaggeration. **Fit** fills the panel; choose 1× to see the section true to scale.
 - The thick line on the plan shows which section is on screen.
+- **Zoom and pan:** the wheel zooms about the pointer, and dragging moves the view. {{ui:Fit}} (or {{key:F}}, or a double click) fits the whole section again.
+
+## Measure in a section
+
+1. Click {{ui:Measure}} in the section bar, or press {{key:M}}. The hint says "Click the first point, then the second."
+2. Click two points. Each one snaps to the end of a line or a corridor point (CL, EOP, SH, DL); hold {{key:Alt}} for a free point.
+3. The readout gives the horizontal distance (ΔH), the vertical distance (ΔV), the slope in percent with its ratio, and the straight length, in the project's units.
+
+Click again to start a new measurement. {{key:Esc}} clears it, and {{key:M}} turns Measure off.
 
 ## Section sheets
 
 {{ui:Section sheets (PDF)}} under **Sample lines** puts every section on PDF pages, in rows from left to right and top to bottom in station order. Choose the **Paper**, the **Plan scale** (the horizontal scale of the sections) and the **Profile exaggeration** (1×, 2×, 5× or 10×); the dialog says how many sections fit on a page and how many pages that makes.
 
 Each section shows a grid with offsets and elevations, the ground (dashed), the design, cut and fill shaded (orange and green), the corridor points, and under it its station and its cut and fill areas. Every section on the sheets is drawn the same size, tall enough for the biggest one; when that does not fit the page at your exaggeration, CivilCraft uses the largest one that does and says so. The title strip names the alignment, the stations on that page, the scales and "Sheet 1 of 3".
+
+## What cut and fill are measured to
+
+A corridor can have layers under the pavement: pavement courses, template components, track. The select **Volumes measured to** in the section bar chooses what cut and fill run to:
+
+- **Bottom surface** (the start): to the bottom of those components, so the cut includes the depth of the pavement build-up.
+- **Top surface**: to the top of the design only, as before components counted.
+
+The areas in the header, the volumes below, the CSV and the mass haul all follow this choice, and it is saved with the project.
 
 ## Volumes by average end areas
 

@@ -3,6 +3,7 @@
  * strings.js — the English words of the environment panel (0.9 SU.1119). Keys are `env.*`. Hosts translate them through their own
  * dictionaries when they have the keys (lang session); until then these are the words shown. {name} marks a value.
  */
+// i18n-ignore-start: English defaults; the same keys live in lang/en.json (words-11)
 export const EN = {
   'env.head': 'Environment: shade, solar yield and comfort',
   'env.note': 'Shade studies over a day or a season, solar panel yield on roofs and walls, and outdoor comfort (UTCI), from a typical-year weather file. A pedestrian-wind screening is included and labelled with its validation state.',
@@ -72,6 +73,7 @@ export const EN = {
   'env.failed': 'The study did not run ({why}).',
   'env.running': 'Working...',
 };
+// i18n-ignore-end
 export function say(t, key, vars = {}) {
   let v = typeof t === 'function' ? t(key, vars) : key;
   if (v === key || v == null) v = EN[key] ?? key;

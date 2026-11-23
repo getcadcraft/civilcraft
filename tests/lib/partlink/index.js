@@ -19,6 +19,10 @@
  *   class LinkBook                                                                  the state of each link: sent → changed → accepted | rejected
  *   memoryStore() · idbStore(indexedDB, name) · openChannel(BroadcastChannel, name) where the package and the updates wait between the two pages
  *   psetRows(rec) → rows for the element's CadCraft_PartLink property set
+ *   cleanPrism(p) · cleanSolid(s) · mapPrism(p, f)      (0.11 SU.1814, su-finish-11) a body as IFC's own solids: a prism (a profile extruded), or a
+ *                                                     `csg` list (a base prism, then prisms added or cut in order). Untrusted; null when not usable.
+ *   A package may carry `geometry.prism` (the element IS a straight prism); an update may carry `solid` (the part's history as prisms), so
+ *   BimCraft can write extrusions and Boolean results instead of a mesh. The mesh always travels too: it is what is compared and the fallback.
  */
 
 export const FORMAT = 'cadcraft-part-link';
@@ -245,6 +249,62 @@ export function contextMeshes(elements, targetBox, { radius = 3000, budget = LIM
   return { meshes, omitted, outside: elements.length - near.length, triangles: spent };
 }
 
+// ---------------------------------------------------------------- solids (0.11 SU.1814, su-finish-11: a part's body back as IFC solids)
+export const SOLID_LIMITS = { steps: 64, points: 4096, loops: 64, size: 1e7 };
+export const SOLID_OPS = ['base', 'add', 'cut'];
+const v3 = (v) => Array.isArray(v) && v.length === 3 && v.every(Number.isFinite);
+const vlen = (v) => Math.hypot(v[0], v[1], v[2]);
+const vcross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const vdot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const ring = (l, max) => Array.isArray(l) && l.length >= 3 && l.length <= max && l.every((q) => Array.isArray(q) && q.length === 2 && q.every((x) => Number.isFinite(x) && Math.abs(x) < SOLID_LIMITS.size));
+const ringArea = (l) => { let a = 0; for (let i = 0; i < l.length; i++) { const p = l[i], q = l[(i + 1) % l.length]; a += p[0] * q[1] - q[0] * p[1]; } return a / 2; };
+/**
+ * A prism in the element's frame (mm, Z up): { origin, x, n (unit, x ⟂ n), y (= n × x, worked out here), depth > 0, and either outer: [[u, v]…]
+ * (counter-clockwise) + holes: [[[u, v]…]] (clockwise), or circle: { c: [u, v], r > 0 } }. The profile is in the plane (origin; x, y), extruded
+ * along n by depth: what an IfcExtrudedAreaSolid holds. → a clean copy or null.
+ */
+export function cleanPrism(p) {
+  if (!p || typeof p !== 'object' || !v3(p.origin) || !v3(p.x) || !v3(p.n)) return null;
+  const lx = vlen(p.x), ln = vlen(p.n);
+  if (Math.abs(lx - 1) > 1e-6 || Math.abs(ln - 1) > 1e-6 || Math.abs(vdot(p.x, p.n)) > 1e-6) return null;
+  if (!(Number.isFinite(p.depth) && p.depth > 1e-6 && p.depth < SOLID_LIMITS.size) || p.origin.some((v) => Math.abs(v) > SOLID_LIMITS.size)) return null;
+  const x = p.x.map((v) => v / lx), n = p.n.map((v) => v / ln), y = vcross(n, x);
+  const base = { origin: p.origin.map(Number), x, y, n, depth: Number(p.depth) };
+  if (p.circle) {
+    const c = p.circle;
+    if (!c || !Array.isArray(c.c) || c.c.length !== 2 || !c.c.every(Number.isFinite) || !(Number.isFinite(c.r) && c.r > 1e-6 && c.r < SOLID_LIMITS.size)) return null;
+    return { ...base, circle: { c: [Number(c.c[0]), Number(c.c[1])], r: Number(c.r) } };
+  }
+  const holes = Array.isArray(p.holes) ? p.holes : [];
+  if (!ring(p.outer, SOLID_LIMITS.points) || holes.length > SOLID_LIMITS.loops || !holes.every((h) => ring(h, SOLID_LIMITS.points))) return null;
+  if (p.outer.length + holes.reduce((s, h) => s + h.length, 0) > SOLID_LIMITS.points) return null;
+  const ccw = (l, want) => { const q = l.map((pt) => [Number(pt[0]), Number(pt[1])]); return (ringArea(q) > 0) === want ? q : q.reverse(); };
+  if (!(Math.abs(ringArea(p.outer)) > 1e-9)) return null;
+  return { ...base, outer: ccw(p.outer, true), holes: holes.map((h) => ccw(h, false)) };
+}
+/** A prism through a rotation `f` (a function on 3-vectors: e.g. PartCraft's Y up → Z up). The profile is unchanged. */
+export function mapPrism(p, f) {
+  const out = { ...p, origin: f(p.origin), x: f(p.x), n: f(p.n) };
+  delete out.y;
+  return cleanPrism(out);
+}
+/** A body as IFC solids: { kind: 'csg', steps: [{ op: 'base' | 'add' | 'cut', ...prism }] }, the first step the base. → a clean copy or null. */
+export function cleanSolid(s) {
+  if (!s || typeof s !== 'object' || s.kind !== 'csg' || !Array.isArray(s.steps) || !s.steps.length || s.steps.length > SOLID_LIMITS.steps) return null;
+  const steps = [];
+  let pts = 0;
+  for (let i = 0; i < s.steps.length; i++) {
+    const st = s.steps[i];
+    if (!st || (i === 0) !== (st.op === 'base') || !SOLID_OPS.includes(st.op)) return null;
+    const p = cleanPrism(st);
+    if (!p) return null;
+    pts += p.circle ? 1 : p.outer.length + p.holes.reduce((a, h) => a + h.length, 0);
+    if (pts > SOLID_LIMITS.points * 4) return null;
+    steps.push({ op: st.op, ...p });
+  }
+  return { kind: 'csg', steps };
+}
+
 // ---------------------------------------------------------------- the package BimCraft sends
 const text = (v, n = LIMITS.text) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, n);
 const LINK_RE = /^[A-Za-z0-9_-]{8,64}$/;
@@ -258,7 +318,7 @@ export function newLinkId(rand = (n) => globalThis.crypto.getRandomValues(new Ui
  * source: { app, file, globalId, ifcClass, name, typeName?, storey?, placement (4 x 4, mm, Z up, the element's frame in the file's world), unit? }
  * mesh: the element in its own frame (mm, Z up). context: contextMeshes().meshes (same frame), omitted?: count.
  */
-export function makePackage({ link, source, mesh, context = [], omitted = 0, now = new Date().toISOString() }) {
+export function makePackage({ link, source, mesh, context = [], omitted = 0, prism = null, rev = 0, now = new Date().toISOString() }) {
   if (!isLinkId(link)) fail('partlink.err.link');
   if (!source || typeof source !== 'object' || !text(source.globalId)) fail('partlink.err.source');
   if (!isM(source.placement)) fail('partlink.err.placement');
@@ -266,11 +326,12 @@ export function makePackage({ link, source, mesh, context = [], omitted = 0, now
   if (!s.triangles) fail('partlink.err.empty');
   return {
     format: FORMAT, version: VERSION, link, sentAt: now,
+    ...(Number.isInteger(rev) && rev > 0 ? { rev } : {}),   // 0.11: the last revision BimCraft took on this link, so a second send (or the other app) counts on from it
     source: {
       app: text(source.app || 'BimCraft', 40), file: text(source.file), globalId: text(source.globalId, 64), ifcClass: text(source.ifcClass, 64), name: text(source.name),
       typeName: text(source.typeName), storey: text(source.storey), placement: source.placement.map(Number), unit: 'mm',
     },
-    geometry: { mesh: encodeMesh(mesh), hash: meshHash(mesh), volume: s.volume, closed: s.closed, box: s.box },
+    geometry: { mesh: encodeMesh(mesh), hash: meshHash(mesh), volume: s.volume, closed: s.closed, box: s.box, ...(cleanPrism(prism) ? { prism: cleanPrism(prism) } : {}) },
     context: { omitted: Math.max(0, Math.round(omitted) || 0), meshes: context.slice(0, LIMITS.contextMeshes).map((c) => ({ id: text(c.id, 64), name: text(c.name), cls: text(c.cls, 64), mesh: encodeMesh(c.mesh, { f32: true }) })) },
   };
 }
@@ -296,16 +357,17 @@ export function readPackage(raw) {
     context.push({ id: text(c.id, 64), name: text(c.name), cls: text(c.cls, 64), mesh: m });
   }
   return {
-    link: j.link, sentAt: text(j.sentAt, 40),
+    link: j.link, sentAt: text(j.sentAt, 40), rev: Number.isInteger(j.rev) && j.rev > 0 ? j.rev : 0,
     source: { app: text(s.app, 40), file: text(s.file), globalId: text(s.globalId, 64), ifcClass: text(s.ifcClass, 64), name: text(s.name), typeName: text(s.typeName), storey: text(s.storey), placement: s.placement.map(Number), unit: 'mm' },
     mesh, hash: text(j.geometry.hash, 32), volume: Number(j.geometry.volume) || 0, closed: j.geometry.closed === true, box: Array.isArray(j.geometry.box) ? j.geometry.box.map(Number) : meshStats(mesh).box,
     context, omitted: Math.max(0, Math.round(j.context?.omitted) || 0),
+    prism: cleanPrism(j.geometry.prism),   // 0.11: the element IS this prism (null: it is not one, or the sender did not say)
   };
 }
 
 // ---------------------------------------------------------------- the update PartCraft sends back
 /** from: { app, part, file? }; baseHash = the package's geometry hash this update was made from (BimCraft knows if the element moved on since). */
-export function makeUpdate({ link, rev, mesh, from = {}, baseHash = '', note = '', now = new Date().toISOString() }) {
+export function makeUpdate({ link, rev, mesh, from = {}, baseHash = '', note = '', solid = null, now = new Date().toISOString() }) {
   if (!isLinkId(link)) fail('partlink.err.link');
   if (!Number.isInteger(rev) || rev < 1) fail('partlink.err.rev');
   const s = meshStats(mesh);
@@ -314,6 +376,7 @@ export function makeUpdate({ link, rev, mesh, from = {}, baseHash = '', note = '
     format: UPDATE_FORMAT, version: VERSION, link, rev, savedAt: now, baseHash: text(baseHash, 32), note: text(note, 400),
     from: { app: text(from.app || 'PartCraft', 40), part: text(from.part), file: text(from.file) },
     geometry: { mesh: encodeMesh(mesh), hash: meshHash(mesh), volume: s.volume, closed: s.closed, box: s.box },
+    ...(cleanSolid(solid) ? { solid: cleanSolid(solid) } : {}),
   };
 }
 export function readUpdate(raw) {
@@ -329,6 +392,7 @@ export function readUpdate(raw) {
     link: j.link, rev: j.rev, savedAt: text(j.savedAt, 40), baseHash: text(j.baseHash, 32), note: text(j.note, 400),
     from: { app: text(j.from?.app, 40), part: text(j.from?.part), file: text(j.from?.file) },
     mesh, hash: text(j.geometry.hash, 32), volume: Number(j.geometry.volume) || 0, closed: j.geometry.closed === true, box: Array.isArray(j.geometry.box) ? j.geometry.box.map(Number) : meshStats(mesh).box,
+    solid: cleanSolid(j.solid),   // 0.11: the body as IFC solids, or null (a damaged one is dropped; the mesh still stands)
   };
 }
 
@@ -336,10 +400,11 @@ export function readUpdate(raw) {
 /** The `bimLink` a part file carries (untrusted): { link, globalId, name, ifcClass, file, hash, rev } or null. The geometry and the building around it are NOT in the file: they wait in the store. */
 export function readRef(raw) {
   if (!raw || typeof raw !== 'object' || !isLinkId(raw.link) || !text(raw.globalId, 64)) return null;
-  return { link: raw.link, globalId: text(raw.globalId, 64), name: text(raw.name), ifcClass: text(raw.ifcClass, 64), file: text(raw.file), hash: text(raw.hash, 32), rev: Number.isInteger(raw.rev) && raw.rev >= 0 ? raw.rev : 0 };
+  const prism = cleanPrism(raw.prism);   // 0.11: the element as BimCraft sent it, when it was a straight prism (what a part's history builds on)
+  return { link: raw.link, globalId: text(raw.globalId, 64), name: text(raw.name), ifcClass: text(raw.ifcClass, 64), file: text(raw.file), hash: text(raw.hash, 32), rev: Number.isInteger(raw.rev) && raw.rev >= 0 ? raw.rev : 0, ...(prism ? { prism } : {}) };
 }
 /** The ref for a package just opened as a part. */
-export const refFromPackage = (pkg) => ({ link: pkg.link, globalId: pkg.source.globalId, name: pkg.source.name, ifcClass: pkg.source.ifcClass, file: pkg.source.file, hash: pkg.hash, rev: 0 });
+export const refFromPackage = (pkg) => ({ link: pkg.link, globalId: pkg.source.globalId, name: pkg.source.name, ifcClass: pkg.source.ifcClass, file: pkg.source.file, hash: pkg.hash, rev: pkg.rev || 0, ...(pkg.prism ? { prism: pkg.prism } : {}) });
 /** Z up (the element's frame) ↔ Y up (PartCraft's): (x, y, z) → (x, z, −y) and back. Flat arrays, new array. */
 export function zUpToYUp(p) { const o = new Float64Array(p.length); for (let i = 0; i < p.length; i += 3) { o[i] = p[i]; o[i + 1] = p[i + 2]; o[i + 2] = -p[i + 1]; } return o; }
 export function yUpToZUp(p) { const o = new Float64Array(p.length); for (let i = 0; i < p.length; i += 3) { o[i] = p[i]; o[i + 1] = -p[i + 2]; o[i + 2] = p[i + 1]; } return o; }

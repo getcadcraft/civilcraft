@@ -109,7 +109,7 @@ export function createTraverse(ctx) {
       const fresh = () => { while (taken.has(String(next))) next++; return String(next++); };
       const sts = res.close === 'loop' ? res.stations.slice(0, -1) : res.stations;   // a loop's last station is its start
       const pts = sts.map((st) => { const n = st.name && !taken.has(st.name) ? st.name : fresh(); taken.add(n); return { n, x: st.ax, y: st.ay, z: null, d: 'TRAV' }; });
-      P().editPoints(t('tv.undo.points', { n: pts.length }), (all) => all.concat(pts));
+      P().editPointTable(t('tv.undo.points', { n: pts.length }), (ed) => { ed.add(pts); });
       dlg.close();
       ctx.afterPoints(pts.map((q) => q.n));
       ctx.say(t('tv.added', { n: pts.length, first: pts[0].n, last: pts.at(-1).n }));

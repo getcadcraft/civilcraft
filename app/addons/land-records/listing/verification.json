@@ -1,0 +1,64 @@
+{
+ "cases": [
+  {
+   "id": "lr-plane",
+   "name": "The site plane against the ellipsoid",
+   "result": "At five latitudes from the equator to 69.6 degrees north, distances read on the plane within 10 km of its origin are within 5 mm of Vincenty's inverse on WGS 84, and a position sent to the plane and back returns unchanged (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-walk",
+   "name": "A walk of known size",
+   "result": "Four corners marked 50 m by 40 m apart give 2,000 square meters and a 180 m outline; with reported accuracies of 3, 3, 4 and 5 m the area's doubt is half the root of 4100 times 59, 245.9 square meters, as worked by hand; three equal readings average to their mean and the stated accuracy is not divided by root three (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-gpx",
+   "name": "A route from a GPX file",
+   "result": "A track walked round a 60 m by 30 m field with a reading every 2 m is reduced to four corners and 1,800 square meters; because the file states no accuracy, none is shown; a file with a document type declaration is refused (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-check",
+   "name": "A block of five lots worked by hand",
+   "result": "A lot recorded 18 square meters smaller than drawn is outside a one percent tolerance; two lots sharing a 1 m by 30 m strip share 30 square meters; a neighbor drawn 0.2 m off is reported with four near corners; a record with no area is not compared; a repeated number and a record with no parcel are named (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-cut",
+   "name": "Cuts and joins with the ground balanced",
+   "result": "A 60 m by 40 m lot cut into three gives three lots of 800 square meters; lots of 500 and 700 cut off leave 1,200; the three lots given in any order join back into the four-corner parent; the line between two lots moved 5 m gives 1,000 and 600; a line that misses, lots apart and lots that overlap are refused with the reason (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-doc",
+   "name": "Papers that never invent a value",
+   "result": "With no applicant typed, the filled application prints the words not stated for each missing field and lists them; nothing prints as undefined; a value containing markup is escaped in the page (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-browser",
+   "name": "The whole add-on in a real CivilCraft page",
+   "result": "In headless Chromium against the lab build with a simulated position: a walk of four corners is marked through the screen button, a key press and the media button, kept, and put into the drawing as points and a parcel; a record is added, the check runs, a lot is cut and applied in one undo step, and a paper is filled (tools/landrecords/browser.mjs)"
+  },
+  {
+   "id": "lr-buildings",
+   "name": "Buildings laid over parcels",
+   "result": "A 10 m by 10 m mass of three floors on a 600 square meter lot gives a footprint of 100, a floor area of 300, coverage of one sixth and a floor area ratio of 0.5; a shed with 6 of its 10 m on the neighboring lot belongs to that lot, counts 30 square meters of footprint and 0.6 of its floor area there, and is flagged as straddling the line; a building on no parcel is counted on none (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-takeoff",
+   "name": "Boundary and corners counted once",
+   "result": "Two 20 m by 30 m lots side by side have outlines of 100 m each, share 30 m, so 170 m of boundary on the ground and six distinct corners; a third lot along the top brings the shared length to 70 m and the corners to eight; 1,200 square meters is written as 12,916.69 square feet in a drawing in feet (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-place",
+   "name": "A place's printed minimum",
+   "result": "A figure printed as 5,000 sq ft is compared as 464.5152 square meters and one printed in acres as 4,046.8564224 square meters to the acre; a lot exactly at the minimum is not below it and one a hair under is; a lot with no zone, a zone the pack does not have, no street line named, two figures for one zone, or a figure the text adds a yard distance to is reported as not compared, never as a pass; a figure with no source or no word on how it was read is not carried (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-ifc",
+   "name": "Footprints traced from IFC models",
+   "result": "A georeferenced IFC file of two buildings that states its own figures is read to 111.63 and 65.12 square meters against the stated 111.484 and 65.032 (within half a percent, on a 5 cm grid), with its stated floor area of 334.452 square meters, three storeys and a height of 36 survey feet; a house modelled in millimeters reads as 10.9 m by 7.9 m over its roof edge with its floor area measured from the floor slab; four walls with no slab read as the 6.2 m by 4.2 m they enclose; the same model in meters, millimeters, feet and inches gives the same footprints (bin/test-landrecords.mjs)"
+  },
+  {
+   "id": "lr-markup",
+   "name": "Notes to MarkupCraft and back",
+   "result": "A 200 m by 50 m plan goes out on an A3 sheet at 1:1,000, the first round scale that fits, as a PDF whose cross-reference table and stream length are checked; in the real MarkupCraft page the BCF file made beside it puts each note within a point and a half of its spot on the sheet, and MarkupCraft's own BCF export of that sheet is read back with every note recognized and none doubled; a note moved nowhere but given a new status and comment is updated, and a note drawn on the sheet becomes a note at that place on the plan (bin/test-landrecords.mjs, tools/landrecords/browser.mjs)"
+  }
+ ]
+}

@@ -7,23 +7,31 @@
  *   Issues: a cut (G1) before any feed rate or spindle speed was set; a rapid (G0) that moves across the work below the top of the stock; a move outside
  *   the bed; a cut deeper than the stock allows; a plunge into the work with no spindle on; the unit (inches vs millimetres) never declared; no program end.
  */
-import { parseGcode } from './post.js';
+import { parseGcode, gcodeLines } from './post.js';
 
 export function checkProgram(text, limits = {}) {
   const moves = parseGcode(text), issues = [];
   const bed = limits.bed || null, maxDepth = Number(limits.maxDepth) > 0 ? Number(limits.maxDepth) : null;
   const add = (key, line, detail) => { if (issues.length < 60) issues.push({ key, line, detail }); };
   let spindle = false, feedSeen = false, px = null, py = null, pz = null, minZ = 0, maxX = -Infinity, minX = Infinity, maxY = -Infinity, minY = Infinity, cuts = 0;
-  const lines = String(text).split(/\r?\n/);
-  let unit = null;
-  lines.forEach((raw, i) => {
+  // perf-finish-11 (PERF.26): `text` may be the program's parts (gcode() → parts, or TextParts), read a line at a time, so a program past one string is
+  // checked too; the moves are walked in step with the lines (they come in line order), where a moves.find per line made the check quadratic.
+  let unit = null, mi = 0, i = -1, ended = false, spans = false;
+  for (const raw of gcodeLines(text)) {
+    i++;
     const code = raw.replace(/\([^)]*\)/g, '').replace(/;.*$/, '');
     if (/\bG2[01]\b/i.test(code)) unit = /G20/i.test(code) ? 'in' : 'mm';
     if (/\bM0?[34]\b/i.test(code)) spindle = true;
     if (/\bM0?5\b/i.test(code)) spindle = false;
     if (/\bF\d/i.test(code)) feedSeen = true;
-    const mv = moves.find((m) => m.line === i + 1);
-    if (!mv) return;
+    // the program end, as the old test on the whole text (comments taken out) found it: per line, unless a "(" is left open on its line (then that
+    // comment ran into the next lines and the whole text is tested at the end, as before)
+    const bare = raw.replace(/\([^)]*\)/g, '');
+    if (!ended && /\bM0?[2]\b|\bM30\b/i.test(bare)) ended = true;
+    if (!spans && bare.indexOf('(') >= 0) spans = true;
+    while (mi < moves.length && moves[mi].line < i + 1) mi++;
+    const mv = mi < moves.length && moves[mi].line === i + 1 ? moves[mi] : null;
+    if (!mv) continue;
     const k = mv.mm ? 1 : 25.4;
     const x = mv.x === null ? px : mv.x * k, y = mv.y === null ? py : mv.y * k, z = mv.z === null ? pz : mv.z * k;
     if (mv.g === 1) {
@@ -37,9 +45,10 @@ export function checkProgram(text, limits = {}) {
     if (y !== null) { maxY = Math.max(maxY, y); minY = Math.min(minY, y); }
     if (z !== null) minZ = Math.min(minZ, z);
     px = x; py = y; pz = z;
-  });
+  }
   if (!unit) add('nounit', 0, '');
-  if (!/\bM0?[2]\b|\bM30\b/i.test(lines.join('\n').replace(/\([^)]*\)/g, ''))) add('noend', 0, '');
+  if (spans) ended = /\bM0?[2]\b|\bM30\b/i.test([...gcodeLines(text)].join('\n').replace(/\([^)]*\)/g, ''));
+  if (!ended) add('noend', 0, '');
   if (!cuts) add('nocuts', 0, '');
   return { ok: !issues.length, issues, stats: { cuts, bounds: cuts ? { x0: minX, y0: minY, x1: maxX, y1: maxY } : null, minZ, unit } };
 }

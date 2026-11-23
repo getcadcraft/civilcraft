@@ -115,6 +115,32 @@ const taken = await L.takeUpdates(store, book, { currentHash: () => got.hash });
 ok('takeUpdates keeps the taken update as pending', (await store.get('pending', link))?.rev === 4);
 ok('takeUpdates: the known link only; the rest dropped from the store', taken.length === 1 && taken[0].pending.rev === 4 && (await store.keys('update')).join() === 'unknownlink1,' + link + 'x', await store.keys('update'));
 
+// 0.11 SU.1814 (su-finish-11): solids travel beside the mesh
+const prism = { origin: [-200, -100, 0], x: [1, 0, 0], n: [0, 0, 1], depth: 3000, outer: [[0, 0], [0, 200], [400, 200], [400, 0]], holes: [] };
+const cp = L.cleanPrism(prism);
+ok('cleanPrism: y = n x x, the outer turned counter-clockwise', cp && cp.y.join() === '0,1,0' && cp.outer[0].join() === '400,0', cp);
+ok('cleanPrism refuses a frame that is not square, no depth, an open ring', !L.cleanPrism({ ...prism, x: [1, 0, 0.1] }) && !L.cleanPrism({ ...prism, depth: 0 }) && !L.cleanPrism({ ...prism, outer: [[0, 0], [1, 1]] }) && !L.cleanPrism(null));
+const disk = L.cleanPrism({ origin: [0, 0, 3000], x: [1, 0, 0], n: [0, 0, -1], depth: 50, circle: { c: [0, 0], r: 9 } });
+ok('cleanPrism: a disk (a hole) keeps its centre and radius', disk && disk.circle.r === 9 && disk.y.join() === '0,-1,0', disk);
+ok('cleanPrism: a hole ring runs clockwise', L.cleanPrism({ ...prism, holes: [[[10, 10], [20, 10], [20, 20]]] }).holes[0][1].join() === '20,10');
+const yzP = L.mapPrism({ origin: [0, 0, 0], x: [1, 0, 0], n: [0, 1, 0], depth: 10, outer: prism.outer }, (v) => [v[0], -v[2], v[1]]);
+ok('mapPrism: Y up to Z up turns the axis', yzP && yzP.n.join() === "0,0,1" && yzP.x.join() === "1,0,0", yzP);
+const csg = { kind: 'csg', steps: [{ op: 'base', ...prism }, { op: 'cut', ...disk }] };
+ok('cleanSolid: a base and a cut', L.cleanSolid(csg)?.steps.length === 2);
+ok('cleanSolid refuses a list that does not start with the base, an unknown op, an empty one', !L.cleanSolid({ kind: 'csg', steps: [{ op: 'cut', ...prism }] }) && !L.cleanSolid({ kind: 'csg', steps: [{ op: 'base', ...prism }, { op: 'xor', ...disk }] }) && !L.cleanSolid({ kind: 'csg', steps: [] }) && !L.cleanSolid({ kind: 'brep', steps: [{ op: 'base', ...prism }] }));
+const sm = L.localMesh(box(-200, -100, 0, 200, 100, 3000));
+const pk2 = L.readPackage(JSON.stringify(L.makePackage({ link: L.newLinkId(), source: { globalId: 'g', placement: P }, mesh: sm, prism })));
+ok('a package carries the element\'s prism; refFromPackage keeps it for the part file', pk2.prism && pk2.prism.depth === 3000 && L.readRef(L.refFromPackage(pk2)).prism.depth === 3000);
+const pk3 = L.readPackage(JSON.stringify(L.makePackage({ link: L.newLinkId(), source: { globalId: 'g', placement: P }, mesh: sm })));
+ok('a package without one says null', pk3.prism === null && !('prism' in L.refFromPackage(pk3)));
+const u2 = L.readUpdate(JSON.stringify(L.makeUpdate({ link: L.newLinkId(), rev: 1, mesh: sm, solid: csg })));
+ok('an update carries the solid; the mesh still travels', u2.solid?.steps[1].circle.r === 9 && u2.mesh.indices.length === 36);
+const badS = JSON.parse(JSON.stringify(L.makeUpdate({ link: L.newLinkId(), rev: 1, mesh: sm, solid: csg }))); badS.solid.steps[1].depth = "x";
+ok('a damaged solid is dropped, the update still reads', L.readUpdate(badS).solid === null && L.readUpdate(badS).mesh.indices.length === 36);
+
+const pk4 = L.readPackage(JSON.stringify(L.makePackage({ link: L.newLinkId(), source: { globalId: 'g', placement: P }, mesh: sm, rev: 3 })));
+ok('a second send carries the last revision taken: the receiver saves revision 4 next', pk4.rev === 3 && L.refFromPackage(pk4).rev === 3 && pk3.rev === 0);
+
 // big: 100k triangles weld fast
 const big = []; for (let i = 0; i < 100000; i++) { const x = (i % 300) * 10, y = Math.floor(i / 300) * 10; big.push(x, y, 0, x + 10, y, 0, x, y + 10, 0); }
 const t0 = Date.now(); const bm = L.localMesh(big); const dt = Date.now() - t0;

@@ -13,6 +13,7 @@ import { Roots, PathError, writeFileAtomic, listFiles } from './paths.mjs';
 import { CadSession, extOf } from './cad.mjs';
 import { load, appDir, vendorDir } from './apps.mjs';
 import { ToolError as ToolErr } from '../../mcp/core.mjs';
+import { bimExtras, withElements } from './bim-more.mjs';   // 0.11 GH.6 / FX.377: batch, describe, PNG, USD of an IFC model
 import { superTools } from './super.mjs';   // 0.10 BK.59: SuperCad Studio's project tools
 
 // BimCraft's Draw edits (0.6 DF.25, session `bim-draw`): the same tool definitions as its live window (bimcraft/dev/agents.js),
@@ -32,6 +33,9 @@ try { CIVIL = await import('./civil.mjs'); M_CIVIL = await CIVIL.civilModules();
 let PART = null;
 try { PART = await import('./part.mjs'); await PART.partModules(); } catch { PART = null; }
 try { BIM = await load('bimcraft', 'agents.js'); } catch { BIM = null; }
+// 0.11 BK.56 / BK.143: what an assistant makes headless is unverified until a person checks it, as in the window (bimcraft/dev/trust-agents.js)
+let TRUST = null;
+try { TRUST = await load('bimcraft', 'trust-agents.js'); } catch { TRUST = null; }
 // TakeoffCraft (0.7 AS.6): the window's CAD counting and measuring functions (agents.js); a package without them lists none
 let TAKEOFF_AGENTS = null;
 try { TAKEOFF_AGENTS = await load('takeoffcraft', 'agents.js'); } catch { TAKEOFF_AGENTS = null; }
@@ -156,7 +160,7 @@ function targetFormat(out, format, version) {
 export function headlessTools(env) {
   const tools = [];
   const T = (t) => tools.push(t);
-  let civilUsdRun = null;
+  let civilUsdRun = null, bimUsdRun = null;
 
   T({ name: 'files_list', group: 'read', title: 'List files',
     description: 'Files in a folder the assistant may use, newest first (up to 2000). Hidden files and links are skipped.',
@@ -331,11 +335,12 @@ export function headlessTools(env) {
     } });
 
   T({ name: 'usd_export', group: 'export', title: 'Export USD',
-    description: 'OpenUSD (.usda, .usdc or .usdz, by the file name): the 3D model of an open drawing (solids on the 3D tab), or the 3D site of an open CivilCraft site (existing ground, graded surface, pads, corridors, pipes).',
+    description: 'OpenUSD (.usda, .usdc or .usdz, by the file name): the 3D model of an open drawing (solids on the 3D tab), the 3D site of an open CivilCraft site (existing ground, graded surface, pads, corridors, pipes), or an open IFC model (ifc_open / ifc_new: storeys, disciplines and elements as prims with their IFC data, written by BimCraft\'s USD writer from the engine\'s meshes, no window).',
     inputSchema: obj({ doc: S.doc, path: { ...S.path, description: 'The .usdz, .usda or .usdc file to write (inside the allowed folders).' }, overwrite: S.overwrite }, ['path']),
     run: async (a) => {
       const d = env.docs.get(a.doc);
       if (d?.kind === 'civil' && civilUsdRun) return civilUsdRun(a);
+      if (d?.kind === 'ifc' && bimUsdRun) return bimUsdRun(a);   // FX.377: an IFC model, by BimCraft's own USD writer
       const dd = get(env, a.doc, 'cad');
       const format = extOf(a.path);
       if (!/^usd[acz]$/.test(format)) throw new Error('A USD file ends in .usda, .usdc or .usdz.');
@@ -382,7 +387,7 @@ export function headlessTools(env) {
         return { doc: keep(env, 'ifc', s, null), ...s.summary() };
       } });
     // each BimCraft tool, on the model a handle names (one undo step per edit, as in the window)
-    const bimEnv = (s) => ({ ed: () => s.ed, apply: (label, op) => s.apply(label, op) });
+    const bimEnv = (s) => ({ ed: () => s.ed, apply: s && TRUST?.withUnverified ? TRUST.withUnverified((label, op) => s.apply(label, op)) : (label, op) => s.apply(label, op) });
     for (const def of BIM.modelTools(bimEnv(null))) {
       const schema = def.inputSchema || obj({});
       T({ ...def, description: def.description + ' Works on an IFC model opened with ifc_open or ifc_new (doc).',
@@ -392,8 +397,42 @@ export function headlessTools(env) {
           await d.s.editor();
           d.s.undoPrefix = env.undoPrefix;
           const { doc, ...rest } = a;
-          return BIM.modelTools(bimEnv(d.s)).find((t) => t.name === def.name).run(rest);
+          try { return await BIM.modelTools(bimEnv(d.s)).find((t) => t.name === def.name).run(rest); }
+          catch (e) { throw withElements(d.s, rest, e); }   // GH.6: the GlobalIds a refusal is about
         } });
+    }
+    // FIX-0101-PLAN-HEADLESS (bimcraft#21): a level's plan as a picture, no window: BimCraft's own plan drawing (plan-export.js)
+    T({ name: 'ifc_plan_plot', group: 'export', title: 'Plot a level\'s plan to PDF, SVG, DWG or DXF',
+      description: 'The plan of one level of an IFC model (opened with ifc_open or ifc_new) as a vector PDF or SVG, a PNG picture, or a DWG (AutoCAD 2018) or DXF (AutoCAD 2000) drawing at true size in mm with a layer per kind of line, text and real dimensions (by the file name), no window or graphics card needed: the walls BimCraft\'s tools drew with their joins and the doors and windows in them, a title strip with the level name and the scale. Line art in mm; imported meshes, furniture, rooms and dimensions are not drawn. The result counts the walls and openings drawn.',
+      inputSchema: obj({ doc: S.doc, out: S.path, level: { type: 'string', maxLength: 255, description: 'A level by its name or GlobalId (default: the level at elevation 0, else the lowest).' }, paper: { type: 'string', enum: ['a4', 'a3', 'letter', 'tabloid'], default: 'a3' }, scale: { type: 'integer', minimum: 1, maximum: 5000, description: 'A ratio: 50 is 1:50. Default: the largest standard scale that fits.' }, pxPerMm: { type: 'number', minimum: 1, maximum: 12, default: 4, description: 'For a .png: pixels per millimetre of paper.' }, overwrite: S.overwrite }, ['doc', 'out']),
+      run: async (a) => {
+        const d = get(env, a.doc, 'ifc');
+        const format = extOf(a.out);
+        if (!['pdf', 'svg', 'png', 'dwg', 'dxf'].includes(format)) throw new Error('The plan is written to a .pdf, .svg, .png, .dwg or .dxf file.');   // SU.1994: .dwg / .dxf
+        const ed = await d.s.editor();
+        const { planFile } = await load('bimcraft', 'plan-export.js');
+        const r = planFile(ed, { level: a.level, format: format === 'png' ? 'svg' : format, paper: a.paper || 'a3', scale: a.scale || null, name: path.basename(d.path || d.s.name || 'model').replace(/\.[^.]+$/, '') });
+        let png = null;   // FX.377: PNG = the SVG drawn by ifc-raster.mjs (no lettering: the title strip's words are not drawn)
+        if (format === 'png') { const { svgToPng } = await import('./ifc-raster.mjs'); png = svgToPng(new TextDecoder().decode(r.bytes), { pxPerMm: a.pxPerMm || 4 }); r.bytes = png.bytes; }
+        const out = write(env, a.out, r.bytes, { overwrite: a.overwrite });
+        return { out, bytes: r.bytes.length, ...(png ? { pixels: { w: png.width, h: png.height }, note: 'PNG: the title strip\'s lettering is not drawn; use .pdf or .svg for the labelled sheet.' } : {}), level: r.level, walls: r.walls, openings: r.openings, scale: r.scale, sheetMm: { w: r.sheet.w, h: r.sheet.h }, unprintableCharacters: r.missing, ...(r.entities ? { entities: r.entities } : {}) };
+      } });
+    if (TRUST?.trustTools) for (const def of TRUST.trustTools({ ed: () => null })) {   // unverified_list: read only, no tool marks anything checked
+      T({ ...def, description: def.description + ' Works on an IFC model opened with ifc_open or ifc_new (doc).',
+        inputSchema: { ...def.inputSchema, properties: { doc: S.doc, ...def.inputSchema.properties }, required: ['doc'] },
+        run: async (a) => { const d = get(env, a.doc, 'ifc'); await d.s.editor(); const { doc, ...rest } = a; return TRUST.trustTools({ ed: () => d.s.ed }).find((x) => x.name === def.name).run(rest); } });
+    }
+    // GH.6 / FX.377 (assistant-11): batch edits, a describe with walls, a picture and OpenUSD of the model, headless (bim-more.mjs)
+    {
+      const x = bimExtras({ T, env, get, keep, write, S, obj, BIM, bimEnv, extOf, load });
+      bimUsdRun = async (a) => {
+        const d = get(env, a.doc, 'ifc');
+        const format = extOf(a.path);
+        if (!/^usd[acz]$/.test(format)) throw new Error('A USD file ends in .usda, .usdc or .usdz.');
+        const r = await x.usd(d, { format, name: path.basename(a.path).replace(/\.[^.]+$/, '') });
+        const out = write(env, a.path, r.bytes, { overwrite: a.overwrite });
+        return { path: out, format, bytes: r.bytes.length, report: r.report, notes: r.notes };
+      };
     }
     T({ name: 'ifc_save', group: 'save', title: 'Save an IFC model',
       description: 'Write an IFC model with every change: to its own file (default) or a new .ifc path.',

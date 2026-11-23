@@ -19,7 +19,7 @@
 import { clipRegion, polyArea, pointIn } from './areas.js';
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
-const ID = /^[a-z]{1,8}\d{1,9}$/;
+const ID = /^[a-z]{1,8}\d{1,16}$/;
 
 export function cleanOrder(order) { return Array.isArray(order) ? [...new Set(order.filter((x) => typeof x === 'string' && ID.test(x)))].slice(0, 5000) : []; }
 

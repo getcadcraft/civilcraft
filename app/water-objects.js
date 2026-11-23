@@ -28,7 +28,7 @@ export function cleanFittings(list, water) {
   const nodes = new Set((water?.nodes || []).map((n) => n.id)), pipes = new Set((water?.pipes || []).map((p) => p.id)), seen = new Set(), out = [];
   for (const f of (Array.isArray(list) ? list : []).slice(0, MAX_FITTINGS)) {
     if (!f || typeof f !== 'object' || !FITTING_KINDS.includes(f.kind)) continue;
-    const id = /^wf\d{1,9}$/.test(String(f.id)) ? String(f.id) : null;
+    const id = /^wf\d{1,16}$/.test(String(f.id)) ? String(f.id) : null;
     if (!id || seen.has(id)) continue;
     const h = f.host || {};
     let host = null;

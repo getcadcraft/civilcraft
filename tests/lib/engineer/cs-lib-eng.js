@@ -77,7 +77,7 @@ const BUILTINS = {
   // and the pack's id, version and hash in `note`, so the data sheet names exactly what it used. Outside the curve's range it refuses (never extrapolates).
   material_at: [wrap((a) => {
     const r = materialAtAny(str(a[0], 'material'), str(a[1], 'property'), num(a[2], 'T'));
-    return struct({ value: r.value, unit: r.unit, ref: r.ref, note: t('script.eng.pack_note', { id: r.pack.id, version: r.pack.version, hash: r.hash ? r.hash.slice(0, 16) : 'n/a', fit: +(r.fitError * 100).toPrecision(3), lo: r.range[0], hi: r.range[1] }), fit_error: r.fitError, lo: r.range[0], hi: r.range[1] });
+    return struct({ value: r.value, unit: r.unit, ref: r.ref, note: t(r.fitError === null ? 'script.eng.pack_note_nofit' : 'script.eng.pack_note', { id: r.pack.id, version: r.pack.version, hash: r.hash ? r.hash.slice(0, 16) : 'n/a', fit: r.fitError === null ? '' : +(r.fitError * 100).toPrecision(3), lo: r.range[0], hi: r.range[1] }), fit_error: r.fitError, lo: r.range[0], hi: r.range[1] });
   }), 'x = material_at(id, property, T_kelvin)'],
   material_list: [wrap(() => installedPacks().flatMap(({ pack }) => Object.entries(pack.materials).map(([id, m]) => id + ' (' + Object.keys(m.properties).join(', ') + ')')).join('; ')), 's = material_list()'],
   solver_available: [wrap((a) => {

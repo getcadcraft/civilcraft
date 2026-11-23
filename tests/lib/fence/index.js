@@ -55,7 +55,7 @@ export function clean(rec, units) {
   return { id: String(rec.id), name: str(rec.name) || String(rec.id), pts, closed, style: STYLES.includes(rec.style) ? rec.style : d.style, terrain: TERRAIN.includes(rec.terrain) ? rec.terrain : d.terrain,
     height: pos(rec.height, d.height, 100), postSize: pos(rec.postSize, d.postSize, 10), postSpacing: pos(rec.postSpacing, d.postSpacing, 1000), embed: nn(rec.embed, d.embed, 100),
     gap: nn(rec.gap, d.gap, 100), maxGap: nn(rec.maxGap, d.maxGap, 100), panelThk: pos(rec.panelThk, d.panelThk, 10), rails: Number.isInteger(rec.rails) && rec.rails >= 1 && rec.rails <= 8 ? rec.rails : d.rails,
-    railSize: pos(rec.railSize, d.railSize, 10), picketW: pos(rec.picketW, d.picketW, 10), picketGap: nn(rec.picketGap, d.picketGap, 10), cornerDeg: nn(rec.cornerDeg, d.cornerDeg, 180), doubleFrom: pos(rec.doubleFrom, d.doubleFrom, 1000), gates, type: str(rec.type, 120) };
+    railSize: pos(rec.railSize, d.railSize, 10), picketW: pos(rec.picketW, d.picketW, 10), picketGap: nn(rec.picketGap, d.picketGap, 10), cornerDeg: nn(rec.cornerDeg, d.cornerDeg, 180), doubleFrom: pos(rec.doubleFrom, d.doubleFrom, 1000), gates, type: str(rec.type, 120), typeRef: /^[0-9a-f-]{8,40}$/i.test(String(rec.typeRef ?? '')) ? String(rec.typeRef) : '' };
 }
 
 const lerp = (a, b, f) => ({ x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f });
@@ -200,4 +200,104 @@ export function ifcModel(layout, units = 'ft') {
   void units;
   if (!layout.posts.length && !layout.panels.length) return null;
   return { posts: layout.posts, panels: layout.panels, rails: layout.rails, gates: layout.gates };
+}
+
+/**
+ * pickets(layout, rec) → [{ id, x, y, w, z (bottom), height, panel }]: one element per picket (SU.1814b: one element per part). Pickets stand on a panel's
+ * bottom line (raked: parallel to the ground; stepped: level), each picketW wide, picketGap apart, the leftover split at both ends of the bay.
+ */
+export function pickets(layout, rec) {
+  const r = clean(rec, rec?.units || 'ft');
+  if (!r || r.style !== 'pickets') return [];
+  const out = [];
+  for (const p of layout.panels) {
+    const L = Math.hypot(p.b.x - p.a.x, p.b.y - p.a.y);
+    const n = Math.max(0, Math.floor((L + r.picketGap) / (r.picketW + r.picketGap) + 1e-9));
+    if (!n || out.length + n > 20000) continue;
+    const used = n * r.picketW + (n - 1) * r.picketGap, lead = (L - used) / 2;
+    for (let i = 0; i < n; i++) {
+      const t = (lead + r.picketW / 2 + i * (r.picketW + r.picketGap)) / L;
+      out.push({ id: p.id + '-k' + (i + 1), x: r6(p.a.x + (p.b.x - p.a.x) * t), y: r6(p.a.y + (p.b.y - p.a.y) * t), w: r.picketW, z: r6(p.a.z + (p.b.z - p.a.z) * t), height: p.height, panel: p.id, dx: (p.b.x - p.a.x) / L, dy: (p.b.y - p.a.y) / L });
+    }
+  }
+  return out;
+}
+
+/**
+ * parts(layout, rec) → one element per part, for a BIM host: [{ id, part 'post'|'panel'|'rail'|'picket'|'gate', ifc 'IfcMember'|'IfcRailing'|'IfcDoor', name, ...geometry as the layout gives it }].
+ * A panel of a 'pickets' fence is NOT also listed as one solid element: its pickets are the elements (the panel row stays for the schedule, flagged `virtual`).
+ */
+export function parts(layout, rec) {
+  const pk = pickets(layout, rec), list = [];
+  for (const p of layout.posts) list.push({ ...p, part: 'post', ifc: 'IfcMember', name: 'Post ' + p.id });
+  for (const p of layout.panels) list.push({ ...p, part: 'panel', ifc: 'IfcRailing', name: 'Panel ' + p.id, virtual: pk.some((k) => k.panel === p.id) });
+  for (const p of layout.rails) list.push({ ...p, part: 'rail', ifc: 'IfcMember', name: 'Rail ' + p.id });
+  for (const k of pk) list.push({ ...k, part: 'picket', ifc: 'IfcMember', name: 'Picket ' + k.id });
+  for (const g of layout.gates) list.push({ ...g, part: 'gate', ifc: 'IfcDoor', name: g.name || 'Gate ' + g.id });
+  return list;
+}
+
+/**
+ * typeFromItem(item, units) → a record patch from a Library fence type (SU.1814b), or null. Two shapes are read:
+ *   the Library's (0.11, owner 2026-11-21): kind 'type', category 'types/barriers', type { element 'barrier', barrier { subtype 'fence', height, style,
+ *     terrain, postSize, postSpacing, rails, railSize, picketW, picketGap, panelThk, gap, maxGap, embed } } in MILLIMETRES (item format 1);
+ *   the older item file: kind 'fence-type', params { the same keys } in METRES (files people saved before the Barriers category).
+ * The patch is in the caller's units and passes clean(); `type` carries the item's name, `typeRef` its uuid. Unknown or out of range values are dropped, never guessed.
+ * A Barriers type of another sub-type (guard, handrail, balustrade, road guardrail) is not a fence: null.
+ */
+export const BARRIER_CATEGORY = 'types/barriers';
+function fenceParams(item) {
+  if (item.kind === 'fence-type') return item.params && typeof item.params === 'object' ? { pr: item.params, mm: false } : null;
+  const b = item.kind === 'type' && item.type && typeof item.type === 'object' && item.type.element === 'barrier' ? item.type.barrier : null;
+  return b && typeof b === 'object' && b.subtype === 'fence' ? { pr: b, mm: true } : null;
+}
+export function typeFromItem(item, units = 'ft') {
+  const fp = item && typeof item === 'object' ? fenceParams(item) : null;
+  if (!fp) return null;
+  const f = (units === 'ft' ? 1 / 0.3048 : 1) * (fp.mm ? 0.001 : 1), pr = fp.pr, patch = { type: str(item.name, 120) };
+  if (/^[0-9a-f-]{8,40}$/i.test(String(item.uuid ?? ''))) patch.typeRef = String(item.uuid);
+  if (STYLES.includes(pr.style)) patch.style = pr.style;
+  if (TERRAIN.includes(pr.terrain)) patch.terrain = pr.terrain;
+  for (const k of ['height', 'postSize', 'postSpacing', 'railSize', 'picketW', 'picketGap', 'panelThk', 'gap', 'maxGap', 'embed']) if (fin(pr[k]) && pr[k] >= 0 && pr[k] < (fp.mm ? 1e6 : 1e3)) patch[k] = r6(pr[k] * f);
+  if (Number.isInteger(pr.rails) && pr.rails >= 1 && pr.rails <= 8) patch.rails = pr.rails;
+  return patch;
+}
+
+/**
+ * The Library picker's data (0.11 SU.1814b; su-finish-11 fence-stair, then lane barriers). Host-free: the host passes its own fetch and the Library API base.
+ * Fence types are Library Types in the category Barriers with the sub-type fence (owner 2026-11-21: no fence-only kind).
+ *   LIBRARY_KIND                                   'type'   (LIBRARY_QUERY = kind=type&category=types/barriers)
+ *   libraryTypes({ fetch, base, lang }) → Promise<[{ uuid, name, version, itemUrl, item }]>   the Barriers types whose sub-type is fence (published items only;
+ *        the list does not carry the sub-type, so each row's item JSON is read once, with ?view=1 so a look is not counted as an install; [] when none or offline)
+ *   loadLibraryType(row, { fetch }) → Promise<item | null>                            the item (row.item, else the JSON at row.itemUrl), kept only when typeFromItem() reads it
+ *   typeFromFile(text) → item | null                                                  a Library item file (format 1 JSON): a fence Barriers type, or the older kind fence-type
+ * Nothing here guesses: an item typeFromItem() cannot read is null, and the caller says so.
+ */
+export const LIBRARY_KIND = 'type';
+export const LIBRARY_QUERY = 'kind=type&category=' + encodeURIComponent(BARRIER_CATEGORY);
+const viewUrl = (u) => u + (u.includes('?') ? '&' : '?') + 'view=1';
+async function getJson(f, url) { try { const r = await f(url, { credentials: 'same-origin' }); return r && r.ok ? await r.json() : null; } catch { return null; } }
+export async function libraryTypes({ fetch: f = globalThis.fetch, base = '/api/v1/library', lang = '' } = {}) {
+  if (typeof f !== 'function') return [];
+  try {
+    const j = await getJson(f, base + '/items?' + LIBRARY_QUERY + '&per=100' + (lang ? '&lang=' + encodeURIComponent(lang) : ''));
+    const list = j?.data?.items ?? j?.items ?? [];
+    const rows = (Array.isArray(list) ? list : []).filter((x) => x && x.kind === LIBRARY_KIND && x.category === BARRIER_CATEGORY && x.item_url).slice(0, 100)
+      .map((x) => ({ uuid: str(x.uuid, 40), name: str(x.name, 120), version: Number.isInteger(x.version) ? x.version : null, itemUrl: String(x.item_url) }));
+    const items = await Promise.all(rows.map((r) => getJson(f, viewUrl(r.itemUrl))));
+    return rows.map((r, i) => ({ ...r, item: items[i] })).filter((r) => r.item && typeFromItem(r.item, 'm'));
+  } catch { return []; }
+}
+export async function loadLibraryType(row, { fetch: f = globalThis.fetch } = {}) {
+  if (!row) return null;
+  if (row.item && typeof row.item === 'object') return typeFromItem(row.item, 'm') ? row.item : null;
+  if (typeof row.itemUrl !== 'string' || typeof f !== 'function') return null;
+  const it = await getJson(f, row.itemUrl);
+  return it && typeFromItem(it, 'm') ? it : null;
+}
+export function typeFromFile(text) {
+  let it = null;
+  try { it = JSON.parse(String(text).replace(/^﻿/, '')); } catch { return null; }
+  if (!it || typeof it !== 'object' || (it.format !== undefined && it.format !== 'cadcraft-library-item')) return null;
+  return typeFromItem(it, 'm') ? it : null;
 }

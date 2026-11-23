@@ -24,9 +24,10 @@
  */
 
 import { t, has } from './i18n.js';
+import { takeNumber } from './history/ids.js';   // 0.11 DC.27: the project's counter (session tags)
 import { fixed } from './units.js';
-import { TPL_KINDS, POINT_KINDS, COMP_KINDS, PARAM_KINDS, MAX_POINTS, MAX_COMPS, MAX_PARAMS, MAX_REGIONS, MAX_USES, TPL_EXT,
-  cleanTemplate, templateProblems, evalTemplate, exampleTemplates, templatesFile, readTemplatesFile, endKind, paramValue } from './templates.js';
+import { TPL_KINDS, POINT_KINDS, COMP_KINDS, PARAM_KINDS, MAX_POINTS, MAX_COMPS, MAX_PARAMS, MAX_REGIONS, MAX_USES, MAX_NAMED, TPL_EXT,
+  cleanTemplate, templateProblems, bindingCheck, namedValueAt, evalTemplate, exampleTemplates, templatesFile, readTemplatesFile, endKind, paramValue } from './templates.js';
 import { targetSources } from './targets-ui.js';
 import { CORRIDOR_LINES } from './corridor.js';
 import { LAYERS } from './scene.js';
@@ -66,7 +67,7 @@ export function createTemplates(ctx) {
   function addToState(s, tpl) {
     const c = cleanTemplate(worded(tpl), s.units);
     if (!c) return null;
-    const n = s.seq || 1; s.seq = n + 1;
+    const n = takeNumber(s);   // 0.11 DC.27
     c.id = 'tp' + n; c.source = 'project';
     if (tpl.check) c.check = true;
     (s.templates ||= []).push(c);
@@ -208,7 +209,7 @@ export function createTemplates(ctx) {
     const editingId = src?.source === 'project' ? src.id : null;
     const body = el('div', { className: 'cv-dlg-body' }), probs = el('div', { 'data-tpl-problems': '', 'aria-live': 'polite' });
     const canvas = el('canvas', { width: 720, height: 400, style: 'width:360px;height:200px', className: 'cv-tpl-canvas', role: 'img', 'data-tpl-preview': '', 'aria-label': t('tpl.ed.drawing', { name: d.name }) });
-    const redraw = () => { drawTemplate(canvas, cleanTemplate(d, U()) || d, { labels: true }); const c = cleanTemplate(d, U()); const ps = c ? templateProblems(c) : [{ code: 'empty' }]; probs.replaceChildren(...(ps.length ? [el('ul', { className: 'cv-report is-error' }, ...ps.map((p) => el('li', { 'data-tpl-problem': p.code }, t('tpl.prob.' + p.code, { at: p.at || '', ...(p.vars || {}) }))))] : [el('p', { className: 'cv-note', 'data-tpl-ok': '' }, t('tpl.ed.ok'))])); };
+    const redraw = () => { drawTemplate(canvas, cleanTemplate(d, U()) || d, { labels: true }); const c = cleanTemplate(d, U()); const ps = [...(c ? templateProblems(c) : [{ code: 'empty' }]), ...bindingCheck(d).problems.map((p) => ({ ...p, code: 'bind.' + p.code }))]; probs.replaceChildren(...(ps.length ? [el('ul', { className: 'cv-report is-error' }, ...ps.map((p) => el('li', { 'data-tpl-problem': p.code }, t('tpl.prob.' + p.code, { at: p.at || '', ...(p.vars || {}) }))))] : [el('p', { className: 'cv-note', 'data-tpl-ok': '' }, t('tpl.ed.ok'))])); };
     const txt = (v, on, attrs = {}) => { const i = el('input', { type: 'text', className: 'cv-input', value: v ?? '', ...attrs }); i.addEventListener('change', () => { on(i.value); redraw(); }); return i; };
     // a number field: a number, or a param key (with a leading - for its negative)
     const numKey = (v, on, attrs) => txt(v === undefined ? '' : String(v), (s) => { const x = s.trim(); on(x === '' ? undefined : Number.isFinite(Number(x)) ? Number(x) : x); }, { style: 'width:4.6rem', ...attrs });
@@ -289,6 +290,41 @@ export function createTemplates(ctx) {
     return dlg;
   }
 
+  // ------------------------------------------------------------------------------------------ named values by station (0.11 SU.1941)
+  /** The corridor's named values: a template param (its key) set along the corridor by a table of start station, stop station, start
+   *  value and stop value; linear inside a row. They win over a use's own fixed value. */
+  function namedBlock(c, byId, edit, key) {
+    const out = [el('h3', { className: 'cv-h3' }, t('tpl.nv.head')), el('p', { className: 'cv-note' }, t('tpl.nv.note'))];
+    const params = new Map();
+    for (const r of c.regions || []) for (const sd of [r.L, r.R]) for (const u of [...sd.uses, sd.end]) for (const p of byId.get(u?.tpl)?.params || []) if (!params.has(p.key)) params.set(p.key, p);
+    const named = c.named || [];
+    const fromBox = (kind, v) => (kind === 'slope' ? String(Math.round(v * 1e6) / 1e4) : fixed(v, 3));
+    const toVal = (kind, s) => { const x = Number(s); return Number.isFinite(x) && s.trim() !== '' ? (kind === 'slope' ? x / 100 : x) : null; };
+    named.forEach((n, ni) => {
+      const p = params.get(n.key), kind = p?.kind || 'len', unit = kind === 'slope' ? '%' : kind === 'ratio' ? ':1' : uShort();
+      const setRows = (label, fn) => edit(label, (cc) => { const x = cc.named?.[ni]; if (x) fn(x); });
+      const stBox = (v, field, ri, lab) => ctx.numInput(fixed(v, 2), (s) => { const x = Number(s); if (!Number.isFinite(x)) return false; setRows(t('tpl.nv.undo'), (X) => { X.rows[ri][field] = x; X.rows.sort((a, b) => a.sta0 - b.sta0); }); }, { label: t(lab, { key: n.key, n: ri + 1 }), width: '6rem', station: true });
+      const vBox = (v, field, ri, lab) => ctx.numInput(fromBox(kind, v), (s) => { const x = toVal(kind, s); if (x === null) return false; setRows(t('tpl.nv.undo'), (X) => { X.rows[ri][field] = x; }); }, { label: t(lab, { key: n.key, n: ri + 1 }), width: '5rem' });
+      out.push(el('div', { className: 'cv-tpl-named', 'data-tpl-named': n.key },
+        el('div', { className: 'cv-row' }, el('strong', {}, n.key), ' ', el('span', { className: 'cv-unit' }, unit), p ? '' : el('span', { className: 'cv-note' }, ' ' + t('tpl.nv.gone')),
+          icon('bi-x', t('tpl.nv.remove', { key: n.key }), () => edit(t('tpl.nv.undo'), (cc) => { cc.named.splice(ni, 1); if (!cc.named.length) delete cc.named; }), { 'tpl-nv-remove': n.key })),
+        el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-tpl-nv-table': n.key },
+          el('thead', {}, el('tr', {}, ...['tpl.nv.c.sta0', 'tpl.nv.c.sta1', 'tpl.nv.c.v0', 'tpl.nv.c.v1', ''].map((k) => el('th', { scope: 'col' }, k ? t(k) : '')))),
+          el('tbody', {}, ...n.rows.map((r, ri) => el('tr', { 'data-tpl-nv-row': ri },
+            el('td', {}, stBox(r.sta0, 'sta0', ri, 'tpl.nv.sta0.of')), el('td', {}, stBox(r.sta1, 'sta1', ri, 'tpl.nv.sta1.of')),
+            el('td', {}, vBox(r.v0, 'v0', ri, 'tpl.nv.v0.of')), el('td', {}, vBox(r.v1, 'v1', ri, 'tpl.nv.v1.of')),
+            el('td', {}, icon('bi-x', t('tpl.nv.row.remove', { key: n.key, n: ri + 1 }), () => edit(t('tpl.nv.undo'), (cc) => { const X = cc.named?.[ni]; if (!X) return; X.rows.splice(ri, 1); if (!X.rows.length) { cc.named.splice(ni, 1); if (!cc.named.length) delete cc.named; } }), {}, false))))))),
+        el('div', { className: 'cv-actions' }, btn(t('tpl.nv.row.add'), () => setRows(t('tpl.nv.undo'), (X) => { const l = X.rows[X.rows.length - 1]; X.rows.push({ sta0: l.sta1, sta1: l.sta1 + 50, v0: l.v1, v1: l.v1 }); }), { 'tpl-nv-rowadd': n.key }))));
+    });
+    const free = [...params.values()].filter((p) => !named.some((n) => n.key === p.key));
+    if (free.length && named.length < MAX_NAMED) {
+      const pick = el('select', { className: 'cv-select', 'aria-label': t('tpl.nv.pick'), 'data-tpl-nv-pick': key }, ...free.map((p) => el('option', { value: p.key }, p.key)));
+      const al = null; void al;
+      out.push(el('div', { className: 'cv-actions' }, pick, btn(t('tpl.nv.add'), () => edit(t('tpl.nv.undo'), (cc) => { const p = params.get(pick.value); if (!p) return; const at = Number.isFinite(cc.from) ? cc.from : cc.regions[0].from; (cc.named ||= []).push({ key: p.key, rows: [{ sta0: at, sta1: at + 50, v0: p.value, v1: p.value }] }); }), { 'tpl-nv-add': key })));
+    } else if (!params.size) out.push(el('p', { className: 'cv-note' }, t('tpl.nv.none')));
+    return out;
+  }
+
   // ------------------------------------------------------------------------------------------ a corridor's regions
   /** The corridor's "Build from templates by station" block. `key` = the alignment's id (its own corridor) or a cr<n> id. */
   function corridorBlock(a, c, key, item) {
@@ -363,6 +399,7 @@ export function createTemplates(ctx) {
         btn(t('tpl.co.copy.rl'), () => edit(t('tpl.undo.copy'), (cc) => { cc.regions[ri].L = JSON.parse(JSON.stringify(cc.regions[ri].R)); }), { 'tpl-copy': 'rl' + ri })));
       out.push(box);
     });
+    out.push(...namedBlock(c, byId, edit, key));   // 0.11 SU.1941
     const last = c.regions[c.regions.length - 1], end = Number.isFinite(c.to) ? c.to : al.ok ? al.end : last.from + 100;
     out.push(el('div', { className: 'cv-actions' },
       btn(t('tpl.co.region.add'), () => edit(t('tpl.undo.region'), (cc) => { const L = cc.regions[cc.regions.length - 1]; const at = Math.round(((L.from + end) / 2) * 100) / 100; cc.regions.push({ from: at > L.from ? at : L.from + 1, L: JSON.parse(JSON.stringify(L.L)), R: JSON.parse(JSON.stringify(L.R)) }); }), { 'tpl-region-add': key }, { disabled: c.regions.length >= MAX_REGIONS }),
@@ -409,7 +446,7 @@ export function createTemplates(ctx) {
         if (x.corridor && !Number.isFinite(main.to)) x.corridor.to = split;
         const last = (x.corridors || []).reduce((m, y) => Math.max(m, Number.isFinite(y.to) ? y.to : -Infinity), -Infinity);
         const from = Number.isFinite(last) && last < end ? last : split;
-        const n = s.seq || 1; s.seq = n + 1;
+        const n = takeNumber(s);   // 0.11 DC.27
         const regions = main.regions ? JSON.parse(JSON.stringify(main.regions.slice(-1))).map((r) => ({ ...r, from })) : undefined;
         (x.corridors ||= []).push({ id: 'cr' + n, name: t('tpl.more.default', { n: x.corridors.length + 2 }), on: true, lane: main.lane ?? 12, laneSlope: main.laneSlope ?? 0.02, shoulder: main.shoulder ?? 4, shoulderSlope: main.shoulderSlope ?? 0.04, cut: main.cut ?? 2, fill: main.fill ?? 3, step: main.step ?? 10, from, to: end, ...(regions ? { regions } : {}) });
       });

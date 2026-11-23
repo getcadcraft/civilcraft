@@ -30,6 +30,7 @@ $__tools = [
         ['new', 'file-earmark-plus', Lang::t('ui.tb.new'), Lang::t('ui.tb.new.title')],
         ['open', 'folder2-open', Lang::t('ui.tb.open'), Lang::t('ui.tb.open.title')],
         ['save', 'save', Lang::t('ui.tb.save'), Lang::t('ui.tb.save.title')],
+        ['save-older', 'clock-history', Lang::t('ui.tb.save-older'), Lang::t('ui.tb.save-older.title')],   // 0.11 DC.27: a copy for 0.10 and older (Save writes the large ids)
     ],
     'Export' => [   // i18n-ignore: the group's key (also its aria-label and data-group-menu); the visible name is ui.tb.group.*
         ['landxml', 'filetype-xml', Lang::t('ui.tb.landxml'), Lang::t('ui.tb.landxml.title')],
@@ -84,6 +85,7 @@ $__more = [
         ['water', Lang::t('wm.tb'), Lang::t('wm.tb.title'), '', 'menuitem'],   // 0.8 LC.16: water mains (water-ui.js)
         ['issues', Lang::t('iss.tb'), Lang::t('iss.tb.title'), '', 'menuitem'],   // 0.10 CV.1: issues and BCF (issues-ui.js)
         ['utilities', Lang::t('un.tb'), Lang::t('un.tb.title'), '', 'menuitem'],   // 0.10 SU.1810: utility networks (utilnet-ui.js)
+        ['util-run', Lang::t('un.tool.tb'), Lang::t('un.tool.tb.title'), '', 'menuitemcheckbox'],   // 0.11 SU.1810: draw a utility run on the plan (utilnet-ui.js)
         ['parking', Lang::t('pk.tb'), Lang::t('pk.tb.title'), '', 'menuitem'],   // 0.10 SU.1815: parking lots (parking-ui.js)
         ['fences', Lang::t('fc.tb'), Lang::t('fc.tb.title'), '', 'menuitem'],   // 0.10 SU.1814b: fences (fence-ui.js)
         ['eg-rain', Lang::t('eg.tb.rain'), Lang::t('eg.tb.rain.title'), '', 'menuitem'],   // 0.8 round 2 (EG.69 Make it rain; eg-ui.js)

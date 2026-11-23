@@ -43,10 +43,34 @@ export function formatPoints(points, { format = 'PNEZD', delimiter = ',', dec = 
 const isNum = (s) => typeof s === 'string' && /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(s.trim());
 const cleanText = (s) => String(s).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 200);
 
+/** A Set of strings with no ceiling: one JavaScript Set stops at 16,777,216 entries ("Set maximum size exceeded"), which a point file of 17 million points reaches. */
+class BigSet {
+  constructor() { this.sets = [new Set()]; }
+  has(k) { for (let i = 0; i < this.sets.length; i++) if (this.sets[i].has(k)) return true; return false; }
+  add(k) { let s = this.sets[this.sets.length - 1]; if (s.size >= 8000000) { s = new Set(); this.sets.push(s); } s.add(k); return this; }
+}
+
+/** The lines of `text` one at a time, exactly String(text).split(/\r\n|\r|\n/), with a leading BOM dropped. `text` is a string or the parts of a file
+ *  too big for one string (PERF.20: textin.js TextParts, or an array of strings cut anywhere, even between a CR and its LF). */
+function* pointLines(text) {
+  const parts = typeof text === 'string' ? [text] : Array.isArray(text) ? text : (text && Array.isArray(text.parts) ? text.parts : [String(text ?? '')]);
+  let carry = '', cr = false, first = true;
+  for (let part of parts) {
+    if (!part) continue;
+    if (first) { part = part.replace(/^﻿/, ''); first = false; if (!part) continue; }
+    if (cr && part.charCodeAt(0) === 10) { cr = false; part = part.slice(1); if (!part) continue; }   // the LF of a CRLF cut between two parts
+    const lines = (carry ? carry + part : part).split(/\r\n|\r|\n/);
+    carry = lines.pop();
+    cr = part.charCodeAt(part.length - 1) === 13;
+    for (let i = 0; i < lines.length; i++) yield lines[i];
+  }
+  yield carry;
+}
+
 export function parsePoints(text, { format = 'auto', prefer = 'PNEZD' } = {}) {
-  const raw = String(text ?? '').replace(/^﻿/, '').split(/\r\n|\r|\n/);
   const rows = [];
-  raw.forEach((line, i) => { const s = line.trim(); if (s && !s.startsWith('#') && !s.startsWith(';') && !s.startsWith('//')) rows.push({ line: i + 1, text: line }); });
+  let li = 0;
+  for (const line of pointLines(text ?? '')) { li++; const s = line.trim(); if (s && !s.startsWith('#') && !s.startsWith(';') && !s.startsWith('//')) rows.push({ line: li, text: line }); }
   const out = { points: [], format: null, formatFrom: '', delimiter: null, header: null, bad: [], badCount: 0, duplicates: 0 };
   if (!rows.length) return out;
   const delim = detectDelimiter(rows.slice(0, 20).map((r) => r.text));
@@ -70,7 +94,7 @@ export function parsePoints(text, { format = 'auto', prefer = 'PNEZD' } = {}) {
   out.format = fmt;
   const cols = fmt.split('');
   const iP = cols.indexOf('P'), iN = cols.indexOf('N'), iE = cols.indexOf('E'), iZ = cols.indexOf('Z'), iD = cols.indexOf('D');
-  const seen = new Set();
+  const seen = new BigSet();
   let auto = 0;
   const bad = (r, code, extra = {}) => { out.badCount++; if (out.bad.length < MAX_BAD) out.bad.push({ line: r.line, text: r.text.slice(0, 160), code, ...extra }); };
   for (let k = start; k < rows.length; k++) {

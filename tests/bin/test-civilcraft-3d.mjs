@@ -306,8 +306,12 @@ const scP = S3.buildSite3D(input, { exag: 2, show: { points: true } });
   const net = project.state.network, chk = project.networkCheck();
   // a structure: aim at the middle of its side
   const s2 = net.structures[1], st2 = chk.structs.get('s2');
-  const sp = cam.project(toLocal(s2.x, s2.y, st2.rim));
-  const hit = S3.pickSite(scP, cam, sp[0], sp[1] + 1);
+  // (points off for this click: since 0.10.1 #1977 the graded surface keeps the ground breaklines a road crosses, the view fits
+  // a little differently and survey point 213 happens to sit in front of this structure, where a point rightly wins the click)
+  const scS = S3.buildSite3D(input, { exag: 2 });
+  const camS = new Camera(); camS.setSize(1000, 700); camS.standard('iso', scS.bbox);
+  const sp = camS.project(toLocal(s2.x, s2.y, st2.rim));
+  const hit = S3.pickSite(scS, camS, sp[0], sp[1] + 1);
   ok(hit?.kind === 'structure' && hit.id === 's2', `clicking a structure's rim picks it (${hit?.kind} ${hit?.id})`);
   // a survey point
   const p = project.points.find((q) => q.n === '100');

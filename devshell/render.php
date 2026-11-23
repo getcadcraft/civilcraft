@@ -76,7 +76,7 @@ $__panels = AppBuilds::panels($__build);
 $__wsCfg = AppBuilds::hasWorkspaces($__build) ? AppBuilds::workspaceConfig($__build, $app) : null;
 // menus, keys and mouse: as the site's import map (AppBuilds::headTags), a module may import the engine by its absolute path
 if (AppBuilds::input($__build)) foreach ([AppBuilds::INPUT_ENGINE, AppBuilds::INPUT_SCRIPT] as $__m) $imports[$__m] = $R . ltrim($__m, '/');
-if ($__wsCfg) { $imports['cc-workspace'] = $R . 'assets/js/app-workspace.js'; foreach (AppBuilds::WORKSPACE_MODULES as $__m) $imports[$__m] = $R . ltrim($__m, '/'); }
+if ($__wsCfg) { $imports['cc-workspace'] = $R . 'assets/js/app-workspace.js'; foreach ([...AppBuilds::WORKSPACE_MODULES, ...AppBuilds::WORKSPACE_BLOCK_MODULES] as $__m) $imports[$__m] = $R . ltrim($__m, '/'); }
 $__site = 'https://getcadcraft.com';
 // The edition's own facts for the apps and the shell (0.4 part 2 D.4): features that live only on getcadcraft.com are off.
 $__editionData = $edition === null ? null : [
@@ -224,6 +224,10 @@ ob_start();
 <?php if (AppBuilds::devices($__build)): /* input devices (0.8 Track ID): same module and settings as the site */ ?>
 <script type="application/json" id="cc-devices"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name']]) ?></script>
 <script type="module" src="<?= $R ?>assets/js/app-devices-ui.js"></script>
+<?php endif; ?>
+<?php if ($edition !== null && is_file($__appDir . '/addons.js')): /* AK.1: the account's add-ons in a packed page; idle until Studio sets window.ccEdition = 'desktop' (app-addons-account-mount.js) */ ?>
+<script type="application/json" id="cc-addons-account"><?= json_embed(['app' => $app['slug'], 'build' => $__build['url'], 'site' => $__site, 'edition' => 'custom', 'paid' => []]) ?></script>
+<script type="module" src="<?= $R ?>assets/js/app-addons-account-mount.js"></script>
 <?php endif; ?>
 <?php foreach (AppBuilds::extras($__build) as $__x): /* round 2 shell_PART_2: calc sheets, design reasons, running totals, lessons: same modules as the site */ ?>
 <script type="application/json" id="cc-<?= $__x ?>"><?= json_embed(['app' => $app['slug'], 'appName' => $app['name']]) ?></script>

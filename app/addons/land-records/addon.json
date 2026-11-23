@@ -1,0 +1,24 @@
+{
+  "id": "land-records",
+  "name": "Land records and field walk",
+  "version": "0.11.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.4",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [
+    "panel",
+    "files",
+    "objects",
+    "storage",
+    "problems",
+    "location"
+  ],
+  "description": "Walk a property with a phone and press one button at each corner to sketch a plot. Keep a record per parcel, check drawn against recorded areas, subdivide or rezone as proposals, read buildings from an IFC model, take off quantities, send notes to MarkupCraft and back, compare lots with a place's printed rules (its own add-on) and fill application outlines. A sketch and a filing aid, not a survey.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "help": "./help/help.js",
+  "default": "off"
+}

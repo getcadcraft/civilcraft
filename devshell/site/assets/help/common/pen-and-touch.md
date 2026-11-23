@@ -44,4 +44,4 @@ The pen and touch choices are kept for this device and apply in every app on it,
 
 ## Not built yet
 
-Pen pressure and tilt don't change line weights yet, and no app has a handwriting or sketch-to-shape tool. The app reads the pen's pressure, tilt and hover, so these can come later per app.
+Where the pen is turned on for the apps (Settings › Global › Input devices › Pen), CadCraft's sketch tools take a stroke's pressure as its lineweight and BimCraft's {{ui:Sketch stair}} takes one pen stroke as the walking line; the other apps don't use pressure yet. No app uses the pen's tilt yet, and no app has a handwriting tool.

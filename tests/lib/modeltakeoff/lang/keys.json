@@ -1,0 +1,632 @@
+{
+  "mt.tool": [
+    "Toolbar button (keep it short): take quantities off a building model (0.11 MT.1).",
+    "Model",
+    "Modelo",
+    "Model"
+  ],
+  "mt.tool.title": [
+    "Tooltip of the Model button.",
+    "Take quantities off a building model: open an IFC file and pick what joins the takeoff",
+    "Obtener cantidades de un modelo del edificio: abre un archivo IFC y elige qué entra en la cuantificación",
+    "Ambil kuantitas dari model bangunan: buka berkas IFC dan pilih yang masuk ke takeoff"
+  ],
+  "mt.h": [
+    "Dialog heading.",
+    "Model takeoff",
+    "Cuantificación del modelo",
+    "Takeoff model"
+  ],
+  "mt.busy.read": [
+    "Busy text; {file}.",
+    "Reading {file}…",
+    "Leyendo {file}…",
+    "Membaca {file}…"
+  ],
+  "mt.busy.measure": [
+    "Busy text; {file}, {done} and {total} are element counts.",
+    "Measuring {file}: {done} of {total} elements…",
+    "Midiendo {file}: {done} de {total} elementos…",
+    "Mengukur {file}: {done} dari {total} elemen…"
+  ],
+  "mt.busy.rvt.load": [
+    "Busy text while the .rvt reader loads (lab only).",
+    "Loading the .rvt reader…",
+    "Cargando el lector de .rvt…",
+    "Memuat pembaca .rvt…"
+  ],
+  "mt.busy.rvt.convert": [
+    "Busy text; {file}, {size} like '32 MB'.",
+    "Reading {file} ({size}). A large project can take a minute.",
+    "Leyendo {file} ({size}). Un proyecto grande puede tardar un minuto.",
+    "Membaca {file} ({size}). Proyek besar bisa memakan waktu semenit."
+  ],
+  "mt.err.read": [
+    "Status line; {file}, {error}.",
+    "Could not read {file}: {error}",
+    "No se pudo leer {file}: {error}",
+    "Tidak dapat membaca {file}: {error}"
+  ],
+  "mt.err.empty": [
+    "Status line; {file}.",
+    "{file} holds no elements with a shape to measure.",
+    "{file} no contiene elementos con una forma que medir.",
+    "{file} tidak berisi elemen dengan bentuk untuk diukur."
+  ],
+  "mt.rvt.off": [
+    "Status line when an .rvt file is opened outside the lab; {file}. 'File, Export, IFC' is the menu path in the program that made the file.",
+    "This build does not read the model inside {file}. Ask the architect for an IFC export (File, Export, IFC in the program that made it) and open that here.",
+    "Esta versión no lee el modelo dentro de {file}. Pide al arquitecto una exportación IFC (Archivo, Exportar, IFC en el programa que lo creó) y ábrela aquí.",
+    "Versi ini tidak membaca model di dalam {file}. Minta ekspor IFC dari arsitek (File, Export, IFC di program pembuatnya) dan buka di sini."
+  ],
+  "mt.rvt.why.old": [
+    "Status line; {file}, {release} a year.",
+    "{file} was saved in {release}. The .rvt reader in the lab reads projects saved in 2023 to 2026. Ask for an IFC export instead.",
+    "{file} se guardó en {release}. El lector de .rvt del laboratorio lee proyectos guardados de 2023 a 2026. Pide una exportación IFC.",
+    "{file} disimpan pada {release}. Pembaca .rvt di lab membaca proyek yang disimpan pada 2023 sampai 2026. Mintalah ekspor IFC."
+  ],
+  "mt.rvt.why.family": [
+    "Status line; {file}.",
+    "{file} is a family, not a project: there is no building in it to take off.",
+    "{file} es una familia, no un proyecto: no contiene un edificio que cuantificar.",
+    "{file} adalah family, bukan proyek: tidak ada bangunan di dalamnya untuk di-takeoff."
+  ],
+  "mt.rvt.why.template": [
+    "Status line; {file}.",
+    "{file} is a project template: there is no building in it to take off.",
+    "{file} es una plantilla de proyecto: no contiene un edificio que cuantificar.",
+    "{file} adalah templat proyek: tidak ada bangunan di dalamnya untuk di-takeoff."
+  ],
+  "mt.rvt.why.partial": [
+    "Status line; {file}.",
+    "{file} is cut off: part of the file is missing. Copy the original again.",
+    "{file} está incompleto: falta parte del archivo. Copia de nuevo el original.",
+    "{file} terpotong: sebagian berkas hilang. Salin lagi berkas aslinya."
+  ],
+  "mt.rvt.why.unknown": [
+    "Status line; {file}.",
+    "{file} does not say which release saved it, so the .rvt reader in the lab cannot read it. Ask for an IFC export instead.",
+    "{file} no indica con qué versión se guardó, así que el lector de .rvt del laboratorio no puede leerlo. Pide una exportación IFC.",
+    "{file} tidak menyebut rilis yang menyimpannya, jadi pembaca .rvt di lab tidak dapat membacanya. Mintalah ekspor IFC."
+  ],
+  "mt.rvt.failed": [
+    "Status line; {file}, {error}.",
+    "The .rvt reader could not read {file}: {error}. Ask for an IFC export instead.",
+    "El lector de .rvt no pudo leer {file}: {error}. Pide una exportación IFC.",
+    "Pembaca .rvt tidak dapat membaca {file}: {error}. Mintalah ekspor IFC."
+  ],
+  "mt.rvt.empty": [
+    "Status line; {file}.",
+    "The .rvt reader found no elements in {file}. Ask for an IFC export instead.",
+    "El lector de .rvt no encontró elementos en {file}. Pide una exportación IFC.",
+    "Pembaca .rvt tidak menemukan elemen di {file}. Mintalah ekspor IFC."
+  ],
+  "mt.summary": [
+    "Panel first line; {file}, counts {n} {rooms} {levels}, {schema} like IFC4.",
+    "{file}: {n} elements, {rooms} rooms, {levels} levels ({schema}).",
+    "{file}: {n} elementos, {rooms} habitaciones, {levels} niveles ({schema}).",
+    "{file}: {n} elemen, {rooms} ruangan, {levels} lantai ({schema})."
+  ],
+  "mt.rvt.note": [
+    "Warning in the panel for an .rvt file (lab); {release} a year, {n} elements, {boxes} of them boxes.",
+    "Lab preview. This .rvt file (saved in {release}) was read by an open-source reader, not by the program that made it: it found {n} elements and may have missed others. {boxes} came in as plain boxes. Check the counts against the drawings or an IFC export before you price from them.",
+    "Vista previa de laboratorio. Este archivo .rvt (guardado en {release}) lo leyó un lector de código abierto, no el programa que lo creó: encontró {n} elementos y puede haber omitido otros. {boxes} llegaron como simples cajas. Comprueba las cantidades con los planos o una exportación IFC antes de cotizar.",
+    "Pratinjau lab. Berkas .rvt ini (disimpan pada {release}) dibaca oleh pembaca sumber terbuka, bukan oleh program pembuatnya: ditemukan {n} elemen dan mungkin ada yang terlewat. {boxes} masuk sebagai kotak polos. Periksa jumlahnya dengan gambar atau ekspor IFC sebelum memberi harga."
+  ],
+  "mt.rvt.nofabric": [
+    "Warning in the panel for an .rvt file where no walls, floors or roofs were read; {release}, {n}, {boxes}.",
+    "Lab preview. The reader found only {n} elements in this .rvt file (saved in {release}) and no walls, floors or roofs: this is not the whole building. Ask for an IFC export for a real takeoff.",
+    "Vista previa de laboratorio. El lector encontró solo {n} elementos en este archivo .rvt (guardado en {release}) y ningún muro, piso o techo: no es el edificio completo. Pide una exportación IFC para una cuantificación real.",
+    "Pratinjau lab. Pembaca hanya menemukan {n} elemen di berkas .rvt ini (disimpan pada {release}) dan tidak ada dinding, lantai, atau atap: ini bukan seluruh bangunan. Mintalah ekspor IFC untuk takeoff yang sebenarnya."
+  ],
+  "mt.boxes.note": [
+    "Warning in the panel; {n} elements.",
+    "{n} elements came in as plain boxes because their real shape was not read. They are counted, and their lengths, areas and volumes are left out.",
+    "{n} elementos llegaron como simples cajas porque no se leyó su forma real. Se cuentan, y sus longitudes, áreas y volúmenes se omiten.",
+    "{n} elemen masuk sebagai kotak polos karena bentuk aslinya tidak terbaca. Elemen itu dihitung, sedangkan panjang, luas, dan volumenya tidak disertakan."
+  ],
+  "mt.openings.note": [
+    "Warning in the panel.",
+    "Door and window openings could not be cut out of the walls here, so wall areas and volumes are gross.",
+    "Aquí no se pudieron descontar los vanos de puertas y ventanas de los muros, así que las áreas y volúmenes de muro son brutos.",
+    "Bukaan pintu dan jendela tidak dapat dipotong dari dinding di sini, jadi luas dan volume dinding adalah bruto."
+  ],
+  "mt.name": [
+    "Field label: the name the model goes by in this takeoff.",
+    "Model name",
+    "Nombre del modelo",
+    "Nama model"
+  ],
+  "mt.name.help": [
+    "Help line under the fields.",
+    "Keep the same model name when a newer copy of the model arrives: its quantities then update the ones already in the takeoff, and your names, rates and assemblies stay.",
+    "Conserva el mismo nombre de modelo cuando llegue una copia más reciente: sus cantidades actualizan las que ya están en la cuantificación, y tus nombres, precios y ensambles se conservan.",
+    "Pertahankan nama model yang sama saat salinan model yang lebih baru tiba: kuantitasnya memperbarui yang sudah ada di takeoff, dan nama, harga, serta rakitan Anda tetap."
+  ],
+  "mt.by": [
+    "Field label: how rows are grouped.",
+    "Group by",
+    "Agrupar por",
+    "Kelompokkan menurut"
+  ],
+  "mt.by.class": [
+    "Group-by option.",
+    "Category",
+    "Categoría",
+    "Kategori"
+  ],
+  "mt.by.type": [
+    "Group-by option.",
+    "Category and type",
+    "Categoría y tipo",
+    "Kategori dan tipe"
+  ],
+  "mt.by.level": [
+    "Group-by option.",
+    "Category, type and level",
+    "Categoría, tipo y nivel",
+    "Kategori, tipe, dan lantai"
+  ],
+  "mt.units": [
+    "Field label.",
+    "Units",
+    "Unidades",
+    "Satuan"
+  ],
+  "mt.units.imperial": [
+    "Units option; unit symbols stay as written.",
+    "Feet (LF, SF, CY)",
+    "Pies (LF, SF, CY)",
+    "Kaki (LF, SF, CY)"
+  ],
+  "mt.units.metric": [
+    "Units option; unit symbols stay as written.",
+    "Metres (m, m², m³)",
+    "Metros (m, m², m³)",
+    "Meter (m, m², m³)"
+  ],
+  "mt.filter": [
+    "Field label: filter the rows by text.",
+    "Find",
+    "Buscar",
+    "Cari"
+  ],
+  "mt.col.category": [
+    "Table column heading.",
+    "Category",
+    "Categoría",
+    "Kategori"
+  ],
+  "mt.col.type": [
+    "Table column heading.",
+    "Type",
+    "Tipo",
+    "Tipe"
+  ],
+  "mt.col.length": [
+    "Table column heading.",
+    "Length",
+    "Longitud",
+    "Panjang"
+  ],
+  "mt.col.side": [
+    "Table column heading: one face of a wall.",
+    "Wall area",
+    "Área de muro",
+    "Luas dinding"
+  ],
+  "mt.col.plan": [
+    "Table column heading: area seen from above.",
+    "Plan area",
+    "Área en planta",
+    "Luas denah"
+  ],
+  "mt.col.slope": [
+    "Table column heading: a roof's true surface.",
+    "Roof surface",
+    "Superficie de techo",
+    "Permukaan atap"
+  ],
+  "mt.col.volume": [
+    "Table column heading.",
+    "Volume",
+    "Volumen",
+    "Volume"
+  ],
+  "mt.kind.count": [
+    "Quantity name, end of an item name: 'Walls: Brick 215: count'.",
+    "count",
+    "cantidad",
+    "jumlah"
+  ],
+  "mt.kind.length": [
+    "Quantity name, end of an item name.",
+    "length",
+    "longitud",
+    "panjang"
+  ],
+  "mt.kind.side": [
+    "Quantity name, end of an item name: one face of a wall, openings out.",
+    "wall area",
+    "área de muro",
+    "luas dinding"
+  ],
+  "mt.kind.plan": [
+    "Quantity name, end of an item name.",
+    "plan area",
+    "área en planta",
+    "luas denah"
+  ],
+  "mt.kind.slope": [
+    "Quantity name, end of an item name.",
+    "roof surface",
+    "superficie de techo",
+    "permukaan atap"
+  ],
+  "mt.kind.volume": [
+    "Quantity name, end of an item name.",
+    "volume",
+    "volumen",
+    "volume"
+  ],
+  "mt.group.wall": [
+    "Category of model elements.",
+    "Walls",
+    "Muros",
+    "Dinding"
+  ],
+  "mt.group.roof": [
+    "Category of model elements.",
+    "Roofs",
+    "Techos",
+    "Atap"
+  ],
+  "mt.group.floor": [
+    "Category of model elements: floors, slabs, ceilings and other flat coverings.",
+    "Floors and coverings",
+    "Pisos y recubrimientos",
+    "Lantai dan pelapis"
+  ],
+  "mt.group.footing": [
+    "Category of model elements.",
+    "Footings",
+    "Zapatas",
+    "Pondasi"
+  ],
+  "mt.group.column": [
+    "Category of model elements.",
+    "Columns",
+    "Columnas",
+    "Kolom"
+  ],
+  "mt.group.beam": [
+    "Category of model elements.",
+    "Beams and members",
+    "Vigas y elementos",
+    "Balok dan batang"
+  ],
+  "mt.group.door": [
+    "Category of model elements.",
+    "Doors",
+    "Puertas",
+    "Pintu"
+  ],
+  "mt.group.window": [
+    "Category of model elements.",
+    "Windows",
+    "Ventanas",
+    "Jendela"
+  ],
+  "mt.group.stair": [
+    "Category of model elements.",
+    "Stairs",
+    "Escaleras",
+    "Tangga"
+  ],
+  "mt.group.railing": [
+    "Category of model elements.",
+    "Railings",
+    "Barandales",
+    "Railing"
+  ],
+  "mt.group.pipe": [
+    "Category of model elements.",
+    "Pipes, ducts and cable runs",
+    "Tuberías, ductos y canalizaciones",
+    "Pipa, saluran, dan jalur kabel"
+  ],
+  "mt.group.room": [
+    "Category of model elements.",
+    "Rooms",
+    "Habitaciones",
+    "Ruangan"
+  ],
+  "mt.type.none": [
+    "Shown where an element names no type.",
+    "No type named",
+    "Sin tipo",
+    "Tanpa tipe"
+  ],
+  "mt.row.boxes": [
+    "Small line under a row; {n} of {of} elements.",
+    "{n} of {of} are boxes: counted only",
+    "{n} de {of} son cajas: solo se cuentan",
+    "{n} dari {of} berupa kotak: hanya dihitung"
+  ],
+  "mt.row.file": [
+    "Small line under a row.",
+    "Quantities stated by the model's author",
+    "Cantidades indicadas por el autor del modelo",
+    "Kuantitas dinyatakan oleh pembuat model"
+  ],
+  "mt.cell.none": [
+    "Tooltip on an empty cell.",
+    "No element in this row gave this number.",
+    "Ningún elemento de esta fila dio este número.",
+    "Tidak ada elemen di baris ini yang memberi angka ini."
+  ],
+  "mt.pick.row": [
+    "Checkbox label for screen readers; {name}.",
+    "Bring in {name}",
+    "Incluir {name}",
+    "Sertakan {name}"
+  ],
+  "mt.pick.all": [
+    "Checkbox label for screen readers.",
+    "Bring in every row shown",
+    "Incluir todas las filas mostradas",
+    "Sertakan semua baris yang tampil"
+  ],
+  "mt.how": [
+    "Note under the table: how the numbers are made.",
+    "Where the model states a quantity, that number is used. Otherwise it is measured from the element's shape: a wall's area is one face with openings out, a floor's is its area seen from above, a volume needs a closed shape. A * marks a number that some elements did not give; hover it to see why.",
+    "Donde el modelo indica una cantidad, se usa ese número. Si no, se mide de la forma del elemento: el área de un muro es una cara sin vanos, la de un piso es su área vista desde arriba, y un volumen requiere una forma cerrada. Un * marca un número que algunos elementos no dieron; pasa el cursor para ver por qué.",
+    "Bila model menyatakan suatu kuantitas, angka itu dipakai. Jika tidak, diukur dari bentuk elemen: luas dinding adalah satu sisi tanpa bukaan, luas lantai adalah luasnya dilihat dari atas, dan volume memerlukan bentuk tertutup. Tanda * menandai angka yang tidak diberikan sebagian elemen; arahkan kursor untuk melihat alasannya."
+  ],
+  "mt.compare": [
+    "Note when the takeoff already holds quantities from this model name; three counts.",
+    "Against the quantities already here under this model name: {added} new, {updated} changed, {same} unchanged.",
+    "Frente a las cantidades que ya están aquí con este nombre de modelo: {added} nuevas, {updated} cambiadas, {same} sin cambio.",
+    "Dibandingkan kuantitas yang sudah ada dengan nama model ini: {added} baru, {updated} berubah, {same} tidak berubah."
+  ],
+  "mt.compare.change": [
+    "One changed quantity; {name}, {from} and {to} are numbers with units.",
+    "{name}: {from} becomes {to}",
+    "{name}: {from} pasa a {to}",
+    "{name}: {from} menjadi {to}"
+  ],
+  "mt.compare.gone": [
+    "Note; {n} quantities.",
+    "{n} quantities from the earlier copy are not in what you are bringing in now. They keep their old numbers; remove them yourself if the design dropped them:",
+    "{n} cantidades de la copia anterior no están en lo que incluyes ahora. Conservan sus números; quítalas tú si el diseño las eliminó:",
+    "{n} kuantitas dari salinan sebelumnya tidak ada dalam yang Anda sertakan sekarang. Angkanya tetap; hapus sendiri bila desain menghilangkannya:"
+  ],
+  "mt.more": [
+    "End of a shortened list; {n}.",
+    "and {n} more",
+    "y {n} más",
+    "dan {n} lagi"
+  ],
+  "mt.over": [
+    "Warning; {n} quantities, {max} the limit.",
+    "{n} quantities is more than the {max} one model can bring in at a time. Untick rows, or group by category.",
+    "{n} cantidades supera las {max} que un modelo puede incluir a la vez. Desmarca filas o agrupa por categoría.",
+    "{n} kuantitas melebihi {max} yang dapat disertakan satu model sekaligus. Hapus centang baris, atau kelompokkan menurut kategori."
+  ],
+  "mt.count": [
+    "Footer line; {n} quantities from {rows} rows.",
+    "{n} quantities from {rows} rows",
+    "{n} cantidades de {rows} filas",
+    "{n} kuantitas dari {rows} baris"
+  ],
+  "mt.add": [
+    "Button.",
+    "Add to the takeoff",
+    "Agregar a la cuantificación",
+    "Tambahkan ke takeoff"
+  ],
+  "mt.close": [
+    "Button.",
+    "Close",
+    "Cerrar",
+    "Tutup"
+  ],
+  "mt.note.count": [
+    "Note kept on a quantity; {n} elements.",
+    "{n} elements in the model.",
+    "{n} elementos en el modelo.",
+    "{n} elemen dalam model."
+  ],
+  "mt.note.boxes": [
+    "Note kept on a quantity; {n} elements.",
+    "{n} came in as plain boxes and give no length, area or volume.",
+    "{n} llegaron como simples cajas y no dan longitud, área ni volumen.",
+    "{n} masuk sebagai kotak polos dan tidak memberi panjang, luas, atau volume."
+  ],
+  "mt.note.all": [
+    "Note kept on a quantity; {n} elements.",
+    "From all {n} elements.",
+    "De los {n} elementos.",
+    "Dari semua {n} elemen."
+  ],
+  "mt.note.some": [
+    "Note kept on a quantity; {n} of {of} elements.",
+    "From {n} of {of} elements; the rest add nothing.",
+    "De {n} de {of} elementos; el resto no suma nada.",
+    "Dari {n} dari {of} elemen; sisanya tidak menambah apa pun."
+  ],
+  "mt.note.mixed": [
+    "Note kept on a quantity; two counts.",
+    "{file} stated by the model, {shape} measured from the shape.",
+    "{file} indicados por el modelo, {shape} medidos de la forma.",
+    "{file} dinyatakan oleh model, {shape} diukur dari bentuk."
+  ],
+  "mt.note.file": [
+    "Note kept on a quantity.",
+    "Stated by the model.",
+    "Indicado por el modelo.",
+    "Dinyatakan oleh model."
+  ],
+  "mt.note.shape": [
+    "Note kept on a quantity.",
+    "Measured from the shape.",
+    "Medido de la forma.",
+    "Diukur dari bentuk."
+  ],
+  "mt.note.rough": [
+    "Note kept on a quantity; {n} elements.",
+    "{n} are curved or cornered: their area is half of all upright faces, ends included.",
+    "{n} son curvos o con esquina: su área es la mitad de todas las caras verticales, extremos incluidos.",
+    "{n} melengkung atau bersudut: luasnya setengah dari semua sisi tegak, termasuk ujung."
+  ],
+  "mt.note.open": [
+    "Note kept on a quantity; {n} elements.",
+    "{n} have a shape that is not closed and give no volume.",
+    "{n} tienen una forma que no está cerrada y no dan volumen.",
+    "{n} memiliki bentuk yang tidak tertutup dan tidak memberi volume."
+  ],
+  "mt.other": [
+    "Button in the dialog head: pick another model file.",
+    "Open another model",
+    "Abrir otro modelo",
+    "Buka model lain"
+  ],
+  "mt.col.count": [
+    "Table column heading.",
+    "Count",
+    "Cantidad",
+    "Jumlah"
+  ],
+  "mt.by.material": [
+    "Group-by option (0.11 MT.4).",
+    "Category and material",
+    "Categoría y material (capas del muro por separado)",
+    "Kategori dan bahan (lapisan dinding terpisah)"
+  ],
+  "mt.by.layer": [
+    "Group-by option (0.11 MT.4).",
+    "Category and layer",
+    "Categoría y capa (con su espesor)",
+    "Kategori dan lapisan (dengan ketebalannya)"
+  ],
+  "mt.by.size": [
+    "Group-by option (0.11 MT.4).",
+    "Category, type and door or window size",
+    "Categoría, tipo y tamaño de puerta o ventana",
+    "Kategori, tipe, dan ukuran pintu atau jendela"
+  ],
+  "mt.col.material": [
+    "Table column heading when rows are grouped by material or layer.",
+    "Material",
+    "Material",
+    "Bahan"
+  ],
+  "mt.col.size": [
+    "CSV column heading: a door or window's width and height.",
+    "Size",
+    "Tamaño",
+    "Ukuran"
+  ],
+  "mt.col.level": [
+    "CSV column heading.",
+    "Level",
+    "Nivel",
+    "Lantai"
+  ],
+  "mt.col.width": [
+    "Openings schedule column heading.",
+    "Width",
+    "Ancho",
+    "Lebar"
+  ],
+  "mt.col.height": [
+    "Openings schedule column heading.",
+    "Height",
+    "Alto",
+    "Tinggi"
+  ],
+  "mt.material.none": [
+    "Shown where an element names no material.",
+    "No material named",
+    "Sin material",
+    "Tanpa bahan"
+  ],
+  "mt.note.layer": [
+    "Note kept on a quantity; {n} elements.",
+    "{n} come from a layer: the element's face times the layer's thickness.",
+    "{n} salen de una capa: la cara del elemento por el espesor de la capa.",
+    "{n} berasal dari lapisan: sisi elemen dikali tebal lapisan."
+  ],
+  "mt.view.show": [
+    "Check box label: show the model in 3D above the table.",
+    "Show the model in 3D",
+    "Mostrar el modelo en 3D",
+    "Tampilkan model dalam 3D"
+  ],
+  "mt.view.label": [
+    "Accessible name of the 3D picture of the model.",
+    "The model in 3D, one colour for each row of the table",
+    "El modelo en 3D, un color por cada fila de la tabla",
+    "Model dalam 3D, satu warna untuk setiap baris tabel"
+  ],
+  "mt.view.hint": [
+    "Hint over the 3D picture.",
+    "Drag to turn, Shift + drag to move, wheel to zoom, click a part to find its row",
+    "Arrastra para girar, Mayús + arrastrar para mover, rueda para acercar, clic en una pieza para hallar su fila",
+    "Seret untuk memutar, Shift + seret untuk menggeser, roda untuk zoom, klik bagian untuk menemukan barisnya"
+  ],
+  "mt.view.fit": [
+    "Button over the 3D picture.",
+    "Fit",
+    "Ajustar",
+    "Pas"
+  ],
+  "mt.view.reset": [
+    "Button over the 3D picture: back to the first viewpoint.",
+    "Reset",
+    "Restablecer",
+    "Atur ulang"
+  ],
+  "mt.view.nogl": [
+    "Shown where this computer cannot draw 3D.",
+    "This computer cannot draw the model in 3D (WebGL 2 is not available). The table works as before.",
+    "Este equipo no puede dibujar el modelo en 3D (WebGL 2 no está disponible). La tabla funciona como antes.",
+    "Komputer ini tidak dapat menggambar model dalam 3D (WebGL 2 tidak tersedia). Tabel berfungsi seperti biasa."
+  ],
+  "mt.view.empty": [
+    "Shown where no element has a shape to draw.",
+    "No element in this file has a shape to draw.",
+    "Ningún elemento de este archivo tiene una forma que dibujar.",
+    "Tidak ada elemen dalam berkas ini yang memiliki bentuk untuk digambar."
+  ],
+  "mt.view.lit": [
+    "Line under the 3D picture when a row is picked; {name}, {n} elements.",
+    "Lit in the picture: {name} ({n}). Click it again in the table to clear.",
+    "Iluminado en la imagen: {name} ({n}). Haz clic de nuevo en la tabla para quitarlo.",
+    "Disorot di gambar: {name} ({n}). Klik lagi di tabel untuk menghapus."
+  ],
+  "mt.view.cap": [
+    "Line under the 3D picture when some elements are drawn as boxes; {n} elements.",
+    "{n} elements are drawn as boxes: the model has too many triangles to keep them all in memory. The numbers are not affected.",
+    "{n} elementos se dibujan como cajas: el modelo tiene demasiados triángulos para guardarlos todos en memoria. Los números no cambian.",
+    "{n} elemen digambar sebagai kotak: model memiliki terlalu banyak segitiga untuk disimpan di memori. Angkanya tidak berubah."
+  ],
+  "mt.csv": [
+    "Button: save the rows as a CSV file.",
+    "Save rows as CSV",
+    "Guardar filas como CSV",
+    "Simpan baris sebagai CSV"
+  ],
+  "mt.csv.openings": [
+    "Button: save the doors and windows by type and size as a CSV file.",
+    "Save openings schedule as CSV",
+    "Guardar cuadro de vanos como CSV",
+    "Simpan jadwal bukaan sebagai CSV"
+  ],
+  "mt.pick.row3d": [
+    "Row selected in the table or by a click in the 3D picture.",
+    "Row picked",
+    "Fila elegida",
+    "Baris dipilih"
+  ]
+}

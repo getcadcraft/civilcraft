@@ -79,6 +79,19 @@ if (!class_exists('Catalog')) {
     }
 }
 
+if (!class_exists('RoadmapCatalog')) {
+    /** Only what the shell components call (app-settings.inc's Library link, owner 2026-11-22): the site's keyForSlug, same keys. Closing 0.11 (FX.458). */
+    final class RoadmapCatalog
+    {
+        public const APPS = ['cad' => 1, 'bim' => 1, 'model' => 1, 'markup' => 1, 'takeoff' => 1, 'civil' => 1, 'detail' => 1, 'part' => 1, 'studio' => 1, 'super' => 1];
+        public static function keyForSlug(string $slug): ?string
+        {
+            $k = preg_replace('/craft$/', '', $slug);
+            return is_string($k) && $k !== $slug && isset(self::APPS[$k]) ? $k : null;
+        }
+    }
+}
+
 if (!class_exists('AppBuilds')) {
     final class AppBuilds
     {
@@ -132,8 +145,10 @@ if (!class_exists('AppBuilds')) {
         public static function extras(array $build): array { return array_values(array_filter(self::EXTRA_KEYS, fn($k) => ($build['manifest'][$k] ?? false) === true)); }
         public static function extraScript(string $key): string { return '/assets/js/app-' . $key . '.js'; }
         /** Workspace layouts (0.7 WS.6), as the site's AppBuilds::workspaces / workspaceAdapter / hasWorkspaces / workspaceConfig. */
-        public const WORKSPACE_BUILTINS = ['docked', 'toolbox'];
+        public const WORKSPACE_BUILTINS = ['docked', 'toolbox', 'autorev', 'duncan', 'vector', 'sketch', 'rhino', 'pro-cad1', 'pro-cad2', 'pro-cad3', 'pro-cad4', 'drafting'];   // keep equal to AppBuilds::WORKSPACE_BUILTINS (it was left at two, so every browser edition and Studio showed the other layouts as "not in <app> yet")
         public const WORKSPACE_MODULES = ['/assets/js/app-workspace.js', '/assets/js/app-workspace-format.js', '/assets/js/app-workspace-popout.js', '/assets/js/app-windows.js', '/assets/js/app-workspace-input.js', '/assets/js/app-workspace-extras.js', '/assets/js/app-workspace-icons.js', '/assets/js/app-workspace-vector.js', '/assets/js/app-workspace-arrange.js', '/assets/js/app-state.js', '/assets/js/app-workspace-blocks.js', '/assets/js/app-workspace-overflow.js', '/assets/js/app-workspace-tools.js', '/assets/js/app-workspace-edit.js', '/assets/js/app-cmdline.js', '/assets/js/i18n.js'];
+        public const WORKSPACE_BLOCK_MODULES = ['/assets/js/app-dock.js', '/assets/js/app-block-core.js', '/assets/js/app-block-index.js', '/assets/js/app-block-titlebar.js', '/assets/js/app-block-craft.js', '/assets/js/app-block-commandline.js', '/assets/js/app-block-viewoverlays.js', '/assets/js/app-block-ribbonx.js', '/assets/js/app-block-statusx.js', '/assets/js/app-block-modeltabs.js', '/assets/js/app-block-tone.js', '/assets/js/app-block-theme.js', '/assets/js/app-block-density.js', '/assets/js/app-block-labels.js', '/assets/js/app-block-menuset-drafting.js'];   // 0.11: keep equal to AppBuilds::WORKSPACE_BLOCK_MODULES (the site lists them behind WORKSPACE_BLOCK_FILES; a packed page always carries them)
+        public const WORKSPACE_BLOCK_CSS = ['/assets/css/app-block.css', '/assets/css/app-dock.css'];
         public static function workspaces(array $build): array
         {
             $w = $build['manifest']['workspaces'] ?? [];

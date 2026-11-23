@@ -51,6 +51,7 @@ export const OPS_KEEP = 1024 * 1024;   // bytes of edits kept after a snapshot b
 
 // ---- words ---------------------------------------------------------------------------------------------------------------
 
+// i18n-ignore-start: English defaults; the same keys live in lang/en.json (words-11)
 const WORDS = {
   'live.cr.button': 'Class room',
   'live.cr.title': 'Class room',
@@ -91,6 +92,7 @@ const WORDS = {
   'live.cr.how.title': 'How the class room works',
   'live.cr.how.body': 'Students keep their own files. Their edits come to your window as a read-only copy kept in memory. Look in opens a copy and follows the student\'s view; Help lets you edit with them. Over an invite link a room holds up to 20 people; a class on one network can be larger.',
 };
+// i18n-ignore-end
 const fmt = (s, v) => String(s).replace(/\{(\w+)\}/g, (m, k) => (v && k in v ? String(v[k]) : m));
 
 // ---- sealing (noble, loaded when a class room starts: a page without Live's import map never loads it) --------------------

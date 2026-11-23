@@ -232,6 +232,24 @@ await A.ctx.close(); await B.ctx.close();
 }
 
 const mine = errors.filter(e => /prefs|super-wire|super-home-layout|accountSync/i.test(e));
+
+/* ---- SCF.9: the page tells SuperCad Desktop's shell its sync state (a stand-in cadcraftDesktop.sync.state records the calls) ---- */
+{
+  const stub = () => { window.__syncCalls = []; window.cadcraftDesktop = { sync: { state: x => { window.__syncCalls.push(x); return Promise.resolve(); } } }; };
+  const d = await device({ signedIn: true, init: stub }), { page } = d;
+  await setUnits(page, 'ft');
+  ok(await saved(page), 'desktop shell: the account copy is saved');
+  const calls = await page.evaluate(() => window.__syncCalls);
+  ok(calls.length > 0 && calls.every(x => ['synced', 'offline', 'problem', 'off'].includes(x.state) && x.waiting === 0 && (x.state === 'problem' ? x.problems === 1 : x.problems === 0)), 'desktop shell: every report is { state, waiting: 0, problems } in the shell\'s words: ' + JSON.stringify(calls).slice(0, 200));
+  ok(calls.some(x => x.state === 'synced'), 'desktop shell: a saved state is reported as synced');
+  acct.down = true; await setUnits(page, 'in'); const offline = await until(() => true, 10);
+  await page.waitForFunction(() => window.__syncCalls.some(x => x.state === 'offline' || x.state === 'problem'), null, { timeout: 15000 }).catch(() => {});
+  ok((await page.evaluate(() => window.__syncCalls)).some(x => x.state === 'offline' || x.state === 'problem') || offline === false, 'desktop shell: offline or a refused save is reported');
+  acct.down = false; await d.ctx.close();
+  const plain = await device({ signedIn: true }); await setTheme(plain.page, 'paper'); await plain.page.waitForTimeout(800);
+  ok(await plain.page.evaluate(() => typeof window.cadcraftDesktop === 'undefined'), 'in a plain browser there is no shell to tell, and nothing breaks'); await plain.ctx.close();
+}
+
 ok(mine.length === 0, 'no error from the setup code: ' + mine.slice(0, 3).join(' | '));
 if (errors.length) console.log('  page errors seen (' + errors.length + '): ' + [...new Set(errors)].slice(0, 5).map(e => e.slice(0, 160)).join(' | '));
 console.log(`prefs page: ${pass} passed, ${fail} failed`);

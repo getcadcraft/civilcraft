@@ -55,6 +55,8 @@ if (process.env.NOBATCH) await ctx.addInitScript(() => { try { localStorage.setI
 // 0.7 WS.13: CC_WORKSPACE=docked|toolbox runs the suite with that workspace layout on (Settings › Global › Layout)
 // (without it: classic, whatever a stored --state remembers)
 await ctx.addInitScript((w) => { try { if (w) localStorage.setItem('cc-workspace', w); else localStorage.removeItem('cc-workspace'); } catch (e) { /* no storage: classic */ } }, process.env.CC_WORKSPACE || '');
+// FX.314: the "I'm new here" offer (app-newhere.js) opens over a fresh profile and covers the Properties buttons; a person says No thanks once, the run does it up front
+await ctx.addInitScript(() => { try { if (!localStorage.getItem('cc-newhere')) localStorage.setItem('cc-newhere', 'skipped'); } catch (e) { /* none */ } });
 const page = await ctx.newPage();
 // CC_WORKSPACE: after a load, wait until the layout is mounted (it starts once the app has drawn), as a person would see it
 const wsSettled = (p) => { if (!process.env.CC_WORKSPACE) return; for (const m of ['goto', 'reload']) { const f = p[m].bind(p); p[m] = async (...a) => { const r = await f(...a); await p.waitForFunction(() => !document.querySelector('[data-detailcraft]') || document.querySelector('main')?.classList.contains('ws-on') || window.matchMedia('(max-width: 760px)').matches, null, { timeout: 30000 }).catch(() => {}); return r; }; }
@@ -268,7 +270,10 @@ try {
   ok(await dc(() => window.detailcraft.model.state.connections.length) === 2, 'End plates: both beam ends connected');
   const len = await dc(() => window.detailcraft.built.parts.find((p) => p.type === 'beam').length);
   ok(Math.abs(len - (6000 - 2 * (309.88 / 2 + 20))) < 1e-6, 'beam cut back to the plates: ' + len.toFixed(2));
+  // FX.314: the Part marks list is a fold of the left panel (Auto-focus panel keeps one section open); a person opens it first
+  const openMarks = async () => { await page.evaluate(() => { const ul = document.querySelector('[data-marks]'); if (ul.classList.contains('af-collapsed')) ul.closest('.dc-sec').querySelector('[data-af]')?.click(); }); await page.waitForSelector('[data-marks] button', { state: 'visible' }); };
   // select a column from the marks list, base plate, then Similar
+  await openMarks();
   await page.click('[data-marks] button:has-text("c1")');
   ok((await dc(() => window.detailcraft.selection?.kind)) === 'member', 'marks list selects a column');
   await act('baseplate');
@@ -304,6 +309,7 @@ try {
   ok(await dc(() => window.detailcraft.model.state.connections.length === 4 && window.detailcraft.model.state.footings.length === 1), 'reopened: members, connections and footing back');
 
   // ---- unsaved changes → in-page dialog, focus back ----
+  await openMarks();
   await page.click('[data-marks] button:has-text("b1")');
   await page.click('[data-props] button:has-text("Delete")');
   ok(await dc(() => window.detailcraft.model.dirty), 'a delete makes the model dirty');

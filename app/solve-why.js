@@ -89,7 +89,7 @@ export function verticalWhy(pvisIn) {
     const A = (g2 - g1) * 100;
     let L = Number(v.L) || 0;
     if (!L && Number(v.K) > 0) L = Number(v.K) * Math.abs(A);
-    if (!(L > 0) || Math.abs(A) < 1e-9) continue;
+    if (!(L > 0) || Math.abs(A) < 1e-9 || Number(v.R) > 0) continue;   // 0.11 FX.366: a circular curve's length follows from its radius (buildProfile says if it does not fit)
     const back = v.sta - Math.max(pvis[i - 1].sta, prevEnd), fwd = pvis[i + 1].sta - v.sta;
     const room = 2 * Math.min(back, fwd);
     if (L > room + 1e-9) {

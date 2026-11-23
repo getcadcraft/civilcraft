@@ -53,7 +53,7 @@ export const block = {
     const glass = find && el('button', { type: 'button', className: 'blk-tb-glass', 'aria-label': T('shell.tb.find'), title: T('shell.tb.find') }, '⌕');
     const box = find && el('input', { type: 'search', className: 'blk-tb-findbox', placeholder: T('shell.tb.find.ph'), 'aria-label': T('shell.tb.find'), autocomplete: 'off' });
     if (find) find.append(box, glass);
-    bar.append(brand, dock, qbox, sw, doc, pins, addons, find);
+    bar.append(...[brand, dock, qbox, sw, doc, pins, addons, find].filter(Boolean));   // 0.11: no switcher or no find must not print "null"
 
     // ---- the Craft menu on the mark (UI.24) ----
     const craft = host.craft || null;

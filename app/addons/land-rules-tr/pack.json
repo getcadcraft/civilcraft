@@ -1,0 +1,1929 @@
+{
+ "format": "cadcraft-land-rules",
+ "version": 1,
+ "id": "tr",
+ "name": "Türkiye",
+ "country": "TR",
+ "researched": "2026-11-21",
+ "note": "Türkiye's national planning law as it bears on parcels, read in the consolidated texts on mevzuat.gov.tr: the Planning Law (no. 3194), the Planned Areas Zoning Regulation (Article 6 parcel sizes, zones KT, TKS, T1, KS, SAN, AKY, KDKCA), the Unplanned Areas Zoning Regulation (zones PZ: settled areas without a plan, villages, outside settlement), and the floors Law 5403 sets for dividing agricultural land (zones TA). The plan and its notes come first where there is one; a provincial council may set other sizes for a village; the Ministry may set agricultural sizes above the law's floor. Figures printed as a yard distance plus a figure are marked with a plus and are only a floor here. No national application form was found. Not legal advice.",
+ "sources": [
+  {
+   "key": "law-3194",
+   "title": "İmar Kanunu (Kanun No. 3194)",
+   "edition": "Resmî Gazete 9/5/1985, no. 18749; consolidated text, amendment table runs to Law 7579 (in force 22/5/2026) and a Constitutional Court decision effective 13/7/2026",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/mevzuatmetin/1.5.3194.pdf"
+  },
+  {
+   "key": "paiy",
+   "title": "Planlı Alanlar İmar Yönetmeliği",
+   "edition": "Resmî Gazete 3/7/2017, no. 30113; consolidated text, last listed amendment Resmî Gazete 1/7/2026, no. 33297 (23rd amendment)",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/File/GeneratePdf?mevzuatNo=23722&mevzuatTur=KurumVeKurulusYonetmeligi&mevzuatTertip=5"
+  },
+  {
+   "key": "mpyy",
+   "title": "Mekânsal Planlar Yapım Yönetmeliği",
+   "edition": "Resmî Gazete 14/6/2014, no. 29030; consolidated text, last listed amendment Resmî Gazete 22/1/2026, no. 33145 (5th amendment)",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/File/GeneratePdf?mevzuatNo=19788&mevzuatTur=KurumVeKurulusYonetmeligi&mevzuatTertip=5"
+  },
+  {
+   "key": "aady",
+   "title": "Arazi ve Arsa Düzenlemeleri Hakkında Yönetmelik",
+   "edition": "Resmî Gazete 22/2/2020, no. 31047; consolidated text, last listed amendment Resmî Gazete 13/12/2025, no. 33106 (3rd amendment)",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/File/GeneratePdf?mevzuatNo=34305&mevzuatTur=KurumVeKurulusYonetmeligi&mevzuatTertip=5"
+  },
+  {
+   "key": "paiy-plansiz",
+   "title": "Plansız Alanlar İmar Yönetmeliği",
+   "edition": "Resmî Gazete 2/11/1985, no. 18916 Mükerrer; consolidated text, amendment table lists four amendments, the last Resmî Gazete 17/10/2024, no. 32695 (in-text notes also cite amendments of 25/7/1997 no. 23060, 2/9/1999 no. 23804 and 30/6/2001 no. 24448)",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/File/GeneratePdf?mevzuatNo=4882&mevzuatTur=KurumVeKurulusYonetmeligi&mevzuatTertip=5"
+  },
+  {
+   "key": "imar-kanunu-3194",
+   "title": "İmar Kanunu (Kanun No. 3194), articles on areas without a plan (Madde 8(ğ), 15, 16, 27)",
+   "edition": "Resmî Gazete 9/5/1985, no. 18749; consolidated text, amendment table runs to Law 7579 (in force 22/5/2026) and a Constitutional Court decision effective 13/7/2026",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/mevzuatmetin/1.5.3194.pdf"
+  },
+  {
+   "key": "law-5403",
+   "title": "Toprak Koruma ve Arazi Kullanımı Kanunu (Kanun No. 5403)",
+   "edition": "Resmî Gazete 19/7/2005, no. 25880; consolidated text, amendment table runs to Law 7584 (in force 20/6/2026, amending Madde 8, 20, 21)",
+   "publisher": "T.C. Cumhurbaşkanlığı Mevzuat Bilgi Sistemi (mevzuat.gov.tr)",
+   "url": "https://www.mevzuat.gov.tr/mevzuatmetin/1.5.5403.pdf"
+  }
+ ],
+ "rules": [
+  {
+   "zone": "KT-BIT-4",
+   "zoneName": "Residential and commercial zones, up to 4 storeys (4 included), attached (bitişik nizam)",
+   "rule": "width.min",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(1)",
+   "quote": "Bitişik nizamda: 6.00 metreden,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KT-BLK-4",
+   "zoneName": "Residential and commercial zones, up to 4 storeys (4 included), block-end parcels (blok başı): side yard distance plus 6.00 m",
+   "rule": "width.min",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(1)",
+   "quote": "Blok başlarında: Yan bahçe mesafesi 6.00 metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the side yard distance(s) that apply to the parcel (not fixed in this article). On corner parcels the front yard distance set for that road replaces the road-side side yard (Madde 6(2)(e)). As printed there is no '+' between 'Yan bahçe mesafesi' and '6.00' in this line (the 10-storey and shop lines print '+'); read here as side yard + 6.00 m by analogy, which is an interpretation.",
+   "partial": true
+  },
+  {
+   "zone": "KT-AYR-4",
+   "zoneName": "Residential and commercial zones, up to 4 storeys (4 included), detached (ayrık nizam): sum of side yard distances plus 6.00 m",
+   "rule": "width.min",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(1)",
+   "quote": "Ayrık nizamda: Yan bahçe mesafeleri toplamı + (6.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the side yard distance(s) that apply to the parcel (not fixed in this article). On corner parcels the front yard distance set for that road replaces the road-side side yard (Madde 6(2)(e)).",
+   "partial": true
+  },
+  {
+   "zone": "KT-BIT-10",
+   "zoneName": "Residential and commercial zones, 10 or more storeys, attached (bitişik nizam)",
+   "rule": "width.min",
+   "value": 12,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(3)",
+   "quote": "Bitişik nizamda: (12.00) metreden,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KT-BLK-10",
+   "zoneName": "Residential and commercial zones, 10 or more storeys, block-end parcels (blok başı): side yard distance plus 12.00 m",
+   "rule": "width.min",
+   "value": 12,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(3)",
+   "quote": "Blok başlarında: Yan bahçe mesafesi + (12.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the side yard distance(s) that apply to the parcel (not fixed in this article). On corner parcels the front yard distance set for that road replaces the road-side side yard (Madde 6(2)(e)).",
+   "partial": true
+  },
+  {
+   "zone": "KT-AYR-10",
+   "zoneName": "Residential and commercial zones, 10 or more storeys, detached (ayrık nizam): sum of side yard distances plus 12.00 m",
+   "rule": "width.min",
+   "value": 12,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(3)",
+   "quote": "Ayrık nizamda: Yan bahçe mesafeleri toplamı + (12.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the side yard distance(s) that apply to the parcel (not fixed in this article). On corner parcels the front yard distance set for that road replaces the road-side side yard (Madde 6(2)(e)).",
+   "partial": true
+  },
+  {
+   "zone": "TKS-BIT-1",
+   "zoneName": "Commercial and small-industry zones where only single-storey shops will be built, attached (bitişik nizam)",
+   "rule": "width.min",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(b)(1)",
+   "quote": "1) Bitişik nizamda: (5.00) metreden,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "TKS-BLK-1",
+   "zoneName": "Commercial and small-industry zones where only single-storey shops will be built, block-end parcels (blok başı): side yard distance plus 5.00 m",
+   "rule": "width.min",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(b)(2)",
+   "quote": "2) Blok başlarında: Yan bahçe mesafesi + (5.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the side yard distance(s) that apply to the parcel (not fixed in this article). On corner parcels the front yard distance set for that road replaces the road-side side yard (Madde 6(2)(e)).",
+   "partial": true
+  },
+  {
+   "zone": "TKS-AYR-1",
+   "zoneName": "Commercial and small-industry zones where only single-storey shops will be built, detached (ayrık nizam): sum of side yard distances plus 5.00 m",
+   "rule": "width.min",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(b)(3)",
+   "quote": "3) Ayrık nizamda: Yan bahçe mesafeleri toplamı + (5.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the side yard distance(s) that apply to the parcel (not fixed in this article). On corner parcels the front yard distance set for that road replaces the road-side side yard (Madde 6(2)(e)).",
+   "partial": true
+  },
+  {
+   "zone": "SAN",
+   "zoneName": "Industrial zones (sanayi bölgeleri)",
+   "rule": "width.min",
+   "value": 30,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(c)",
+   "quote": "c) Sanayi bölgelerinde, 30.00 metreden az olamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "AKY",
+   "zoneName": "Fuel stations (akaryakıt istasyonları)",
+   "rule": "width.min",
+   "value": 40,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(ç)",
+   "quote": "ç) Akaryakıt istasyonlarında 40.00 metreden az olamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KDKCA",
+   "zoneName": "Non-residential urban working areas (konut dışı kentsel çalışma alanları)",
+   "rule": "width.min",
+   "value": 40,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(2)(d)",
+   "quote": "d) Konut dışı kentsel çalışma alanlarında, 40.00 metreden az olamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KT-OBZ",
+   "zoneName": "Residential and commercial zones, arrangement with no front yard (ön bahçesiz nizam)",
+   "rule": "depth.min",
+   "value": 13,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(a)(1)",
+   "quote": "1) Ön bahçesiz nizamda: (13.00) metreden,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KT-OBL",
+   "zoneName": "Residential and commercial zones, arrangement with a front yard (ön bahçeli nizam): front yard distance plus 13.00 m",
+   "rule": "depth.min",
+   "value": 13,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(a)(2)",
+   "quote": "2) Ön bahçeli nizamda: Ön bahçe mesafesi + (13.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the front yard distance that applies to the parcel (not fixed in this article).",
+   "partial": true
+  },
+  {
+   "zone": "T1-OBZ",
+   "zoneName": "Commercial zones where only single-storey shops are built, no front yard",
+   "rule": "depth.min",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(b)(1)",
+   "quote": "1) Ön bahçesiz nizamda: (5.00) metreden,",
+   "read": "primary",
+   "note": "Heading of the sub-paragraph: 'b) Ticaret bölgelerinde (Yalnız 1 katlı dükkân yapılması halinde):'."
+  },
+  {
+   "zone": "T1-OBL",
+   "zoneName": "Commercial zones where only single-storey shops are built, with a front yard: front yard distance plus 5.00 m",
+   "rule": "depth.min",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(b)(2)",
+   "quote": "2) Ön bahçeli nizamda: Ön bahçe mesafesi + (5.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the front yard distance that applies to the parcel (not fixed in this article).",
+   "partial": true
+  },
+  {
+   "zone": "KS-OBZ",
+   "zoneName": "Small-industry zones (küçük sanayi bölgeleri), no front yard",
+   "rule": "depth.min",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(c)(1)",
+   "quote": "1) Ön bahçesiz nizamda: (6.00) metreden,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KS-OBL",
+   "zoneName": "Small-industry zones (küçük sanayi bölgeleri), with a front yard: front yard distance plus 6.00 m",
+   "rule": "depth.min",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(c)(2)",
+   "quote": "2) Ön bahçeli nizamda: Ön bahçe mesafesi + (6.00) metreden,",
+   "read": "primary",
+   "note": "Value is the fixed part only: add the front yard distance that applies to the parcel (not fixed in this article).",
+   "partial": true
+  },
+  {
+   "zone": "SAN",
+   "zoneName": "Industrial zones (sanayi bölgeleri)",
+   "rule": "depth.min",
+   "value": 30,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(ç)",
+   "quote": "ç) Sanayi bölgelerinde, 30.00 metreden az olamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "AKY",
+   "zoneName": "Fuel stations (akaryakıt istasyonları)",
+   "rule": "depth.min",
+   "value": 40,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(d)",
+   "quote": "d) Akaryakıt İstasyonlarında 40.00 metreden az olamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KDKCA",
+   "zoneName": "Non-residential urban working areas (konut dışı kentsel çalışma alanları)",
+   "rule": "depth.min",
+   "value": 40,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 6(3)(e)",
+   "quote": "e) Konut dışı kentsel çalışma alanlarında, 40.00 metreden az olamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "zone": "KDKCA",
+   "zoneName": "Non-residential urban working areas (konut dışı kentsel çalışma alanları)",
+   "rule": "area.min",
+   "value": 2000,
+   "unit": "m²",
+   "source": "paiy",
+   "clause": "Madde 6(4)",
+   "quote": "Parsel alanları, konut dışı kentsel çalışmaları alanlarında 2000 m2’den az olamaz.",
+   "read": "primary",
+   "note": "The only minimum parcel area in Madde 6. Printed 'm2' in the source."
+  },
+  {
+   "zone": "PZ-YA",
+   "zoneName": "Settled areas (yerleşik alan) without a zoning plan inside municipal and adjacent-area boundaries (Chapter 4 of the regulation): parcels obtained by subdivision (ifraz)",
+   "rule": "width.min",
+   "value": 20,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 13, fıkra 1",
+   "quote": "İfraz suretiyle elde edilecek parsellerin genişlikleri (20) m.den, parsel derinlikleri (30) m.den az olamaz.",
+   "read": "primary",
+   "note": "Printed as 'genişlik' (width); recorded as frontage. Madde 4(9) defines parsel cephesi as the side on the road and Madde 4(10) parsel derinliği as the average distance between front and rear lines. Chapter 4 prints no minimum parcel area. Which areas Chapter 4 covers is stated in Madde 5, third paragraph, and Madde 2(1)-(2)."
+  },
+  {
+   "zone": "PZ-YA",
+   "zoneName": "Settled areas (yerleşik alan) without a zoning plan inside municipal and adjacent-area boundaries (Chapter 4 of the regulation): parcels obtained by subdivision (ifraz)",
+   "rule": "depth.min",
+   "value": 30,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 13, fıkra 1",
+   "quote": "İfraz suretiyle elde edilecek parsellerin genişlikleri (20) m.den, parsel derinlikleri (30) m.den az olamaz.",
+   "read": "primary",
+   "note": "Printed as 'genişlik' (width); recorded as frontage. Madde 4(9) defines parsel cephesi as the side on the road and Madde 4(10) parsel derinliği as the average distance between front and rear lines. Chapter 4 prints no minimum parcel area. Which areas Chapter 4 covers is stated in Madde 5, third paragraph, and Madde 2(1)-(2)."
+  },
+  {
+   "zone": "PZ-KOY",
+   "zoneName": "Village and hamlet settled areas and their surroundings (köy ve mezraların yerleşik alanı ve civarı; Chapter 5 of the regulation): parcels obtained by subdivision (ifraz)",
+   "rule": "width.min",
+   "value": 15,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 45",
+   "quote": "Köy ve mezraların yerleşik alanlarında ve civarında yapılacak ifraz işlemlerinde parsel genişlikleri (15.00) m.den, parsel derinlikleri de (20.00) m.den az olamaz.",
+   "read": "primary",
+   "note": "Printed as 'genişlik' (width); recorded as frontage. Madde 45 names only village and hamlet settled areas and surroundings; Madde 5, third paragraph (added 2021) applies Chapter 5 also to rural settled areas and surroundings (kırsal yerleşik alan ve civarı) in metropolitan municipalities, so applying these figures there is by that cross-reference, not by the wording of Madde 45. Chapter 5 prints no minimum parcel area. Under Law 3194 Madde 27 the provincial or metropolitan council may set subdivision conditions for these areas (see threshold plansiz-k3194-koy-ifraz-conditions-by-council)."
+  },
+  {
+   "zone": "PZ-KOY",
+   "zoneName": "Village and hamlet settled areas and their surroundings (köy ve mezraların yerleşik alanı ve civarı; Chapter 5 of the regulation): parcels obtained by subdivision (ifraz)",
+   "rule": "depth.min",
+   "value": 20,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 45",
+   "quote": "Köy ve mezraların yerleşik alanlarında ve civarında yapılacak ifraz işlemlerinde parsel genişlikleri (15.00) m.den, parsel derinlikleri de (20.00) m.den az olamaz.",
+   "read": "primary",
+   "note": "Printed as 'genişlik' (width); recorded as frontage. Madde 45 names only village and hamlet settled areas and surroundings; Madde 5, third paragraph (added 2021) applies Chapter 5 also to rural settled areas and surroundings (kırsal yerleşik alan ve civarı) in metropolitan municipalities, so applying these figures there is by that cross-reference, not by the wording of Madde 45. Chapter 5 prints no minimum parcel area. Under Law 3194 Madde 27 the provincial or metropolitan council may set subdivision conditions for these areas (see threshold plansiz-k3194-koy-ifraz-conditions-by-council)."
+  },
+  {
+   "zone": "PZ-ISKANDISI",
+   "zoneName": "Areas outside settlement (iskân dışı) with no upper-scale plan, inside or outside municipal and adjacent-area boundaries (Chapter 6 of the regulation): each parcel obtained by subdivision (ifraz)",
+   "rule": "area.min",
+   "value": 5000,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 62, fıkra 1",
+   "quote": "Üst ölçek planı bulunmayan iskan dışı alanlarda yapılacak ifrazlardan sonra elde edilecek her parsel (5000) m2 den küçük olamaz.",
+   "read": "primary",
+   "note": "Printed 'm2'. Applies only where there is no upper-scale plan (Madde 3: an approved çevre düzeni planı takes priority). Not required for consolidation (tevhid), Madde 62 third paragraph. Agricultural land is additionally limited by Law 5403 Madde 8 and 8/A (TA- rows and t5403- thresholds)."
+  },
+  {
+   "zone": "PZ-ISKANDISI",
+   "zoneName": "Areas outside settlement (iskân dışı) with no upper-scale plan, inside or outside municipal and adjacent-area boundaries (Chapter 6 of the regulation): each parcel obtained by subdivision (ifraz)",
+   "rule": "width.min",
+   "value": 25,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 62, fıkra 1",
+   "quote": "Bu parsellerin tapu kadastro veya tapulama haritasında bulunan kamu eline geçmiş bir yola, yapılan ifrazdan sonra en az (25.00) m. cephesi bulunması zorunludur.",
+   "read": "primary",
+   "note": "Frontage on a road shown on the cadastral map and passed into public ownership. Not required for non-building agricultural subdivisions under Agricultural Settlement Projects of Law 2510 (Madde 62 second paragraph). No minimum depth is printed for these areas."
+  },
+  {
+   "zone": "TA-MUTLAK",
+   "zoneName": "Agricultural land: absolute agricultural land (mutlak tarım arazisi), minimum agricultural parcel size (asgari tarımsal arazi büyüklüğü)",
+   "rule": "area.min",
+   "value": 2,
+   "unit": "ha",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Asgari tarımsal arazi büyüklüğü; mutlak tarım arazileri, marjinal tarım arazileri ve özel ürün arazilerinde 2 hektar, dikili tarım arazilerinde 0,5 hektar, örtü altı tarımı yapılan arazilerde 0,3 hektardan küçük belirlenemez.",
+   "read": "primary",
+   "note": "This is the statutory floor for the minimum the Ministry sets ('küçük belirlenemez'); the same paragraph lets the Ministry raise the sizes, so the size in force for a place may be larger and was not looked up. Agricultural land may not be subdivided below the size the Ministry sets (threshold t5403-no-ifraz-below-min). The separate district-by-district 'yeter gelirli' sizes of Madde 8/A (annex list 1, in dekar) also bar subdivision and are not recorded here (see gaps). Paragraph as replaced by Law 6537 (2014)."
+  },
+  {
+   "zone": "TA-MARJINAL",
+   "zoneName": "Agricultural land: marginal agricultural land (marjinal tarım arazisi), minimum agricultural parcel size (asgari tarımsal arazi büyüklüğü)",
+   "rule": "area.min",
+   "value": 2,
+   "unit": "ha",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Asgari tarımsal arazi büyüklüğü; mutlak tarım arazileri, marjinal tarım arazileri ve özel ürün arazilerinde 2 hektar, dikili tarım arazilerinde 0,5 hektar, örtü altı tarımı yapılan arazilerde 0,3 hektardan küçük belirlenemez.",
+   "read": "primary",
+   "note": "This is the statutory floor for the minimum the Ministry sets ('küçük belirlenemez'); the same paragraph lets the Ministry raise the sizes, so the size in force for a place may be larger and was not looked up. Agricultural land may not be subdivided below the size the Ministry sets (threshold t5403-no-ifraz-below-min). The separate district-by-district 'yeter gelirli' sizes of Madde 8/A (annex list 1, in dekar) also bar subdivision and are not recorded here (see gaps). Paragraph as replaced by Law 6537 (2014)."
+  },
+  {
+   "zone": "TA-OZEL-URUN",
+   "zoneName": "Agricultural land: special crop land (özel ürün arazisi), minimum agricultural parcel size (asgari tarımsal arazi büyüklüğü)",
+   "rule": "area.min",
+   "value": 2,
+   "unit": "ha",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Asgari tarımsal arazi büyüklüğü; mutlak tarım arazileri, marjinal tarım arazileri ve özel ürün arazilerinde 2 hektar, dikili tarım arazilerinde 0,5 hektar, örtü altı tarımı yapılan arazilerde 0,3 hektardan küçük belirlenemez.",
+   "read": "primary",
+   "note": "This is the statutory floor for the minimum the Ministry sets ('küçük belirlenemez'); the same paragraph lets the Ministry raise the sizes, so the size in force for a place may be larger and was not looked up. Agricultural land may not be subdivided below the size the Ministry sets (threshold t5403-no-ifraz-below-min). The separate district-by-district 'yeter gelirli' sizes of Madde 8/A (annex list 1, in dekar) also bar subdivision and are not recorded here (see gaps). Paragraph as replaced by Law 6537 (2014)."
+  },
+  {
+   "zone": "TA-DIKILI",
+   "zoneName": "Agricultural land: planted land (dikili tarım arazisi), minimum agricultural parcel size (asgari tarımsal arazi büyüklüğü)",
+   "rule": "area.min",
+   "value": 0.5,
+   "unit": "ha",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Asgari tarımsal arazi büyüklüğü; mutlak tarım arazileri, marjinal tarım arazileri ve özel ürün arazilerinde 2 hektar, dikili tarım arazilerinde 0,5 hektar, örtü altı tarımı yapılan arazilerde 0,3 hektardan küçük belirlenemez.",
+   "read": "primary",
+   "note": "Printed '0,5 hektar'. This is the statutory floor for the minimum the Ministry sets ('küçük belirlenemez'); the same paragraph lets the Ministry raise the sizes, so the size in force for a place may be larger and was not looked up. Agricultural land may not be subdivided below the size the Ministry sets (threshold t5403-no-ifraz-below-min). The separate district-by-district 'yeter gelirli' sizes of Madde 8/A (annex list 1, in dekar) also bar subdivision and are not recorded here (see gaps). Paragraph as replaced by Law 6537 (2014)."
+  },
+  {
+   "zone": "TA-ORTUALTI",
+   "zoneName": "Agricultural land: land under protected cultivation / greenhouse farming (örtü altı tarımı yapılan arazi), minimum agricultural parcel size (asgari tarımsal arazi büyüklüğü)",
+   "rule": "area.min",
+   "value": 0.3,
+   "unit": "ha",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Asgari tarımsal arazi büyüklüğü; mutlak tarım arazileri, marjinal tarım arazileri ve özel ürün arazilerinde 2 hektar, dikili tarım arazilerinde 0,5 hektar, örtü altı tarımı yapılan arazilerde 0,3 hektardan küçük belirlenemez.",
+   "read": "primary",
+   "note": "Printed '0,3 hektar'. This is the statutory floor for the minimum the Ministry sets ('küçük belirlenemez'); the same paragraph lets the Ministry raise the sizes, so the size in force for a place may be larger and was not looked up. Agricultural land may not be subdivided below the size the Ministry sets (threshold t5403-no-ifraz-below-min). The separate district-by-district 'yeter gelirli' sizes of Madde 8/A (annex list 1, in dekar) also bar subdivision and are not recorded here (see gaps). Paragraph as replaced by Law 6537 (2014)."
+  }
+ ],
+ "thresholds": [
+  {
+   "id": "dop-max-share",
+   "what": "The land readjustment contribution share (düzenleme ortaklık payı) taken under Article 18 may not exceed 45 percent of the pre-arrangement area of the land.",
+   "value": 45,
+   "unit": "percent",
+   "source": "law-3194",
+   "clause": "Madde 18, fıkra 2",
+   "quote": "Ancak, bu maddeye göre alınacak düzenleme ortaklık payları, düzenlemeye tabi tutulan arazi ve arsaların düzenlemeden önceki yüzölçümlerinin yüzde kırk beşini geçemez.",
+   "read": "primary",
+   "note": "Footnotes in the consolidated text: 35 → 40 by Law 5006 (2003), 40 → 45 by Law 7181 (2019). Repeated in the 2020 regulation, Madde 14(1)."
+  },
+  {
+   "id": "dop-top-up-ceiling",
+   "what": "Where a plan decision increases building rights and population, an additional contribution may be taken to bring the first application's share up to 45 percent.",
+   "value": 45,
+   "unit": "percent",
+   "source": "law-3194",
+   "clause": "Madde 18, fıkra 7",
+   "quote": "düzenleme ortaklık payı oranını % 45’e kadar tamamlamak üzere ilave düzenleme ortaklık payı kesintisi yapılabilir.",
+   "read": "primary",
+   "note": "Paragraph replaced by Law 7181 (2019), wording added by Law 7333 (2021). Paragraph number counted from the consolidated text."
+  },
+  {
+   "id": "ifraz-tevhit-needs-registered-parcellation",
+   "what": "In planned areas, subdivision and consolidation may be carried out only where a parcellation plan has been registered (exceptions listed in the same article).",
+   "value": null,
+   "unit": "",
+   "source": "law-3194",
+   "clause": "Madde 15, fıkra 2",
+   "quote": "İmar planı bulunan alanlarda, ifraz ve tevhit işlemleri, parselasyon planı tescil edilmiş alanlarda yapılabilir.",
+   "read": "primary",
+   "note": "Paragraph replaced by Law 7181 (2019). Exceptions are in Madde 15 fıkra 4 and in the 2020 regulation Madde 7(2)."
+  },
+  {
+   "id": "ifraz-tevhit-all-owners-consent",
+   "what": "Under the 2020 regulation, subdivision and consolidation in planned areas need the consent of all parcel owners and must follow the implementation plan.",
+   "value": null,
+   "unit": "",
+   "source": "aady",
+   "clause": "Madde 7(1)",
+   "quote": "ancak parselasyon planı tescil edilmiş alanlarda parsel maliklerinin tümünün muvafakati ile uygulama imar planlarına uygun olarak yapılabilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "owners-agreement-period",
+   "what": "For plan parcels not buildable as they stand, owners have three months from the authority's notice to agree; after that the authority may consolidate and subdivide on its own motion.",
+   "value": 3,
+   "unit": "months",
+   "source": "law-3194",
+   "clause": "Madde 15, fıkra 5",
+   "quote": "aralarında anlaşmaları için yapacağı tebliğden itibaren üç ay içerisinde maliklerce anlaşma sağlanamaması hâlinde, resen tevhit ve fiilî duruma göre ifraz yoluyla işlem yapmaya ilgili idare yetkilidir.",
+   "read": "primary",
+   "note": "Added by Law 7181 (2019). Same 3 months in Planlı Alanlar İmar Yönetmeliği Madde 7(3) and the 2020 regulation Madde 7(4)."
+  },
+  {
+   "id": "approval-deadline",
+   "what": "The municipal executive committee or provincial board must conclude approval of a subdivision or consolidation within 30 days of the application reaching the authority.",
+   "value": 30,
+   "unit": "days",
+   "source": "law-3194",
+   "clause": "Madde 16, fıkra 2",
+   "quote": "Onaylama işlemi, müracaatın belediyelere veya valiliklere intikalinden itibaren en geç 30 gün içinde sonuçlandırılır ve tescil veya terkini için 15 gün içinde tapuya bildirilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "land-registry-notification-deadline",
+   "what": "After approval, the authority must notify the land registry within 15 days for registration or cancellation.",
+   "value": 15,
+   "unit": "days",
+   "source": "law-3194",
+   "clause": "Madde 16, fıkra 2",
+   "quote": "Onaylama işlemi, müracaatın belediyelere veya valiliklere intikalinden itibaren en geç 30 gün içinde sonuçlandırılır ve tescil veya terkini için 15 gün içinde tapuya bildirilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "land-registry-registration-deadline",
+   "what": "The land registry office must complete the registration or cancellation within one month.",
+   "value": 1,
+   "unit": "months",
+   "source": "law-3194",
+   "clause": "Madde 16, fıkra 3",
+   "quote": "Tapu dairesi, tescil veya terkin işlemini bir ay içinde sonuçlandırmak zorundadır.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "co-ownership-dissolution-period",
+   "what": "Owners put into co-ownership under the law have six months from the authority's notice to agree or go to court; after that the authority may bring the dissolution action itself.",
+   "value": 6,
+   "unit": "months",
+   "source": "law-3194",
+   "clause": "Madde 16, fıkra 4",
+   "quote": "tebliği tarihinden itibaren altı ay içinde aralarında anlaşamadıkları veya şüyuun izalesi için, mahkemeye müracaat edilmediği takdirde ilgili idare hissedarmış gibi, şüyuun izalesi davası açabilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "parcellation-plan-deadline-after-plan",
+   "what": "The municipality or governorship is expected to make and approve parcellation plans within five years of the zoning plan becoming final.",
+   "value": 5,
+   "unit": "years",
+   "source": "law-3194",
+   "clause": "Madde 18 (ek fıkra, 7181/9)",
+   "quote": "Belediye veya valiliğin; parselasyon planlarını, imar planlarının kesinleşme tarihinden itibaren beş yıl içinde yapması ve onaylaması esastır.",
+   "read": "primary",
+   "note": "Unnumbered paragraph added by Law 7181 (2019)."
+  },
+  {
+   "id": "parcellation-plan-display-law",
+   "what": "Approved parcellation plans are posted at the authority for one month and become final at the end of that period.",
+   "value": 1,
+   "unit": "months",
+   "source": "law-3194",
+   "clause": "Madde 19, fıkra 1",
+   "quote": "Bu planlar bir ay müddetle ilgili idarede asılır.",
+   "read": "primary",
+   "note": "The 2020 regulation Madde 26 states the same period as thirty days (see parcellation-plan-display-regulation)."
+  },
+  {
+   "id": "parcellation-plan-display-regulation",
+   "what": "Parcellation plans are posted for thirty days at the municipality or governorship, published on its website and entered in the PARSİD system at the same time.",
+   "value": 30,
+   "unit": "days",
+   "source": "aady",
+   "clause": "Madde 26(1)",
+   "quote": "Parselasyon planları eş zamanlı olarak; otuz gün süreyle onaylayan idaresine göre belediyede ya da valilikte askıya çıkarılır, internet sitesinde yayımlanır ve PARSİD sistemine girilir.",
+   "read": "primary",
+   "note": "Paragraph annulled by the Danıştay 6th Chamber (13/5/2024) and re-made by Resmî Gazete 11/9/2025, no. 33014."
+  },
+  {
+   "id": "parcellation-objection-redo-period",
+   "what": "Where a parcellation plan is redrawn after an accepted objection, affected owners may be served with a ten-day objection period instead of a new posting.",
+   "value": 10,
+   "unit": "days",
+   "source": "aady",
+   "clause": "Madde 26(2)",
+   "quote": "etkilenen parsel maliklerine; on gün itiraz süresi verilerek tebliğ yapılması ya da parsel maliklerinin muvafakatlarının alınması halinde askı işlemlerine gerek kalmaksızın uygulamaya dair iş ve işlemlere devam edilir.",
+   "read": "primary",
+   "note": "Added by Resmî Gazete 11/9/2025, no. 33014."
+  },
+  {
+   "id": "title-records-max-age",
+   "what": "Encumbrance-bearing title records filed with a subdivision or consolidation application must have been obtained within the last 6 months.",
+   "value": 6,
+   "unit": "months",
+   "source": "aady",
+   "clause": "Madde 8(1)(c)",
+   "quote": "Son 6 ay içinde alınmış takyidatlı tapu kayıtları,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "no-parcel-without-road-frontage",
+   "what": "Subdivision may not create a parcel with no road frontage, and no building permit is issued for such a parcel.",
+   "value": null,
+   "unit": "",
+   "source": "paiy",
+   "clause": "Madde 5(14)",
+   "quote": "İfraz suretiyle yola cephesi olmayan parsel oluşturulamaz. Yola cephesi olmayan parsellere yapı ruhsatı düzenlenemez.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "block-study-before-ifraz-tevhit",
+   "what": "No subdivision or consolidation in a plan block without a block-level study showing that the parcel layout will not spoil building aesthetics and the street silhouette.",
+   "value": null,
+   "unit": "",
+   "source": "paiy",
+   "clause": "Madde 7(2)",
+   "quote": "ada içindeki parsel dağılımının yapıların estetiği ve sokak siluetini bozmayacak şekilde olduğu ortaya konulmadan, ifraz ve tevhit işlemi yapılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "tevhit-not-allowed-cases",
+   "what": "Parcels with different building arrangement or use, mid-block parcels fronting different roads, and parcels separated by a plan subdivision line cannot be consolidated.",
+   "value": null,
+   "unit": "",
+   "source": "paiy",
+   "clause": "Madde 7(10)",
+   "quote": "Yapı nizamı veya kullanım kararı birbirinden farklı parseller ve farklı yollardan cephe alan ara parseller ile imar planında ifraz hattıyla birbirinden ayrılan parseller tevhit edilemez.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "tevhit-level-difference-stepping",
+   "what": "When plan parcels on the same road with a level difference of 3.50 m or more are consolidated, stepping at the shared boundary is mandatory.",
+   "value": 3.5,
+   "unit": "m",
+   "source": "paiy",
+   "clause": "Madde 7(12)",
+   "quote": "Aynı yoldan cephe alan ve aralarında (Değişik ibare:RG-01/3/2019-30701) 3.50 metre ve daha fazla kot farkı bulunan imar parsellerinin tevhidi halinde parsellerin bitiştiği sınırda bu Yönetmeliğe göre kademe yapılması",
+   "read": "primary",
+   "note": "Figure changed by Resmî Gazete 1/3/2019, no. 30701."
+  },
+  {
+   "id": "boundary-adjustment-exempt-from-minimums",
+   "what": "Boundary corrections between existing adjoining parcels at the owners' request are exempt from the minimum subdivision conditions, provided the number of parcels does not change.",
+   "value": null,
+   "unit": "",
+   "source": "paiy",
+   "clause": "Madde 7(13)",
+   "quote": "ve tevhit işlemlerinde, parsel sayısı değiştirilmemek kaydıyla, bu Yönetmelikte bahsedilen asgari ifraz şartları aranmaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "undersized-parcel-no-permit",
+   "what": "No new or additional building permit is issued on plots that do not meet the parcel size provisions.",
+   "value": null,
+   "unit": "",
+   "source": "paiy",
+   "clause": "Madde 6(5)",
+   "quote": "Parsel büyüklükleri hakkındaki hükümlere uymayan arsalarda, yeni veya ilave yapı ruhsatı düzenlenemez.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "width-increment-per-storey-5-to-9",
+   "what": "In residential and commercial zones allowing 5 to 9 storeys, minimum parcel width is the up-to-4-storey width plus 60 cm for each additional storey.",
+   "value": 60,
+   "unit": "cm",
+   "source": "paiy",
+   "clause": "Madde 6(2)(a)(2)",
+   "quote": "(1) numaralı alt bende göre belirlenen parsel genişliğine ilave her kat için 60 santimetre eklenmek suretiyle bulunan genişlikten az olamaz.",
+   "read": "primary",
+   "note": "Sub-item replaced by Resmî Gazete 12/5/2023, no. 32188. The text does not say from which storey the count of 'additional' storeys starts; apply with care."
+  },
+  {
+   "id": "ifraz-emsal-limit",
+   "what": "Existing or future building area on parcels created by subdivision may not exceed the plan floor-area ratio applied to each resulting parcel.",
+   "value": null,
+   "unit": "",
+   "source": "aady",
+   "clause": "Madde 7(5)",
+   "quote": "İfraz sonucu oluşacak parsellerdeki mevcut ya da oluşacak yapı alanlarının toplamı, imar planındaki emsal oranının ifraz sonucu oluşan parsele denk gelen miktarını aşamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-amendment-report-required",
+   "what": "Every plan amendment must come with a plan report explaining the reason for the change and the necessity analyses in detail.",
+   "value": null,
+   "unit": "",
+   "source": "mpyy",
+   "clause": "Madde 9(4)",
+   "quote": "Plan değişikliklerinde, değişiklik gerekçesi ve yapılan gereklilik analizlerini ayrıntılı açıklayan plan raporu hazırlanması zorunludur.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-amendment-basis",
+   "what": "A zoning plan amendment must not upset the plan's main decisions, continuity, integrity or social and technical infrastructure balance, and must rest on public interest and technical, objective grounds.",
+   "value": null,
+   "unit": "",
+   "source": "mpyy",
+   "clause": "Madde 26(1)",
+   "quote": "İmar planı değişikliği; plan ana kararlarını, sürekliliğini, bütünlüğünü, sosyal ve teknik altyapı dengesini bozmayacak nitelikte, kamu yararı amaçlı, teknik ve nesnel gerekçelere dayanılarak yapılır.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-amendment-no-lower-standards",
+   "what": "A plan amendment that lowers the social and technical infrastructure standards of the plan in force cannot be made.",
+   "value": null,
+   "unit": "",
+   "source": "mpyy",
+   "clause": "Madde 26(2)",
+   "quote": "Yürürlükteki imar planlarında öngörülen sosyal ve teknik altyapı standartlarını düşüren plan değişikliği yapılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-amendment-density-infrastructure",
+   "what": "Amendments that raise population density by changing floor-area ratio, storeys or subdivision conditions must set aside the social and technical infrastructure areas the added population needs.",
+   "value": null,
+   "unit": "",
+   "source": "mpyy",
+   "clause": "Madde 26(5)(a)",
+   "quote": "Artan nüfusun ihtiyacı olan sosyal ve teknik altyapı alanları standartlara uygun olarak plan değişikliğine konu alana hizmet vermek üzere ayrılır.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-amendment-facing-distance-constant",
+   "what": "Where more storeys are requested, the distance between facing building fronts must be at least half the sum of the two proposed building heights plus 7.00 m.",
+   "value": 7,
+   "unit": "m",
+   "source": "mpyy",
+   "clause": "Madde 26(5)(b)",
+   "quote": "K = [(Y1 + Y2)/2] + 7,00 m",
+   "read": "primary",
+   "note": "K = distance between facing fronts (m); Y1, Y2 = proposed building heights on either side of the road. Value recorded is the constant only."
+  },
+  {
+   "id": "min-pedestrian-way-width",
+   "what": "In development areas of zoning plans, a through pedestrian way may not be narrower than 3.00 m.",
+   "value": 3,
+   "unit": "m",
+   "source": "mpyy",
+   "clause": "Madde 26(6)(c)",
+   "quote": "İmar planlarındaki gelişme alanlarında geçiş amaçlı 3,00 metreden dar yaya yolu, 10,00 metreden dar trafik yolu açılamaz;",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "min-traffic-road-width",
+   "what": "In development areas of zoning plans, a traffic road may not be narrower than 10.00 m.",
+   "value": 10,
+   "unit": "m",
+   "source": "mpyy",
+   "clause": "Madde 26(6)(c)",
+   "quote": "İmar planlarındaki gelişme alanlarında geçiş amaçlı 3,00 metreden dar yaya yolu, 10,00 metreden dar trafik yolu açılamaz;",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "min-road-width-for-parcel-access",
+   "what": "Parcels may not take their access from a road narrower than 7.00 m.",
+   "value": 7,
+   "unit": "m",
+   "source": "mpyy",
+   "clause": "Madde 26(6)(c)",
+   "quote": "Ancak parseller 7,00 metreden dar yollardan mahreç alamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-amendment-infrastructure-impact-report",
+   "what": "Amendments that raise density or affect the urban transport system also need an urban technical infrastructure impact assessment report.",
+   "value": null,
+   "unit": "",
+   "source": "mpyy",
+   "clause": "Madde 26(7)",
+   "quote": "gerekli önlemlerin alınması amacıyla ayrıca kentsel teknik altyapı etki değerlendirmesi raporu, analizi hazırlanır veya hazırlatılır.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-proposal-missing-documents-period",
+   "what": "Plan proposals with missing documents are returned to the applicant to be completed within 30 days.",
+   "value": 30,
+   "unit": "days",
+   "source": "mpyy",
+   "clause": "Madde 31(1)",
+   "quote": "bulunanların eksikliklerinin ilgilisince 30 gün içinde tamamlanmak üzere iade eder.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-proposal-unreachable-owners-max",
+   "what": "A plan proposal may be filed by the owners of the area; land whose owners cannot be reached, are unknown or absent must be documented and may not exceed 20 percent of the planned area.",
+   "value": 20,
+   "unit": "percent",
+   "source": "mpyy",
+   "clause": "Madde 31(4)",
+   "quote": "%20’sini aşmaması şartı aranır.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-proposal-rejection-notice",
+   "what": "Plan proposals the deciding body does not accept are notified to the applicant in writing, with reasons, within thirty days.",
+   "value": 30,
+   "unit": "days",
+   "source": "mpyy",
+   "clause": "Madde 32(4)",
+   "quote": "Plan onaylamaya yetkili idarelerin karar mercilerince uygun görülmeyen imar planı teklifleri gerekçeleri belirtilmek suretiyle idarelerce otuz",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-publication-start",
+   "what": "Approved plans (and amendments) must be put on public notice within fifteen working days of approval.",
+   "value": 15,
+   "unit": "working days",
+   "source": "mpyy",
+   "clause": "Madde 33(1)",
+   "quote": "Çevre düzeni planı ve imar planları onaylandığı tarihten itibaren en geç on beş iş günü içinde otuz gün(1)(2) süreyle herkesin",
+   "read": "primary",
+   "note": "Madde 33(7) applies the same procedure to amendments."
+  },
+  {
+   "id": "plan-notice-period",
+   "what": "Approved plans are on public notice for thirty days, at the notice places and on the authority's website at the same time; objections are made within this period.",
+   "value": 30,
+   "unit": "days",
+   "source": "mpyy",
+   "clause": "Madde 33(1), 33(4)",
+   "quote": "Planlara itiraz, otuz günlük ilan süresi içinde idareye yapılır ve itirazlar idarece değerlendirilir.",
+   "read": "primary",
+   "note": "Footnotes (1)(2) on 'otuz gün' in 33(1): the Danıştay 6th Chamber stayed the phrase on 8/11/2016 and the Danıştay İDDK lifted that stay on 19/12/2016. Law 3194 Madde 8(b) states the period as 'bir ay'."
+  },
+  {
+   "id": "plan-objection-forwarding",
+   "what": "Objections are sent to the deciding body within thirty days of the end of the notice period.",
+   "value": 30,
+   "unit": "days",
+   "source": "mpyy",
+   "clause": "Madde 33(5)",
+   "quote": "İtirazlar; askı süresinin dolduğu tarihten itibaren en geç otuz gün içinde ilgili idare karar merciine gönderilir ve en geç otuz gün içinde karara",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plan-objection-decision",
+   "what": "The deciding body rules on objections within thirty days of receiving them, and the plan becomes final.",
+   "value": 30,
+   "unit": "days",
+   "source": "mpyy",
+   "clause": "Madde 33(5)",
+   "quote": "İtirazlar; askı süresinin dolduğu tarihten itibaren en geç otuz gün içinde ilgili idare karar merciine gönderilir ve en geç otuz gün içinde karara",
+   "read": "primary",
+   "note": "Law 3194 Madde 8(b) says the municipal council examines objections within fifteen days ('onbeş gün içinde'); the two texts differ."
+  },
+  {
+   "id": "plansiz-scope-municipality-population",
+   "what": "The regulation applies inside the settled-area boundaries of municipalities that have no zoning plan and/or whose population at the last census is below 10 000.",
+   "value": 10000,
+   "unit": "persons",
+   "source": "paiy-plansiz",
+   "clause": "Madde 2(1)",
+   "quote": "İmar planı bulunmayan ve/veya son nüfus sayımına göre nüfusu 10 000 in altında olan belediyelerin yerleşik alan sınırları içinde,",
+   "read": "primary",
+   "note": "Wording changed by Resmî Gazete 11/7/2021 no. 31538. Madde 2 lists five kinds of area in all: (1) these municipalities, (2) village and hamlet settled areas inside municipal and adjacent-area boundaries, (3) unplanned village and hamlet settled areas and surroundings outside those boundaries, (4) areas outside settlement (iskân dışı), (5) rural settled areas and surroundings fixed by metropolitan municipalities under Law 3194 Madde 8(ğ)."
+  },
+  {
+   "id": "plansiz-environmental-plan-first",
+   "what": "Where one of the areas covered lies within an approved environmental plan (çevre düzeni planı), that plan's decisions are followed first.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 3",
+   "quote": "2 nci maddede sayılan alanların onaylı bir çevre düzeni planı kapsamında kalması halinde,",
+   "read": "primary",
+   "note": "The sentence continues '(Ek ibare:RG-11/7/2021-31538) öncelikle çevre düzeni planı kararlarına uyulur.'"
+  },
+  {
+   "id": "plansiz-chapter-by-area",
+   "what": "Chapter 4 applies inside settled-area boundaries, Chapter 5 in village and hamlet settled areas and surroundings and in rural settled areas and surroundings, and Chapter 6 in areas outside settlement (iskân dışı).",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 5, fıkra 3",
+   "quote": "Yerleşik alan sınırları içerisinde bu Yönetmeliğin dördüncü bölümü, köy ve mezraların yerleşik alanları ve civarı ile kırsal yerleşik alanlar ve civarı içerisinde bu Yönetmeliğin beşinci bölümü, yerleşme alanı dışı (iskân dışı) alanlarda bu Yönetmeliğin altıncı bölümü",
+   "read": "primary",
+   "note": "Paragraph added by Resmî Gazete 11/7/2021 no. 31538. The annex diagram (Ek-1 Uygulama İzah Şeması) was opened: areas numbered 1 follow Chapter 4, 2 and 4 follow Chapter 5, 3 follows Chapter 6."
+  },
+  {
+   "id": "plansiz-koy-surroundings-max-distance",
+   "what": "The surroundings (civar) of a village or hamlet settled area are bounded by a line drawn at most 300 metres outside the line through the outer edges of the outermost existing buildings.",
+   "value": 300,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 4(4)",
+   "quote": "çizgi ile en fazla 300 metre dışından geçirilecek olan, valiliklerce tespit edilerek il genel meclisince karara bağlanan sınırın içinde kalan alan köy yerleşik alanı civarını tanımlar.",
+   "read": "primary",
+   "note": "Definition replaced by Resmî Gazete 11/7/2021 no. 31538. The same 300 m is printed for rural settled areas in Madde 4(34) and again in Madde 43."
+  },
+  {
+   "id": "plansiz-kirsal-surroundings-max-distance",
+   "what": "The surroundings of a rural settled area (kırsal yerleşik alan) in a metropolitan municipality are bounded by a line drawn at most 300 metres outside the settled-area line, decided by the metropolitan council on the district council's proposal.",
+   "value": 300,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 4(34)",
+   "quote": "bu çizgi ile en fazla 300 metre dışından geçirilecek olan ve ilçe belediye meclisinin teklifi üzerine büyükşehir belediye meclisince karara bağlanan sınırın içinde kalan alan kırsal yerleşik alan civarını tanımlar.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-boundary-commission",
+   "what": "Village, hamlet and rural settled-area boundaries and surroundings are fixed by a commission of at least three technical staff, one of them a survey (harita) engineer, on 1:1000 or 1:5000 base maps or cadastral sheets.",
+   "value": 3,
+   "unit": "persons",
+   "source": "paiy-plansiz",
+   "clause": "Madde 43, fıkra 1",
+   "quote": "birisi harita mühendisi olmak üzere en az üç teknik personelden oluşan bir komisyon tarafından 1:1000 veya 1:5000 ölçekli hâlihazır haritalar veya kadastro paftaları üzerine yapılır.",
+   "read": "primary",
+   "note": "Article replaced by Resmî Gazete 11/7/2021 no. 31538. The boundaries are approved by the metropolitan council (on the district council's proposal) or elsewhere by the provincial general council."
+  },
+  {
+   "id": "plansiz-koy-hamlet-joint-boundary-distance",
+   "what": "A hamlet's settled-area boundary may be fixed together with its village's when the distance between their outermost existing buildings does not exceed 300 metres in total; beyond that the boundaries are fixed separately.",
+   "value": 300,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 43",
+   "quote": "mevcut binaların en dışta olanları arasındaki mesafenin toplam 300 metreyi aşmaması durumunda köy ve mezraların yerleşik alanı sınırı birlikte tespit edilebilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-dispersed-building-distance",
+   "what": "In dispersed settlements the settled-area boundary may take in buildings not more than 200 metres from the village's common buildings or from each other; no surroundings (civar) are fixed for these areas.",
+   "value": 200,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 43",
+   "quote": "köyün ortak yapılarına veya birbirlerine 200 metreden uzak olmayan binaları içerecek şekilde tespit yapılabilir. Bu alanlarda ayrıca civar tespiti yapılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-building-frontage-min",
+   "what": "In settled areas without a plan (Chapter 4), the building frontage of dwellings and workplaces is at least 6.00 m.",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 13, fıkra 2",
+   "quote": "Bina cephesi konutlarda ve işyerlerinde minimum (6.00) m. olup blok uygulamalarında (40.00) m.yi aşamaz.",
+   "read": "primary",
+   "note": "Building frontage (bina cephesi), not parcel frontage."
+  },
+  {
+   "id": "plansiz-ya-block-length-max",
+   "what": "In settled areas without a plan (Chapter 4), a block of buildings may not exceed 40.00 m of frontage.",
+   "value": 40,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 13, fıkra 2",
+   "quote": "Bina cephesi konutlarda ve işyerlerinde minimum (6.00) m. olup blok uygulamalarında (40.00) m.yi aşamaz.",
+   "read": "primary",
+   "note": "Repeated in Madde 14(3): 'blok her hal-karda (40.00) m. yi aşamaz'."
+  },
+  {
+   "id": "plansiz-ya-kdkca-needs-plan",
+   "what": "Non-residential urban working areas (konut dışı kentsel çalışma alanları) can only be developed by a plan decision.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 13, fıkra 3",
+   "quote": "Konut dışı kentsel çalışma alanlarındaki uygulamaların plan kararıyla yapılması zorunludur.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-front-yard-min",
+   "what": "In settled areas without a plan (Chapter 4), the front yard and a side yard facing a road are at least 5.00 m; where the existing pattern has more, the pattern is followed.",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 14(1)",
+   "quote": "Ön ve yol kenarına rastlayan yan bahçe mesafelerini minumum (5.00) m.`dir.",
+   "read": "primary",
+   "note": "Spelling as printed."
+  },
+  {
+   "id": "plansiz-ya-side-yard-min-masonry",
+   "what": "In settled areas without a plan (Chapter 4), on side faces that are not attached, steel, masonry and similar buildings keep at least 3.00 m.",
+   "value": 3,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 14(2)",
+   "quote": "Bitişik olmayan yan ceplerde, çelik, kagir ve benzeri yapılarda minumum (3.00) m., diğer yapılarda ise minumum (5.00) m. mesafe bırakılması şarttır.",
+   "read": "primary",
+   "note": "Printed 'yan ceplerde' (sic), read as yan cephelerde."
+  },
+  {
+   "id": "plansiz-ya-side-yard-min-other",
+   "what": "In settled areas without a plan (Chapter 4), on side faces that are not attached, buildings other than steel, masonry and similar keep at least 5.00 m.",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 14(2)",
+   "quote": "Bitişik olmayan yan ceplerde, çelik, kagir ve benzeri yapılarda minumum (3.00) m., diğer yapılarda ise minumum (5.00) m. mesafe bırakılması şarttır.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-rear-yard-min",
+   "what": "In settled areas without a plan (Chapter 4), the rear yard distance may not be less than the building height.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 14(4)",
+   "quote": "Arka bahçe mesafesi bina yüksekliğinden az olamaz.",
+   "read": "primary",
+   "note": "No fixed figure: equals the building height. Madde 19(3) allows a 2.00 m rear yard in one case."
+  },
+  {
+   "id": "plansiz-ya-ifraz-road-frontage",
+   "what": "In settled areas without a plan (Chapter 4), every parcel obtained by subdivision must front a road that is on the cadastral map and has passed into public ownership; a road cannot be created by ceding land from the parcel.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 15",
+   "quote": "İfraz suretiyle elde edilecek parsellerin tapu kadastro veya tapulama haritasında bulunan ve kamu eline geçmiş bir yola cephesinin bulunması şarttır. Parselden terk suretiyle yol oluşturulamaz.",
+   "read": "primary",
+   "note": "Article replaced by Resmî Gazete 2/9/1999 no. 23804."
+  },
+  {
+   "id": "plansiz-ya-ifraz-no-cul-de-sac",
+   "what": "In settled areas without a plan (Chapter 4), parcels fronting a cul-de-sac cannot be subdivided and a subdivision cannot create a cul-de-sac.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 15",
+   "quote": "Çıkmaz sokaklarda cephesi olan parseller ifraz edilemez. İfraz suretiyle çıkmaz sokak oluşturulamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-buildings-on-one-parcel-spacing",
+   "what": "Several buildings may stand on one parcel under a single permit; except for attached buildings, the distance between them is at least 6.00 m.",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 17",
+   "quote": "bitişik binalar hariç yapılacak binaların arasındaki mesafeler",
+   "read": "primary",
+   "note": "The sentence continues '(Değişik ibare:RG-11/7/2021-31538) (6.00) m.den az olamaz.'; the figure was changed by the 2021 amendment."
+  },
+  {
+   "id": "plansiz-ya-joint-block-frontage-max",
+   "what": "Where detached order applies, the municipality may treat several narrow parcels together and allow a two- or three-unit block whose total building frontage does not exceed 20.00 m.",
+   "value": 20,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 18",
+   "quote": "toplam bina cephesi (20.00) m.yi geçmemek şartı ile ikili veya üçlü blok tertibine Belediye yetkilidir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-building-depth-formula",
+   "what": "In settled areas without a plan (Chapter 4), building depth is calculated as I = L - (K x H/2), where L is parcel depth, K the front yard distance and H the building height.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 19(1)",
+   "quote": "I=L-( K x H/2)formulü ile hesaplanır.",
+   "read": "primary",
+   "note": "Formula copied as printed; the grouping of terms is as it appears in the consolidated text."
+  },
+  {
+   "id": "plansiz-ya-building-depth-max",
+   "what": "In settled areas without a plan (Chapter 4), no building may be deeper than 40.00 m even if the formula gives more.",
+   "value": 40,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 19(2)",
+   "quote": "(40.00) m.den daha fazla derinlikte bina yapılamaz",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-taks-max",
+   "what": "In settled areas without a plan (Chapter 4), the building coverage ratio (taban alanı kat sayısı, TAKS) may in no case exceed 40 percent.",
+   "value": 40,
+   "unit": "percent",
+   "source": "paiy-plansiz",
+   "clause": "Madde 19(2)",
+   "quote": "yapılacak binanın taban alanı kat sayısı % 40`ı aşamaz.",
+   "read": "primary",
+   "note": "Outbuildings in the garden count in the ground area (Madde 4(27))."
+  },
+  {
+   "id": "plansiz-ya-building-depth-raise-to",
+   "what": "Where the formula gives a building depth under 10.00 m, the depth may be raised to 10.00 m.",
+   "value": 10,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 19(3)",
+   "quote": "Formülün kullanılması sonucunda (10.00) m.den az çıkan bina derinlikleri, arka bahçe mesafesi (2.00) m.den az olmamak üzere (10.00) m.ye çıkartılabilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-rear-yard-min-when-depth-raised",
+   "what": "When building depth is raised to 10.00 m under Madde 19(3), the rear yard may not be less than 2.00 m.",
+   "value": 2,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 19(3)",
+   "quote": "Formülün kullanılması sonucunda (10.00) m.den az çıkan bina derinlikleri, arka bahçe mesafesi (2.00) m.den az olmamak üzere (10.00) m.ye çıkartılabilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-height-max",
+   "what": "In settled areas (Chapter 4) a building gets the height of the tallest existing neighbouring building, but not more than 9.50 m and 3 storeys.",
+   "value": 9.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 20(1)",
+   "quote": "Yerleşik alanlarda yapılacak binalara yanındaki mevcut en yüksek bina yüksekliği kadar yükseklik verilir.",
+   "read": "primary",
+   "note": "The paragraph continues 'Bu yükseklik (9.50) m.yi, (3) kat`ı geçemez.' The storey limit is 3."
+  },
+  {
+   "id": "plansiz-ya-height-max-lower-neighbours",
+   "what": "Where the existing buildings on both sides are lower, the maximum building height is 7.50 m and 2 storeys.",
+   "value": 7.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 20(2)",
+   "quote": "İki yanındaki mevcut binaların yüksekliği daha az ise verilecek azami bina yüksekliği",
+   "read": "primary",
+   "note": "The paragraph continues '(Değişik ibare:RG-11/7/2021-31538) (7.50) m., (2) kat`dır.'; figure changed by the 2021 amendment."
+  },
+  {
+   "id": "plansiz-ya-height-max-undeveloped",
+   "what": "In places with no development yet, height up to 3 storeys (9.50 m) is given, not more than half the distance between the two facing building fronts including road width and front yards.",
+   "value": 9.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 20(3)",
+   "quote": "Hiç uygulama görmemiş yerlerde, yol genişliği ve ön bahçe mesafeleri dahil iki bina cephesi arasındaki mesafenin yarısından fazla olmamak kaydı ile 3 kat`a (9.50) m. kadar yükseklik verilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-ya-projection-road-boundary-min",
+   "what": "Projections in front yards may not come closer than 3.50 m to the parcel's road boundary.",
+   "value": 3.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 23(4)",
+   "quote": "Ön bahçelerde yapılacak çıkmalar parselin yol sınırına (3.50) m. den fazla yaklaşmak",
+   "read": "primary",
+   "note": "The clause is printed incomplete (it ends at 'yaklaşmak' with no verb of prohibition); read as a prohibition by context. Projections may not cross the parcel boundary (Madde 23(2))."
+  },
+  {
+   "id": "plansiz-koy-ifraz-road-frontage",
+   "what": "In village and hamlet settled areas (Chapter 5), every parcel obtained by subdivision must front a road that is on the cadastral map and has passed into public ownership; a road cannot be created by ceding land from the parcel.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 44",
+   "quote": "İfraz suretiyle elde edilecek parsellerin tapu kadastro veya tapulama haritasında bulunan ve kamu eline geçmiş bir yola cephesinin bulunması şarttır. Parselden terk suretiyle yol oluşturulamaz.",
+   "read": "primary",
+   "note": "The same two sentences appear in Madde 15 and Madde 44; the quote check cannot tell the two apart. Madde 44 was read at its own place in the text."
+  },
+  {
+   "id": "plansiz-koy-ifraz-no-cul-de-sac",
+   "what": "In village and hamlet settled areas (Chapter 5), parcels fronting a cul-de-sac cannot be subdivided and a subdivision cannot create a cul-de-sac.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 44",
+   "quote": "Çıkmaz sokaklara cephesi olan parseller ifraz edilemez. İfraz suretiyle çıkmaz sokak oluşturulamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-ifraz-max-parcels",
+   "what": "In village and hamlet settled areas and surroundings, a subdivision may produce at most five parcels.",
+   "value": 5,
+   "unit": "parcels",
+   "source": "paiy-plansiz",
+   "clause": "Madde 45",
+   "quote": "İfraz suretiyle en fazla beş adet parsel elde edilir, ifraz suretiyle elde edilen parsellerde ikinci kere ifraz yapılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-no-second-ifraz",
+   "what": "In village and hamlet settled areas and surroundings, a parcel obtained by subdivision cannot be subdivided a second time.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 45",
+   "quote": "İfraz suretiyle en fazla beş adet parsel elde edilir, ifraz suretiyle elde edilen parsellerde ikinci kere ifraz yapılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-neighbour-distances-by-authority",
+   "what": "In village and hamlet settled areas (Chapter 5) no fixed distances to neighbours are printed: the authority sets them by the local building pattern and by whether the building is a dwelling or a farm unit.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 47",
+   "quote": "Komşu mesafeleri, civarın yapı düzeni ve karakterine, yapılacak binaların münferit konut veya tarımsal işletme birimi (ahır, samanlık, arabalık v.b.) oluşuna göre",
+   "read": "primary",
+   "note": "The sentence continues '(Değişik ibare:RG-11/7/2021-31538) ilgili idare tarafından takdir ve tayin olunur.' Building fronts and alignments are likewise set by the authority (Madde 46)."
+  },
+  {
+   "id": "plansiz-koy-undersized-parcel-no-building",
+   "what": "On parcels that do not meet the parcel-size provisions, no new building or extension is allowed until the parcel is brought into conformity.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 49",
+   "quote": "Parsel büyüklükleri hakkındaki hükümlere uymayan parsellerde, uygun hale getirilmedikçe yeni yapı ve ilave yapı yapılmasına izin verilmez.",
+   "read": "primary",
+   "note": "Printed in Chapter 5."
+  },
+  {
+   "id": "plansiz-koy-shared-parcel-min-area",
+   "what": "On a co-owned (hisseli) parcel larger than 1500 m², with the owners' consent, more than one building may be built.",
+   "value": 1500,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 50",
+   "quote": "1500 m2 den büyük olan hisseli parsellerde ise, maliklerin muvafakati alınmak kaydı ile, binalar arasındaki mesafeler (6.00) m. den az olmamak şartı ile, hissedar sayısını ve her durumda 3 adeti geçmemek üzere birden fazla bina yapılabilir.",
+   "read": "primary",
+   "note": "Article replaced by Resmî Gazete 11/7/2021 no. 31538. Otherwise only one building plus dwelling, agricultural and livestock buildings and their outbuildings per unsubdivided parcel. Geçici Madde 1 suspends the building-count and building-area limits of this article until 31/12/2026 for the earthquake-affected places it names."
+  },
+  {
+   "id": "plansiz-koy-shared-parcel-building-spacing",
+   "what": "On such a co-owned parcel the buildings are at least 6.00 m apart.",
+   "value": 6,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 50",
+   "quote": "binalar arasındaki mesafeler (6.00) m. den az olmamak şartı ile",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-shared-parcel-max-buildings",
+   "what": "On such a co-owned parcel the number of buildings may not exceed the number of co-owners and in any case not 3.",
+   "value": 3,
+   "unit": "buildings",
+   "source": "paiy-plansiz",
+   "clause": "Madde 50",
+   "quote": "hissedar sayısını ve her durumda 3 adeti geçmemek üzere birden fazla bina yapılabilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-shared-parcel-building-area-max",
+   "what": "On such a co-owned parcel each building's gross construction area may not exceed 250 m².",
+   "value": 250,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 50",
+   "quote": "her bir binanın yapı inşaat alanı 250 m2 yi toplam yapı inşaat alanı ise 750 m2 yi geçemez.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-shared-parcel-total-area-max",
+   "what": "On such a co-owned parcel the total gross construction area may not exceed 750 m².",
+   "value": 750,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 50",
+   "quote": "her bir binanın yapı inşaat alanı 250 m2 yi toplam yapı inşaat alanı ise 750 m2 yi geçemez.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-taks-max",
+   "what": "In village and hamlet settled areas (Chapter 5), the building coverage ratio of agricultural, livestock and dwelling buildings on a parcel, outbuildings included, may not exceed 40 percent.",
+   "value": 40,
+   "unit": "percent",
+   "source": "paiy-plansiz",
+   "clause": "Madde 51",
+   "quote": "yapıların ve konut yapılarının müştemilat dahil taban alanı kat sayısı %40 ı geçemez.",
+   "read": "primary",
+   "note": "Geçici Madde 1 suspends the coverage limits until 31/12/2026 in the earthquake-affected places it names and caps coverage there at 0.60."
+  },
+  {
+   "id": "plansiz-koy-height-max",
+   "what": "In village, hamlet and rural settled areas and their surroundings no building may exceed 2 storeys (7.50 m).",
+   "value": 7.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 52, fıkra 1",
+   "quote": "2 kat (7.50) m. den fazla katlı bina yapılamaz. Meyilden dolayı birden fazla kat kazanılamaz.",
+   "read": "primary",
+   "note": "Paragraph replaced by Resmî Gazete 11/7/2021 no. 31538. Storey limit 2."
+  },
+  {
+   "id": "plansiz-koy-projection-limits",
+   "what": "In Chapter 5 areas no projection may extend beyond the parcel, and in attached or block order projections keep at least 2.00 m from the neighbour's boundary.",
+   "value": 2,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 54",
+   "quote": "Parsel dışına taşan çıkma yapılamaz. Çıkmalar, bitişik veya blok nizamında komşu sınırına (2.00) m. den fazla yaklaşamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-no-permit-with-notice",
+   "what": "In village, hamlet and rural settled areas and surroundings, dwellings, agricultural and livestock buildings and outbuildings need no building permit, but the projects must be approved by the authority and notice given to the muhtarlık.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 57, fıkra 1",
+   "quote": "yapılacak konut, tarımsal ve hayvancılık amaçlı yapılar ile müştemilat binaları yapı ruhsatı ve yapı kullanma iznine tabi değildir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-koy-chapter4-fallback",
+   "what": "For matters not covered in Chapter 5, the provisions of Chapter 4 apply.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 61",
+   "quote": "Bu bölümde bulunmayan hususlarda bu Yönetmeliğin Dördüncü Bölümündeki hükümler geçerlidir.",
+   "read": "primary",
+   "note": "Whether this makes the Chapter 4 yard distances (Madde 14) apply in villages, given Madde 47 leaves neighbour distances to the authority, is not stated."
+  },
+  {
+   "id": "plansiz-iskandisi-no-road-by-cession",
+   "what": "In areas outside settlement (Chapter 6), a road cannot be created by ceding land from the parcel, and subdivision aimed at creating a new settlement area is not allowed.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 62, fıkra 1",
+   "quote": "Parselden terk suretiyle yol oluşturulamaz. Yeni yerleşme alanı oluşturma amaçlı ifraz işlemi yapılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-iskandisi-agri-settlement-no-frontage",
+   "what": "For agricultural subdivisions with no building purpose under Agricultural Settlement Projects of Settlement Law 2510, the road-frontage condition is not required.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 62, fıkra 2",
+   "quote": "2510 sayılı İskan Kanunu uyarınca hazırlanan Tarımsal İskan Projeleri kapsamında yapılaşma amacı taşımayan tarımsal amaçlı ifrazlarda, yola cephe koşulu aranmaz.",
+   "read": "primary",
+   "note": "Paragraph added by Resmî Gazete 30/6/2001 no. 24448."
+  },
+  {
+   "id": "plansiz-iskandisi-tevhit-no-min-area",
+   "what": "For consolidation (tevhid) in areas outside settlement the 5000 m² minimum size is not required.",
+   "value": 5000,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 62, fıkra 3",
+   "quote": "Tevhid işlemlerinde (5000) m2 asgari büyüklük şartı aranmaz.",
+   "read": "primary",
+   "note": "Value is the minimum that is waived."
+  },
+  {
+   "id": "plansiz-iskandisi-emsal-max",
+   "what": "On parcels outside settlement with no upper-scale plan, single-family vineyard and summer houses, country cafés, restaurants and their outbuildings may be built with a floor area ratio (inşaat alanı katsayısı) of not more than 5 percent.",
+   "value": 5,
+   "unit": "percent",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 1",
+   "quote": "Üst ölçek planı bulunmayan iskan dışı alanlarda bulunan parsellerde; inşaat alanı katsayısı %5 den fazla olmamak, yapı inşaat alanları toplamı hiçbir koşulda (250) m2 yi geçmemek,",
+   "read": "primary",
+   "note": "Printed across a line break as '%5 den'."
+  },
+  {
+   "id": "plansiz-iskandisi-construction-area-max",
+   "what": "For those buildings the total gross construction area may under no condition exceed 250 m².",
+   "value": 250,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 1",
+   "quote": "yapı inşaat alanları toplamı hiçbir koşulda (250) m2 yi geçmemek,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-iskandisi-height-max",
+   "what": "For those buildings the eaves height above natural ground may not exceed 7.50 m and 2 storeys.",
+   "value": 7.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 1",
+   "quote": "(7.50) m.yi ve 2 katı aşmamak,",
+   "read": "primary",
+   "note": "Figure changed by Resmî Gazete 11/7/2021 no. 31538. The same string also occurs in the second paragraph (agricultural buildings)."
+  },
+  {
+   "id": "plansiz-iskandisi-road-setback-min",
+   "what": "For those buildings the distance to the road is at least 5.00 m.",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 1",
+   "quote": "(5.00) m.den (Ek ibare:RG-11/7/2021-",
+   "read": "primary",
+   "note": "AMBIGUOUS as printed. The consolidated text reads: yola (Mülga ibare:RG-11/7/2021-31538) (5.00) m.den (Ek ibare:RG-11/7/2021-31538) parsel sınırlarına (3.00) m.den azla yaklaşmamak. The 2021 amendment removed some words after 'yola' and added words before '(3.00)'; read here as 5.00 m from the road and 3.00 m from parcel boundaries. The 2021 amending text in the Resmî Gazete was not opened to confirm."
+  },
+  {
+   "id": "plansiz-iskandisi-boundary-setback-min",
+   "what": "For those buildings the distance to the parcel boundaries is at least 3.00 m.",
+   "value": 3,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 1",
+   "quote": "parsel sınırlarına (3.00) m.den azla yaklaşmamak şartı ile bir ailenin oturmasına mahsus bağ ve sayfiye evleri, kır kahvesi, lokanta ve bu tesislerin müştemilat binaları yapılabilir.",
+   "read": "primary",
+   "note": "Printed 'azla' (sic), read as fazla. See the ambiguity note on plansiz-iskandisi-road-setback-min."
+  },
+  {
+   "id": "plansiz-iskandisi-agri-road-setback-min",
+   "what": "Agricultural non-residential buildings outside settlement (dairy, poultry house, barn, stores and the like, not an integrated facility) keep at least 10.00 m from the road they take access from.",
+   "value": 10,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 2",
+   "quote": "mahreç aldığı yola (10.00) m.den, parsel hudutlarına (5.00) m.den fazla yaklaşmamak,",
+   "read": "primary",
+   "note": "Paragraph replaced by Resmî Gazete 11/7/2021 no. 31538."
+  },
+  {
+   "id": "plansiz-iskandisi-agri-boundary-setback-min",
+   "what": "Those agricultural buildings keep at least 5.00 m from the parcel boundaries.",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 2",
+   "quote": "mahreç aldığı yola (10.00) m.den, parsel hudutlarına (5.00) m.den fazla yaklaşmamak,",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-iskandisi-agri-emsal-max",
+   "what": "With agricultural buildings, the floor area ratio of all buildings on the parcel may not exceed 40 percent, also when built together with a dwelling under the first paragraph.",
+   "value": 40,
+   "unit": "percent",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 2",
+   "quote": "bulunan bütün yapılara ait inşaat alanı katsayısı %40’ı ve yapı yüksekliği (7.50) m.yi ve 2 katı aşmamak şartı ile yapılabilir.",
+   "read": "primary",
+   "note": "The next sentence prints the same limit as '(0.40)’ı geçemez'. Height 7.50 m and 2 storeys; the authority may allow up to twice the height on a technical report with the provincial agriculture directorate's opinion."
+  },
+  {
+   "id": "plansiz-iskandisi-greenhouse-road-setback-min",
+   "what": "Greenhouses with concrete foundations and steel roofs keep at least 5.00 metres from the access road and are then not subject to the floor area ratio.",
+   "value": 5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 3",
+   "quote": "Beton temel ve çelik çatılı ser’alar mahreç aldığı yola 5.00 metreden ve parsel hudutlarına ise 2.00 metreden fazla yaklaşmamak şartı ile inşaat alanı katsayısına tabi değildir.",
+   "read": "primary",
+   "note": "Paragraph replaced by Resmî Gazete 1/3/2019 no. 30701. Simple-cover greenhouses are subject to neither the setbacks nor the ratio (fourth paragraph)."
+  },
+  {
+   "id": "plansiz-iskandisi-greenhouse-boundary-setback-min",
+   "what": "Greenhouses with concrete foundations and steel roofs keep at least 2.00 metres from the parcel boundaries.",
+   "value": 2,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 3",
+   "quote": "Beton temel ve çelik çatılı ser’alar mahreç aldığı yola 5.00 metreden ve parsel hudutlarına ise 2.00 metreden fazla yaklaşmamak şartı ile inşaat alanı katsayısına tabi değildir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-iskandisi-undertaking",
+   "what": "For the buildings of Madde 63, the favourable opinion of the provincial offices of the agriculture ministry and other bodies is needed, and the owner gives the authority a notarised written undertaking that the building will not be used for another purpose.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 63, fıkra 5",
+   "quote": "kullanılmayacağı hususunda tesis sahiplerince ilgili idareye noterlikçe tasdikli yazılı taahhütte bulunulması gerekmektedir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-iskandisi-bag-evi-footprint-max",
+   "what": "A vineyard house (bağ evi) outside settlement may be built without a building permit, with the agriculture directorate's opinion and the authority's leave, if its ground area does not exceed 75 m².",
+   "value": 75,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 64, fıkra 2",
+   "quote": "bağ evlerinden taban alanı 75 m2’yi, yapı inşaat alanı toplamı 150 m2’yi, kat adedi bodrum dahil 2’yi ve parselde 1 adedi geçmemek kaydıyla",
+   "read": "primary",
+   "note": "Article replaced by Resmî Gazete 11/7/2021 no. 31538. Further limits in the same sentence: 2 storeys including basement, one per parcel."
+  },
+  {
+   "id": "plansiz-iskandisi-bag-evi-construction-area-max",
+   "what": "Such a permit-free vineyard house may not exceed 150 m² total gross construction area.",
+   "value": 150,
+   "unit": "m²",
+   "source": "paiy-plansiz",
+   "clause": "Madde 64, fıkra 2",
+   "quote": "bağ evlerinden taban alanı 75 m2’yi, yapı inşaat alanı toplamı 150 m2’yi, kat adedi bodrum dahil 2’yi ve parselde 1 adedi geçmemek kaydıyla",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-iskandisi-greenhouse-frontage-exemption",
+   "what": "For greenhouses outside settlement the road-frontage condition is not required if a permanent right of way over neighbouring parcels that front a road has been obtained and annotated in the land register.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 64, fıkra 2",
+   "quote": "yola cephesi olan komşu parsellerden süresiz geçiş hakkı alınmış ve bu konuda tapu kayıtlarına şerh konulmuş olmak kaydıyla Kanunun 8 inci maddesinde belirtilen yola cephe sağlama koşulu aranmaz.",
+   "read": "primary",
+   "note": "Mirrors Law 3194 Madde 27."
+  },
+  {
+   "id": "plansiz-iskandisi-chapter4-fallback",
+   "what": "For building matters not covered in Chapter 6, the provisions of Chapter 4 apply.",
+   "value": null,
+   "unit": "",
+   "source": "paiy-plansiz",
+   "clause": "Madde 64, fıkra 4",
+   "quote": "Ayrıca, bu bölümde bulunmayan yapılaşmaya ilişkin hususlarda bu Yönetmeliğin dördüncü bölümü hükümlerine uyulur.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-gecici1-rebuild-setbacks",
+   "what": "TEMPORARY, until 31/12/2026: when rebuilding damaged dwellings in place in village, hamlet and rural settled areas affected by the 6/2/2023 earthquakes, at least 1.50 m is left to parcel boundaries on road fronts and on other fronts.",
+   "value": 1.5,
+   "unit": "m",
+   "source": "paiy-plansiz",
+   "clause": "Geçici Madde 1",
+   "quote": "parsel sınırlarına yol cephelerinde en az 1.50 metre, diğer cephelerde en az 1.50 metre, parseldeki binalar arasında ise en az 3.00 metre mesafe bırakılır.",
+   "read": "primary",
+   "note": "Added by Resmî Gazete 17/10/2024 no. 32695. Applies only to applications under ek Madde 1 of Law 7452 where the regulation cannot otherwise be applied; expires 31/12/2026, about six weeks after this research date. Between buildings on the parcel: 3.00 m."
+  },
+  {
+   "id": "plansiz-gecici1-taks-max",
+   "what": "TEMPORARY, until 31/12/2026: in the same earthquake-affected cases the coverage limits and the building-count and area limits of Madde 50 are not applied, but the coverage ratio of all buildings on a parcel may not exceed 0.60 unless an environmental plan states more.",
+   "value": 0.6,
+   "unit": "ratio",
+   "source": "paiy-plansiz",
+   "clause": "Geçici Madde 1",
+   "quote": "belirtilmedikçe bir parselde yapılabilecek tüm yapıların taban alanı katsayısı 0.60’ı geçemez.",
+   "read": "primary",
+   "note": "Printed as a ratio (0.60). Expires 31/12/2026."
+  },
+  {
+   "id": "plansiz-k3194-no-ifraz-below-regulation",
+   "what": "Outside zoning plans, subdivisions smaller than the amounts fixed in the regulations are not permitted.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 15, son fıkra",
+   "quote": "İmar planı dışında kalan alanlarda yönetmeliklerinde tayin edilecek miktarlardan küçük ifrazlara izin verilmez.",
+   "read": "primary",
+   "note": "This is the statutory basis for the PZ- lotRules. No figure in the Law itself."
+  },
+  {
+   "id": "plansiz-k3194-frontage-by-regulation",
+   "what": "Where a zoning plan does not fix parcel frontages, the minimum frontage widths and sizes for subdivisions follow the regulation.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 15, fıkra 6",
+   "quote": "İmar planlarında parsel cepheleri tayin edilmeyen yerlerde yapılacak ifrazların, asgari cephe genişlikleri ve büyüklükleri yönetmelikte belirtilen esaslara göre tespit edilir.",
+   "read": "primary",
+   "note": "Paragraph number counted from the consolidated text."
+  },
+  {
+   "id": "plansiz-k3194-approval-body",
+   "what": "Inside municipal and adjacent-area boundaries, consolidation or subdivision of real property and creation or removal of easements are approved by the municipal executive committee (belediye encümeni) or the provincial administrative board (il idare kurulu).",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 16, fıkra 1",
+   "quote": "tevhid veya ifrazı, bunlar üzerinde irtifak hakkı tesisi veya bu hakların terkini, bu Kanun ve yönetmelik hükümlerine uygunluğu belediye encümenleri veya il idare kurullarınca onaylanır.",
+   "read": "primary",
+   "note": "Madde 16 is not limited to planned areas. Its 30-day, 15-day and one-month periods are already in tr.json."
+  },
+  {
+   "id": "plansiz-k3194-court-partition-same-rules",
+   "what": "Dissolution of co-ownership and partition of land by the parties' consent or by court decision are subject to the same provisions.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 16, son fıkra",
+   "quote": "Tarafların rızası veya mahkeme kararı ile şüyuun izalesi ve arazi taksimi de yukarıdaki hükümlere tabidir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-k3194-road-frontage-required",
+   "what": "Without frontage on a publicly owned pedestrian or vehicle road no building may be built and no parcel may be created.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 8(ğ)",
+   "quote": "Kamuya ait bir yaya veya taşıt yoluna cephe sağlanmadan yapı inşa edilemez, parsel oluşturulamaz.",
+   "read": "primary",
+   "note": "Printed in the sub-paragraph on rural neighbourhoods of metropolitan municipalities; Madde 27 and the regulation's Madde 64 refer to it as 'the road-frontage condition of Madde 8'."
+  },
+  {
+   "id": "plansiz-k3194-rural-neighbourhood-population",
+   "what": "For places that became neighbourhoods because the metropolitan boundary is the provincial boundary and whose population is under 5 000, the metropolitan council decides whether rural character continues; until an implementation plan is made, Madde 27 applies there.",
+   "value": 5000,
+   "unit": "persons",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 8(ğ)",
+   "quote": "mahalleye dönüşen ve nüfusu 5.000’in altında kalan yerlerin, kırsal yerleşim özelliğinin devam edip etmediğine büyükşehir belediye meclisince karar verilir.",
+   "read": "primary",
+   "note": "Sentence replaced by Law 7221 (2020)."
+  },
+  {
+   "id": "plansiz-k3194-koy-no-permit",
+   "what": "In village settled areas, their surroundings and hamlets outside municipal and adjacent areas, dwellings, non-integrated farm buildings and listed village-service buildings need no building permit; the studies and projects need the governorship's approval followed by notice to the muhtarlık.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 1",
+   "quote": "Ancak etüt ve projelerin valilik onayını müteakip muhtarlığa bildirimi ve bu yapıların yöresel doku ve mimari özelliklere, fen, sanat ve sağlık kurallarına uygun olması zorunludur.",
+   "read": "primary",
+   "note": "Article replaced by Law 6495 (2013); wording changed by Law 7221 (2020). The governorship records these buildings in the national address system and on cadastral plans."
+  },
+  {
+   "id": "plansiz-k3194-outside-koy-agri-permit",
+   "what": "Outside village settled-area boundaries, non-integrated agricultural and livestock buildings that need no zoning plan must be built with a building permit.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 1",
+   "quote": "niteliğinde olmayan ve imar planı gerektirmeyen tarım ve hayvancılık amaçlı yapıların yapı ruhsatı alınarak inşa edilmesi zorunludur.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-k3194-greenhouse-frontage-exemption",
+   "what": "For agricultural greenhouses outside settlement the road-frontage condition of Madde 8 is not required if a permanent right of way over neighbouring road-fronting parcels has been obtained and annotated in the land register.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 2",
+   "quote": "olan komşu parsellerden süresiz geçiş hakkı alınmış ve bu konuda tapu kayıtlarına şerh konulmuş olmak kaydıyla 8 inci maddede belirtilen yola cephe sağlama koşulu aranmaz.",
+   "read": "primary",
+   "note": "Paragraph added by Law 7181 (2019)."
+  },
+  {
+   "id": "plansiz-k3194-koy-roads-by-ifraz-tevhit",
+   "what": "Inside village settled-area boundaries the village's main roads and their widths are fixed on base maps or cadastral sheets by council decision, and the roads so fixed are formed by subdivision and consolidation on a public-interest decision without needing an implementation zoning plan.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 4",
+   "quote": "Belirlenen yollar, ifraz ve tevhit suretiyle uygulama imar planı kararı aranmaksızın kamu yararı kararı alınarak oluşturulur.",
+   "read": "primary",
+   "note": "Paragraph number counted from the consolidated text. Applies where approved upper-level plans do not provide otherwise."
+  },
+  {
+   "id": "plansiz-k3194-koy-5403-not-applied",
+   "what": "Inside the village settled-area boundary the provisions of Law 5403 (soil protection and land use) do not apply.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 5",
+   "quote": "Köy yerleşik alan sınırı içerisinde, 3/7/2005 tarihli ve 5403 sayılı Toprak Koruma ve Arazi Kullanımı Kanunu hükümleri uygulanmaz.",
+   "read": "primary",
+   "note": "The text says 'yerleşik alan sınırı içerisinde' only; it does not name the surroundings (civar)."
+  },
+  {
+   "id": "plansiz-k3194-koy-boundary-is-ifraz-line",
+   "what": "Where the village settled-area boundary cuts through parcels, the boundary is accepted as a subdivision line without being subject to Law 5403.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 6",
+   "quote": "Köy yerleşik alan sınırlarının parselleri bölmesi durumunda yerleşik alan sınırı 5403 sayılı Kanun hükümlerine tabi olmaksızın ifraz hattı olarak kabul edilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "plansiz-k3194-koy-ifraz-conditions-by-council",
+   "what": "Unless the environmental plan states them explicitly, the building decisions and subdivision conditions for these village areas are set, where needed, by the metropolitan council or elsewhere by the provincial general council, and are marked on the cadastral sheet and noted in the land register.",
+   "value": null,
+   "unit": "",
+   "source": "imar-kanunu-3194",
+   "clause": "Madde 27, fıkra 7",
+   "quote": "özel kanunlara ilişkin hükümler saklı kalmak kaydıyla bu alanlarda yapılaşma kararı ve ifraz şartları belediye sınırı il sınırı olan yerlerde büyükşehir belediye meclisi, diğer yerlerde il genel meclisi kararı ile belirlenir.",
+   "read": "primary",
+   "note": "So a council decision may set subdivision conditions different from Madde 45 of the regulation for a given village; such decisions are local and were not searched."
+  },
+  {
+   "id": "t5403-min-size-set-by-ministry",
+   "what": "The minimum agricultural parcel size is set by the Ministry by region; agricultural land that has reached the set minimum becomes indivisible property.",
+   "value": null,
+   "unit": "",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 2",
+   "quote": "Belirlenen asgari büyüklüğe erişmiş tarımsal araziler, bölünemez eşya niteliği kazanmış olur.",
+   "read": "primary",
+   "note": "Paragraph replaced by Law 6537 (2014)."
+  },
+  {
+   "id": "t5403-ministry-may-raise",
+   "what": "The Ministry may raise the minimum agricultural parcel sizes according to current conditions.",
+   "value": null,
+   "unit": "",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Bakanlık asgari tarımsal arazi büyüklüklerini günün koşullarına göre artırabilir.",
+   "read": "primary",
+   "note": "Sizes actually in force by Ministry decision were not looked up."
+  },
+  {
+   "id": "t5403-no-ifraz-below-min",
+   "what": "Agricultural land may not be subdivided or split into shares below the sizes set by the Ministry, and the number of shares and co-owners may not be increased (sales of Treasury property excepted).",
+   "value": null,
+   "unit": "",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Bakanlıkça belirlenen büyüklüklerin altında ifraz edilemez, hisselendirilemez, Hazine taşınmazlarının satış işlemleri hariç olmak üzere pay ve paydaş adedi artırılamaz.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "t5403-smaller-with-ministry-opinion",
+   "what": "Smaller parcels may be created with the Ministry's favourable opinion on land given non-agricultural use permission, or where crops with special climate and soil needs such as tea, hazelnut and olive grow and the land's features require it.",
+   "value": null,
+   "unit": "",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "tarımsal arazi büyüklüğünden daha küçük parsellerin oluşması gerekli olduğu takdirde, Bakanlığın uygun görüşü ile daha küçük parseller oluşturulabilir.",
+   "read": "primary",
+   "note": ""
+  },
+  {
+   "id": "t5403-public-investment-no-approval",
+   "what": "Ministry approval is not required for compulsory subdivisions made within public investment projects in the investment programme.",
+   "value": null,
+   "unit": "",
+   "source": "law-5403",
+   "clause": "Madde 8, fıkra 3",
+   "quote": "Yatırım programında yer alan kamu yatırımı projeleri muhtevasında yapılan zorunlu ifraz işlemlerinde Bakanlık onayı aranmaz.",
+   "read": "primary",
+   "note": "Sentence added by Law 7139 (2018)."
+  },
+  {
+   "id": "t5403-no-ifraz-below-yeter-gelirli",
+   "what": "Agricultural land may not be subdivided or divided below the 'sufficient-income' agricultural land size (yeter gelirli tarımsal arazi büyüklüğü) listed for its province and district in annex list (1) of the Law.",
+   "value": null,
+   "unit": "da",
+   "source": "law-5403",
+   "clause": "Madde 8/A",
+   "quote": "(1) sayılı listede belirlenen yeter gelirli tarımsal arazi büyüklüklerinin altında ifraz edilemez, bölünemez.",
+   "read": "primary",
+   "note": "No single figure: the annex list prints four sizes per district in dekar ('Da'): irrigated (sulu), dry (kuru), planted (dikili) and under-cover (örtüaltı) land. The list is readable in the downloaded PDF but is not transcribed here (see gaps). Parcels of one owner that the Ministry finds form an economic whole are assessed together. The list may be changed by Presidential decision."
+  }
+ ],
+ "forms": [
+  {
+   "id": "checklist",
+   "title": "İfraz ve tevhit işleminde istenilen bilgi ve belgeler (information and documents required for subdivision and consolidation)",
+   "edition": "Arazi ve Arsa Düzenlemeleri Hakkında Yönetmelik, Madde 8, consolidated text as amended to Resmî Gazete 13/12/2025, no. 33106",
+   "authority": "Çevre, Şehircilik ve İklim Değişikliği Bakanlığı (regulation); approval by the belediye encümeni or il idare kurulu under Law 3194 Madde 16",
+   "source": "aady",
+   "read": "primary",
+   "note": "Not a form: the list of documents in Madde 8(1)(a)-(h). Madde 8(2) lets the approving authority ask for further explanatory documents. The plan-amendment section is assembled from three separate articles and is not a list printed as such in the regulation."
+  }
+ ],
+ "templates": {
+  "format": "cadcraft-land-templates",
+  "version": 1,
+  "id": "tr-papers",
+  "name": "Papers: Türkiye",
+  "note": "Worksheets and lists made from the published texts of Türkiye as read on 2026-11-21. None of them is the authority's form.",
+  "documents": [
+   {
+    "id": "rules-sheet",
+    "title": "What the rules of Türkiye say: {title}",
+    "for": [],
+    "fields": [],
+    "body": [
+     {
+      "p": "From the drawing \"{project}\", {date}. This sheet sets the proposal beside figures read in the published texts of Türkiye on 2026-11-21. It is a reading aid, not a ruling and not legal advice: the texts may have changed, and the authority decides."
+     },
+     {
+      "h": "Parcels before"
+     },
+     {
+      "table": "before"
+     },
+     {
+      "h": "Parcels after"
+     },
+     {
+      "table": "after"
+     },
+     {
+      "p": "Balance of land (after less before): {balance}."
+     },
+     {
+      "h": "Lot figures printed for the zones of this proposal"
+     },
+     {
+      "table": "rules"
+     },
+     {
+      "p": "A zone that is not listed has no figure in this pack. A figure marked with a plus is added to a yard distance in the text."
+     },
+     {
+      "h": "What the law states"
+     },
+     {
+      "table": "thresholds"
+     },
+     {
+      "h": "Buildings on the lots"
+     },
+     {
+      "table": "buildings"
+     },
+     {
+      "h": "Open notes on the plan"
+     },
+     {
+      "table": "notes"
+     }
+    ]
+   },
+   {
+    "id": "ws-checklist",
+    "title": "Checklist: {title}",
+    "for": [],
+    "fields": [],
+    "body": [
+     {
+      "p": "A list of what the texts ask for, read on 2026-11-21. It is not a form of any authority: the municipality or office you file with has its own."
+     },
+     {
+      "h": "Plan amendment proposal (imar planı değişikliği teklifi): what the regulation requires, Mekânsal Planlar Yapım Yönetmeliği Madde 9(4), 26(7), 31(3)"
+     },
+     {
+      "check": [
+       "Plan paftası [plan sheet]",
+       "Plan notları [plan notes]",
+       "Plan raporu: değişiklik gerekçesi ve gereklilik analizleri [plan report: reason for the change and necessity analyses]",
+       "Müellif imzası [prepared and signed by the plan author]",
+       "Kentsel teknik altyapı etki değerlendirmesi raporu [urban technical infrastructure impact assessment report; only for amendments raising density or affecting transport]"
+      ]
+     },
+     {
+      "h": "İfraz ve tevhit işleminde istenilen bilgi ve belgeler (information and documents required for subdivision and consolidation)"
+     },
+     {
+      "check": [
+       "Değişiklik haritaları yapım ve kontrol bilgileri formu [change-map production and control information form]",
+       "1/1000 ölçekli aslı gibidir onaylı uygulama imar planı ve sayısal verileri [certified copy of the 1/1000 implementation plan and its digital data]",
+       "Son 6 ay içinde alınmış takyidatlı tapu kayıtları [title records with encumbrances, obtained within the last 6 months]",
+       "Kadastro müdürlüğünden alınan onaylı mülkiyet raporu ve ekleri [certified ownership report and annexes from the cadastre directorate]",
+       "Vekâletname/sözleşme (harita mühendisine) [power of attorney or contract given by the owners to the surveying engineer; when privately requested]",
+       "Yüklenici yetkilendirme yazısı veya sözleşme [contractor authorisation letter or contract; when a public body uses a contractor]",
+       "Alan hesapları ve dengelemeleri [area calculations and adjustments]",
+       "Ölçü krokisi ve koordinatları [survey sketch and coordinates]",
+       "Durum haritası [situation map]",
+       "İlgili kurum/kurulun uygunluk görüşü [conformity opinion of the relevant body or board; where the plan requires it or protected areas are involved]",
+       "Tapu ve kadastro mevzuatı uyarınca istenen diğer belgeler [other documents required by land registry and cadastre legislation]"
+      ]
+     },
+     {
+      "p": "Not a form: the list of documents in Madde 8(1)(a)-(h). Madde 8(2) lets the approving authority ask for further explanatory documents. The plan-amendment section is assembled from three separate articles and is not a list printed as such in the regulation."
+     },
+     {
+      "h": "Parcels before"
+     },
+     {
+      "table": "before"
+     },
+     {
+      "h": "Parcels after"
+     },
+     {
+      "table": "after"
+     }
+    ]
+   }
+  ]
+ }
+}

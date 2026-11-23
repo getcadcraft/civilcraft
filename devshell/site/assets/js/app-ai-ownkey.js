@@ -1,48 +1,68 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* i18n-ignore-file — no words a person reads: the Ask box (app-ai-ask.js) says them through the shell language files. */
 /**
- * app-ai-ownkey.js — the Ask box's seam for the "Your own AI key" add-on (0.10, owner 2026-11-11: "no AI in the apps" with no exception).
- * The client for a person's own model (their key, their provider, or a model on their own computer; 0.8 AC.11 / AC.7) is no longer a file of
- * the shared shell. It is an add-on the person adds on purpose (source: addons/own-ai-key/ in the repo, never inside an app build). This file
- * is all the shell keeps: it knows the add-on's id, reads the engine the add-on registers, and can ask the account's add-on client to add
- * it. It holds no provider address, no request shape and no model call, and it never reads or moves a key.
+ * app-ai-ownkey.js — the Ask box's seam for a model the person brings (their key, their provider, or a model on their own computer;
+ * 0.8 AC.11 / AC.7). Owner 2026-11-20: "AI belongs to Studios and passes down to apps."
  *
- * The seam (the add-on's main.js writes it, this file reads it):
- *   globalThis.ccAskEngines = [{ id, name, settingsKey, engine({ studio, store }) → an ask-style engine | null }]
- *   'cc-ask-engines' on the window whenever the list changes
+ *   – In CadCraft Studio and SuperCad Studio the engine is the Studio's. Studio's own window script puts it on the page (id 'studio',
+ *     host: true; studio/hub/ask-engine.js): nothing to add, no add-on. The key stays in Studio's hub.
+ *   – In ONE app without Studio (a browser tab) the "Your own AI key" add-on brings the same engine (id 'own-ai-key', standalone: true;
+ *     addons/own-ai-key/). A person adds it on purpose; it is never part of an app build.
+ * The Studio's engine wins when both are on the page. The apps and this shell hold no engine: this file knows the two ids, reads what
+ * was registered, and can ask the account's add-on client to add the add-on. It imports nothing, holds no provider address, no request
+ * shape and no model call, and it never reads or moves a key.
  *
- *   ownProvider(g)            → the add-on's entry, or null when it is not added (or switched off)
- *   ownEngine({ g, studio })  → the engine for the person's own model, or null (not added, not in Studio, or nothing set up yet)
- *   ownState({ g, store })    → { inStudio, added, hadSettings }   hadSettings = the person set up a model before (the stored settings are there)
- *   watchOwn(fn, g)           → off()   fn runs when the add-on arrives or leaves, and when the stored settings change in another window
+ * The seam (Studio's window script or the add-on's main.js writes it, this file reads it):
+ *   globalThis.ccAskEngines = [{ id, name, host?, standalone?, settingsKey, engine({ studio, store }) → an ask-style engine | null, setup?() }]
+ *   'cc-ask-engines' on the window whenever the list, or what an entry would answer, changes
+ *
+ *   ownProvider(g)            → Studio's entry, else the add-on's, else null
+ *   ownEngine({ g, studio })  → the engine for the person's own model, or null (nothing registered, or nothing set up yet)
+ *   ownState({ g, store })    → { inStudio, host, added, standalone, ready, hadSettings }
+ *                               host = Studio handed its engine down · added = the add-on is on the page · standalone = the add-on runs
+ *                               without Studio and has its own set-up · ready = an engine exists now · hadSettings = Studio's settings are stored
+ *   ownSetup(g)               → true when the registered entry opened its own set-up (the add-on's dialog)
+ *   watchOwn(fn, g)           → off()   fn runs when an entry arrives, leaves or changes, and when Studio's settings change in another window
  *   addOwnKey({ g })          → { ok } | { ok:false, reason: 'no-client' | 'sign-in' | 'offline' | 'no-package' | 'refused', message }
  *   listingUrl(g)             → the add-on's page in the Library
  */
+export const STUDIO_ID = 'studio';
 export const ADDON_ID = 'own-ai-key';
-/** Where Studio's hub keeps the person's settings (provider, model, limits; never the key). The add-on reads the same entry: nothing is migrated or copied. */
+/** Where Studio's hub keeps the person's settings (provider, model, limits; never the key). */
 export const SETTINGS_KEY = 'cadcraft.studio.byok.settings';
 const SITE = 'https://getcadcraft.com';
 
 const list = (g) => (Array.isArray(g.ccAskEngines) ? g.ccAskEngines : []);
-export const ownProvider = (g = globalThis) => list(g).find((p) => p && p.id === ADDON_ID && typeof p.engine === 'function') || null;
+const entry = (g, id) => list(g).find((p) => p && p.id === id && typeof p.engine === 'function') || null;
+export const ownProvider = (g = globalThis) => entry(g, STUDIO_ID) || entry(g, ADDON_ID);
 
 const isStudio = (s) => !!s && typeof s.post === 'function' && typeof s.on === 'function';
 
 export function ownEngine({ g = globalThis, studio = g.cadcraftStudio } = {}) {
   const p = ownProvider(g);
-  if (!p || !isStudio(studio)) return null;
-  try { const e = p.engine({ studio }); return e && typeof e.ask === 'function' ? e : null; } catch { return null; }
+  if (!p) return null;
+  // the add-on's 0.10 package only ever worked through Studio's hub: without Studio it has nothing to answer with
+  if (!p.host && !p.standalone && !isStudio(studio)) return null;
+  try { const e = p.engine(isStudio(studio) ? { studio } : {}); return e && typeof e.ask === 'function' ? e : null; } catch { return null; }
 }
 
 export function ownState({ g = globalThis, store = g.localStorage } = {}) {
   let had = false;
   try { had = store.getItem(SETTINGS_KEY) !== null; } catch { had = false; }
-  return { inStudio: isStudio(g.cadcraftStudio), added: !!ownProvider(g), hadSettings: had };
+  const addon = entry(g, ADDON_ID);
+  return { inStudio: isStudio(g.cadcraftStudio), host: !!entry(g, STUDIO_ID), added: !!addon, standalone: !!(addon && addon.standalone), ready: !!ownEngine({ g }), hadSettings: had };
+}
+
+/** Open the set-up of the entry in use, when it has one of its own (the add-on outside Studio). Studio's set-up is in Studio's hub. */
+export function ownSetup(g = globalThis) {
+  const p = ownProvider(g);
+  if (!p || typeof p.setup !== 'function') return false;
+  try { p.setup(); return true; } catch { return false; }
 }
 
 export function watchOwn(fn, g = globalThis) {
   if (typeof g.addEventListener !== 'function') return () => {};
-  const onList = () => fn('addon');
+  const onList = () => fn('engines');
   const onStore = (ev) => { if (ev && ev.key === SETTINGS_KEY) fn('settings'); };
   g.addEventListener('cc-ask-engines', onList);
   g.addEventListener('storage', onStore);
@@ -58,8 +78,8 @@ export function listingUrl(g = globalThis) {
 
 /**
  * "Add it": put the add-on on the account's list and fetch it (signature checked, all or nothing) through the page's account add-on client
- * (window.ccAddonsAccount, app-addons-account.js). A page without that client cannot add from here: the Ask box then shows the Library page.
- * A fetched add-on starts the next time the app is opened (the loader reads its store at start).
+ * (window.ccAddonsAccount, app-addons-account.js). A page without that client cannot add from here: the caller then shows the Library page.
+ * A fetched add-on starts the next time the app is opened (the loader reads its store at start). Never needed inside Studio.
  */
 export async function addOwnKey({ g = globalThis } = {}) {
   const acc = g.ccAddonsAccount;

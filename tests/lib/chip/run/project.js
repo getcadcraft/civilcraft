@@ -104,9 +104,9 @@ export function stageInputs(p, st, names) {
   switch (st.kind) {
     case 'sim': return pick(HDL).filter((n) => !/^(out|runs)\//.test(n));
     case 'synth': return [...new Set([...pick(HDL).filter((n) => n !== p.testbench && !named('exclude').includes(n)), ...pick(/\.(lib|ys|tcl)$/i).filter((n) => named('liberty').includes(n) || named('script').includes(n))])];
-    case 'pnr': return [...new Set([...pick(/\.(lef|lib|sdc|tcl)$/i), ...named('netlist'), ...named('def')])];
-    case 'drc': return [...new Set([...named('gds'), ...named('deck')])];
-    case 'lvs': return [...new Set([...named('layout'), ...named('schematic'), ...named('setup')])];
+    case 'pnr': return [...new Set([...pick(/\.(lef|tlef|lib|sdc|tcl)$/i), ...['netlist', 'def', 'lefs', 'libs', 'sdc', 'rcx', 'script'].flatMap(named)])];
+    case 'drc': return [...new Set(['gds', 'deck', 'def', 'lefs', 'cellGds', 'map'].flatMap(named))];
+    case 'lvs': return [...new Set(['layout', 'schematic', 'setup', 'cells', 'gds', 'tech', 'def', 'lefs', 'cellGds', 'map'].flatMap(named))];
     case 'gls': case 'stil': return [...new Set([...named('netlist'), ...named('cells'), ...named('sdf'), ...(p.testbench && names.includes(p.testbench) ? [p.testbench] : []), ...pick(/\.(vh|svh)$/i)])];
     default: return [];
   }

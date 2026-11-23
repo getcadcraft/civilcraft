@@ -531,3 +531,21 @@ summary.cv-tool { position: relative; }
 .cv-prof-canvas canvas.is-picking, .cv-sec.is-picking, canvas.is-measuring { cursor: crosshair; }
 [data-prof], [data-sec] { touch-action: none; }
 .cv-sec-basis { max-width: 12rem; }
+
+/* 0.10.1 (#1970): corner and vertex tables: a pick at the start of a row, add / remove at its end, a corner's inherited elevation */
+.cv-table td.cv-rowbtns { white-space: nowrap; width: 3rem; text-align: right; }
+.cv-table td.cv-pickcell:first-child { width: 1.7rem; }
+.cv-table td.cv-pickcell .cv-pick { padding: .1rem .25rem; line-height: 1; }
+.cv-table input.cv-inherit { color: var(--ink-2); font-style: italic; }
+.cv-table tr:hover td, .cv-table tr:focus-within td { background: color-mix(in srgb, var(--action) 8%, transparent); }
+.cv-corner-table input { min-width: 3.5rem; }
+[data-fl-long] [hidden] { display: none; }
+
+/* FX.349 (civil-11): the Settings dialog's section list (Global has 17 entries) ran below the dialog at 1600 x 900, so Add-ons
+   could only be reached by scrolling a list with no sign it scrolls. Short windows get a denser list so every entry shows. */
+@media (min-width: 40.01rem) and (max-height: 60rem) {
+  .shell-settings-secs .shell-sec-nav { padding: .3rem 0; }
+  .shell-settings-secs .shell-sec-nav ul { gap: 0; margin-bottom: .25rem; }
+  .shell-settings-secs .shell-sec-nav button { padding-top: .22rem; padding-bottom: .22rem; font-size: .8125rem; line-height: 1.25; }
+  .shell-settings-secs .shell-sec-eyebrow { margin-top: .3rem; padding-top: .35rem; }
+}

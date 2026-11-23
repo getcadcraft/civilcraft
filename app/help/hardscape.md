@@ -21,6 +21,8 @@ Click the corners and press {{key:Enter}}. In Properties:
 
 Click along the path and press {{key:Enter}}. It follows the ground, with its **Cross-fall** to its right-hand side. A path steeper than **Steepest allowed** is marked `!` on the plan where it is, and Properties says how steep it gets.
 
+Where a path meets a road built by a corridor it stops at the road's outer edge, level with the walk or shoulder there, in the proposed surface and in the 3D view. A path that crosses a road is graded and shown as two pieces, and an end drawn up to twice the path's width short of the road is carried on to its edge. The plan still shows the path as you drew it, and its length and area count the whole line. See [Sweep a road corridor](topic:corridor).
+
 ## Walls
 
 Click along the wall and press {{key:Enter}}. A wall is **retaining** or **freestanding**. With no **Top**, it stands its **Height** above the ground all along; type a top to hold it level. Its **footing** sits a set depth below the ground and steps down in whole steps, so it stays level between them. Properties give its length, heights, face area and footing steps; the plan labels the top and bottom of wall (TW / BW) at each end.

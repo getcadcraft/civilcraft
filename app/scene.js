@@ -11,6 +11,8 @@
  *     opts:  { mmPerUnit (paper mm per model unit — sets label sizes and spacing), show: {...} } — show.pointLabelText 'n' | 'nz' | 'nzd' (default): number, + elevation, + description
  *   items: { layer, kind:'poly', pts, closed, elev?, z? (3D) } | { layer, kind:'arc', c, r, a0, a1 }
  *          | { layer, kind:'text', x, y, mm (paper height), rot, text, align } | { layer, kind:'point', x, y, z }
+ *          | { layer, kind:'points', table } (0.11: from POINTS_ITEM_FROM survey points with no labels: ONE item for all of them, a
+ *            point-table.js PointTable; eachPoint(it, fn) gives what the 'point' items would have been, in their order)
  *   toDxfEntities(scene, mmPerUnit) → entities for writeDxf (text heights in model units)
  */
 
@@ -49,6 +51,18 @@ export const LAYERS = [
   { name: 'C-STRM-PROB', token: 'red', aci: 1, get label() { return t('scene.layer.prob'); } },
 ];
 
+/** 0.11 (the cap lifted): from this many survey points the plan scene holds them as one 'points' item (below it, one 'point' item each, as before). */
+export const POINTS_ITEM_FROM = 2e6;
+/** A 'points' item's points as the 'point' items they stand for: fn(x, y, z) in the table's order (z = elevation, 0 when none). */
+export function eachPoint(it, fn) {
+  const t = it.table;
+  for (const b of t.blocks) for (let k = 0; k < b.n; k++) {
+    const o = b.irr && b.irr.get(k);
+    if (o) { fn(o.x, o.y, o.z ?? 0); continue; }
+    const z = b.z[k]; fn(b.x[k], b.y[k], z !== z ? 0 : z);
+  }
+}
+
 export function planScene(state, { mmPerUnit = 1, show = {} } = {}) {
   const items = [];
   const u = state.units || 'ft';
@@ -85,7 +99,9 @@ export function planScene(state, { mmPerUnit = 1, show = {} } = {}) {
     }
   }
   if (S.breaklines) for (const b of state.breaklines || []) items.push({ layer: 'C-TOPO-BRKL', kind: 'poly', pts: b.pts, z: true });
-  if (S.points) for (const p of state.points || []) {
+  if (S.points && !S.pointLabels && state.pointTable && state.pointTable.length >= POINTS_ITEM_FROM) items.push({ layer: 'V-NODE', kind: 'points', table: state.pointTable });   // 0.11: millions of points are not millions of items
+  else if (S.points && !S.pointLabels && state.pointTable) eachPoint({ table: state.pointTable }, (x, y, z) => items.push({ layer: 'V-NODE', kind: 'point', x, y, z }));   // 0.11: the same items, read off the table's columns
+  else if (S.points) for (const p of state.points || []) {
     items.push({ layer: 'V-NODE', kind: 'point', x: p.x, y: p.y, z: p.z ?? 0 });
     if (S.pointLabels) items.push({ layer: 'V-NODE-TEXT', kind: 'text', x: p.x + 1.2 * unitPerMm, y: p.y + 0.4 * unitPerMm, rot: 0, mm: 1.5, align: 'left', text: p.n + (S.pointLabelText !== 'n' && p.z !== null ? '  ' + fixed(p.z, 2) : '') + (S.pointLabelText === 'nzd' && p.d ? '  ' + p.d : '') });
   }
@@ -239,6 +255,7 @@ export function toDxfEntities(scene, mmPerUnit) {
     if (it.kind === 'poly') out.push(it.z ? { type: 'poly3d', layer: it.layer, pts: it.pts, closed: it.closed, ...(it.xdata ? { xdata: it.xdata } : {}) } : { type: 'poly', layer: it.layer, pts: it.pts, closed: it.closed, elev: it.elev || 0 });
     else if (it.kind === 'arc') out.push({ type: 'arc', layer: it.layer, c: it.c, r: it.r, a0: it.a0, a1: it.a1 });
     else if (it.kind === 'point') out.push({ type: 'point', layer: it.layer, x: it.x, y: it.y, z: it.z });
+    else if (it.kind === 'points') eachPoint(it, (x, y, z) => out.push({ type: 'point', layer: it.layer, x, y, z }));
     else if (it.kind === 'text') {
       const h = it.mm / mmPerUnit;
       // DXF text sits on its baseline; move a middle-anchored label down by half its height

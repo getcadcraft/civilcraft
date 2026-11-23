@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+import { sweptEnvelope } from './swept-envelope.js';
 /**
  * swept.js — vehicle swept paths (0.6 WL.28): a vehicle (a tractor and up to three trailers) driven along a path, forward
  * or reversing, its wheel paths, body traces, steering and articulation, and the area it sweeps. No DOM; the Node test
@@ -225,7 +226,19 @@ export function bodyOutline(v, frame, i) {
 }
 
 /** The area the bodies sweep: every frame's body rectangles filled into a grid of `cell`, the filled cells' outline. */
-export function envelope(sim, v, { cell = null, maxCells = 4e6 } = {}) {
+export function envelope(sim, v, opts = {}) {
+  // FX.351: the sparse envelope (swept-envelope.js, a byte copy of lib/sweptpath/envelope.js): a fine cell at any path length; `grid: true` keeps the dense grid below
+  if (!opts.grid) {
+    if (!sim.frames.length) return { loops: [], area: 0, cell: 0, cells: 0 };
+    const n = 1 + v.trailers.length, polys = [];
+    for (const f of sim.frames) for (let i = 0; i < n; i++) polys.push(bodyOutline(v, f, i));
+    return sweptEnvelope(polys, { cell: opts.cell || null, tol: opts.tol || null });
+  }
+  return envelopeGrid(sim, v, opts);
+}
+
+/** The dense-grid envelope (the 0.6 method), kept for a comparison and for short runs. */
+export function envelopeGrid(sim, v, { cell = null, maxCells = 4e6 } = {}) {
   if (!sim.frames.length) return { loops: [], area: 0, cell: 0, cells: 0 };
   const n = 1 + v.trailers.length;
   const polys = [];
@@ -322,10 +335,10 @@ export function cleanSwept(o, units = 'ft') {
   if (!o || typeof o !== 'object') return null;
   const vehicle = cleanVehicle(o.vehicle, units);
   const f = o.from, id = String(f?.id ?? '');
-  const from = f?.kind === 'feature' && /^f\d{1,9}$/.test(id) ? { kind: 'feature', id } : f?.kind === 'alignment' && /^a\d{1,9}$/.test(id) ? { kind: 'alignment', id } : null;
+  const from = f?.kind === 'feature' && /^f\d{1,16}$/.test(id) ? { kind: 'feature', id } : f?.kind === 'alignment' && /^a\d{1,16}$/.test(id) ? { kind: 'alignment', id } : null;
   if (!vehicle || !from) return null;
   return {
-    id: /^w\d{1,9}$/.test(String(o.id)) ? String(o.id) : null,
+    id: /^w\d{1,16}$/.test(String(o.id)) ? String(o.id) : null,
     name: String(o.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 80) || vehicle.name,
     vehicle, mode: o.mode === 'reverse' ? 'reverse' : 'forward', from,
   };

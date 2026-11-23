@@ -69,6 +69,21 @@
   if (chip && window.ccShellT && window.ccShellT.has('shell.bar.desktop')) chip.textContent = window.ccShellT('shell.bar.desktop');
 })();
 
+/* 0.11 PERF.18 (studio-11 -> lead): Studio's start log (startlog.rs) takes two marks, once per window: the app's module has run (DOMContentLoaded comes after every
+ * deferred and module script) and the first view has been painted (two frames after the app says it is ready, else after load). Outside Studio there is no startLog. */
+(function () {
+  'use strict';
+  var log = window.cadcraftDesktop && window.cadcraftDesktop.startLog;
+  if (!log || typeof log.mark !== 'function') return;
+  var mark = function (w) { try { var r = log.mark(w); if (r && typeof r.catch === 'function') r.catch(function () {}); } catch (e) { /* the log is optional */ } };
+  var ran = function () { mark('app module running'); };   // i18n-ignore: protocol word of startlog.rs
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ran, { once: true }); else ran();
+  var painted = false;
+  var paint = function () { if (painted) return; painted = true; requestAnimationFrame(function () { requestAnimationFrame(function () { mark('first drawing paint'); }); }); };   // i18n-ignore: protocol word of startlog.rs
+  window.addEventListener('cc-app-ready', paint, { once: true });
+  if (document.readyState === 'complete') paint(); else window.addEventListener('load', function () { setTimeout(paint, 0); }, { once: true });
+})();
+
 (function () {
   'use strict';
   var T = window.ccShellT;
@@ -509,4 +524,38 @@
     document.title = (dirty ? '• ' : '') + n + ' — ' + head + SUFFIX;
     return document.title;
   };
+})();
+
+/* The bar's panels stack by use (owner 2026-11-22): Problems, Help and the tools panels (Engines, Calculations …) all open docked
+   top-right at the same z-index (1040), so the one LAST in the page won, not the one last clicked. Now whichever was opened or
+   clicked last is on top: each gets z-index 1040 + n as it is shown or pressed. Still below Bootstrap's modals (1050+), so Find
+   and Settings (modal dialogs, top layer) stay above all of them. The lab and release 0.10.1 on (body.shell-bar-next, app-shell.inc);
+   older releases stay as published. */
+(function () {
+  'use strict';
+  var SEL = '.ccp, .cct, .help-panel', BASE = 1040, MAX = 1049, n = 0;
+  function raise(el) {
+    if (!el || el.hidden) return;
+    if (el.style.zIndex && +el.style.zIndex === BASE + n && n) return;   // already on top
+    if (n >= MAX - BASE) {   // renumber the open ones in their current order, so the count never reaches the modals
+      var open = Array.prototype.slice.call(document.querySelectorAll(SEL)).filter(function (p) { return !p.hidden && p.style.zIndex; })
+        .sort(function (a, b) { return +a.style.zIndex - +b.style.zIndex; });
+      n = 0; open.forEach(function (p) { p.style.zIndex = String(BASE + (++n)); });
+    }
+    el.style.zIndex = String(BASE + (++n));
+  }
+  function start() {
+    if (!document.body.classList.contains('shell-bar-next')) return;
+    // pressed: bring that panel up (capture, before the panel's own handlers)
+    document.addEventListener('pointerdown', function (e) { var p = e.target.closest && e.target.closest(SEL); if (p) raise(p); }, true);
+    document.addEventListener('focusin', function (e) { var p = e.target.closest && e.target.closest(SEL); if (p) raise(p); }, true);
+    // shown: a panel whose `hidden` goes away (or that is added shown) comes up on top
+    new MutationObserver(function (list) {
+      list.forEach(function (m) {
+        if (m.type === 'attributes') { if (m.target.matches && m.target.matches(SEL) && !m.target.hidden) raise(m.target); return; }
+        m.addedNodes.forEach(function (node) { if (node.nodeType === 1 && node.matches(SEL) && !node.hidden) raise(node); });
+      });
+    }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden'] });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

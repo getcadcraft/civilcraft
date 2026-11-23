@@ -93,9 +93,16 @@ try {
   await page.waitForSelector('[data-eg47-sum]');
   ok(/Base shear [\d.]+ kN/.test(await page.textContent('[data-eg47-sum]')), await page.textContent('[data-eg47-sum]'));
   ok(await page.$('[data-eg47-problem="hazard.drift"]') !== null, 'a storey over the person\'s own drift ratio is a warning');
+  // PERF.75 (perf-finish-11 code): playback advances while playing and stops on pause
+  const at47 = () => page.evaluate(() => Number(document.querySelector('[data-eg47-time]').value));
+  const f0 = await at47();
   await page.click('[data-eg47-play]');
   await page.waitForTimeout(500);
+  const f1 = await at47();
   await page.click('[data-eg47-play]');
+  const f2 = await at47(); await page.waitForTimeout(300); const f3 = await at47();
+  ok(f1 > f0, 'Play moves the time slider (' + f0 + ' to ' + f1 + ' in 0.5 s)');
+  ok(f3 === f2, 'Pause holds it (' + f2 + ', 0.3 s later ' + f3 + ')');
   await shot(page, 'hazard-quake');
 
   console.log('== the Analysis frame as the source of stiffness (EG.47 round 3)');

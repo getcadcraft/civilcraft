@@ -76,6 +76,7 @@
  "chip.sum.cells": "{n} celdas en {top}.",
  "chip.sum.area": "Área de celdas: {area}.",
  "chip.sum.delay": "Ruta más larga tras el mapeo: {ps} ps.",
+ "chip.sum.sta": "Tiempos después de la síntesis (OpenSTA, sin cables): holgura peor {worst} ns, holgura negativa total {tns} ns.",
  "chip.sum.pnr": "Área del diseño {area} µm², utilización {util} %, peor holgura {wns}.",
  "chip.sum.nodef": "El trazado regresó, pero el lector de DEF aún no está en este complemento.",
  "chip.sum.drc": "{n} violaciones de reglas de diseño.",
@@ -94,7 +95,7 @@
  "chip.wave.read": "{label}: {n} señales, hasta {end} × {unit}.",
  "chip.wave.cut": "Solo se leyó la primera parte (archivo muy grande).",
  "chip.wave.bad": "No es un archivo VCD que este visor pueda leer.",
- "chip.wave.fst": "Es un archivo FST. FST aún no se lee: pide VCD a tu simulador (Icarus: $dumpfile(\"x.vcd\"); Verilator: --trace, no --trace-fst).",
+ "chip.wave.fst": "No se pudo leer este archivo FST: {why}",
  "chip.wave.filter": "Filtrar señales",
  "chip.wave.radix": "Base numérica",
  "chip.wave.fit": "Ajustar",
@@ -122,6 +123,8 @@
  "chip.tool.verilator": "Verilator",
  "chip.tool.yosys": "Yosys",
  "chip.tool.openroad": "OpenROAD",
+ "chip.tool.sta": "OpenSTA",
+ "chip.tool.magic": "Magic",
  "chip.tool.klayout": "KLayout",
  "chip.tool.netgen": "Netgen",
  "chip.opts.sim": "testbench (módulo), defines {NOMBRE: valor}, plusargs [\"+x=1\"]. Icarus agrega un módulo pequeño que vuelca todas las señales en out/wave.vcd; Verilator muestra ondas solo si tu banco de pruebas llama a $dumpfile.",
@@ -158,5 +161,6 @@
  "chip.run.p.check.removal": "Violación de removal",
  "chip.run.p.tool.missing": "No se encontró una herramienta",
  "chip.run.p.plan": "La etapa no está configurada",
- "chip.cmd.dialog": "El panel Diseño de chips está abierto en una ventana propia (esta página no tiene panel derecho para complementos)."
+ "chip.cmd.dialog": "El panel Diseño de chips está abierto en una ventana propia (esta página no tiene panel derecho para complementos).",
+ "chip.wave.fstPart": "Una parte del archivo FST no se leyó: {why}"
 }

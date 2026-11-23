@@ -31,6 +31,8 @@
 import { pointInPoly } from './tin.js';
 import { grouped, unitOf, fixed } from './units.js';
 import { t } from './i18n.js';
+import { signedArea } from './geom2d.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
+export { signedArea };
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 export const BASES = ['stepped', 'podium', 'cut'];
@@ -47,13 +49,12 @@ export function cleanMass(o, units = 'ft') {
   const fh = fin(o.floorHeight) && o.floorHeight > 0 && o.floorHeight < 1000 ? o.floorHeight : FLOOR_HEIGHT[units] || 12;
   const floors = fin(o.floors) ? Math.max(1, Math.min(MAX_FLOORS, Math.round(o.floors))) : 3;
   return {
-    id: /^m\d{1,9}$/.test(String(o.id)) ? String(o.id) : null, name: clean(o.name, 120) || 'Mass', pts, floors, floorHeight: fh,
+    id: /^m\d{1,16}$/.test(String(o.id)) ? String(o.id) : null, name: clean(o.name, 120) || 'Mass', pts, floors, floorHeight: fh,
     base: BASES.includes(o.base) ? o.base : 'stepped', ground: GROUNDS.includes(o.ground) ? o.ground : 'eg',
-    use: clean(o.use, 60), parcel: /^r\d{1,9}$/.test(String(o.parcel)) ? String(o.parcel) : null,
+    use: clean(o.use, 60), parcel: /^r\d{1,16}$/.test(String(o.parcel)) ? String(o.parcel) : null,
   };
 }
 
-export function signedArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p.x * q.y - q.x * p.y; } return a / 2; }
 export const massArea = (m) => Math.abs(signedArea(m.pts));
 export const massGfa = (m) => massArea(m) * m.floors;
 export const massHeight = (m) => m.floors * m.floorHeight;

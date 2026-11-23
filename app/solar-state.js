@@ -28,7 +28,7 @@ export function cleanSolarArray(a, id) {
     ? { lat: N(a.site.lat, 0, -90, 90), lon: N(a.site.lon, 0, -180, 180), ...(fin(a.site.tz) ? { tz: N(a.site.tz, 0, -12, 14) } : {}), ...(Array.isArray(a.site.north) && fin(a.site.north[0]) && fin(a.site.north[1]) ? { north: [N(a.site.north[0], 0), N(a.site.north[1], 1)] } : {}) } : null;
   const sm = a.summary && typeof a.summary === 'object' ? a.summary : null;
   return {
-    id: /^sa\d{1,9}$/.test(String(a.id)) ? String(a.id) : id(a.id, 'sa'), name: S(a.name, 80) || 'Solar array', region,
+    id: /^sa\d{1,16}$/.test(String(a.id)) ? String(a.id) : id(a.id, 'sa'), name: S(a.name, 80) || 'Solar array', region,
     keep: (Array.isArray(a.keep) ? a.keep : []).slice(0, 200).map((k) => S(k, 40)).filter(Boolean),
     ground: ['eg', 'fg'].includes(a.ground) ? a.ground : 'auto', site, module: m.module, options: cleanOptions(a.options || {}),
     ...(sm ? { summary: { count: N(sm.count, 0, 0, 1e6), modules: N(sm.modules, 0, 0, 1e8), kwp: N(sm.kwp, 0, 0, 1e9), ...(fin(sm.kwh) ? { kwh: N(sm.kwh, 0, 0, 1e12) } : {}) } } : {}),

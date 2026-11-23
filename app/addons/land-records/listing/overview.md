@@ -1,0 +1,5 @@
+Land records and field walk brings the land office's side of a project into CivilCraft. It keeps a record for each parcel (its number, holder, land use, zone and the area the register states) beside the parcel as drawn, and compares the two. It finds parcels that share ground and neighbors that do not quite meet. It works out a subdivision, a consolidation, a moved boundary or a change of land use or zone as a proposal, with the ground balanced before and after, and fills application and amendment outlines from it.
+
+The field walk lowers the way in. Open the drawing on a phone, walk the property and press one large button at each corner. A watch, a headset button or a Bluetooth clicker can press it for you. The corners become survey points and a parcel, with a plain statement of how rough they are.
+
+It reuses what CivilCraft already has: parcels with curved sides, deed calls, traverses, coordinate systems and GIS layers. It adds the records, the comparison, the proposals, the papers and the walk.

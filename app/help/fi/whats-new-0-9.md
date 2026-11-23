@@ -1,129 +1,119 @@
 ---
-title: Mitä uutta versiossa 0.9
-summary: Käytävä- ja maastomallipohjat, tarttumat ja poimintapainikkeet piirtäessä, GIS-analyysi attribuuttitaulukon kanssa, varjo-, aurinkotuotto-, mukavuus- ja tuulitutkimukset työmaalle, 3D-renderöintinäkymä sekä Pistepilvet- ja WaterCraft-lisäosat.
-keywords: mitä uutta, 0.9, julkaisutiedot, käytäväpohjat, maastomallipohjat, pohjien muokkain, tyypillinen poikkileikkaus, useita käytäviä, tarttuma, tarttumat, poimi, siirrä, kopioi, kierrä, tangentti, renderöinti, 3D-renderöinti, GIS-analyysi, puskuri, päällekkäisyys, attribuuttitaulukko, tyyli attribuutin mukaan, varjotutkimus, aurinkotuotto, UTCI, ulkoilmamukavuus, tuulitutkimus, OpenFOAM, pistepilvet, LAS, LAZ, watercraft, palovirtaama, paloposti, veden ikä, kloori, kysynnät, työkaluvihjeet, asettelu, mitä uutta, muutosloki, muutokset, 0.8, 0.8.1, versio, uudet ominaisuudet, sade, sadevesi, lammikoituminen, tulvaus, maamassat, tasapainotus, leikkaus ja täyttö, kuljetus, paras reitti, pienin kustannus, linjaus, viivytysallas, purkuvirtaama, vapaakorkeus, edistyminen, mittaus, drooni, varastokasa, osoitteesta työmaaksi, tontti, maaperä, tulva, luiskan vakavuus, Bishop, painuma, liittymä, merkinnät, opasteet, näkemäetäisyys, tasoitus, pienimmän neliösumman menetelmä, umpeutuva kiertäminen, avolouhos, lohkomalli, radiolinkki, Fresnel, vaihde, ristikkäisraide, languages, kielet, ongelmat, live, dwg
-from: d7ac5b14
+title: Uutta versiossa 0.9 (aiemmin)
+summary: Käytäväpohjat ja maastopohjat, tartunnat ja poimintapainikkeet piirtäessä, GIS-analyysi attribuuttitaulukolla, varjo-, aurinkoenergia-, mukavuus- ja tuulitutkimukset alueelle, 3D-renderöintinäkymä sekä Pistepilvet- ja WaterCraft-lisäosat.
+keywords: uutta 0.9, aiempi julkaisu, uutta, 0.9, julkaisutiedot, käytäväpohjat, maastopohjat, pohjaeditori, tyyppipoikkileikkaus, useita käytäviä, tartunta, tartunnat, poimi, siirrä, kopioi, kierrä, tangentti, renderöinti, 3d-renderöinti, gis-analyysi, puskuri, päällekkäisyys, paikkaliitos, attribuuttitaulukko, tyylitä attribuutin mukaan, varjotutkimus, aurinkoenergia, utci, ulkoilmamukavuus, tuulitutkimus, openfoam, pistepilvet, las, laz, watercraft, palovirtaama, palopostti, veden ikä, kloori, kysyntä, työkaluvihjeet, asettelu, uutta, julkaisutiedot, muutosloki, muutokset, 0.8, 0.8.1, versio, uudet ominaisuudet, sade, sadetus, maamassat, tasapaino, leikkaus ja täyttö, kuljetus, paras reitti, lyhin kustannus, linjaus, viivytysallas, purku, tyhjeneminen, vapaakorkeus, edistyminen, mittaus, drone, kasa, osoite, tontti, maaperä, tulva, luiskan vakavuus, bishop, painuma, liittymä, merkinnät, opasteet, näkemäetäisyys, tasoitus, pienimmän neliösumman, jonomittaus, avolouhos, lohkomalli, radiolinkki, fresnel, vaihde, ohitusraide, live, dwg
+from: 4664522c
 ---
 
-Tämä on se, mitä CivilCraft 0.9:ssä muuttui verrattuna versioon 0.8.1. CivilCraft 0.9 on osa CadCraft Studio 0.9:ää ja sen kahdeksaa sovellusta. Suuret osat ovat käytävä- ja maastomallipohjat, tarttumat piirtäessä, GIS-analyysi, työmaan auringon, aurinkotuoton, mukavuuden ja tuulen tutkimukset sekä kaksi lisäosaa: Pistepilvet ja WaterCraft.
+Tämä on se, mikä muuttui CivilCraft 0.9:ssä verrattuna versioon 0.8.1. CivilCraft 0.9 on osa CadCraft Studio 0.9 -ohjelmistoa ja sen kahdeksaa sovellusta. Suurimmat osat ovat käytävä- ja maastopohjat, tartunnat piirtäessä, GIS-analyysi, tutkimukset tontin auringosta, aurinkoenergiasta, mukavuudesta ja tuulesta sekä kaksi lisäosaa: Pistepilvet ja WaterCraft.
 
 ## Uutta
 
-### Käytävä- ja maastomallipohjat
+### Käytäväpohjat ja maastopohjat
 
-- **Käytäväpohjat.** Avaa {{ui:Maastomalli}} › {{ui:Lisää}} › {{ui:Käytäväpohjat…}} (tai kirjoita {{cmd:TEMPLATES}}). Pohja on pieni poikkileikkaus komponentteineen, siirtymineen, kaltevuuksineen, materiaaleineen ja pistekoodeineen. Säilytä niitä projektissa, kohdassa {{ui:Oma kirjasto}} tai `.cctemplates.json`-tiedostona. Pohjamuokkain näyttää todellisessa mittakaavassa piirretyn kuvan ja listaa ongelmat kirjoittaessasi.
-- **Rakenna pohjista paaluittain.** Valitse linjaus ja kytke Ominaisuuksissa päälle {{ui:Rakenna mallipohjista paaluittain}}. Kullakin alueen puolella on oma päällystysluettelo ja oma päätyehto. {{ui:Lisää käytävä}} kohdassa {{ui:Tämän linjauksen käytävät}} asettaa useita käytäviä samalle linjaukselle.
-- **Maastomallipohjat.** {{ui:Maastomalli}} › {{ui:Lisää}} › {{ui:Maastomallipohjat…}} (tai kirjoita {{cmd:TERRAINTEMPLATES}}) levittää kerroksellisia materiaaleja, kuten pintamaan tai päällysteen ja pohjan, maastomallin päälle, ja antaa pinta-alan ja tilavuuden kerroksittain. Katso [Käytäväpohjat ja maastomallipohjat](topic:corridor-templates).
+- **Käytäväpohjat.** Avaa {{ui:Maastomalli}} › {{ui:Lisää}} › {{ui:Käytäväpohjat…}} (tai kirjoita {{cmd:TEMPLATES}}). Pohja on pieni poikkileikkaus osineen, etäisyyksineen, kaltevuuksineen, materiaaleineen ja pistekoodeineen. Säilytä ne projektissa, {{ui:Oma kirjasto}}-kirjastossa tai `.cctemplates.json`-tiedostona. Pohjamuokkain näyttää piirroksen oikeassa mittakaavassa ja luettelee ongelmat kirjoittaessasi.
+- **Rakenna mallipohjista paaluittain.** Valitse linjaus ja kytke sen Ominaisuuksissa päälle {{ui:Rakenna mallipohjista paaluittain}}. Jokaisella alueen puolella on oma päällysrakennelistansa ja oma päätetilansa. {{ui:Lisää käytävä}} kohdassa {{ui:Tämän linjauksen käytävät}} asettaa useita käytäviä yhdelle linjaukselle.
+- **Maastopohjat.** {{ui:Maastomalli}} › {{ui:Lisää}} › {{ui:Maastopohjat…}} (tai kirjoita {{cmd:TERRAINTEMPLATES}}) asettaa kerrostetut materiaalit, kuten pintamaan tai päällysteen ja kantavan kerroksen, maastoon, ja jokaiselle kerrokselle pinta-alan ja tilavuuden. Katso [Käytäväpohjat ja maastopohjat](topic:corridor-templates).
 
 ### Piirtäminen
 
-- **Tarttumat.** Alignment-, Pad-, Parcel-, Mass-, Feature line-, Measure-, Boundary- ja Catchment-työkalut tarttuvat tasomittauspisteisiin, PI-pisteisiin, kulmiin, kärkipisteisiin ja rakenteisiin, ja merkin vieressä on nimi. Pidä {{key:Alt}} pohjassa saadaksesi vapaan pisteen.
-- **Poimintapainikkeet, tangentti sekä siirrä, kopioi, kierrä.** Tasanteen, tontin ja taitelinjan kulmissa on kirjoitettavat Itä- ja Pohjoinen-kentät sekä ristikkoa vastaava Poimi-painike. Ominaisuuksissa on myös {{ui:Tangentti kahdesta pisteestä}} linjauksille ja {{ui:Siirrä, kopioi ja kierrä}} linjauksille, tasanteille, tonteille ja taitelinjoille. Katso [Piirrä tarttumilla, poimituilla kulmilla sekä siirrä, kopioi ja kierrä](topic:draft-with-snaps).
-- **Renderöintinäkymä 3D:ssä.** Painike {{ui:Renderöinti}} 3D-palkissa piirtää maan luonnollisin väripaletein, taivaan, sumun ja pehmeät varjot. Se ei muuta mallia. {{ui:Aurinko}}-valikossa on nyt painikkeet {{ui:Käytä}} ja {{ui:Sulje}}. Katso [Katso työmaa 3D:ssä](topic:site-3d).
-- **Paneelit avautuvat yksi osio kerrallaan.** Vasen paneeli ja Ominaisuudet-paneeli avaavat yhden osion ja sulkevat muut, ja Maisema-nauhan useita työkaluja sisältävät ruudut ovat jaettuja painikkeita.
+- **Tartunnat.** Linjaus-, platta-, tontti-, massa-, taitelinja-, mittaus-, raja- ja valuma-alueen työkalut tarttuvat mittauspisteisiin, PI-pisteisiin, kulmiin, kärkipisteisiin ja rakenteisiin, ja merkin vieressä on tunniste. Pidä {{key:Alt}} painettuna vapaalle pisteelle.
+- **Poimintapainikkeet, tangentti sekä siirto, kopiointi ja kierto.** Platan, tontin ja taitelinjan kulmissa on kirjoitettavat itä- ja pohjoiskentät sekä Poimi-painike tähtäimen kuvalla. Ominaisuuksissa on myös {{ui:Tangentti kahdesta pisteestä}} linjauksille ja {{ui:Siirrä, kopioi ja kierrä}} linjauksille, plateille, tonteille ja taitelinjoille. Katso [Piirrä tartunnoilla, valituilla kulmilla sekä siirrä, kopioi ja kierrä](topic:draft-with-snaps).
+- **Renderöintinäkymä 3D:ssä.** 3D-palkin {{ui:Renderöinti}}-painike piirtää maaston luonnollisin värein, taivaan, sumun ja pehmeät varjot. Se ei muuta mallia. {{ui:Aurinko}}-valikossa on nyt {{ui:Käytä}}- ja {{ui:Sulje}}-painikkeet. Katso [Tarkastele aluetta 3D:ssä](topic:site-3d).
+- **Paneelit avautuvat yksi osio kerrallaan.** Vasen paneeli ja Ominaisuudet-paneeli avaavat yhden osion ja sulkevat muut, ja Maiseman valintanauhan laatat, joissa on useita työkaluja, ovat jaettuja painikkeita.
 
 ### GIS-analyysi
 
-- **Analysoi.** {{ui:Maastomalli}} › {{ui:Lisää}} › {{ui:Analysoi}} tarjoaa puskurin, päällekkäisyyden, paikkaliitoksen, valinnan attribuutin tai muodon mukaan sekä mittauksen. Jokainen työkalu tekee uuden tason yhdellä kumoamisella.
-- **Attribuuttitaulukko.** Tason kolmen pisteen valikossa ovat {{ui:Attribuuttitaulukko…}} ja {{ui:Tyyli attribuutin mukaan…}}. Katso [Analysoi GIS-tasoja](topic:gis-analysis) ja [Työskentele tason attribuuttitaulukon kanssa](topic:gis-table).
+- **Analysoi.** {{ui:Maastomalli}} › {{ui:Lisää}} › {{ui:Analysoi}} tarjoaa puskurin, päällekkäisyyden, paikkaliitoksen, valinnan attribuutin tai muodon mukaan sekä mittauksen. Jokainen työkalu tekee uuden tason yhdessä kumoamisvaiheessa.
+- **Attribuuttitaulukko.** Tason kolmen pisteen valikossa on {{ui:Attribuuttitaulukko…}} ja {{ui:Tyylitä attribuutin mukaan…}}. Katso [Analysoi GIS-tasot](topic:gis-analysis) ja [Työskentele tason attribuuttitaulukon kanssa](topic:gis-table).
 
-### Työmaa: aurinko, aurinkotuotto, mukavuus ja tuuli
+### Tontti: aurinko, aurinkoenergia, mukavuus ja tuuli
 
-- **Ympäristö-osio.** Valitse massa: {{ui:Ympäristö}}-osio on kohdassa {{ui:Aurinkotunnit}} sen Ominaisuuksissa. Siinä on varjotutkimus (kartta, taulukko, animaatio, CSV), aurinkotuotto vuoden tyypillisen sääsäätiedoston (.epw) perusteella ja ulkoilmamukavuus (UTCI).
-- **Tuuli, vain seulonta.** {{ui:Suorita tuulitutkimus}} värittää maan istumisesta epämukavaan kullekin tuulensuunnalle sääsäätiedostossa. Se ei ole validoitu, ja paneeli kertoo sen.
-- **Jalankulkijatuuli (OpenFOAM) -lisäosa.** Se on pois päältä, kunnes kytket sen päälle kohdassa {{ui:Asetukset}} › {{ui:Lisäosat}}. OpenFOAM on ohjelma, jonka asennat itse. Katso [Varjo, aurinkotuotto ja ulkoilmamukavuus](topic:environment).
+- **Ympäristöosio.** Valitse massa: Ympäristö-osio on sen Ominaisuuksissa kohdan {{ui:Aurinkotunnit}} alla. Siinä on varjotutkimus (kartta, taulukko, animaatio, CSV), aurinkoenergia tyypillisen vuoden säätiedostosta (.epw) ja ulkoilmamukavuus (UTCI).
+- **Tuuli, vain seulonta.** {{ui:Suorita tuulitutkimus}} värittää maanpinnan istuttavasta epämukavaan kullekin tuulensuunnalle säätiedostossa. Sitä ei ole validoitu, ja paneeli kertoo sen.
+- **Jalankulkijatuuli (OpenFOAM) -lisäosa.** Pois päältä, kunnes kytket sen päälle kohdassa {{ui:Asetukset}} › {{ui:Lisäosat}}. OpenFOAM on ohjelmisto, jonka asennat itse. Katso [Varjo, aurinkoenergia ja ulkoilmamukavuus](topic:environment).
 
 ### Pistepilvet (lisäosa)
 
-- Kytke {{ui:Pistepilvet}} päälle kohdassa {{ui:Asetukset}} › {{ui:Lisäosat}}; Pistepilvet-välilehti ilmestyy oikeanpuoleiseen paneeliin. Avaa LAS- tai LAZ-tiedosto, puhdista se, lajittele maanpinnaksi, kasvillisuudeksi ja rakennuksiksi, rakenna maanpinta, korkeuskäyrät ja tilavuudet sekä vie LAS tai LAZ. Katso [Pistepilvet drooni- tai skannerimittauksesta](topic:point-clouds).
+- Kytke {{ui:Pistepilvet}} päälle kohdassa {{ui:Asetukset}} › {{ui:Lisäosat}}; oikeanpuoleiseen paneeliin ilmestyy Pistepilvet-välilehti. Avaa LAS- tai LAZ-tiedosto, siivoa se, lajittele maanpintaan, kasvillisuuteen ja rakennuksiin, rakenna maanpinta, korkeuskäyrät ja tilavuudet sekä vie LAS- tai LAZ-tiedosto. Katso [Pistepilvet dronesta tai skannerista](topic:point-clouds).
 
 ### WaterCraft (lisäosa)
 
-- Kytke {{ui:WaterCraft (vedenjakelu)}} päälle kohdassa {{ui:Asetukset}} › {{ui:Lisäosat}}; WaterCraft-välilehti ilmestyy. Siinä ovat asiakkaiden kysynnät, palovirtaama jokaisessa paloposti, mikä päävesijohdon katkos on merkittävin, sekä veden ikä ja kloori, kaikki tallennettavissa CSV-tiedostoina. Katso [WaterCraft: kysynnät, palovirtaama, katkokset ja veden ikä](topic:watercraft).
+- Kytke {{ui:WaterCraft (vesijakelu)}} päälle kohdassa {{ui:Asetukset}} › {{ui:Lisäosat}}; WaterCraft-välilehti ilmestyy. Siinä on asiakkaiden kysyntä, palovirtaama jokaisessa palopostissa, se, mikä vesijohtokatko haittaa eniten, sekä veden ikä ja kloori, kukin tallennettuna CSV-muodossa. Katso [WaterCraft: kysyntä, palovirtaama, katkot ja veden ikä](topic:watercraft).
 
 ### Yhdessä työskentely
 
-- Live-istunnossa näet toistesi kohdistimet ja nimet suunnitelmassa. Kirjaston kasvit: CivilCraft Landscape aloittaa oletuskirjastokokoelmasta, {{ui:CivilCraft landscape}}.
+- Live-istunnossa näet toistesi osoittimet ja nimet pohjapiirroksessa. Kirjastokasvit: CivilCraft Landscape aloittaa oletuskokoelmastaan, {{ui:CivilCraft landscape}}.
 
-## Kaikissa sovelluksissa
+## Jokaisessa sovelluksessa
 
 - Vihjeet näkyvät Bootstrap-työkaluvihjeinä, ja aloitusvihjeen voi sulkea.
-- Paneelin välilehtirivi, joka ei mahdu, vierittyy eikä leikkaudu pois.
-- Selainvälilehtien otsikot ovat muotoa `<asiakirja> - CivilCraft | CadCraft`.
-- {{ui:Asetukset}}-ikkunassa on Asettelu-osio, jossa asettelut ovat pudotusvalikko kaksirivisin vaihtoehdoin.
+- Paneelin välilehtirivi, joka ei mahdu, saa vierityksen sen sijaan, että se leikattaisiin.
+- Selainvälilehtien otsikot ovat muotoa `<document> - CivilCraft | CadCraft`.
+- {{ui:Asetukset}}-kohdassa on Asettelu-osio, jossa asettelut ovat pudotusvalikko kaksirivisin vaihtoehdoin.
 - Paino- ja lämpötilayksiköt ovat kohdassa {{ui:Asetukset}} › {{ui:Yleinen}} › {{ui:Yksiköt}}.
-- Kielilistassa näkyvät kielet, joille koontiversiossa on tiedostot. Muut kuin englanti ovat konekäännöksiä.
+- Kieliluettelo näyttää ne kielet, joille versiolla on tiedostot. Muut kuin englannin kielet ovat konekäännöksiä luonnoksina.
 
 ## Korjattu
 
-- Osoitehaku- ja EnergyPlus-tarkistuslisäosia ei voinut kytkeä päälle; nyt voi.
+- Osoitehaun ja EnergyPlus-tarkistuksen lisäosia ei voinut kytkeä päälle; nyt voi.
 - Ohje kertoo nyt, että Pistepilvet-lisäosa kirjoittaa siivotun pilven LAS 1.4- tai LAZ-muodossa.
-- Valitun kohteen oman kahvan napsauttaminen ei enää aloita kahvan vetoa, joka pysäytti odottavan poiminnan.
+- Valitun kohteen oman otteen napsautus ei enää aloita otteen vetoa, joka pysäytti odottavan Poimi-toiminnon.
 
-## Rajoitukset
+## Rehelliset rajat
 
-- Esimerkkikäytäväpohjat ovat paikanpitäjiä, eivät mistään standardista; insinöörin on tarkistettava ne. Maastomallipohjat eivät lisää pintaa, eikä niitä piirretä 3D-näkymään tai poikkileikkausnäkymään. Linjauksen toinen käytävä ei ole IFC-viennissä. Kahden pohjan välillä ei ole kapenemista paalun mukaan.
-- Pistepilvet on testattu keksityillä tiedostoilla, ei todellisella droonimittauksella. Vain LAS- ja LAZ-tiedostot luetaan.
-- GIS-analyysi on testattu keksityillä tasoilla.
-- Varjo, aurinko ja mukavuus ovat suunnitteluarvioita; tuuli on validoimaton seulonta. Mikään niistä ei ole suunnitteluarvo.
-- WaterCraft on laskenta-apu, joka on tarkistettu keksityillä verkoilla. Vesihuoltoinsinööri päättää, mitä luvut ovat arvoltaan.
-- Muut kuin englanninkieliset kielet ovat konekäännöksiä.
-- Windows-asennusohjelmat eivät ole koodilla allekirjoitettuja, ja macOS-levykuvaa ei ole notarisoitu.
+- Esimerkkikäytäväpohjat ovat paikkamerkkejä, joilla ei ole standardia; insinöörin on tarkistettava ne. Maastopohjat eivät lisää pintaa, eikä niitä piirretä 3D:ssä tai poikkileikkausnäkymässä. Linjauksen toinen käytävä ei ole IFC-viennissä. Kahden pohjan välillä paaluittain ei ole kapenemista.
+- Pistepilviä on testattu keksityillä tiedostoilla, ei todellisella drone-mittauksella. Vain LAS- ja LAZ-tiedostot luetaan.
+- GIS-analyysiä on testattu keksityillä tasoilla.
+- Varjo-, aurinko- ja mukavuustiedot ovat suunnitteluarvioita; tuuli on vahvistamaton seulonta. Mikään niistä ei ole suunnitteluarvo.
+- WaterCraft on laskentaapu, jota on tarkistettu keksityillä verkoilla. Vesi-insinööri päättää, mitä luvut ovat arvoiltaan.
+- Muut kuin englannin kielet ovat konekäännöksiä luonnoksina.
+- Windows-asentajat eivät ole koodisignoituja, eikä macOS-levykuvaa ole notarisoitu.
 
 ## Aiemmin: 0.8 ja 0.8.1
 
-Tämä on se, mitä CivilCraft 0.8:ssa (2026-11-01) ja 0.8.1:ssä (2026-11-02) muuttui verrattuna versioon 0.7. Suuret uudet osat ovat työkalut, jotka testaavat tasaustasi ja työmaatasi (sade, maamassat, reitit, altaat, edistyminen), sekä kuusi laskentaikkunaa maalle, teille, mittauksille, kaivoksille, yhteyksille ja raiteille.
+Tämä on se, mikä muuttui CivilCraft 0.8:ssa (2026-11-01) ja 0.8.1:ssä (2026-11-02) verrattuna versioon 0.7. Suurimmat uudet osat ovat työkaluja, jotka testaavat tasauksesi ja tonttisi (sade, maamassat, reitit, altaat, edistyminen), sekä kuusi laskentaikkunaa maaperälle, teille, mittauksille, kaivoksille, yhteyksille ja rautatielle.
 
 ### Uutta
 
-**Testaa tasaustasi**
+**Testaa tasaus**
 
-- **Anna sataa.** {{ui:Sadetus…}} (kohdassa {{ui:Maastomalli}}) antaa myrskyn tasatulle maalle. Näet, miten vesi valuu tasanteilta, lammikoituu matalissa kulmissa ja tulvii liian pienistä altaista. Ajo animoidaan, ja se antaa tilavuudet, huippuulosvirtauksen ja CSV-tiedoston jokaisesta altaasta. Oletussolu on karkea, jotta ensimmäinen katsaus on nopea; hienompi solu on hitaampi. Tulvivat altaat näkyvät myös Ongelmat-paneelissa.
-- **Maamassojen tasapainottaja.** {{ui:Maamassojen tasapainottaja…}} nostaa tai laskee tasanteen, kunnes leikkaus on yhtä suuri kuin täyttö, ja näyttää kuljetustaulukon niiden välillä.
-- **Paras reitti.** {{ui:Paras reitti…}}: valitse alku ja loppu, ja CivilCraft löytää halvimman reitin maaston yli, joka pysyy kaltevuus- ja kaarirajoissasi, ja tekee siitä linjauksen.
-- **Viivytysaltaat.** {{ui:Viivytysaltaat…}} laskee vaiheen ja varaston maastostasi, ottaa purkulaitteita (aukko, pato, V-aukko, ylivuotoallas), ajaa myrskyn altaan läpi ja tarkistaa pidätetyn huippuvirtaaman, tyhjenemisajan ja vapaakorkeuden.
-- **Edistyminen mittauksista.** {{ui:Edistyminen mittauksista…}} vertaa eri päivien drooni- tai skannauspintoja maahan sellaisena kuin se oli, ja suunnitelmaan: prosentti valmiina tilavuudella, liian syvät ja liian täytetyt alueet, varastokasat sekä se, milloin työ valmistuu tällä vauhdilla (merkittynä arvioksi).
+- **Anna sataa.** {{ui:Sadetus…}} ({{ui:Maastomalli}}-kohdassa) päästää myrskyn tasatulle maalle. Näet veden valuvan platoilta, lammikoituvan matalille kulmille ja ylivuotavan liian pienistä altaista. Ajo on animoitu, ja se antaa tilavuudet, huippuvirtaaman ja CSV:n jokaisesta altaasta. Oletussolu on karkea, joten ensimmäinen katsaus on nopea; hienompi solu on hitaampi. Ylivuotavat altaat näkyvät myös Ongelmat-paneelissa.
+- **Maamassojen tasapainottaja.** {{ui:Maamassojen tasapainottaja…}} nostaa tai laskee plattaa, kunnes leikkaus on yhtä suuri kuin täyttö, ja näyttää niiden välisen kuljetustaulukon.
+- **Paras reitti.** {{ui:Paras reitti…}}: valitse alku ja loppu, ja CivilCraft löytää halvimman polun maaston yli, joka pysyy kaltevuus- ja kaarirajoissasi, ja tekee siitä linjauksen.
+- **Viivytysaltaat.** {{ui:Viivytysaltaat…}} laskee vedenkorkeuden ja varastoinnin maastostasi, ottaa huomioon purkulaitteet (aukko, pato, V-aukko, ylivuotokynnys), reitittää myrskyn altaan läpi ja tarkistaa pidätetyn huippuvirtaaman, tyhjenemisajan ja vapaakorkeuden.
+- **Edistyminen mittauksista.** {{ui:Edistyminen mittauksista…}} vertaa eri päivinä otettuja drone- tai skannauspintoja maanpintaan sellaisena kuin se oli, ja suunnitelmaan: valmiusaste tilavuutena, yli kaivetut ja yli täytetyt alueet, upotuskasat ja milloin työ valmistuu tällä vauhdilla (merkitty arvioksi).
 
-**Tunne työmaa**
+**Tunne tontti**
 
-- **Osoitteesta työmaaksi.** {{ui:Osoitteesta työmaaksi…}} kokoaa yhteen avoimet tontti-, rakennus-, kaavoitus-, maaperä-, tulva- ja maastotiedot yhdelle työmaalle. Voit säilyttää työmaan projektitiedostossa: kirjoitetun osoitteen, kunkin lähteen sekä sen päivän, jolloin hait sen, ja sen lisenssin ja sen, mitä palautui. Kun avaat tai jaat projektin uudelleen, työmaa on yhä siinä, eikä mitään haeta uudelleen. Voit myös tallentaa sen työmaatiedostona tai lähettää BimCraftiin. Katso [Osoitteesta työmaaksi](topic:address-to-site).
+- **Osoitteesta työmaaksi.** {{ui:Osoitteesta työmaaksi…}} kokoaa avoimet tonttitiedot, rakennus-, kaavoitus-, maaperä-, tulva- ja maastotiedot yhdelle tontille. Voit säilyttää tontin projektitiedostossa: kirjoitetun osoitteen, kunkin lähteen haun päivän ja lisenssin sekä palautuneet tiedot. Avaa projekti uudelleen tai jaa se, niin tontti on yhä siellä, eikä mitään haeta uudelleen. Voit myös tallentaa sen tonttitiedostona tai lähettää sen BimCraft-ohjelmaan. Katso [Osoitteesta työmaaksi](topic:address-to-site).
 
-**Maa, tiet, mittaus, kaivokset, yhteydet ja raiteet**
+**Maa, tiet, mittaus, kaivokset, yhteydet ja rautatie**
 
-- **Maaperä ja luiskat.** {{ui:Maaperä ja luiskat…}} piirtää maaperäprofiilin kirjoittamiesi porausten välille. Bishopin menetelmä etsii sitten kriittisen ympyrän maastostasi, huomioiden pohjaveden, lisäkuorman ja maanjäristyskertoimen; perustuksen painumaan lasketaan konsolidaatio, välitön painuma ja aika.
-- **Liittymät ja merkinnät.** {{ui:Liittymät ja merkinnät…}} kokoaa haarat yhteen reunakivipaluilla (yksi säde haaraa kohden tai kolmikeskisiä paluita), suunnittelunopeuden näkemäetäisyyden, näkemiskolmioiden tarkistuksen, suojatiet, pysäytysviivat, merkinnät ja opasteet opastetaulukon kanssa. Ne piirtyvät suunnitelmaan ja tallennetaan .dxf-tiedostona nimetyillä tasoilla.
-- **Mittausten tasoitus.** {{ui:Mittausten tasoitus…}} ajaa pienimmän neliösumman tasoituksen monikulmiolle tai verkolle: tasoitetut koordinaatit, virhe-ellipsit, khiin neliö -testi ja merkintä mittauksesta, joka ei sovi. Vapaat verkot sekä monikulmion sulkeminen kompassisäännöllä ja RW5 ovat mukana, ja GSI-, JobXML- ja CSV-kenttätiedostot luetaan; tasoitetut pisteet tallentuvat CSV-tiedostoina.
-- **Avolouhokset.** {{ui:Avolouhokset…}} muuttaa porausnäytteet lohkomalliksi ja loppukaivokseksi kaltevuuskulmasi sisällä, kaivosluvun, taulukon penkereittäin sekä pitoisuus- ja tonnikäyrän kanssa. Sisäkkäiset kaivokset tuottokertoimen mukaan ja diskontattu rahavirtatuotanto-aikataulu ovat myös mukana.
-- **Radiolinkit.** {{ui:Radiolinkit…}} tarkistaa näkölinjan maastosi yli maapallon kaarevuuden ja ensimmäisen Fresnel-vyöhykkeen kanssa, sekä linkkibudjetin, häipymämarginaalin ja monitie-katkoksen, ja antaa masto korkeuden, joka vapauttaa reitin. Se tekee myös kuitu-häviöbudjetit, reittimäärät ja tuulen tornille.
-- **Raidevaihteet.** {{ui:Raidevaihteet…}} tekee vaihteen sen sydänluvun perusteella, ristikkäisraiteet rinnakkaisten raiteiden välillä sekä rakennusvapaan tilan, joka kallistuu kallistuksen mukaan ja levenee kaarteessa. Vaihde voi sijaita linjauksen paalulla. 
+- **Maaperä ja luiskat.** {{ui:Maaperä ja luiskat…}} piirtää maaperäprofiilin kirjoittamiesi porausten väliin. Bishopin menetelmä etsii sitten kriittisen ympyrän maastostasi vedenpinnan, ylikuorman ja maanjäristyskertoimen kanssa; perustuksen painuma saa konsolidaation, välittömän painuman ja ajan.
+- **Liittymät ja merkinnät.** {{ui:Liittymät ja merkinnät…}} kokoaa haarat yhteen reunakivikaarilla (yksi säde haaraa kohti tai kolmen keskipisteen kaaret), suunnittelunopeuden näkemäetäisyyden, näkemäkolmioiden tarkistuksen, suojatiet, pysäytysviivat, merkinnät ja opasteet opastetaulukon kanssa. Ne piirretään pohjapiirrokseen ja tallennetaan .dxf-tiedostona nimetyille tasoille.
+- **Mittausten tasoitus.** {{ui:Mittausten tasoitus…}} tekee pienimmän neliösumman tasoituksen jonomittaukselle tai verkolle: tasoitetut koordinaatit, virhe-ellipsit, chi-neliötesti ja merkintä mittauksessa, joka ei sovi. Mukana ovat vapaat verkot, jonon sulkeminen kompassisäännöllä sekä RW5-, GSI-, JobXML- tai CSV-kenttätiedostot, ja tasoitetut pisteet tallentuvat CSV-muodossa.
+- **Avolouhokset.** {{ui:Avolouhokset…}} muuttaa poranäytteet lohkomalliksi ja lopulliseksi louhokseksi luiskakulmasi sisällä, mukana kuorintasuhde, taulukko penkereittäin sekä pitoisuus- ja tonnikäyrä. Myös sisäkkäiset louhokset tuottokertoimen mukaan sekä tuotantoaikataulu diskontatulla rahavirralla ovat mukana.
+- **Radiolinkit.** {{ui:Radiolinkit…}} tarkistaa näköyhteyden maastosi yli maapallon kaarevuuden, ensimmäisen Fresnel-vyöhykkeen, linkkibudjetin, häipymävaran ja monitiekatkon huomioiden sekä antaa mastokorkeuden, joka vapauttaa polun. Se tekee myös kuitujen häviöbudjetit, reittimäärät ja tuulen mastoon kohdistuvana kuormana.
+- **Raidevaihteet.** {{ui:Raidevaihteet…}} tekee vaihteen sydänkappaleluvun perusteella, risteysvaihteet rinnakkaisten raiteiden välillä sekä rakennusrajan, joka kallistuu kallistuksen mukaan ja levenee kaarteessa. Vaihde voi sijaita linjauksen paalussa.
 
-Katso [Maaperä, liittymät, mittauksen tasoitus, kaivokset, radiolinkit ja vaihteet](topic:soils-roads-survey-mines-links).
-
-### Kaikissa sovelluksissa
-
-- **Kielet.** 54 kieltä, joista kymmenen on uutta. Muut kuin englanti ovat konekäännöksiä, kunnes äidinkielinen puhuja lukee ne. Ohjeaiheet ovat yhä enimmäkseen englanniksi.
-- **Työkalurivit.** {{ui:Asetukset}} › {{ui:Yleiset}} › {{ui:Työkalurivin rivit}}: Rivitys (kuten ennen), 2 riviä tai 1 rivi. CivilCraftin Nauha näyttää eniten käytetyn työkalun suurena, seuraavat pieninä ja loput ryhmän nimen nuolen takana.
-- **Syöttölaitteet.** Kosketuslevy, kynä, 3D-hiiri, ohjain ja MIDI voivat ohjata sovelluksia.
-- **Ongelmat.** Ongelmat-paneeli, joka varoittaa kaikissa sovelluksissa, ja tarkistukset, jotka lukevat säännöstöpaketteja.
-- **Live.** Näkymä siitä, kuka on missä Live-istunnossa.
-- **Lisäosat.** Lisäosaluettelo valaistuslisäosineen.
-- **Yhdistä tekoälysi.** Mikä tahansa yhdistämäsi avustaja voi ohjata CivilCraftin työkaluja. Mukana on huomautus, että yhden napsautuksen yhdistäminen CadCraft Studiossa ja hostattu liitin eivät ole vielä valmiita. Katso [Anna tekoälyavustajan työskennellä työmaasi kanssa](topic:assistants).
+Katso [Maaperä, liittymät, mittausten tasoitus, louhokset, radiolinkit ja vaihteet](topic:soils-roads-survey-mines-links).
 
 ### Korjattu versiossa 0.8.1
 
-- **DWG-luokkaosio.** Se luettiin väärän tyyppisenä (GitHub cadcraft#5). Korjattu CivilCraftissa yhdessä CadCraftin, BimCraftin, ModelCraftin ja TakeoffCraftin kanssa.
-- **Kielen vaihtaminen ajon aikana.** CadCraft Studio ja pakatut versiot voivat vaihtaa kieltä ajon aikana. Ennen ne olivat vain englanniksi. Ei vielä testattu kaikilla alustoilla: kerro, jos kieli ei vaihdu.
+- **DWG-luokkaosio.** Se luettiin väärän tyyppisenä (GitHub cadcraft#5). Korjattu CivilCraftissa yhdessä sovellusten CadCraft, BimCraft, ModelCraft ja TakeoffCraft kanssa.
+- **Kielen vaihtaminen käynnin aikana.** CadCraft Studio ja pakatut versiot voivat vaihtaa kieltä ajon aikana. Ennen ne olivat vain englanniksi. Ei vielä testattu jokaisella alustalla: kerro meille, jos kieli ei vaihdu.
 
 ### Ei vielä tässä versiossa
 
-- **Nämä ovat laskenta-apuja.** Jokainen uusien ikkunoiden tulos vaatii insinöörin tarkistuksen. Maaperän lujuudet lähtevät maaperäryhmän tyypillisistä arvoista, ja ikkuna kertoo sen.
-- **Sateen tekeminen.** Ajo esimerkkityömaalla voi kestää yli kaksi minuuttia selaimessa hienolla solulla. Sitä on tarkistettu käsin lasketuilla tapauksilla ja V-muotoisella valuma-alueella, ei vielä todellisella tasatulla työmaalla.
-- **Osoitteesta työmaaksi.** Se lukee avoimia datatiedostoja, jotka tuot itse, ja sitä on testattu vain omilla tiedostoillamme. Puita ei ole lähteenä. Lähteiden hakeminen puolestasi odottaa tietosuojasanamuotoilua.
-- **Edistyminen mittauksista.** Testattu vain keksityillä mittauksilla. Edistymistä arkeilla ja merkinnöillä (MarkupCraft) sekä skannausta mallia vastaan (BimCraft) ei ole toteutettu.
-- **Maaperä ja luiskat.** Vain ympyrän muotoiset pinnat: ei kiilaa tai lohkohakua eikä jännityshalkeamaa.
-- **Liittymät.** Yksi säde haaraa kohden, ei kuorma-autojen ajouria, eivätkä ne mene vielä käytävään.
-- **Kenttätiedostot.** Lukijat on kirjoitettu julkisista formaattikuvauksista ja kokeiltu omilla tiedostoillamme. Todellisia mittalaitetiedostoja tarvitaan.
-- **Linkit ja raiteet.** Radiolinkit: vain vapaatilan häviö ja monitie (ei sadehäipymää eikä antennikuvioita), eikä rautatiestandardia: jokainen raja-arvo on paikanpitäjä, ja luonnosluvut ovat sellaisia, joita yksikään rautatieinsinööri ei ole tarkistanut.
-- **Windows ja macOS.** 0.8 ei ole koodilla allekirjoitettu. Windows voi varoittaa, ja macOS pyytää hiiren oikean painikkeen napsautusta ja sitten Avaa.
+- **Nämä ovat laskentaapuja.** Jokainen uusien ikkunoiden tulos tarvitsee insinöörin tarkistuksen. Maaperän lujuudet alkavat maaperäryhmän tyypillisistä arvoista, ja ikkuna kertoo sen.
+- **Anna sataa.** Ajo näytealueella voi kestää yli kaksi minuuttia selaimessa hienolla solulla. Sitä on tarkistettu käsin lasketuilla tapauksilla ja V-muotoisella valuma-alueella, mutta ei vielä todellisella tasatulla alueella.
+- **Osoitteesta työmaaksi.** Se lukee avoimia datatiedostoja, jotka tuot, ja on testattu vain omilla tiedostoillamme. Puut eivät ole lähde. Lähteiden hakeminen puolestasi odottaa tietosuojailmoituksen sanamuotoa.
+- **Edistyminen mittauksista.** Testattu vain keksityillä mittauksilla. Edistymisen seuranta arkeilla ja merkinnöillä (MarkupCraft) sekä skannauksen vertaaminen malliin (BimCraft) ei ole rakennettu.
+- **Maaperä ja luiskat.** Vain ympyrämäiset pinnat: ei kiila- eikä lohkohakua eikä jännityssäröä.
+- **Liittymät.** Yksi säde haaraa kohti, ei raskaan liikenteen kääntöratoja, eivätkä ne vielä mene käytävään.
+- **Kenttätiedostot.** Lukijat on kirjoitettu julkisten formaattikuvausten pohjalta ja kokeiltu omilla tiedostoillamme. Todellisia mittalaitetiedostoja toivotaan.
+- **Yhteydet ja rautatie.** Radiolinkit: vain vapaatilan vaimennus ja monitie (ei sateen aiheuttamaa häipymistä eikä antennikuvioita), eikä rautatiestandardia: jokainen raja on paikkamerkki, luonnosarvoilla, joita yksikään rautatieinsinööri ei ole tarkistanut.
+- **Windows ja macOS.** 0.8 ei ole koodisignoitu. Windows voi varoittaa, ja macOS pyytää napsauttamaan hiiren oikealla painikkeella ja sitten Avaa.
 
-Kaikki muu on luettelossa [Ei vielä toteutettu](topic:not-built-yet). Aiempi julkaisu: [Mitä uutta versiossa 0.7](topic:whats-new-0-7).
+Kaikki muu on kohdassa [Ei vielä toteutettu](topic:not-built-yet). Aiempaan julkaisuun katso [Uutta versiossa 0.7](topic:whats-new-0-7).

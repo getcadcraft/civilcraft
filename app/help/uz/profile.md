@@ -1,73 +1,88 @@
 ---
-title: Vertikal profilni loyihalash
-summary: Profil koʻrinishini oching, yer ustidan loyihalash profilini boshlang, PVI qoʻshing va sudrang, vertikal egri uzunliklarini belgilang hamda nishablar, K qiymatlari va yuqori hamda past nuqtalarni oʻqing.
-keywords: profil, vertikal trassa, pvi, vertikal egri, nishab, k qiymati, choʻqqi, botiq, bvc, evc, profil koʻrinishi, yakuniy nishab, fg, mavjud yer profili, profildagi xususiyat chiziqlari, kesishmalar, proyeksiya, bordyur, ariq, yorliqlar
-from: e9182bfa
+title: Loyiha vertikal profilini loyihalash
+summary: Profil koʻrinishini oching, yerdan loyiha profilini boshlang, PVI larni qoʻshing va suring, vertikal egri chiziq uzunliklarini belgilang va qiyaliklar, K qiymatlari hamda yuqori va past nuqtalarni oʻqing.
+keywords: profil, vertikal trassa, pvi, vertikal egri chiziq, qiyalik, k qiymati, choʻqqi, choʻkma, bvc, evc, profil koʻrinishi, yakuniy qiyalik, fg, mavjud yer profili, profildagi xususiyat chiziqlari, kesishmalar, proyeksiya, bordyur, ariq, yorliqlar
+from: dbb1f32d
 ---
 
-Har bir trassada bitta loyihalash profili bor: PVI lar roʻyxati (stansiya va balandlik), ular toʻgʻri nishablar bilan bogʻlangan, va har qanday uzunlikka ega ichki PVI da simmetrik parabolik vertikal egri bor. Mavjud yer profili sirtdan siz uchun olinadi.
+Har bir trassada bitta loyiha profili bor: PVI lar roʻyxati (piket va balandlik) toʻgʻri qiyaliklar bilan birlashgan, uzunligi bor har qanday ichki PVI da simmetrik parabolik vertikal egri chiziq bilan. Mavjud yer profili siz uchun yuzadan avtomatik olinadi.
 
 ## Profil koʻrinishini ochish
 
 1. Trassani tanlang ({{ui:Tanlash}} bilan bosing).
-2. {{key:R}} ni bosing, yoki asboblar panelidagi {{ui:Profil}} ni, yoki oʻng panel pastidagi {{ui:Profil koʻrinishi}} ni bosing.
-   Profil koʻrinishi reja ostida ochiladi va trassa boʻylab mavjud yerni koʻrsatadi. Ikki yoki undan ortiq trassa boʻlsa, profil panelining chap tomonidagi roʻyxatdan birini tanlang.
+2. {{key:R}} ni bosing, yoki asboblar panelidagi {{ui:Profil}} ni, yoki oʻng panelning pastidagi {{ui:Profil koʻrinishi}} ni bosing.
+   Profil koʻrinishi reja ostida ochiladi, trassa boʻylab mavjud yer bilan. Ikki yoki undan koʻp trassa boʻlsa, profil panelining chap tomonidagi roʻyxatdan birini tanlang.
 
-Koʻrinish har doim butun trassani koʻrsatadi va balandliklarni panelni toʻldirish uchun choʻzadi; masshtab pastki chap burchakda chop etiladi, masalan "Vertikal kattalashtirish 10×". U kattalashtirmaydi va surmaydi.
+Koʻrinish butun trassani koʻrsatish va balandliklarni panelni toʻldirish uchun choʻzishdan boshlanadi; kattalashtirish pastki chap burchakda koʻrsatiladi, masalan "Vertikal kattalashtirish 10×".
 
-Profil boʻylab koʻrsatgichni harakatlantiring: panelda stansiya, yer va loyihalash balandliklari, nishab va oʻsha joydagi kesish yoki toʻldirish koʻrinadi, rejadagi trassada esa nuqta harakatlanadi.
+## Profilni kattalashtirish va surish
 
-## Loyihalash profilini boshlash
+- **Kattalashtirish:** sichqoncha gʻildiragini aylantiring (yoki sensorli panelda qisish) — koʻrinish koʻrsatkich atrofida kattalashadi. Faqat piketlarni kattalashtirish uchun {{key:Shift}} ni, faqat balandliklarni kattalashtirish uchun {{key:Alt}} ni bosib turing (bu kattalashtirishni oʻzgartiradi). Profil koʻrinishi tanlanganda plyus va minus tugmalari oʻrtasi atrofida kattalashtiradi.
+- **Surish:** oʻng yoki oʻrta sichqoncha tugmasi bilan sudrang, yoki sensorli panelda ikki barmoq bilan suring.
+- **Moslash:** profilni ikki marta bosing yoki {{key:F}} ni bosing — butun trassa yana koʻrinadi.
 
-1. Oʻng panelda **Loyihalash profili** ostida {{ui:Yer ustidan boshlash}} ni bosing.
-   Trassaning ikki uchida yer ustida ikkita PVI joylashadi va bitta toʻgʻri nishab bilan bogʻlanadi. Holat satrida shunday yoziladi: "Loyihalash profili ikki uchida yerdan boshlandi. Nishab nuqtalarini qoʻshish uchun PVI qoʻshishni yoqing va bosing; ularga jadvalda egri uzunligi bering."
+PVI ni tahrirlash tanlagan kattalashtirishni saqlaydi; u moslashga qaytmaydi.
 
-Agar trassa sirtni kesib oʻtmasa, "Bu trassa ostida boshlanadigan yer yoʻq." degan xabar chiqadi. Shunda PVI larni bosish orqali qoʻshing (keyingi boʻlim).
+Koʻrsatkichni profil boʻylab harakatlantiring: panelda piket, yer va loyiha balandliklari, qiyalik va u yerdagi kesish yoki toʻldirish koʻrsatiladi, rejada trassada nuqta esa kuzatib boradi.
+
+## Loyiha profilini boshlash
+
+1. Oʻng panelda **Loyiha profili** ostida {{ui:Yer yuzasidan boshlash}} ni bosing.
+   Trassaning ikki uchida yerda ikkita PVI joylashtiriladi, bitta toʻgʻri qiyalik bilan birlashgan. Holat satri aytadi: "Loyiha profili ikki uchida yerdan boshlandi. Qiyalik oʻzgarishlarini qoʻshish uchun PVI qoʻshish ni yoqing va bosing; jadvalda ularga egri chiziq uzunligi bering."
+
+Agar trassa yuzani kesib oʻtmasa, "Bu trassa ostida boshlash uchun yer yoʻq." degan xabar chiqadi. Keyin oʻrniga bosish orqali PVI lar qoʻshing (keyingi boʻlim).
 
 ## PVI qoʻshish
 
-1. {{key:I}} ni bosing, yoki profil panelidagi {{ui:PVI qoʻshish}} ni bosing. U bosilgan holda qoladi.
-2. Profilda nishab nuqtasi kerak boʻlgan joyni bosing. PVI oʻsha stansiya va balandlikka qoʻshiladi, 0.01 gacha yaxlitlanadi va tanlanadi.
-3. Kerakli miqdorda qoʻshing, soʻngra qoʻshishni toʻxtatish uchun yana {{key:I}} ni bosing.
+1. {{key:I}} ni bosing yoki profil panelidagi {{ui:PVI qoʻshish}} ni bosing. U bosilgan holatda qoladi.
+2. Qiyalik oʻzgarishi kerak boʻlgan joyda profilni bosing. Shu piket va balandlikda PVI 0.01 gacha yaxlitlanib qoʻshiladi va tanlanadi.
+3. Kerakli miqdorda qoʻshing, soʻng qoʻshishni toʻxtatish uchun yana {{key:I}} ni bosing.
 
-PVI allaqachon boʻlgan joyni bosish rad etiladi ("… da allaqachon PVI bor"). PVI lar har doim stansiya tartibida qoladi.
+Allaqachon PVI boʻlgan joyda bosish rad etiladi ("…da PVI allaqachon bor"). PVI lar doim piketlar tartibida qoladi.
 
-## PVI larni tuzatish
+## Qoʻshish yoki sudrashda tutib olish
 
-- Profilda PVI ni **sudrab** koʻchiring. U qoʻshnilaridan oʻta olmaydi. Koʻchirish bitta bekor qilish qadami.
-- Oʻng paneldagi PVI jadvalida aniq qiymatlarni **kiriting**: **Stansiya**, **Balandlik** va **Egri L** (vertikal egri uzunligi). Har biridan keyin {{key:Enter}} ni bosing.
-- PVI ni satr oxiridagi x bilan **oʻchiring**, yoki uni tanlab ({{key:Delete}} ni bosing). Profil koʻrinishi fokusda boʻlsa, {{key:Backspace}} ham oʻchiradi.
+Profil panelidagi **Tutib olish** tugmasi boshida yoqilgan. U yoqilgan paytda qoʻshgan yoki sudragan PVI eng yaqin PVI, yer nuqtasi, PVI piketi yoki yer chizigʻiga tushadi, va belgi yonidagi yorliq qaysisi ekanini aytadi. Istalgan joyda erkin nuqta uchun {{key:Alt}} ni bosib turing.
 
-Birinchi va oxirgi PVI hech qachon egri olmaydi.
+## PVI larni sozlash
 
-## Vertikal egrilar
+- Profilda PVI ni koʻchirish uchun uni **sudrang**. U qoʻshnilaridan oʻta olmaydi. Koʻchirish bitta bekor qilish qadami.
+- Oʻng paneldagi PVI jadvaliga aniq qiymatlarni **kiriting**: **Piket**, **Balandlik**, **Qiyalik %** va **Egri chiziq L** (vertikal egri chiziq uzunligi). Har biridan keyin {{key:Enter}} ni bosing.
+- **Tanlash** — profildan qiymat olish: PVI piketi yoki balandligi yonidagi kichik tugma profil koʻrinishida bir marta bosilishini kutadi va shu qiymatni toʻldiradi. Bosish PVI qoʻshish kabi tutib oladi; erkin nuqta uchun {{key:Alt}} ni bosib turing; {{key:Esc}} bekor qiladi.
+- **Qiyalik %** — shu PVI dan boshlanib keyingisiga boradigan tangensning qiyaligi. Uni kiritish **keyingi** PVI ning balandligini siljitadi (uning piketi hech qachon siljimaydi). Agar keyingi PVI qulflangan boʻlsa, oʻrniga oldingi PVI ning balandligi siljiydi.
+- PVI ni qatorining oxiridagi qulf belgisi bilan **qulflang**. Qulflangan PVI sudralmaydi va qiyalik tahriri uni siljitmaydi. Agar tangensning ikki uchi ham qulflangan boʻlsa, uning qiyaligi oʻzgara olmaydi: holat satri buni aytadi va avval bir uchini ochish kerak. Qulf fayl ichida saqlanadi.
+- PVI ni qatorining oxiridagi x bilan **oʻchiring**, yoki uni tanlang (bosing) va {{key:Delete}} ni bosing. Profil koʻrinishi fokusda boʻlganda {{key:Backspace}} ham uni oʻchiradi.
 
-1. Ichki PVI uchun **Egri L** ga uzunlik kiriting, masalan 200.
-2. Egri PVI markaziga chiziladi. Profil va oʻng panel uning turini (choʻqqi yoki botiq), L va K ni, BVC va EVC stansiya va balandliklarini, hamda egri ichida boʻlsa, uning yuqori yoki past nuqtasini koʻrsatadi.
+Birinchi va oxirgi PVI hech qachon egri chiziq olmaydi.
 
-K L dan hisoblanadi (K = L nishablarning algebraik farqiga boʻlinadi, foizda). Siz L ni kiritasiz; K ni toʻgʻridan-toʻgʻri kiritish hali mavjud emas.
+## Vertikal egri chiziqlar
 
-Vertikal egri sigʻmasa, qizil quti sababini aytadi: u oldingi PVI yoki egriga orqaga kiradi yoki keyingi PVI dan oʻtadi, va oʻsha tomonda qancha joy borligini koʻrsatadi (egri oʻz PVI sining har ikki tomonida uzunligining yarmini talab qiladi). Uning tugmasi **sigʻadigan eng uzun egri** ni, uning K bilan, bitta qadamda oʻrnatadi ({{key:Mod+Z}} uni bekor qiladi). Yoki PVI larni bir-biridan uzoqlashtiring.
+1. Ichki PVI uchun **Egri chiziq L** ga uzunlik kiriting, masalan 200.
+2. Egri chiziq PVI markazida chiziladi. Profil va oʻng panel uning turini (choʻqqi yoki choʻkma), L va K ni, BVC va EVC piketlari hamda balandliklarini va egri chiziq ichida boʻlsa, uning yuqori yoki past nuqtasini koʻrsatadi.
+
+K L dan hisoblanadi (K = L ÷ qiyaliklarning algebraik farqi, foizda). Siz L kiritasiz; K ni toʻgʻridan-toʻgʻri kiritish hali mavjud emas.
+
+Agar vertikal egri chiziq sigʻmasa, qizil quti sababini aytadi: u oldingi PVI yoki egri chiziqqa qaytib kiradi yoki keyingi PVI dan oʻtadi va u tomonda qancha joy borligi (egri chiziq PVI ning har tomonida uzunligining yarmini talab qiladi). Uning tugmasi **sigʻadigan eng uzun egri chiziqni** K bilan birga bitta qadam sifatida belgilaydi ({{key:Mod+Z}} uni bekor qiladi). Yoki PVI larni bir-biridan uzoqlashtiring.
 
 ## Faktlarni oʻqish
 
-PVI jadvali ostidagi roʻyxat har bir nishabni foizda beradi ("Nishab 1: +1.25%") va har bir egrini, masalan "Choʻqqi 2+00.00 da: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)", soʻngra "Yuqori nuqta 1+62.40, 254.12".
+PVI jadvali ostidagi roʻyxat har bir qiyalikni foizda ("Qiyalik 1: +1.25%") va har bir egri chiziqni beradi, masalan "Choʻqqi 2+00.00 da: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)", soʻng "Yuqori nuqta 1+62.40, 254.12".
 
-Agar PVI lar trassaning ikki uchiga yetmasa, izoh buni aytadi. Yoʻlak faqat profil va trassa ustma-ust tushgan joyda quriladi.
+Agar PVI lar trassaning ikkala uchiga yetmasa, izoh buni aytadi. Koridor faqat profil va trassa ustma-ust tushgan joyda quriladi.
 
 ## Profildagi xususiyat chiziqlari
 
-Xususiyat chiziqlari profil koʻrinishida ham koʻrinadi, shuning uchun bordyur, ariq yoki devor choʻqqisini yoʻl profiliga nisbatan koʻrishingiz mumkin.
+Xususiyat chiziqlari profil koʻrinishida ham koʻrinadi, shuning uchun bordyur, ariq yoki devor tepasini yoʻl profiliga nisbatan koʻrishingiz mumkin.
 
-- Xususiyat chizigʻi trassani **kesib oʻtgan** joyda profil oʻsha stansiya va balandlikda kichik romb koʻrsatadi, uning yonida chiziq nomi va oʻsha joydagi balandligi yoziladi (kesishayotgan kesma boʻylab hisoblangan chiziqning oʻz balandligi).
-- Trassa yonida **yonma-yon** oʻtadigan xususiyat chiziqlarini shu masofa ichida chizish uchun {{ui:Quyidagi masofa ichida yonida}} ga masofa kiriting; ular oʻz balandliklarida punktir chiziq bilan chiziladi. Boʻsh yoki 0 boʻlsa, faqat kesishmalar koʻrinadi.
-- Har qanday oʻzgarish belgilarni va yorliqlarni kuzatadi: uchni koʻchiring, nishab kiriting yoki chiziqni koʻtaring, va profil yangi balandliklarni darhol koʻrsatadi.
-- Xususiyat chizigʻini tanlash uchun kesishma rombini bosing; tanlangan chiziq yoritish rangida chiziladi.
+- Xususiyat chizigʻi trassani **kesib oʻtgan** joyda profilda shu piket va balandlikda kichik rombcha koʻrsatiladi, chiziq nomi va u yerdagi balandligi yorliqi bilan (kesib oʻtuvchi kesma boʻylab hisoblangan chiziqning oʻz balandligi).
+- {{ui:Quyidagi masofa ichida yonida}} ga masofa kiriting: shu masofa ichida trassa **yonida** oʻtuvchi xususiyat chiziqlari ham oʻz balandliklarida shtrixli chiziqlar bilan chiziladi. Boʻsh yoki 0 boʻlsa, faqat kesishmalar koʻrsatiladi.
+- Belgilar va yorliqlar har bir oʻzgarishga ergashadi: uchni siljiting, qiyalik kiriting yoki chiziqni koʻtaring, profil yangi balandliklarni darhol koʻrsatadi.
+- Kesishmaning rombchasini bosib, shu xususiyat chizigʻini tanlang; tanlangan chiziq yorqin rangda chiziladi.
 - Profil panelidagi {{ui:Xususiyat chiziqlari}} ularning hammasini yashiradi yoki koʻrsatadi. Ikkala sozlama ham loyiha bilan saqlanadi.
 
 Qarang: [Xususiyat chiziqlari](topic:feature-lines).
 
 ## Keyingi
 
-- [Yoʻl yoʻlagini](topic:corridor) shu trassa va bu profil boʻylab yoyish.
+- Trassa va shu profil boʻylab [yoʻl koridorini yaratish](topic:corridor).
 - Profil trassa bilan birga LandXML ga yoziladi; qarang: [LandXML almashinuvi](topic:landxml).

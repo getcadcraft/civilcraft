@@ -28,10 +28,16 @@ P.extSet(seed, 'notes-tasks', 'keep.json', enc('{"kept":true}'));
 const seedFile = path.join(TMP, 'Formats.ccproject'); fs.writeFileSync(seedFile, P.toBytes(seed, {}));
 await page.setInputFiles('[data-sc-open-input]', seedFile);
 ok(await until(/Opened Formats/), 'the .ccproject opens: ' + await status());
-ok(await page.evaluate(() => window.superWindow.formats.pref) === 'both', 'Save writes both files unless the person chose otherwise');
-
-/* ---- Save: two files from one save ---- */
+ok(await page.evaluate(() => window.superWindow.formats.pref) === 'supercad', 'Save writes the .supercad unless the person chose otherwise (owner 2026-11-21)');
 const downloads = []; page.on('download', d => downloads.push(d));
+/* ---- the default: one .supercad ---- */
+await page.click('[data-act="save"]');
+ok(await until(/Saved Formats\.supercad with/, 120000), 'by default one save writes the .supercad only: ' + await status());
+await page.waitForTimeout(800);
+ok(JSON.stringify(downloads.map(d => d.suggestedFilename())) === JSON.stringify(['Formats.supercad']), 'one download, the .supercad: ' + downloads.map(d => d.suggestedFilename()).join(', '));
+downloads.length = 0;
+/* ---- Save: two files from one save (the person chose both, to compare) ---- */
+await page.evaluate(() => window.superWindow.formats.setPref('both'));
 await page.click('[data-act="save"]');
 ok(await until(/Saved Formats\.supercad and Formats\.ccproject/, 120000), 'the status names both files: ' + await status());
 await page.waitForTimeout(800);
@@ -40,7 +46,7 @@ ok(JSON.stringify(names) === JSON.stringify(['Formats.ccproject', 'Formats.super
 const files = {}; for (const d of downloads) { const f = path.join(TMP, 'saved', d.suggestedFilename()); await d.saveAs(f); files[path.extname(f)] = f; }
 const log1 = await page.evaluate(() => window.superWindow.formats.log);
 const s1 = log1.filter(e => e.op === 'save').at(-1);
-ok(s1 && s1.same === true && s1.supercad.bytes > 0 && s1.ccproject.bytes > 0 && s1.rev === 2, 'the log has the save: both sizes, read back as the same project, one revision counted: ' + JSON.stringify(s1));
+ok(s1 && s1.same === true && s1.supercad.bytes > 0 && s1.ccproject.bytes > 0 && s1.rev === 3, 'the log has the save: both sizes, read back as the same project, one revision counted (the default save before it was revision 2): ' + JSON.stringify(s1));
 ok(log1.some(e => e.op === 'open' && e.format === 'ccproject'), 'and the open of the .ccproject');
 if (files['.supercad']) {
   ok(fs.statSync(files['.supercad']).size === s1.supercad.bytes && fs.statSync(files['.ccproject']).size === s1.ccproject.bytes, 'the files on disk are the sizes the log says');
@@ -49,9 +55,9 @@ if (files['.supercad']) {
   const mem = db.prepare(`SELECT app, path FROM proj_member WHERE role != 'process' ORDER BY sort`).all().map(r => r.app + ' ' + r.path);
   ok(mem.includes('cadcraft Drawings/2D/plan.dxf'), 'its member table lists the drawing: ' + mem.join(', '));
   ok(db.prepare(`SELECT COUNT(*) n FROM proj_ext WHERE path = 'Data/notes-tasks/keep.json'`).get().n === 1, 'and the plug-in file that came in with the project');
-  ok(db.prepare('SELECT MAX(rev) r FROM sc_change').get().r === 2, 'and the save log up to this save');
+  ok(db.prepare('SELECT MAX(rev) r FROM sc_change').get().r === 3, 'and the save log up to this save');
   const zip = await P.fromBytes(new Uint8Array(fs.readFileSync(files['.ccproject'])));
-  ok(zip.project.revision === 2 && zip.project.members.length === db.prepare(`SELECT COUNT(*) n FROM proj_member WHERE role != 'process'`).get().n, 'the .ccproject of the same save has the same revision and member count');
+  ok(zip.project.revision === 3 && zip.project.members.length === db.prepare(`SELECT COUNT(*) n FROM proj_member WHERE role != 'process'`).get().n, 'the .ccproject of the same save has the same revision and member count');
   db.close();
 }
 
@@ -72,7 +78,7 @@ ok(await until(/Junk\.supercad is not a SuperCad Studio project/), 'a file that 
 await page.evaluate(() => window.superWindow.formats.show());
 await page.waitForSelector('[data-sc-formats][open]');
 const dlg = await page.evaluate(() => { const d = document.querySelector('[data-sc-formats]'); return { rows: d.querySelectorAll('[data-fmt-row]').length, saves: d.querySelectorAll('[data-fmt-row="save"]').length, text: d.textContent, checked: d.querySelector('input[name="sc-fmt"]:checked').value, w: d.getBoundingClientRect().width, vw: innerWidth }; });
-ok(dlg.rows === log2.length && dlg.saves === 1 && dlg.checked === 'both', 'the dialog lists every save and open, newest first, and shows the choice: ' + dlg.rows + ' rows');
+ok(dlg.rows === log2.length && dlg.saves === 2 && dlg.checked === 'both', 'the dialog lists every save and open, newest first, and shows the choice: ' + dlg.rows + ' rows');
 ok(/Same project in both/.test(dlg.text) && /Saves that wrote both files: 1\./.test(dlg.text), 'with the result of the comparison and the totals');
 if (shots) { fs.mkdirSync(shots, { recursive: true }); await page.screenshot({ path: path.join(shots, 'formats-dialog.png') }); }
 await page.check('[data-sc-formats] input[value="supercad"]');

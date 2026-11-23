@@ -1,52 +1,70 @@
 ---
-title: Imigqa yesampula nezigaba ezinqunyiwe
-summary: Sika izigaba ezilingene nomzila, bona umhlaba, ukuklama nokusika nokugcwalisa ngesiteshi ngasinye, uthole amavolumu ngokulinganisa izindawo zokugcina.
-keywords: ukuthutha kwesisindo, idayagremu yesisindo, indawo yokulinganisa, ukuncipha, ukukhuphuka, ukuthutha kude, ukuboleka, ukulahla, amashidi ezigaba, amashidi ezigaba ezinqunyiwe, pdf yezigaba, izigaba, izigaba ezinqunyiwe, imigqa yesampula, ukubuka isigaba, ukusika, ukugcwalisa, izindawo, ukulinganisa izindawo zokugcina, ukuma, ukwehluka, amavolumu okulinganisa, ukuthutha, ngaphansi, csv
-from: 5060173c
+title: Imigqa yesampula namasigaba adlulayo
+summary: Sika amasigaba ngokuthe xaxa emzileni, bona umhlaba, idizayini kanye nokumba nokugcwalisa esiteshini ngasinye, bese uthola imithamo ngezindawo zokuphela ezilinganayo.
+keywords: mass haul, idayagremu yobuningi, ipoyinti lokulinganisa, shrink, swell, ubude bokuthutha, ukuboleka, ukulahla, amashidi ezigaba, amashidi ezigaba adlulayo, amafayela pdf ezigaba, izigaba, izigaba adlulayo, imigqa yesampula, umbono wesigaba, ukumba, ukugcwalisa, izindawo, isiteshi, ukushintshwa, indawo yokuphela ephakathi, imithamo yendawo yokuphela, ukumba nokugcwalisa, csv
+from: 09639ce2
 ---
 
-Isigaba esinqunywe kuyabonisa umgwaqo ngendlela ozakhiwa ngayo: sihamba ngokuqondile kumzila esiteshini esisodwa, umhlaba okhona, ukuklama (ikhoridoro noma isendlalelo okugxilwe kuso) nokusika nokugcwalisa phakathi kwakho.
+Isigaba esidlulayo sikhombisa umgwaqo ngendlela ozakhiwa ngayo: ngokudlula umzila esiteshini esisodwa, umhlaba okhona, idizayini (ikhoridoro noma iphedi okwenziwe ngayo) kanye nokumba nokugcwalisa phakathi kwawo.
 
 ## Engeza imigqa yesampula
 
-1. Khetha umzila. Ku-**Izakhiwo**, ngaphansi kwe-**Imigqa yesampula**, chofoza {{ui:Add sample lines}}.
-2. Setha **Njalo** (ukuhlukana: ama-50 ft noma ama-20 m ukuqala), **Ububanzi besobunxele** kanye **Ububanzi besokudla** (umgwaqo ofinyelela ngaphezu kwesikhungo ngasinye).
-3. Ukuze usike isigaba esiteshini esithile, bhala kwi-**Engeza isiteshi** (isibonelo `2+35`) bese ucindezela {{key:Enter}}.
+1. Khetha umzila. Ku-**Izici**, ngaphansi kwe-**Imigqa yesampula**, chofoza {{ui:Engeza imigqa yesampula}}.
+2. Setha **Njalo** (ukuhlukana: 50 ft noma 20 m ukuqala) kanye **Ububanzi besobunxele** ne-**Ububanzi besokudla** (ukuthi isigaba sifinyelela kangakanani emgqeni wamaphakathi).
+3. Ukuze usike isigaba esiteshini esithile, thayipha kwi-**Engeza isiteshi** (isibonelo `2+35`) bese ucindezela {{key:Enter}}.
 
-Izigaba zisikwa njalo ngokuphindwa kwesilinganiso sokuhlukana, emaphethelweni amabili omzila, ekuqaleni nasekugcineni kwegobolondo ngalinye (PC no-PT), nasezitebhisi ozingezayo. Imigqa yesampula ibonakala kuplan njengemigqa egrey ephambi komzila; iphinde iphume ku-DXF, DWG no-PDF ungqimba C-ROAD-SCTN. Yilokho konke ushintsho kuyisinyathelo esisodwa: {{key:Mod+Z}} siyawuhlehlisa.
+Izigaba zisikwa ezinombolweni zonke zokuhlukana, emaphethelweni omabili omzila, nasekuqaleni nasekugcineni kwawo wonke amajika (PC noma PT), nasezitiishini oziengezayo. Imigqa yesampula ibonakala epulani njengemigqa ehlaza ehamba ngaphesheya komzila; iphinde iphume ku-DXF, DWG ne-PDF ezingqimbeni C-ROAD-SCTN. Ushintsho ngalunye lungesinyathelo esisodwa: {{key:Mod+Z}} iyalihlehlisa.
 
 ## Umbono wesigaba
 
-Uvule ngo-{{ui:Section view}} ku-**Izakhiwo** zomzila, ngo-{{ui:Sections}} ngaphansi kwe-**Ubuso** › {{ui:More}}, noma ngo-{{key:X}}. Ithatha indawo yombono wephrofayili ngaphansi kwe-plan.
+Vula nge-{{ui:Ukubuka isigaba}} ku-**Izici** zomzila, ku-{{ui:Izigaba}} ngaphansi kwe-**Umphezulu** › {{ui:Okuningi}}, noma nge-{{key:X}}. Ithatha indawo yephrofayili ngaphansi kwepulani.
 
-- Hambisa phakathi kwezigaba ngemicibisholo kwibha yayo, uhlu lwesiteshi, noma {{key:Left}} no-{{key:Right}} lapho umbono wesigaba ugxilile ({{key:Home}} no-{{key:End}} kokuqala nokugcina).
-- Umugqa ogrey ungumhlabathi okhona, umugqa obomvu ungukuklama. Ukusika kushadiwe kuwolintshi, ukugcwalisa kuluhlaza. Amaphoyinti ekhoridoro aphawulwe: CL (umugqa omaphakathi), EOP (umphetho wendlela), SH (ihlombe) kanye DL (umugqa wokukhanya).
-- Ikhanda linikeza isiteshi, izindawo zokusika nokugcwalisa zalesi sigaba, kanye nokukhuliswa okuthiwa vertical. **Fit** igcwalisa ipaneli; khetha 1× ukubona isigaba sisemqondweni wesilinganiso sangempela.
-- Umugqa ojiyile ku-plan ukhombisa isigaba esikhonjwe.
+- Hamba phakathi kwezigaba ngezinkinobho zebha yaso, ngohlu lwezitiishini, noma ngu-{{key:Left}} no-{{key:Right}} uma umbono wesigaba ugxile ({{key:Home}} no-{{key:End}} kwesokuqala nokugcina).
+- Umugqa ohlaza ngumhlaba okhona, umugqa obomvu ngumklamo. Ukumba kuba mthunzi wawunzima, ukugcwalisa kuba luhlaza. Amaphuzu ekhoridoro amakwa: CL (umugqa wamaphakathi), EOP (umphetho wephavement), SH (ishoulder) kanye ne-DL (ukuhlangana nomhlaba).
+- Isihloko sikhombisa isiteshi, izindawo zokumba nokugcwalisa zalesi sigaba kanye nokukhulisa okuqondile. **{{ui:Lingana}}** ifaka ipaneli; khetha 1× ukubona isigaba ngobukhulu bangempela.
+- Umugqa omkhulu epulani ukhombisa ukuthi isigaba esiphi sisesikrini.
+- **Zoom nokuhambisa:** insimbi yembewu izoom eduze nesikhombi, nokudonsa kuhambisa umbono. {{ui:Lingana}} (noma {{key:F}}, noma ukuchofoza kabili) ilingana isigaba sonke futhi.
+
+## Linganisa esigabeni
+
+1. Chofoza {{ui:Linganisa}} ebhayeni lesigaba, noma cindezela {{key:M}}. Isiqondiso sithi "Chofoza iphuzu lokuqala, bese lesibili."
+2. Chofoza amaphuzu amabili. Ngalinye lihlala emaphethelweni womugqa noma eduze kwephuzu lekhoridoro (CL, EOP, SH, DL); bamba {{key:Alt}} uthole iphuzu elikhululekile.
+3. Umphumela unikeza ibanga elingqamile (ΔH), ibanga elithe xaxa (ΔV), ukuthambeka ngamaphesenti nesilinganiso sakho, kanye nobude obuqondile, ngamayunithi wephrojekthi.
+
+Chofoza futhi ukuqala ukulinganisa okusha. {{key:Esc}} iyakukhipha, nokucindezela {{key:M}} kuyavala i-Linganisa.
 
 ## Amashidi ezigaba
 
-{{ui:Section sheets (PDF)}} ngaphansi kwe-**Imigqa yesampula** ibeka wonke amasigaba emakhasini e-PDF, ezingxenyeni ezivela kwesobunxele kuya kwesokudla nasophezulu kuya ezansi ngokulandelana kwesiteshi. Khetha i-**Iphepha**, i-**Isilinganiso se-plan** (isilinganiso esiyisiqondo sezigaba) kanye ne-**Ukukhuliswa kwephrofayili** (1×, 2×, 5× noma 10×); ingxoxo iyatshela ukuthi izigaba eziningi zingangena kangakanani ekhasini nokuthi lokho kwenza amakhasi amangaki.
+{{ui:Amashidi ezigaba (PDF)}} ngaphansi kwe-**Imigqa yesampula** ibeka wonke amasigaba emakhasini e-PDF, ngemigqa esuka kwesobunxele kuya kwesokudla nasophezulu kuya ezansi ngokulandelana kwezisiteshi. Khetha i-**Iphepha**, i-**Isikali sepulani** (isikali esiqondile sezigaba) kanye ne-**Ukukhuliswa kwephrofayili** (1×, 2×, 5× noma 10×); ingxoxo ikhombisa ukuthi yimangaki amasigaba angena ekhasini nokuthi yimakhasi angaki ayakwenza lokho.
 
-Isigaba ngasinye sibonisa igridi enezinkulumo nokuphakama, umhlabathi (odashiwe), ukuklama, ukusika nokugcwalisa okushadiwe (kuwolintshi nakuluhlaza), amaphoyinti ekhoridoro, nangaphansi kwayo isiteshi nezindawo zayo zokusika nokugcwalisa. Wonke amasigaba emashidini adwetshwa ngosayizi ofanayo, ophakeme ngokwanele elikhulu kakhulu; uma lokho kungangeni ekhasini ngokukhuliswa kwakho, i-CivilCraft isebenzisa elikhulu elingangena futhi iyatshela lokho. Ibhendi yesihloko iqamba umzila, isiteshi esikulelo khasi, izilinganiso nokuthi "Ishidi 1 kwangu-3".
+Isigaba ngasinye sikhombisa igridi enemisebenzi nokuphakama, umhlaba (ohlaza/mdwebo), idizayini, ukumba nokugcwalisa okunomthunzi (oranje noluhlaza), amaphuzu ekhoridoro, nangaphansi kwawo isiteshi nezindawo zakhe zokumba nokugcwalisa. Wonke amasigaba emashidini adwetshwa ngosayizi ofanayo, aphakeme ngokwanele kwesikhulu; uma lokho kungangeni ekhasini ngokukhuliswa kwakho, i-CivilCraft isebenzisa esikhulu kakhulu esingangena futhi isho lokho. Ibhande lesihloko litshela igama lomzila, izisiteshi zalelo khasi, izikali kanye no-"Ishidi 1 kwangu-3".
 
-## Amavolumu ngokulinganisa izindawo zokugcina
+## Ukumba nokugcwalisa kulinganiswa kuphi
 
-Phakathi kwezigaba ezimbili eziseduze, ivolumu iyimbumbano yezindawo zazo ezimbili zilinganiswa nomugqa wokuhlukana kwesiteshi sazo. Ibha ibonisa amaphelele womzila, futhi i-{{ui:CSV}} ilanda izindawo zawo zonke izigaba namavolumu anamanani aqhubekayo (amayadi ayisikwele kuprojekthi yamafidi, nemitha ayisikwele kwemetric).
+Ikhoridoro lingaba namazinga ngaphansi kwephavement: izingqimba zephavement, izingxenye zesifanekiso, nomgwaqo. Ku-section bar khetha **Imithamo ilinganiswe ku-** ukuthi ukumba nokugcwalisa kuya kuphi:
 
-**Izakhiwo** zibonisa amaphelele afanayo eduze kwamavolumu egridi kusuka ku-[Amavolumu womhlabathi](topic:volumes). Okubili kuhlukile njengokulinganisa: izigaba eziseduze zisondeza kakhulu, futhi emgwaqeni oqondile emhlabathini oyinqwaba zifana.
+- **Umphezulu ongaphansi** (okuqala): kuya ngaphansi kwalezi zingxenye, ukuze ukumba kufaka ukujula kokwakhiwa kwephavement.
+- **Umphezulu ongaphezulu**: kuya phezulu kwedizayini kuphela, njengakwangaphambili lapho izingxenye zazibalwa.
+
+Izindawo ezisesihlokweni, imithamo engezansi, i-CSV nendlela yobuningi yonke ilandela lokhu okukhethiwe, futhi kugcinwa kanye neprojekthi.
+
+## Imithamo ngezindawo zokuphela ezilinganayo
+
+Phakathi kwamasigaba amabili aseduze, ivolumu iwukuphakathi kwezindawo zawo ezimbili iphindwe ngebanga phakathi kwezisiteshi zawo. Ibha ikhombisa okuphelele komzila, futhi {{ui:CSV}} idawuniloda izindawo nemithamo yesigaba ngasinye ngokuqoqwa okuqhubekayo (amayadi ekyubhu kumaphrojekthi e-feet, nemitha ekyubhu kwemetric).
+
+**Izici** zikhombisa okuphelele okufanayo eduze kwemithamo yendlela yegridi kusuka ku-[Imithamo yokumba nokugcwalisa](topic:volumes). Lezi ziyizilinganiso ezihlukile: amasigaba aseduze asondeza ngokuthi bahlangane, futhi emgwaqweni oqondile phansi bayafana.
 
 :::note
-Ukusika nokugcwalisa kubalwa kuphela ngaphakathi kwezindawo ezakhiwe ngokuphakamisa (imigqa yokukhanya yekhoridoro noma isendlalelo), njengendlela yegridi. Ngaphandle kwekhoridoro noma isendlalelo, ukuklama kungumhlabathi, ngakho isigaba asibonisi ukusika noma ukugcwalisa.
+Ukumba nokugcwalisa kubalwa kuphela ngaphakathi kwezindawo ezakhiwe (imigqa yokuvela yekhoridoro noma iphedi), njengendlela yegridi. Ngaphandle kwekhoridoro noma iphedi, idizayini ingumhlaba, ngakho isigaba asikhombisi ukumba noma ukugcwalisa.
 :::
 
-## Ukuthutha kwesisindo
+## Mass haul
 
-**Ukuthutha kwesisindo** ngaphansi kwe-**Imigqa yesampula** idweba idayagremu yokuthutha kwesisindo kusuka kumavolumu afanayo wokulinganisa izindawo zokugcina: ngaphansi kwezisiteshi, inani eliqhubekayo lokusika ngaphandle kokugcwalisa.
+**Mass haul** ngaphansi kwe-**Imigqa yesampula** idweba idayagremu yobuningi ngemithamo yendawo yokuphela efanayo: ngasezisiteshini, inani elinamanani elingokusanhlamvu lokumba kuhlehla ukugcwalisa.
 
-- **Ukuncipha (−) noma ukukhuphuka (+) kokusika** kusho ukuthi yiyiphi inani lekhubhiki elisikwe lenza uma selibekiwe njengokugcwalisa: −10 % (inani lokuqala, isibambi) kusho ukuthi liba ngu-0.9; idwala elikhuphukayo lingaba ngu +5 %. Sebenzisa inombolo yombiko wakho wejeotekhnikhi.
-- Lapho umugqa ukhuphuka umgwaqo usemsikeni; lapho wehla, usegcwalisweni. Ngaphezu kwe-zero (ushadiwe kuwolintshi) umhlabathi uhamba ngasesiteshini esiphezulu; ngaphansi kwe-zero (eluhlaza), ubheka esiteshini esiphansi.
-- **Amaphuzu okulinganisa** ye-zero lapho umugqa udlula khona: phakathi kwamabili amabili ukusika nokugcwalisa kuyalingana. Ithebula lidweba ngasinye isiteshi esilinganisiwe, ivolumu ehanjisiwe (ephezulu noma ephansi kakhulu kwayo) kanye nobude bokuthutha obuphakathi (indawo eshadiwe ehlukaniswe ngalelo volumu).
-- Lapho umugqa uphela ungakalingani no-zero, okushiyayo kuba **inkunkuma** (ngaphezulu) noma **ukuboleka** (ngaphansi). Kulowo mkhakha wokugcina ivolumu ehanjisiwe ibalwa kuphela ngaphezu kwelinga umhlabathi eliphela kulo.
+- **Ukuncipha (−) noma ukukhula (+) kokumba** kusho ukuthi iyunithi yokumba iba yini uma iphinde ifakwe njengokugcwalisa: −10 % (inani lokuqala, isikhathi sokugcina) kusho ukuthi iyancipha ibe ngu-0.9; idwala elikhula lingaba +5 %. Sebenzisa inani lombiko wakho wejeotechnical.
+- Lapho umugqa ukhuphuka umhlaba usesimweni sokumba; lapho wehla, sesimweni sokugcwalisa. Ngaphezu kwezeru (oranje omthunzi) umhlabathi uhamba ngasezisiteshini; ngaphansi kwezeru (luhlaza), uhamba ngasemuva.
+- **Amapoyinti okulinganisa** ngamapoyinti lapho umugqa udlula ezeru: phakathi kwamabili, ukumba nokugcwalisa kuyalingana. Ithebula liyadweba ngalinye lalezi zingxenye ezilinganayo, umthamo ohanjisiwe (ipoyinti lawo elikhulu noma elincane) kanye nobude bokuthutha obuvamile (indawo omthunzi wayo ohlukaniswa ngalelo thamo).
+- Lapho umugqa uqeda ungaphandle kwezeru, into eseleyo yi-**waste** (phezulu) noma **borrow** (phansi). Kulokho kokugcina kuphela umhlabathi ongaphezu kwezinga eliphela kulo olubalwa njengohanjisiwe.
 
-I-**CSV** igcina ukuthuthukiswa kwesisindo esiteshini ngasinye, izitezi nesisekeli.
+**I-CSV** igcina ukuhlelwa kobuningi ngesigaba ngasinye, izingxenye nesilinganiso.

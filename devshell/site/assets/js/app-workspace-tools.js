@@ -16,9 +16,12 @@
  *   shapeRibbon(data, spec)                    the adapter's ribbon() → the ribbon the layout holds (a contextual tab the layout does not name stays)
  *   shapeToolbox(groups, spec)                 the adapter's toolbox() → the groups the layout holds
  *   shapeMenus(menus, commands)                menubar.menus → [{ id, label, groups: [{ key, label, ids: [command] }] }] (the vector menu bar's own shape)
- *   stacksToPalettes(o)                        palettes.stacks → { upper, lower } for the engine's two-part panel
+ *   stacksToPalettes(o)                        palettes.stacks → { upper, lower } for the engine's two-part panel (released pages)
+ *   paletteStacks(o)                           a palettes block → its stacks [[name, …], …] (stacks, or upper / lower read as stacks; 0.11 UI.6, true stacks in the lab)
+ *   movePalette(o, name, to)                   a palette dragged out of its stack (0.11 UI.5) → the block's new { stacks, place2 } or null
  *   toolIds(ribbon, toolbox)                   every id an adapter offers (the engine's caps.tools)
  *   withCommands(A, reg)                       the adapter, taught to show, run and grey a `+cmd:` tool through the input registry
+ *   cannotOf(notes)                            resolveLayout's notes → what a style leaves out in this app, as [{ key, vars }] (language keys; FX.304, Settings says it)
  *   editTools(spec, kind, change)              the pure edits the right-click menu makes: remove, add, move, new group, rename, reset
  */
 export const isCmd = (id) => typeof id === 'string' && id.startsWith('+cmd:');
@@ -26,14 +29,18 @@ export const cmdOf = (id) => id.slice(5);
 
 const SMALL_STACK = 3;   // the ribbon draws small tools in stacks of three
 
-/** One group of the layout against the app's group of the same id (or none): large tools first (those the app drew large), then small ones in stacks. */
+/** One group of the layout against the app's group of the same id (or none): large tools first (those the app drew large), then small ones in stacks.
+ *  0.11 UI.6: `size` large | small draws every tool of the group that way; `visible` n keeps the first n in the group and puts the rest in `more` (its ▾). */
 function ribbonGroup(lg, base) {
   const bigIds = new Set(base ? base.large : []);
-  const large = lg.tools.filter((id) => bigIds.has(id));
-  const small = lg.tools.filter((id) => !bigIds.has(id));
+  const n = Number.isInteger(lg.visible) ? lg.visible : lg.tools.length;
+  const shown = lg.tools.slice(0, n), more = lg.tools.slice(n);
+  const big = (id) => (lg.size === 'large' ? true : lg.size === 'small' ? false : bigIds.has(id));
+  const large = shown.filter(big);
+  const small = shown.filter((id) => !big(id));
   const stacks = [];
   for (let i = 0; i < small.length; i += SMALL_STACK) stacks.push(small.slice(i, i + SMALL_STACK));
-  return { id: lg.id, label: lg.name || base?.label || lg.id, large, stacks };
+  return { id: lg.id, label: lg.name || base?.label || lg.id, large, stacks, ...(more.length ? { more } : {}) };
 }
 
 export function shapeRibbon(data, spec) {
@@ -50,13 +57,18 @@ export function shapeRibbon(data, spec) {
   return out;
 }
 
-export function shapeToolbox(groups, spec) {
+/** 0.11 UI.6: a group's `visible` n rides on the group: the tool rows show n in the row (the rest under ▾), the toolbox keeps n in the column and lists the rest in
+ *  the group's More list; both count the tools the app has built. `kind` is kept for callers that name the block. */
+export function shapeToolbox(groups, spec, kind = 'toolbox') {
   if (!spec || !Array.isArray(spec.groups) || !spec.groups.length) return groups;
   const byId = new Map(groups.map((g) => [g.id, g]));
   return spec.groups.map((lg) => {
     const base = byId.get(lg.id);
-    const more = base?.more ? base.more.filter((id) => !lg.tools.includes(id)) : undefined;
-    return { ...(base || {}), id: lg.id, label: lg.name || base?.label || lg.id, tools: lg.tools.slice(), ...(more && more.length ? { more } : { more: undefined }) };
+    const more = base?.more ? base.more.filter((id) => !lg.tools.includes(id)) : [];
+    const g = { ...(base || {}), id: lg.id, label: lg.name || base?.label || lg.id, tools: lg.tools.slice(), ...(more.length ? { more } : { more: undefined }) };
+    if (Number.isInteger(lg.visible)) g.visible = lg.visible;   // counted over the tools the app has built: the tool rows' own count; the toolbox cuts there (renderToolbox)
+    if (lg.size) g.size = lg.size;
+    return g;
   }).map((g) => { if (g.more === undefined) delete g.more; return g; });
 }
 
@@ -74,9 +86,53 @@ export function stacksToPalettes(o) {
   return { upper: s[0][0], lower: [...s[0].slice(1), ...s[1]] };
 }
 
+/** 0.11 UI.6: the stacks of a palettes block, whichever way the file says them (true stacks are drawn from this in the lab). */
+export function paletteStacks(o) {
+  if (Array.isArray(o.stacks) && o.stacks.length) return o.stacks.map((s) => s.slice());
+  const out = [];
+  if (o.upper) out.push([o.upper]);
+  const lower = (o.lower || []).filter((n) => n !== o.upper);
+  if (lower.length) out.push(lower);
+  return out;
+}
+/**
+ * 0.11 UI.5: a palette dragged out of its stack. `to` = 'stack:0' | 'stack:1' (join that stack), 'own' (a stack of its own, below in the same panel),
+ * 'other' (the other panel: the palette becomes the second stack there). Two stacks at most, four palettes in each (the format's limits); the host panel's
+ * own content ('panel') never leaves its panel. → { stacks, place2? } for the palettes block, or null when nothing would change or it is not allowed.
+ */
+export function movePalette(o, name, to) {
+  const st = paletteStacks(o), from = st.findIndex((s) => s.includes(name));
+  if (from < 0) return null;
+  const place2 = o.place2 && st.length === 2 ? o.place2 : null;
+  if (to === 'other' && name === 'panel') return null;
+  if (to === 'other' && place2 && from === 1 && st[1].length === 1) return null;   // already alone over there
+  const rest = st.map((s) => s.filter((n) => n !== name));
+  let out, p2 = place2;
+  if (to === 'stack:0' || to === 'stack:1') {
+    const i = to === 'stack:0' ? 0 : 1;
+    if (i === from || i >= st.length) return null;
+    if (i === 1 && place2 && name === 'panel') return null;
+    rest[i].push(name); out = rest;
+  } else if (to === 'own') {
+    if (st[from].length === 1) return null;   // it is alone in its stack already
+    if (st.length >= 2) return null;   // two stacks at most: join the other one instead
+    out = [rest[0], [name]]; p2 = null;
+  } else if (to === 'other') {
+    // everything else stays in the first stack of this panel; the palette is the stack over there
+    const here = rest.flat().filter((n, i, a) => a.indexOf(n) === i);
+    out = [here, [name]]; p2 = o.otherPanel || (o.place === 'left-panel' ? 'right-panel' : 'left-panel');
+  } else return null;
+  out = out.filter((s) => s.length);
+  if (out.some((s) => s.length > 4)) return null;
+  if (!out.length) return null;
+  if (out.length < 2) p2 = null;
+  if (p2 && out[1].includes('panel')) return null;
+  return p2 ? { stacks: out, place2: p2 } : { stacks: out };
+}
+
 export function toolIds(ribbon, toolbox) {
   const ids = new Set();
-  for (const t of ribbon || []) for (const g of t.groups) for (const id of [...g.large, ...g.stacks.flat()]) ids.add(id);
+  for (const t of ribbon || []) for (const g of t.groups) for (const id of [...g.large, ...g.stacks.flat(), ...(g.more || [])]) ids.add(id);
   for (const g of toolbox || []) for (const id of [...g.tools, ...(g.more || [])]) ids.add(id);
   return [...ids].sort();
 }
@@ -99,7 +155,7 @@ const slug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(PART
 /** A spec of the shape the block takes ({ tabs } for the ribbon, { groups } for the rest) made from what the app shows now, so an edit starts from what a person sees. */
 export function specFromData(kind, data) {
   if (kind === 'ribbon') return { tabs: data.filter((t) => !t.context).map((t) => ({ id: t.tab, ...(t.label ? { name: t.label } : {}),
-    groups: t.groups.map((g) => ({ id: g.id, ...(g.label ? { name: g.label } : {}), tools: [...g.large, ...g.stacks.flat()] })) })) };
+    groups: t.groups.map((g) => ({ id: g.id, ...(g.label ? { name: g.label } : {}), tools: [...g.large, ...g.stacks.flat(), ...(g.more || [])] })) })) };
   return { groups: data.map((g) => ({ id: g.id, ...(g.label ? { name: g.label } : {}), tools: g.tools.slice() })) };
 }
 
@@ -115,6 +171,8 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
  *   { op: 'group', name }       a new, empty group (in `at.tab` for a ribbon) with a fresh id
  *   { op: 'rename', name }      rename `at.group`
  *   { op: 'drop-group' }        remove `at.group`
+ *   { op: 'visible', n }        show the first n tools of `at.group` (the rest under its ▾); n null = all (0.11 UI.6)
+ *   { op: 'size', size }        draw `at.group`'s tools 'large' or 'small'; null = as the app draws them (0.11 UI.6)
  * → { spec, changed }
  */
 export function editTools(spec, at, change) {
@@ -144,6 +202,35 @@ export function editTools(spec, at, change) {
       if (s.tabs) { for (const t of s.tabs) t.groups = t.groups.filter((x) => x !== g); } else s.groups = s.groups.filter((x) => x !== g);
       return { spec: s, changed: true };
     }
+    case 'visible': {
+      if (!g) return none;
+      const n = change.n == null ? null : Math.max(1, Math.min(48, Math.round(Number(change.n))));
+      if (n === null || !Number.isFinite(n)) { if (g.visible === undefined) return none; delete g.visible; return { spec: s, changed: true }; }
+      if (g.visible === n) return none; g.visible = n; return { spec: s, changed: true };
+    }
+    case 'size': {
+      if (!g) return none;
+      if (change.size !== 'large' && change.size !== 'small') { if (g.size === undefined) return none; delete g.size; return { spec: s, changed: true }; }
+      if (g.size === change.size) return none; g.size = change.size; return { spec: s, changed: true };
+    }
     default: return none;
   }
+}
+
+// ------------------------------------------------------------------ what a style cannot show here (0.11 FX.304)
+/** resolveLayout(...).notes are machine lines ("viewports: this app has no viewports", "infobox.slots: scale, detail", "ribbon.tools: a.b, c.d"). Settings says them in words:
+ *  → [{ key: 'shell.ws.cannot.…' | 'shell.ws.slot.<id>', vars? }], each once, in the order of the notes. Nothing is invented: a line this does not know is skipped. */
+export function cannotOf(notes) {
+  const out = [], seen = new Set(), put = (key, vars) => { const k = key + JSON.stringify(vars || ''); if (!seen.has(k)) { seen.add(k); out.push(vars ? { key, vars } : { key }); } };
+  for (const n of notes || []) {
+    let m;
+    if ((m = /^[a-z]+: this app has no ([a-z0-9]+)$/.exec(n))) put('shell.ws.cannot.need.' + m[1]);
+    else if ((m = /^[a-z]+\.slots: (.+)$/.exec(n))) for (const id of m[1].split(', ')) put('shell.ws.slot.' + id);
+    else if ((m = /^[a-z]+\.tools: (.+)$/.exec(n))) put('shell.ws.cannot.tools', { n: m[1].split(', ').length });
+    else if (/^[a-z]+\.menus: /.test(n)) put('shell.ws.cannot.menus');
+    else if (/^[a-z]+\.(quick|file|commands): /.test(n)) put('shell.ws.cannot.commands');
+    else if (/^palettes(\.[a-z]+)?: /.test(n)) put('shell.ws.cannot.palettes');
+    else if (/^(infobox|quickbar): no slot this app has$/.test(n)) put('shell.ws.cannot.noslot');
+  }
+  return out;
 }

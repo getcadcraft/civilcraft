@@ -22,4 +22,4 @@ Side panels keep a width that fits the step and the window, so a panel is never 
 
 ## Good to know
 
-This is in the lab (the version for testing) and is not released yet. There is no setting to pick a step yourself, and no presentation mode, yet.
+This is in the lab (the version for testing) and is not released yet. There is no setting to pick a step yourself yet. To hide the interface and show only the drawing, see [Present a drawing](common:present).

@@ -10,6 +10,9 @@
  *   ccState.registerHost(host)        host = { select(ids), reveal(ids), highlight(ids) }: the reverse channel (UI.25 (3)); the app that mounted last is the host.
  *   ccState.select(ids, how)          a Browser row, a Problems line, a schedule row or a search hit asks the host to select (and zoom to) those objects with the
  *                                     same undoable selection the pointer makes → true when a host took it.
+ *   ccState.adapt(adapter)            (0.11) the app's one line: its workspace adapter publishes kinds, mode, view and layer from state(); Problems counts follow the store.
+ *   ccState.ref(x) / refs(list)       { kind, id } from a ref object or a 'kind:id' string: what a host reads in select / reveal / highlight.
+ * Conventions (0.11): mode = 'model' | 'paper' | '3d' | an app's own word (a sketch, a workspace); view = the views.current() id; layer = the current layer's name.
  *
  * The declaration language is small on purpose and never evaluated as code: path (dotted), a number, a word or a quoted string, == != > >= < <=, ! && || and ( ).
  *   selection.count > 0      selection.kind == wall      problems.count > 0 && mode == model      !dirty
@@ -97,14 +100,74 @@ function test(expr, st = state) {
 
 // ---- the reverse channel
 function registerHost(h) { host = h || null; return () => { if (host === h) host = null; }; }
+/** → true when a host took it. A host member that returns false explicitly did not (the caller then does its own thing, e.g. the Problems panel's adapter). */
 function select(ids, how = 'select') {
-  const list = (Array.isArray(ids) ? ids : [ids]).filter((x) => x !== undefined && x !== null);
+  const list = (Array.isArray(ids) ? ids : [ids]).filter((x) => x !== undefined && x !== null && x !== '');
   if (!host || !list.length) return false;
-  const fn = how === 'reveal' ? host.reveal : how === 'highlight' ? host.highlight : host.select;
+  const fn = how === 'reveal' ? host.reveal || host.select : how === 'highlight' ? host.highlight || host.select : host.select;
   if (typeof fn !== 'function') return false;
-  fn.call(host, list); return true;
+  let r; try { r = fn.call(host, list); } catch (e) { console.error(e); return false; }
+  return r !== false;
 }
 
-export const ccState = { get, publish, subscribe, test, registerHost, select, _reset() { for (const k of Object.keys(state)) delete state[k]; Object.assign(state, { selection: { ids: [], count: 0, kind: '', kinds: [] }, mode: '', view: '', layer: '', tool: '', dirty: false, document: false, problems: { count: 0 } }); cache.clear(); } };
+// ---- 0.11 UI.25 (ui-finish-11 state): the apps' side in as few lines as possible
+/** One object reference: { kind, id }. A ref object passes ({ kind, id } or a Problems `about` entry); 'kind:id' splits at the FIRST colon; anything else is
+ *  { kind: '', id }. Hosts use it to read what a Browser row, a Problems line or a test hands them. */
+function ref(x) {
+  if (isObj(x)) return { kind: String(x.kind ?? x.type ?? ''), id: String(x.id ?? x.key ?? '') };
+  const s = String(x ?? ''), i = s.indexOf(':');
+  return i > 0 ? { kind: s.slice(0, i), id: s.slice(i + 1) } : { kind: '', id: s };
+}
+const refs = (ids) => (Array.isArray(ids) ? ids : [ids]).filter((x) => x !== undefined && x !== null && x !== '').map(ref);
+const uniq = (a) => [...new Set(a.filter((x) => x !== undefined && x !== null && x !== '').map(String))];
+
+let problemsHooked = false;
+function hookProblems() {
+  if (problemsHooked || typeof window === 'undefined') return;
+  problemsHooked = true;
+  const go = () => {
+    const store = window.ccProblems?.store; if (!store?.on) return;
+    const put = () => { try { const c = store.counts(); publish({ problems: { count: (c.error || 0) + (c.warning || 0) + (c.note || 0), error: c.error || 0, warning: c.warning || 0, note: c.note || 0, accepted: c.accepted || 0, worst: c.worst || '' } }, 'problems'); } catch (e) { /* the panel says why */ } };
+    store.on(put); put();
+  };
+  if (window.ccProblems) go(); else document.addEventListener('cc-problems-ready', go, { once: true });
+}
+
+/**
+ * ccState.adapt(adapter [, opt]) → the same adapter, made to publish. Call it on the workspace adapter before mountWorkspaces(adapter); the adapter keeps its
+ * own shape. What it adds:
+ *   - state() is wrapped: every time the engine reads it, `kinds` is filled when the adapter gives none (opt.kinds(selection) first, else each selected
+ *     object's `kind` / `type`, else the part before ':' of a 'kind:id' string), and mode, view and layer are published when the state carries them
+ *     (`view` falls back to adapter.views.current()). The engine itself writes selection, tool, dirty and document as before.
+ *   - problems: the shell's Problems store (window.ccProblems) publishes its open counts { count, error, warning, note, accepted, worst } whenever it changes.
+ *   - select / reveal / highlight: the adapter's own members are what the engine registers as the host (ccState.registerHost); nothing to add here.
+ * Nothing changes for a page whose adapter is not adapted, so a released build is untouched until its app opts in.
+ */
+function adapt(A, opt = {}) {
+  if (!A || A.__ccStateAdapted) return A;
+  const own = A.state;
+  if (typeof own === 'function') {
+    A.state = function () {
+      const s = own.apply(this, arguments) || {};
+      try {
+        const sel = Array.isArray(s.selection) ? s.selection : [];
+        if (!Array.isArray(s.kinds)) {
+          const k = opt.kinds ? opt.kinds(sel, s) : sel.map((x) => (isObj(x) ? x.kind ?? x.type : typeof x === 'string' && x.indexOf(':') > 0 ? x.slice(0, x.indexOf(':')) : ''));
+          s.kinds = uniq(Array.isArray(k) ? k : []);
+        } else s.kinds = uniq(s.kinds);
+        const patch = {};
+        for (const key of ['mode', 'view', 'layer']) if (s[key] !== undefined && s[key] !== null) patch[key] = String(s[key]);
+        if (patch.view === undefined && A.views?.current) { const v = A.views.current(); if (v !== undefined && v !== null) patch.view = String(v); }
+        if (Object.keys(patch).length) publish(patch, 'adapter');
+      } catch (e) { console.error(e); }
+      return s;
+    };
+  }
+  Object.defineProperty(A, '__ccStateAdapted', { value: true });
+  hookProblems();
+  return A;
+}
+
+export const ccState = { get, publish, subscribe, test, registerHost, select, ref, refs, adapt, _reset() { for (const k of Object.keys(state)) delete state[k]; Object.assign(state, { selection: { ids: [], count: 0, kind: '', kinds: [] }, mode: '', view: '', layer: '', tool: '', dirty: false, document: false, problems: { count: 0 } }); cache.clear(); } };
 if (typeof window !== 'undefined') window.ccState = window.ccState || ccState;
 export default ccState;

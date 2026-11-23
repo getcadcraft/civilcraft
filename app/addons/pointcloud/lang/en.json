@@ -294,5 +294,10 @@
   "pc.err.not_configured": "The add-on is not set up correctly.",
   "pc.err.bad_params": "One of the settings is not usable.",
   "pc.err.laz_class_range": "A point has a class above 31, which LAZ point formats 0 and 2 cannot hold. Export it as LAS 1.4, or change that class first.",
-  "pc.err.bad_format": "That point format cannot be written."
+  "pc.err.bad_format": "That point format cannot be written.",
+  "pc.o.big.reading": "Reading {name} ({mb} MB) a piece at a time…",
+  "pc.o.big.progress": "Reading {name}: {pct} %",
+  "pc.o.big.reduced": "{name} is {w} x {h} pixels; it is laid on the map as {rw} x {rh}.",
+  "pc.o.big.overview": "Read from the file's own smaller view, so it was quick.",
+  "pc.o.big.failed": "This GeoTIFF could not be read: {reason}"
 }

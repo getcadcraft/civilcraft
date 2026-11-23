@@ -59,6 +59,15 @@ try {
     return { r, hasShell: !!json.shell?.calcs, dirty: window.civilcraft.project.dirty };
   });
   ok(roundTrip.hasShell, 'the calc sheet is in the project file (shell.calcs)', roundTrip);
+  // civilcraft#4: calcs_set / calcs_delete hand back the same shape as the other apps ({row, text, undo, value} / {deleted, undo}), not {result: false}
+  const calcRet = await page.evaluate(async () => {
+    const tool = window.civilcraftControl, body = (r) => r.structuredContent ?? r;
+    const set = body(await tool.call('calcs_set', { sheet: 'smoke', name: 'x', expr: '2 m + 30 cm' }));
+    const del = body(await tool.call('calcs_delete', { row: 'smoke.x' }));
+    return { set, del };
+  });
+  ok(calcRet.set.row === 'smoke.x' && typeof calcRet.set.text === 'string' && calcRet.set.undo && calcRet.set.result === undefined, 'calcs_set returns {row, text, undo, value}, not {result:false}', calcRet.set);
+  ok(calcRet.del.deleted === 'smoke.x' && calcRet.del.undo && calcRet.del.result === undefined, 'calcs_delete returns {deleted, undo}', calcRet.del);
   // the first lesson finishes by itself as the site gets its parts
   await page.evaluate(() => window.ccLessons.start('civil.first-site'));
   const l1 = await page.evaluate(() => window.ccLessons.state());

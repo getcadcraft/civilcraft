@@ -5,7 +5,7 @@
  *   civilcraft/dev/dwg   the writer (write.js, civil.js + what they import)
  *   cadcraft/dev/dwg     the reader and the writer (read.js, read-async.js, write.js + what they import) — it opens and saves DWG —
  *                        and dynblock-write.js (an edited visibility parameter, 0.5 DB.9; only CadCraft edits dynamic blocks)
- *   bimcraft/dev/dwg     the reader (read.js, read-async.js + what they import) — it reads DWG, never writes it
+ *   bimcraft/dev/dwg     the reader and, since SU.1994 (plan-cad.js), the writer: READ_WRITE_FILES
  *   modelcraft/dev/dwg   the reader and the writer — it opens DWG and exports it (0.4 part 2 M2)
  *   detailcraft/dev/dwg  the writer only (write.js + what it imports) — it exports DWG, never reads it (D4)
  *   partcraft/dev/dwg    the writer only — the variant pack writes each variant's drawing sheet as DWG (0.7 W3.19, session configurator)
@@ -42,7 +42,7 @@ export const CADCRAFT_FILES = closure(['read.js', 'model.js', 'read-async.js', '
 const APPS = 'public_html/assets/apps';
 export const TARGETS = {
   [`${APPS}/civilcraft/dev/dwg`]: closure(['write.js', 'civil.js', 'bits-write.js', 'container-write.js', 'read.js', 'model.js', 'read-async.js']),   // + the reader: Linework (civil V1)
-  [`${APPS}/bimcraft/dev/dwg`]: READER_FILES,
+  [`${APPS}/bimcraft/dev/dwg`]: READ_WRITE_FILES,   // SU.1994 (2026-11-22): plan-cad.js writes the plans as DWG
   [`${APPS}/cadcraft/dev/dwg`]: CADCRAFT_FILES,
   [`${APPS}/modelcraft/dev/dwg`]: READ_WRITE_FILES,
   [`${APPS}/detailcraft/dev/dwg`]: closure(['write.js']),

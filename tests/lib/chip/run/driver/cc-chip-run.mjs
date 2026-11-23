@@ -4,7 +4,7 @@
  * cc-chip-run.mjs — the Chip design add-on's run script (0.9 HD.4–HD.9). Studio runs it with Node through engines.rs's add-on run
  * (`engine.run`, docs/ADDONS-SPEC.md § 16): Studio unpacks the run package into a fresh folder, asks the person once, and starts
  *     node <folder>/engine/cc-chip-run.mjs <folder>/cc-engine-job.json
- * This script then starts the person's OWN tools (Icarus Verilog, Verilator, Yosys, OpenROAD, KLayout, Netgen) one after another as
+ * This script then starts the person's OWN tools (Icarus Verilog, Verilator, Yosys, OpenROAD/OpenSTA, KLayout, Magic, Netgen) one after another as
  * separate programs — never a shell — reading the steps from <folder>/chip-job.json, and hands everything they wrote back as one stored
  * zip (`CCRESULT out/result.zip`). Nothing is bundled: a tool that is not on this computer fails its step with "not found".
  * The same package can be run by hand:  unzip run.zip -d run && node run/engine/cc-chip-run.mjs run/chip-job.json
@@ -13,7 +13,7 @@
  *                  steps: [{ tool, args: [..], label?, optional?, stdout?: 'out/x.txt' }], collect: ['out/', 'netlist.v', …], stepSeconds? }
  *   tool: one of PROGRAMS (looked for in toolsDir, toolsDir/bin, then PATH), or obj_dir/V<name> (a program an earlier Verilator step
  *   built in this folder). Arguments: plain strings; `{tools}/…` and `{pdk}/…` become paths under those folders; any other absolute path
- *   or `..` is refused. A failed step that is not optional stops the run; the result still comes back with the logs.
+ *   or `..` is refused. `{job}/…` (also as `name={job}/…`) becomes the full path of a file inside this job folder. A failed step that is not optional stops the run; the result still comes back with the logs.
  * Honest limit: the tools are full programs (a Yosys or KLayout script can do what the program can); this script is not a sandbox.
  * Self-contained on purpose (no imports beyond Node's own), so it runs from any folder with any Node 18+.
  */
@@ -21,7 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 
-export const PROGRAMS = ['iverilog', 'vvp', 'verilator', 'yosys', 'yosys-abc', 'openroad', 'sta', 'klayout', 'netgen', 'netgen-lvs'];
+export const PROGRAMS = ['iverilog', 'vvp', 'verilator', 'yosys', 'yosys-abc', 'openroad', 'sta', 'klayout', 'magic', 'netgen', 'netgen-lvs'];
 const BUILT = /^obj_dir\/V[A-Za-z_][A-Za-z0-9_]{0,60}$/;
 const SAFE_REL = /^[A-Za-z0-9_][A-Za-z0-9_.+-]*(\/[A-Za-z0-9_][A-Za-z0-9_.+-]*)*\/?$/;
 const MAX_COLLECT = 400 * 1024 * 1024;
@@ -51,9 +51,13 @@ function zipStored(files) {
 }
 
 // ---------------------------------------------------------------- checks
-export function checkArg(a, job) {
+export function checkArg(a, job, dir = '') {
   if (typeof a !== 'string' || a.length > 4000 || /[\u0000]/.test(a)) throw new Error('bad argument');
   let s = a;
+  // {job}/<path inside the job folder> → that full path (some tools read a relative name against their input file's folder, not the
+  // working folder: KLayout's DRC report, 2026-11-21). Only a plain relative path may follow, so it cannot leave the folder.
+  const jm = /^([\w.-]*=)?\{job\}\/(.*)$/.exec(s);
+  if (jm) { if (!dir || !SAFE_REL.test(jm[2]) || jm[2].split('/').includes('..')) throw new Error('bad {job} path: ' + a); return (jm[1] || '') + path.join(dir, jm[2]); }
   if (s.startsWith('{tools}/')) { if (!job.toolsDir) throw new Error('no tools folder for ' + a); s = path.join(job.toolsDir, s.slice(8)); }
   else if (s.startsWith('{pdk}/')) { if (!job.pdkDir) throw new Error('no PDK folder for ' + a); s = path.join(job.pdkDir, s.slice(6)); }
   else {
@@ -119,7 +123,7 @@ export async function runJob(dir, { log = (s) => process.stdout.write(s + '\n') 
     const r = { tool: String(st.tool), label, args: [], code: 0, ms: 0, log: logName, program: '' };
     try {
       if (st.stdout && (!SAFE_REL.test(st.stdout) || !st.stdout.startsWith('out/'))) throw new Error('stdout must be a file under out/');
-      const args = (Array.isArray(st.args) ? st.args : []).slice(0, 2000).map((a) => checkArg(a, job));
+      const args = (Array.isArray(st.args) ? st.args : []).slice(0, 2000).map((a) => checkArg(a, job, dir));
       const program = findProgram(r.tool, job, dir);
       r.args = args;
       if (!program) { r.code = 127; fs.writeFileSync(path.join(dir, logName), r.tool + ': not found on this computer' + (job.toolsDir ? ' (looked in ' + job.toolsDir + ' and on the search path)' : ' (looked on the search path)') + '\n'); }

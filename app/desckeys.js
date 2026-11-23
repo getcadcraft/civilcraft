@@ -67,11 +67,12 @@ export function compileKeys(keys) {
   return (code) => { for (const { k, re } of rx) if (re.test(code)) return k; return null; };
 }
 
+const WS = /\s/;
 export function grouper(keys) {
   const match = compileKeys(keys);
   const cache = new Map();
   return (p) => {
-    const code = String(p?.d ?? '').trim().split(/\s+/)[0]?.toUpperCase() || '';
+    const d = String(p?.d ?? '').trim(), sp = d.search(WS), code = (sp < 0 ? d : d.slice(0, sp)).toUpperCase();   // = trim().split(/\s+/)[0] without the array (0.11 PERF.33: 500,000 points at every open)
     if (!code) return '(no description)';   // i18n-ignore (a stored group key: the same as points.js groupKey)
     let g = cache.get(code);
     if (g === undefined) { const k = match(code); g = k && k.group ? k.group : code; cache.set(code, g); }

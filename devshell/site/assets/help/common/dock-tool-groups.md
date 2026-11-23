@@ -34,7 +34,19 @@ Where you docked each group is remembered for this app and this layout.
 
 ## Arrange mode
 
-While you arrange the layout (Settings › Layout › Arrange), the places where a group can dock are outlined.
+While you arrange the layout (Settings › Layout › Arrange), the places where a group can dock are outlined. Drag a group's grip onto one: it becomes a palette there, and a second group dropped on the same place joins it as a tab.
+
+## Float a group over the drawing
+
+Pick **Float on the drawing** in a group's grip menu, or drag the grip onto the drawing where no place is outlined. The palette floats there; drag its grip to move it.
+
+## Pin
+
+**Pin** in a grip menu keeps that bar or palette where it is: it cannot be dragged, closed or hidden, and a pinned ribbon stays unfolded. **Unpin** gives it all back.
+
+## Close a group
+
+Each ribbon group has a {{ui:×}} at the right of its name, and every group's grip menu has **Close**. The group leaves its bar; the bar's own grip menu lists it as **Show … again**.
 
 ## Your windows, next time
 

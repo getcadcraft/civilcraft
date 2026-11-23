@@ -214,7 +214,8 @@ export function createLive(getProject) {
   let client = null, g = 0, queued = false;
   const P = () => getProject();
   const num = (s) => +String(s).replace(/^\D+/, '');
-  const doc = () => ({ state: JSON.parse(P().snapshot()), points: P().points });
+  const arr = (pts) => (Array.isArray(pts) ? pts : pts && typeof pts.toArray === 'function' ? pts.toArray() : []);   // 0.11: the project's points are a table; Live diffs arrays
+  const doc = () => ({ state: JSON.parse(P().snapshot()), points: arr(P().points) });
   function claimIds() {
     if (!client || !client.c) return;
     const s = P().state, lo = client.c * ID_BLOCK, hi = lo + ID_BLOCK;
@@ -223,12 +224,14 @@ export function createLive(getProject) {
     for (const k of ['alignments', 'pads', 'features', 'parcels']) for (const x of s[k] || []) see(x.id);
     for (const x of s.gis?.layers || []) see(x.id);
     s.seq = Math.max(next, s.seq > lo && s.seq < hi ? s.seq : 0);
+    P().h?.sync?.(s, { keys: ['k:seq'] });   // 0.11 (live-fix-11): the claimed counter into the chunk table, not a step (as takeIdBlock does)
   }
   function releaseIds() {
     const s = P().state;
     let top = s.seq || 1;
     for (const k of ['alignments', 'pads', 'features', 'parcels']) for (const x of s[k] || []) top = Math.max(top, num(x.id) + 1 || 0);
     s.seq = top;
+    P().h?.sync?.(s, { keys: ['k:seq'] });
   }
   /** Ops into the project: its state through restore() (which keeps the TIN and the display), the points as a new array. */
   function put(ops) {
@@ -285,7 +288,7 @@ export function createLive(getProject) {
     },
     sheetLabel() { return t('live.where.site'); },
     validate() { return null; },
-    snapshot() { return pack({ v: SCHEMA, state: P().snapshot(), points: P().points }); },
+    snapshot() { return pack({ v: SCHEMA, state: P().snapshot(), points: arr(P().points) }); },
     load(bytes) {
       const x = unpack(bytes);
       if (!x || x.v !== SCHEMA || typeof x.state !== 'string') throw new Error('live snapshot: unknown format');   // i18n-ignore (protocol)
@@ -306,15 +309,18 @@ export function createLive(getProject) {
       claimIds();
       c.on('welcome', () => claimIds());
       const orig = {};
-      for (const k of ['change', 'editPoints', 'editGis', 'setTin']) {
+      for (const k of ['change', 'editPoints', 'editPointTable', 'editGis', 'setTin']) {
         orig[k] = p[k];
         p[k] = function (...args) {
           const top0 = p.undoStack[p.undoStack.length - 1];
+          // 0.11: a points step keeps no copy of the points any more (editPoints too edits the table in place and records only the rows it
+          // changed, step.prec): Live needs the before, so it is taken here for both (live-fix-11)
+          const pts0 = client && (k === 'editPointTable' || k === 'editPoints') ? arr(p.points) : null;
           const r = orig[k].apply(p, args);
           const top = p.undoStack[p.undoStack.length - 1];
           if (client && top && top !== top0 && !top.live) {
             top.live = true;
-            const a = { state: JSON.parse(top.json), points: top.pts || p.points }, b = doc();
+            const a = { state: JSON.parse(top.json), points: pts0 || arr(top.pts || p.points) }, b = doc();
             const ops = CORE.diff(a, b);
             if (ops.length) { const mark = { o: 'g', g: 's' + (++g) }; client.localChange({ label: args[0] || '', ops: [mark, ...ops], inverse: [mark, ...CORE.diff(b, a)] }); }
           }

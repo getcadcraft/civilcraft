@@ -3,6 +3,7 @@
  * panel.js — the Swept path tab (0.10 SW.4-SW.8): folds for Vehicle, Run, Clearance, Roundabout, Parking and Notes, over the alignments, lines and
  * parcels already in the project. Results are drawn into the project as plain feature lines on request (Stamp), one undo step each.
  */
+import { writeDxf } from '../../dxf.js';
 import { el, field, numInput, select, table, download, runPicture } from './ui.js';
 
 const fx = (v, d = 2) => (Number.isFinite(v) ? Number(v).toLocaleString('en-US', { maximumFractionDigits: d }) : '–');
@@ -28,7 +29,7 @@ export function mountPanel(ctx, root) {
     vehSel.replaceChildren(...allVehicles().map((v) => el('option', { value: v.key }, `${v.name} — ${v.kind}${v.verified ? '' : ' · ' + t('sp.unverified')}`)));
     if (keep && allVehicles().some((x) => x.key === keep)) vehSel.value = keep;   // rebuilding the list must not throw the choice away
     const v = vehicle();
-    vehNote.replaceChildren(v ? el('span', { className: v.verified ? '' : 'sp-warn' }, v.verified ? t('sp.verified', { src: v.source }) : t('sp.placeholder')) : '');
+    vehNote.replaceChildren(v ? el('span', { className: v.verified ? '' : 'sp-warn' }, v.verified ? t('sp.verified', { src: v.source }) : t('sp.placeholder') + (v.uncited?.length ? ' ' + t('sp.uncited', { list: v.uncited.join(', ') }) : '')) : '');
     if (v) { const { pack, ...rest } = v; vehJson.value = JSON.stringify(rest, null, 1); }
   };
   vehSel.onchange = fillVeh;
@@ -89,7 +90,7 @@ export function mountPanel(ctx, root) {
   const renderRun = () => {
     const { v, res } = ctx.last, s = SP.summary(res, ctx.last.clear, { vehicle: v, units: U(), margin: ctx.last.margin || 0 });
     runOut.replaceChildren(
-      !v.verified ? el('p', { className: 'sp-warn' }, t('sp.placeholder')) : '',
+      !v.verified ? el('p', { className: 'sp-warn' }, t('sp.placeholder') + (v.uncited?.length ? ' ' + t('sp.uncited', { list: v.uncited.join(', ') }) : '')) : '',
       table([t('sp.item'), t('sp.value')], [
         { cells: [t('sp.r.length'), `${fx(s.length)} ${u()}`] },
         { cells: [t('sp.r.steer'), s.maxSteer == null ? '–' : `${fx(s.maxSteer, 1)}° / ${fx(s.steerLimit, 0)}°`] },
@@ -99,10 +100,28 @@ export function mountPanel(ctx, root) {
         ...s.problems.map((p) => ({ cls: 'bad', cells: [t('sp.prob.' + p.kind), `${fx(p.value, 1)} > ${fx(p.limit, 1)} @ ${fx(p.s)} ${u()}`] })),
       ]),
       el('div', { className: 'sp-row' }, el('button', { type: 'button', className: 'btn-line', onclick: stampRun }, t('sp.stamp')),
-        el('button', { type: 'button', className: 'btn-line', onclick: () => download('swept-path-report.csv', SP.csv(s)) }, t('sp.csv'))));
+        el('button', { type: 'button', className: 'btn-line', onclick: () => download('swept-path-report.csv', SP.csv(s)) }, t('sp.csv')),
+        el('button', { type: 'button', className: 'btn-line', onclick: () => reportPdf(s) }, t('sp.pdf')),
+        el('button', { type: 'button', className: 'btn-line', onclick: exportDxf }, t('sp.dxf'))));
     showPic();
   };
 
+  // the report page: Markdown from the engine, flowed to a PDF by the shared report kit (one text kit, loaded when asked for)
+  async function reportPdf(s) {
+    try {
+      const [{ parseMarkdown }, { docPdf }] = await Promise.all([import('./report/md-blocks.js'), import('./report/doc-pdf.js')]);
+      const r = docPdf(parseMarkdown(SP.markdown(s, { title: t('sp.pdf.title') })), { title: t('sp.pdf.title'), paper: 'a4', footer: ctx.last?.v?.name || '' });
+      const url = URL.createObjectURL(new Blob([r.bytes], { type: 'application/pdf' }));
+      const a = el('a', { href: url, download: 'swept-path-report.pdf' }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (err) { say(String(err && err.message || err)); }
+  }
+  // exchange (SW.8): the run on named layers as DXF; DWG comes from CivilCraft's own writer after Draw into the project
+  function exportDxf() {
+    if (!ctx.last) return say(t('sp.err.norun'));
+    const plan = SP.layerPlan(ctx.last.res, { clear: ctx.last.clear });
+    const r = writeDxf({ units: U() === 'm' ? 'm' : 'ft', layers: plan.layers, entities: plan.items.map((x) => ({ type: 'poly', layer: x.layer, pts: x.pts, closed: x.closed, elev: 0 })) });
+    download('swept-path.dxf', r.text, 'application/dxf'); say(t('sp.dxf.done', { n: plan.items.length }));
+  }
   // ---------------- stamp: plain feature lines (use "off"), one undo step
   function stamp(lines, label) {
     const p = P(); if (!p || !lines.length) return 0;
@@ -134,8 +153,8 @@ export function mountPanel(ctx, root) {
     const m = Number(margin.value) || 0;
     const c = SP.check(ctx.last.res, picked, { margin: m });
     ctx.last.obstacles = picked; ctx.last.clear = c; ctx.last.margin = m;
-    const list = [...c.conflicts.map((x) => ({ code: 'swept.conflict', part: 'conflict:' + x.id, severity: 'warning', msg: { key: 'sp.issue.conflict', vars: { name: x.name, s: fx(x.s), u: u(), d: fx(x.distance), v: ctx.last.v.name } }, text: t('sp.issue.conflict', { name: x.name, s: fx(x.s), u: u(), d: fx(x.distance), v: ctx.last.v.name }), about: [] })),
-      ...ctx.last.res.problems.map((p) => ({ code: 'swept.' + p.kind, part: 'run:' + p.kind, severity: 'warning', msg: { key: 'sp.issue.' + p.kind, vars: { v: ctx.last.v.name, value: fx(p.value, 1), limit: fx(p.limit, 1) } }, text: t('sp.issue.' + p.kind, { v: ctx.last.v.name, value: fx(p.value, 1), limit: fx(p.limit, 1) }), about: [] }))];
+    const list = [...c.conflicts.map((x) => ({ code: 'swept.conflict', part: 'conflict:' + x.id, severity: 'warning', msg: { key: 'sp.issue.conflict', vars: { name: x.name, s: fx(x.s), u: u(), d: fx(x.distance), v: ctx.last.v.name } }, text: t('sp.issue.conflict', { name: x.name, s: fx(x.s), u: u(), d: fx(x.distance), v: ctx.last.v.name }), about: [], ...(x.at ? { where: { space: '2d', at: [x.at.x, x.at.y] } } : {}) })),
+      ...ctx.last.res.problems.map((p) => ({ code: 'swept.' + p.kind, part: 'run:' + p.kind, severity: 'warning', msg: { key: 'sp.issue.' + p.kind, vars: { v: ctx.last.v.name, value: fx(p.value, 1), limit: fx(p.limit, 1) } }, text: t('sp.issue.' + p.kind, { v: ctx.last.v.name, value: fx(p.value, 1), limit: fx(p.limit, 1) }), about: [], ...(SP.positionAt(ctx.last.res, p.s) ? { where: { space: '2d', at: [SP.positionAt(ctx.last.res, p.s).x, SP.positionAt(ctx.last.res, p.s).y] } } : {}) }))];
     try { ctx.problemsSource.set(list); } catch { /* a build without Problems */ }
     clrOut.replaceChildren(el('p', { className: c.ok ? '' : 'sp-warn' }, c.ok ? t('sp.clr.ok', { n: picked.length }) : t('sp.clr.hit', { n: c.conflicts.length })),
       table([t('sp.obstacle'), t('sp.at'), t('sp.dist')], [...c.conflicts.map((x) => ({ cls: 'bad', cells: [x.name, `${fx(x.s)} ${u()}`, fx(x.distance)] })), ...c.clear.map((x) => ({ cells: [x.name, '–', x.closest == null ? t('sp.far') : fx(x.closest)] }))]));
@@ -162,10 +181,10 @@ export function mountPanel(ctx, root) {
     for (const mv of r.movements) {
       const res = SP.run(v, mv.path, { units: U(), envelope: false });
       const c = res.ok ? SP.check(res, obstacles.filter((o) => o.id === 'island'), { margin: 0 }) : null;
-      rows.push({ cls: !res.ok || res.problems.length || (c && !c.ok) ? 'bad' : '', cells: [`${mv.from + 1} → ${mv.to + 1}${mv.uturn ? ' (U)' : ''}`, res.ok ? fx(res.maxSteer, 1) + '°' : '–', res.problems.length ? res.problems.map((p) => t('sp.prob.' + p.kind)).join(', ') : t('sp.none'), c && !c.ok ? t('sp.island.hit') : t('sp.none')] });
+      rows.push({ cls: !res.ok || res.problems.length || (c && !c.ok) ? 'bad' : '', cells: [`${mv.from + 1} → ${mv.to + 1}${mv.uturn ? ' (U)' : ''}`, res.ok ? fx(res.maxSteer, 1) + '°' : '–', res.problems.length ? res.problems.map((p) => t('sp.prob.' + p.kind)).join(', ') : t('sp.none'), c && !c.ok ? t('sp.island.hit') : t('sp.none'), Number.isFinite(mv.minRadius) ? fx(mv.minRadius, 1) + ' ' + u() : '–'] });
       await new Promise((rs) => setTimeout(rs, 0));
     }
-    rbOut.replaceChildren(el('p', { className: 'sp-note' }, t('sp.rb.note')), table([t('sp.movement'), t('sp.r.steer'), t('sp.problems'), t('sp.island')], rows));
+    rbOut.replaceChildren(el('p', { className: 'sp-note' }, t('sp.rb.note')), table([t('sp.movement'), t('sp.r.steer'), t('sp.problems'), t('sp.island'), t('sp.rb.tight')], rows));
   };
   const roundabout = fold(t('sp.sec.roundabout'), el('p', { className: 'sp-note' }, t('sp.rb.help')),
     el('div', { className: 'sp-row' }, field('x', rb.x), field('y', rb.y)), field(t('sp.rb.radius', { u: u() }), rb.r), field(t('sp.rb.lane', { u: u() }), rb.w), field(t('sp.rb.apron', { u: u() }), rb.ap),

@@ -199,7 +199,7 @@ export function cleanBehaviours(raw) {
     if (!f || typeof f !== 'object' || !['plane', 'cylinder', 'other'].includes(f.kind) || !finV(f.c) || !finV(f.lo) || !finV(f.hi) || !(f.area > 0)) { bad('face'); continue; }
     if (f.kind === 'plane' && (!finV(f.n) || !fin(f.d))) { bad('face'); continue; }
     if (f.kind === 'cylinder' && (!finV(f.axis) || !finV(f.o) || !(f.r > 0))) { bad('face'); continue; }
-    const out = { id, kind: b.kind, part: b.part, name: typeof b.name === 'string' ? b.name.slice(0, 80) : '', partName: typeof b.partName === 'string' ? b.partName.slice(0, 120) : '', face: describeFace({ ...f, id: num(f.id, 0) }), on: b.on !== false };
+    const out = { id, kind: b.kind, part: b.part, name: typeof b.name === 'string' ? b.name.slice(0, 80) : '', partName: typeof b.partName === 'string' ? b.partName.slice(0, 120) : '', face: describeFace({ ...f, id: num(f.id, 0) }), on: b.on !== false, flow: typeof b.flow === 'string' && /^[a-z][a-z0-9-]{0,39}$/.test(b.flow) ? b.flow : '' };
     if (b.kind === 'conveyor') {
       if (f.kind !== 'plane') { bad('needs-plane'); continue; }
       if (!finV(b.dir) || len(b.dir) < 1e-9) { bad('dir'); continue; }

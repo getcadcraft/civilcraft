@@ -22,8 +22,19 @@ In BimCraft the picture is drawn on this page by the renderer's reference path t
 
 ## What it leaves out
 
-- The picture is the room or the site from your outline with plain grey surfaces, not your model with its materials, trees and buildings, except the boxes you list.
+- In CadCraft, and for a site, the picture is the room or the site from your outline with plain grey surfaces, not your model, except the boxes you list. In BimCraft a room chosen from the model is drawn with the model's own surfaces (see below); the numbers still use the outline and its reflectances.
 - The renderer's matt surface also reflects a little specular light, so the picture can be about 10 % brighter than the numbers on a dark floor.
 - A light spread is carried at 64 by 32 angles: a beam narrower than about 3 degrees is smoothed. More than 32 different files in one design: the rest are drawn as plain lamps.
 - Luminaires are small spheres of light; their body is not drawn, and there is no glare, light pollution or lighting for a road class.
 - Nobody has compared a picture with another lighting program.
+
+
+## The model's own surfaces (BimCraft)
+
+Choose a room from *Rooms found* in BimCraft and draw the night view: the picture shows the model as it is round that room, its walls, floor, ceiling and what stands in it, in the colours of the 3D view (see-through colours as glass). Where the model has no floor or no ceiling over the room, the outline's own is used, and the line under the picture says so. One luminaire over the model's own ground was checked against the calculation to within 5 %.
+
+When you **Draw** the luminaires into the model, each fixture carries the name of its light spread and the spreads are kept in the file (on the project, `CadCraft_LightIes`). BimCraft's own **Render** dialog then lights each fixture with its measured light spread, not as a plain lamp: the lamp list shows the spread's name and the IES button shows the file. A light spread you load by hand for another lamp is kept.
+
+## Landscape lights (CivilCraft)
+
+Switch the add-on on in CivilCraft (Settings, Add-ons). *Rooms found* lists the project's parking lots, parcels, paving and planting beds as outdoor areas, each measured from its own corner in millimetres. In an area with trees or Landscape paths, the **Landscape** layout puts an up-light at the foot of each tree, a bollard every 5 m along each path, and calculates the direct lux on the ground like any site. CivilCraft has no renderer: you get the false-colour view, the report, the CSV and the *Lamps for a render* file. The luminaires are not drawn into the CivilCraft project.

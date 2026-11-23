@@ -49,6 +49,7 @@ export const RULES = {
   'stair.width.min':    { applies: 'stair', op: '>=',      unit: 'mm' },
   'stair.headroom.min': { applies: 'stair', op: '>=',      unit: 'mm' },
   'stair.rail.height':  { applies: 'stair', op: 'between', unit: 'mm' },
+  'guard.height.min':   { applies: 'railing', op: '>=',    unit: 'mm' },   // 0.11 T24.7: a drawn guard's height above its walking surface (IRC R321.1.2: 36 in.; California 42 in.)
   'room.ceiling.min':   { applies: 'room',  op: '>=',      unit: 'mm' },
   'room.light.min':     { applies: 'room',  op: '>=',      unit: 'pct' },
   'room.vent.min':      { applies: 'room',  op: '>=',      unit: 'pct' },

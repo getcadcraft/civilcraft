@@ -14,6 +14,7 @@
  *
  *   PlantGraph  · bom(graph) / bomCsv · layout(graph) → sheets · toSvg(doc) · readPid(doc) → snapshot · snapshotFrom3d(desc, graph) → snapshot
  *   toSchematic(graph) → a cc-schematic (domain pid) · checkPlant(graph) → problems · lineNumber / nextTag helpers
+ *   instrumentWrites(graph, desc) → what the model must store so its runs carry the graph's instruments (0.11: instruments live in the model, on the run)
  */
 import { Schematic, problem } from './model.js';
 import { csvCell, toCsv } from './plans.js';
@@ -93,6 +94,15 @@ export class PlantGraph {
     o.state[view] = 'ok'; o.by = view;
     if (o.state[other(view)] === 'ok') { o.state[other(view)] = 'change'; o.was = was; } else if (o.was) o.was = { ...was, ...o.was };
     if (o.number !== undefined && patch.size !== undefined) o.number = this._renumber(o);
+    return o;
+  }
+  /** Rename a line in `view` (0.11): the other view must follow; refused when the number is empty or taken. Items stay on the line (they hold its id). */
+  rename(view, id, number) {
+    const o = this._get(id), n = text(number, 40);
+    if (!o || o.removed || o.number === undefined || !n || n === o.number || this.line(n)) return null;
+    const was = { number: o.number }; o.number = n;
+    o.state[view] = 'ok'; o.by = view;
+    if (o.state[other(view)] === 'ok') { o.state[other(view)] = 'change'; o.was = was; } else if (o.was) o.was = { ...was, ...o.was };
     return o;
   }
   _renumber(l) { return lineNumber(l.size, l.service, seqOf(l.number), l.spec); }
@@ -225,8 +235,36 @@ export function snapshotFrom3d(desc, graph, opts = {}) {
       if (h) { pool.set(h.tag, 1); items.push({ tag: h.tag, line: number, cls: 'valve', kind: v.kind, s: v.s }); }
       else { const tag = nextTag([...graph.items.map((i) => i.tag), ...items.map((i) => i.tag)], 'V'); items.push({ tag, line: number, cls: 'valve', kind: v.kind, s: v.s }); }
     }
+    // 0.11 (su-finish-11): instruments are stored on the run in the model with their tags, so they pair by tag
+    for (const x of r.instruments || []) {
+      const tag = text(x.tag, 24), kind = text(x.kind, 8).toUpperCase();
+      if (!tag || !kind || items.some((i) => i.tag === tag)) continue;
+      items.push({ tag, line: number, cls: 'instrument', kind, loc: LOCS.includes(x.loc) ? x.loc : 'field', s: num(x.s) });
+    }
   }
   return { equipment, lines, items };
+}
+
+/**
+ * 0.11: what the 3D model must store so its runs carry the graph's instruments: [{ guid, instruments [{ s, tag, kind, loc }] }], only for runs whose list differs.
+ * desc = the same reading as snapshotFrom3d (runs with guid, points, instruments). Each run gets the live instruments of the line tied to it (an instrument removed
+ * on the P&ID drops out); one with no place yet is spaced evenly along the run. Instruments on a line with no run in the model cannot be stored: `left` counts them.
+ */
+export function instrumentWrites(graph, desc) {
+  const out = [], runs = new Map((desc.runs || []).map((r) => [String(r.guid), r]));
+  let left = 0;
+  for (const l of graph.live(graph.lines)) {
+    const mine = graph.itemsOn(l.id).filter((i) => i.cls === 'instrument');
+    const r = l.run ? runs.get(l.run) : null;
+    if (!r) { left += mine.filter((i) => i.state.three !== 'ok').length; continue; }
+    const pts = r.points || [];
+    let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1], (pts[i][2] || 0) - (pts[i - 1][2] || 0));
+    const free = mine.filter((i) => num(i.s) === undefined || i.s > L);
+    const want = mine.map((i) => ({ s: Math.round((free.includes(i) ? (L * (free.indexOf(i) + 1)) / (free.length + 1) : i.s) * 1000) / 1000, tag: i.tag, kind: i.kind, loc: i.loc || 'field' })).sort((a, b) => a.s - b.s);
+    const key = (list) => JSON.stringify([...list].map((x) => [x.tag, x.kind, x.loc || 'field']).sort());
+    if (key(want) !== key(r.instruments || [])) out.push({ guid: String(r.guid), line: l.id, instruments: want });
+  }
+  return { writes: out, left };
 }
 
 // ------------------------------------------------------------------------------------------------------------------ the P&ID

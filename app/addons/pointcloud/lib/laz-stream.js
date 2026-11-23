@@ -23,6 +23,7 @@
  */
 import { fail, throwIfAborted, tick } from './util.js';
 import { ArithDecoder, IntegerCoder, LAZ_VLR } from './laz.js';
+import { createTilePool, defaultSpawn } from './tile-pool.js';
 
 const rd = async (file, a, b) => new Uint8Array(await file.slice(a, b).arrayBuffer());
 
@@ -50,7 +51,15 @@ export async function lazChunkTable(file, h) {
   return { chunkSize, sizes, tablePos };
 }
 
-export async function scanLazChunks(file, h, onPoint, { signal = null, progress = null, lazPerf } = {}) {
+/** Where a worker finds laz-perf: the page's import map (or Node's resolution) says. null when this runtime cannot say. */
+function lazPerfUrls() {
+  try {
+    const moduleUrl = import.meta.resolve('laz-perf');
+    return { moduleUrl, wasmUrl: new URL('laz-perf.wasm', moduleUrl).href };
+  } catch { return null; }
+}
+
+export async function scanLazChunks(file, h, onPoint, { signal = null, progress = null, lazPerf, threads = 1, workerInit = null, spawnWorker = null } = {}) {
   if (typeof lazPerf !== 'function') fail('laz_stream_unsupported', { why: 'no_lazperf' });
   const M = await lazPerf();
   if (!M.ChunkDecoder) fail('laz_stream_unsupported', { why: 'no_chunk_decoder' });
@@ -60,6 +69,37 @@ export async function scanLazChunks(file, h, onPoint, { signal = null, progress 
   if (h.offsetToPoints + 8 + total > tablePos || sizes.some((s) => s < h.recordLength)) fail('laz_stream_unsupported', { why: 'bad_sizes' });
   const L = h.recordLength, ext = h.format >= 6, [sx, sy, sz] = h.scale, [ox, oy, oz] = h.offset;
   const maxChunk = sizes.reduce((m, s) => Math.max(m, s), 0);
+  // 0.11 PERF.25: chunks are independent, so several workers decode them at once (each its own laz-perf); results are handed to onPoint in file
+  // order, so the cloud is the same as the single thread build. `threads` 1 (or no worker available) = the loop below.
+  if (threads > 1 && sizes.length > 1) {
+    const init = workerInit || lazPerfUrls();
+    let pool = null;
+    if (init) { try { pool = await createTilePool(Math.min(threads, sizes.length), spawnWorker || await (async () => defaultSpawn('./laz-worker.js'))()); } catch { pool = null; } }
+    if (pool) {
+      const count = h.available != null ? h.available : h.count;
+      let pos = h.offsetToPoints + 8, read = 0, next = 0, queued = 0;
+      const fly = [], window = pool.size * 2;
+      const dispatch = async () => {
+        const c = next++, m = Math.min(chunkSize, count - queued);
+        queued += m;
+        const bytes = await rd(file, pos, pos + sizes[c]);
+        pos += sizes[c];
+        if (bytes.length < sizes[c]) fail('laz_truncated', { chunk: c });
+        fly.push({ m, p: pool.run({ init, bytes, format: h.format, L, count: m, scale: h.scale, offset: h.offset, ext }) });
+      };
+      try {
+        while (read < count && (fly.length || next < sizes.length)) {
+          throwIfAborted(signal);
+          while (fly.length < window && next < sizes.length && queued < count) await dispatch();
+          const f = fly.shift(), r = await f.p, { xyz, cls } = r;
+          for (let i = 0; i < f.m; i++) onPoint(xyz[3 * i], xyz[3 * i + 1], xyz[3 * i + 2], cls[i]);
+          read += f.m;
+          if (progress) { progress(read / count); await tick(); }
+        }
+      } finally { pool.close(); for (const f of fly) f.p.catch(() => {}); }
+      return { read, chunks: sizes.length, threads: pool.size };
+    }
+  }
   const inPtr = M._malloc(maxChunk), buf = M._malloc(L);
   if (!inPtr || !buf) { if (inPtr) M._free(inPtr); if (buf) M._free(buf); fail('laz_stream_unsupported', { why: 'memory' }); }
   let pos = h.offsetToPoints + 8, read = 0;

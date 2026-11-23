@@ -907,6 +907,7 @@ g = GProp_GProps(); BRepGProp.VolumeProperties_s(s, g); print(g.Mass(), BRepChec
   await (await import('./browser-assembly-tools.mjs')).run(areaHelpers);
   await (await import('./browser-manufacture.mjs')).run(areaHelpers);
   await (await import('./browser-cam-07.mjs')).run(areaHelpers);   // 0.7 LC.15 (session cam-07)
+  await (await import('./browser-cam-11.mjs')).run(areaHelpers);   // 0.11 Track CAM (CAM.1-CAM.7)
   await (await import('./browser-form.mjs')).run(areaHelpers);
   await (await import('./browser-simulation.mjs')).run(areaHelpers);
   await (await import('./browser-tet.mjs')).run(areaHelpers);

@@ -716,7 +716,7 @@ export function publicName(app, local) {
 
 /** A failure the assistant can act on (AI-CONNECT-SPEC § 2.5): code from ERROR_CODES, one plain sentence, 1–3 things to try. */
 export class ToolError extends Error {
-  constructor(code, message, extra = {}) { super(message); this.name = 'ToolError'; this.code = ERROR_CODES.includes(code) ? code : 'failed'; this.next = extra.next || []; this.retry = extra.retry || (this.code === 'busy' ? 'later' : 'never'); if (extra.group) this.group = extra.group; if (extra.refused) this.refused = true; }
+  constructor(code, message, extra = {}) { super(message); this.name = 'ToolError'; this.code = ERROR_CODES.includes(code) ? code : 'failed'; this.next = extra.next || []; this.retry = extra.retry || (this.code === 'busy' ? 'later' : 'never'); if (extra.group) this.group = extra.group; if (extra.refused) this.refused = true; if (extra.elements) this.elements = extra.elements; }
 }
 
 /** A tool result with its own content list (images) and optional structured data. */
@@ -886,8 +886,8 @@ export function createDispatcher(opts = {}) {
       };
       const fail = (msg, outcome = 'error', code = 'failed', extra = {}) => {
         msg = leaving(String(msg), false);
-        const error = { code: ERROR_CODES.includes(code) ? code : 'failed', message: String(msg), next: extra.next || [], retry: extra.retry || (code === 'busy' ? 'later' : 'never'), ...(extra.group ? { group: extra.group } : {}) };
-        const text = error.message + (error.next.length ? ' Try: ' + error.next.join(' ') : '');
+        const error = { code: ERROR_CODES.includes(code) ? code : 'failed', message: String(msg), next: extra.next || [], retry: extra.retry || (code === 'busy' ? 'later' : 'never'), ...(extra.group ? { group: extra.group } : {}), ...(Array.isArray(extra.elements) && extra.elements.length ? { elements: extra.elements.slice(0, 10) } : {}) };   // GH.6: the GlobalIds of the elements the failed call was about
+        const text = error.message + (error.next.length ? ' Try: ' + error.next.join(' ') : '') + (error.elements ? ' Elements: ' + error.elements.map((x) => x.guid + (x.found === false ? ' (not in the model)' : ' (' + [x.class, x.name].filter(Boolean).join(' ') + ')')).join(', ') + '.' : '');
         return finish({ content: [{ type: 'text', text }], structuredContent: { isError: true, error }, isError: true }, outcome, msg);
       };
       if (!t) throw new RpcError(-32602, 'Unknown tool: ' + name);
@@ -951,8 +951,8 @@ export function createDispatcher(opts = {}) {
         if (structured.error && structured.isError) { res.isError = true; return finish(res, 'error', structured.error.message || structured.error); }
         return finish(res, entry.outcome === 'suggested' ? 'suggested' : 'ok');
       } catch (err) {
-        if (err instanceof ToolError || (err && err.name === 'ToolError')) return fail(err.message, err.refused ? 'refused' : 'error', err.code, { next: err.next, retry: err.retry, group: err.group });
-        return fail(err && err.message ? err.message : String(err), err && err.refused ? 'refused' : 'error', 'failed');
+        if (err instanceof ToolError || (err && err.name === 'ToolError')) return fail(err.message, err.refused ? 'refused' : 'error', err.code, { next: err.next, retry: err.retry, group: err.group, elements: err.elements });
+        return fail(err && err.message ? err.message : String(err), err && err.refused ? 'refused' : 'error', 'failed', { elements: err && err.elements });
       }
     },
 
@@ -1166,7 +1166,8 @@ function makeControl(host) {
   function wireChannel(ch) {
     if (chOff) return;
     const studio = ch || (host.win && host.win.cadcraftStudio) || null;
-    if (!studio) { if (host.win && !ch && tries++ < 40 && typeof setTimeout === 'function') setTimeout(() => wireChannel(), 250); return; }
+    // Studio's window script adds cadcraftStudio after the page has loaded; a window opened at start (--app=<slug>, several at once) can take longer than 10 s, so after 40 quick looks it keeps looking every 2 s for ten minutes (0.10.1, partcraft#3)
+    if (!studio) { if (host.win && !ch && tries++ < 340 && typeof setTimeout === 'function') setTimeout(() => wireChannel(), tries <= 40 ? 250 : 2000); return; }
     st.channel = studio;
     const offs = [
       studio.on('control.request', (data, env) => {
@@ -1730,7 +1731,7 @@ export function createControlRelay({ channel, now = () => Date.now(), timeout = 
       return { apps: Object.keys(APP_KEYS).map((app) => {
         const ws = [...windows.values()].filter((w) => w.app === app), on = ws.filter((w) => w.enabled);
         const allowed = [...new Set(on.flatMap((w) => w.groups))];
-        return { app, key: APP_KEYS[app], open: ws.length > 0, windows: ws.length, assistants: on.length > 0, allowed, ...(hc ? { hostedAllowed: hc.on ? allowed.filter((g) => hc.levels.includes(g)) : [] } : {}), tools: known.has(app) ? known.get(app).tools.length : 0 };
+        return { app, key: APP_KEYS[app], open: ws.length > 0, windows: ws.length, assistants: on.length > 0, allowed, ...(hc ? { hostedAllowed: hc.on ? allowed.filter((g) => hc.levels.includes(g)) : [] } : {}), tools: known.has(app) ? known.get(app).tools.length : Math.max(0, ...on.map((w) => w.tools | 0)) };   // 0.10.1 (studio#5): `known` is filled only by a tools/list, so an app listed before that said 0; the window's own count (control.status) is the same number
       }), ...(hc ? { hosted: { on: hc.on, levels: hc.levels } } : {}) };
     } });
   if (typeof openApp === 'function') d.tool({ name: 'studio_apps_open', group: 'read', title: 'Open an app', description: 'Open an app\'s window in Studio (no file; open one with the app\'s own open tool). The person still has to allow assistants in that app\'s Settings › Assistants.',

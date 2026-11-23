@@ -14,7 +14,7 @@
  *   lengthOf(x)      characters
  *   for (const line of linesOf(x, { crlf }))                              exactly the elements of text.split(/\r?\n/) (crlf false: split('\n')), one at a time
  *   startsWithText(x, s) · testParts(x, re)                              a prefix test, a regex test per part
- *   parseJsonParts(x) → value                                             JSON.parse of the parts, with no whole-file string
+ *   parseJsonParts(x) → value                                             JSON.parse of the parts (joined up to 400 M characters, else no whole-file string)
  *   text.string()  → one string, only while it fits (RangeError that names the parts otherwise)
  *   readJsonFile(file) → value                                            a project file: JSON.parse up to 32 MB, parts beyond
  *
@@ -134,11 +134,16 @@ export function testParts(x, re) { for (const p of partsOf(x)) if (re.test(p)) r
 /**
  * JSON.parse over parts. One part: JSON.parse itself. Several: an incremental parser that never holds the whole text. The result is
  * the same value JSON.parse gives (same key order, same numbers, `__proto__` stays an own key), and a syntax error throws a
- * SyntaxError. Slower than JSON.parse (about 5 to 10 times), so a caller uses it only for a text too big for one string.
+ * SyntaxError. Slower than JSON.parse (about 5 to 10 times; a 268 MB GeoJSON 2.3 times, scale-11), so parts that join into a string of up to
+ * `joinUpTo` characters (JOIN_UP_TO, 400 M: well inside V8's 512 M) are joined and handed to JSON.parse: a caller may pass parts at any size and
+ * gets JSON.parse's speed below that and no whole-file string above it (PERF.20, perf-finish-11: "callers hand parts only above ~400 MB" is decided
+ * here, once, instead of in every caller). `{ joinUpTo: 0 }` always takes the incremental parser (its tests).
  */
-export function parseJsonParts(x) {
+export const JOIN_UP_TO = 400 * 1048576;
+export function parseJsonParts(x, { joinUpTo = JOIN_UP_TO } = {}) {
   const parts = partsOf(x);
   if (parts.length === 1) return JSON.parse(parts[0]);
+  if (parts.length && lengthOf(x) <= Math.min(joinUpTo, V8_MAX_STRING)) return JSON.parse(parts.join(''));
   let pi = 0, s = parts[0] || '', i = 0, line = 1;
   const more = () => { while (++pi < parts.length) { if (parts[pi].length) { s = parts[pi]; i = 0; return true; } } return false; };
   const err = (m) => new SyntaxError('JSON: ' + m + ' (part ' + pi + ', offset ' + i + ')');

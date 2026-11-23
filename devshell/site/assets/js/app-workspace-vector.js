@@ -14,6 +14,7 @@
  * are, not how they are drawn. Map: docs/apps/app-workspace.md § Vector.
  */
 import { shapeMenus } from './app-workspace-tools.js';
+import { MENUS as DRAFTING_MENUS } from './app-block-menuset-drafting.js';   // 0.11 UI.12: the Drafting layout's menu set (data only)
 import { showSeq } from './app-input.js';
 import { iconKey, iconNode, iconStyle, iconsWired, blockIcon } from './app-workspace-icons.js';
 import { iconFor, infoFields } from './app-workspace-extras.js';
@@ -89,7 +90,17 @@ const RHINO_BY_LAST = [
   [/^(measure|tape|area|distance|angle|protractor|curvature|section)$/, 'analyze'],
   [/^(trim|extend|fillet|chamfer|offset|divide|explode|join|polyline|line|arc|circle|ellipse|rect|polygon|spline|curve)$/, 'curve'],
 ];
-export const menuOrder = (set) => (set === 'sketch' ? SKETCH_ORDER : set === 'rhino' ? RHINO_ORDER : MENU_ORDER);
+/** 0.11 UI.12: the Drafting set: File Edit View Insert Format Tools Draw Dimension Modify Window Help. The names in app-block-menuset-drafting.js are matched to the registry's groups
+ *  (lower case); the groups the data does not name are filed by the words below, anything else goes to Tools so nothing disappears. */
+export const DRAFTING_ORDER = DRAFTING_MENUS.map((m) => m.id);
+const DRAFTING_EXTRA = {
+  file: ['export', 'output', 'sheets', 'pages'], edit: ['clipboard', 'organize', 'selection'], view: ['camera', 'show', 'vis', 'scale'], insert: ['blocks', 'place', 'items', 'add'],
+  format: ['aids', 'attributes'], tools: ['parametric', 'features', 'feature', 'app'], draw: ['build', 'curve', 'design', 'model', 'beginner', 'mesh', 'surface'],
+  dimension: ['takeoff', 'measure'], modify: ['align', 'revise', 'edit3d', 'uv', 'sculpt'], window: ['panels', 'panel', 'workspace', 'ws'],
+};
+const DRAFTING_BY_GROUP = (() => { const m = {}; for (const d of DRAFTING_MENUS) { for (const g of d.groups) m[g.toLowerCase()] = d.id; for (const g of DRAFTING_EXTRA[d.id] || []) if (!m[g]) m[g] = d.id; } return m; })();
+const DRAFTING_BY_ID = { 'app.help': 'help', 'app.palette': 'window', 'app.settings': 'tools', 'edit.undo': 'edit', 'edit.redo': 'edit' };
+export const menuOrder = (set) => (set === 'sketch' ? SKETCH_ORDER : set === 'rhino' ? RHINO_ORDER : set === 'drafting' ? DRAFTING_ORDER : MENU_ORDER);
 
 export function menuOf(cmd, set = 'vector') {
   const id = String(cmd.id || ''), prefix = id.split('.')[0], last = id.split('.').pop();
@@ -99,6 +110,7 @@ export function menuOf(cmd, set = 'vector') {
     const verb = ['modify', 'draw', 'organize'].includes(cmd.group) ? (RHINO_BY_LAST.find(([re]) => re.test(last)) || [])[1] : '';
     return verb || RHINO_BY_GROUP[cmd.group] || RHINO_BY_GROUP[prefix] || 'tools';
   }
+  if (set === 'drafting') return DRAFTING_BY_ID[id] || DRAFTING_BY_GROUP[String(cmd.group || '').toLowerCase()] || DRAFTING_BY_GROUP[prefix] || 'tools';
   if (set === 'sketch') return SKETCH_BY_ID[id] || SKETCH_BY_GROUP[cmd.group] || SKETCH_BY_GROUP[prefix] || 'tools';
   if (BY_ID[id]) return BY_ID[id];
   if (TEXT_ID.test(last)) return 'text';
@@ -158,7 +170,7 @@ export function menubar(E) {
       if (!g.has(cmd.group)) g.set(cmd.group, { key: cmd.group, label: ribbonLabel.get(cmd.group) || pretty(cmd.group), ids: [] });
       g.get(cmd.group).ids.push(cmd);
     }
-    return menuOrder(set).map((m) => ({ id: m, groups: [...menus.get(m).values()] }));
+    return menuOrder(set).map((m) => ({ id: m, ...(set === 'drafting' && has('shell.menu.' + m) ? { label: T('shell.menu.' + m) } : {}), groups: [...menus.get(m).values()] }));
   }
 
   const item = (cmd) => {

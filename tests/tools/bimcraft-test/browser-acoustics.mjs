@@ -133,6 +133,31 @@ try {
   await page.selectOption('[data-eg49-box-mat="bf"]', 'carpet'); await page.selectOption('[data-eg49-box-mat="bc"]', 'ceiling-board');
   ok(/Below about \d+ Hz/.test(await page.textContent('[data-eg49-schroeder]')), 'the Schroeder frequency is stated: ' + (await page.textContent('[data-eg49-schroeder]')).slice(0, 60));
   ok(/^\s*100 \d+/.test(await page.textContent('[data-eg49-modes]')) || /\d+ \d+(\.\d)? Hz/.test(await page.textContent('[data-eg49-modes]')), 'the lowest modes are listed: ' + (await page.textContent('[data-eg49-modes]')).slice(0, 60));
+  console.log('== 0.11 XE.3 S2: traced in the room\'s real shape (simplify.js + geo.js)');
+  await page.click('[data-eg49-trace]');
+  await page.waitForSelector('[data-eg49-gtable], [data-eg49-g-error]', { timeout: 120000 });
+  const gerr = await page.$('[data-eg49-g-error]');
+  ok(!gerr, 'the placed room traces without an error' + (gerr ? ': ' + await gerr.textContent() : ''));
+  const gm = await page.textContent('[data-eg49-g-model]');
+  ok(/\d+ surfaces, [\d.]+ m³, \d+ corners/.test(gm), 'the model line: ' + gm);
+  const g30 = await page.$$eval('[data-eg49-g="t30"] td', (c) => c.map((x) => Number(x.textContent))), gst = await page.$$eval('[data-eg49-g="same"] td', (c) => c.map((x) => Number(x.textContent)));
+  ok(g30.length === 6 && g30.every((v) => v > 0 && v < 10), 'traced T30 per band: ' + g30.join(', ') + ' s (statistical on the same surfaces ' + gst.join(', ') + ')');
+  const gmid = (g30[2] + g30[3]) / 2, smid = (gst[2] + gst[3]) / 2;
+  ok(gmid > smid, 'carpet and a tiled ceiling between hard walls: the traced time is longer than Eyring on the same surfaces (' + gmid.toFixed(2) + ' vs ' + smid.toFixed(2) + ' s), as the box section\'s Fitzroy and Arau-Puchades say for uneven absorption');
+  await page.selectOption('[data-eg49-finish="floor"]', 'wood-floor');
+  await page.selectOption('[data-eg49-finish="ceiling"]', 'ceiling-board');
+  await page.click('[data-eg49-trace]');
+  await page.waitForSelector('[data-eg49-gtable]', { timeout: 120000 });
+  const e30 = await page.$$eval('[data-eg49-g="t30"] td', (c) => c.map((x) => Number(x.textContent))), est = await page.$$eval('[data-eg49-g="same"] td', (c) => c.map((x) => Number(x.textContent)));
+  const emid = (e30[2] + e30[3]) / 2, esmid = (est[2] + est[3]) / 2;
+  ok(Math.abs(emid - esmid) / esmid < 0.2, 'with a wood floor and a board ceiling (absorption spread evenly) traced and statistical agree within 20 % at mid frequencies (' + emid.toFixed(2) + ' vs ' + esmid.toFixed(2) + ' s)');
+  ok((await page.$$('[data-eg49-g="c80"] td')).length === 6, 'C80, EDT and D50 rows drawn');
+  await page.locator('[data-eg49-gtable]').scrollIntoViewIfNeeded();
+  await shot(page, 'acoustics-traced');
+  await page.fill('[data-eg49-gtol]', '600');
+  await page.click('[data-eg49-trace]');
+  await page.waitForFunction((prev) => { const m = document.querySelector('[data-eg49-g-model]'); return m && m.textContent !== prev; }, gm, { timeout: 120000 }).catch(() => {});
+  ok(await page.$('[data-eg49-gtable]') !== null, 'a coarser model (60 cm) traces too: ' + await page.textContent('[data-eg49-g-model]'));
 } catch (e) {
   fail++; console.log('  FAIL ' + (e.stack || e));
 }

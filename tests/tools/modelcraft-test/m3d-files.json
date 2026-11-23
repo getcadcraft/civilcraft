@@ -3,6 +3,7 @@
   "files": [
     "bvh.js",
     "camera.js",
+    "chunks.js",
     "collada-write.js",
     "collide.js",
     "earcut.js",

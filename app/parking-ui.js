@@ -22,7 +22,7 @@ export function createParking(ctx) {
   const P = () => ctx.project(), U = () => (ctx.units() === 'm' ? 'm' : 'ft');
   const zAt = (x, y) => { const z = ctx.groundAt(x, y); return Number.isFinite(z) ? z : null; };
   const cache = new Map();   // record json → computed lot (the layout is worked out again only when the record changes)
-  const calc = (rec) => { const k = JSON.stringify([rec.boundary, rec.opts, U(), P().state.landscape?.grading?.length]); let c = cache.get(rec.id); if (!c || c.k !== k) { c = { k, v: computeLot(rec, { units: U(), zAt }) }; cache.set(rec.id, c); } return c.v; };
+  const calc = (rec) => { const k = JSON.stringify([rec.boundary, rec.opts, U(), P().state.landscape?.grading?.length, P().streetLines?.()]); let c = cache.get(rec.id); if (!c || c.k !== k) { c = { k, v: computeLot(rec, { units: U(), zAt, streets: P().streetLines?.() }) }; cache.set(rec.id, c); } return c.v; };
   let dlg = null, form = { angle: 90, region: 'us', traffic: '' };
 
   function readForm(box) {
@@ -46,7 +46,7 @@ export function createParking(ctx) {
     ctx.say(t('pk.made', { n: c.total, acc: c.accessible })); render(); ctx.refresh();
   }
   function csv(rec) { const lay = calc(rec).layout; ctx.download(ctx.fileStem() + '-parking-' + rec.id + '.csv', new Blob(['﻿' + K.scheduleCsv(lay, U())], { type: 'text/csv' })); }
-  const problemText = (p) => t('pk.p.' + p.code, { have: fixed(p.have ?? 0, 2), need: fixed(p.need ?? 0, 2), limit: fixed(p.limit ?? 0, 2), step: fixed(p.step ?? 0, 2), tol: fixed(p.tol ?? 0, 2), u: U() });
+  const problemText = (p) => t('pk.p.' + p.code, { have: fixed(p.have ?? 0, 2), count: p.count ?? 0, source: p.source ?? '', need: fixed(p.need ?? 0, 2), limit: fixed(p.limit ?? 0, 2), step: fixed(p.step ?? 0, 2), tol: fixed(p.tol ?? 0, 2), u: U() });
 
   function render() {
     if (!dlg) return;
@@ -54,7 +54,7 @@ export function createParking(ctx) {
     const rows = (P().state.parking || []).map((rec) => {
       const { layout: L, drains, grade } = calc(rec), c = L.counts, a = L.area;
       const vol = grade ? t('pk.vol', { cut: fixed(grade.cut, 0), fill: fixed(grade.fill, 0), vu: u === 'm' ? 'm³' : 'ft³', step: fixed(grade.edgeStep, 2), u }) : t('pk.nograde');
-      const probs = [...L.problems, ...(grade?.problems || [])];
+      const probs = [...L.problems, ...L.notes.filter((n) => n.code === 'region.unread'), ...(grade?.problems || [])];
       return el('div', { className: 'cv-card', 'data-pk-row': rec.id },
         el('div', { className: 'cv-row' }, el('strong', {}, rec.name || rec.id),
           el('button', { type: 'button', className: 'cv-x', 'aria-label': t('pk.remove'), 'data-pk-remove': rec.id, onclick: () => { removeLot(P(), rec.id); cache.delete(rec.id); render(); ctx.refresh(); } }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' }))),
@@ -71,7 +71,7 @@ export function createParking(ctx) {
     const fld = (k, def, w = '4.5rem') => { const i = el('input', { type: 'text', className: 'cv-input', id: id + '-' + k, placeholder: String(def), style: 'width:' + w, value: form[k] === undefined ? '' : String(form[k]), onchange: () => { form[k] = i.value; } }); return el('label', { for: id + '-' + k }, t('pk.f.' + kb(k), { u: U() }), ' ', i); };
     const chk = (k, def) => { const i = el('input', { type: 'checkbox', checked: form[k] === undefined ? def : form[k] !== false, ['data-pk-' + k]: '', onchange: () => { form[k] = i.checked; } }); return el('label', {}, i, ' ', t('pk.f.' + kb(k))); };
     const angle = el('select', { className: 'cv-select', 'data-pk-angle': '', 'aria-label': t('pk.f.angle'), onchange: () => { form.angle = angle.value; open(); } }, ...K.ANGLES.map((a) => el('option', { value: a, selected: Number(form.angle) === a }, a === 0 ? t('pk.parallel') : a + '°')));
-    const region = el('select', { className: 'cv-select', 'data-pk-region': '', 'aria-label': t('pk.f.region'), onchange: () => { form.region = region.value; open(); } }, ...['us', 'custom'].map((r) => el('option', { value: r, selected: form.region === r }, t('pk.r.' + r))));
+    const region = el('select', { className: 'cv-select', 'data-pk-region': '', 'aria-label': t('pk.f.region'), onchange: () => { form.region = region.value; open(); } }, ...K.REGION_IDS.map((r) => el('option', { value: r, selected: form.region === r }, t('pk.r.' + r))));
     const traffic = el('select', { className: 'cv-select', 'aria-label': t('pk.f.traffic'), onchange: () => { form.traffic = traffic.value; } }, el('option', { value: '' }, t('pk.o.auto')), ...['one', 'two'].map((o) => el('option', { value: o, selected: form.traffic === o }, t('pk.o.' + o))));
     const close = el('button', { type: 'button', className: 'cv-x', 'aria-label': t('tv.close') }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' }));
     dlg = el('dialog', { className: 'cv-dialog cv-pcdlg', 'aria-labelledby': id + '-h', 'data-pk-dialog': '' }, el('div', { className: 'cv-dlg' },
@@ -80,7 +80,7 @@ export function createParking(ctx) {
         el('div', { className: 'cv-row' }, region, angle, traffic),
         el('div', { className: 'cv-row' }, fld('stallW', D.stallW), fld('stallL', D.stallL), fld('aisleW', D.aisleW), fld('islandW', D.islandW), fld('maxRun', D.maxRun), fld('accessible', t('pk.o.auto')), fld('orientation', t('pk.o.auto'))),
         el('div', { className: 'cv-row' }, fld('fallPct', D.fallPct), fld('drainSpacing', D.drainSpacing), chk('endIslands', true), chk('grade', true), chk('paving', true), chk('planting', true)),
-        el('p', { className: 'cv-note', 'data-pk-tables': '' }, t(form.region === 'custom' ? 'pk.tables.custom' : 'pk.tables.us')),
+        el('p', { className: 'cv-note', 'data-pk-tables': '' }, t(form.region === 'custom' ? 'pk.tables.custom' : form.region === 'us' ? 'pk.tables.us' : 'pk.tables.unread', { source: K.regionOf(form.region).source })),
         el('div', { className: 'cv-row' }, el('button', { type: 'button', className: 'btn-plot btn-sm-cc', 'data-pk-build': '', onclick: () => make(null) }, t('pk.build'))),
         el('div', { 'data-pk-body': '' }))));
     close.onclick = () => dlg.close();

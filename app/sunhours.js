@@ -31,6 +31,7 @@
  */
 
 import { sunPosition, sunVector } from './drive.js';
+import { csvCell } from './util.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const fin = Number.isFinite;
 
@@ -251,7 +252,6 @@ export function facadeSummary(r) {
   return [...by.values()].map((s) => ({ mass: s.mass, name: s.name, min: s.min, mean: s.sum / s.n, max: s.max }));
 }
 
-const csvCell = (v) => { let s = String(v ?? ''); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };   // formula cells escaped
 export function facadeCsv(r) {
   const rows = [['mass', 'wall', 'facing_deg', 'floor', 'sun_hours_per_day']];
   for (const f of r.facades) f.floors.forEach((h, k) => rows.push([f.name, f.edge + 1, Math.round(((90 - (f.normal * 180) / Math.PI) % 360 + 360) % 360), k + 1, h.toFixed(2)]));

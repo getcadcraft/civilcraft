@@ -174,6 +174,7 @@ export function activate(api) {
     hasGcode: () => !host || host.gcode !== false,
     showViewport: () => !host || host.id === 'part',
     hostCtx: () => { const a = analysis(); return { api, t, project: S.project, analysis: a, build: a.build, list: a.list, est: a.est, nest: S.nest, say2, fmt, base, download, site: S.project.site || null }; },
+    // i18n-ignore: log text for the developer console, never shown (words-11)
     hostSections(where) { try { return host && typeof host.sections === 'function' ? host.sections(app.hostCtx()).filter((x) => (x.where || 'drawings') === where) : []; } catch (e) { api.log('host sections', e); return []; } },
     async hostRun(actionId) {
       let action = null;

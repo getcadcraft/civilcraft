@@ -14,12 +14,14 @@
  */
 import { symbolSvg } from './symbol-sets.js';
 
+// i18n-ignore-start: English defaults; the same keys live in lang/en.json (words-11)
 const EN = {
   'sym.palette.title': 'Symbols', 'sym.palette.search': 'Search symbols', 'sym.palette.placeholder': 'Search by name or abbreviation', 'sym.palette.close': 'Close the symbol palette',
   'sym.palette.all': 'All sets', 'sym.palette.favs': 'Favourites', 'sym.palette.favsonly': 'Only favourites', 'sym.palette.none': 'No symbols match.', 'sym.palette.nofavs': 'No favourites yet: press the star on a symbol, or F on the focused one.',
   'sym.palette.fav.add': 'Add {name} to favourites', 'sym.palette.fav.remove': 'Remove {name} from favourites', 'sym.palette.sets': 'Symbol sets', 'sym.palette.picked': '{name} picked. Click the plan to place it; Esc stops.',
   'sym.palette.count': '{n} symbols', 'sym.palette.item': '{name}, {category}', 'sym.palette.faved': '{name} added to favourites', 'sym.palette.unfaved': '{name} removed from favourites',
 };
+// i18n-ignore-end
 let styled = false;
 const CSS = `
 .symp{position:fixed;right:16px;top:96px;width:340px;max-height:calc(100vh - 120px);z-index:1040;display:flex;flex-direction:column;background:var(--bs-body-bg,#fff);color:var(--bs-body-color,#212529);border:1px solid var(--bs-border-color,#ccc);border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.25);font-size:14px}

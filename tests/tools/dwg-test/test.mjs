@@ -4,7 +4,7 @@
  * test.mjs — cc-dwg unit tests (docs/DWG-LIB-SPEC.md "Done means" 4). Imports whatever lib/dwg exposes
  * and skips — with the reason — what is not built yet.
  *
- *   node tools/dwg-test/test.mjs [--verbose] [--only bits,crc,lz,r2007,rs,header,read,underlay]
+ *   node tools/dwg-test/test.mjs [--verbose] [--only bits,crc,lz,r2007,rs,header,read,underlay,plotstyle]
  *
  *   bits    bit codes against the worked examples of the ODA spec v5.4.1 ch. 2 (BS, BL, BD, 3B, MC, MS,
  *           handle 5.2.05E7, the BS-in-an-object example of 2.14.1), reader and writer, + random round trips
@@ -91,6 +91,20 @@ if (section('bits', 'bit codes (spec ch. 2 worked examples)')) {
     ok(Number(h) === 0x5E7 && (r.hcode === undefined || r.hcode === 5), `reader handle reference 0101.0010.00000101.11100111 → 5E7 code 5 (2.13) [got ${h}, code ${r.hcode}]`);
     r = rd('01000000' + '11100000');
     ok(r.BS() === 3, 'reader: the 2.14.1 object "01 00000011 100000" holds bitshort 3');
+    // 0.11 PERF.19: positions past 2^31 bits (a drawing whose object section is over 256 MiB: 2.9 M entities and more) were wrapped by `p >> 3` and `& ~7`,
+    // so every object after it read as empty. A zero-filled 300 MB buffer costs nothing until it is touched; the bytes at 270 M are set.
+    {
+      const big = new Uint8Array(270000100);
+      const at = 268435456 + 1000;   // byte index: bit position 2^31 + 8000
+      big[at] = 0b10110000; big[at + 1] = 0xA5; big[at + 2] = 0x5A; big[at + 3] = 0x12; big[at + 4] = 0x34;
+      const x = new BR(big, { version: 15, startBit: at * 8 });
+      ok(x.B() === 1 && x.B() === 0 && x.B() === 1 && x.B() === 1 && x.B() === 0, 'reader bits at position 2^31 + 8000: 1 0 1 1 0');
+      x.align();
+      ok(x.pos === (at + 1) * 8, `reader align() past 2^31 bits: ${x.pos} (want ${(at + 1) * 8})`);
+      ok(x.RC() === 0xA5 && x.RC() === 0x5A, 'reader bytes after align() past 2^31 bits');
+      const y = new BR(big, { version: 15, startBit: (at + 3) * 8 + 4 });
+      ok(y.BB() === 0 && y.RC() === 0x8D, 'reader two bits then a byte on a bit offset past 2^31 (0x12 0x34 from bit 4: 00 then 10001101)');
+    }
     const { readMC, readMS, mod } = R.bits;
     if (readMC && mod) {
       const mc = (arr) => { const v = readMC(new Uint8Array(arr), 0); return [v, mod.pos]; };
@@ -478,6 +492,13 @@ if (section('underlay', 'PDF underlays: PDFDEFINITION + PDFUNDERLAY (0.7 D7.24; 
   const r = spawnSync(process.execPath, [path.join(REPO, 'tools/dwg-test/underlay.mjs')], { encoding: 'utf8', timeout: 900000 });
   const m = /(\d+) passed, (\d+) failed/.exec(r.stdout || '');
   ok(m && +m[2] === 0 && r.status === 0, `underlay.mjs: ${m ? m[1] + ' passed, ' + m[2] + ' failed' : 'did not run'}` + (r.status ? '\n' + (r.stdout || '').split('\n').filter((l) => /FAIL/.test(l)).join('\n') : ''));
+}
+
+if (section('plotstyle', 'a plot style handle the flags do not name (0.11 FX, Plans.dwg; tools/dwg-test/plotstyle-handle.mjs)')) {
+  const { spawnSync } = await import('node:child_process');
+  const r = spawnSync(process.execPath, [path.join(REPO, 'tools/dwg-test/plotstyle-handle.mjs')], { encoding: 'utf8', timeout: 300000 });
+  const m = /(\d+) passed, (\d+) failed/.exec(r.stdout || '');
+  ok(m && +m[2] === 0 && r.status === 0, `plotstyle-handle.mjs: ${m ? m[1] + ' passed, ' + m[2] + ' failed' : 'did not run'}` + (r.status ? '\n' + (r.stdout || '').split('\n').filter((l) => /FAIL/.test(l)).join('\n') : ''));
 }
 
 if (section('structure', 'structure a strict reader relies on, all six versions (0.9 "Drawing file is not valid"; tools/dwg-test/structure.mjs)')) {

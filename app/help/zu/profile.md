@@ -1,73 +1,88 @@
 ---
-title: Ukwakha uphrofayili oqondile
-summary: Vula umbono wephrofayili, qala uphrofayili oklelwe emhlabeni, engeza futhi uhudulele ama-PVI, setha ubude bamajika athe xaxa, bese ufunda ukuthambeka, amanani e-K namaphoyinti aphezulu nawaphansi.
-keywords: uphrofayili, ukuhlelwa okuqondile, pvi, ijika elithe xaxa, ukuthambeka, inani le-K, crest, sag, bvc, evc, umbono wephrofayili, umhlaba ophelele, fg, uphrofayili womhlaba okhona, imigqa yezici ephrofayileni, ukuwela, ukuprojekta, curb, umfucuza, amalebula
-from: e9182bfa
+title: Yakha iphrofayili ethe xaxa
+summary: Vula umbono wephrofayili, qala iphrofayili yedizayini emhlabeni, engeza futhi uhudule ama-PVI, setha ubude bamajika athe xaxa, bese ufunda amagredi, amanani e-K namaphuzu aphezulu nalawo aphansi.
+keywords: iphrofayili, ukuhlanganiswa okuthe xaxa, pvi, ijika elithe xaxa, igredi, inani le-k, ucwecwe, ukwehla, bvc, evc, umbono wephrofayili, igredi lokugcina, fg, iphrofayili yomhlaba okhona, imigqa yesici kwiphrofayili, ukuhlangana, okuhleliwe, amakherbhu, indlela, amalebula
+from: dbb1f32d
 ---
 
-Ngalinye i-alignment linephrofayili elilodwa eliqondile: uhlu lwama-PVI (isiteshi nokuphakama) ahlanganiswe ngokuthambeka okuqondile, nejika elithe xaxa elilinganayo ngaphezu kwanoma iyiphi i-PVI yangaphakathi enobude. Uphrofayili womhlaba okhona uthathwa isampula ngokuzenzakalela kusuka ku-surface.
+Umzila ngamunye unephrofayili eyodwa yedizayini: uhlu lwe-PVI (isiteshi nokuphakama) exhunywe ngamagredi aqondile, nejika elithe xaxa elifana nelisipilishi kunoma iyiphi i-PVI phakathi enobude. Iphrofayili yomhlaba okhona ithathwa ngokuzenzakalelayo kusuka kumphezulu.
 
 ## Vula umbono wephrofayili
 
-1. Khetha i-alignment (chofoza kuyo nge-{{ui:Khetha}}).
-2. Cindezela {{key:R}}, noma chofoza {{ui:Iphrofayili}} ethuluzini, noma {{ui:Ukubuka iphrofayili}} ezansi kwephaneli yesokudla.
-   Umbono wephrofayili uvula ngaphansi kwepulani nomhlaba okhona ngokuhamba kwe-alignment. Uma kukhona i-alignment ezimbili noma ngaphezulu, khetha eyodwa ohlwini oluseceleni kwesokunxele kwebha yephrofayili.
+1. Khetha umzila (uwuchofoze nge-{{ui:Khetha}}).
+2. Cindezela {{key:R}}, noma chofoza {{ui:Iphrofayili}} kwi-toolbar, noma {{ui:Ukubuka iphrofayili}} ngaphansi kwepaneli yesokudla.
+   Umbono wephrofayili uvula ngaphansi kwepulani nomhlaba okhona ngomzila. Uma kukhona imizila emibili noma ngaphezulu, khetha eyodwa kuhlu olusohlangothini lwesokunxele lwebha yephrofayili.
 
-Umbono ubonisa i-alignment yonke futhi unweba izinga lokuphakama ukugcwalisa iphaneli; ukukhulisa okuvundlile kuprintwa ekhoneni elingaphansi kwesobunxele, isibonelo "Ukukhulisa okuvundlile 10×". Akusondezi noma kushelelisi.
+Umbono uqala ngokukhombisa umzila wonke futhi welule ukuphakama ukugcwalisa iphaneli; ukukhulisa kuphrintwa ekhoneni elingezansi kwesokunxele, isibonelo "Vertical exaggeration 10×".
 
-Hambisa ipoyinta uhambe ngephrofayili: ibha ibonisa isiteshi, umhlaba nokuphakama okuklelwe, ukuthambeka nokusika noma ukugcwalisa lapho, futhi ichashazi lilandela i-alignment epulanini.
+## Zoom nokuhambisa iphrofayili
 
-## Qala uphrofayili oklelwe
+- **Zoom:** phendula inkembe yembewu (noma cindezela ku-trackpad) futhi umbono uzoom eduze nesikhombi. Bamba {{key:Shift}} ukuze uzoom izisiteshi kuphela, noma {{key:Alt}} ukuze uzoom ukuphakama kuphela (lokho kushintsha ukukhulisa). Uma umbono wephrofayili ugxile, izinkinobho zokuhlanganisa nokukhipha zi-zoom phakathi.
+- **Hambisa:** hudula ngenkinobho yesokudla noma ephakathi yembewu, noma shayela ngeminwe emibili ku-trackpad.
+- **Lingana:** chofoza kabili iphrofayili noma cindezela {{key:F}} ukuze ubonise umzila wonke futhi.
 
-1. Ngaphansi kwe-**Uphrofayili oklelwe** eceleni kwesokudla, chofoza {{ui:Qala emhlabeni}}.
-   Ama-PVI amabili abekwa emhlabeni emaphethelweni amabili we-alignment, ahlanganiswe ngokuthambeka okuqondile okukodwa. Ibha yesimo ithi "Uphrofayili oklelwe uqalwe emhlabeni emaphethelweni womabili. Vula {{ui:Engeza ama-PVI}} bese uchofoza ukuze wengeze izinqamuleli zokuthambeka; nikeza ubude bejika ethebhuleni."
+Ukuhlela i-PVI kugcina i-zoom oyikhethile; ayibuyeli ekulinganeni.
 
-Uma i-alignment ingadluli ku-surface, uthola: "Le alignment ayinamhlabathi phansi kwayo okuqala kuwo." Bese wengeza ama-PVI ngokuchofoza (isigaba esilandelayo).
+Hambisa isikhombi phansi kwephrofayili: ibha ikhombisa isiteshi, imihlabathi nokuphakama kwedizayini, igredi nokumba noma ukugcwalisa lapho, futhi kuyadlula ichashaza emzileni epulani.
+
+## Qala iphrofayili yedizayini
+
+1. Ngaphansi kwe-**Iphrofayili yedizayini** ku-paneli yesokudla, chofoza {{ui:Qala emhlabathini}}.
+   Ama-PVI amabili ayabekwa emhlabeni emaphethelweni omabili omzila, axhunywe ngegredi elilodwa elilinganayo. Ibha yesimo ithi "Iphrofayili yedizayini iqalile emhlabeni emaphethelweni omabili. Vula {{ui:Engeza ama-PVI}} bese uchofoza ukwengeza ukuguqulwa kwegredi; nikeza ijika ubude ethebhuleni."
+
+Uma umzila ungahlangani nomphezulu, uthola "Lo mzila awunamhlaba ongaphansi kwawo okuqala kuwo." Bese wengeza ama-PVI ngokuchofoza (esigabeni esilandelayo).
 
 ## Engeza ama-PVI
 
-1. Cindezela {{key:I}}, noma chofoza {{ui:Engeza ama-PVI}} ebhalini yephrofayili. Ibambeka.
-2. Chofoza ephrofayileni lapho ufuna khona inqamuleli yokuthambeka. I-PVI ingezwa kuleso siteshi nakuleso sikhundla sokuphakama, izungezwe ku-0.01, futhi ikhethwe.
-3. Engeza eziningi ozidingayo, bese ucindezela {{key:I}} futhi ukuze uyeke ukungeza.
+1. Cindezela {{key:I}}, noma chofoza {{ui:Engeza ama-PVI}} ebhayeni yephrofayili. Ihlala icindezelwe.
+2. Chofoza kwiphrofayili lapho ufuna ukuguqula igredi. I-PVI iyengezwa kulowo mzila nakulowo kuphakama, ijikelezwe kwi-0.01, futhi iyakhethwa.
+3. Engeza njengoba udinga, bese ucindezela {{key:I}} futhi ukuyeka ukwengeza.
 
-Ukuchofoza lapho sekukhona i-PVI kwenqatshwa ("Sekukhona i-PVI ku …"). Ama-PVI ahlala ohlelweni lwesiteshi ngaso sonke isikhathi.
+Ukuchofoza lapho kukhona kakade i-PVI kuyenqatshwa ("Kukhona i-PVI kwele … ngokwayo"). Ama-PVI ahlala njalo ngokulandelana kwezisiteshi.
 
-## Hlela ama-PVI
+## Ukuhlanganisa njengoba wengeza noma udonsa
 
-- **Hudula** i-PVI ephrofayileni ukuyinyakazisa. Ayikwazi ukudlula izikhashana zayo. Ukunyakaziswa kuyisinyathelo esisodwa sokuhlehlisa.
-- **Thayipha** izinani ngokunembile ethebhuleni ye-PVI ephaneli yesokudla: **Isiteshi**, **Ukuphakama** nethebhu **Ijika L** (ubude bejika elithe xaxa). Cindezela {{key:Enter}} ngemva kwalokho ngakunye.
-- **Susa** i-PVI ngophawu lwe-x ekugcineni komugqa wayo, noma ukhethe (chofoza kuyo) bese ucindezela {{key:Delete}}. Uma umbono wephrofayili unegxilo, {{key:Backspace}} nayo iyayisusa.
+Inkinobho ye-**Snap** ebhayeni yephrofayili ivulekile ekuqaleni. Uma ivulekile, i-PVI oyengezayo noma oyidonsayo ihlala eduze kwe-PVI eseduze, iphuzu lomhlaba, isiteshi se-PVI noma umugqa womhlaba, futhi ilebula eduze kwemakhi lisho ukuthi yiphi. Bamba {{key:Alt}} ukuze uthole iphuzu elikhululekile, noma ngubani.
 
-I-PVI yokuqala nokugcina awasoze athole ijika.
+## Lungisa ama-PVI
+
+- **Donsa** i-PVI ephrofayili ukuze uyihambise. Ayikwazi ukudlula kwabaseduze bayo. Ukuhamba kuyisinyathelo esisodwa sokuhlehlisa.
+- **Thayipha** amanani aqondile kwethebula le-PVI kupaneli yesokudla: **Isiteshi**, **Ukuphakama**, **Ukuthambeka %** kanye **Ijika L** (ubude bejika elithe xaxa). Cindezela {{key:Enter}} emva kwalo ngalinye.
+- **Khetha** inani kusuka ephrofayili: inkinobho encane ecaleni kwesiteshi noma ukuphakama kwe-PVI ilinde ukuchofoza kumbono wephrofayili bese igcwalisa leli nani. Ukuchofoza kulandela inqubo efanayo ne-Engeza ama-PVI; bamba {{key:Alt}} ukuze uthole iphuzu elikhululekile; {{key:Esc}} iyayeka.
+- **Ukuthambeka %** kuyigredi yethenjenti eqala kule PVI ilanda kuya kwelandelayo. Ukuyithayipha kuhambisa ukuphakama kwe-PVI **elandelayo** (isiteshi sayo asihambi). Uma i-PVI elandelayo ikhiyiwe, ukuphakama kwe-PVI yangaphambilini kuhamba esikhundleni.
+- **Khiya** i-PVI ngophaphe ekugcineni komugqa wayo. I-PVI ekhiyiwe ayidonswa, futhi ukuhlelwa kokuthambeka akuyihambisi. Uma imiphetho yomibili yethenjenti ikhiyiwe, ukuthambeka kwayo akuwukushintsha: ibha yesimo iyasho, futhi kufanele uvule enye imiphetho kuqala. Ukukhiya kuyagcinwa kwifayela.
+- **Susa** i-PVI nge-x ekugcineni komugqa wayo, noma yikhethe (chofoza) bese ucindezela {{key:Delete}}. Uma umbono wephrofayili uzuza ukugxila, {{key:Backspace}} nayo iyayisusa.
+
+I-PVI yokuqala nokugcina azikaze zithole ijika.
 
 ## Amajika athe xaxa
 
-1. Thayipha ubude ku-**Ijika L** ye-PVI yangaphakathi, isibonelo 200.
-2. Ijika lidwetshwe liphakathi kwe-PVI. Uphrofayili nephaneli yesokudla kubonisa uhlobo lwalo (ingqikithi noma ukuhla), L ne-K, izikhala ze-BVC ne-EVC nokuphakama kwazo, nephoyinti laso eliphezulu noma eliphansi uma linalo ngaphakathi kwejika.
+1. Thayipha ubude ku-**Ijika L** ye-PVI ephakathi, isibonelo 200.
+2. Ijika lidwetshwa lisesikhungweni se-PVI. Iphrofayili nepaneli yesokudla zikhombisa uhlobo lwalo (ucwecwe noma ukwehla), L no-K, izisiteshi nokuphakama kwe-BVC ne-EVC, kanye nephuzu laso eliphezulu noma eliphansi uma linalo ngaphakathi kwejika.
 
-I-K ibalwa kusuka ku-L (K = L ihlukaniswe ngomehluko wokuthambeka, ngamaphesenti). Uthayipha i-L; ukuthayipha i-K ngqo akukatholakali.
+I-K ithathwa kusuka ku-L (K = L ihlukaniswe ngomehluko ophelele wamagredi, ngamaphesenti). Uthayipha i-L; ukuthayipha i-K ngqo akukatholakali.
 
-Uma ijika elithe xaxa lingalingani, ibhokisi elibomvu lichaza kungani: lingena emuva kwe-PVI noma ijika elingaphambili, noma ludlula i-PVI elandelayo, nokuthi kukhona kangakanani indawo ngaleyo ngxenye (ijika lidinga uhhafu wobude balo ngakunye ngakolunye uhlangothi lwe-PVI yalo). Inkinobho yalo isetha **ijika elide kakhulu elingalingana**, nenani le-K, njengesinyathelo esisodwa ({{key:Mod+Z}} iyahlehlisa). Noma hudulela ama-PVI kude nomunye.
+Uma ijika elithe xaxa lingalingani, ibhokisi elibomvu lisho ukuthi kungani: libuyela emuva libe yi-PVI noma ijika elingaphambili, noma ludlula i-PVI elandelayo, nokuthi kukhona yini isikhala kuleyo nhlangothi (ijika lidinga ingxenye yobude balo ngakunoma iluphi uhlangothi lwe-PVI yalo). Inkinobho yalo isetha **ijika elide kakhulu elilingana**, ne-K yalo, njengesinyathelo esisodwa ({{key:Mod+Z}} iyalihlehlisa). Noma hambisa ama-PVI ukuze ahlukane.
 
 ## Funda izimo
 
-Ngaphansi kwethebhu ye-PVI, uhlu lunikeza ukuthambeka ngamaphesenti ngalunye ("Ukuthambeka 1: +1.25%") nawo wonke amajika, isibonelo "Ingqikithi ku-2+00.00: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)", bese "Iphoyinti eliphezulu 1+62.40, 254.12".
+Ngaphansi kwethebula le-PVI, uhlu luveza igredi ngayinye ngamaphesenti ("Igredi 1: +1.25%") nalo jika ngalinye, isibonelo "Ucwecwe ku-2+00.00: L 200.00, K 85.3, BVC 1+00.00 (253.10), EVC 3+00.00 (252.40)", bese "Iphuzu eliphezulu 1+62.40, 254.12".
 
-Uma ama-PVI engafiki emaphethelweni womabili we-alignment, inothi liyasho. Ikhoridoro yakhiwa kuphela lapho uphrofayili ne-alignment kuhlangana.
+Uma ama-PVI engafinyeleli zombili izimpetho zomzila, inothi liyasho. Umgwaqo wakhiwa kuphela lapho iphrofayili nomzila kuhlangana khona.
 
-## Imigqa yezici ephrofayileni
+## Imigqa yesici kwiphrofayili
 
-Imigqa ye-feature line nayo ibonakala embonweni wephrofayili, ukuze ubone i-curb, umfucuza noma umphezulu wodonga ngokumelene nephrofayili yomgwaqo.
+Imigqa yesici nayo ivela embonweni wephrofayili, ukuze ubone ikherbhu, umfudlana noma ophezulu wodonga ngokumelene nephrofayili yomgwaqo.
 
-- Lapho umugqa wesici **udlula** i-alignment, uphrofayili ubonisa idayimane elincane kuleso siteshi nakuleso sikhundla sokuphakama, lilebhulwe ngegama lomugqa nokuphakama kwawo lapho (ukuphakama komugqa ngokwawo, kubalwe ngesegimenti edlula).
-- Thayipha ibanga ku-{{ui:Eduze phakathi kwe}} ukuze ubonise nemigqa yezici edlula eduze ne-alignment ngaphakathi kwalelo banga, njengemigqa eyisicaba ngokuphakama kwayo. Okungenalutho noma 0 kubonisa ukudlula kuphela.
-- Izimpawu namalebula kulandela zonke izinguquko: hudula i-vertex, thayipha ukuthambeka noma phakamisa umugqa, bese uphrofayili ubonisa ukuphakama okusha masinyane.
-- Chofoza idayimane lokudlula ukukhetha lowo mugqa wesici; umugqa okhethiwe udwetshwa ngombala wokugqamisa.
-- {{ui:Imigqa ye-feature line}} ebhalini yephrofayili iyawafihla noma iwabonise wonke. Zombili izilungiselelo zigcinwa ngephrojekthi.
+- Lapho umugqa wesici **udlula** umzila, iphrofayili ikhombisa idayimondi encane esiteshini nakulowo kuphakama, ilebulwe ngegama lomugqa nokuphakama kwawo lapho (ukuphakama komugqa uqobo, okubalwa ngokuya ngesegimenti edlula).
+- Thayipha ibanga ku-{{ui:Eduze phakathi kwe}} ukuze udwebe nemigqa yesici **ehamba eceleni** komzila ngalo banga, njengemigqa egcwele egcwele ngokuphakama kwayo. Okungenalutho noma 0 kukhombisa ukudlula kuphela.
+- Amamaki namalebula alandela wonke ushintsho: hudula i-vertex, thayipha igredi noma phakamisa umugqa, kanti iphrofayili ikhombisa ukuphakama okusha ngokushesha.
+- Chofoza idayimondi yokudlula ukuze ukhethe lowo mugqa wesici; umugqa okhethiwe udwetshwe ngombala owuqhamukayo.
+- {{ui:Imigqa ye-feature line}} ebhayeni yephrofayili iyawafihla noma iwaveze wonke. Zombili izilungiselelo zigcinwa kanye neprojekthi.
 
-Bona [Imigqa ye-feature line](topic:feature-lines).
+Bheka [Imigqa yesici](topic:feature-lines).
 
 ## Okulandelayo
 
-- [Hambisa ikhoridoro yomgwaqo](topic:corridor) ngaphansi kwe-alignment nalolu phrofayili.
-- Uphrofayili ubhalwa ku-LandXML ne-alignment; bona [Ukushintshana nge-LandXML](topic:landxml).
+- [Hambisa ikhoridoro lomgwaqo](topic:corridor) ngomzila nalephrofayili.
+- Iphrofayili ibhalwa ku-LandXML kanye nomzila; bheka [Ukushintshanisa i-LandXML](topic:landxml).

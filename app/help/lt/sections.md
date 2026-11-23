@@ -1,52 +1,70 @@
 ---
-title: Mėginių linijos ir skerspjūviai
-summary: Pjaukite skerspjūvius statmenai trasai, matykite žemę, projektą ir iškasą bei pylimą kiekviename pikete, o tūrius gaukite vidutinių galų plotų metodu.
-keywords: masių diagrama, masių perskirstymas, balanso taškas, susitraukimas, išsipūtimas, pervežimo atstumas, skolinys, atliekos, pjūvių lapai, skerspjūvių lapai, pjūvių PDF, pjūviai, skerspjūviai, mėginių linijos, pjūvio rodinys, iškasa, pylimas, plotai, vidutinio galo plotas, tūriai pagal galo plotus, žemės darbai, pikietas, nuokrypis, csv
-from: 5060173c
+title: Mėginių linijos ir skersiniai pjūviai
+summary: Pjaukite pjūvius statmenai trasai, matykite gruntą, projektą ir iškasą bei įpylimą kiekviename stacionaže ir gaukite apimtis pagal vidutinius galų plotus.
+keywords: masių pervežimo diagrama, masių kreivė, balanso taškas, susitraukimas, išbrinkimas, vežimo atstumas, pasiskolinimas, atliekos, pjūvių lapai, skersinių pjūvių lapai, pjūvių pdf, pjūviai, skersiniai pjūviai, mėginių linijos, pjūvio rodinys, iškasa, įpylimas, plotai, vidutinio galo plotas, galų plotų apimtys, gruntų darbai, stacionažas, poslinkis, csv
+from: 09639ce2
 ---
 
-Skerspjūvis rodo kelią taip, kaip jis bus nutiestas: statmenai trasai vienu pikete, esamą žemę, projektą (koridorius ar aikštelė, išlyginta) ir iškasą bei pylimą tarp jų.
+Skersinis pjūvis rodo kelią taip, kaip jis bus pastatytas: statmenai trasai viename stacionaže – esamas gruntas, projektas (koridorius ar aikštelė, suvesta į gruntą) ir iškasa bei įpylimas tarp jų.
 
 ## Pridėkite mėginių linijas
 
-1. Pasirinkite trasą. **Savybėse**, skyriuje **Mėginių linijos**, spauskite {{ui:Pridėti mėginių linijas}}.
-2. Nustatykite **Kas** (tarpą: pradžioje 50 ft arba 20 m), **Kairės plotis** ir **Dešinės plotis** (kiek toli kiekvienas pjūvis siekia nuo ašies).
-3. Norėdami pjauti pjūvį konkrečiame pikete, įveskite jį į **Pridėti pikietą** (pavyzdžiui, `2+35`) ir spauskite {{key:Enter}}.
+1. Pasirinkite trasą. **Ypatybėse**, skiltyje **Mėginių linijos**, spustelėkite {{ui:Pridėti mėginių linijas}}.
+2. Nustatykite **Kas** (žingsnį: pradžioje 50 ft arba 20 m), **Kairįjį plotį** ir **Dešinįjį plotį** (kiek toli kiekvienas pjūvis siekia nuo ašies).
+3. Norėdami pjauti pjūvį tam tikrame stacionaže, įveskite jį lauke **Pridėti stacionažą** (pavyzdžiui `2+35`) ir paspauskite {{key:Enter}}.
 
-Pjūviai pjaunami kiekvieno sveikojo tarpo kartotinio, abiejuose trasos galuose, kiekvienos kreivės pradžioje ir gale (PC ir PT) bei pikietuose, kuriuos pridedate. Mėginių linijos rodomos plane kaip pilkos linijos skersai trasos; jos taip pat išeina į DXF, DWG ir PDF sluoksnyje C-ROAD-SCTN. Kiekvienas pakeitimas yra vienas žingsnis: {{key:Mod+Z}} jį anuliuoja.
+Pjūviai pjaunami kas kiekvieną žingsnio kartotinį, abiejuose trasos galuose, kiekvienos kreivės pradžioje ir pabaigoje (PC ir PT) bei jūsų pridėtuose stacionažuose. Mėginių linijos plane rodomos pilkomis linijomis per trasą; jos taip pat eksportuojamos į DXF, DWG ir PDF sluoksnyje C-ROAD-SCTN. Kiekvienas pakeitimas yra vienas žingsnis: {{key:Mod+Z}} jį anuliuoja.
 
 ## Pjūvio rodinys
 
-Atverkite jį su {{ui:Pjūvio rodinys}} trasos **Savybėse**, {{ui:Pjūviai}} skyriuje **Paviršius** › {{ui:Daugiau}}, arba {{key:X}}. Jis pakeičia profilio vaizdą po planu.
+Atidarykite jį su {{ui:Pjūvio rodinys}} trasos **Ypatybėse**, su {{ui:Pjūviai}} skiltyje **Paviršius** › {{ui:Daugiau}} arba {{key:X}}. Jis užima profilio rodinio vietą po planu.
 
-- Pereikite per pjūvius rodyklėmis jo juostoje, pikietų sąraše arba {{key:Left}} ir {{key:Right}}, kai pjūvio rodinys fokusuojamas ({{key:Home}} ir {{key:End}} – pirmam ir paskutiniam).
-- Pilka linija yra esama žemė, raudona – projektas. Iškasa nuspalvinta oranžine, pylimas – žalia. Koridoriaus taškai pažymėti: CL (ašis), EOP (važiuojamosios dalies kraštas), SH (pečius) ir DL (dienos linija).
-- Antraštėje nurodomas pikietas, šio pjūvio iškasos ir pylimo plotai bei vertikalus perdėjimas. **Pritaikyti** užpildo skydelį; pasirinkite 1× norėdami pamatyti pjūvį tikru mastu.
-- Storoji linija plane rodo, kuris pjūvis matomas ekrane.
+- Pjūvius pereinate rodyklėmis jo juostoje, stacionažų sąrašu arba {{key:Left}} ir {{key:Right}}, kai pjūvio rodinys aktyvus ({{key:Home}} ir {{key:End}} – pirmam ir paskutiniam).
+- Pilka linija – esamas gruntas, raudona – projektas. Iškasa nuspalvinta oranžine, įpylimas – žalia. Koridoriaus taškai pažymėti: CL (ašis), EOP (dangos kraštas), SH (pakraštys) ir DL (ribinė linija).
+- Antraštėje nurodomas stacionažas, šio pjūvio iškasos ir įpylimo plotai bei vertikalus išdidinimas. **Pritaikyti** užpildo skydelį; pasirinkite 1×, kad pjūvis būtų matomas tikru mastu.
+- Storesnė linija plane rodo, koks pjūvis matomas ekrane.
+- **Mastelis ir slinkimas:** ratukas keičia mastelį apie žymeklį, o tempimas perkelia vaizdą. {{ui:Pritaikyti}} (arba {{key:F}}, arba dukart spustelėjimas) vėl pritaiko visą pjūvį.
+
+## Matavimas pjūvyje
+
+1. Pjūvio juostoje spustelėkite {{ui:Matuoti}} arba paspauskite {{key:M}}. Užuomina sako: „Spustelėkite pirmą tašką, tada antrą.“
+2. Spustelėkite du taškus. Kiekvienas prisitraukia prie linijos galo ar koridoriaus taško (CL, EOP, SH, DL); laisvam taškui laikykite {{key:Alt}}.
+3. Rodmenyje nurodomas horizontalusis atstumas (ΔH), vertikalusis atstumas (ΔV), nuolydis procentais su santykiu ir tiesi ilgis projekto vienetais.
+
+Spustelėkite dar kartą, kad pradėtumėte naują matavimą. {{key:Esc}} jį išvalo, o {{key:M}} išjungia Matavimą.
 
 ## Pjūvių lapai
 
-{{ui:Pjūvių lapai (PDF)}} skyriuje **Mėginių linijos** deda kiekvieną pjūvį į PDF puslapius, eilėmis iš kairės į dešinę ir iš viršaus į apačią pagal pikietų tvarką. Pasirinkite **Popierius**, **Plano mastelis** (horizontalus pjūvių mastelis) ir **Profilio perdėjimas** (1×, 2×, 5× arba 10×); dialogas nurodo, kiek pjūvių telpa puslapyje ir kiek puslapių tai sudaro.
+{{ui:Pjūvių lapai (PDF)}} skiltyje **Mėginių linijos** kiekvieną pjūvį sudeda į PDF puslapius, eilėmis iš kairės į dešinę ir iš viršaus žemyn stacionažų tvarka. Pasirinkite **Popierių**, **Plano mastelį** (horizontalų pjūvių mastelį) ir **Profilio išdidinimą** (1×, 2×, 5× arba 10×); dialogas nurodo, kiek pjūvių telpa puslapyje ir kiek puslapių tai sudaro.
 
-Kiekvienas pjūvis rodo tinklelį su nuokrypiais ir aukščiais, žemę (brūkšniuota), projektą, iškasą ir pylimą nuspalvintus (oranžine ir žalia), koridoriaus taškus, o po juo – jo pikietą ir jo iškasos bei pylimo plotus. Kiekvienas pjūvis lapuose nubraižytas tokio paties dydžio, pakankamai aukštas didžiausiam. Kai tai netelpa puslapyje su jūsų perdėjimu, CivilCraft naudoja didžiausią, kuris telpa, ir tai nurodo. Antraštės juosta nurodo trasą, pikietus tame puslapyje, mastelius ir „Lapas 1 iš 3“.
+Kiekvienas pjūvis rodo tinklelį su poslinkiais ir aukščiais, gruntą (brūkšniuotai), projektą, nuspalvintą iškasą ir įpylimą (oranžine ir žalia), koridoriaus taškus, o po juo – stacionažą ir iškasos bei įpylimo plotus. Visi lapų pjūviai braižomi tokio pat dydžio, pakankamai aukšti didžiausiam; jei tai netelpa puslapyje pasirinktu išdidinimu, CivilCraft naudoja didžiausią tinkantį ir apie tai praneša. Antraštės juostoje nurodoma trasa, šio puslapio stacionažai, mastelis ir „Lapas 1 iš 3“.
 
-## Tūriai pagal vidutinius galų plotus
+## Iki ko matuojama iškasa ir įpylimas
 
-Tarp dviejų gretimų pjūvių tūris yra jų dviejų plotų vidurkis, padaugintas iš atstumo tarp jų pikietų. Juosta rodo trasos sumas, o {{ui:CSV}} atsisiunčia kiekvieno pjūvio plotus ir tūrius su bėgančiomis sumomis (kubiniais jardais pėdų projektams, kubiniais metrais metriniams).
+Koridorius gali turėti sluoksnių po danga: dangos sluoksnius, šablono komponentus, vėžę (track). Pjūvio juostoje pasirinkite **Apimtis matuoti iki** – ką iškasa ir įpylimas pasiekia:
 
-**Savybėse** rodomos tos pačios sumos šalia tinklelio metodo tūrių iš [Žemės darbų tūriai](topic:volumes). Jie yra skirtingi apytiksliai įverčiai: artimesni pjūviai juos suartina, o tiesiame kelyje lygioje vietovėje jie sutampa.
+- **Apatinis paviršius** (numatytasis): iki tų komponentų apačios, todėl iškasa apima dangos konstrukcijos gylį.
+- **Viršutinis paviršius**: tik iki projekto viršaus, kaip anksčiau, kai komponentai nebuvo skaičiuojami.
+
+Antraštės plotai, apačioje esančios apimtys, CSV ir masių pervežimas visi seka šį pasirinkimą, ir jis išsaugomas kartu su projektu.
+
+## Apimtys pagal vidutinius galų plotus
+
+Tarp dviejų gretimų pjūvių apimtis yra jų dviejų plotų vidurkis, padaugintas iš atstumo tarp jų stacionažų. Juosta rodo trasos sumas, o {{ui:CSV}} atsisiunčia kiekvieno pjūvio plotus ir apimtis su kaupiamosiomis sumomis (kubiniai jardai projektams pėdomis, kubiniai metrai metriniams).
+
+**Ypatybėse** rodomos tos pačios sumos šalia tinklelio metodo apimčių iš [Gruntų darbų apimtys](topic:volumes). Tai du skirtingi apytiksliai skaičiavimai: arčiau išdėstyti pjūviai juos suartina, o tiesiame kelyje lygiame grunte jie sutampa.
 
 :::note
-Iškasa ir pylimas skaičiuojami tik išlygintose zonose (koridoriaus ar aikštelės dienos linijose), kaip ir tinklelio metode. Be koridoriaus ar aikštelės projektas yra žemė, todėl pjūvis nerodo nei iškasos, nei pylimo.
+Iškasa ir įpylimas skaičiuojami tik suvestų plotų viduje (koridoriaus ar aikštelės ribinių linijų), kaip ir tinklelio metode. Be koridoriaus ar aikštelės projektas yra gruntas, todėl pjūvis neparodo nei iškasos, nei įpylimo.
 :::
 
-## Masių perskirstymas
+## Masių pervežimas
 
-**Masių perskirstymas** skyriuje **Mėginių linijos** nubraižo masių diagramą pagal tuos pačius galų plotų tūrius: išilgai pikietų, bėgančią iškasos sumą atėmus pylimą.
+**Masių pervežimas** skiltyje **Mėginių linijos** braižo masių pervežimo diagramą pagal tas pačias galų plotų apimtis: išilgai stacionažų – kaupiamąją iškasos minus įpylimo sumą.
 
-- **Iškasos susitraukimas (−) arba išsipūtimas (+)** nurodo, ką kubinis jardas iškasos duoda, kai jis sudedamas kaip pylimas: −10 % (pradinė reikšmė, vietos rezervuotė) reiškia, kad jis susitraukia iki 0.9; išsipūtusi uola gali būti +5 %. Naudokite savo geotechninės ataskaitos skaičių.
-- Kur linija kyla, kelias yra iškasoje; kur leidžiasi – pylime. Virš nulio (nuspalvinta oranžine) žemė juda pagal pikietą aukštyn; žemiau nulio (žalia) – žemyn.
-- **Balanso taškai** yra ten, kur linija kerta nulį: tarp dviejų jų iškasa ir pylimas subalansuoti. Lentelėje išvardijamas kiekvienas subalansuotas ruožas, pernešamas tūris (jo aukščiausias arba žemiausias taškas) ir vidutinis pervežimo atstumas (nuspalvintas plotas, padalytas iš to tūrio).
-- Kur linija baigiasi ne nulyje, likusi dalis yra **atliekos** (viršuje) arba **skolinys** (apačioje). Tame paskutiniame ruože skaičiuojama tik žemė, esanti už lygio, kuriame ji baigiasi.
+- **Susitraukimas (−) arba išbrinkimas (+) iškasoje** nurodo, kiek kubinio jardo iškasos tampa, kai įdėta kaip įpylimas: −10 % (pradinė reikšmė, vietos rezervuotojas) reiškia, kad ji susitraukia iki 0.9; uolienos, kurios brinksta, gali būti +5 %. Naudokite savo geotechninės ataskaitos reikšmę.
+- Kur linija kyla, kelias yra iškasoje; kur leidžiasi – įpylime. Virš nulio (nuspalvinta oranžine) žemė pernešama didėjančio stacionažo kryptimi; žemiau nulio (žalia) – mažėjančio stacionažo kryptimi.
+- **Balanso taškai** yra vietos, kur linija kerta nulį: tarp dviejų jų iškasa ir įpylimas subalansuoti. Lentelėje išvardijamas kiekvienas subalansuotas ruožas, perkeltas tūris (jo aukščiausias ar žemiausias taškas) ir vidutinis vežimo atstumas (nuspalvintas plotas, padalytas iš to tūrio).
+- Kur linija baigiasi ne ties nuliu, likutis yra **atliekos** (viršuje) arba **pasiskolinimas** (apačioje). Tame paskutiniame ruože kaip perkeltas skaičiuojamas tik gruntas, viršijantis lygį, kuriame jis baigiasi.
 
-**CSV** įrašo masės ordinatę kiekviename pjūvyje, ruožus ir koeficientą.
+**CSV** įrašo masių ordinatę kiekviename pjūvyje, ruožus ir koeficientą.

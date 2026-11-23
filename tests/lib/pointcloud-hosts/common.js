@@ -43,12 +43,14 @@ export function wrapPC(PC, host, t = (k) => k) {
    */
   async function readMesh(file) {
     const name = (file && file.name) || '';
-    if (!/\.(obj|usdz|ply)$/i.test(name) || file.size > 400 * 1048576) return null;
+    if (!/\.(obj|usdz|usdc|glb|ply)$/i.test(name) || file.size > 400 * 1048576) return null;
     const [MS, SC] = await Promise.all([import('./lib/mesh-sample.js'), import('./lib/scan-check.js')]);
     const bytes = new Uint8Array(await file.arrayBuffer()), notes = [];
     let mesh = null;
     if (/\.obj$/i.test(name)) mesh = MS.readObj(new TextDecoder().decode(bytes));
-    else if (/\.usdz$/i.test(name)) { const u = MS.readUsdz(bytes); mesh = u.mesh; if (!mesh) throw Object.assign(new Error('usdc'), { code: u.usdc ? 'usdc_unsupported' : 'mesh_no_points' }); }
+    else if (/\.glb$/i.test(name)) { mesh = MS.readGlb(bytes); for (const n of mesh.notes || []) notes.push(t('pcx.mesh.glb.' + n.replace(/^glb_/, ''), {})); }
+    else if (/\.usdc$/i.test(name)) mesh = MS.readUsdc(bytes);
+    else if (/\.usdz$/i.test(name)) { const u = MS.readUsdz(bytes); mesh = u.mesh; if (!mesh) throw Object.assign(new Error('usdc'), { code: u.usdc ? 'usdc_unsupported' : 'mesh_no_points' }); for (const n of u.notes || []) if (/^usdc_(skinned|references|timesamples)$/.test(n)) notes.push(t('pcx.mesh.' + n)); }
     else { try { mesh = MS.readPly(bytes); } catch (e) { return null; } if (!mesh.triangles) return null; }
     const spacing = Math.max(0.005, Math.sqrt(Math.max(1e-6, MS.sampleSurface({ vertices: mesh.vertices, colors: null, triangles: mesh.triangles }, { spacing: 1e9, budget: 1 }).area) / NON_LAS_BUDGET));
     const s = MS.sampleSurface(mesh, { spacing: Math.max(0.01, spacing), budget: NON_LAS_BUDGET });
@@ -66,7 +68,7 @@ export function wrapPC(PC, host, t = (k) => k) {
     const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
     for (let i = 0; i < s.n; i++) for (let k = 0; k < 3; k++) { const v = pos[3 * i + k]; if (v < mn[k]) mn[k] = v; if (v > mx[k]) mx[k] = v; }
     const src = { name, count: s.n, rgb: !!s.rgb, intensity: false, min: mn, max: mx, points: () => (function* () { for (let i = 0; i < s.n; i++) yield { x: pos[3 * i], y: pos[3 * i + 1], z: pos[3 * i + 2], cls: 0, rgb: s.rgb ? [s.rgb[3 * i], s.rgb[3 * i + 1], s.rgb[3 * i + 2]] : null }; })() };
-    return { src, kind: /\.ply$/i.test(name) ? 'ply' : /\.obj$/i.test(name) ? 'obj' : 'usdz', notes };
+    return { src, kind: /\.ply$/i.test(name) ? 'ply' : /\.obj$/i.test(name) ? 'obj' : /\.glb$/i.test(name) ? 'glb' : /\.usdc$/i.test(name) ? 'usdc' : 'usdz', notes };
   }
   async function read(file) {
     if (cache.has(file)) return cache.get(file);

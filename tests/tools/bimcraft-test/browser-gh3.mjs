@@ -44,7 +44,7 @@ const changes = () => page.evaluate(() => document.querySelector('[data-canvas]'
 try {
   await ctx.addCookies([{ name: minted.cookie.split('=')[0], value: minted.cookie.split('=').slice(1).join('='), domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true, sameSite: 'Lax' }]);
   await page.goto(BASE + '/lab/bimcraft?space=paper', { waitUntil: 'networkidle' });
-  await page.evaluate(() => { try { localStorage.setItem('bimcraft.model.units', 'mm'); localStorage.removeItem('cc-bimcraft:tji-table'); } catch (e) { /* none */ } });
+  await page.evaluate(() => { try { localStorage.setItem('cc-autofocus', 'off'); localStorage.setItem('bimcraft.model.units', 'mm'); localStorage.removeItem('cc-bimcraft:tji-table'); } catch (e) { /* none */ } });
   await page.reload({ waitUntil: 'networkidle' });
   await page.click('[data-empty] [data-new]');
   await page.waitForSelector('dialog.bc-new');

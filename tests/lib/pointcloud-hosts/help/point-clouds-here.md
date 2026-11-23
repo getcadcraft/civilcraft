@@ -1,9 +1,9 @@
 ---
 title: Point clouds in BimCraft and CadCraft
-summary: With the Point clouds add-on, open a LAS, LAZ, E57, PLY, OBJ, USDZ, PCD, PTX, XYZ or PTS cloud or phone scan of millions of points, see all of it in the app's 3D view, clean it with a lasso or box, and cut a section through it.
+summary: With the Point clouds add-on, open a LAS, LAZ, E57, PLY, OBJ, USDZ, GLB, PCD, PTX, XYZ or PTS cloud or phone scan of millions of points, see all of it in the app's 3D view, clean it with a lasso or box, and cut a section through it.
 section: tasks
 order: 63
-keywords: point cloud, phone scan, iphone, ipad, lidar scan, obj, usdz, compare with model, deviation, tolerance, as-built, field-verified, las, laz, e57, ply, pcd, ptx, xyz, pts, scan, lidar, clean, lasso, noise, classify, ground, section, 3d, add-on, tiles
+keywords: point cloud, phone scan, iphone, ipad, lidar scan, obj, usdz, usdc, glb, gltf, compare with model, deviation, tolerance, as-built, field-verified, las, laz, e57, ply, pcd, ptx, xyz, pts, scan, lidar, clean, lasso, noise, classify, ground, section, 3d, add-on, tiles
 ---
 
 Most people never need this, so it is an add-on. Switch on {{ui:Point clouds}} in Settings › Add-ons; a {{ui:Point clouds}} tab (BimCraft) or section (CadCraft) appears in the right-hand panel. The file is read in your browser and the tiles are kept in this browser's own storage, or in a folder you pick; nothing is uploaded.
@@ -16,14 +16,14 @@ It is the same add-on as in CivilCraft, with the same engine; only the part that
 
 ## Open a cloud
 
-Open a model first in BimCraft (the 3D view is made with the first model), or the 3D tab in CadCraft. Under {{ui:Open a cloud}} choose a file. LAS and LAZ are tiled as they are, a piece at a time (a LAZ file is never copied whole into memory). E57 is read page by page and every point kept. PCD, PTX, XYZ and PTS are read by the app's own reader first, at most 3 million points kept (thinned evenly, the tab says so), then tiled the same way. Metres are assumed unless the file says feet. Press {{ui:Build the cloud}}; a build can be stopped and resumed (LAS and LAZ). A big cloud is tiled by several workers at once.
+Open a model first in BimCraft (the 3D view is made with the first model), or the 3D tab in CadCraft. Under {{ui:Open a cloud}} choose a file. LAS and LAZ are tiled as they are, a piece at a time (a LAZ file is never copied whole into memory, and a big one is decoded on several threads). E57 is read page by page and every point kept. PCD, PTX, XYZ and PTS are read by the app's own reader first, at most 3 million points kept (thinned evenly, the tab says so), then tiled the same way. Metres are assumed unless the file says feet. Press {{ui:Build the cloud}}; a build can be stopped and resumed (LAS and LAZ). A big cloud is tiled by several workers at once.
 
 ## Phone scans
 
-Scanning apps on an iPhone or iPad with a LiDAR sensor export a surface (a mesh), not a cloud of points. {{ui:Open a cloud}} reads a PLY with faces, an OBJ, and a USDZ that holds an OBJ, a PLY or readable USDA text, lays points on the surface about every 10 mm (at most 3 million), keeps the colours, and checks the way the scan stands: if its layers say Y is up (the usual phone and game convention) it is turned Z up and its floor is levelled, and the tab says so. If it only seems that another axis is up, it is left alone and the tab tells you. A USDZ that holds only a binary USD file (a .usdc) is not read yet: export OBJ or PLY from the app.
+Scanning apps on an iPhone or iPad with a LiDAR sensor export a surface (a mesh), not a cloud of points. {{ui:Open a cloud}} reads a PLY with faces, an OBJ, and a USDZ that holds an OBJ, a PLY or readable USDA text, lays points on the surface about every 10 mm (at most 3 million), keeps the colours, and checks the way the scan stands: if its layers say Y is up (the usual phone and game convention) it is turned Z up and its floor is levelled, and the tab says so. If it only seems that another axis is up, it is left alone and the tab tells you. A USDZ that holds a binary USD file (a .usdc, what an iPhone or iPad scan normally holds) is read too, with the transforms of its parents, and so is a GLB (binary glTF) and a bare .usdc: every mesh in the file is joined into one. Not read: skeletons and animation (the stored pose is used), Draco or meshopt compressed GLB (export it uncompressed), colours that live only in a texture picture, and a USD that points to other files for its geometry; the tab says when it met one.
 
 :::warning
-The readers follow the formats' own documentation and were tested on files we wrote in those formats. A real export from a phone app was not available to test with: if yours fails, tell us which app and version made it.
+The binary USD and GLB readers were checked on real files from other projects (a USDZ from an authoring tool, a glTF-to-USD conversion, an OpenUSD test file, Khronos sample models), not on an export from a phone app: none with a licence that allows tests was found. If your scan fails, tell us which app and version made it.
 :::
 
 ## Compare with model (BimCraft)
@@ -53,7 +53,7 @@ The cloud is drawn in the 3D view with coarse tiles that refine as you move clos
 - Building the ground into the model, contours, stockpile and flight-to-flight volumes, the orthomosaic drape and the plan raster are CivilCraft's; they are not in these two apps.
 - CadCraft has no Classify.
 - A very large PCD, PTX, XYZ or PTS is read whole before tiling and keeps only 3 million points.
-- A binary USDZ (.usdc) is not read; GLB and glTF from scanning apps are not read yet.
+- A .gltf with separate files, Draco or meshopt compressed GLB, and skeleton or animation data are not read (the stored pose is used).
 - A LAZ with variable chunks or the layered point formats (6 to 10) is read the older way, whole into memory.
 - Compare with model is BimCraft's; CadCraft has no model of triangles to compare with.
 - No change of coordinate system: metres assumed.

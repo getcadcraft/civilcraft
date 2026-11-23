@@ -131,5 +131,43 @@ const l = F.toFootingAxes([10000, -4000, 800000, 2e6, -3e6, 0], 0);
 ok(near(l.P, 800, 1e-9) && near(l.Vx, -10, 1e-9) && near(l.Vy, 4, 1e-9) && near(l.Mx, -2, 1e-9) && near(l.My, 3, 1e-9), 'reaction → footing: P 800 kN down, V = −R, M = −R');
 const l90 = F.toFootingAxes([10000, 0, 800000, 0, 0, 0], 90);
 ok(near(l90.Vx, 0, 1e-9) && near(l90.Vy, 10, 1e-9) || near(l90.Vy, -10, 1e-9), 'a footing turned 90° gets the horizontal force along its own y');
+// ---- detailcraft#4: a horizontal force Vy at the footing top shifts the pressure toward +y, like Vx toward +x (moment arm h about the base)
+{
+  const fv = foot({ L: 2895.6, B: 2286, H: 762 }), hh = 0.762;
+  const only = (k, v) => F.checkFooting(fv, [{ x: 0, y: 0, cx: 400, cy: 400, service: { P: 66.7233, [k]: v }, strength: { P: 100, [k]: v * 1.5 } }], { qa: 119.701, mu: 0.35, gammaConc: 23.56, gammaSoil: 18.85 });
+  const rx = only('Vx', 8.8964), ry = only('Vy', 8.8964);
+  const N = rx.info.N;
+  ok(near(rx.info.ex, hh * 8.8964 / N * 1000, 0.2) && rx.info.ey === 0, 'Vx alone: e = h·Vx/N toward +x (' + rx.info.ex + ')');
+  ok(near(ry.info.ey, hh * 8.8964 / N * 1000, 0.2) && ry.info.ex === 0 && ry.info.ey > 0, 'Vy alone: e = h·Vy/N toward +y, not −y (' + ry.info.ey + ')');
+  // hand check: Vy = +8.8964 at 9 ft above the top, Mx = −Vy·2.7432 = −24.4047 kN·m: base moment |Mx| + h·Vy = 31.18 kN·m, e = 31.18 / N (N = 187.8 in the report)
+  const rc = F.checkFooting(fv, [{ x: 0, y: 0, cx: 400, cy: 400, service: { P: 66.7233, Vy: 8.8964, Mx: -24.4047 } }], { qa: 119.701, mu: 0.35, gammaConc: 23.56, gammaSoil: 18.85 });
+  ok(near(rc.info.ey, (24.4047 + hh * 8.8964) / rc.info.N * 1000, 0.2) && near(24.4047 + hh * 8.8964, 31.18, 0.01), 'Vy + its own Mx add: base moment 31.18 kN·m, e = 31.18/N mm (' + rc.info.ey + ' at N = ' + rc.info.N + ')');
+  ok(rc.info.ey > 2 * rx.info.ex * 0 + ry.info.ey, 'combined e is larger than Vy alone (they add, not cancel)');
+  // the strength section moments mirror in x and y: a square footing with Vx only and with Vy only gives the same Mu (kN·m/m) about the other axis
+  const sq = foot({ L: 2400, B: 2400, H: 600 });
+  const su = (k) => F.checkFooting(sq, [{ x: 0, y: 0, cx: 400, cy: 400, service: { P: 500 }, strength: { P: 700, [k]: 60 } }], { qa: 400 });
+  const mux = su('Vx').checks.find((c) => c.id === 'flexure-x').vars.Mu, muy = su('Vy').checks.find((c) => c.id === 'flexure-y').vars.Mu;
+  ok(near(mux, muy, 0.05), 'strength flexure: Vx alone (x cut) and Vy alone (y cut) give the same Mu (' + mux + ' vs ' + muy + ')');
+}
+// ---- detailcraft#5: a skipped check says why, with no unfilled {placeholder} in its text
+{
+  const fm = foot({ L: 2000, B: 2000, H: 600 });
+  const resN = F.checkFooting(fm, [{ x: 0, y: 0, cx: 400, cy: 400, service: { P: 500 }, strength: { P: 700 } }], {});
+  const noteKey = (c) => 'fnd.chk.' + c.id.replace(/-[xy]$/, '') + '.note';
+  const enS = JSON.parse(fs.readFileSync(path.join(APP, 'lang/en.json'), 'utf8'));
+  const I = await load('i18n.js');
+  for (const c of resN.checks.filter((c) => c.status === 'note')) {
+    if (!(noteKey(c) in enS)) continue;
+    const txt = I.t(noteKey(c), { ...c.vars, status: 'Note' });
+    ok(!/\{[a-z]+\}/i.test(txt) && /not checked/i.test(txt) || c.id === 'liftoff', 'note ' + c.id + ' reads "not checked", no placeholders: ' + txt);
+  }
+  ok(resN.checks.some((c) => c.id === 'bearing' && c.status === 'note' && 'ex' in c.vars && 'ey' in c.vars), 'bearing note carries ex, ey');
+  const edge = F.checkFooting(fm, [{ x: 0, y: 0, cx: 3000, cy: 3000, service: { P: 500 }, strength: { P: 700 } }], { qa: 300, Es: 20 });
+  const pn = edge.checks.find((c) => c.id === 'punching');
+  ok(pn && pn.status === 'note' && 'fnd.chk.punching.note' in enS && !/\{[a-z]+\}/i.test(I.t('fnd.chk.punching.note', { ...pn.vars })), 'punching at the edge: plain "not checked" text (' + I.t('fnd.chk.punching.note', { ...pn.vars }) + ')');
+  const st = F.checkFooting(fm, [{ x: 0, y: 0, cx: 400, cy: 400, service: { P: 500 }, strength: { P: 700 } }], { qa: 300 });
+  const sn = st.checks.find((c) => c.id === 'settlement');
+  ok(sn.status === 'note' && !/\{[a-z]+\}/i.test(I.t('fnd.chk.settlement.note', { ...sn.vars })), 'settlement without a modulus: ' + I.t('fnd.chk.settlement.note', { ...sn.vars }));
+}
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

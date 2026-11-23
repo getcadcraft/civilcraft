@@ -388,6 +388,8 @@ export async function runCamTests({ ok, section, near, oc = null, skip = (m) => 
   await (await import('./test-cam-post.mjs')).runCamPostTests({ ok, section, near, extra: [{ program: prog, name: 'block', label: 'the block program' }, { program: fprog, name: 'flange', label: 'the flange program, canned cycles' }] });
   // 3D finishing (cam-finish.js): synthetic plane and dome meshes, closed forms and a brute-force oracle
   await (await import('./test-cam-finish.mjs')).runCamFinishTests({ ok, section, near });
+  // 0.11 Track CAM: 3D roughing and rest machining, tilted tools, 5-axis and rotary finishing, turning, probing, and their posts
+  await (await import('./test-cam-multiaxis.mjs')).runCamMultiaxisTests({ ok, section, near });
   // tool libraries and the stock-versus-model colour
   await (await import('./test-cam-library.mjs')).runCamLibraryTests({ ok, section, near });
   // second reader: gcode-toolpath (cncjs) on the GRBL text

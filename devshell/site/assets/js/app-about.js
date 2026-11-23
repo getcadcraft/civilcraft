@@ -29,6 +29,34 @@ if (dlg) {
   };
   const facts = () => ({ app: dlg.querySelector('[data-about-facts] dd')?.textContent.trim() || dlg.dataset.app, edition: edition(), version: $('[data-about-version]')?.textContent.trim() || '' });
 
+  // 0.11 PERF.18 (studio-11 -> lead): inside Studio the About dialog shows how the last start went (cadcraftDesktop.startLog.summary(): totalMs, windowBuiltMs and the two
+  // budget flags) as one line with Copy / Save of startLog.text(), the words of Studio's own Settings. Outside Studio there is no startLog: nothing is added.
+  (async () => {
+    const log = window.cadcraftDesktop && window.cadcraftDesktop.startLog;
+    const host = dlg.querySelector('[data-about-facts]');
+    if (!log || typeof log.summary !== 'function' || !host) return;
+    let s = null; try { s = await log.summary(); } catch (_) { s = null; }
+    if (!s || typeof s.totalMs !== 'number') return;
+    const sec = (ms) => (ms / 1000).toLocaleString(document.documentElement.lang || undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const words = typeof s.windowBuiltMs === 'number' ? T('shell.about.start.total', { total: sec(s.totalMs), window: sec(s.windowBuiltMs) }) : T('shell.about.start.total.only', { total: sec(s.totalMs) });
+    const good = s.windowWithinBudget === null || s.usableWithinBudget === null ? null : !!(s.windowWithinBudget && s.usableWithinBudget);
+    const verdict = good === null ? T('shell.about.start.partial') : good ? T('shell.about.start.ok') : T('shell.about.start.slow');
+    const box = document.createElement('div'); box.setAttribute('data-about-start', '');
+    const p = document.createElement('p'); p.className = 'shell-hint-text'; p.textContent = T('shell.about.start') + ': ' + words + ' (' + verdict + ')';
+    const note = document.createElement('p'); note.className = 'shell-hint-text'; note.hidden = true; note.setAttribute('role', 'status');
+    const btn = (key, how) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn-line btn-sm-cc'; b.textContent = T(key); b.addEventListener('click', () => out(how)); return b; };
+    const out = async (how) => {
+      let text = ''; try { text = await log.text(); } catch (_) { text = ''; }
+      const say = (k) => { note.hidden = false; note.textContent = T(k); };
+      if (!text) return say('shell.about.start.empty');
+      if (how === 'copy') { try { await navigator.clipboard.writeText(text); say('shell.about.start.copied'); } catch (_) { say('shell.about.start.failed'); } return; }
+      try { const p = await window.cadcraftDesktop.saveDialog({ defaultPath: 'startup.log', title: T('shell.about.start.save'), filters: [{ name: 'Log', extensions: ['log', 'txt'] }] }); if (p) { await window.cadcraftDesktop.writeFile(p, new TextEncoder().encode(text)); say('shell.about.start.saved'); } } catch (_) { say('shell.about.start.failed'); }
+    };
+    box.append(p, btn('shell.about.start.copy', 'copy'));
+    if (typeof window.cadcraftDesktop.saveDialog === 'function') box.append(btn('shell.about.start.save', 'save'));
+    box.append(note); host.after(box);
+  })();
+
   if (SITE) {   // static edition: links reach the site; no form
     for (const a of dlg.querySelectorAll('[data-about-site]')) a.setAttribute('href', SITE + (a.getAttribute('href') === '/' ? '/' : a.getAttribute('href')));
     form.hidden = true; $('[data-about-offline]').hidden = false;

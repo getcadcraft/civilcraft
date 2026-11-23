@@ -49,7 +49,7 @@ export function mountShell({ project, host, selection, select, undoDepth, undoTo
   const on = (name, f) => { const m = window[name]; if (m) f(m); else document.addEventListener('cc-' + name.slice(2).toLowerCase() + '-ready', () => f(window[name]), { once: true }); };
   const kept = (k) => project().shell[k] || null;
   const keep = (k, json) => { const p = project(); if (json) p.shell[k] = json; else delete p.shell[k]; p.touch('shell'); };
-  const step = (label, fn) => project().change(label, () => { fn(); });   // a drive or an assistant's edit: one undo step (an edit that changes nothing leaves none)
+  const step = (label, fn) => { let r; project().change(label, () => { r = fn(); }); return r; };   // a drive or an assistant's edit: one undo step (an edit that changes nothing leaves none); returns fn's value, which the assistants' calcs_set / calcs_delete hand back
 
   // DI.1: real counts only — the TIN's triangle count is the surface's own (stats), never a guess; a project with no surface has none
   const docInfoRead = () => {

@@ -53,7 +53,7 @@ export function cleanType(o, units = 'ft') {
   const shape = SHAPES.includes(o.shape) ? o.shape : 'round', d = typeDefaults(units, shape);
   const big = units === 'm' ? 20000 : 800, small = units === 'm' ? 2000 : 80;   // diameter units
   const out = {
-    id: /^u\d{1,9}$/.test(String(o.id)) ? String(o.id) : null,
+    id: /^u\d{1,16}$/.test(String(o.id)) ? String(o.id) : null,
     name: String(o.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 80),
     kind: KINDS.includes(o.kind) ? o.kind : d.kind,
     shape,

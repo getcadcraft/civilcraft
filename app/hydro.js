@@ -31,6 +31,7 @@
 
 import { t } from './i18n.js';
 import { DIA_UNIT } from './pipes.js';
+import { cleanRuleset, rainfallFor, materialN } from './rulesets.js';   // 0.11 SU.1937b
 
 export function HYDRO_DEFAULTS(units = 'ft') {
   return units === 'm'
@@ -40,6 +41,11 @@ export function HYDRO_DEFAULTS(units = 'ft') {
 export const PIPE_SIZES = { ft: [12, 15, 18, 21, 24, 27, 30, 36, 42, 48, 54, 60, 66, 72], m: [300, 375, 450, 525, 600, 675, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800] };
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 
+function rsPart(o) {
+  const c = o.rs ? cleanRuleset(o.rs).rs : null;
+  if (!c) return {};
+  return { rs: c, rsId: typeof o.rsId === 'string' && /^rs[0-9]{1,9}$/.test(o.rsId) ? o.rsId : null, ret: fin(o.ret) && o.ret > 0 ? o.ret : null };
+}
 export function cleanHydro(o, units = 'ft') {
   const d = HYDRO_DEFAULTS(units);
   if (!o || typeof o !== 'object') return { ...d, idf: { ...d.idf } };
@@ -48,6 +54,7 @@ export function cleanHydro(o, units = 'ft') {
     idf: { a: pos(o.idf?.a, d.idf.a, 1e6), b: fin(o.idf?.b) && o.idf.b >= 0 && o.idf.b < 1000 ? o.idf.b : d.idf.b, c: pos(o.idf?.c, d.idf.c, 5) },
     n: pos(o.n, d.n, 1), kj: fin(o.kj) && o.kj >= 0 && o.kj <= 10 ? o.kj : d.kj, tailwater: fin(o.tailwater) && Math.abs(o.tailwater) < 1e6 ? o.tailwater : null,
     minTc: pos(o.minTc, d.minTc, 1000), vAssumed: d.vAssumed,
+    ...rsPart(o),   // 0.11 SU.1937b: a rule set in force (copied in) and its return period
   };
 }
 export function cleanCatchment(o) {
@@ -55,7 +62,7 @@ export function cleanCatchment(o) {
   const pts = o.pts.filter((p) => p && fin(p.x) && fin(p.y) && Math.abs(p.x) < 1e9 && Math.abs(p.y) < 1e9).slice(0, 10000).map((p) => ({ x: p.x, y: p.y }));
   if (pts.length < 3) return null;
   return {
-    id: /^k\d{1,9}$/.test(String(o.id)) ? String(o.id) : null,
+    id: /^k\d{1,16}$/.test(String(o.id)) ? String(o.id) : null,
     name: String(o.name ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, 120) || 'Catchment',
     pts, C: fin(o.C) && o.C >= 0 && o.C <= 1 ? o.C : 0.5, tc: fin(o.tc) && o.tc > 0 && o.tc < 1000 ? o.tc : 10,
     to: typeof o.to === 'string' && o.to.length < 40 ? o.to : null,
@@ -68,7 +75,14 @@ export function catchmentArea(pts, units = 'ft') {
   a = Math.abs(a) / 2;
   return units === 'm' ? a / 10000 : a / 43560;
 }
-export const idf = (tc, h) => h.idf.a / Math.pow(tc + h.idf.b, h.idf.c);
+/** The rainfall intensity at duration tc (minutes): the rule set's row for its return period when one is in force, else the settings' own a, b, c. */
+export function idf(tc, h) {
+  const r = h.rs && h.ret ? rainfallFor(h.rs, h.ret, tc) : null;
+  const k = r || h.idf;
+  return k.a / Math.pow(tc + k.b, k.c);
+}
+/** Manning's n for a pipe: its material's in the rule set in force (pipe.mat), else the network's n. */
+export const nOf = (p, h) => (h.rs && p?.mat ? materialN(h.rs, p.mat) : null) ?? h.n;
 
 const K = (units) => (units === 'm' ? 1 : 1.486);
 const G = (units) => (units === 'm' ? 9.81 : 32.174);
@@ -132,7 +146,7 @@ export function rationalFlows(net, units = 'ft', { velocity = null } = {}) {
     const tc = Math.max(up.tc, h.minTc), i = idf(tc, h), Q = units === 'm' ? (up.CA * i) / 360 : up.CA * i;
     const a = byId.get(p.from), b = byId.get(p.to), len = Math.hypot(b.x - a.x, b.y - a.y);
     const S = fin(p.invUp) && fin(p.invDn) && len > 0 ? (p.invUp - p.invDn) / len : 0;
-    const v = velocity?.(p) ?? (S > 0 ? manningFull(diaOf(p, units), S, h.n, units).V : 0);
+    const v = velocity?.(p) ?? (S > 0 ? manningFull(diaOf(p, units), S, nOf(p, h), units).V : 0);
     const travel = len / Math.max(v > 0 ? v : h.vAssumed, 1e-6) / 60;   // minutes
     pipes.set(p.id, { CA: up.CA, tc, i, Q, travel, len, S });
     dn.CA += up.CA;
@@ -149,8 +163,8 @@ export function sizePipes(net, flows, units = 'ft', { sizes = PIPE_SIZES[units =
     if (!f) continue;
     if (!(f.S > 0)) { out.push({ id: p.id, dia: p.dia, Q: f.Q, cap: 0, ok: false, flat: true }); continue; }
     let pick = null;
-    for (const d of sizes) { const cap = manningFull(d / per, f.S, h.n, units).Q; if (cap >= f.Q) { pick = { dia: d, cap }; break; } }
-    if (!pick) { const d = sizes[sizes.length - 1]; pick = { dia: d, cap: manningFull(d / per, f.S, h.n, units).Q, none: true }; }
+    for (const d of sizes) { const cap = manningFull(d / per, f.S, nOf(p, h), units).Q; if (cap >= f.Q) { pick = { dia: d, cap }; break; } }
+    if (!pick) { const d = sizes[sizes.length - 1]; pick = { dia: d, cap: manningFull(d / per, f.S, nOf(p, h), units).Q, none: true }; }
     out.push({ id: p.id, dia: pick.dia, Q: f.Q, cap: pick.cap, ok: !pick.none });
   }
   return out;
@@ -166,14 +180,14 @@ export function hydraulicGrade(net, flows, units = 'ft', surface = null) {
   for (const p of ord.slice().reverse()) {   // outlet first
     const f = flows.pipes.get(p.id);
     if (!f || !fin(p.invUp) || !fin(p.invDn)) continue;
-    const D = diaOf(p, units), full = manningFull(D, f.S, h.n, units);
+    const D = diaOf(p, units), nn = nOf(p, h), full = manningFull(D, f.S, nn, units);
     const below = structs.get(p.to);
     const outlet = !net.pipes.some((q) => q.from === p.to);
-    const yn = f.S > 0 ? normalDepth(f.Q, D, f.S, h.n, units) : null;
+    const yn = f.S > 0 ? normalDepth(f.Q, D, f.S, nn, units) : null;
     const surch = yn === null;
     const startDn = Math.max(p.invDn + (surch ? D : yn), outlet ? (h.tailwater ?? -Infinity) : below?.hgl ?? -Infinity);
     // friction slope with the pipe full (pressure flow), from Manning
-    const A = full.A, R = D / 4, Sf = A > 0 ? Math.pow((f.Q * h.n) / (K(units) * A * Math.pow(R, 2 / 3)), 2) : 0;
+    const A = full.A, R = D / 4, Sf = A > 0 ? Math.pow((f.Q * nn) / (K(units) * A * Math.pow(R, 2 / 3)), 2) : 0;
     const fullFlow = surch || startDn > p.invDn + D + 1e-9;
     let hglDn = startDn, hglUp;
     if (fullFlow) hglUp = Math.max(hglDn + Sf * f.len, p.invUp + D);

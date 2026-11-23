@@ -1,189 +1,190 @@
 ---
-title: Akukakwakhiwa okwamanje
-summary: Lokho okungakwenzi le bhilidi ye-CivilCraft okwamanje, nokuthi yenzeni esikhundleni salokho namuhla.
-keywords: okungekho, imikhawulo, umzila wokuthuthuka, akutholakali, izipiral, ukubanzisa, dwg, dxf, izingenisi, ukugcinwa kwamanzi, izigaba ezinqunyiwe, kamuva, imikhawulo
-from: a2d970ef
+title: Akukakhiwa okwamanje
+summary: Lokho okungenziwa yi-CivilCraft yalokhu kwakhiwa okwamanje, nokufanele ukwenze esikhundleni sakho namuhla.
+keywords: okungekho, imikhawulo, uhlelo lwesikhathi esizayo, akutholakali, izipirali, ukwandiswa, dwg, dxf, izingeniso, detention, izigaba zesigaba, kuzayo, imikhawulo
+from: b91588d4
 ---
 
-I-CivilCraft isasemqalweni. Leli khasi lidweba lokho ibhilidi yamanje engakwenzi, ukuze ungazifunisi khona. Akukho lutho lapha olwethenjiswa ngosuku.
+I-CivilCraft isasemqalweni. Leli khasi lidweba okungenziwa yilokhu kwakhiwa kwamanje, ukuze ungazifuni lapho. Akukho lapha olwethenjiswa ngosuku oluthile.
 
-## Amaphoyinti
+## Amaphuzu
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ukungeza ifayela lesibili lamaphoyinti kolokuqala | Hlanganisa amafayela kumhleli wombhalo noma kwi-spreadsheet kuqala |
-| Ukuthumela ifayela lombhalo lamaphoyinti | Thumela i-LandXML (amaphoyinti aphuma njenge-CgPoints), sebenzisa GIS {{ui:Thumela}} (amaphoyinti namasimu P, N, E, Z kanye no-D), noma {{ui:Kopisha}} amaphoyinti ku-spreadsheet |
-| Izitayela zamalebula amaphoyinti, izimpawu ngokhiye wencazelo ngamunye, amajika emigqeni yekhodi, ifayela lokhiye wencazelo elabelanwa phakathi kwamaphrojekthi | Amalebula akhombisa inombolo, ukuphakama nencazelo, noma ngaphansi ([Izilungiselelo ze-CivilCraft](topic:settings)); okhiye bagcinwa kwifayela lephrojekthi |
-| Ukuguqulwa kwamayunithi | Guqula ifayela ngaphambi kokungenisa; **Amayunithi** ashintsha izincwadi kuphela |
+| Ukwengeza ifayela lesibili lamaphuzu kowokuqala | Hlanganisa amafayela kumhleli wombhalo noma kwi-spreadsheet kuqala |
+| Ukuthumela ifayela lombhalo lamaphuzu | Thumela i-LandXML (amaphuzu aphuma njenge-CgPoints), sebenzisa i-GIS {{ui:Export}} (amaphuzu anezinkundla P, N, E, Z kanye no-D), noma {{ui:Copy}} amaphuzu kwi-spreadsheet |
+| Izitayela zamalebula amaphuzu, izimpawu ngokhiye wencazelo ngayinye, amajika (ama-arc) kusuka ezikhodini zomugqa, ifayela lokhiye wencazelo elabelana phakathi kwamaphrojekthi | Amalebula akhombisa inombolo, ukuphakama nencazelo, noma okuncane kakhulu ([Izilungiselelo ze-CivilCraft](topic:settings)); okhiye bagcinwa kwifayela lephrojekthi |
+| Ukuguqula amayunithi | Guqula ifayela ngaphambi kokungenisa; i-**Iyunithi** ihlaziya ilebula kuphela |
 
-## Imiphezulu
+## Izindawo
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ngaphezu komphezulu owodwa owakhiwe kusuka emaphoyinteni | Iphrojekthi eyodwa ngomphezulu ngamunye |
-| Ukufihla imingcele (yangaphakathi) | Sebenzisa **Umphetho wangaphandle omde kakhulu** noma umngcele wangaphandle |
-| Ukukhetha noma ukuhlela umugqa oyodwa wokuphula odwetshiwe | {{key:Mod+Z}}, noma {{ui:Susa imigqa yokuphula edwetshiwe}} bese udweba kabusha |
-| Ukuhlela umphezulu ofundwe kusuka ku-LandXML (imigqa yokuphula, umngcele) | {{ui:Akha kabusha indawo kumaphoyinti}} |
-| Ukuhlela umphezulu owenziwe kusuka kugridi yokuphakama | Ngenisa kabusha igridi ngezinketho ezahlukile |
-| Ukuguqula umphezulu ofundwe kusuka ku-LandXML lapho uhlelo lokuhlanganisa lushintsha | {{ui:Akha kabusha indawo kumaphoyinti}} kuqala |
-| Izinamba zokuphakama ezinamalebula nezinani lokuthambeka | Zifunde kwibha yesimo, noma phenya umphezulu ngokuthambeka nge-**Slope analysis** esikhaleni se-Landscape ([Ukugreda kwendawo](topic:landscape-grading#grading-checks)) |
+| Ngaphezu kwendawo eyodwa eyakhiwe kumaphuzu | Iphrojekthi eyodwa ngendawo ngayinye |
+| Ukufihla imingcele (yangaphakathi) | Sebenzisa **Umphetho ongaphandle omude kakhulu** noma umngcele ongaphandle |
+| Ukukhetha noma ukuhlela umugqa owodwa owudwetshiwe wokuphula | {{key:Mod+Z}}, noma {{ui:Remove drawn breaklines}} bese udweba kabusha |
+| Ukuhlela indawo efundwe kusuka ku-LandXML (imigqa yokuphula, umngcele) | {{ui:Rebuild the surface from the points}} |
+| Ukuhlela indawo eyenziwe ngegridi yokuphakama | Ngenisa kabusha igridi ngokukhetha okunye |
+| Ukuguqula indawo efundwe kusuka ku-LandXML uma uhlelo lokuhlanganisa lushintsha | {{ui:Rebuild the surface from the points}} kuqala |
+| Amalebula amaphuzu okuphakama nezinani zokuthambeka | Azifunde ebhalini lesimo, noma ukhulise umbala wendawo ngokuthambeka nge-**Ukuhlaziywa kokuthambeka** kwi-Landscape ([Ukugoba kwe-Landscape](topic:landscape-grading#grading-checks)) |
 
 ## Imizila namaphrofayili
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Izipiral ngaphandle kwe-clothoid; ipiral phakathi kwamagophe amabili (izinguquko eziyinhlanganisela) | Izipiral ze-clothoid emaphethelweni egophe ziyatholakala; ezinye ziyabizwa futhi ziyashiywa lapho kungeniswa i-LandXML |
-| Ukungenisa i-PI phakathi kwezinye ezimbili | Dweba kabusha umzila, noma uphinde uthayipha izixhumanisi ze-PI |
-| Imizila kusuka kuzinto, ukuhlukaniswa, ukukhulisa | Dweba ngama-PI |
-| Ukuthayipha K igophe elithe xaxa | Thayipha L (K iyaboniswa) |
-| Amagophe avundlile nangalingani | Amagophe e-parabolic alinganayo kuphela |
-| Ngaphezu kwephrofayili eyodwa yokuklama ngomzila | Umzila owodwa ngokuhlukahluka ngakunye |
-| Ukusondeza umbono wephrofayili, amabhendi angaphansi kwephrofayili | Umbono wephrofayili uyalingana nomzila wonke; hlela kumashidi epulani nephrofayili ([amashidi epulani nephrofayili](topic:plan-profile-sheets)) |
-| Izigaba ku-DWG noma i-LandXML | Amashidi wezigaba njenge-PDF; {{ui:CSV}} yezindawo nezivolumu |
-| Imigqa yesampula ngesiyingi, noma ububanzi obuhlukile ngasemgwaqweni | Ububanzi obulodwa ngohlangothi ngalunye lomzila wonke |
+| Izipirali ngaphandle kwe-clothoid; ipirali phakathi kwamajika amabili (ama-compound transitions) | Izipirali ze-clothoid emaphethelweni ejika ziyatholakala; ezinye ziyaqanjwa futhi zidlulwe ekungeniseni kwe-LandXML |
+| Ukufaka i-PI phakathi kwezimbili ezinye | Dweba kabusha umzila, noma phinda uthayipha izixhumanisi ze-PI |
+| Imizila evela kwezinto, ukuhlukaniswa, ukunwebeka | Dweba ngama-PI |
+| Ukuthayipha K ngejika elithe xaxa | Thayipha L (K iyaboniswa) |
+| Amajika athe xaxa asekhoneni nangokungalingani | Amajika ka-parabolic athe xaxa kuphela |
+| Ngaphezu kwephrofayili yedizayini eyodwa ngomzila | Umzila owodwa ngenguqulo ngayinye |
+| Ukusondeza umbono wephrofayili, amabhendi ephrofayili angaphansi kwephrofayili | Umbono wephrofayili uyalingana nomzila wonke; yiprinte kumashidi ephulani nephrofayili ([amashidi ephulani nephrofayili](topic:plan-profile-sheets)) |
+| Izigaba ku-DWG noma ku-LandXML | Amashidi ezigaba njenge-PDF; {{ui:CSV}} yezindawo nemithamo |
+| Imigqa yesampula ngengolo, noma ngobubanzi obuhlukile emgwaqweni | Ububanzi bunye ngohlangothi ngalunye kuwo wonke umzila |
 
 ## Amakhoridoro
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ama-median, izithiyo nesiyingi esijikeleza izifanekiso | Zidweba njengezifanekiso ([Izifanekiso zekhoridoro](topic:corridor-templates)); izifanekiso ngesiteshi azikasekeli isiyingi okwamanje |
-| Ushintsho olunciphayo phakathi kwezifanekiso zezigaba ezimbili (izinguquko, amathaphu) | Shintsha isifanekiso esiteshini, noma nikeza iphoyinti inhloso yobubanzi emugqeni odwetshwe njengethaphu |
-| Ukujikeleza ngomphetho, isiyingi ku-LandXML | Isiyingi sijikeleza emgqeni wesikhungo emajikelezweni; khulisa ilane ngenhloso yobubanzi emugqeni wesici |
-| Izinhloso zamathambeka eceleni (ukukhanya kumugqa noma emphezulwini), amakhoridoro omphezulu wawo | Izinhloso zinyakazisa imiphetho yomgwaqo nezinhlanga ([Amakhoridoro](topic:corridor)); ikhoridoro lingreda ku-proposed surface |
-| Amakhoridoro athunyelwa njengama-LandXML roadways; ikhoridoro lesibili emzileni ekuthumelweni kwe-IFC | Umphezulu ohlongozwayo uyathunyelwa |
-| Izifanekiso zomhlaba ezishintsha umphezulu ohlongozwayo, ku-3D noma ezigabeni | Zinikeza izindawo nezivolumu zangqimba ngayinye ([Izifanekiso zomhlaba](topic:corridor-templates#terrain-templates)) |
-| Imizila yokuhamba enesivinini, ukushelela kwamavili, isikhathi sokuqondisa, amatrela okuqondisa noma isikhala somzimba; umtapo wezimoto zokwakha ezijwayelekile; umzila wokuhamba odwetshwe ngokudonsa imoto | Imizila yokuhamba ngesivinini esiphansi emgqeni wesici noma emzileni, nosayizi bezimoto zakho ([Imizila yokuhamba yezimoto](topic:swept-paths)) |
+| Izinhlamvu ezimaphakathi, izithiyo nokuphakanyiswa kwecala okuguqula izifanekiso | Dweba njengezifanekiso ([Izifanekiso zekhoridoro](topic:corridor-templates)); izifanekiso ngesiteshi azikakwamukeli ukuphakanyiswa kwecala |
+| Ushintsho olungaqhubeki phakathi kwezifanekiso zezigodi ezimbili (ukudlulisa, ukuncipha) | Shintsha isifanekiso esiteshini, noma unikeze uphuzu injongo yobubanzi komugqa odwetshwe njengokuncipha |
+| Ukuphendukela ngomphetho, ukuphakanyiswa kwecala ku-LandXML | Ukuphakanyiswa kwecala kuphendukela emgqeni wamaphakathi ngamajika athe xaxa; khulisa ilane ngenjongo yobubanzi komugqa wesici |
+| Izinjongo zohlangothi lwezigodi (ukudlula kumugqa noma kumphezulu), amakhoridoro omphezulu wawo | Izinjongo zihambisa imiphetho yephavement namaphethelo eshoulder ([Amakhoridoro](topic:corridor)); ikhoridoro lihlakazeka kumphezulu owuhlongozwayo |
+| Amagatsha wamakhona, amalane okuphendula namaqhingi ahlakazekayo ku-junction; ukuphela komgwaqo wangasohlangothini kusikwa ngomphetho womgwaqo omkhulu ngomlenze; indlela ehlanganiswe nomgwaqo epulani, ebudeni nendawo yayo | Imigwaqo ehlangana ihlanganiswa ngamakhona asikwele, nomphetho womgwaqo omkhulu uvulwe, nomgwaqo wangasohlangothini uphakanyiselwe kuwo ([Lapho imigwaqo ihlangana](topic:corridor#where-roads-meet-roads-pads-and-paths)); indlela iyame emphethweni womgwaqo emphumeleni womphezulu nasemathrini ngo-3D |
+| Amakhoridoro afakwe njenge-LandXML roadways; ikhoridoro lesibili emzileni ku-IFC ephumayo | Umphezulu owuhlongozwayo uyathunyelwa |
+| Izifanekiso zomhlaba eziguqula umphezulu owuhlongozwayo, ku-3D noma ezigabeni | Zinikeza izindawo nemithamo yengqimba ngayinye ([Izifanekiso zomhlaba](topic:corridor-templates#terrain-templates)) |
+| Imizila yokuhamba enesivinini, ukushelela kwamavili, isikhathi sokuphendula, ama-trailer okuphendula noma ukuhlanzeka komzimba; ilabhulari yezimoto zokuklama ezijwayelekile; umzila wokuhamba udwetshwe ngokuhudula isimoto | Imizila yokuhamba ngesivinini esiphansi emgqeni wesici noma emzileni, ngosayizi wezimoto zakho ([Imizila yezimoto](topic:swept-paths)) |
 
-## Ukugreda nezivolumu
+## Ukuhlanganisa nokukhipha
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Amabhenshi, imigqa yesici evulekile egredwe ekwakheni, ukugreda emgqeni wesici ovela kwenye indawo | Vala umugqa wesici ([Imigqa yesici](topic:feature-lines)), noma usebenzise njengomugqa wokuphula womhlaba okhona |
-| Ukungeza noma ukususa iphoyinti lomgqa wesici | Dweba kabusha umugqa, noma wenze ukuhlukaniswa okunezinyathelo kuwo |
-| Amagophe emigqeni yokuphula edwetshiwe (ngamaphoyinti okuhlola), izipiral emigqeni yesici | Dweba umugqa wesici namagophe bese usebenzisa njengomugqa wokuphula womhlaba okhona |
-| Ukugreda ngebanga, ukuphakama noma omunye umphezulu | Ukudweba kumhlaba okhona kuphela |
-| Ukungeza noma ukususa ikhona lephedi | Susa iphedi bese uyidweba kabusha |
-| Izivolumu ze-TIN-to-TIN (prism), ukukhetha usayizi weseli yegridi | Indlela yegridi, usayizi weseli ukhethelwe wena |
-| Ukuvuvuka nokuncipha, topsoil, ukujula kwendlela | Faka izinhlobo kwizinombolo ezibikiwe ngokwakho |
-| Izindleko zokuthutha ezingasindwa kanye nokuthutha okudlulele, ukuthutha emizileni ehlukile, izindawo zokuboleka nezindawo zemfucuza ezibekwe epulani | Idayagramu yokuthutha ngobuningi enamaphoyinti okulingana, izivolumu ezithuthiwe nobude bokuthutha bemvelo |
+| Amabhentshi, imigqa yesici evulekile ehlelwe emklamweni, ukuhlanganisa emgqeni wesici ovela kwenye indawo | Vala umugqa wesici ([Imigqa yesici](topic:feature-lines)), noma uwusebenzise njengomugqa wokuphula womhlaba okhona |
+| Ukungeza noma ukususa i-vertex yomgqa wesici | Dweba umugqa kabusha, noma wenze i-offset enezinyathelo |
+| Amajika emigqeni yokuphula edwetshiwe (ngamaphuzu okuhlola), izipirali emigqeni yesici | Dweba umugqa wesici namajika usebenzise njengomugqa wokuphula womhlaba okhona |
+| Ukuhlanganisa ngobude, ukuphakama noma enye indawo | Hlanganisa ezinye izindawo ngezandla; sebenzisa umugqa wokuhlanganisa wesici |
+| Ukushintsha okwengeziwe nokususwa kwezinhlobo zamaphethelo emphezulwini womhlaba | Ukuhlanganisa ngokuphezulu kuphela ngokuhlanganisa umhlaba okhona |
+| Ukuqoqa okungaphezulu noma okuphansi ngokwe-volumu, ukukhetha usayizi wegridi | Indlela yegridi, usayizi wegridi okhethwe ngawe |
+| Ukukhuphuka nokuncipha, uzungu, ukujula kwendlela | Faka izinhlamvu emanani abikiwe ngokwakho |
+| Izindleko zokuthutha nokuthutha kabusha, ukuthutha phakathi kwemizila ehlukene, izindawo zokuboleka nezokulahla epulani | Idayagremu yokuthutha ngamaphuzu okulinganisa, imithamo ehanjisiwe nezindawo zokuthutha ezimaphakathi |
 
-## Amanethiwekhi amapayipi
+## Imigodi yamapayipi
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ngaphezu kwenethiwekhi eyodwa ngephrojekthi | Amaphrojekthi ahlukene wemvula nemfucuza |
-| Imigodi yamanzi: ikhwalithi nobudala bamanzi, izilawuli ezisekelwe emithethweni, ezinye izinhlobo zamavalvu (ukulawula ukugeleza, ukubambisa, ukusekela), iphampu enikezwe amandla, isidingo esincike kuxinzelelo, inketho ye-Darcy–Weisbach, ikhathalogi yamapayipi enobukhulu bodonga namakilasi exinzelelo. Ezinye zenethiwekhi zexinzelelo zisesikhungweni: [Imigodi yamanzi](topic:water-mains) | Hlola lezo kusofthiwe wokusatshalaliswa kwamanzi; izinhlaka zokugeleza kwemfucuza zisesikhungweni [Izinhlaka zokugeleza kwemfucuza](topic:sanitary-design) |
-| Ukugeleza kwemfucuza ngesikhathi (ama-hydrograph, ukuqondisa okuguquguqukayo, ukugcinwa, iphampu, ukuchichima) | [Izinhlaka zokugeleza kwemfucuza](topic:sanitary-design) zinikeza ukugeleza okuzinzile okuphezulu okusetshenziswa yishidi lokuklama |
-| Amandla okungena, ukusabalala kwegutter, ukuqondisa kokugcina, ama-hydrograph, ukulahlekelwa kwamandla ngaphandle kwesamba esisodwa | Hlola kwezinye izinhlelo; ukugeleza, usayizi namazinga okuphakama ku-[Ukudonsa kwemvula](topic:storm-drainage) |
-| Ukuqoqwa kwamanzi ku-PDF plot, DWG, DXF noma LandXML; ukuqoqwa kwamanzi kusuka emphezulwini (imifudlana) | Dweba ukuqoqwa ngesandla; kugcinwa kwifayela lephrojekthi |
-| Amakhathalogi wamapayipi, amapayipi angajikile, izakhiwo ezingeyona amabhokisi amise ngqo noma amasilinda (amakhoni, izitebhisi, ukwenziwa kwebhentshi), uhlobo lokudonsa esigodlweni | Izinhlobo zezakhiwo ezivela kumapharamitha ([Inethiwekhi yamapayipi](topic:pipe-network)); amapayipi anobubanzi |
-| Amapayipi kwiphrofayili yomugqa, amapayipi ajikelezayo | Funda amazinga aphansi nokumbozwa epaneli yesokudla |
+| Ngaphezu kwenethiwekhi eyodwa ngephrojekthi | Amaphrojekthi ahlukene wemfucumfucu nowengcole |
+| Imigodi yamanzi: ikhwalithi nobudala bamanzi, ukulawula ngemithetho, izinhlobo zamavalvu ezingaphezu kwalezi (ukulawula ukugeleza, ukuvimba, ukugcina), amapham ngamandla, isidingo esincike ekucindezelweni, inketho ye-Darcy–Weisbach, ikhathalogi yamapayipi ngobukhulu bodonga namazinga engcindezi. Okunye kwenethiwekhi ezicindezelwe kusemlabhorathri: [Imigodi yamanzi](topic:water-mains) | Hlola lokho kusofthiwe wokusabalalisa amanzi; izinga lokugeleza kwemfucumfucu liseMzimbeni [Ukugeleza kwemfucumfucu](topic:sanitary-design) |
+| Ukugeleza kwemigodi ngesikhathi (ama-hydrograph, ukuqondisa okuguquguqukayo, ukugcina, amapham, ukuchitheka) | [Ukugeleza kwemfucumfucu](topic:sanitary-design) kunikeza izinga eliphezulu elizinzile isheethi yedizayini eyisebenzisayo |
+| Ukuthatha kwesifunda, ukusatshalaliswa kwesihlahla, ukuqondiswa kabusha kwe-detention, ama-hydrograph, ukulahlekelwa kwamandla ngaphandle kwesisodwa sokuhlanganisa | Hlola ngesofthiwe ezinye; izindlela, usayizi nemigqa yezinga itholakala ku-[Ukukhipha kwamanzi emvulamvula](topic:storm-drainage) |
+| Izindawo zokuqoqa ku-PDF plot, DWG, DXF noma LandXML; izindawo zokuqoqa ezivela emphezulwini (imifudlana) | Dweba izindawo zokuqoqa ngesandla; zigcinwa kwifayela lephrojekthi |
+| Amakhathalogi amapayipi, amapayipi angezona ezindilinga, izakhiwo ezingaphakathi kwamabhokisi noma amasilinda (amakoni, izinyathelo, ukubenzela), isigaba sokukhipha kwamanzi elabhulari | Izinhlobo zesakhiwo kusuka ezinhlobeni ([Inethiwekhi yamapayipi](topic:pipe-network)); amapayipi anobubanzi |
+| Amapayipi kumbono wephrofayili, amapayipi agobile | Funda okungaphansi nokuboshwa ngaphezulu kwepaneli esokudla |
 
-## Amasiza
+## Amapaseli
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ukuhlela izindawo ngendawo noma ngobude besiseko, izinsiza ezivela emigqeni ezungezile, i-right-of-way | Dweba isiza ngamakhona aso, noma ufake ama-calls akho |
-| Amathebula amagophe namathebula emigqa epulani; amalebula ahanjiswa ngesandla | Ikhosi ngayinye ilebulwe ngokuhamba kwayo |
-| Izinsiza ku-LandXML | Izinsiza zigcinwa kwifayela lephrojekthi futhi ziya ku-PDF, DWG nasku-DXF |
+| Ukuhlela izindawo zamapaseli ngendawo noma ngobubanzi bomphetho, amapaseli avela emigqeni eyiwazungezayo, indawo yendlela | Dweba ipaseli ngalinye ngamagumbi alo, noma ufake izincazelo zalo |
+| Amathebula amajika namathebula emigqa epulani; amalebula ahanjiswa ngesandla | Konke ukuzungezwa kulebulwe kulo ngokwalo |
+| Amapaseli ku-LandXML | Amapaseli agcinwa kwifayela lephrojekthi futhi aya ku-PDF, DWG ne-DXF |
 
-## Ukuhamba kwesivivinyo
+## Ukuhamba kwezindawo
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ukulungisa kwe-least-squares, umthetho wesibukeli (transit rule), ukulinganisa ama-engeli ngokumelene namabanga | Umthetho wekhompasi |
-| Ama-engeli wokuphambuka, ama-engeli wezenith namabanga esilanga, ukuphakama ngokulinganisa okuyi-trigonometric | Yehlisa ube amabanga athe xaxa nama-engeli alungile, noma ama-bearing |
-| Izithombe zecala, amafayela edatha engaguqulwanga avela kubaqoqi bedatha | Ngenisa amaphoyinti njengefayela lamaphoyinti |
+| Ukulinganisa kwe-least-squares, umthetho wesikhathi, ukulinganisa ama-engeli ngokuhambisana nezibalo | Umthetho we-compass |
+| Ama-engeli okuphambuka, ama-engeli e-zenith nezibalo zezingqimba, ukuphakama ngokubala kwe-trigonometric | Yehlisa ibe izibalo ezithe xaxa namangqamuzana afanelekayo, noma amabhareni |
+| Imiphumela yasendleleni, amafayela wedatha ekhoqwe ngabahlanganisi | Ngenisa amaphuzu njengefayela lamaphuzu |
 
-## Ukumisa
+## Ukubeka izimpawu
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ama-offset stake (amaphoyinti okubhekisela asetshenziswe emuva kwe-stake), ama-slope stake ku-catch point | Misa ama-stake ezindaweni ozidingayo, kuhlanganise nangaphezu kwe-shoulder |
-| Ukuthumela ama-stake ngqo kufomethi yomqoqi wedatha | I-CSV ivulwa kusofthiwe wehhovisi wabaqoqi bedatha abaningi |
-| Ukumisa amapayipi, amapedi namasiza | Sebenzisa amaphoyinti okuhlola aseduze nomzila, noma amagophe esiza |
+| Izinkomba zokubeka ezisetshenziswa kabusha (amaphuzu okubhekisela abekwe emuva kwesimpawu), izimpawu zokubeka kwendawo lapho ukuthambeka kuhlangana khona | Beka izimpawu ezindaweni ozidingayo, kuhlanganise nendlela eyedlule ishoulder |
+| Ukuthumela izimpawu ngqo kufomethi yomhlahlandlela wedatha | I-CSV ivula kwisofthiwe yehhovisi ye-data collector eningi |
+| Ukubeka imipayipi, amaphedi namapaseli | Sebenzisa amaphuzu okuhlola aseduze nomzila, noma izigaba zephaseli |
 
-## Amafayela nokuphuma
+## Amafayela nokukhipha
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Umbhalo, ama-hatch nezilinganiso ku-DWG noma DXF; i-paper space; imidwebo exhunyiwe (xrefs); i-DXF yebinary | Umugqa we-model space uyavuleka ([Vula i-DWG noma i-DXF njengemigqa](topic:open-dwg-dxf)); vula imidwebo exhunyiwe ngokwayo |
-| Ukuhambisa amaphoyinti amaningi ngesikhathi esisodwa ngokudonsa | Sika bese unamathisela, noma uhlele owodwa ngesikhathi |
-| Amashidi aphakanyiswe ngokuma, amabhulokhi wezihloko zakho, ama-viewport owahlela wena, amashidi epulani nephrofayili ku-DWG | Ishidi lepulani elilodwa elibanzi nge-PDF ngalinye, noma amashidi epulani nephrofayili emgqeni wesici (PDF) |
-| Ukuplotha amabhendi okuphakama nephrofayili | Amabhendi abonakala esikrinini kuphela; thatha isithombe uma uwadinga |
-| Ukushintsha amagama ezingqimba, imibala noma izitayela zamalebula | Shintsha kuhlelo lwe-CAD ngemva kokuthumela i-DXF |
-| Ukugcina efwini nomlando wezinguqulo | Gcina amafayela `.civilcraft.json` ubagcine ngekhophi; ukusebenza ndawonye ephrojekthini eyodwa, sebenzisa isikhathi sangempela ku-CadCraft Studio ([Yakha indawo eyodwa ndawonye, ngesikhathi sangempela](topic:work-live)) |
-| I-CadCraft Studio ye-iPad nye-iPhone, nokusuka ku-Google Play | Sebenzisa i-CivilCraft esiphequluli esidivayisini; ku-Android, i-CadCraft Studio ifakwa kusuka ku-APK yayo ku-getcadcraft.com/download |
-| Ukuvula amafayela amaningi amaphoyinti noma amaphrojekthi ngesikhathi esisodwa | Ifayela elilodwa ngalinye; amafayela e-GIS ahambisana, njengezingxenye zefayela le-shapefile, avulwa ndawonye |
+| Umbhalo, ama-hatch namasilinganiso avela ku-DWG noma DXF; paper space; imidwebo exhunyiwe (xrefs); i-DXF yebinari | Umugqa wokuvela kwe-model space uyavuleka ([Vula i-DWG noma i-DXF njengomugqa](topic:open-dwg-dxf)); vula imidwebo exhunyiwe ngokwayo |
+| Ukuhudula amaphuzu amaningi ngesikhathi esisodwa | Sika uphinde unamathisele, noma uhlele ngamunye ngamunye |
+| Amashidi aphelele, izinhlanzi zesihloko zakho, ama-viewport ohlelayo, amashidi ephulani nephrofayili ku-DWG | Ishidi elilodwa lephulani elibukeka ngobubanzi nge-PDF ngayinye, noma amashidi ephulani nephrofayili ngomzila (PDF) |
+| Ukudweba izinga lokuphakama nezindawo ze-profile | Izinga liboniswa kuphela ekuboneni; thatha isithombe uma udinga |
+| Ukushintsha amagama ezingqimba, imibala noma izitayela zamalebula | Shintsha kuhlelo lwe-CAD ngemva kokukhipha i-DXF |
+| Ukugcina okusemafini nomlando wenguqulo | Gcina amafayela `.civilcraft.json` futhi uwagcine ngokulondolozwa; ukuze usebenze ndawonye kwiphrojekthi, sebenzisa isikhathi esiphilayo ku-CadCraft Studio ([Yakha indawo eyodwa ndawonye, ngokuphila](topic:work-live)) |
+| I-CadCraft Studio ye-iPad ne-iPhone, nasekuthi kwa-Google Play | Sebenzisa i-CivilCraft esiphequluli esidivayisini; ku-Android, i-CadCraft Studio ifakwa ngeAPK esuka ku-getcadcraft.com/download |
+| Ukuvula amafayela amaningi wamaphuzu noma amaphrojekthi ngesikhathi esisodwa | Ifayela elilodwa ngalinye ngesikhathi (amafayela e-GIS ahlobene, njengezingxenye zefayela le-shapefile, avulwa ndawonye) |
 
-## Ukuhlobisa
+## Landscape
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Izinhloko nezimbobo zabakhiqizi | Izinhloko ezijwayelekile, noma engeza eyakho kusuka kwifayela; idatha yabakhiqizi ifika njengoba befaka imvume |
-| Ubude obukhulu bemigqa yokuthonga (drip lines), ukugeleza ngesikhathi, iphampu, amanethiwekhi amapayipi ajikelezayo | Gcina imigqa yokusebenza ngobude obushicilelwe ngumkhiqizi; ukuhlola kudinga inethiwekhi ehlukanisayo |
-| Umugqa oqondile wento engenamkhawulo ejikelezayo; umthamo wayo ongaphansi komhlaba olinganiswe ngokunembile | Isigaba se-convex hull siyagredwa futhi umthamo ongaphansi komhlaba uyisilinganiso (kuchazwa ku-Properties) |
-| Izitshalo ku-Place from library yoBimCraft nakwa-ModelCraft | Thumela i-landscape IFC bese uyivula ku-BimCraft ecaleni kwesakhiwo |
-| Amamodeli ezitshalo anemininingwane (amaqabunga, amagatsha, izikhathi zonyaka) ku-3D; izinto ezingenamkhawulo nokunisela ku-3D | Izitshalo zibonakala ku-3D njengezimo ezilula ezilinganiswe kusuka ohlwini lwezitshalo ([Bona indawo ku-3D](topic:site-3d)); i-scatter ye-ModelCraft yenza imifanekiso yokutshala |
-| Izindonga zokuhlaba ezigcina izinga eligreded ngemuva kwazo emphezulwini | Nika iplathifomu noma iphedi izinhlangothi ezimile: zingamadonga okugcina emphezulwini ([Ukugreda](topic:grading)) |
-| Izinguquko ze-SVG ezimpawini zakho; izinhlobo nemibala yamamodeli ezitshalo zakho ze-GLB; ijiyometri ye-GLB ecindezelwe | Qeda izinguquko kuqala kuhlelo lwakho lokudweba; amamodeli adwetshwa ngombala wesitshalo; thumela i-GLB ngaphandle kokucindezela ([Izithombe zezitshalo](topic:plant-graphics)) |
-| Uhlu lwezitshalo zakho olugcinwa ku-akhawunti yakho ye-Library (olulungiswa ku-app) | Hlela uhlu lwephrojekthi ethebhulini lezitshalo bese ulondoloza njengefayela lezitshalo |
-| Amathuluzi wendawo ososizi abangenawindi (iseva yamafayela nomugqa womyalo) | Asebenza uma iwindi le-CivilCraft livuliwe ([Vumela umsizi we-AI asebenzise indawo yakho](topic:assistants)) |
+| Amakhanda namasipho abakhiqizi | Amakhanda ajwayelekile, noma engeza amakhanda akho kusuka kwifayela; idatha yabakhiqizi iyangena njengoba bevumela |
+| Amabanga amakhulu wemigqa yokuthonya ngamanzi, ukugeleza ngesikhathi, amapham, amanethiwekhi amapayipi ajikelezayo | Gcina imigqa yokuthonya ngobude abakhiqizi abakushicilelile; ukuhlola kudinga inethiwekhi ehlukaniswayo |
+| Umbhalo oqondile wento engenayo emfudlaneni; ivolumu yayo ngaphansi komhlaba ekalwe ngokuqondile | Isiqolo esingaphandle siyagxilwa futhi ivolumu ingaphansi komhlaba iyisilinganiso (sitshelwe kuPropertyes) |
+| Izitshalo ze-BimCraft neModelCraft ezingu-Place from library | Thumela i-landscape IFC bese uvula ku-BimCraft ecaleni kwesakhiwo |
+| Amamodeli wezitshalo ajwayile (amaqabunga, amagatsha, izikhathi) ku-3D; izinto ezihlanganisiwe nokunisela ku-3D | Izitshalo zibonakala ku-3D njengezakhiwo ezilula ezibukeka ngohlu lwezitshalo ([Bheka isayithi nge-3D](topic:site-3d)); i-scatter ye-ModelCraft yenza izithombe zokutshala |
+| Izindonga zokuhlanganisa ezibamba izinga elibekiwe ngemuva kwazo emphezulwini | Yenza iplatifomu noma iphedi ibe nemacala athe xaxa: zingumdonga wokubamba emphezulwini ([Ukugoba](topic:grading)) |
+| Ukushintsha kwe-SVG ezimpawwini zakho; izindwangu nemibala yamamodeli ezitshalo ze-GLB zakho; ijiyometri ye-GLB ecindeziwe | Ukuqeda ukushintsha esicelweni sakho kuqala; amamodeli adwetshwa ngombala wezitshalo; khipha i-GLB ingacindezelwe ([Imifanekiso yezitshalo](topic:plant-graphics)) |
+| Uhlu lwakho lwezitshalo oluphethwe ku-akhawunti yakho ye-Library (ilungiswa ku-app) | Hlela uhlu lwephrojekthi ku-Itheyibhili yezitshalo bese uligcina njengefayela lezitshalo |
+| Amathuluzi e-landscape wabasizi be-AI ngaphandle kwewindi (iseva yamafayela nomugqa womyalo) | Asebenza nge-window ye-CivilCraft ivulekile ([Vumela umsizi we-AI asebenze nesayithi lakho](topic:assistants)) |
 
-## Izintambo zamandla
+## Imigqa yogesi
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Izinga lezwe elakhelwe ngaphakathi (amacala womthwalo, amakhala, izici) | Setha amanani womgomo wakho ku-{{ui:Izimo zomthwalo nemikhawulo…}} bese uyawalondoloza, kanye nomtapo wakho, njengephakheji lokusebenzisa nokwabelana ([Amaphakheji](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
-| Ibanga elingecala kusuka kwintambo kuya ocwecweni lwesihlahla noma kudonga eliseduze nomugqa | Ikhala eliqondile phezulu phezu kwezitshalo nezindonga umugqa oziwela ([Ukuhlolwa kwezintambo zamandla](topic:power-line-checks#clearances)) |
-| Ukuhamba kwentambo ngokuhamba kwesikhathi nokwelula kwentambo entsha | Zinakekele ngamazinga okushisa asetafuleni lokumisa intambo |
-| Isilinganiso samandla amakhebuli angaphansi komhlaba (amanje kusukela endleleni azibekwe ngayo) | Faka isilinganiso samandla somhlinzeki wakho ku-item yekhebuli |
-| Izifundo zesekethi emfushane, ukuvikelwa nokumiswa komhlaba | Sebenzisa uhlelo lukagesi oluzimele; i-CivilCraft inikeza ubude nezinhlobo zamakhebuli wenethiwekhi |
-| Amathawa we-lattice aklanywe ilungu ngelungu, namahla okubambelela emhlabathini | Izisekelo zihlolwa ngomthwalo wazo ovumelekile; amahla ngomthwalo wawo onikezwe |
-| Ifayela lesifundo se-`.DON` elihlolwa kuhlelo olulifundayo | Hlola lapho; sithumele isampula ukuze sihlole ngayo eyeqiniso |
-| Izintambo zamandla ku-3D nasku-IFC | Ipulani, iphrofayili yomugqa, amashidi nezingqimba ze-GIS |
-| Izinto zezintambo zamandla zososizi abangenawindi | Zisebenza uma iwindi le-CivilCraft livuliwe ([Vumela umsizi we-AI asebenzise indawo yakho](topic:assistants)) |
+| Okujwayelekile kwezwe kwakhiwe (izimo zomthwalo, izikhala, izinto) | Setha amanani wezinga lakho ku-{{ui:Load cases and limits…}} bese uligcina, kanye nelabhulari yakho, njengephakethe lokusebenzisa nokwabelana ([Amaphakethe](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
+| Ibanga elisecaleni kusuka kukhondakhta kuya emnyombeni wesihlahla noma udonga ecaleni komugqa | Ukukhipha ukuphakama okuqondile phezu kwezitshalo nezindonga umugqa ohamba kuzo ([Ukuhlolwa kwemigqa yogesi](topic:power-line-checks#clearances)) |
+| Ukuhamba kwekhondakhta nokweluleka kwekhondakhta entsha | Vumela ngazo ngezinga lokushisa kwethebula lokuthunga |
+| Izinga lokushisa lamakhebuli angaphansi komhlaba (izinga lokushisa kusuka ekuhlaleni kwawo) | Faka izinga lombhinqo wakho kukhebuli yakho |
+| Izifundo zesekethe emfushane, ukuvikela nokukhokhela umhlabathi | Sebenzisa uhlelo oluhlukile lukagesi; i-CivilCraft inikeza izinga lamakhebuli nezingxenye zakho |
+| Amathawa we-lattice aklanywe ngamalunge ayi-member; nezidikiza ezibambayo emhlabathini | Izisekelo zihlolwa ngomthwalo wazo ovamile; izidikiza ngomthwalo wazo ovamile |
+| Ifayela lesifundo se-`.DON` lihlolwe ohlelweni olufunda kuwo | Hlola lapho; sithumele isampula ukuze sihlole kwelangempela |
+| Imigqa yogesi ku-3D nasku-IFC | Ipulani, iphrofayili yomugqa, amashidi nezigaba ze-GIS |
+| Amathuluzi womugqa wogesi wabasizi ngaphandle kwewindi | Asebenza nge-window ye-CivilCraft ivulekile ([Vumela umsizi we-AI asebenze nesayithi lakho](topic:assistants)) |
 
-## Izindawo zokwakha
+## Izakhiwo zokwakha
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Umtapo wamakhodi okuzonela noma imithetho yanoma yimuphi umasipala | Thayipha imikhawulo kusuka ocwaningweni lwakho ([Imikhawulo yokuzonela](topic:zoning-limits)) |
-| Ukukhanya kwesibhakabhaka ezindongeni (ukukhanya kwefasedi), umoya | [Amahora elanga](topic:sun-hours) abala ilanga eliqondile kuphela |
-| Umthunzi wemithi, izitshalo noma noma yini engadwetshwanga njengendawo yokwakha | Dweba izakhiwo eziseduze njengezindawo zokwakha |
-| Izinhlobo zophahla ezindaweni zokwakha | Izindawo zokwakha ezinophahla olulingana |
-| Izimbobo, uphahla nezinhlobo zodonga lapho indawo yokwakha ithuthukiswa ku-BimCraft | I-BimCraft yakha izindonga zangaphandle ezilula kuwo wonke amazinga nophahla; engeza okunye lapho |
+| Umtapo wemithetho yokuhlukanisa izindawo noma yimaphi amadolobha | Thayipha imikhawulo kusuka kumthetho wakho ([Imikhawulo yokuhlukanisa](topic:zoning-limits)) |
+| Ukukhanya kwemini ezindongeni (ukukhanya kwebhilidi), umoya | [Amahora elanga](topic:sun-hours) ubala ilanga eliqondile kuphela |
+| Umthunzi wemithi, izitshalo noma yini engadwetshwanga njengesakhiwo | Dweba izakhiwo eziseduze njengezindawo ezinkulu |
+| Izinhlobo zophahla ezindaweni ezinkulu | Izindawo ezinkulu ezinophahla oluqondile |
+| Ukuvulwa, uphahla namhlobo wezindonga lapho isakhiwo sithuthukiswa ku-BimCraft | I-BimCraft yakha izindonga zangaphandle ezilula kuwo wonke amazinga nephansi; engeza okunye lapho |
 
-## GIS nezinhlelo zokuhlanganisa
+## I-GIS nezinhlelo zokuhlanganisa
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| File Geodatabase; izitayela, izithonjana, ukumbozwa komhlaba nezixhumanisi zenethiwekhi ze-KML | Guqula ube yi-GeoPackage, i-shapefile noma i-GeoJSON kuqala; ama-placemark e-KML afundwa ngaphandle kwezitayela |
-| Ukuhlela izici ze-GIS noma izici zazo | Zihlele kuhlelo lwe-GIS bese uyazingenisa futhi. Ipaneli ye-Analyze yenza izingqimba ezintsha (buffer, overlay, join, selection) futhi yengeza izinkundla zendawo nobude, kodwa ayihleli isici ngokuqondile |
-| Ukusebenza kwenethiwekhi nokwe-raster, ama-buffer anamaphethelo aqondile noma ahlangothini oyedwa, ukungeza noma ukususa imigqa ethebhuleni lezakhiwo nokushintsha uhlobo lwensimu, imibala yamakilasi ngesandla, ilejenda yesitayela ekushicilelweni | Sebenzisa {{ui:Khetha}} ukukhetha izici wenze ungqimba kuzo; amaphethelo aqondile ayinikwa. Ukudweba ngesici nethebula lezakhiwo kwakhiwe: bheka [Shayela ungqimba ngesici](topic:gis-symbology) no-[Sebenza nethebula lezakhiwo lengqimba](topic:gis-table) |
-| Ubukhulu bamalebula bokubekwa kwawo nokuthi amalebula ayagwema ukuhlanganisana | Amalebula anosayizi oyodwa angahlanganisana lapho izici zisondelene kakhulu |
-| Izinhloko zokuphakama nemodeli zejeoyidi | Izinga lokuphakama lisetshenziswa njengoba ifayela linikeza; hlola ukuphakama kwendatha ngokwakho |
-| Ukushintshwa kwegridi okungeyona eya ku-NAD83 kusukela ku-NAD27 okuphakanyiswe ngesifunda (i-OSTN15, i-NTv2 ezinye izinhlelo zidinga ukuthi wengeze ifayela), izigridi eziningi ngesikhathi esisodwa, izigridi zokuphakama | Engeza ifayela legridi ngokwakho ngendatha yakho; igridi eyodwa ngephrojekthi |
-| Izingqimba zemephu ku-DXF noma ekukhishweni kwe-3D | Izingqimba zemephu ziya ku-PDF plot, nasecaleni le-DWG njengesithombe |
-| Amaseva emephu adinga ukungena, ukhiye noma ithokheni | Sebenzisa amasevisi womphakathi, noma ifayela lesithombe elinendawo yegeo |
-| Ukubhala amafayela e-LAS noma e-LAZ kusuka emphezulwini, emodelini womhlaba noma kumathuluzi egridi yokuphakama nelidar | Thumela amaphezulu njenge-GeoTIFF yegridi yokuphakama. I-add-on ye-[Amafu amaphoyinti](topic:point-clouds) ibhala ifu elihlanziwe njenge-LAS 1.4 noma i-LAZ |
-| Ukukhanya kwe-LiDAR, umbala nokubuya; izigridi zokuphakama ezinamabhendi amaningi; amafayela egridi noma e-LiDAR angaphezu kuka-200 MB | I-LiDAR ihlungwa ngamakilasi kuphela, izigridi zisebenzisa ibhendi lokuqala; sika amafayela amakhulu abe ama-tile kuqala |
+| I-File Geodatabase; izitayela zeKML, izithonjana, ukugqoka komhlaba nezixhumanisi zenethiwekhi | Guqula ibe yi-GeoPackage, i-shapefile noma i-GeoJSON kuqala; amamaki e-KML afundwa ngaphandle kwezitayela zawo |
+| Ukuhlela izici ze-GIS noma izici zazo | Zihlele kuhlelo lwe-GIS bese ungenisa futhi. Ipaneli ye-{{ui:Analyze}} yenza izendlalelo ezintsha (i-buffer, i-overlay, i-join, ukukhetha) futhi yengeza izinkundla zendawo nobude, kodwa ayihleli isici ngokuqondile |
+| Ukuhlaziywa kwenethiwekhi nesithombe, ama-buffer anamaphethelo awugqinsi noma ayisikwele namabuffer ayinhlangothi eyodwa, ukungeza noma ukususa imigqa kwithebula lesici nokushintsha uhlobo lwenkundla, imibala yezigaba ngesandla, ilejenda yesitayela ezinhlelweni | Sebenzisa Ukukhetha ukukhetha izici uphinde wenze isendlalelo kuzo; amaphethelo amaphansi awanikezwa. Ukubala ngesici nethebula lesici kwakhiwe: bheka [Hlobisa isendlalelo ngesici](topic:gis-symbology) kanye [Sebenza nethebula lesici lesendlalelo](topic:gis-table) |
+| Amalebula esitayela (usayizi, indawo) namalebula angavimbani | Amalebula anosayizi munye futhi angahlangana lapho izici zisondelene |
+| Amadathamu wobubanzi nemodeli yejiyoyidi | Izinga liyasetshenziswa njengoba ifayela liyinikeza; hlola udatha wobubanzi ngokwakho |
+| Ukushintsha kwegridi kwe-NAD27 kuya ku-NAD83 kuphela (OSTN15, i-NTv2 kwezinye izinsimbi, uma wengeza ifayela), ngezindawo, amagridi amaningi ngesikhathi esisodwa, amagridi wobubanzi | Engeza ifayela legridi lakho lwedatha ngokwakho; igridi eyodwa ephrojekthini |
+| Amalayisi emamephu ku-DXF noma ekukhishweni kwe-3D | Amalayisi emamephu ahamba ku-PDF plot, nasecaleni kwe-DWG njengesithombe |
+| Amaseva emamephu adinga ukungena, ukhiye noma ithokheni | Sebenzisa amasevisi womphakathi, noma ifayela lesithombe elibekiwe ngejiyoyidi |
+| Ukubhala amafayela ye-LAS noma i-LAZ ezindaweni, emodelini yomhlaba noma kumathuluzi egridi yokuphakama noma we-LiDAR | Thumela izindawo njengegridi yokuphakama ye-GeoTIFF. Ibhande lama-[Ifu lamaphuzu](topic:point-clouds) libhala ifu elihlanjululiwe njenge-LAS 1.4 noma i-LAZ |
+| Ukukhanya kwe-LiDAR, umbala nokubuyisa; izinkundla zegridi ezinamabhendi amaningi; amafayela egridi noma e-LiDAR angaphezu kuka-200 MB | I-LiDAR ihlungwa ngohlobo kuphela, amagridi asebenzisa ibhendi lawo lokuqala; sika amafayela amakhulu kuqala abe ngamathayili |
 
-## Okokufaka
+## Okufakwayo
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ukukhetha ibhokisi ngokuthinta (kudinga {{key:Shift}}) | Cindezela isikhathi eside kuphoyinti ngalinye lokuhlola ukuze ulengeze |
-| Izixhumanisi noma izinkulungwane ezithayiphiwe ngesikhathi sokudweba | Dweba cishe, bese uthayipha izixhumanisi ze-PI eziqondile ethebhuleni le-PI yomzila |
-| Ukuthayipha izixhumanisi zamakhona amapedi nezakhiwo | Donsa izibambi zawo; sondeza ukuze uthole ukunemba bese ubheka E no-N kumugqa wesimo |
-| Ukuxhumana nezinto (ngaphandle kwamaphoyinti okuhlola emigqeni yokuphula) | Sondeza bese ubheka umugqa wesimo |
+| Ukukhetha ngebhokisi ngokuthinta (idinga {{key:Shift}}) | Cindezela isikhathi eside kuphoyinti ngalinye lesamba ukuze uliengeze |
+| Izixhumanisi ezithayiphiwe noma izibalo lapho udweba | Dweba cishe, bese uthayipha izixhumanisi zePI ezinembile kwethebula le-PI womzila |
+| Ukuthayipha izixhumanisi zamagumbi wephedi nezakhiwo | Hudula amasipho awo; zoom ukuze uthole ukunemba bese ubheka i-E ne-N kwibha yesimo |
+| Ukubambisa izinto (ngaphandle kwamaphuzu wesamba ngemigqa yokuphula) | Zoom bese ubheka ibha yesimo |
 
-## Ubuka be-3D
+## Ubuso be-3D
 
-| Akukakwakhiwa | Esikhundleni, namuhla |
+| Akukakhiwa okwamanje | Esikhundleni, namuhla |
 |---|---|
-| Ukudweba noma ukuhlela ku-3D | Dweba uhlele epulanini; ibuka le-3D lilandela yonke inguquko |
-| Ukukhetha izici zekhoridoro noma izici ze-GIS ngokuchofoza ku-3D | Chofoza kuzo epulanini |
-| Ukuthumela umbono owenziwe mkhulu noma ngamafiti | Ukuthunyelwa kuba ngobukhulu bangempela ngamamitha; bheka [Thumela indawo ku-3D](topic:export-3d) |
-| Amalebula ekukhishweni kwe-GLB noma OBJ, nosayizi nezitayela zamalebula ku-3D | Amalebula abonakala ku-3D kuphela, osayizi oyodwa; bheka [Bona indawo ku-3D](topic:site-3d) |
-| Izithombe ezivela ezithombeni, ukurekhoda ukuhamba njengevidiyo, izithunzi ezivela ngaphandle kwendawo, amahora elanga ebonakala ku-3D | Izingqimba zemephu ezigqunywe emphezulwini; khipha nendawo yelanga ngesikhathi esisodwa; [amahora elanga](topic:sun-hours) ngosuku noma ngonyaka epulanini |
+| Ukudweba noma ukuhlela ku-3D | Dweba uhlele epulani; ubuso be-3D bulandela konke ukuhlela |
+| Ukukhetha imigqa yesici yekhoridoro noma izici ze-GIS ngokuchofoza ku-3D | Zichofoze epulani |
+| Ukukhipha umbono oqinisekisiwe noma ngamafiti | Ukukhishwa kuyisilinganiso sangempela ngamamitha; bheka [Khipha isayithi nge-3D](topic:export-3d) |
+| Amalebula ku-GLB noma ukukhishwa kwe-OBJ, usayizi wamalebula nezitayela ku-3D | Amalebula abonakala ku-3D kuphela, usayizi munye; bheka [Bheka isayithi nge-3D](topic:site-3d) |
+| Izindwangu zezithombe, ukurekhoda ukushayela njengevidiyo, izithunzi ezivela ngaphandle kwesayithi, amahora elanga abonakala ku-3D | Amalayisi emamephu ahlotshiswe ngaphezu kwawo; shayela nendawo yelanga ngesikhathi esisodwa; [amahora elanga](topic:sun-hours) ngosuku noma ngonyaka epulani |

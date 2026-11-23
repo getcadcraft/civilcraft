@@ -1,0 +1,73 @@
+{
+ "walls": {
+  "ms": 28575,
+  "tasks": 3,
+  "block": 28540,
+  "longest": 28292,
+  "gap": 28482,
+  "progress": [],
+  "list": [
+   "A-101 Level 1 plan",
+   "A-102 Level 2 plan",
+   "A-103 Level 3 plan",
+   "A-104 Level 4 plan",
+   "A-105 Level 5 plan",
+   "A-201 Exterior elevations",
+   "A-202 Exterior elevations",
+   "A-608 Wall assembly schedule - page 1 of 1",
+   "A-609 Project material legend - page 1 of 2",
+   "A-610 Project material legend - page 2 of 2",
+   "A-401 Schedules",
+   "A-402 Schedules",
+   "A-403 Schedules",
+   "A-404 Schedules",
+   "A-405 Schedules",
+   "A-406 Schedules",
+   "A-407 Schedules",
+   "A-408 Schedules",
+   "A-409 Schedules",
+   "A-410 Schedules",
+   "A-411 Schedules",
+   "A-412 Schedules",
+   "A-413 Schedules"
+  ],
+  "none": false,
+  "status": "Starting up…ifc 4d… |  |  |  | 753.6 t CO₂e | Point at the model to read where it is |  | Level 1 (floor at 0 mm) | Working… |  | Disconnect |  |  |  |  |  | 33 symbols |  |  |  | ",
+  "sheets": 23,
+  "digest": "eb4ce91e36760cd54273",
+  "stack": false
+ },
+ "hint": {
+  "text": "Click where the section line starts, then where it ends. It looks to the left of the line; Flip the view in its properties turns it round.",
+  "tool": "section"
+ },
+ "rebar": {
+  "ms": 8009,
+  "tasks": 0,
+  "block": 0,
+  "longest": 0,
+  "gap": 7919,
+  "progress": [],
+  "list": [
+   "A-101 Level 1 plan",
+   "A-102 Level 2 plan",
+   "A-103 Level 3 plan",
+   "A-104 Level 4 plan",
+   "A-201 Exterior elevations",
+   "A-202 Exterior elevations",
+   "A-301 Building sections",
+   "A-608 Wall assembly schedule - page 1 of 1",
+   "A-609 Project material legend - page 1 of 2",
+   "A-610 Project material legend - page 2 of 2",
+   "A-401 Schedules",
+   "A-402 Schedules",
+   "A-403 Schedules",
+   "A-404 Schedules"
+  ],
+  "none": false,
+  "status": "Starting up…constants… |  |  |  | 259.72 t CO₂e | Point at the model to read where it is |  | Level 1 (floor at 0 mm) | Working… |  | Disconnect |  |  |  |  |  | 33 symbols |  |  |  | ",
+  "sheets": 14,
+  "digest": "855747a48980953f6ac6",
+  "stack": false
+ }
+}

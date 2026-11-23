@@ -27,6 +27,7 @@
  */
 
 import { IfcFile } from './ifc/model.js';
+import { TextChunks } from './chunks.js';   // 0.11 (the cap lifted): the project file of millions of points in parts (lib/textout)
 import { civilIfcModel } from './ifc-civil-model.js';
 import { writeCivilIfc, fileOrigin } from './ifc-civil.js';
 
@@ -51,6 +52,39 @@ const b64 = {
   dec(text) { const s = atob(text); const out = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i); return out; },
 };
 async function pipe(bytes, stream) { return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer()); }
+/** hash64 of the text the parts make together (the same value as hash64(parts.join(''))). */
+export function hash64Parts(parts) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (const str of parts) for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
+}
+/** 0.11 (the cap lifted): from this many survey points Save writes the project file in parts (below it: one string, exactly as before). */
+export const PARTS_FROM = 2e6;
+const COLLAPSE = /\[\n\s*(-?\d[^,\[\]{}"\n]*(?:,\n\s*-?\d[^,\[\]{}"\n]*)*)\n\s*\]/g;
+const collapse = (s) => s.replace(COLLAPSE, (m, body) => '[' + body.replace(/,\n\s*/g, ', ') + ']');
+/**
+ * prettyJson(file) written in parts, for a project of millions of points (its text is past V8's string limit): the file without its points
+ * pretty-printed as always, and the points' rows written block by block in its place, each row as JSON.stringify(…, null, 1) puts it at that
+ * depth (arrays of numbers collapsed, as prettyJson does: a match never spans two rows). → TextChunks (finished)
+ */
+function prettyJsonParts(project, obj) {
+  const token = 'ccpts:' + Math.random().toString(36).slice(2) + ':' + Date.now().toString(36);
+  const text = prettyJson({ ...obj, points: token }), mark = JSON.stringify(token), at = text.indexOf(mark);
+  if (at < 0 || text.lastIndexOf(mark) !== at) throw new Error('the project file could not be written in parts');   // i18n-ignore: cannot happen (a random token)
+  const out = new TextChunks(''), T = project.pointTable;
+  out.add(text.slice(0, at));
+  if (!T.length) out.add('[]');
+  else {
+    out.add('[');
+    let first = true;
+    for (const b of T.blocks) for (const row of T.blockRowsPretty(b, collapse)) { out.add((first ? '\n  ' : ',\n  ') + row); first = false; }
+    out.add('\n ]');
+  }
+  out.add(text.slice(at + mark.length));
+  return out.finish();
+}
 export const gzip = (text) => pipe(new TextEncoder().encode(text), new CompressionStream('gzip'));
 export const gunzip = async (bytes) => new TextDecoder().decode(await pipe(bytes, new DecompressionStream('gzip')));
 
@@ -115,21 +149,31 @@ export async function writePair(project, { stem = 'site', now = new Date(), spec
   const fp = productHashes(IfcFile.open(new TextEncoder().encode(first.text)));
   // 2. the JSON, naming its IFC and that fingerprint
   const savedAt = now.toISOString();
-  const obj = project.toJSON();
+  const parts = (project.pointTable?.length || 0) >= (writePair.partsFrom ?? PARTS_FROM);   // 0.11: millions of points: the file in parts
+  const obj = parts ? project.toJSON({ pointsAs: null }) : project.toJSON();
   obj.saved = savedAt;
   obj.pair = { ifc: ifcName, schema: NATIVE_SCHEMA, entityHash: fp.all, savedAt };
   const { saved: savedLast, ...restOfObj } = obj;   // 0.8 DC.27 H3: the save time changes on every save, so it goes last
-  const jsonText = prettyJson({ ...restOfObj, saved: savedLast });
-  const jsonHash = hash64(jsonText);
+  let jsonText, jsonHash, blob = null;
   // 3. the IFC again with CadCraft_Native on the project (the elements are written the same: the set comes last)
   const elements = {};
   for (const [gid, h] of Object.entries(fp.items)) elements[gid] = [first.tags[gid] || '', h];
-  const blob = await gzip(JSON.stringify({ json: jsonText, elements }));
+  if (!parts) {
+    jsonText = prettyJson({ ...restOfObj, saved: savedLast });
+    jsonHash = hash64(jsonText);
+    blob = await gzip(JSON.stringify({ json: jsonText, elements }));
+  } else {
+    // the text is written in parts (TextChunks: a string up to 300 M characters, a Blob past it); the IFC names it by its hash, and carries no
+    // embedded copy of it (that copy could not be read back: it would be one string past the limit)
+    const chunks = prettyJsonParts(project, { ...restOfObj, saved: savedLast });
+    jsonHash = hash64Parts(chunks.parts);
+    jsonText = chunks.output('application/json');
+  }
   // i18n-ignore: IFC file data
   const native = [['Format', NATIVE_FORMAT, 'label'], ['Version', NATIVE_VERSION, 'int'], ['JsonName', jsonName, 'label'], ['JsonHash', jsonHash, 'label'], ['EntityHash', fp.all, 'label'], ['SavedAt', savedAt, 'label'],
-    ['Embedded', 'gzip+base64:' + b64.enc(blob), 'text']];
+    ...(blob ? [['Embedded', 'gzip+base64:' + b64.enc(blob), 'text']] : [])];
   const r = writeCivilIfc(model, { schema: NATIVE_SCHEMA, now, seed, origin, projectPsets: [['CadCraft_Native', native]] });
-  return { jsonName, ifcName, jsonText, ifcText: r.text, entityHash: fp.all, jsonHash, embeddedBytes: blob.length, counts: r.counts };
+  return { jsonName, ifcName, jsonText, ifcText: r.text, entityHash: fp.all, jsonHash, embeddedBytes: blob ? blob.length : 0, counts: r.counts };
 }
 
 // ---------------------------------------------------------------------------- reading

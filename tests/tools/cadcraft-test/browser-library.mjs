@@ -172,7 +172,7 @@ try {
   ok(await page.locator('.cc-lib-card .cc-lib-badge').first().textContent() === 'CC0' && (await page.locator('.cc-lib-card').first().textContent()).includes('Version 1'), 'card: license badge and version');
   await page.waitForFunction(() => { const i = document.querySelector('.cc-lib-card img'); return i && i.complete && i.naturalWidth > 0; });
   ok(true, 'the preview image loads');
-  ok(await page.locator('.cc-lib-tabs, [role=tablist][aria-label="Library sources"] [role=tab]').count() === 4, 'sources: LibraryCraft, Files…, Standard (0.5 MQ.3/MQ.4), Other feeds');
+  ok(await page.locator('.cc-lib-tabs, [role=tablist][aria-label="Library sources"] [role=tab]').count() === 5, 'sources: LibraryCraft, My objects (PO.3), Files…, Standard (0.5 MQ.3/MQ.4), Other feeds');
   ok(await page.locator('dialog[data-lib] a:has-text("Sign in to the library")').count() === 1, '"Sign in to the library" link is offered');
   // 0.10 BK.21 (bk-r3-library-10): Symbols and Assets in the picker (Types are BimCraft's)
   const clsOpts = await page.$$eval('dialog[data-lib] [data-lib-class] option', (o) => o.map((x) => [x.value, x.textContent]));

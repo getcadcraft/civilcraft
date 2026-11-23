@@ -11,22 +11,25 @@
  *       fmt = chip-formats' modules when present ({ def: { readDef, defShapes }, lef: { readLef, lefModel }, lefTexts: [text], stil: { writeStil } })
  *
  * Stage options (stage.options; every name a project file unless said):
- *   sim   testbench (module), tool icarus|verilator, defines {}, plusargs []
- *   synth liberty, script (.ys), period (ns, number), flatten (bool), exclude []
+ *   sim   testbench (module), tool icarus|verilator, defines {}, plusargs [], waves vcd|fst (fst: Verilator only, --trace-fst)
+ *   synth liberty, script (.ys), period (ns, number), flatten (bool), exclude [], sdc (with liberty: OpenSTA times the mapped netlist),
+ *         dontUse [patterns], tie { cell, hi, lo }, buffer { cell, in, out }
  *   pnr   lefs [], libs [], netlist (default out/netlist.v from synth: a project file the person saved), sdc, def, site, utilization,
  *         aspect, coreSpace, hLayers, vLayers, density, route global|detailed|none, rcx, script (.tcl)
- *   drc   gds, deck, top, vars {}
- *   lvs   layout, layoutCell, schematic, schematicCell, setup
- *   gls   netlist, cells [], sdf, dut (instance path), corner
+ *   drc   gds, deck, top, vars {}, flags {} (more -rd values, e.g. feol/beol), or def + lefs [] + cellGds [] + map (GDSII made first)
+ *   lvs   layout, layoutCell, schematic, schematicCell, setup, cells [] (SPICE read with the schematic), or gds + tech (Magic extracts the
+ *         layout netlist first), or def + lefs + cellGds + map + tech (GDSII, then extraction)
+ *   gls   netlist, cells [], sdf, dut (instance path), corner, interconnect (Icarus 12+: wire delays from the SDF too)
  *   stil  as gls (or the RTL design when no netlist) + period (dump units), strobe, inputs [], outputs [], scope
  */
 import { simSteps, findTestbenches, parseSimLog, simSummary } from './sim.js';
-import { synthSteps, parseStat, parseTiming, parseYosysLog } from './synth.js';
-import { pnrSteps, parseOpenroadLog, pnrRows } from './pnr.js';
-import { drcSteps, readLyrdb, drcRows, drcSummary } from './drc.js';
+import { synthSteps, parseStat, parseTiming, parseYosysLog, parseSlack } from './synth.js';
+import { pnrSteps, parseOpenroadLog, pnrRows, lefStemClash } from './pnr.js';
+import { drcSteps, streamSteps, readLyrdb, drcRows, drcSummary } from './drc.js';
 import { lvsSteps, parseLvsText, parseLvsJson, lvsRows } from './lvs.js';
 import { glsSteps, parseGlsLog, stilPlan } from './gls.js';
 import { readVcd } from './vcd.js';
+import { readFst, fstToVcd } from './fst.js';
 import { stageInputs, hashFiles, recordRun } from './project.js';
 import { makePackage } from './runner.js';
 import { parseVersion } from './tools.js';
@@ -35,7 +38,7 @@ import { row } from './rows.js';
 const dec = new TextDecoder();
 const text = (v) => (v === undefined || v === null ? '' : typeof v === 'string' ? v : dec.decode(v));
 const list = (v) => [].concat(v || []).filter(Boolean);
-const TOOL_OF = { iverilog: 'iverilog', vvp: 'iverilog', verilator: 'verilator', yosys: 'yosys', openroad: 'openroad', klayout: 'klayout', netgen: 'netgen' };
+const TOOL_OF = { iverilog: 'iverilog', vvp: 'iverilog', verilator: 'verilator', yosys: 'yosys', openroad: 'openroad', sta: 'sta', klayout: 'klayout', netgen: 'netgen', magic: 'magic' };
 
 export function planStage(project, stage, files) {
   const names = Object.keys(files);
@@ -55,7 +58,7 @@ export function planStage(project, stage, files) {
       const top = o.testbench || project.testbench || tbs[0]?.name;
       const tb = tbs.find((t) => t.name === top);
       if (!top) problems.push('testbench: no module without ports that has an initial block');
-      else { simFiles = stageInputs(project, stage, names).filter((n) => !cellModels.has(n)); plan = simSteps({ tool: stage.tool, files: simFiles, top, defines: o.defines || {}, plusargs: list(o.plusargs), dumps: !!tb?.dumps, timescale: tb?.timescale || '' }); }
+      else { simFiles = stageInputs(project, stage, names).filter((n) => !cellModels.has(n)); plan = simSteps({ tool: stage.tool, files: simFiles, top, defines: o.defines || {}, plusargs: list(o.plusargs), dumps: !!tb?.dumps, timescale: tb?.timescale || '', format: o.waves === 'fst' && stage.tool === 'verilator' ? 'fst' : 'vcd' }); }
       break;
     }
     case 'synth': {
@@ -67,16 +70,33 @@ export function planStage(project, stage, files) {
       const tbOf = tbs.find((x) => x.name === project.testbench);
       if (tbOf) tbFiles.add(tbOf.file);
       synthFiles = names.filter((n) => /\.(s?v)$/i.test(n) && !/^out\//.test(n) && !tbFiles.has(n) && !cellModels.has(n) && !list(o.exclude).includes(n)).sort();   // sorted: the same script (and hash) whatever order the files came in
-      if (!problems.length) plan = synthSteps({ files: synthFiles, top: project.top, liberty: o.liberty || '', period: Number(o.period) || 0, flatten: o.flatten !== false, script: has(o.script) ? o.script : '' });
+      if (o.sdc && !has(o.sdc)) problems.push('SDC: ' + o.sdc + ' is not a project file');
+      if (!problems.length) plan = synthSteps({ files: synthFiles, top: project.top, liberty: o.liberty || '', period: Number(o.period) || 0, flatten: o.flatten !== false, script: has(o.script) ? o.script : '', sdc: o.sdc || '', dontUse: list(o.dontUse), tie: o.tie || null, buffer: o.buffer || null });
       break;
     }
     case 'pnr': {
-      if (!o.script) { need('lefs', 'LEF files'); if (!o.def) need('netlist', 'netlist'); }
+      if (!o.script) { need('lefs', 'LEF files'); if (!o.def) need('netlist', 'netlist'); for (const [a, b] of lefStemClash(list(o.lefs))) problems.push(`LEF files: ${a} and ${b} have the same name before the dot; OpenROAD names a library after it and would drop the second file's cells. Rename one`); }
       if (!problems.length) plan = pnrSteps({ ...o, lefs: list(o.lefs), libs: list(o.libs), top: project.top, script: has(o.script) ? o.script : '' });
       break;
     }
-    case 'drc': need('gds', 'layout'); need('deck', 'DRC deck'); if (!problems.length) plan = drcSteps({ gds: o.gds, deck: o.deck, top: o.top || project.top, vars: o.vars || {} }); break;
-    case 'lvs': need('layout', 'layout netlist'); need('schematic', 'schematic netlist'); need('setup', 'setup file'); if (!problems.length) plan = lvsSteps({ ...o, layoutCell: o.layoutCell || project.top }); break;
+    case 'drc':
+      if (o.def) { need('def', 'DEF'); need('lefs', 'LEF files'); } else need('gds', 'layout');
+      need('deck', 'DRC deck');
+      if (!problems.length) plan = drcSteps({ gds: o.def ? '' : o.gds, deck: o.deck, top: o.top || project.top, vars: o.vars || {}, extra: o.flags || {}, def: o.def || '', lefs: list(o.lefs), cellGds: list(o.cellGds), map: o.map || '' });
+      break;
+    case 'lvs':
+      if (o.def) { need('def', 'DEF'); need('lefs', 'LEF files'); need('tech', 'Magic tech file'); }
+      else if (o.gds) { need('gds', 'layout'); need('tech', 'Magic tech file'); }
+      else need('layout', 'layout netlist');
+      need('schematic', 'schematic netlist'); need('setup', 'setup file');
+      if (!problems.length) {
+        const layoutCell = o.layoutCell || project.top;
+        let pre = { steps: [], extra: {} }, gds = o.gds || '';
+        if (o.def) { pre = streamSteps({ def: o.def, lefs: list(o.lefs), cells: list(o.cellGds), map: o.map || '', out: 'out/final.gds' }); gds = pre.out; }
+        const l = lvsSteps({ ...o, layoutCell, cells: list(o.cells), gds, tech: o.tech || '' });
+        plan = { ...l, steps: [...pre.steps, ...l.steps], extra: { ...pre.extra, ...l.extra } };
+      }
+      break;
     case 'gls': case 'stil': {
       const tbs = findTestbenches(srcTexts);
       const top = o.testbench || project.testbench || tbs[0]?.name;
@@ -86,13 +106,13 @@ export function planStage(project, stage, files) {
       if (stage.kind === 'gls' || o.netlist) {
         need('netlist', 'netlist');
         if (o.sdf && !has(o.sdf)) problems.push('SDF: ' + o.sdf + ' is not a project file');
-        if (!problems.length) plan = glsSteps({ netlist: o.netlist, cells: list(o.cells), testbench: tb.file, top, dut: o.dut || '', sdf: o.sdf || '', timescale: tb.timescale, corner: o.corner || 'max' });
+        if (!problems.length) plan = glsSteps({ netlist: o.netlist, cells: list(o.cells), testbench: tb.file, top, dut: o.dut || '', sdf: o.sdf || '', timescale: tb.timescale, corner: o.corner || 'max', interconnect: !!o.interconnect });
       } else plan = simSteps({ tool: 'icarus', files: stageInputs(project, { ...stage, kind: 'sim' }, names), top, dumps: tb.dumps, timescale: tb.timescale });
       break;
     }
     default: problems.push('unknown stage ' + stage.kind);
   }
-  const base = simFiles ? [...simFiles, ...names.filter((n) => /\.(vh|svh)$/i.test(n) && !/^out\//.test(n))] : synthFiles ? [...synthFiles, ...names.filter((n) => /\.(vh|svh)$/i.test(n) && !/^out\//.test(n)), ...[o.liberty, o.script].filter(Boolean)] : stageInputs(project, stage, names);
+  const base = simFiles ? [...simFiles, ...names.filter((n) => /\.(vh|svh)$/i.test(n) && !/^out\//.test(n))] : synthFiles ? [...synthFiles, ...names.filter((n) => /\.(vh|svh)$/i.test(n) && !/^out\//.test(n)), ...[o.liberty, o.script, o.sdc].filter(Boolean)] : stageInputs(project, stage, names);
   const inputs = [...new Set([...base, ...more, ...list(o.cells), ...list(o.lefs), ...list(o.libs)].filter(has))];
   return { ...plan, inputs, problems };
 }
@@ -107,16 +127,31 @@ export function readStage(stage, out, record, { fmt = {} } = {}) {
       res.rows.push(...parseSimLog(logs, stage.tool));
       res.summary = simSummary(logs);
       res.waves = text(out['out/wave.vcd']);
+      if (!res.waves && out['out/wave.fst']) {   // Verilator --trace-fst: our FST reader, then the same VCD reader and viewer
+        const f = readFst(out['out/wave.fst']);
+        res.waves = f.vars.length ? fstToVcd(f) : '';
+        res.summary.fst = { signals: f.vars.length, problems: f.problems };
+        for (const p of f.problems) res.rows.push(row({ source: 'sim', code: 'fst', severity: 'warning', vars: { what: p }, text: 'FST: ' + p, key: 'fst:' + p.slice(0, 60) }));
+      }
       break;
     }
     case 'synth': {
       const log = text(out['out/yosys.log']) || logs;
       res.rows.push(...parseYosysLog(log, { period: Number(stage.options?.period) || 0 }));
       res.summary = { stat: parseStat(text(out['out/stat.txt']) || log), timing: parseTiming(log) };
+      if (out['out/sta.log']) {   // OpenSTA on the mapped netlist (synth.js staScript)
+        const sta = text(out['out/sta.log']);
+        const sl = parseSlack(sta);
+        res.summary.sta = sl;
+        const slack = sl.wns !== null ? sl.wns : sl.worst;
+        if (slack !== null && slack < 0) res.rows.push(row({ source: 'synth', code: 'timing.slack', severity: 'error', vars: { slack }, text: `Timing is not met after synthesis: worst negative slack ${slack} ns (before placement and wires)`, key: 'sta.slack', req: { op: '>=', value: 0, unit: 'ns' }, found: { value: slack, unit: 'ns' } }));
+        for (const l of sta.split(/\r?\n/)) { const m = /^(Error|Warning):\s*(.*)$/.exec(l.trim()); if (m) res.rows.push(row({ source: 'synth', code: m[1] === 'Error' ? 'sta.error' : 'sta.warning', severity: m[1] === 'Error' ? 'error' : 'warning', vars: { what: m[2] }, text: 'OpenSTA: ' + m[2], key: 'sta:' + m[2].replace(/\d+/g, '#').slice(0, 80) })); }
+      }
       break;
     }
     case 'pnr': {
-      const p = parseOpenroadLog(text(out['out/openroad.log']) || logs);
+      // the TCL interpreter's own errors ("Error: cc_pnr.tcl, 17 invalid command name …") go to the program's output, not to -log
+      const p = parseOpenroadLog([text(out['out/openroad.log']), logs.split(/\r?\n/).filter((l) => /^Error:/.test(l.trim())).join('\n')].join('\n'));
       res.rows.push(...pnrRows(p));
       res.summary = p;
       const def = text(out['out/final.def']);

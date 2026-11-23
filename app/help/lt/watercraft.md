@@ -1,37 +1,37 @@
 ---
-title: WaterCraft: poreikiai, gaisrinis debitas, atjungimai ir vandens amžius
-summary: Su WaterCraft priedu paverskite vartotojus vandentiekio magistralių poreikiais, patikrinkite, koks debitas galimas prie kiekvieno hidranto, sužinokite, kurios magistralės atjungimas labiausiai skaudina, ir sekite vandens amžių bei chloro kiekį per parą.
-keywords: watercraft, vandens paskirstymas, poreikiai, vartotojai, piko koeficientas, poreikio modelis, gaisrinis debitas, hidrantas, likutinis slėgis, kritiškumas, atjungimas, sklendėmis atskirtas ruožas, vandens amžius, chloras, likutis, šaltinio sekimas, aklavietė, csv, priedas
-from: 76809f01
+title: WaterCraft: paklausa, gaisrinis debitas, nutraukimai ir vandens amžius
+summary: Su WaterCraft priedu paverskite vartotojus paklausa vandentiekio magistralėse, patikrinkite debitą, prieinamą kiekviename hidrante, sužinokite, kurio magistralės nutraukimas labiausiai kenkia, ir sekite vandens amžių bei chloro kiekį per parą.
+keywords: watercraft, vandens paskirstymas, paklausa, vartotojai, piko koeficientas, paklausos profilis, gaisrinis debitas, hidrantas, liekamasis slėgis, kritiškumas, nutraukimas, uždaromas ruožas, vandens amžius, chloras, likutis, šaltinio sekimas, akligatvis, csv, priedas
+from: 066fb17a
 ---
 
-WaterCraft yra priedas, kuris veikia su vandens magistralių įrankiais jau nubrėžtu vandens tinklu. Dešiniajame skydelyje jis prideda skirtuką su keturiais skyriais.
+WaterCraft yra priedas, kuris veikia su vandens tinklu, kurį jau nubrėžėte naudodami vandentiekio magistralių įrankius. Jis prideda skirtuką dešiniajame skydelyje su keturiomis skiltimis.
 
 :::warning
-Tai tik skaičiavimo pagalbinė priemonė. Ji patikrinta lyginant su rankiniais atsakymais išgalvotuose tinkluose, o ne su tikru komunalinės įmonės modeliu. Kiekvieną rezultatą turi patikrinti vandens inžinierius. Stiprinimo siurblinių, antros eilės skilimo ir scenarijų dar nėra.
+Tik skaičiavimo pagalbinė priemonė. Ji patikrinta palyginus su rankiniais atsakymais išgalvotuose tinkluose, o ne tikrame komunalinio ūkio modelyje. Kiekvieną rezultatą turi patikrinti vandens inžinierius. Scenarijai, valdymo taisyklės, vožtuvai ir lauko duomenys turi savo temas – „Scenarijai“ ir „Tyrimai“ – WaterCraft priedo žinyne.
 :::
 
-## Ko sieksite
+## Ką darysite
 
-- Įtraukti vartotojus į tinklą kaip poreikius.
-- Rasti hidrantus, kuriuose debito nepakanka jūsų poreikiui.
-- Rasti magistrales, kurių atjungimas labiausiai svarbus.
-- Rasti seną vandenį ir mažą chloro kiekį.
+- Pridėsite vartotojus į tinklą kaip paklausą.
+- Rasite hidrantus, kuriuose debito nepakanka.
+- Rasite magistrales, kurių nutraukimas labiausiai svarbus.
+- Rasite senas vandens atsargas ir mažą chloro kiekį.
 
 ## Žingsniai
 
 1. Atidarykite {{ui:Parametrai}} › {{ui:Priedai}} ir įjunkite {{ui:WaterCraft (vandens paskirstymas)}}. Dešiniajame skydelyje atsiranda skirtukas {{ui:WaterCraft}}.
-2. Pirmiausia nubrėžkite rezervuarą, mazgus ir vamzdžius vandens magistralių įrankiais (žr. [Vandens magistralės](topic:water-mains)). Be tinklo skirtukas nurodys tai padaryti.
-3. Skyriuje {{ui:Poreikiai}} įklijuokite po vieną vartotoją kiekvienoje eilutėje: id, x, y, rūšis, kiekis. Pasirinkite {{ui:Piko koeficientas}} ir {{ui:Valandinis modelis}} (gyvenamosios dienos, komercinės dienos, pastovus arba palikti modelį, kaip yra). Spauskite {{ui:Tikrinti}}, kad pamatytumėte, kur patenka kiekvienas vartotojas (artimiausias mazgas), tada spauskite {{ui:Įtraukti į tinklą}}. {{ui:Anuliuoti}} panaikina poreikius.
-4. Skyriuje {{ui:Gaisrinis debitas}} nustatykite reikalingą debitą ir likutinį slėgį, pasirinkite, ar likutinis slėgis laikomas {{ui:Tik prie hidranto}} ar {{ui:Visoje sistemoje (griežčiau)}}, ir spauskite {{ui:Ilgis}}. Kiekvienas hidrantas pateikiamas pradedant blogiausiu, kaip „atitinka“ arba „trūksta“.
-5. Skyriuje {{ui:Kuri magistralė svarbiausia}} pasirinkite {{ui:po vieną vamzdį}} arba {{ui:po vieną sklendėmis atskirtą ruožą}} ir spauskite {{ui:Ilgis}}. Kiekvienas atjungimas rodo atjungtą poreikį, atjungtus mazgus, mazgus, kurie naujai nukrenta žemiau minimalaus slėgio, ir likusį mažiausią slėgį.
-6. Skyriuje {{ui:Vandens amžius ir chloras}} pasirinkite, ką sekti (vandens amžių, chlorą ar šaltinio sekimą), nustatykite valandas, kurias skaičiuoti, ir norimas ribas, ir spauskite {{ui:Ilgis}}. Mazgai, išeinantys už jūsų ribų, pateikiami sąraše.
-7. Bet kurioje lentelėje spauskite {{ui:Įrašyti kaip CSV}}, kad ją išsaugotumėte.
+2. Pirmiausia nubrėžkite rezervuarą, mazgus ir vamzdžius naudodami vandentiekio magistralių įrankius (žr. [Vandentiekio magistralės](topic:water-mains)). Be tinklo skirtukas tai jums pasakys.
+3. Skiltyje {{ui:Paklausos}} įklijuokite po vieną vartotoją eilutėje: id, x, y, rūšis, kiekis. Pasirinkite {{ui:Piko koeficientas}} ir {{ui:Valandinis profilis}} (gyvenamoji diena, komercinė diena, lygi arba palikite esamą profilį). Paspauskite {{ui:Tikrinti}}, kad pamatytumėte, kur patenka kiekvienas vartotojas (artimiausias mazgas), tada {{ui:Įdėti į tinklą}}. Anuliavimas pašalina paklausas.
+4. Skiltyje {{ui:Gaisrinis debitas}} nustatykite reikalingą debitą ir liekamąjį slėgį, pasirinkite, ar liekamasis slėgis palaikomas {{ui:Tik prie hidranto}}, ar {{ui:Visoje sistemoje (griežčiau)}}, ir paspauskite {{ui:Ilgis}}. Kiekvienas hidrantas išvardijamas nuo blogiausio, kaip atitinka arba trūksta.
+5. Skiltyje {{ui:Kuri magistralė svarbiausia}} pasirinkite {{ui:po vieną vamzdį}} arba {{ui:po vieną uždaromą ruožą}} ir paspauskite {{ui:Ilgis}}. Kiekvienas nutraukimas rodo atjungtą paklausą, atjungtus mazgus, naujai žemiau mažiausio slėgio patekusius mazgus ir likusį mažiausią slėgį.
+6. Skiltyje {{ui:Vandens amžius ir chloras}} pasirinkite, ką sekti (vandens amžių, chlorą ar šaltinio pėdsaką), nustatykite valandas ir norimas ribas, ir paspauskite {{ui:Ilgis}}. Išvardijami mazgai, esantys už jūsų ribų.
+7. Bet kurios lentelės apačioje paspauskite {{ui:Įrašyti kaip CSV}}, kad ją išsaugotumėte.
 
 ## Pastabos
 
-- Reikalingas gaisrinis debitas ir vartojimas vienam namui ar akrui yra pradinės reikšmės, o ne standartai. Naudokite savo komunalinės įmonės duomenis.
-- Vamzdis, iš dalies užspaustas sklende, uždaromas visas, todėl rodomas atjungimas šiek tiek blogesnis nei tikras.
-- Vandens kokybės skyrių paleiskite pakankamai ilgai, kad paros modelis pasikartotų, prieš skaitydami paskutinę dieną.
-- {{ui:Sustabdyti}} nutraukia ilgą skaičiavimą anksčiau; sąraše rodoma tik tai, kas jau atlikta.
-- Jūsų tinklas lieka šiame projekte ir šiame kompiuteryje. Niekas nieko nesiunčia.
+- Reikalingas gaisrinis debitas ir vartojimas vienam namui ar akrui yra pradinės reikšmės, o ne standartai. Naudokite savo komunalinės įmonės reikšmes.
+- Vamzdis, iš dalies nukirstas vožtuvu, uždaromas visas, todėl rodomas nutraukimas šiek tiek blogesnis nei tikras.
+- Vandens kokybės skiltį paleiskite pakankamai ilgai, kad dienos profilis pasikartotų, prieš skaitydami paskutinę dieną.
+- {{ui:Sustabdyti}} ankstina ilgą skaičiavimą; sąraše tada rodoma tik tai, kas buvo atlikta.
+- Jūsų tinklas lieka šiame projekte ir šiame kompiuteryje. Niekas niekur neišsiunčiama.

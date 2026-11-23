@@ -6,6 +6,7 @@
  *   ExrError(code, message)   codes: not_exr | damaged | too_big | unsupported | bad_image
  *   LIMITS                    caps on untrusted input (pixels, channels, attributes, one block's size)
  *   halfToFloat(h) · floatToHalf(f)    IEEE 754 binary16 ↔ number (round to nearest even, overflow → ±Inf)
+ *   halfTable()               the binary16 → number table (Float32Array(65536)), built on first use
  *   new Reader(bytes) · new Writer()
  */
 import { msg } from './messages.js';
@@ -35,16 +36,22 @@ export const LIMITS = {
 
 const F32 = new Float32Array(1);
 const U32 = new Uint32Array(F32.buffer);
-const HALF_TABLE = new Float32Array(65536);
-for (let h = 0; h < 65536; h++) {
-  const s = h & 0x8000 ? -1 : 1;
-  const e = (h >> 10) & 0x1f;
-  const m = h & 0x3ff;
-  HALF_TABLE[h] = e === 0 ? s * m * 2 ** -24 : e === 31 ? (m ? NaN : s * Infinity) : s * (1 + m / 1024) * 2 ** (e - 15);
+/** 0.11 PERF.57: the 65,536-entry table is built on the first half read, not when the module loads (it was ~10 ms of every
+ *  ModelCraft and BimCraft start, which import the renderer and with it this file, though most starts read no EXR). */
+let HALF_TABLE = null;
+export function halfTable() {
+  if (HALF_TABLE) return HALF_TABLE;
+  const T = new Float32Array(65536);
+  for (let h = 0; h < 65536; h++) {
+    const s = h & 0x8000 ? -1 : 1;
+    const e = (h >> 10) & 0x1f;
+    const m = h & 0x3ff;
+    T[h] = e === 0 ? s * m * 2 ** -24 : e === 31 ? (m ? NaN : s * Infinity) : s * (1 + m / 1024) * 2 ** (e - 15);
+  }
+  return (HALF_TABLE = T);
 }
 
-export function halfToFloat(h) { return HALF_TABLE[h & 0xffff]; }
-export const HALF_TO_FLOAT = HALF_TABLE;
+export function halfToFloat(h) { return halfTable()[h & 0xffff]; }
 
 export function floatToHalf(f) {
   F32[0] = f;

@@ -8,7 +8,7 @@
  *       values: '0' '1' 'x' 'z' for one bit; a binary string ('0101', may hold x/z) for vectors, left-padded to the width; a number string for reals.
  *   valueAt(sig, time) → the value in force at `time` ('' before the first change)
  *   formatValue(v, width, radix 'bin'|'hex'|'dec') → text
- *   FST (the compressed format GTKWave and Verilator can write) is NOT read: `isFst(bytes)` spots one so the page can say so.
+ *   FST (the compressed format GTKWave and Verilator write): `isFst(bytes)` spots one; fst.js reads it and turns it into VCD text for this reader.
  */
 
 const UNIT = { s: 1, ms: 1e-3, us: 1e-6, ns: 1e-9, ps: 1e-12, fs: 1e-15 };

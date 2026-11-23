@@ -9,6 +9,9 @@
  *   p.editPoints(label, (pts, s) => newPts)  one undo step that changes the survey points (paste, cut, delete, duplicate):
  *                                            the step remembers the points array before it; point objects are never changed in place
  *   p.change(label, (s) => { … edit p.state … })   one undo step; p.undo() / p.redo()
+ *   p.change(label, fn, { keys: p.keysOf('alignments', id) })   0.11 PERF.21: the same step, made from only the chunks the hint
+ *                                            names (O(change), not a serialize of the whole state); a hint that misses a change is a
+ *                                            bug in the caller: Project.verifyHints = true (tests) checks every hinted step in full
  *   p.eg()            { surface, report }     existing ground (points + breaklines + boundary, or a TIN read from LandXML)
  *   p.contours()      [{z, pts, closed}]      at state.display.interval
  *   p.alignment(a)    Alignment               p.egProfile(a) [{sta, z}]   p.designProfile(a) Profile
@@ -44,9 +47,9 @@
  *   [{ g, p }]); `editGis(label, (features, s) => features)` is one undo step that keeps the Map it replaced.
  */
 
-import { pointGroups } from './points.js';
 import { cleanBlk } from './block-points.js';
-import { buildSurface, surfaceFromFaces } from './tin.js';
+import { cleanText, pointRow as readPointRow } from './project-rows.js';   // 0.11 PERF.33: one row reader for the page and the open Worker
+import { buildSurface, surfaceFromFaces, pointInPoly } from './tin.js';
 import { gridSurface, METHODS as GRID_METHODS } from './gridding.js';   // 0.9 D9.6: choose the contouring method
 import { smoothContours, LEVELS as SMOOTH_LEVELS } from './contour-smooth.js';   // 0.9.1: contour smoothing (display.smooth 'light' | 'strong'; absent = none)
 import { buildGround } from './ground-surface.js';   // 0.8 SU.911: contour terrain (flat triangles fixed when surface.flatFix > 0)
@@ -55,17 +58,20 @@ import { buildProfile, sampleSurface } from './profile.js';
 import { gradedSurface, gridVolume } from './grading.js';
 import { analyzeNetwork } from './pipes.js';
 import { corridorPatch, defaultAssembly, cleanTargets, cleanSides } from './corridor.js';
-import { cleanTemplate, cleanRegions, MAX_TEMPLATES, terrainQuantities } from './templates.js';   // 0.9 SU.1110 + WB.6
+import { nominalWidths, findJunctions, padEnds, bodyOf, roadZAt, padZAt } from './junction.js';   // 0.10.1 #1977: roads that meet roads and pads
+import { cleanTemplate, cleanRegions, cleanNamed, MAX_TEMPLATES, terrainQuantities } from './templates.js';   // 0.9 SU.1110 + WB.6
 import { readGisState, gisFeaturesJSON } from './gis-state.js';   // GIS: layer data in the project file (docs/GIS-SPEC.md §2)
 import { cleanSampling, buildSections } from './sections.js';   // 0.4 V13: sample lines and sections
 import { cleanSuper } from './superelev.js';   // 0.4 V18
 import { cleanRail, cantPlan, cantAt as cantAtPlan, baseOf as railBaseOf, kmh as railKmh } from './rail.js';   // 0.7.1 71.26: railway alignments and tracks
-import { cleanCatchment, cleanHydro } from './hydro.js';   // 0.4 V19/V20
+import { cleanCatchment, cleanHydro } from './hydro.js';
+import { cleanRuleset, MAX_RULESETS } from './rulesets.js';   // 0.11 SU.1937b   // 0.4 V19/V20
 import { cleanSewer, cleanSewLoad } from './sewer.js';   // 0.6 LC.16 S1
 import { cleanType, MAX_TYPES } from './structs.js';   // 0.6 WL.27: structure types
 import { cleanSwept, simulate, envelope, alignmentPath } from './swept.js';   // 0.6 WL.28: swept paths
-import { cleanFeature, featureBreaklines, featureItem, flatten as flattenFeature } from './featureline.js';   // 0.4 V14: feature lines
+import { cleanFeature, featureBreaklines, featureItem, breaklineItem, flatten as flattenFeature } from './featureline.js';   // 0.4 V14: feature lines
 import { cleanParcel } from './parcels.js';   // 0.4 V21
+import { cleanBook as cleanLandBook, bookEmpty as landBookEmpty } from './landbook.js';   // 0.11 LR.3: the land book (a copy of lib/landrecords/clean.js; the Land records add-on)
 import { cleanZone } from './zoning.js';   // 0.7 LC.1 M3: the zoning limits a person typed
 import { cleanMass, MAX_MASSES } from './massing.js';   // 0.7 LC.1: building masses (session massing)
 import { cleanRiver } from './river.js';   // 0.8 SU.957: rivers (session sx-river)
@@ -88,9 +94,11 @@ import { cleanPond } from './detention.js';   // 0.8 EG.12: detention ponds save
 import { cleanSite } from './site-context.js';   // 0.8 EG.63: the address, sources and results kept in the file
 import { cleanProgress } from './progress.js';   // 0.8 EG.39: the survey rows kept in the file   // 0.8 LC.16 W1/W2: water mains (water-ui.js)
 import { cleanPowerlines } from './powerline/model.js';   // 0.7 PL: the Power lines workspace (docs/0.7-PART8.md)
-import { cleanDescKeys, cleanLineCodes, grouper, figures } from './desckeys.js';   // 0.4 V16: description keys, line codes
+import { cleanDescKeys, cleanLineCodes, grouper, figures, parseDesc } from './desckeys.js';
+import { PointTable } from './point-table.js';   // 0.11 (perf-finish-11 civil, the cap lifted): the survey points as typed arrays   // 0.4 V16: description keys, line codes
 import { t } from './i18n.js';
-import { ChunkHistory, objectJournal, recoverState, recoverExtras, join } from './history/index.js';   // 0.10 PERF.21 / PERF.24: undo by change records, autosave that writes what changed
+import { ChunkHistory, objectJournal, recoverState, recoverExtras, join, KEYS, serializeKeys } from './history/index.js';
+import { openBlock, nextNumber, savedCounter, idNumbers, narrowIds, maxOf, OLD_LIMIT, FILE_IDS } from './history/ids.js';   // 0.11 DC.27: each session's ids from its own random tag   // 0.10 PERF.21 / PERF.24: undo by change records, autosave that writes what changed
 import { cleanAcceptedCivil } from './problems-civilcraft.js';   // 0.7.1 → 0.8: problems accepted as intended (docs/0.8-PROBLEMS-SPEC.md)
 import { cleanIdsRecord, idsTextStore } from './ids/record.js';   // 0.7.1 71.25: the IDS the IFC export is checked against (cc-ids, lib/ids synced)
 
@@ -98,6 +106,25 @@ import { cleanIdsRecord, idsTextStore } from './ids/record.js';   // 0.7.1 71.25
 // alongside within that distance of the centerline; gradeOverlay (0.5 WL.21): grades and elevations along feature lines, screen only
 export const DISPLAY_DEFAULTS = { surface: 'eg', triangles: false, contours: true, interval: 1, major: 5, labels: true, bands: false, bandCount: 8, slopes: false, points: true, pointLabels: false, breaklines: true, outline: true, pipes: true, profFeatures: true, profWithin: 0, gradeOverlay: false, secBasis: 'bottom' };
 const MAX_UNDO = 200;
+/** The most survey points a project file opens with (more are left out and the note says how many). 0.11 PERF.33 set it at 2,000,000 (one
+ *  object a point). The points are now a PointTable (perf-finish-11 civil, owner 2026-11-22) and open, edit, undo and reopen were proven to
+ *  10,000,000 on workstation11a, but Save (the project file's IFC: the TIN and its fingerprints, one string and several GB of heap) and the
+ *  autosave's first copy (one IndexedDB record) were proven only to 2,000,810: so the cap stays at what all of them were proven at
+ *  (docs/0.11-sessions/perf-finish-11-civil-cap.md). The table itself has no limit of its own below the descriptions' Map (16,777,216). */
+export const MAX_POINTS = 2e6;
+/** From this many existing-ground points the page rebuilds the surface off the page after an edit (Project.bigEg; it shows the surface it had
+ *  until then). Below it the rebuild stays on the page, at once, as before the cap was lifted. */
+export const BIG_EG = 2e6;
+/** 0.11 PERF.33: the points of a parse made off the page (pointColumns) as fromJSON's rows, `from` to `to` (the page builds them in slices). */
+export function pointsFromColumns(c, from = 0, to = c.count, names = c.names.split('\u0000'), descs = c.descs.split('\u0000'), out = []) {
+  for (let i = from; i < to; i++) out.push({ n: names[i], x: c.x[i], y: c.y[i], z: Number.isNaN(c.z[i]) ? null : c.z[i], d: descs[i] });
+  return out;
+}
+/** …and the block references of those rows (rare; 0.5 WL.19), put on the points they belong to. */
+export function blocksFromColumns(c, pts) {
+  for (let i = 0; i < c.blk.length; i += 2) { const b = cleanBlk(c.blk[i + 1]); if (b) pts[c.blk[i]].blk = b; }
+  return pts;
+}
 /** How the state is cut into chunks (lib/history): display settings and the TIN stay out of the history (they are not undo steps); the lists of objects with an id are one chunk per object. */
 export const HISTORY_SPEC = Object.freeze({
   arrays: { alignments: 'id', pads: 'id', features: 'id', parcels: 'id', masses: 'id', zoning: 'id', ponds: 'id', rivers: 'id', swept: 'id', templates: 'id', terrainTemplates: 'id', issues: 'id', parking: 'id', fences: 'id', sectionLines: 'id', progress: 'id' },
@@ -106,7 +133,6 @@ export const HISTORY_SPEC = Object.freeze({
 });
 /** The project file as the autosave cuts it (what toJSON leaves out as big goes along as extra chunks). */
 const FILE_SPEC = Object.freeze({ arrays: HISTORY_SPEC.arrays });
-const POINT_BLOCK = 5000;
 
 /** 0.7.1 71.24: an alignment's design speed and design class (untrusted: the project file) → { speed, unit 'km/h' | 'mph', cls } | null.
  *  Stored and written to IFC (Pset_RoadDesignCriteriaCommon); CivilCraft has no speed → radius table, so nothing is checked from it. */
@@ -149,13 +175,92 @@ function gridEg(s, points, lines = [], boundary = null) {
   return { surface: built.surface, report, grid: r.grid, sigma: r.sigma };
 }
 
-const pointRow = (p) => (p.blk ? [p.n, p.x, p.y, p.z, p.d, p.blk] : [p.n, p.x, p.y, p.z, p.d]);   // 0.5 WL.19: + the block it came from
+/** 0.11 (the cap lifted): `project.points` — the PointTable read as the array of point objects it replaced: an index gives a point object,
+ *  everything else is the table's (length, iteration, filter, map, find, some, …). Writing an index is refused: edits go through editPointTable. */
+const TABLE_OF = new WeakMap();
+const INDEX = /^(?:0|[1-9]\d*)$/;
+function pointView(t) {
+  const bound = new Map();
+  const v = new Proxy(t, {
+    get(o, k) {
+      if (typeof k === 'string' && INDEX.test(k)) return o.get(+k);
+      const x = o[k];
+      if (typeof x !== 'function') return x;
+      let f = bound.get(k); if (!f) bound.set(k, (f = x.bind(o)));
+      return f;
+    },
+    has(o, k) { return typeof k === 'string' && INDEX.test(k) ? +k < o.count : k in o; },
+    set(o, k, val) { if (typeof k === 'string' && INDEX.test(k)) throw new TypeError('project.points: a point is changed through editPointTable'); o[k] = val; return true; },
+  });
+  TABLE_OF.set(v, t);
+  return v;
+}
+
+/** 0.11: what editPointTable's callback edits with; each call is recorded (the rows it changed) so the step can be undone and redone. */
+class PointEditor {
+  constructor(t) { this.t = t; this.ops = []; }
+  get table() { return this.t; }
+  get length() { return this.t.count; }
+  /** Append points (objects, or a PointTable). */
+  add(points) { const frag = PointTable.from([]).append(points); if (!frag.count) return; const at = this.t.count; this.t.append(frag); this.ops.push({ k: 'add', at, frag }); }
+  /** Put points in at row `at` (the rows from there on move along). */
+  insert(at, points) {
+    const frag = PointTable.from([]).append(points); if (!frag.count) return;
+    if (at >= this.t.count) { this.add(frag); return; }
+    const idx = Int32Array.from({ length: frag.count }, (_, i) => at + i);
+    this.t.insertAt(idx, frag); this.ops.push({ k: 'ins', idx, frag });
+  }
+  /** Replace row i with point object p. */
+  set(i, p) { if (!(i >= 0 && i < this.t.count)) throw new RangeError('no point ' + i); const before = this.t.get(i); this.t.setRow(i, p); this.ops.push({ k: 'set', i, before, after: this.t.get(i) }); }
+  /** Remove these rows (indexes into the table as it is now; any order, repeats ignored). */
+  remove(indexes) {
+    const idx = Int32Array.from(new Set(indexes)).filter((i) => i >= 0 && i < this.t.count).sort();
+    if (!idx.length) return 0;
+    const frag = this.t.removeAt(idx); this.ops.push({ k: 'del', idx, frag });
+    return idx.length;
+  }
+  /** Remove the rows fn(point, i) says yes to (each row read as a point object once). */
+  /** Remove the rows whose name fn(name) says yes to (no point object made). */
+  removeWhereName(fn) { return this.remove(this.t.indexesWhereName(fn)); }
+  removeWhere(fn) { const idx = []; let i = 0; for (const b of this.t.blocks) for (let k = 0; k < b.n; k++, i++) if (fn(this.t.rowGet(b, k), i)) idx.push(i); return this.remove(idx); }
+  /** Every point's x and y at once (xs, ys as long as the table): a move of all the points keeps the old coordinates, nothing else. */
+  setXY(xs, ys) { const was = this.t.getXY(); this.t.setXY(xs, ys); this.ops.push({ k: 'xy', ox: was.xs, oy: was.ys, nx: Float64Array.from(xs), ny: Float64Array.from(ys) }); }
+  revert() { replayPoints(this.t, this.ops, false); this.ops = []; }
+  /** About how many bytes the record keeps. */
+  bytes() { let n = 0; for (const o of this.ops) n += o.frag ? o.frag.bytes() + (o.idx ? o.idx.byteLength : 0) : o.k === 'xy' ? 4 * o.ox.byteLength : 400; return n; }
+}
+/** Apply a point step's records: redo = in order, undo = their inverses in reverse order. */
+function replayPoints(t, ops, redo) {
+  if (redo) {
+    for (const o of ops) {
+      if (o.k === 'add') t.append(o.frag);
+      else if (o.k === 'set') t.setRow(o.i, o.after);
+      else if (o.k === 'del') t.removeAt(o.idx);
+      else if (o.k === 'ins') t.insertAt(o.idx, o.frag);
+      else if (o.k === 'xy') t.setXY(o.nx, o.ny);
+    }
+  } else {
+    for (let j = ops.length - 1; j >= 0; j--) {
+      const o = ops[j];
+      if (o.k === 'add') t.truncate(o.at);
+      else if (o.k === 'set') t.setRow(o.i, o.before);
+      else if (o.k === 'del') t.insertAt(o.idx, o.frag);
+      else if (o.k === 'ins') t.removeAt(o.idx);
+      else if (o.k === 'xy') t.setXY(o.ox, o.oy);
+    }
+  }
+}
 
 /** The project file text a journal copy (base + changes) holds: the app opens it like any file, so it is read and checked the same way. */
 export function recoverText(rec) {
   const obj = recoverState(rec, FILE_SPEC), x = recoverExtras(rec);
-  const n = Number(x.get('x:pts:n') || 0), points = [];
-  for (let i = 0; i < n; i++) { const b = x.get('x:pts:' + i); if (b === undefined) throw new Error('A block of points is missing.'); for (const r of JSON.parse(b)) points.push(r); }
+  const points = [];
+  if (x.has('x:pts:order')) {   // 0.11: blocks of the point table by id, in this order
+    for (const uid of JSON.parse(x.get('x:pts:order'))) { const b = x.get('x:pb:' + uid); if (b === undefined) throw new Error('A block of points is missing.'); for (const r of JSON.parse(b)) points.push(r); }
+  } else {   // a copy written before 0.11's point table: blocks of 5,000 by number
+    const n = Number(x.get('x:pts:n') || 0);
+    for (let i = 0; i < n; i++) { const b = x.get('x:pts:' + i); if (b === undefined) throw new Error('A block of points is missing.'); for (const r of JSON.parse(b)) points.push(r); }
+  }
   obj.points = points; obj.gisFeatures = {}; obj.crsGrids = {}; obj.gisImages = {};
   for (const [k, v] of x) {
     if (k.startsWith('x:gis:')) obj.gisFeatures[k.slice(6)] = JSON.parse(v);
@@ -166,11 +271,23 @@ export function recoverText(rec) {
   return JSON.stringify(obj);
 }
 
+/**
+ * 0.11 DC.27: Save for an older version (0.10 and before): the project file (toJSON) with every id above 2^31 - 1 numbered again
+ * from the lowest free number and every reference rewritten (history/ids.js narrowIds), seq after the highest id, no formatVersion.
+ * Throws when the ids do not fit. → a new object.
+ */
+export function olderCopy(file) {
+  const { obj } = narrowIds(file, { limit: OLD_LIMIT });
+  delete obj.formatVersion;
+  obj.seq = Math.max(Number.isInteger(file.seq) && file.seq <= OLD_LIMIT ? file.seq : 1, maxOf(idNumbers(obj)) + 1);
+  return obj;
+}
+
 export class Project {
   constructor() {
     this.h = new ChunkHistory({ spec: HISTORY_SPEC, limit: MAX_UNDO });   // the table of chunks the undo steps are made against
     this.state = emptyState();
-    this.points = [];
+    this._pts = new PointTable(); this._pts.owner = this; this._view = null;   // 0.11: the survey points (point-table.js); `points` reads them as the array they were
     this.pointsFile = '';
     this.pointsVersion = 0;
     this.gisFeatures = new Map(); this.gisVersion = 0;   // GIS: layer id → [{ g, p }], outside the snapshots
@@ -195,6 +312,20 @@ export class Project {
   /** The state. Putting a whole new one in starts the chunk table again from it. */
   get state() { return this._state; }
   set state(v) { this._state = v; this.h.reset(v); }
+  /**
+   * 0.11 (the cap lifted): the survey points. `pointTable` is the PointTable itself (typed arrays, point-table.js); `points` reads it as the
+   * array of point objects it was (index, length, iteration, filter, map, find, …: fresh objects, never the same object twice). Putting an
+   * array (or a table) in replaces the points, as before: not an undo step.
+   */
+  get pointTable() { return this._pts; }
+  get points() { return this._view || (this._view = pointView(this._pts)); }
+  set points(v) { this._setTable(v); }
+  _setTable(v) {
+    let t = (v && TABLE_OF.get(v)) || v;
+    if (!(t instanceof PointTable)) t = PointTable.from(v || []);
+    else if (t.owner && t.owner !== this) t = PointTable.from([]).append(t);   // another project's table: a copy of its own
+    t.owner = this; this._pts = t; this._view = null;
+  }
 
   // ---- edits ----
   // display settings are not undo steps: they stay as they are through undo/redo
@@ -217,16 +348,61 @@ export class Project {
     if (this.undoStack.length > MAX_UNDO) this.undoStack.shift();
     this.redoStack = [];
   }
-  change(label, fn) {
+  change(label, fn, opts = {}) {
+    let keys = this.hint(opts.keys);
     try { fn(this.state); } catch (e) { this.h.rollback(this.state); throw e; }   // 0.10: a throw half-way leaves no half edit behind
-    const rec = this.h.capture(this.state);
+    if (keys) keys = this.grow(keys);
+    if (keys && Project.verifyHints) this.verifyHint(keys, label);
+    const rec = this.h.capture(this.state, keys ? { keys } : {});
     if (!rec) return false;
     const st = this.stepOf(label, rec);
     this.pushStep(st);
     if (this.idsTexts.size > 1) this.pruneIds();
+    const v = this.version;
     this.touch('change');
-    this.joinStep(st);
+    if (!keys || this.version !== v + 1) this.joinStep(st);   // a listener that changed the state says so with touch(): then the full look
+    else if (Project.verifyHints) this.verifyHint([], 'listeners of ' + label);   // tests: nobody changed the state without saying so
     return true;
+  }
+  /**
+   * 0.11 PERF.21: the chunk keys an edit of objects `ids` of the by-id list `list` changes IN PLACE (the objects keep their ids and the
+   * list its members and order: a grip move, a property). When the list is not cut per object right now (its ids repeat) it is one chunk,
+   * and that is named instead. A string that is already a chunk key ('k:network') is passed on as it is. Adds and deletes: listKeys().
+   */
+  keysOf(list, ...ids) {
+    const out = [];
+    const cut = !!list && this.h.cur.has('o:' + list);
+    for (const id of ids.flat()) {
+      if (id === null || id === undefined) continue;
+      if (typeof id === 'string' && /^(?:[kxoe]:|#)/.test(id)) out.push(id);   // a chunk key as it is
+      else if (cut) out.push('e:' + list + ':' + String(id));
+    }
+    if (list && !cut) out.push('k:' + list);
+    return out;
+  }
+  /** keysOf() for an edit that also adds, deletes or reorders objects of `list`: its order chunk too (the objects that came or went are found from it). */
+  listKeys(list, ...ids) { const k = this.keysOf(list, ...ids); if (this.h.cur.has('o:' + list)) k.push('o:' + list); return k; }
+  /** The hint as change() uses it: always with the key list and `seq`; null = no hint (the full look). */
+  hint(keys) { return Array.isArray(keys) && keys.length ? [...new Set([KEYS, 'k:seq', ...keys])] : null; }
+  /** After the edit: a hinted list whose order chunk changed also names the objects that came or went (an add or a delete needs no id in the hint). */
+  grow(keys) {
+    const ord = keys.filter((k) => k.startsWith('o:'));
+    if (!ord.length) return keys;
+    const now = serializeKeys(this.state, HISTORY_SPEC, ord), out = new Set(keys);
+    for (const [k, s] of now) {
+      const was = this.h.cur.get(k);
+      if (s === was) continue;
+      const a = new Set(was ? JSON.parse(was) : []), b = new Set(s ? JSON.parse(s) : []), name = k.slice(2);
+      for (const id of a) if (!b.has(id)) out.add('e:' + name + ':' + id);
+      for (const id of b) if (!a.has(id)) out.add('e:' + name + ':' + id);
+    }
+    return [...out];
+  }
+  /** Tests (Project.verifyHints): a hinted step must find every chunk the full look finds. */
+  verifyHint(keys, label) {
+    const all = this.h.diff(this.state), got = this.h.diff(this.state, keys);
+    const miss = [...all.set.keys(), ...all.del].filter((k) => !got.set.has(k) && !got.del.has(k));
+    if (miss.length) throw new Error('history hint missed ' + miss.slice(0, 5).join(', ') + ' (' + label + ')');
   }
   /** What the listeners of 'change' altered (the landscape links follow their moved line, "inside the same undo step") joins the step that moved it. */
   joinStep(st) {
@@ -245,18 +421,63 @@ export class Project {
   /** 0.7.1 71.25: IDS texts no state and no undo / redo snapshot refers to any more are let go; idsText() = the one in use. */
   pruneIds() { const refs = [JSON.stringify(this.state.ids || null), ...this.stepStrings()]; this.idsTexts.prune((h) => refs.some((r) => r.includes(h))); }
   idsText() { return this.state.ids ? this.idsTexts.get(this.state.ids.hash) : null; }
-  /** Points are held outside the JSON snapshots (they can be 100k+); a point step keeps the array it replaced. */
-  editPoints(label, fn) {
-    const was = this.points;
-    const next = fn(was.slice(), this.state);
+  /**
+   * Points are held outside the JSON snapshots (they can be millions). The old form: `fn(pts, state)` gets a copy of the points as an array and
+   * returns the new array; the step keeps the whole table it replaced. Kept for callers that have not moved to editPointTable (add-ons, tests).
+   */
+  editPoints(label, fn, opts = {}) {
+    let keys = opts.keys ? this.hint(['k:surface', ...opts.keys]) : null;   // 0.11 PERF.21: the groups live in k:surface
+    const arr = this._pts.toArray();
+    const next = fn(arr.slice(), this.state);
     if (!Array.isArray(next)) { this.h.rollback(this.state); return false; }
-    const g = this.state.surface.groups;
-    for (const { key } of pointGroups(next, this.keyOf())) if (!(key in g)) g[key] = this.defaultUse(key);
-    this.points = next;
+    // 0.11: the step still records only what changed: the rows from the first one the callback changed to the last one (the points before and
+    // after it are the same objects it was handed, or equal ones)
+    const same = (a, b) => { if (a === b) return true; if (!a || !b || typeof b !== 'object') return false; const ka = Object.keys(a), kb = Object.keys(b); return ka.length === kb.length && ka.every((k, i) => k === kb[i] && a[k] === b[k]); };
+    const n0 = arr.length, n1 = next.length;
+    let p = 0; while (p < n0 && p < n1 && same(arr[p], next[p])) p++;
+    let q = 0; while (q < n0 - p && q < n1 - p && same(arr[n0 - 1 - q], next[n1 - 1 - q])) q++;
+    const ed = new PointEditor(this._pts);
+    if (n0 - q > p) ed.remove(Array.from({ length: n0 - q - p }, (_, i) => p + i));
+    if (n1 - q > p) ed.insert(p, next.slice(p, n1 - q));
+    this.addGroups();
     this.pointsVersion++;
-    this.pushStep(this.stepOf(label, this.h.capture(this.state), { pts: was }));
+    if (keys) keys = this.grow(keys);
+    if (keys && Project.verifyHints) this.verifyHint(keys, label);
+    this.pushStep(this.stepOf(label, this.h.capture(this.state, keys ? { keys } : {}), { prec: { ops: ed.ops, bytes: ed.bytes() } }));
     this.touch('change');
     return true;
+  }
+  /**
+   * 0.11 (the cap lifted): one undo step that changes the survey points IN PLACE through an editor, and records only what changed (the rows
+   * added, removed or replaced; a move of every point keeps the old x and y), never a copy of all the points.
+   *   p.editPointTable(label, (ed, state) => { ed.add(points); ed.set(i, point); ed.remove(indexes); ed.removeWhere((p, i) => …); ed.setXY(xs, ys); })
+   * The callback may change the state too (same step); returning false or null cancels everything it did. `opts.keys` as editPoints.
+   */
+  editPointTable(label, fn, opts = {}) {
+    let keys = opts.keys ? this.hint(['k:surface', ...opts.keys]) : null;
+    const ed = new PointEditor(this._pts);
+    let r;
+    try { r = fn(ed, this.state); } catch (e) { ed.revert(); this.h.rollback(this.state); if (ed.ops.length) this.pointsVersion++; throw e; }
+    if (r === false || r === null) { ed.revert(); this.h.rollback(this.state); if (ed.ops.length) this.pointsVersion++; return false; }
+    this.addGroups();
+    this.pointsVersion++;
+    if (keys) keys = this.grow(keys);
+    if (keys && Project.verifyHints) this.verifyHint(keys, label);
+    this.pushStep(this.stepOf(label, this.h.capture(this.state, keys ? { keys } : {}), { prec: { ops: ed.ops, bytes: ed.bytes() } }));
+    this.touch('change');
+    return true;
+  }
+  /** New description groups (an edit brought points of a group the surface has no use for yet) get their default use, as before. */
+  addGroups() { const g = this.state.surface.groups; for (const key of [...this.groupKeys()].sort((a, b) => a.localeCompare(b))) if (!(key in g)) g[key] = this.defaultUse(key); }   // in pointGroups' order (sorted), as before
+  /** The groups the points are in, as a Set (one look at each description in the dictionary, not one per point). */
+  groupKeys() { return new Set(this.groupCounts().keys()); }
+  /** group → number of points, in no particular order (pointGroups sorts). */
+  groupCounts() {
+    const t = this._pts, keyOf = this.keyOf(), n = new Float64Array(t.dict.length), out = new Map();
+    for (const b of t.blocks) for (let k = 0; k < b.n; k++) if (!(b.irr && b.irr.has(k))) n[b.d[k]]++;
+    for (let c = 0; c < n.length; c++) if (n[c]) { const key = keyOf({ d: t.dict[c] }); out.set(key, (out.get(key) || 0) + n[c]); }
+    for (const b of t.blocks) if (b.irr) for (const o of b.irr.values()) { const key = keyOf(o); out.set(key, (out.get(key) || 0) + 1); }
+    return out;
   }
   /** GIS: one undo step that changes GIS layer features (and, through `s`, the state — e.g. state.gis.layers or
    *  state.crs). fn gets a copy of the Map and returns the new Map; feature arrays are never changed in place. */
@@ -285,10 +506,11 @@ export class Project {
   step(from, to, kind) {
     const u = from.pop(); if (!u) return null;
     const redoing = from === this.redoStack;
-    to.push(this.stepOf(u.label, u.rec, { pts: u.pts ? this.points : undefined, gis: u.gis ? this.gisFeatures : undefined, ...(u.tinSet ? { tin: this.state.surface.tin, tinSet: true } : {}) }));
+    to.push(this.stepOf(u.label, u.rec, { pts: u.pts ? this._pts : undefined, prec: u.prec, gis: u.gis ? this.gisFeatures : undefined, ...(u.tinSet ? { tin: this.state.surface.tin, tinSet: true } : {}) }));
     if (u.rec) this.h.restore(this.state, redoing ? u.rec.redo : u.rec.undo);
     if (u.tinSet) { this.state.surface.tin = u.tin; this.cache.clear(); }   // 0.4 V9
-    if (u.pts) { this.points = u.pts; this.pointsVersion++; }
+    if (u.pts) { this._pts = u.pts; this._view = null; this.pointsVersion++; }
+    if (u.prec) { replayPoints(this._pts, u.prec.ops, redoing); this.pointsVersion++; }   // 0.11: the rows the step changed, back or again
     if (u.gis) { this.gisFeatures = u.gis; this.gisVersion++; }
     this.touch(kind);
     return u.label;
@@ -296,21 +518,29 @@ export class Project {
   undo() { return this.step(this.undoStack, this.redoStack, 'undo'); }
   redo() { return this.step(this.redoStack, this.undoStack, 'redo'); }
   touch(kind) { this.version++; this.emit(kind); }
-  nextId(prefix) { return prefix + (this.state.seq++); }
+  nextId(prefix) { const n = nextNumber(this.state.seq || 1, this); this.state.seq = n + 1; return prefix + n; }   // 0.11 DC.27: past its tag's last number, a new tag
+  /** 0.11 DC.27: a file was opened: this session hands out its new ids from a random tag of its own (history/ids.js), so two people
+   *  adding to the same project do not make the same id. `seq` is the next number (every module that takes one, nextId or
+   *  takeNumber(s), gets it from the tag); the raise is not an undo step. */
+  takeIdBlock() {
+    const s = this.state;
+    s.seq = openBlock(this, s.seq || 1, idNumbers(s));
+    this.h.sync(s, { keys: ['k:seq'] });
+    return s.seq;
+  }
 
   setPoints(points, file = '') {
-    this.points = points;
+    this._setTable(points);
     this.pointsFile = file;
     this.pointsVersion++;
     // new description codes default to "points"; FL-like codes are left to the user
-    const g = this.state.surface.groups;
-    const keyOf = this.keyOf();
-    for (const k of Object.keys(g)) if (!points.some((p) => keyOf(p) === k)) delete g[k];
-    for (const { key } of pointGroups(points, keyOf)) if (!(key in g)) g[key] = this.defaultUse(key);
+    const g = this.state.surface.groups, now = this.groupKeys();
+    for (const k of Object.keys(g)) if (!now.has(k)) delete g[k];
+    for (const key of [...now].sort((a, b) => a.localeCompare(b))) if (!(key in g)) g[key] = this.defaultUse(key);
     this.undoStack = []; this.redoStack = [];
     this.touch('points');
   }
-  groups() { return pointGroups(this.points, this.keyOf()).map((g) => ({ ...g, use: this.state.surface.groups[g.key] || 'points' })); }
+  groups() { return [...this.groupCounts()].map(([key, count]) => ({ key, count })).sort((a, b) => a.key.localeCompare(b.key)).map((g) => ({ ...g, use: this.state.surface.groups[g.key] || 'points' })); }   // = pointGroups(points, keyOf), counted by description
   /** 0.4 V16: point → its group, through the description keys (the first word of the description without a key). */
   keyOf() { const k = this.state.surface.descKeys || []; return this.memo('keyOf', JSON.stringify(k), () => grouper(k)); }
   /** 0.4 V16: set the description keys and line codes as ONE undo step: groups no point is in any more are dropped, new
@@ -319,7 +549,9 @@ export class Project {
     return this.change(label, (s) => {
       s.surface.descKeys = cleanDescKeys(keys);
       s.surface.lineCodes = cleanLineCodes(lineCodes);
-      const keyOf = grouper(s.surface.descKeys), g = s.surface.groups, now = new Set(this.points.map(keyOf));
+      const keyOf = grouper(s.surface.descKeys), g = s.surface.groups, t = this._pts, now = new Set();
+      { const seen = new Uint8Array(t.dict.length);   // = new Set(points.map(keyOf)): the groups in the order the points first name them
+        for (const b of t.blocks) for (let k = 0; k < b.n; k++) { const o = b.irr && b.irr.get(k); if (o) now.add(keyOf(o)); else if (!seen[b.d[k]]) { seen[b.d[k]] = 1; now.add(keyOf({ d: t.dict[b.d[k]] })); } } }
       for (const k of Object.keys(g)) if (!now.has(k)) delete g[k];
       for (const k of now) if (!(k in g)) { const d = s.surface.descKeys.find((x) => (x.group || x.code) === k && x.use); g[k] = d ? d.use : 'points'; }
     });
@@ -327,7 +559,34 @@ export class Project {
   /** A new group's use: the first description key naming that group with a use, else 'points'. */
   defaultUse(group) { const k = (this.state.surface.descKeys || []).find((x) => (x.group || x.code) === group && x.use); return k ? k.use : 'points'; }
   /** 0.4 V16: the lines that line codes make (all groups, or `only`) — see desckeys.js figures(). */
-  figures(only = null) { const s = this.state.surface; return this.memo('fig:' + (only ? [...only].join('|') : '*'), this.pointsVersion + '|' + JSON.stringify([s.descKeys, s.lineCodes]), () => figures(this.points.filter((p) => p.z !== null), { keys: s.descKeys || [], lineCodes: s.lineCodes || cleanLineCodes(), only })); }
+  /** `coded` (0.11): only the figures a line code shapes (f.coded), = figures().filter((f) => f.coded). Only the points of the codes asked for are
+   *  made into objects (a figure is made from its own code's points alone), so 10 million points of one plain code cost a look at the dictionary. */
+  figures(only = null, { coded = false } = {}) {
+    const s = this.state.surface, keys = s.descKeys || [], lineCodes = s.lineCodes || cleanLineCodes();
+    return this.memo('fig:' + (only ? [...only].join('|') : '*') + (coded ? ':coded' : ''), this.pointsVersion + '|' + JSON.stringify([s.descKeys, s.lineCodes]), () => {
+      const t = this._pts, groupOf = grouper(keys), info = new Array(t.dict.length);
+      const of = (d) => { const q = parseDesc(d, lineCodes); return { code: q.code, ctrl: q.ctrl, g: q.code ? groupOf({ d }) : null }; };
+      const at = (c) => info[c] || (info[c] = of(t.dict[c]));
+      let codedSet = null;
+      if (coded) {
+        codedSet = new Set();
+        for (const b of t.blocks) for (let k = 0; k < b.n; k++) {
+          const o = b.irr && b.irr.get(k);
+          const q = o ? (o.z !== null ? of(o.d) : null) : b.z[k] === b.z[k] ? at(b.d[k]) : null;
+          if (q && q.code && q.ctrl) codedSet.add(q.code);
+        }
+        if (!codedSet.size) return [];
+      }
+      const keep = (q) => q.code && (!only || only.has(q.g)) && (!codedSet || codedSet.has(q.code));
+      const pts = [];
+      for (const b of t.blocks) for (let k = 0; k < b.n; k++) {
+        const o = b.irr && b.irr.get(k);
+        if (o) { if (o.z !== null && keep(of(o.d))) pts.push({ ...o }); } else if (b.z[k] === b.z[k] && keep(at(b.d[k]))) pts.push(t.rowGet(b, k));
+      }
+      const out = figures(pts, { keys, lineCodes, only });
+      return coded ? out.filter((f) => f.coded) : out;
+    });
+  }
 
   // ---- derived ----
   memo(key, deps, f) {
@@ -350,16 +609,38 @@ export class Project {
     out.push(...featureBreaklines(this.state.features, 'eg'));   // 0.4 V14
     return out;
   }
-  egPoints() {
-    const g = this.state.surface.groups;
-    const keyOf = this.keyOf();
-    return this.points.filter((p) => p.z !== null && (g[keyOf(p)] || 'points') === 'points');
+  egPoints() { const out = []; this.egRows((t, b, k, o) => out.push(o ? { ...o } : t.rowGet(b, k))); return out; }
+  /** The rows egPoints() makes objects of, in order: fn(table, block, row, object kept whole | undefined). A point with an elevation whose group is used as points. */
+  egRows(fn) {
+    const g = this.state.surface.groups, keyOf = this.keyOf(), t = this._pts, use = new Int8Array(t.dict.length);   // per description: 1 points, -1 not
+    for (const b of t.blocks) for (let k = 0; k < b.n; k++) {
+      const o = b.irr && b.irr.get(k);
+      if (o) { if (o.z !== null && (g[keyOf(o)] || 'points') === 'points') fn(t, b, k, o); continue; }
+      if (b.z[k] !== b.z[k]) continue;
+      const c = b.d[k]; let u = use[c];
+      if (!u) u = use[c] = (g[keyOf({ d: t.dict[c] })] || 'points') === 'points' ? 1 : -1;
+      if (u > 0) fn(t, b, k);
+    }
+  }
+  /** egPoints() as three Float64Arrays (x, y, z), with no point object made: what the open Worker triangulates. */
+  egColumns() {
+    let n = 0; this.egRows(() => { n++; });
+    const xs = new Float64Array(n), ys = new Float64Array(n), zs = new Float64Array(n);
+    let i = 0;
+    this.egRows((t, b, k, o) => { if (o) { xs[i] = o.x; ys[i] = o.y; zs[i] = o.z; } else { xs[i] = b.x[k]; ys[i] = b.y[k]; zs[i] = b.z[k]; } i++; });
+    return { xs, ys, zs, n };
   }
   eg() {
-    return this.memo('eg', this.surfaceDeps(), () => {
+    const deps = this.surfaceDeps(), c = this.cache.get('eg');
+    if (c && c.deps !== deps && Project.bigEg && !this.state.surface.tin && this._pts.length >= BIG_EG && this._noOffPage !== deps) {   // 0.11: a big rebuild runs off the page; the surface shown until then is the one before
+      const r = Project.bigEg(this, deps, c.value.rebuilding ? c.value : c.value);
+      if (r) { this._staleSurface = r.surface; return r; }
+    }
+    this._staleSurface = undefined;
+    return this.memo('eg', deps, () => {
       const s = this.state.surface;
       if (s.tin) return surfaceFromFaces(s.tin);
-      if (!this.points.length && !s.breaklines.length && !(this.state.features || []).some((f) => f.use === 'eg')) return { surface: null, report: { notes: [], errors: [] } };
+      if (!this._pts.length && !s.breaklines.length && !(this.state.features || []).some((f) => f.use === 'eg')) return { surface: null, report: { notes: [], errors: [] } };
       if (s.method && s.method !== 'tin') return gridEg(s, this.egPoints(), this.egBreaklines(), s.boundary);   // 0.9 D9.6
       if (s.flatFix > 0) { const g = buildGround({ points: this.egPoints(), breaklines: this.egBreaklines(), boundary: s.boundary, maxEdge: Number(s.maxEdge) || 0, fixFlat: true, interval: s.flatFix }); return { surface: g.surface, report: g.report }; }   // 0.8 SU.911
       return buildSurface({ points: this.egPoints(), breaklines: this.egBreaklines(), boundary: s.boundary, maxEdge: Number(s.maxEdge) || 0 });
@@ -368,6 +649,7 @@ export class Project {
   contours(surface = this.eg().surface, tag = 'eg') {
     const d = this.state.display;
     if (!surface) return [];
+    if (surface && surface === this._staleSurface) { const c = this.cache.get('contours:' + tag); if (c) return c.value; }   // 0.11: while a big surface is rebuilt off the page, its contours as they were
     return this.memo('contours:' + tag, this.surfaceDeps() + '|' + this.padsDeps(tag) + '|' + d.interval + '|' + (d.smooth || ''), () => this.contoursOf(surface));
   }
   /** 0.9.1: a surface's contours at the display interval, smoothed as the display says (contour-smooth.js); every screen, plot and export reads these. */
@@ -408,9 +690,11 @@ export class Project {
   corridorOrder() {
     const on = this.corridorEntries(), byKey = new Map(on.map((e) => [e.key, e]));
     const order = [], mark = new Map(), loops = new Map();
+    const jn = this.junctions().roads;   // 0.10.1 #1977: a road is graded after the road it joins
     const visit = (e) => {
       if (mark.get(e.key) === 2) return;
       mark.set(e.key, 1);
+      for (const j of jn) if (j.minor === e.key) { const b = byKey.get(j.major); if (b && mark.get(b.key) !== 1 && b.key !== e.key) visit(b); }
       allTargets(e.c).forEach((g, i) => {
         if (g.from.kind !== 'corridor') return;
         const b = byKey.get(g.from.id);
@@ -424,12 +708,34 @@ export class Project {
     for (const e of on) visit(e);
     return { order, loops };
   }
+  /**
+   * 0.10.1 #1977 (junction.js): where the corridors meet each other and the pads, from the plan alone (the alignments, each
+   * corridor's station range and its assembly's widths): { roads: findJunctions(…), pads: [{ road (key), pad (id), end }] }.
+   * A corridor with `join: false` ("Join roads and pads it meets" off) takes no part, as the minor or the major road; tracks
+   * never do.
+   */
+  junctions() {
+    const es = this.corridorEntries().filter((e) => e.c.join !== false && !e.a.rail?.on);
+    const dep = JSON.stringify(es.map((e) => [e.key, e.a.pis, e.a.start, e.c.from, e.c.to, e.c.lane, e.c.shoulder, e.c.parts, !!e.c.regions])) + '|' + JSON.stringify(this.state.pads.map((p) => [p.id, p.pts]));
+    return this.memo('junctions', this.state.units + dep, () => {
+      const units = this.state.units, roads = [];
+      for (const e of es) {
+        const al = this.alignment(e.a);
+        if (!al?.ok) continue;
+        roads.push({ key: e.key, alId: e.a.id, al, from: Math.max(al.start, Number.isFinite(e.c.from) ? e.c.from : al.start), to: Math.min(al.end, Number.isFinite(e.c.to) ? e.c.to : al.end), w: nominalWidths({ ...defaultAssembly(units), ...e.c }, units) });
+      }
+      const pads = [];
+      for (const r of roads) for (const h of padEnds(r, this.state.pads.filter((p) => p.pts.length >= 3), { units })) pads.push({ road: r.key, ...h });
+      return { roads: findJunctions(roads, { units }), pads };
+    });
+  }
   /** The items graded into the existing ground, in order: corridors first, then pads. */
   gradeItems() {
     const items = [];
     // 0.6 WL.25: corridors in target order; each one's lines are kept as it is graded, so a corridor targeting another's
     // edge reads that edge as it is now (it moves when the other corridor changes)
     const { order, loops } = this.corridorOrder(), done = new Map(), T = this.templateMap();
+    const jn = this.junctions(), byKeyAll = new Map(order.map((x) => [x.key, x]));   // 0.10.1 #1977
     for (const e of order) {
       const a = e.a, c = e.c;
       const al = this.alignment(a), prof = this.designProfile(a), asm = { ...defaultAssembly(this.state.units), ...c, ...this.railAsm(a) };   // railAsm: 0.7.1 71.26
@@ -451,16 +757,42 @@ export class Project {
       const withLines = (u) => (u?.targets ? { ...u, lines: Object.fromEntries(Object.entries(u.targets).map(([k, f]) => [k, lineOf(f)])) } : u);
       const regions = c.regions ? c.regions.map((r) => ({ from: r.from, L: { uses: r.L.uses.map(withLines), end: withLines(r.L.end) }, R: { uses: r.R.uses.map(withLines), end: withLines(r.R.end) } })) : null;
       const name = e.main ? t('project.corridor', { name: a.name }) : t('tpl.corr.name', { name: a.name, corridor: c.name });
+      // 0.10.1 #1977: what this corridor joins (a road graded before it, a pad its end reaches) and where its own side opens
+      const openings = jn.roads.filter((j) => j.major === e.key).flatMap((j) => j.openings);
+      const tiesFor = (surf) => {
+        const out = [];
+        for (const j of jn.roads) {
+          if (j.minor !== e.key) continue;
+          const info = done.get(j.major), other = byKeyAll.get(j.major), body = info && bodyOf(info);
+          if (!body || !other) continue;
+          const zr = roadZAt(info, this.alignment(other.a)), zs = (x, y) => zr(x, y) ?? surf.elevationAt(x, y, 1e-6);
+          out.push({ kind: 'road', id: j.major, name: other.a.name, end: j.end, inside: (x, y) => pointInPoly(x, y, body.poly), zAt: zs, lines: body.lines });
+        }
+        for (const h of jn.pads) {
+          if (h.road !== e.key) continue;
+          const pad = this.state.pads.find((p) => p.id === h.pad);
+          if (!pad || !Number.isFinite(Number(pad.z))) continue;
+          out.push({ kind: 'pad', id: pad.id, name: pad.name || '', end: h.end, inside: (x, y) => pointInPoly(x, y, pad.pts), zAt: padZAt(pad), lines: [[...pad.pts, pad.pts[0]]] });
+        }
+        return out;
+      };
       items.push({ id: e.key, alignment: a.id, kind: 'corridor', name, patch: (surf) => {
-        const r = corridorPatch(surf, al, prof, regions ? { ...asm, regions, templates: T } : asm, { targets: resolve(), units: this.state.units });
+        const r = corridorPatch(surf, al, prof, regions ? { ...asm, regions, templates: T } : asm, { targets: resolve(), units: this.state.units, ties: tiesFor(surf), openings });
         done.set(e.key, r.info);
         return r;
       } });
     }
     for (const f of this.state.features || []) { const it = featureItem(f); if (it) items.push(it); }   // 0.4 V14: closed design feature lines
     for (const p of this.state.pads) if (p.pts.length >= 3) items.push({ ...p, kind: 'pad', z: Number(p.z), cut: Number(p.cut), fill: Number(p.fill), about: { kind: 'pad', id: p.id } });
-    items.push(...lsGradeItems(this.state.landscape, this.state.units));   // 0.7 LD.3: the Landscape workspace's grading, last
+    items.push(...lsGradeItems(this.state.landscape, this.state.units, { roads: () => [...done.values()].map((info) => bodyOf(info)).filter(Boolean) }));   // 0.7 LD.3: the Landscape workspace's grading, last (0.10.1 #1977: a path stops at the roads built by then)
+    // 0.10.1 #1970: open design feature lines are breaklines of the proposed surface, laid in after everything else (inside a pad
+    // or platform they shape its interior)
+    for (const f of this.state.features || []) { const it = breaklineItem(f); if (it) items.push(it); }
     return items;
+  }
+  /** SU.1815: the alignments as plain polylines: the streets a parking lot's aisles must reach (lib/landscape street.js). */
+  streetLines() {
+    return this.memo('streetLines', JSON.stringify(this.state.alignments || []), () => (this.state.alignments || []).map((a) => { const al = this.alignment(a); return al?.ok ? alignmentPath(al) : null; }).filter((p) => p && p.length >= 2));
   }
   /** 0.6 WL.28: a swept path worked out: { path, sim, env } (null without its line), kept until it or its line changes. */
   sweptOf(rec) {
@@ -621,7 +953,7 @@ export class Project {
     if (!regions.length) return null;
     return this.memo('vol', this.surfaceDeps() + '|' + this.gradeDeps() + '|' + cell, () => {
       const total = gridVolume(eg, g.surface, { region: regions, cell });
-      total.items = g.items.filter((it) => it.region).map((it) => ({ id: it.id, name: it.name, ...gridVolume(eg, g.surface, { region: it.region, cell: total.cell }) }));
+      total.items = g.items.filter((it) => it.region && !(it.kind === 'breakline' && it.inside)).map((it) => ({ id: it.id, name: it.name, ...gridVolume(eg, g.surface, { region: it.region, cell: total.cell }) }));
       return total;
     });
   }
@@ -690,19 +1022,20 @@ export class Project {
   }
 
   // ---- project file ----
-  toJSON({ light = false } = {}) {   // light: without what is big (points, GIS features, grid shift files, map pictures): the autosave journal carries those as extra chunks
+  toJSON({ light = false, pointsAs } = {}) {   // pointsAs (0.11): a value put where the points go (ifc-native.js writePair writes them itself, in parts)   // light: without what is big (points, GIS features, grid shift files, map pictures): the autosave journal carries those as extra chunks
     const shellOut = { ...(this.shell || {}) }; { const di = typeof window !== 'undefined' && window.ccDocInfo ? window.ccDocInfo.save() : null; if (di) shellOut.docinfo = di; }   // 0.9 DI.1: the drawing details, stamped with this save
     return {
-      format: 'civilcraft-project', version: 1, saved: new Date().toISOString(),
+      format: 'civilcraft-project', version: 1, formatVersion: FILE_IDS, saved: new Date().toISOString(),   // formatVersion (0.11 DC.27): ids from session blocks; older builds ignore it
       name: this.state.name, units: this.state.units, pointsFile: this.pointsFile,
-      points: light ? [] : this.points.map(pointRow),   // 0.5 WL.19: + the block it came from
+      points: pointsAs !== undefined ? pointsAs : light ? [] : this._pts.rows(),   // 0.5 WL.19: + the block it came from (0.11: the table's rows, = points.map(pointRow))
       surface: this.state.surface, display: this.state.display,
-      alignments: this.state.alignments, pads: this.state.pads, network: this.state.network, seq: this.state.seq,
+      alignments: this.state.alignments, pads: this.state.pads, network: this.state.network, seq: savedCounter(this, this.state.seq),
       features: this.state.features || [],   // 0.4 V14
       parcels: this.state.parcels || [],   // 0.4 V21
       ...((this.state.masses || []).length ? { masses: this.state.masses } : {}),   // 0.7 LC.1: building masses
       ...((this.state.rivers || []).length ? { rivers: this.state.rivers } : {}),   // 0.8 SU.957: rivers (models only; results are computed again)
-      ...((this.state.zoning || []).length ? { zoning: this.state.zoning } : {}),   // 0.7 LC.1 M3: the limits typed per parcel
+      ...((this.state.zoning || []).length ? { zoning: this.state.zoning } : {}),
+      ...(this.state.land && !landBookEmpty(this.state.land) ? { land: this.state.land } : {}),   // 0.11 LR.3: land records, field walks, parcel proposals (only written when there are some, so older files stay byte-identical)   // 0.7 LC.1 M3: the limits typed per parcel
       swept: this.state.swept || [],   // 0.6 WL.28
       ...(this.state.landscape ? { landscape: freezeSpacing(this.state.landscape) } : {}),   // 0.7.1: spacing as filled, the plant list's edition   // 0.7 LD: plants, beds, hedges, the project's own plant list
       ...((this.state.utilities?.runs?.length || this.state.utilities?.nodes?.length) ? { utilities: this.state.utilities } : {}),   // 0.10 SU.1810: utility networks
@@ -739,19 +1072,34 @@ export class Project {
     const memo = { pts: -1, gis: -1, grid: null };
     return objectJournal({
       spec: FILE_SPEC, identity: () => this, meta,
-      get: () => { const o = this.toJSON({ light: true }); delete o.saved; return o; },
+      get: async () => {
+        // 0.11: a big surface being rebuilt off the page first (the copy's text and the rebuild do not fit the tab's heap together at 10 M
+        // points); waited for here, before the state is read, so the state and the points of the copy are of the same moment
+        for (let w = typeof Project.idle === 'function' ? Project.idle(this) : null; w; w = Project.idle(this)) await w;
+        const o = this.toJSON({ light: true }); delete o.saved; return o;
+      },
       extras: (h) => this.syncExtras(h, memo),
     });
   }
-  syncExtras(h, memo) {
+  async syncExtras(h, memo) {
     const put = (key, str) => h.setExtra(key, str);
-    if (memo.pts !== this.pointsVersion) {   // an edit of the points: cut them again, rewrite only the blocks that differ
-      memo.pts = this.pointsVersion;
-      const n = Math.ceil(this.points.length / POINT_BLOCK);
-      for (let i = 0; i < n; i++) put('x:pts:' + i, JSON.stringify(this.points.slice(i * POINT_BLOCK, (i + 1) * POINT_BLOCK).map(pointRow)));
-      const was = Number(h.cur.get('x:pts:n') || 0);
-      for (let i = n; i < was; i++) put('x:pts:' + i, null);
-      put('x:pts:n', String(n));
+    if (memo.pts !== this.pointsVersion) {   // an edit of the points: write the blocks of the table whose version moved (0.11: never a pass over every point)
+      // 0.11 (the cap lifted): the blocks as they are now are held (copy on write, PointTable.freeze) and written a few at a time with the page
+      // answering in between (the first copy of 10 million points is seconds of text); an edit meanwhile changes a copy, so the copy written is
+      // the project as it was when this write began, with the state chunks taken just before
+      const ver = this.pointsVersion, T = this._pts, snap = T.freeze();
+      try {
+        const seen = memo.blocks || new Map(), now = new Map(), order = [];
+        let t0 = Date.now();
+        for (const b of snap.blocks) {
+          order.push(b.uid); now.set(b.uid, b.v);
+          if (seen.get(b.uid) !== b.v || h.cur.get('x:pb:' + b.uid) === undefined) put('x:pb:' + b.uid, T.blockRowsJSON(b));
+          if (Date.now() - t0 > 40 && typeof setTimeout === 'function') { await new Promise((r) => setTimeout(r, 0)); t0 = Date.now(); }
+        }
+        for (const uid of seen.keys()) if (!now.has(uid)) put('x:pb:' + uid, null);
+        memo.blocks = now; memo.pts = ver;
+        put('x:pts:order', JSON.stringify(order));
+      } finally { T.thaw(snap); }
     }
     if (memo.gis !== this.gisVersion) {
       memo.gis = this.gisVersion;
@@ -773,13 +1121,17 @@ export class Project {
     return rec && Object.keys(rec).length ? { usesAddons: rec } : {};
   }
 
-  static fromJSON(obj) {
+  /**
+   * `pre` (0.11 PERF.33): the points already read off the page (open-async.js parseProjectAsync → pointsFromColumns): { pts, total } where
+   * `pts` are the rows fromJSON would have made and `total` the file's row count; obj.points is then not read.
+   */
+  static fromJSON(obj, pre = null) {
     const notes = [];
     if (!obj || obj.format !== 'civilcraft-project') throw new Error(t('project.err.notcc'));
     if (obj.version !== 1) throw new Error(t('project.err.newer', { version: String(obj.version).slice(0, 10) }));
     const p = new Project();
     const fin = (v) => typeof v === 'number' && Number.isFinite(v);
-    const str = (v, n = 200) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, n);
+    const str = cleanText;   // 0.11 PERF.33: project-rows.js, the same one the open Worker reads rows with
     const xy = (q) => (q && fin(q.x) && fin(q.y) ? { x: q.x, y: q.y } : null);
     const xyz = (q) => (q && fin(q.x) && fin(q.y) && fin(q.z) ? { x: q.x, y: q.y, z: q.z } : null);
     const list = (a, f, max) => (Array.isArray(a) ? a.slice(0, max).map(f).filter(Boolean) : []);
@@ -787,14 +1139,16 @@ export class Project {
     s.name = str(obj.name, 120) || t('project.untitled');
     s.units = obj.units === 'm' ? 'm' : 'ft';
     s.seq = Number.isInteger(obj.seq) && obj.seq > 0 ? obj.seq : 1;
-    const pts = list(obj.points, (r) => {
-      if (!Array.isArray(r) || !fin(r[1]) || !fin(r[2])) return null;
-      const q = { n: str(r[0], 40), x: r[1], y: r[2], z: fin(r[3]) ? r[3] : null, d: str(r[4]) };
+    const pts = pre ? (pre.table || pre.pts) : list(obj.points, (r) => {
+      const q = readPointRow(r);
+      if (!q) return null;
       const blk = cleanBlk(r[5]);   // 0.5 WL.19
       if (blk) q.blk = blk;
       return q;
-    }, 2e6);
-    if (Array.isArray(obj.points) && pts.length !== obj.points.length) notes.push(t('project.bad.points', { n: obj.points.length - pts.length }));
+    }, MAX_POINTS);
+    const nRows = pre ? pre.total : Array.isArray(obj.points) ? obj.points.length : -1;
+    if (nRows > MAX_POINTS) notes.push(t('project.points.cap.max', { n: (nRows - MAX_POINTS).toLocaleString('en-US'), max: MAX_POINTS.toLocaleString('en-US') }));   // 0.11 PERF.33: said, not folded into "could not be read"
+    if (nRows >= 0 && pts.length !== Math.min(nRows, MAX_POINTS)) notes.push(t('project.bad.points', { n: Math.min(nRows, MAX_POINTS) - pts.length }));
     const sf = obj.surface || {};
     s.surface.name = str(sf.name, 120) || t('surface.eg');
     s.surface.groups = {};
@@ -834,10 +1188,11 @@ export class Project {
         if (!xy(q)) return null;
         const r = fin(q.r) && q.r > 0 ? q.r : 0, ls1 = r ? lsOf(q.ls1) || lsOf(q.ls) : 0, ls2 = r ? lsOf(q.ls2) || lsOf(q.ls) : 0;
         const tr = r && q.tr !== 'clothoid' && TRANSITIONS.includes(q.tr) ? q.tr : null, cant = r && fin(q.cant) && q.cant >= -300 && q.cant <= 300 && q.cant !== 0 ? q.cant : 0;   // 0.7.1 71.26: rail transition kind, applied cant (mm)
-        return { ...xy(q), r, ...(ls1 ? { ls1 } : {}), ...(ls2 ? { ls2 } : {}), ...(tr ? { tr } : {}), ...(cant ? { cant } : {}) };
+        const lsc = r && fin(q.lsc) && q.lsc > 0 ? q.lsc : 0;   // 0.11 SU.1944: a spiral to the next PI's curve
+        return { ...xy(q), r, ...(ls1 ? { ls1 } : {}), ...(ls2 ? { ls2 } : {}), ...(lsc ? { lsc } : {}), ...(tr ? { tr } : {}), ...(cant ? { cant } : {}) };
       }, 1e4);
       if (pis.length < 2) return null;
-      const pvis = list(a.pvis, (v) => (v && fin(v.sta) && fin(v.z) ? { sta: v.sta, z: v.z, L: fin(v.L) && v.L > 0 ? v.L : 0, ...(v.locked === true ? { locked: true } : {}) } : null), 1e4);   // locked: CV.3 (#1534)
+      const pvis = list(a.pvis, (v) => (v && fin(v.sta) && fin(v.z) ? { sta: v.sta, z: v.z, L: fin(v.L) && v.L > 0 ? v.L : 0, ...(fin(v.R) && v.R > 0 ? { R: v.R } : {}), ...(v.locked === true ? { locked: true } : {}) } : null), 1e4);   // locked: CV.3 (#1534)
       const corridor = a.corridor && typeof a.corridor === 'object' ? cleanCorridor(a.corridor, s.units, tplIds) : null;
       // 0.9 SU.1110: more corridors on this alignment (station ranges), each a corridor of its own
       const more = list(a.corridors, (c) => { if (!c || typeof c !== 'object') return null; const x = cleanCorridor(c, s.units, tplIds); return { id: /^cr\d+$/.test(String(c.id)) ? c.id : p.nextId('cr'), name: str(c.name, 80) || t('tpl.corr.default'), ...x }; }, 20);
@@ -847,7 +1202,8 @@ export class Project {
       return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(more.length ? { corridors: more } : {}), ...(minR ? { minR } : {}), ...(design ? { design } : {}), ...(rail ? { rail } : {}) };
     }, 1000);
     s.pads = list(obj.pads, (d) => {
-      const q = list(d?.pts, xy, 1e4);
+      // 0.10.1 #1970: a corner may carry its own elevation (a sloped pad, a ramp); it was dropped on open before
+      const q = list(d?.pts, (c) => { const o = xy(c); if (o && fin(c.z) && Math.abs(c.z) < 1e6) o.z = c.z; return o; }, 1e4);
       if (q.length < 3 || !fin(d.z)) return null;
       const sides = cleanPadSides(d.sides, s.units, q.length);   // 0.7.1 71.22: slopes per side, retaining walls
       return { id: id(d.id, 'p'), name: str(d.name, 120) || t('scene.pad.default'), pts: q, z: d.z, cut: fin(d.cut) && d.cut > 0 ? d.cut : 2, fill: fin(d.fill) && d.fill > 0 ? d.fill : 2, ...(sides ? { sides } : {}) };
@@ -857,6 +1213,7 @@ export class Project {
     s.masses = list(obj.masses, (f) => { const c = cleanMass(f, s.units); if (c) c.id = id(f?.id, 'm'); return c; }, MAX_MASSES);   // 0.7 LC.1 (untrusted)
     s.rivers = list(obj.rivers, (r) => cleanRiver(r), 50).filter((r, i, a) => a.findIndex((y) => y.id === r.id) === i);   // 0.8 SU.957 (untrusted; ids rv<n>, own counter in river-ui.js)
     s.zoning = list(obj.zoning, (z) => cleanZone(z, s.units), 2000).filter((z, i, a) => a.findIndex((y) => y.parcel === z.parcel) === i);   // 0.7 LC.1 M3 (untrusted; one per parcel)
+    if (obj.land && typeof obj.land === 'object') { const lb = cleanLandBook(obj.land); if (!landBookEmpty(lb)) s.land = lb; }   // 0.11 LR.3 (untrusted; kept with the add-on switched off)
     s.swept = list(obj.swept, (w) => { const c = cleanSwept(w, s.units); if (c) c.id = id(w?.id, 'w'); return c; }, 200);   // 0.6 WL.28
     if (obj.landscape && typeof obj.landscape === 'object') s.landscape = cleanLandscape(obj.landscape, s.units, (rows) => readPlants({ format: 'cadcraft-plants', version: 1, species: rows }).library.species);   // 0.7 LD (untrusted)
     if (obj.utilities && typeof obj.utilities === 'object') { s.utilities = cleanUtilities(obj.utilities, s.units); if (!s.utilities.runs.length && !s.utilities.nodes.length) delete s.utilities; }   // 0.10 SU.1810 (untrusted)
@@ -887,13 +1244,18 @@ export class Project {
       const typeIds = new Set(types.map((k) => k.id));
       const structures = list(nw.structures, (x) => (xy(x) ? { id: id(x.id, 's'), name: str(x.name, 60) || t('project.def.structure'), ...xy(x), rim: fin(x.rim) ? x.rim : null, sumpDepth: pos(x.sumpDepth, 0), dia: pos(x.dia, 48), ...(typeIds.has(x.type) ? { type: x.type } : {}), ...(cleanSewLoad(x.sew) ? { sew: cleanSewLoad(x.sew) } : {}) } : null), 1e4);
       const ids = new Set(structures.map((x) => x.id));
-      const pipes = list(nw.pipes, (x) => (x && ids.has(x.from) && ids.has(x.to) && x.from !== x.to ? { id: id(x.id, 'q'), name: str(x.name, 60) || t('project.def.pipe'), from: x.from, to: x.to, dia: pos(x.dia, 12) || 12, invUp: fin(x.invUp) ? x.invUp : null, invDn: fin(x.invDn) ? x.invDn : null } : null), 1e4);
+      const pipes = list(nw.pipes, (x) => (x && ids.has(x.from) && ids.has(x.to) && x.from !== x.to ? { id: id(x.id, 'q'), name: str(x.name, 60) || t('project.def.pipe'), from: x.from, to: x.to, dia: pos(x.dia, 12) || 12, invUp: fin(x.invUp) ? x.invUp : null, invDn: fin(x.invDn) ? x.invDn : null, ...(typeof x.mat === 'string' && /^[a-z][a-z0-9_]{0,23}$/.test(x.mat) ? { mat: x.mat } : {}) } : null), 1e4);
       if (pipes.length !== nw.pipes.length) notes.push(t('project.bad.pipes', { n: nw.pipes.length - pipes.length }));
       s.network = { name: str(nw.name, 60) || t('pipes.default'), type: nw.type === 'sanitary' ? 'sanitary' : 'storm', rules: { minSlope: pos(r.minSlope, 0), minCover: pos(r.minCover, 0), minDrop: pos(r.minDrop, 0) }, structures, pipes };
       // 0.4 V19/V20: catchments (to a structure of this network, else none) and the hydrology settings
       const cs = list(nw.catchments, (x) => { const c = cleanCatchment(x); if (!c) return null; c.id = id(x.id, 'k'); if (c.to && !ids.has(c.to)) c.to = null; return c; }, 1e4);
       if (cs.length) s.network.catchments = cs;
       if (nw.hydro && typeof nw.hydro === 'object') s.network.hydro = cleanHydro(nw.hydro, s.units);
+      if (Array.isArray(nw.rulesets)) {   // 0.11 SU.1937b: the network's named drainage rule sets (each group cited or entered; ids rs<n>)
+        const seen = new Set(), rl = [];
+        for (const r of nw.rulesets.slice(0, MAX_RULESETS)) { const c = cleanRuleset(r, s.units).rs; if (!c) continue; let k = c.id; if (!k || seen.has(k)) { let n = 1; while (seen.has('rs' + n)) n++; k = 'rs' + n; } seen.add(k); rl.push({ ...c, id: k }); }
+        if (rl.length) s.network.rulesets = rl;
+      }
       if (types.length) s.network.types = types;
       if (nw.sewer && typeof nw.sewer === 'object') s.network.sewer = cleanSewer(nw.sewer, s.units);   // 0.6 LC.16 S1: sanitary design flows
     }
@@ -908,12 +1270,14 @@ export class Project {
       import('./crs.js').then(async (C) => { for (const [n, b] of p.crsGrids) { try { await C.loadGrid(n, b); } catch (e) { p.gridError = e.message; } } p.emit('crs-grid'); }).catch((e) => { p.gridError = e.message; });
     }
     p.gisImages = readGisImages(obj.gisImages, s.gis.maps, notes);   // GIS: map layer pictures (builder C; gis-map-ui.js reads the layers)
-    p.points = pts; p.pointsFile = str(obj.pointsFile, 200); p.pointsVersion++;
+    p._setTable(pts); p.pointsFile = str(obj.pointsFile, 200); p.pointsVersion++;
     for (const a of [...(s.templates || []), ...(s.terrainTemplates || []), ...s.alignments.flatMap((x) => x.corridors || []), ...s.alignments, ...s.pads, ...(s.network ? [...s.network.structures, ...s.network.pipes, ...(s.network.catchments || []), ...(s.network.types || [])] : []), ...s.gis.layers, ...(s.features || []), ...(s.parcels || []), ...(s.issues || []), ...(s.utilities ? [...s.utilities.runs, ...s.utilities.nodes] : []), ...(s.masses || []), ...(s.swept || []), ...(s.ponds || []), ...Object.values(s.geo || {}).flat(), ...(s.landscape ? [...s.landscape.plants, ...s.landscape.beds, ...s.landscape.hedges, ...s.landscape.grading, ...s.landscape.hardscape, ...(s.landscape.areas || []), ...(s.landscape.levels || []), ...(s.landscape.sections || []), ...(s.landscape.irrigation ? ['heads', 'pipes', 'valves', 'drips'].flatMap((w) => s.landscape.irrigation[w]) : []), ...(s.landscape.freeform || [])] : []), ...(s.water ? [...s.water.nodes, ...s.water.pipes] : []), ...(s.powerlines ? [...s.powerlines.lines, ...s.powerlines.lines.flatMap((l) => l.supports), ...s.powerlines.routes, ...s.powerlines.equipment, ...s.powerlines.obstacles] : [])]) { const n = Number(String(a.id).replace(/^\D+/, '')); if (n >= s.seq) s.seq = n + 1; }
     p.h.reset(p.state);   // the state was filled in place: the chunk table starts from it
     return { project: p, notes };
   }
 }
+/** 0.11 PERF.21: tests set this (or HISTORY_VERIFY=1 in Node) and every hinted edit is checked against the full look; a miss throws. */
+Project.verifyHints = typeof process !== 'undefined' && process?.env?.HISTORY_VERIFY === '1';
 
 /** A corridor from the project file (untrusted): the simple assembly, superelevation, parts, targets, and (0.9) its station
  *  range and templates by station (regions naming templates that exist). */
@@ -927,10 +1291,13 @@ export function cleanCorridor(c, units, tplIds = new Set()) {
   if (parts) corridor.parts = parts;
   const tg = cleanTargets(c.targets);   // 0.6 WL.25
   if (tg.length) corridor.targets = tg;
+  if (c.join === false) corridor.join = false;   // 0.10.1 #1977: this corridor does not join the roads and pads it meets
   if (fin(c.from)) corridor.from = c.from;   // 0.9 SU.1110: the corridor's own station range (several corridors on an alignment)
   if (fin(c.to) && !(fin(c.from) && c.to <= c.from)) corridor.to = c.to;
   const rg = cleanRegions(c.regions, tplIds);   // 0.9 SU.1110: templates by station
   if (rg) corridor.regions = rg;
+  const nv = cleanNamed(c.named);   // 0.11 SU.1941: named values by station
+  if (nv && rg) corridor.named = nv;
   return corridor;
 }
 /** 0.9: a corridor's WL.25 targets and its templates' point targets, as { from } records (corridorOrder, gradeDeps). */
@@ -1015,7 +1382,7 @@ function readGisImages(obj, maps, notes) {
   const used = new Set((maps || []).map((m) => m?.image).filter((v) => typeof v === 'string'));
   let bad = 0;
   for (const k of Object.keys(obj).slice(0, 200)) {
-    if (!used.has(k) || !/^img\d{1,9}$/.test(k)) continue;
+    if (!used.has(k) || !/^img\d{1,16}$/.test(k)) continue;
     const v = obj[k];
     if (typeof v === 'string' && v.length <= MAX_GIS_IMAGE && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+/]+=*$/.test(v)) out.set(k, v); else bad++;
   }

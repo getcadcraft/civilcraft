@@ -14,6 +14,7 @@ import { runStage, planStage, readStage, stilFrom } from './flow.js';
 import { makePackage, resultOf } from './runner.js';
 import { lastRun, repeatable, hashFiles, writeProject, toolsFor, recordRun } from './project.js';
 import { readVcd, isFst } from './vcd.js';
+import { readFst, fstToVcd } from './fst.js';
 import { mountWaves } from './wave-view.js';
 import { mountLayout } from './layout-view.js';
 import { probeSteps, parseVersion, TOOLS } from './tools.js';
@@ -39,6 +40,7 @@ function summaryBlock(d, t, stage, res) {
     line('chip.sum.cells', { n: s.stat.cells, top: s.stat.top || '' });
     if (s.stat.area !== null && s.stat.area !== undefined) line('chip.sum.area', { area: s.stat.area });
     if (s.timing?.delayPs !== null && s.timing?.delayPs !== undefined) line('chip.sum.delay', { ps: s.timing.delayPs });
+    if (s.sta && (s.sta.worst !== null || s.sta.wns !== null)) line('chip.sum.sta', { worst: s.sta.worst ?? s.sta.wns, tns: s.sta.tns ?? 0 });   // OpenSTA after synthesis
     const types = Object.entries(s.stat.modules?.[s.stat.top]?.types || {});
     if (types.length) box.append(h(d, 'div', { class: 'chip-muted' }, types.map(([k, v]) => k + ' ' + v).join(' · ')));
   }
@@ -197,7 +199,13 @@ function wavesPanel(el, ctx) {
   pick.addEventListener('change', async () => {
     const n = pick.value; if (!n) return;
     const b = await ctx.files.readBytes(n);
-    if (/\.fst$/i.test(n) || isFst(b)) { note.textContent = t('chip.wave.fst'); return; }
+    if (/\.fst$/i.test(n) || isFst(b)) {   // our FST reader (fst.js), then the one VCD reader
+      const f = readFst(b);
+      if (!f.vars.length) { note.textContent = t('chip.wave.fst', { why: f.problems[0] || '' }); return; }
+      showText(fstToVcd(f), n);
+      if (f.problems.length) note.textContent += ' ' + t('chip.wave.fstPart', { why: f.problems[0] });
+      return;
+    }
     showText(dec.decode(b), n);
   });
   refill();

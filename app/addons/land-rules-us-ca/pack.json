@@ -1,0 +1,414 @@
+{
+ "format": "cadcraft-land-rules",
+ "version": 1,
+ "id": "us-ca",
+ "name": "California",
+ "country": "US",
+ "researched": "2026-11-21",
+ "note": "California's Subdivision Map Act (Government Code 66410 and following) as it bears on dividing land and moving a lot line: when a final map or a parcel map is needed, what a lot line adjustment may be, how long an agency has to act and how long a tentative map lasts. Read in the California Legislature's own bulk text of the codes. State law sets no lot sizes: those are each city's or county's, in a rules add-on of its own that stands on this one. The Permit Streamlining Act's day counts were not read. Not legal advice.",
+ "sources": [
+  {
+   "key": "ca-gov-code",
+   "title": "California Government Code, Title 7, Division 2 (Subdivision Map Act), sections 66410 and following: LAW_SECTION_TBL in the official public information data set",
+   "edition": "pubinfo_2025.zip, file last modified 2026-11-15 (section rows stamped 2026-10-03)",
+   "publisher": "California Legislative Counsel / California Legislative Information (leginfo.legislature.ca.gov)",
+   "url": "https://downloads.leginfo.legislature.ca.gov/pubinfo_2025.zip"
+  }
+ ],
+ "rules": [],
+ "thresholds": [
+  {
+   "id": "final-map-min-parcels",
+   "what": "A tentative map and a final (tract) map are required when a subdivision creates this many parcels or more, unless one of the listed exceptions applies.",
+   "value": 5,
+   "unit": "parcels",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66426",
+   "quote": "A tentative and final map shall be required for all subdivisions creating five or more parcels, five or more condominiums as defined in Section 783 of the Civil Code, a community apartment project containing five or more parcels,",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2003, Ch. 76, Sec. 2. Effective January 1, 2004. Quote is the opening of the sentence; the sentence goes on to stock cooperatives and the exceptions (a) to (e)."
+  },
+  {
+   "id": "final-map-exception-under-5-acres",
+   "what": "Exception (a): five or more parcels can go by parcel map when the land before division is under this area, every parcel abuts a maintained public street, and no dedications or improvements are required.",
+   "value": 5,
+   "unit": "acres",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66426(a)",
+   "quote": "The land before division contains less than five acres, each parcel created by the division abuts upon a maintained public street or highway, and no dedications or improvements are required by the legislative body.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2003, Ch. 76, Sec. 2. Effective January 1, 2004. All three conditions must hold."
+  },
+  {
+   "id": "final-map-exception-20-acre-parcels",
+   "what": "Exception (b): each parcel created has at least this gross area and approved access to a maintained public street.",
+   "value": 20,
+   "unit": "acres",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66426(b)",
+   "quote": "Each parcel created by the division has a gross area of 20 acres or more and has an approved access to a maintained public street or highway.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2003, Ch. 76, Sec. 2. Effective January 1, 2004."
+  },
+  {
+   "id": "final-map-exception-40-acre-parcels",
+   "what": "Exception (d): each parcel created has at least this gross area, or is at least a quarter of a quarter section.",
+   "value": 40,
+   "unit": "acres",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66426(d)",
+   "quote": "Each parcel created by the division has a gross area of not less than 40 acres or is not less than a quarter of a quarter section.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2003, Ch. 76, Sec. 2. Effective January 1, 2004."
+  },
+  {
+   "id": "parcel-map-for-excepted-subdivisions",
+   "what": "Subdivisions that fall under exceptions (a) to (e) need a parcel map instead of a final map.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66426(f)",
+   "quote": "A parcel map shall be required for those subdivisions described in subdivisions (a), (b), (c), (d), and (e).",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2003, Ch. 76, Sec. 2. Effective January 1, 2004."
+  },
+  {
+   "id": "parcel-map-default",
+   "what": "A parcel map is required for any subdivision that does not need a final map (in practice four or fewer parcels), unless a local ordinance waives it.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66428(a)",
+   "quote": "A parcel map shall be required for subdivisions as to which a final or parcel map is not otherwise required by this chapter, unless the preparation of the parcel map is waived by local ordinance as provided in this section.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2013, Ch. 210, Sec. 16. (SB 184) Effective January 1, 2014. The section does not print the number four; it follows from 66426 (five or more needs a final map)."
+  },
+  {
+   "id": "lla-max-parcels",
+   "what": "A lot line adjustment is outside the Map Act when it is between this many existing adjoining parcels or fewer.",
+   "value": 4,
+   "unit": "parcels",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "A lot line adjustment between four or fewer existing adjoining parcels, where the land taken from one parcel is added to an adjoining parcel, and where a greater number of parcels than originally existed is not thereby created,",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025. Quote is the first part of the sentence; it ends: 'if the lot line adjustment is approved by the local agency, or advisory agency.' Section 66412 lists what the division does not apply to."
+  },
+  {
+   "id": "lla-no-new-parcels",
+   "what": "The lot line adjustment must not create more parcels than existed before, and must be approved by the local or advisory agency.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "where a greater number of parcels than originally existed is not thereby created, if the lot line adjustment is approved by the local agency, or advisory agency.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025. Quote is the end of the same sentence as lla-max-parcels."
+  },
+  {
+   "id": "lla-review-scope",
+   "what": "The agency may only check that the resulting parcels conform to the general plan, any specific or coastal plan, and zoning and building ordinances.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "A local agency or advisory agency shall limit its review and approval to a determination of whether or not the parcels resulting from the lot line adjustment will conform to the local general plan, any applicable specific plan, any applicable coastal plan, and zoning and building ordinances.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025."
+  },
+  {
+   "id": "lla-no-map-required",
+   "what": "No tentative, parcel or final map can be required for a lot line adjustment.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "No tentative map, parcel map, or final map shall be required as a condition to the approval of a lot line adjustment.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025."
+  },
+  {
+   "id": "lla-recorded-deed",
+   "what": "A lot line adjustment is put into effect by a recorded deed.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "The lot line adjustment shall be reflected in a deed, which shall be recorded.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025."
+  },
+  {
+   "id": "lla-record-of-survey",
+   "what": "No record of survey is needed for a lot line adjustment unless Business and Professions Code 8762 requires one.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "No record of survey shall be required for a lot line adjustment unless required by Section 8762 of the Business and Professions Code.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025. Section 8762 itself was not read."
+  },
+  {
+   "id": "lla-agency-time-limit",
+   "what": "The agency must approve or disapprove a lot line adjustment within the Permit Streamlining Act time limits; this section prints no number of days.",
+   "value": null,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66412(d)",
+   "quote": "A local agency shall approve or disapprove a lot line adjustment pursuant to the Permit Streamlining Act (Chapter 4.5 (commencing with Section 65920) of Division 1).",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2024, Ch. 591, Sec. 1. (SB 347) Effective January 1, 2025. No day count is stated here. The Permit Streamlining Act sections (Gov. Code 65920 and following) were not read, so no value is given."
+  },
+  {
+   "id": "tentative-map-advisory-agency-days",
+   "what": "An advisory agency that can decide tentative maps must act within this many days after the map is filed with its clerk.",
+   "value": 50,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66452.1(b)",
+   "quote": "If the advisory agency is authorized by local ordinance to approve, conditionally approve, or disapprove the tentative map, it shall take that action within 50 days after the filing thereof with its clerk and report its action to the subdivider.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1989, Ch. 847, Sec. 6. Under 66452.1(c) the period starts after the environmental review step (EIR certified, negative declaration adopted, or exemption determined)."
+  },
+  {
+   "id": "tentative-map-advisory-report-days",
+   "what": "An advisory agency that cannot decide tentative maps must report to the legislative body within this many days after filing.",
+   "value": 50,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66452.1(a)",
+   "quote": "If the advisory agency is not authorized by local ordinance to approve, conditionally approve or disapprove the tentative map, it shall make its written report on the tentative map to the legislative body within 50 days after the filing thereof with its clerk.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1989, Ch. 847, Sec. 6."
+  },
+  {
+   "id": "tentative-map-legislative-body-days",
+   "what": "After the advisory agency's report, the legislative body must decide the tentative map within this many days of fixing the meeting date.",
+   "value": 30,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66452.2(a)",
+   "quote": "which date shall be within 30 days thereafter and the legislative body shall approve, conditionally approve, or disapprove the tentative map within that 30-day period.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1989, Ch. 847, Sec. 7. Quote is the end of a longer sentence."
+  },
+  {
+   "id": "tentative-map-no-advisory-agency-days",
+   "what": "Where there is no advisory agency, the legislative body must decide the tentative map within this many days of its next regular meeting.",
+   "value": 50,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66452.2(b)",
+   "quote": "the legislative body at its next regular meeting which shall approve, conditionally approve or disapprove that map within 50 days thereafter.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1989, Ch. 847, Sec. 7. Quote is the end of a longer sentence."
+  },
+  {
+   "id": "final-map-approval-meeting",
+   "what": "The legislative body must approve a conforming final map at the meeting where it receives it or at its next regular meeting.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66458(a)",
+   "quote": "The legislative body shall, at the meeting at which it receives the map or, at its next regular meeting after the meeting at which it receives the map, approve the map if it conforms to all the requirements of this chapter and any local subdivision ordinance applicable",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1999, Ch. 550, Sec. 21. Effective September 28, 1999. Operative January 1, 2000, by Sec. 33 of Ch. 550. Quote is the first part of the sentence."
+  },
+  {
+   "id": "final-map-deemed-approved",
+   "what": "A conforming final map not acted on in time is deemed approved.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66458(b)",
+   "quote": "If the legislative body does not approve or disapprove the map within the prescribed time, or any authorized extension thereof, and the map conforms to all requirements and rulings, it shall be deemed approved, and the clerk of the legislative body shall certify or state its approval thereon.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1999, Ch. 550, Sec. 21. Effective September 28, 1999. Operative January 1, 2000, by Sec. 33 of Ch. 550."
+  },
+  {
+   "id": "final-map-official-days",
+   "what": "Where final map approval is delegated to an official by ordinance, the official must decide within this many days after the noticed meeting of the legislative body.",
+   "value": 10,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66458(d)",
+   "quote": "the designated official shall approve or disapprove the final map within 10 days following the meeting of the legislative body that was preceded by the notice in (4) below,",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 1999, Ch. 550, Sec. 21. Effective September 28, 1999. Operative January 1, 2000, by Sec. 33 of Ch. 550. Applies only where a local ordinance delegates approval. Whether the City of Los Angeles does so was not read."
+  },
+  {
+   "id": "tentative-map-expiry-months",
+   "what": "An approved or conditionally approved tentative map expires this many months after approval.",
+   "value": 24,
+   "unit": "months",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66452.6(a)(1)",
+   "quote": "An approved or conditionally approved tentative map shall expire 24 months after its approval or conditional approval, or after any additional period of time as may be prescribed by local ordinance, not to exceed an additional 24 months.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2021, Ch. 162, Sec. 3. (SB 9) Effective January 1, 2022. Further extensions exist in the same section (phased final maps, development agreements, moratoria) and were not itemised."
+  },
+  {
+   "id": "tentative-map-expiry-local-extension-months",
+   "what": "A local ordinance may add up to this many more months to the tentative map life.",
+   "value": 24,
+   "unit": "months",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66452.6(a)(1)",
+   "quote": "or after any additional period of time as may be prescribed by local ordinance, not to exceed an additional 24 months.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2021, Ch. 162, Sec. 3. (SB 9) Effective January 1, 2022. Same sentence as tentative-map-expiry-months. The City of Los Angeles ordinance period was not read."
+  },
+  {
+   "id": "parcel-tentative-map-expiry-months",
+   "what": "A tentative map required for a parcel map expires this many months after approval.",
+   "value": 24,
+   "unit": "months",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66463.5(a)",
+   "quote": "When a tentative map is required, an approved or conditionally approved tentative map shall expire 24 months after its approval or conditional approval, or after any additional period of time as may be prescribed by local ordinance, not to exceed an additional 12 months.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2008, Ch. 124, Sec. 5. Effective July 15, 2008."
+  },
+  {
+   "id": "parcel-tentative-map-local-extension-months",
+   "what": "A local ordinance may add up to this many more months for a parcel map's tentative map.",
+   "value": 12,
+   "unit": "months",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66463.5(a)",
+   "quote": "or after any additional period of time as may be prescribed by local ordinance, not to exceed an additional 12 months.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2008, Ch. 124, Sec. 5. Effective July 15, 2008. Same sentence as parcel-tentative-map-expiry-months."
+  },
+  {
+   "id": "parcel-tentative-map-extension-years",
+   "what": "On the subdivider's application before expiry, the map life may be extended for periods totalling no more than this many years.",
+   "value": 6,
+   "unit": "years",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66463.5(c)",
+   "quote": "the time at which the map expires may be extended by the legislative body or by an advisory agency authorized to approve or conditionally approve tentative maps for a period or periods not exceeding a total of six years.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2008, Ch. 124, Sec. 5. Effective July 15, 2008. Quote is the end of a longer sentence."
+  },
+  {
+   "id": "urban-lot-split-max-parcels",
+   "what": "An urban lot split parcel map divides one existing parcel into no more than this many new parcels.",
+   "value": 2,
+   "unit": "parcels",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66411.7(a)(1)",
+   "quote": "The parcel map subdivides an existing parcel to create no more than two new parcels of approximately equal lot area provided that one parcel shall not be smaller than 40 percent of the lot area of the original parcel proposed for subdivision.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2026, Ch. 56, Sec. 9. (SB 1426) Effective June 30, 2026. Single-family residential zones only, with many further conditions in 66411.7(a)(3)."
+  },
+  {
+   "id": "urban-lot-split-min-share",
+   "what": "Neither new parcel of an urban lot split may be smaller than this share of the original parcel's area.",
+   "value": 40,
+   "unit": "percent",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66411.7(a)(1)",
+   "quote": "provided that one parcel shall not be smaller than 40 percent of the lot area of the original parcel proposed for subdivision.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2026, Ch. 56, Sec. 9. (SB 1426) Effective June 30, 2026. Same sentence as urban-lot-split-max-parcels."
+  },
+  {
+   "id": "urban-lot-split-min-area",
+   "what": "Both new parcels of an urban lot split must be at least this area, unless a local ordinance sets a smaller minimum.",
+   "value": 1200,
+   "unit": "sq ft",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66411.7(a)(2)(A)",
+   "quote": "Except as provided in subparagraph (B), both newly created parcels are no smaller than 1,200 square feet.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2026, Ch. 56, Sec. 9. (SB 1426) Effective June 30, 2026. 66411.7(a)(2)(B) lets a local agency adopt a smaller minimum by ordinance; whether the City of Los Angeles has was not read."
+  },
+  {
+   "id": "urban-lot-split-decision-days",
+   "what": "A completed urban lot split application must be approved or denied within this many days, or it is deemed approved.",
+   "value": 60,
+   "unit": "days",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66411.7(b)(1)(B)",
+   "quote": "An application for an urban lot split shall be considered and approved or denied within 60 days from the date the local agency receives a completed application. If the local agency has not approved or denied the completed application within 60 days, the application shall be deemed approved.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2026, Ch. 56, Sec. 9. (SB 1426) Effective June 30, 2026."
+  },
+  {
+   "id": "certificate-of-compliance",
+   "what": "An owner may ask the local agency to determine whether a parcel complies with the Map Act; if it does, a certificate of compliance is recorded.",
+   "value": null,
+   "unit": "",
+   "source": "ca-gov-code",
+   "clause": "Gov. Code 66499.35(a)",
+   "quote": "If a local agency determines that the real property complies, the city or the county shall cause a certificate of compliance to be filed for record with the recorder of the county in which the real property is located.",
+   "read": "primary",
+   "note": "Section history as published: Amended by Stats. 2002, Ch. 1109, Sec. 8. Effective January 1, 2003."
+  }
+ ],
+ "forms": [],
+ "templates": {
+  "format": "cadcraft-land-templates",
+  "version": 1,
+  "id": "us-ca-papers",
+  "name": "Papers: California",
+  "note": "Worksheets and lists made from the published texts of California as read on 2026-11-21. None of them is the authority's form.",
+  "documents": [
+   {
+    "id": "rules-sheet",
+    "title": "What the rules of California say: {title}",
+    "for": [],
+    "fields": [],
+    "body": [
+     {
+      "p": "From the drawing \"{project}\", {date}. This sheet sets the proposal beside figures read in the published texts of California on 2026-11-21. It is a reading aid, not a ruling and not legal advice: the texts may have changed, and the authority decides."
+     },
+     {
+      "h": "Parcels before"
+     },
+     {
+      "table": "before"
+     },
+     {
+      "h": "Parcels after"
+     },
+     {
+      "table": "after"
+     },
+     {
+      "p": "Balance of land (after less before): {balance}."
+     },
+     {
+      "h": "Lot figures printed for the zones of this proposal"
+     },
+     {
+      "table": "rules"
+     },
+     {
+      "p": "A zone that is not listed has no figure in this pack. A figure marked with a plus is added to a yard distance in the text."
+     },
+     {
+      "h": "What the law states"
+     },
+     {
+      "table": "thresholds"
+     },
+     {
+      "h": "Buildings on the lots"
+     },
+     {
+      "table": "buildings"
+     },
+     {
+      "h": "Open notes on the plan"
+     },
+     {
+      "table": "notes"
+     }
+    ]
+   }
+  ]
+ }
+}

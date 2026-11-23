@@ -33,6 +33,7 @@ import { fixed } from './units.js';
 import { t, has } from './i18n.js';   // 0.4 V3 strings
 import { mountDrive } from './drive-ui.js';   // 0.4 V10
 import { action3d, wheelFactor } from './input-mouse.js';   // 0.5 IP.3: buttons and wheel from the menu style
+import { lerp3 } from './geom-vec.js';   // shared helpers (0.11 PERF.74; tools/perf/util-copies.mjs)
 
 const STORE = 'civilcraft.view3d';
 const SHOW_LABELS = [   // [what, language key]: looked up when the bar is built
@@ -176,7 +177,6 @@ function labelMesh(labels, haloHex) {
 // FX Render view: the land drawn as land. Grass on the flat, bare earth and rock on the steep, lighter with height; a sky and haze
 // behind it, a warm key light from the north-west with soft shadows, filmic tone mapping. Nothing here changes the model.
 const RENDER_SUN = { dir: [-0.55, 0.55, 0.78], up: true, shadows: true };
-const lerp3 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
 function naturalColors(m, zMin, zMax) {
   const n = m.positions.length / 3, out = new Float32Array(n * 3), span = Math.max(1e-9, zMax - zMin);
   const low = [0.24, 0.36, 0.17], mid = [0.38, 0.47, 0.22], high = [0.62, 0.56, 0.42], rock = [0.45, 0.41, 0.36];

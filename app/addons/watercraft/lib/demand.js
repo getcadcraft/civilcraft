@@ -10,6 +10,7 @@
  *   allocateDemands(water, loads, { table, units, share, radius, peak }) → { demands: Map nodeId → flow, total, unallocated: [{ load, why }], perNode }
  *   applyDemands(water, allocation, { mode: 'replace' | 'add' }) → a new water model (the input is not changed)
  *   diurnalPattern(kind, n) → n multipliers with a mean of exactly 1
+ *   loadsFromParcels(parcels, { units, kinds, defaultKind, areaOf, areaPerUnit }) → { loads, skipped }   (0.11 WN.5: the CivilCraft parcel layer; each parcel becomes a load at its centroid)
  * Load: { id, x, y, kind (a key of the table), area (project area units: acres or ha, set by `areaUnit`), count, flow (explicit) }
  */
 import { num, pos, LIMITS } from './util.js';
@@ -81,4 +82,30 @@ export function diurnalPattern(kind = 'residential', n = 24) {
   const out = Array.from({ length: n }, (_, i) => { const x = i * base.length / n, i0 = Math.floor(x) % base.length, i1 = (i0 + 1) % base.length, f = x - Math.floor(x); return base[i0] * (1 - f) + base[i1] * f; });
   const mean = out.reduce((a, b) => a + b, 0) / n;
   return out.map((v) => v / mean);
+}
+
+/**
+ * Loads from the project's parcels (CivilCraft `state.parcels`: { id, name, pts: [{ x, y }] }, project length units). A parcel's use is `kinds[id]`
+ * (or `kinds[name]`), else `defaultKind`; one with no use, or no area, is skipped and said so. Area is `areaOf(parcel)` when the host has an exact one (curved
+ * boundaries), else the polygon's. Per-acre uses take the area in acres (ft) or hectares (m); per-unit uses (homes) take one unit per parcel, or
+ * area / `areaPerUnit` (project area units, e.g. 7,500 ft² a house) when given. The point is the area-weighted centroid of the polygon.
+ */
+export function loadsFromParcels(parcels, opts = {}) {
+  const units = opts.units === 'm' ? 'm' : 'ft', table = opts.table || UNIT_DEMANDS, loads = [], skipped = [];
+  for (const p of (parcels || []).slice(0, LIMITS.loads)) {
+    const pts = (p?.pts || []).filter((q) => num(q?.x) != null && num(q?.y) != null);
+    if (pts.length < 3) { skipped.push({ id: p?.id ?? null, why: 'shape' }); continue; }
+    let a2 = 0, cx = 0, cy = 0;
+    for (let i = 0; i < pts.length; i++) { const u = pts[i], v = pts[(i + 1) % pts.length], c = u.x * v.y - v.x * u.y; a2 += c; cx += (u.x + v.x) * c; cy += (u.y + v.y) * c; }
+    const area = typeof opts.areaOf === 'function' ? opts.areaOf(p) : Math.abs(a2) / 2;
+    if (!(area > 0)) { skipped.push({ id: p.id, why: 'area' }); continue; }
+    const kind = opts.kinds?.[p.id] ?? opts.kinds?.[p.name] ?? opts.defaultKind;
+    if (!kind || !table[kind]) { skipped.push({ id: p.id, why: 'kind' }); continue; }
+    const x = Math.abs(a2) > 1e-9 ? cx / (3 * a2) : pts[0].x, y = Math.abs(a2) > 1e-9 ? cy / (3 * a2) : pts[0].y;
+    const load = { id: p.id ?? p.name, x, y, kind };
+    if (table[kind].per === 'acre') load.area = units === 'm' ? area / 10000 : area / 43560;
+    else load.count = pos(opts.areaPerUnit) ? Math.max(area / opts.areaPerUnit, 0) : 1;
+    loads.push(load);
+  }
+  return { loads, skipped };
 }

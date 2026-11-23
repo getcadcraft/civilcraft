@@ -16,7 +16,7 @@
  *   By           who checked or measured it ('' for unverified)
  *   On           'YYYY-MM-DD' ('' for unverified)
  *   Method       field-verified only: one of METHODS (tape, laser, scan, survey, other)
- *   Source       where an unverified element came from: one of SOURCES (pdf, scan, drawing, pointcloud) or ''
+ *   Source       where an unverified element came from: one of SOURCES (pdf, scan, drawing, pointcloud, assistant) or ''
  *   Note         free text (the scan's name and tolerance, a remark)
  *   LevelOfDevelopment   'LOD 500' while field-verified, '' otherwise (a mirror for other programs; State is what is read back)
  *
@@ -35,7 +35,7 @@ export const ASBUILT_PSET = 'CadCraft_AsBuilt';
 export const ASBUILT_FORMAT = 'cadcraft-as-built 1';
 export const STATES = ['unverified', 'checked', 'field-verified'];
 export const METHODS = ['tape', 'laser', 'scan', 'survey', 'other'];
-export const SOURCES = ['pdf', 'scan', 'drawing', 'pointcloud'];
+export const SOURCES = ['pdf', 'scan', 'drawing', 'pointcloud', 'assistant'];
 export const FIELD_LOD = 500;
 export const LIMITS = { by: 120, note: 300 };
 

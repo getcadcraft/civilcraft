@@ -3,7 +3,7 @@
 /**
  * browser-ifc43.mjs — 0.8 SU.882 (ifc_PART_4): an IFC 4.3 file opened in TakeoffCraft (/lab/takeoffcraft, headless Chromium, run as root) becomes typed
  * quantities. Writes a road with lib/ifc/ifc43.js write43, opens it through the file input, checks the items (pavement volume 210 m³, kerb length, counts),
- * the same file again changes nothing, an IFC4 building file says it holds no infrastructure, no console errors.
+ * the same file again changes nothing, an IFC4 building file goes to model takeoff (0.11 MT.1; this one has no shapes and says so), no console errors.
  *   node tools/takeoffcraft-test/browser-ifc43.mjs
  */
 import path from 'node:path';
@@ -56,8 +56,9 @@ try {
   await page.waitForFunction(() => /0 added/.test(document.querySelector('[data-status]').textContent), null, { timeout: 20000 });
   ok((await items()).length === 8, 'the same file again adds nothing');
   await page.setInputFiles('[data-file-pdf]', F4);
-  await page.waitForFunction(() => /holds no IFC 4\.3/.test(document.querySelector('[data-status]').textContent), null, { timeout: 20000 });
-  ok(true, 'an IFC4 building file says it holds no IFC 4.3 infrastructure');
+  // 0.11 MT.1: a building file now goes to model takeoff; this one's only wall has no shape, so there is nothing to measure
+  await page.waitForFunction(() => /holds no elements with a shape/.test(document.querySelector('[data-status]').textContent), null, { timeout: 20000 });
+  ok(true, 'an IFC4 building file with no shapes says it holds nothing to measure');
   await page.screenshot({ path: path.join(OUT, 'ifc43.png') });
 } finally { await browser.close(); }
 ok(problems.length === 0, 'no console errors' + (problems.length ? ': ' + problems.join(' | ') : ''));

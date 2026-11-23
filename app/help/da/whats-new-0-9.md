@@ -1,129 +1,129 @@
 ---
-title: Nyt i 0.9
-summary: Skabeloner til korridorer og terræn, fangst og valgknapper ved tegning, GIS-analyse med en attributtabel, skygge, soludbytte, komfort- og vindstudier for et område, en 3D-renderingsvisning samt add-on'ene Punktsky og WaterCraft.
-keywords: nyheder, 0.9, udgivelsesnoter, korridorskabeloner, terrænskabeloner, skabelonredigering, typisk snit, flere korridorer, fangst, fangster, vælg, flyt, kopiér, roter, tangent, render, 3d-render, gis-analyse, buffer, overlay, rumlig sammenføjning, attributtabel, stil efter attribut, skyggestudie, soludbytte, utci, udendørs komfort, vindstudie, openfoam, punktskyer, las, laz, watercraft, brandvandsmængde, brandhane, vandalder, klor, forbrug, værktøjstips, layout, nyheder, hvad er nyt, udgivelsesnoter, ændringslog, ændringer, 0.8, 0.8.1, version, nye funktioner, regn, storm, vandansamling, overløb, jordarbejde, balance, afgravning og opfyld, transport, bedste forløb, mindste omkostning, tracé, forsinkelsesbassin, udløb, dræning, fribord, fremdrift, opmåling, drone, oplag, adresse til område, matrikel, jordbund, oversvømmelse, skråningsstabilitet, bishop, sætning, kryds, afmærkning, skilte, sigtlængde, udjævning, mindste kvadrater, polygontræk, åbent brud, blokmodel, radiolink, fresnel, sporskifte, krydsning, sprog, problemer, live, dwg
-from: d7ac5b14
+title: Nyheder i 0.9 (tidligere)
+summary: Korridor- og terrænskabeloner, fang- og Vælg-knapper ved tegning, GIS-analyse med attributtabel, skygge-, solenergi-, komfort- og vindundersøgelser for et sted, en 3D-renderingsvisning og tilføjelserne Punktskyer og WaterCraft.
+keywords: nyheder 0.9, tidligere udgivelse, nyheder, 0.9, udgivelsesnoter, korridorskabeloner, terrænskabeloner, skabelonredigering, typisk tværsnit, flere korridorer, fang, vælg, flyt, kopiér, roter, tangent, render, 3d-render, gis-analyse, buffer, overlay, rumlig sammenkobling, attributtabel, stil efter attribut, skyggeundersøgelse, solenergi, utci, udendørs komfort, vindundersøgelse, openfoam, punktskyer, las, laz, watercraft, brandflow, brandhane, vandalder, klor, behov, tooltips, layout, changelog, ændringer, 0.8, 0.8.1, version, nye funktioner, regn, storm, oversvømmelse, overløb, jordarbejde, balance, afgravning og opfyld, transport, bedste rute, mindste omkostning, tracé, opholdsbassin, udløb, tømning, fribord, fremskridt, opmåling, drone, jordlager, adresse til område, matrikel, jord, skråningsstabilitet, bishop, sætning, kryds, afmærkning, sigtafstand, udjævning, mindste kvadrater, polygontræk, åbent brud, blokmodel, radiolink, fresnel, sporskifte, sprog, problemer, live, dwg
+from: 4664522c
 ---
 
-Dette er, hvad der er ændret i CivilCraft 0.9 sammenlignet med 0.8.1. CivilCraft 0.9 er en del af CadCraft Studio 0.9 og dets otte programmer. De store dele er skabeloner til korridorer og terræn, snap ved tegning, GIS-analyse, studier af et områdes sol, soludbytte, komfort og vind samt to add-on'er: Punktsky og WaterCraft.
+Dette er hvad der ændrede sig i CivilCraft 0.9 sammenlignet med 0.8.1. CivilCraft 0.9 er en del af CadCraft Studio 0.9 og dets otte apps. De store dele er korridor- og terrænskabeloner, fang mens du tegner, GIS-analyse, undersøgelser af et steds sol, solenergi, komfort og vind samt to tilføjelser: Punktskyer og WaterCraft.
 
 ## Nyt
 
-### Skabeloner til korridorer og terræn
+### Korridor- og terrænskabeloner
 
-- **Korridorskabeloner.** Åbn {{ui:Overflade}} › {{ui:Mere}} › {{ui:Korridorskabeloner…}} (eller skriv {{cmd:TEMPLATES}}). En skabelon er et lille tværsnit med komponenter, forskydninger, hældninger, materialer og punktkoder. Gem dem i projektet, i {{ui:Mit bibliotek}} eller som en `.cctemplates.json`-fil. Skabelonredigeringen viser en tegning i rigtig størrelse og lister problemer, mens du skriver.
-- **Byg ud fra skabeloner efter station.** Vælg et tracé og slå {{ui:Byg ud fra skabeloner efter station}} til i dets Egenskaber. Hver side af hver region har sin egen befæstelsesliste og sin egen slutbetingelse. {{ui:Tilføj en korridor}} under {{ui:Korridorer på dette tracé}} sætter flere korridorer på ét tracé.
-- **Terrænskabeloner.** {{ui:Overflade}} › {{ui:Mere}} › {{ui:Terrænskabeloner…}} (eller skriv {{cmd:TERRAINTEMPLATES}}) lægger lagdelte materialer som muldjord eller belægning og underlag ned på et terræn med areal og volumen pr. lag. Se [Korridorskabeloner og terrænskabeloner](topic:corridor-templates).
+- **Korridorskabeloner.** Åbn {{ui:Overflade}} › {{ui:Mere}} › {{ui:Korridorskabeloner…}} (eller skriv {{cmd:TEMPLATES}}). En skabelon er et lille tværsnit med komponenter, forskydninger, hældninger, materialer og punktkoder. Gem dem i projektet, i {{ui:Mit bibliotek}} eller som en `.cctemplates.json`-fil. Skabelonredigeringen viser en tegning i sand skala og lister problemer, mens du skriver.
+- **Byg ud fra skabeloner efter station.** Vælg et tracé og slå {{ui:Byg ud fra skabeloner efter station}} til i dets Egenskaber. Hver side af hver region har sin egen belægningsliste og sin egen endebetingelse. {{ui:Tilføj en korridor}} under {{ui:Korridorer på dette tracé}} sætter flere korridorer på ét tracé.
+- **Terrænskabeloner.** {{ui:Overflade}} › {{ui:Mere}} › {{ui:Terrænskabeloner…}} (eller skriv {{cmd:TERRAINTEMPLATES}}) lægger lagdelte materialer såsom muldjord eller belægning og bund over et terræn med areal og volumen pr. lag. Se [Korridorskabeloner og terrænskabeloner](topic:corridor-templates).
 
 ### Tegning
 
-- **Snap.** Værktøjerne Tracé, Plads, Matrikel, Masse, Feature-linje, Mål, Grænse og Opland snapper til opmålingspunkter, PI'er, hjørner, hjørnepunkter og konstruktioner, med en etiket ved markøren. Hold {{key:Alt}} nede for et frit punkt.
-- **Valgknapper, tangent og flyt, kopiér, roter.** Hjørner på plads, matrikel og feature-linjer har skrevne felter for Øst og Nord og en krydsvalgsknap. Egenskaber har også {{ui:Tangent ud fra to punkter}} for tracéer og {{ui:Flyt, kopiér og roter}} for tracéer, pladser, matrikler og feature-linjer. Se [Tegn med snap, valgte hjørner og flyt, kopiér, roter](topic:draft-with-snaps).
-- **Renderingsvisning i 3D.** Knappen {{ui:Render}} på 3D-linjen tegner landet med naturlige farver, himmel, dis og bløde skygger. Den ændrer ikke modellen. Menuen {{ui:Sol}} har nu knapperne {{ui:Anvend}} og {{ui:Luk}}. Se [Vis området i 3D](topic:site-3d).
-- **Paneler åbner ét afsnit ad gangen.** Venstre panel og Egenskabspanelet åbner ét afsnit og lukker de andre, og Landskabsbåndets fliser, der rummer flere værktøjer, er delte knapper.
+- **Fang.** Værktøjerne Tracé, Plateau, Matrikel, Masse, Feature-linje, Mål, Grænse og Opland fanger til opmålingspunkter, PI'er, hjørner, hjørnepunkter og konstruktioner, med en etiket ved markøren. Hold {{key:Alt}} for et frit punkt.
+- **Vælg-knapper, tangent og flyt, kopiér, roter.** Plateau-, matrikel- og feature-linje-hjørner har skrevne Øst- og Nord-felter og en korsmarkør-knap Vælg. Egenskaber har også {{ui:Tangent ud fra to punkter}} for tracéer og {{ui:Flyt, kopiér og roter}} for tracéer, plateauer, matrikler og feature-linjer. Se [Tegn med fang, valgte hjørner og flyt, kopiér, roter](topic:draft-with-snaps).
+- **Renderingsvisning i 3D.** Knappen {{ui:Render}} på 3D-bjælken tegner landet med naturlige farver, himmel, dis og bløde skygger. Den ændrer ikke modellen. {{ui:Sol}}-menuen har nu knapperne {{ui:Anvend}} og {{ui:Luk}}. Se [Vis stedet i 3D](topic:site-3d).
+- **Paneler åbner én sektion ad gangen.** Venstre panel og Egenskaber-panelet åbner én sektion og lukker de andre, og Landskab-båndets fliser, der rummer flere værktøjer, er opdelte knapper.
 
 ### GIS-analyse
 
-- **Analysér.** {{ui:Overflade}} › {{ui:Mere}} › {{ui:Analysér}} tilbyder buffer, overlay, rumlig sammenføjning, valg efter attribut eller form og måling. Hvert værktøj laver et nyt lag i ét fortrydelsestrin.
+- **Analyse.** {{ui:Overflade}} › {{ui:Mere}} › {{ui:Analysér}} tilbyder buffer, overlay, rumlig sammenkobling, valg efter attribut eller form og måling. Hvert værktøj laver et nyt lag i ét fortrydelsestrin.
 - **Attributtabel.** Et lags menu med tre prikker har {{ui:Attributtabel…}} og {{ui:Stil efter attribut…}}. Se [Analysér GIS-lag](topic:gis-analysis) og [Arbejd med et lags attributtabel](topic:gis-table).
 
-### Området: sol, solenergi, komfort og vind
+### Stedet: sol, solenergi, komfort og vind
 
-- **Miljøafsnit.** Vælg en masse: afsnittet {{ui:Miljø}} sidder under {{ui:Soltimer}} i dens Egenskaber. Det har et skyggestudie (kort, tabel, animation, CSV), soludbytte ud fra en typisk års vejrfil (.epw) og udendørs komfort (UTCI).
-- **Vind, kun til screening.** {{ui:Kør vindstudie}} farver terrænet fra siddende til ubehageligt for hver vindretning i vejrfilen. Den er ikke valideret, og panelet siger det.
-- **Gangvind (OpenFOAM) add-on.** Slukket, indtil du slår den til i {{ui:Indstillinger}} › {{ui:Add-ons}}. OpenFOAM er et program, du selv installerer. Se [Skygge, soludbytte og udendørs komfort](topic:environment).
+- **Miljøsektion.** Vælg en masse: sektionen {{ui:Miljø}} sidder under {{ui:Soltimer}} i dens Egenskaber. Den har en skyggeundersøgelse (kort, tabel, animation, CSV), solenergi fra en typisk-års vejrfil (.epw) og udendørs komfort (UTCI).
+- **Vind, kun til screening.** {{ui:Kør vindundersøgelse}} farver jorden fra siddende til ubehagelig for hver vindretning i vejrfilen. Den er ikke valideret, og panelet siger det.
+- **Fodgængervind (OpenFOAM)-tilføjelse.** Slået fra, indtil du slår den til i {{ui:Indstillinger}} › {{ui:Add-ons}}. OpenFOAM er software, du selv installerer. Se [Skygge, solenergi og udendørs komfort](topic:environment).
 
-### Punktsky (add-on)
+### Punktskyer (tilføjelse)
 
-- Slå {{ui:Punktsky}} til i {{ui:Indstillinger}} › {{ui:Add-ons}}; et Punktsky-faneblad vises i højre panel. Åbn en LAS- eller LAZ-fil, rens den, sortér den i terræn, vegetation og bygninger, byg terrænet, konturer og volumener, og eksportér LAS eller LAZ. Se [Punktsky fra en drone eller scanner](topic:point-clouds).
+- Slå {{ui:Punktskyer}} til i {{ui:Indstillinger}} › {{ui:Add-ons}}; en Punktskyer-fane vises i højre panel. Åbn en LAS- eller LAZ-fil, rens den, sorter den i terræn, vegetation og bygninger, byg terræn, højdekurver og volumener, og eksportér LAS eller LAZ. Se [Punktskyer fra drone eller scanner](topic:point-clouds).
 
-### WaterCraft (add-on)
+### WaterCraft (tilføjelse)
 
-- Slå {{ui:WaterCraft (vandfordeling)}} til i {{ui:Indstillinger}} › {{ui:Add-ons}}; et WaterCraft-faneblad vises. Det har forbrug fra kunder, brandvandsmængde ved hver brandhane, hvilken hovedledningsafbrydelse der betyder mest, samt vandalder og klor, som hver gemmes som CSV. Se [WaterCraft: forbrug, brandvand, afbrydelser og vandalder](topic:watercraft).
+- Slå {{ui:WaterCraft (vanddistribution)}} til i {{ui:Indstillinger}} › {{ui:Add-ons}}; en WaterCraft-fane vises. Den har behov fra kunder, brandflow ved hver brandhane, hvilken ledningsafbrydelse der betyder mest, og vandalder og klor, hver gemt som CSV. Se [WaterCraft: behov, brandflow, afbrydelser og vandalder](topic:watercraft).
 
-### Arbejde sammen
+### Arbejd sammen
 
-- I en Live-session ser I hinandens markører og navne i planen. Bibliotekets planter: CivilCraft Landskab starter fra sin standardsamling i biblioteket, {{ui:CivilCraft-landskab}}.
+- I en live-session ser du hinandens markører og navne i planen. Bibliotekplanter: CivilCraft Landskab starter fra sin standardsamling i biblioteket, {{ui:CivilCraft landskab}}.
 
-## I alle programmer
+## I alle apps
 
-- Hints vises som Bootstrap-værktøjstips, og starttippet kan lukkes.
-- Et panels fanerække, der ikke får plads, ruller i stedet for at blive klippet af.
-- Titler på browserfaner lyder `<dokument> - CivilCraft | CadCraft`.
-- {{ui:Indstillinger}} har et afsnit Layout, hvor layouterne er en rulleliste med to-linjers valg.
-- Vægt- og temperaturenheder ligger i {{ui:Indstillinger}} › {{ui:Globalt}} › {{ui:Enheder}}.
-- Språllisten viser de sprog, som bygningen har filer til. Andre sprog end engelsk er maskinkladder.
+- Hints vises som Bootstrap-tooltips, og startens tip kan lukkes.
+- En faneliste i et panel, der ikke passer, scroller i stedet for at blive klippet af.
+- Faneblads-titler i browseren læses `<dokument> - CivilCraft | CadCraft`.
+- {{ui:Indstillinger}} har et afsnit Layout, hvor layouts er en rullemenu med tolinjede valg.
+- Vægt- og temperaturenheder ligger i {{ui:Indstillinger}} › {{ui:Global}} › {{ui:Enheder}}.
+- Sprogmenuen viser de sprog, buildet har filer til. Andre sprog end engelsk er maskinoversatte kladder.
 
 ## Rettet
 
-- Add-ons til adresseopslag og EnergyPlus-kontrol kunne ikke slås til; nu kan de det.
-- Hjælpen siger nu, at add-on'et Punktsky skriver en renset sky som LAS 1.4 eller LAZ.
-- Klik på det valgte objekts eget greb starter ikke længere et gribertræk, der stoppede et ventende Valg.
+- Adresseopslaget og tilføjelserne EnergyPlus-kontrol kunne ikke slås til; nu kan de.
+- Hjælpen siger nu, at tilføjelsen Punktskyer skriver en renset sky som LAS 1.4 eller LAZ.
+- Klik på det valgte objekts eget greb starter ikke længere en gribetræk, der stoppede et ventende Vælg.
 
 ## Ærlige begrænsninger
 
-- Eksempelskabelonerne til korridorer er pladsholdere uden standard; en ingeniør skal kontrollere dem. Terrænskabeloner tilføjer ingen overflade og tegnes ikke i 3D eller i snitvisningen. Den anden korridor på et tracé er ikke med i IFC-eksporten. Der er ingen indsnævring mellem to skabeloner efter station.
-- Punktsky er testet på opdigtede filer, ikke på en rigtig dronemåling. Kun LAS og LAZ læses.
-- GIS-analysen er testet på opdigtede lag.
-- Sol, solenergi og komfort er planlægningsestimater; vind er ikke-valideret screening. Intet af det er en dimensionerende værdi.
-- WaterCraft er en beregningshjælp, kontrolleret på opdigtede net. En vandteknisk ingeniør afgør, hvad tallene er værd.
-- Sprog ud over engelsk er maskinkladder.
-- Windows-installationsprogrammer er ikke kodesignéret, og macOS-diskbilledet er ikke notariseret.
+- Eksempelkorridorskabelonerne er pladsholdere uden standard; en ingeniør skal kontrollere dem. Terrænskabeloner tilføjer ingen overflade og tegnes ikke i 3D eller i tværprofilvisningen. Den anden korridor på et tracé er ikke med i IFC-eksporten. Der er ingen overgang mellem to skabeloner efter station.
+- Punktskyer er testet på opdigtede filer, ikke en rigtig drone-opmåling. Kun LAS og LAZ læses.
+- GIS-analyse er testet på opdigtede lag.
+- Skygge, sol og komfort er planlægningsskøn; vind er ikke-valideret screening. Intet af det er en projekteringsværdi.
+- WaterCraft er et beregningshjælpemiddel, kontrolleret på opdigtede net. En vandingeniør afgør, hvad tallene er værd.
+- Sprog ud over engelsk er maskinoversatte kladder.
+- Windows-installationsprogrammer er ikke kodesignerede, og macOS-diskbilledet er ikke notariseret.
 
 ## Tidligere: 0.8 og 0.8.1
 
-Dette er, hvad der er ændret i CivilCraft 0.8 (2026-11-01) og 0.8.1 (2026-11-02) sammenlignet med 0.7. De store nye dele er værktøjer, der tester din planering og dit område (regn, jordarbejde, forløb, bassiner, fremdrift), og seks beregningsvinduer til terræn, veje, opmåling, miner, forbindelser og bane.
+Dette er hvad der ændrede sig i CivilCraft 0.8 (2026-11-01) og 0.8.1 (2026-11-02), sammenlignet med 0.7. De store nye dele er værktøjer, der tester din planering og dit sted (regn, jordarbejde, ruter, bassiner, fremskridt), og seks beregningsvinduer for terræn, veje, opmåling, miner, forbindelser og bane.
 
 ### Nyt
 
 **Test din planering**
 
-- **Lad det regne.** {{ui:Lad det regne…}} (under {{ui:Overflade}}) slipper en storm løs på den planerede jord. Du ser vandet løbe af pladserne, samle sig i de lave hjørner og flyde over de bassiner, der er for små. Kørslen animeres og giver volumenerne, den største afløbsstrøm og en CSV med hvert bassin. Standardcellen er grov, så en første kig går hurtigt; en finere celle er langsommere. Bassiner, der flyder over, dukker også op i panelet Problemer.
-- **Jordarbejdsbalance.** {{ui:Jordarbejdsbalance…}} hæver eller sænker en plads, indtil afgravning er lig opfyld, og viser transporttabellen mellem dem.
-- **Bedste forløb.** {{ui:Bedste forløb…}}: vælg en start og en slutning, og CivilCraft finder den billigste vej hen over terrænet, der holder sig inden for dine hældnings- og kurvegrænser, og laver derefter et tracé ud fra den.
-- **Forsinkelsesbassiner.** {{ui:Forsinkelsesbassiner…}} beregner trin og lager ud fra dit terræn, tager udløbsanordninger (blænde, overløb, V-udskæring, overløbsrende), sender en storm gennem bassinet og kontrollerer den tilbageholdte afløbsspids, tømningstiden og fribordet.
-- **Fremdrift fra opmålinger.** {{ui:Fremdrift fra opmålinger…}} sammenligner drone- eller scanningsoverflader fra forskellige datoer med terrænet, som det var, og med projektet: procent færdigt efter volumen, områder, der er gravet for dybt og fyldt for meget, oplag og hvornår arbejdet er færdigt i dette tempo (markeret som et estimat).
+- **Lad det regne.** {{ui:Lad det regne…}} (under {{ui:Overflade}}) sender en storm over det planerede terræn. Du ser vandet løbe af plateauerne, samle sig i de lave hjørner og overløbe de bassiner, der er for små. Kørslen er animeret og giver volumenerne, den maksimale udstrømning og en CSV med hvert bassin. Standardcellen er grov, så et første kig er hurtigt; en finere celle er langsommere. Bassiner, der overløber, vises også i panelet Problemer.
+- **Jordarbejdsbalance.** {{ui:Jordarbejdsbalance…}} hæver eller sænker et plateau, til afgravning er lig opfyld, og viser transporttabellen mellem dem.
+- **Bedste rute.** {{ui:Bedste rute…}}: vælg en start og en slutning, og CivilCraft finder den billigste vej hen over terrænet, der holder sig inden for dine hældnings- og kurvegrænser, og laver derefter et tracé ud af den.
+- **Opholdsbassiner.** {{ui:Forsinkelsesbassiner…}} beregner trin og lagring ud fra dit terræn, tager udløbsanordninger (blænde, overløb, V-udløb, overløbsrende), dirigerer en storm gennem bassinet og kontrollerer den holdte spidsafstrømning, tømningstiden og fribordet.
+- **Fremskridt fra opmålinger.** {{ui:Fremskridt fra opmålinger…}} sammenligner drone- eller scanningsoverflader fra forskellige datoer med terrænet, som det var, og med projektet: procent færdig efter volumen, over-gravede og over-fyldte områder, jordlagre og hvornår arbejdet er færdigt i dette tempo (markeret som et skøn).
 
-**Kend området**
+**Kend stedet**
 
-- **Adresse til område.** {{ui:Adresse til område…}} samler åbne data om matrikel, bygning, zonering, jordbund, oversvømmelse og terræn for ét område. Du kan gemme området i projektfilen: den indtastede adresse, hver kilde med den dag, du hentede den, og dens licens, og det der kom tilbage. Genåbn eller del projektet, og området er stadig der, uden at noget hentes igen. Du kan også gemme det som en områdefil eller sende det til BimCraft. Se [Adresse til område](topic:address-to-site).
+- **Adresse til område.** {{ui:Adresse til område…}} samler åbne data om matrikel, bygning, zonering, jord, oversvømmelse og terræn for ét sted. Du kan gemme stedet i projektfilen: den indtastede adresse, hver kilde med dagen du hentede den og dens licens, og hvad der kom tilbage. Åbn eller del projektet igen, og stedet er der stadig, uden at noget hentes igen. Du kan også gemme det som en stedfil eller sende det til BimCraft. Se [Adresse til område](topic:address-to-site).
 
 **Terræn, veje, opmåling, miner, forbindelser og bane**
 
-- **Jordbund og skråninger.** {{ui:Jordbund og skråninger…}} tegner jordprofilen mellem de borehuller, du skriver. Bishops metode søger derefter den kritiske cirkel på dit terræn, med en grundvandsstand, en overbelastning og en jordskælvskoefficient; sætning af et fundament får konsolidering, øjeblikkelig sætning og tid.
-- **Kryds og afmærkning.** {{ui:Kryds og afmærkning…}} samler ben med kantstensafslutninger (én radius pr. ben, eller tre-centrede afslutninger), sigtlængden for den dimensionerende hastighed, en kontrol af sigtetrekanterne, fodgængerfelter, stopstreger, markeringer og skilte med en skiltliste. De tegnes på planen og gemmes som en .dxf med navngivne lag.
-- **Opmålingsudjævning.** {{ui:Opmålingsudjævning…}} kører en udjævning efter mindste kvadraters metode af et polygontræk eller et net: udjævnede koordinater, fejlellipser, chi-i-kvadrat-testen og et flag på målingen, der ikke passer. Frie net, lukning af et polygontræk efter kompasreglen og RW5-, GSI-, JobXML- eller CSV-markfiler er med, og de udjævnede punkter gemmes som CSV.
-- **Åbne brud.** {{ui:Åbne brud…}} gør boreprøver til en blokmodel og det endelige brud inden for din skråningsvinkel, med forholdet mellem afdække og malm, en tabel pr. bænk og en kurve for gehalt og tonnage. Indlejrede brud efter indtægtsfaktor og en produktionsplan med diskonteret pengestrøm findes også.
-- **Radiolinks.** {{ui:Radiolinks…}} kontrollerer frit udsyn over dit terræn med jordens krumning, den første Fresnel-zone, linkbudget, fadingmargen og multipath-afbrydelse, og giver den mastehøjde, der ville rydde stien. Den laver også fiberbudgetter for tab, mængder for ruten og vinden på et tårn.
-- **Sporskifter.** {{ui:Sporskifter…}} laver et sporskifte ud fra dets krydsningsnummer, krydsninger mellem parallelle spor og en profilramme, der hældes af overhøjde og udvides i en kurve. Et sporskifte kan ligge ved en station på et tracé.
+- **Jordbund og skråninger.** {{ui:Jordbund og skråninger…}} tegner jordprofilet mellem boringer, du indtaster. Bishops metode søger derefter den kritiske cirkel på dit terræn, med en grundvandsstand, en overbelastning og en jordskælvskoefficient; sætning af et fundament får konsolidering, øjeblikkelig sætning og tid.
+- **Kryds og afmærkning.** {{ui:Kryds og afmærkning…}} samler ben med kantstensradier (én radius pr. ben, eller tre-centrede radier), sigtafstanden for projekteringshastigheden, en kontrol af sigtetrekanter, fodgængerfelter, stopstreger, markeringer og skilte med en skiltliste. De tegnes i planen og gemmes som en .dxf med navngivne lag.
+- **Opmålingsudjævning.** {{ui:Opmålingsudjævning…}} kører en mindste-kvadraters-udjævning af et polygontræk eller net: udjævnede koordinater, fejlellipser, chi-i-anden-testen og et flag på målingen, der ikke passer. Frie net, lukning af et polygontræk efter kompasreglen og RW5-, GSI-, JobXML- eller CSV-feltfiler er med, og de udjævnede punkter gemmes som CSV.
+- **Åbne brud.** {{ui:Åbne brud…}} omdanner boreprøver til en blokmodel og den endelige grube inden for din skråningsvinkel, med afdækningsforholdet, en tabel pr. bænk og en gehalt- og tonnagekurve. Indlejrede gruber efter indtægtsfaktor og en produktionsplan med diskonteret pengestrøm er også med.
+- **Radiolinks.** {{ui:Radiolinks…}} kontrollerer sigtelinjen over dit terræn med jordens krumning, den første Fresnel-zone, linkbudget, fading-margin og multipath-udfald, og giver den mastehøjde, der ville rydde stien. Den laver også fiberbudgetter for tab, mængder til ruter og vinden på et tårn.
+- **Sporskifter.** {{ui:Sporskifter…}} laver et sporskifte ud fra dets tungenummer, krydsningsspor mellem parallelle spor og en profilramme, hældet af kant og bredere i en kurve. Et sporskifte kan ligge ved en station på et tracé.
 
-Se [Jordbund, kryds, opmålingsudjævning, miner, radiolinks og sporskifter](topic:soils-roads-survey-mines-links).
+Se [Jord, kryds, opmålingsudjævning, miner, radiolinks og sporskifter](topic:soils-roads-survey-mines-links).
 
-### I alle programmer
+### I alle apps
 
-- **Sprog.** 54 sprog, ti af dem nye. Andre sprog end engelsk er maskinkladder, indtil en indfødt taler har læst dem. Hjælpeemner er stadig for det meste på engelsk.
-- **Værktøjslinjens rækker.** {{ui:Indstillinger}} › {{ui:Generelt}} › {{ui:Værktøjslinjens rækker}}: Bryd linjen (som før), 2 rækker eller 1 række. CivilCribs Bånd viser det mest brugte værktøj stort, de næste små, og resten bag pilen i gruppenavnet.
-- **Inputenheder.** Touchpad, pen, 3D-mus, controller og MIDI kan styre programmerne.
-- **Problemer.** Et panel med problemer, der advarer i alle programmer, med kontroller, der læser regelsæt.
-- **Live.** En visning af, hvem der er hvor i en Live-session.
-- **Add-ons.** En liste over add-ons, med belysnings-add-ons.
-- **Forbind din AI.** Enhver assistent, du forbinder, kan styre CivilCraft-værktøjerne. Den følger med en note om, at forbindelse med ét klik i CadCraft Studio og den hostede forbindelse endnu ikke er klar. Se [Lad en AI-assistent arbejde med dit område](topic:assistants).
+- **Sprog.** 54 sprog, ti af dem nye. Andre sprog end engelsk er maskinoversatte kladder, indtil en indfødt taler læser dem. Hjælpeemner er stadig for det meste på engelsk.
+- **Værktøjslinjens rækker.** {{ui:Indstillinger}} › {{ui:Generelt}} › {{ui:Værktøjslinjens rækker}}: Brydning (som før), 2 rækker eller 1 række. Båndet i CivilCraft viser det mest brugte værktøj stort, de næste små, og resten bag gruppenavnets pil.
+- **Inputenheder.** Trackpad, pen, 3D-mus, controller og MIDI kan styre appsene.
+- **Problemer.** Et panel Problemer, der advarer i hver app, med kontroller, der læser reguleringspakker.
+- **Live.** En visning af hvem der er hvor i en live-session.
+- **Add-ons.** En liste over tilføjelser, med belysnings-tilføjelser.
+- **Forbind din AI.** Enhver assistent du forbinder, kan styre CivilCraft's værktøjer. Den følger med en note om, at forbindelse med ét klik i CadCraft Studio og den hostede connector endnu ikke er klar. Se [Lad en AI-assistent arbejde med dit sted](topic:assistants).
 
 ### Rettet i 0.8.1
 
-- **Afsnittet DWG-klasser.** Det blev læst som den forkerte type (GitHub cadcraft#5). Rettet i CivilCraft sammen med CadCraft, BimCraft, ModelCraft og TakeoffCraft.
-- **Skift af sprog mens programmet kører.** CadCraft Studio og de pakkede udgaver kan skifte sprog under kørsel. De var kun på engelsk før. Ikke endnu testet på alle platforme: sig til, hvis sproget ikke skifter.
+- **DWG-klasseafsnit.** Det blev læst som den forkerte type (GitHub cadcraft#5). Rettet i CivilCraft sammen med CadCraft, BimCraft, ModelCraft og TakeoffCraft.
+- **Skift af sprog under kørsel.** CadCraft Studio og de pakkede udgaver kan skifte sprog under kørsel. Det var før kun engelsk. Ikke endnu testet på alle platforme: sig til, hvis sproget ikke skifter.
 
 ### Ikke i denne version endnu
 
-- **Det er beregningshjælpemidler.** Hvert resultat i de nye vinduer kræver en ingeniørs kontrol. Jordstyrker starter fra typiske værdier for jordgruppen, og vinduet siger det.
-- **Lad det regne.** En kørsel på eksempelområdet kan tage over to minutter i browseren ved en fin celle. Den er kontrolleret mod håndregnede cases og et V-formet opland, endnu ikke på et rigtigt planeret område.
-- **Adresse til område.** Den læser åbne datafiler, du selv medbringer, og er kun testet på vores egne filer. Træer er ikke en kilde. Hentning af kilder for dig venter på formuleringen om privatlivet.
-- **Fremdrift fra opmålinger.** Testet på opdigtede opmålinger kun. Fremdrift på ark og markeringer (MarkupCraft) og skanning mod model (BimCraft) er ikke bygget.
-- **Jordbund og skråninger.** Kun cirkulære flader: ingen kile- eller blokssøgning og ingen trækrevne.
-- **Kryds.** En radius pr. ben, ingen kørespor for lastbiler, og de går endnu ikke ind i korridoren.
-- **Markfiler.** Læserne er skrevet ud fra offentlige formatbeskrivelser og afprøvet på filer, vi har lavet. Rigtige instrumentfiler er ønskede.
-- **Forbindelser og bane.** Radiolinks: kun tab i frit rum og multipath (ingen regnfading eller antennediagrammer), og ingen jernbanestandard: hver banegrænse er en pladsholder med udkaststal, som ingen jernbaneingeniør har kontrolleret.
-- **Windows og macOS.** 0.8 er ikke kodesignéret. Windows kan advare, og macOS beder om højreklik og derefter Åbn.
+- **Dette er beregningshjælpemidler.** Hvert resultat i de nye vinduer kræver en ingeniørs kontrol. Jordstyrker starter fra typiske værdier for jordgruppen, og vinduet siger det.
+- **Lad det regne.** En kørsel på eksempelstedet kan tage over to minutter i browseren ved en fin celle. Den er kontrolleret mod håndcases og en V-formet opland, ikke endnu på et rigtigt planeret sted.
+- **Adresse til område.** Den læser åbne datafiler, du selv medbringer, og er kun testet på vores egne filer. Træer er ikke en kilde. Hentning af kilder for dig afventer formuleringen om privatliv.
+- **Fremskridt fra opmålinger.** Testet på opdigtede opmålinger kun. Fremskridt på ark og markeringer (MarkupCraft) og scanning mod model (BimCraft) er ikke bygget.
+- **Jord og skråninger.** Kun cirkulære flader: ingen kile- eller blokssøgning og ingen trækrevner.
+- **Kryds.** Én radius pr. ben, ingen svingbaner for lastbiler, og de går endnu ikke ind i korridoren.
+- **Feltfiler.** Læserne er skrevet ud fra offentlige formatbeskrivelser og afprøvet på filer, vi selv har lavet. Rigtige instrumentfiler efterspørges.
+- **Radiolinks og bane.** Radiolinks: kun frirums-tab og multipath (ingen regnfading eller antennediagrammer), og ingen jernbanestandard: hver banegrænse er en pladsholder med udkastede tal, som ingen jernbaneingeniør har kontrolleret.
+- **Windows og macOS.** 0.8 er ikke kodesigneret. Windows kan advare, og macOS beder om højreklik og derefter Åbn.
 
-Alt andet står i [Ikke bygget endnu](topic:not-built-yet). For den tidligere udgivelse, se [Nyt i 0.7](topic:whats-new-0-7).
+Alt andet står i [Ikke lavet endnu](topic:not-built-yet). For den tidligere udgivelse, se [Nyheder i 0.7](topic:whats-new-0-7).

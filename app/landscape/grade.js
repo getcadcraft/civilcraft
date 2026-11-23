@@ -52,7 +52,7 @@ export function cleanGrading(list, units) {
   const d = defaults(units), out = [];
   if (!Array.isArray(list)) return out;
   for (const g of list.slice(0, MAX_GRADING)) {
-    if (!g || typeof g !== 'object' || !KINDS.includes(g.kind) || !/^l\d{1,9}$/.test(String(g.id))) continue;
+    if (!g || typeof g !== 'object' || !KINDS.includes(g.kind) || !/^l\d{1,16}$/.test(String(g.id))) continue;
     const pts = (Array.isArray(g.pts) ? g.pts.slice(0, 5000) : []).map(XY).filter(Boolean);
     const lk = cleanLink(g.link);
     const base = { id: g.id, kind: g.kind, name: str(g.name) || t('ls.g.' + g.kind), pts, ...(lk ? { link: lk } : {}) };
@@ -157,7 +157,7 @@ function areaPatch(surface, a) {
 }
 
 /** gradedSurface items for the landscape grading objects, in their order. */
-export function gradeItems(ls, units) {
+export function gradeItems(ls, units, opts = {}) {   // opts.roads: 0.10.1 #1977 (hardscape.js hardGradeItems)
   const out = [];
   for (const g of ls?.grading || []) {
     if (g.kind === 'swale') { out.push({ id: g.id, kind: 'ls-swale', name: g.name, patch: (surf) => swalePatch(surf, g, units) }); continue; }
@@ -175,7 +175,7 @@ export function gradeItems(ls, units) {
       return { problems: [], region: dl.daylight, points: [], breaklines: bl, info: { ...dl, z: z0, kind: g.kind } };
     } });
   }
-  out.push(...hardGradeItems(ls, units), ...areaGradeItems(ls), ...freeformGradeItems(ls, units));
+  out.push(...hardGradeItems(ls, units, opts), ...areaGradeItems(ls), ...freeformGradeItems(ls, units));
   return orderItems(out, ls?.stack);   // LA.4: the person's order (later wins inside overlaps); unlisted ones keep this order after it
 }
 

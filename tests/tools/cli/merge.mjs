@@ -35,9 +35,10 @@ const imp = (rel) => import(pathToFileURL(path.join(APPS, rel)).href);
 export const FORMATS = {
   'takeoffcraft-project': { volatile: ['savedAt'], maxKeys: ['seq'], read: async () => { const m = await imp('takeoffcraft/dev/model.js'); return (o) => m.readProject(o); } },
   detailcraft: { volatile: [], maxKeys: ['seq'], read: async () => { const m = await imp('detailcraft/dev/model.js'); return (o) => m.readModel(JSON.stringify(o)); } },
-  modelcraft: { volatile: ['view.cam'], maxKeys: ['nextId'], read: async () => { const m = await imp('modelcraft/dev/model.js'); return (o) => new m.Model().load(o); } },
+  modelcraft: { volatile: ['view.cam'], maxKeys: ['nextId', 'defs[*].next'], numericIds: true, read: async () => { const m = await imp('modelcraft/dev/model.js'); return (o) => new m.Model().load(o); } },
   partcraft: { volatile: [], maxKeys: ['seq'], read: async () => { const m = await imp('partcraft/dev/part.js'); return (o) => m.readPart(JSON.stringify(o)); } },
-  'civilcraft-project': { volatile: ['saved'], maxKeys: ['seq'], read: async () => { const { readProject } = await (await import('./merge/civil-load.mjs')).loadCivil(); return (o) => readProject(o); } },
+  'civilcraft-project': { volatile: ['saved', 'pair'], maxKeys: ['seq'],   // pair (71.27): the record of the IFC saved beside it (its hash, its save time), rewritten by every save: ours, as the IFC beside the merged file is (0.11 DC.27)
+    read: async () => { const { readProject } = await (await import('./merge/civil-load.mjs')).loadCivil(); return (o) => readProject(o); } },
   'markupcraft-markups': { volatile: ['saved'], maxKeys: [], read: async () => { const m = await imp('markupcraft/dev/sidecar.js'); return (o) => { const r = m.readSidecar(o); return r.ok ? r : { ok: false, error: r.why }; }; } },   // 0.8 H5: <name>.markups.json
 };
 

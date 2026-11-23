@@ -90,7 +90,7 @@ export async function gh3uiMode({ APP, ROOT }) {
     ok(l.every((x, i) => x.startsWith(Object.values(names)[i] + ' · ')) && l.every((x) => !leak(x.replace(/^[^·]*·/, ''), u) || u === 'ftin' || u === 'in'), u + ': ' + l[0] + ' | ' + l[4]);
   }
   ok(U.paperLabel('Custom', 'nope', 'mm') === 'Custom', 'an unknown paper is just its name');
-  ok(Object.keys(RS.PAPERS).every((k) => U.PAPER_MM[k] && Math.abs(U.PAPER_MM[k][1] - RS.PAPERS[k][0]) < 1 && Math.abs(U.PAPER_MM[k][0] - RS.PAPERS[k][1]) < 1), 'the labelled sizes are the sizes the sheets use (res-sheets PAPERS)');
+  ok(Object.keys(RS.PAPERS).filter((k) => !RS.isPortrait(k) && !k.startsWith('fmt:')).every((k) => U.PAPER_MM[k] && Math.abs(U.PAPER_MM[k][1] - RS.PAPERS[k][0]) < 1 && Math.abs(U.PAPER_MM[k][0] - RS.PAPERS[k][1]) < 1), 'the labelled sizes are the sizes the sheets use (res-sheets PAPERS)');
 
   console.log('== the CRS\'s own unit beside the pick');
   ok(U.crsUnitNote('m', 'm') === null && U.crsUnitNote('ftin', 'ft') === null && U.crsUnitNote('ftdec', 'ft') === null, 'same family: no note');

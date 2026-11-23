@@ -64,10 +64,13 @@ try {
   ok(w && w.keep === 'offline' && w.signed && /^\d+\.\d+\.\d+$/.test(w.version), 'Windows is stored in the apps\' add-on store (signed, keep:offline)', JSON.stringify(w) + ' ' + status);
   const list = await page.evaluate(() => JSON.parse(localStorage.getItem('cc-addons-account:web:list') || 'null'));
   ok(Array.isArray(list) && list.some((i) => i.id === 'windows'), 'the list is written where the apps read their last list');
+  // the status line says Done a moment before the check line is drawn again: wait for the line itself (verify-close 0.11, r2-d1; it raced)
+  await page.waitForFunction((s) => / · prepared today$/.test((document.querySelector(s + ' [data-of-line]')?.textContent || '').trim()), sec, { timeout: 30000 }).catch(() => {});
   const line1 = (await page.textContent(sec + ' [data-of-line]')).trim();
   const m1 = /^(\d+) of (\d+) ready · ([\d.]+ [KMG]B) · prepared today$/.exec(line1);
   ok(!!m1 && +m1[1] >= 1, 'after: "n of m ready · size · prepared today"', line1);
-  ok(/Electrical/.test(await page.textContent(sec)) && /comes inside/.test(await page.textContent(sec)), 'what comes inside an app is named, with the app');
+  // Electrical is a signed Library package since 0.9 (fetched like Windows); what still comes inside the apps is the engines it needs (verify-close 0.11, r2-d1)
+  ok(/— comes inside [^\n]*CadCraft[^\n]*: save one of them for offline/.test(await page.textContent(sec)), 'what comes inside an app is named, with the app');
   await page.screenshot({ path: path.join(SHOTS, '02-account-prepared.png'), fullPage: false });
   // CadCraft's own offline copy (here a stand-in saved under its key): what comes inside it turns ready
   await swMsg(page, { type: 'save', key: 'try/cadcraft', page: '/favicon.ico', urls: [] });
@@ -138,6 +141,7 @@ try {
   await page.click(sec + ' [data-of-remove]');
   await page.waitForFunction((s) => /^Removed/.test(document.querySelector(s + ' [data-of-status]').textContent), sec, { timeout: 30000 });
   ok(!(await idbGet(page, 'cadcraft-addons', 'packages', 'windows')) && !(await page.evaluate(() => localStorage.getItem('cc-addons-offline:v1'))) && !(await page.evaluate(() => localStorage.getItem('cc-addons-account:web:list'))), 'Remove takes the stored package, the list and the marker away');
+  await page.waitForFunction((s) => /not prepared/.test(document.querySelector(s + ' [data-of-line]')?.textContent || ''), sec, { timeout: 10000 }).catch(() => {});   // the line is drawn just after the status (the same race as line1; verify-close 0.11, r2-d1)
   ok(/not prepared/.test(await page.textContent(sec + ' [data-of-line]')), 'and the check says so');
   await swMsg(page, { type: 'remove', key: 'try/cadcraft' });
   await ctx.close();
@@ -167,7 +171,9 @@ try {
   await v.waitForFunction(() => !!window.ccOfflineAddons, null, { timeout: 30000 });
   await v.click('[data-of-use="electrical"]');
   await v.waitForFunction(() => { const t = (document.querySelector('[data-of-use-status]') || {}).textContent || ''; return /Ready offline|Added/.test(t) && !/Fetching/.test(t); }, null, { timeout: 60000 });
-  ok(/comes inside CadCraft/.test(await v.textContent('[data-of-use-status]')), 'an add-on inside the app: added, and it says which app to save for offline', await v.textContent('[data-of-use-status]'));
+  // since 0.9 Electrical is a signed package of its own (no longer "inside the app"): Use offline fetches it like Windows (verify-close 0.11, r2-d1)
+  const ve = await idbGet(v, 'cadcraft-addons', 'packages', 'electrical');
+  ok(/Ready offline in this browser/.test(await v.textContent('[data-of-use-status]')) && ve && ve.keep === 'offline' && ve.signed, 'Electrical (a package of its own since 0.9): Use offline adds it and stores the signed package', await v.textContent('[data-of-use-status]'));
   await v.goto(C + '/library/section.php?section=addons', { waitUntil: 'load', timeout: 120000 });
   await v.waitForSelector('[data-of-browser]:not([hidden])[data-of-ready]', { timeout: 30000 });
   const pl = (await v.textContent('[data-of-browser] [data-of-line]')).trim();

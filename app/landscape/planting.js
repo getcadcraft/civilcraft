@@ -72,7 +72,7 @@ export function cleanLandscape(obj, units, cleanPalette = null) {
   const s = emptyLandscape();
   if (!obj || typeof obj !== 'object') return s;
   const xy = (q) => (q && fin(q.x) && fin(q.y) && Math.abs(q.x) < 1e9 && Math.abs(q.y) < 1e9 ? { x: q.x, y: q.y } : null);
-  const id = (v, pre) => (new RegExp('^' + pre + '\\d{1,9}$').test(String(v)) ? String(v) : null);
+  const id = (v, pre) => (new RegExp('^' + pre + '\\d{1,16}$').test(String(v)) ? String(v) : null);
   const list = (a, max) => (Array.isArray(a) ? a.slice(0, max) : []);
   // 0.7.1: the spacing a bed or hedge was filled at (saved), or — from a file of an older plant list — which edition it was
   const ed = Number.isInteger(obj.plantList) && obj.plantList >= 1 && obj.plantList <= PLANT_LIST ? obj.plantList : 1;

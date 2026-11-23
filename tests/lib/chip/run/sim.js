@@ -47,17 +47,23 @@ export function dumpModule(top, vcd = 'out/wave.vcd', timescale = '') {
   return `// added by CadCraft's Chip design add-on: dump every signal under ${top}\n${ts}module cc_dump;\n  initial begin\n    $dumpfile("${vcd}");\n    $dumpvars(0, ${top});\n  end\nendmodule\n`;
 }
 
-export function simSteps({ tool = 'icarus', files = [], top, defines = {}, includes = [], plusargs = [], vcd = 'out/wave.vcd', dumps = false, timescale = '' } = {}) {
+export function simSteps({ tool = 'icarus', files = [], top, defines = {}, includes = [], plusargs = [], vcd = 'out/wave.vcd', dumps = false, timescale = '', format = 'vcd' } = {}) {
   if (!top || !/^[A-Za-z_][\w$]*$/.test(top)) throw new Error('simSteps: no testbench');
   const src = files.filter((f) => /\.(v|sv)$/i.test(f));
   const inc = includes.flatMap((d) => ['-I', d]);
   const plus = plusargs.filter((p) => /^\+[\w=.+-]+$/.test(p));
   if (tool === 'verilator') {
+    // Verilator has one root: when the testbench does not dump, a small wrapper cc_top holds it (instance `tb`) and dumps from there
+    // (real run 2026-11-21, Verilator 5.054: without it a testbench with no $dumpfile gave no waves at all). fst: --trace-fst, out/wave.fst.
+    const fst = format === 'fst';
+    const file = fst ? vcd.replace(/\.vcd$/i, '') + '.fst' : vcd;
+    const extra = dumps ? {} : { 'cc_top.v': `// added by CadCraft's Chip design add-on: Verilator has one root, so this wrapper holds ${top} and dumps it\nmodule cc_top;\n  ${top} tb();\n  initial begin\n    $dumpfile("${file}");\n    $dumpvars(0, tb);\n  end\nendmodule\n` };
+    const root = dumps ? top : 'cc_top';
     const steps = [
-      { tool: 'verilator', label: 'verilator', args: ['--binary', '-j', '0', '--trace', '-Wno-fatal', '-Mdir', 'obj_dir', '--top-module', top, ...defArgs(defines), ...includes.map((d) => '-I' + d), ...src] },
-      { tool: 'obj_dir/V' + top, label: 'run', args: plus },
+      { tool: 'verilator', label: 'verilator', args: ['--binary', '-j', '0', fst ? '--trace-fst' : '--trace', '-Wno-fatal', '-Mdir', 'obj_dir', '--top-module', root, ...defArgs(defines), ...includes.map((d) => '-I' + d), ...src, ...Object.keys(extra)] },
+      { tool: 'obj_dir/V' + root, label: 'run', args: plus },
     ];
-    return { steps, extra: {}, waves: dumps ? vcd : '' };
+    return { steps, extra, waves: file };
   }
   const extra = dumps ? {} : { 'cc_dump.v': dumpModule(top, vcd, timescale) };
   const steps = [
@@ -67,12 +73,22 @@ export function simSteps({ tool = 'icarus', files = [], top, defines = {}, inclu
   return { steps, extra, waves: vcd };
 }
 
+const SAME_TEXT = 3;   // the same message from many places (Icarus 13 "Choosing typ expression." for every min:typ:max delay in a PDK's models): 3, then a count
 export function parseSimLog(text, tool = 'icarus') {
-  const rows = [], seen = new Set();
-  const add = (r) => { if (!seen.has(r.id)) { seen.add(r.id); rows.push(r); } };
+  const rows = [], seen = new Set(), byText = new Map();
+  const add = (r) => {
+    if (seen.has(r.id)) return;
+    seen.add(r.id);
+    const k = r.severity + ':' + String(r.text).replace(/\d+/g, '#');
+    const n = (byText.get(k) || { n: 0, sev: r.severity, text: r.text });
+    n.n++; byText.set(k, n);
+    if (n.n <= SAME_TEXT) rows.push(r);
+  };
+  const more = () => { for (const [k, x] of byText) if (x.n > SAME_TEXT) rows.push(row({ source: 'sim', code: 'more', severity: x.sev, vars: { n: x.n - SAME_TEXT, what: x.text }, text: `${x.n - SAME_TEXT} more like this: ${x.text}`, key: 'more:' + k.slice(0, 80) })); };
   for (const raw of String(text).split(/\r?\n/)) {
     const l = raw.trim();
     let m;
+    if (/\$(finish|stop) called at|VCD info:|^- (S i m u|Verilator:)/.test(l)) continue;   // the simulator's end-of-run report, not a problem (Icarus 13: "tb.v:30: $finish called at …")
     if ((m = /^%(Error|Warning)(?:-([A-Z0-9_]+))?:\s*([^:\s]+):(\d+):(?:(\d+):)?\s*(.*)$/.exec(l))) {   // Verilator
       add(row({ source: 'sim', code: m[1] === 'Error' ? 'error' : 'warning', severity: m[1] === 'Error' ? 'error' : 'warning', file: m[3], line: Number(m[4]), vars: { what: m[6], tag: m[2] || '' }, text: (m[2] ? m[2] + ': ' : '') + m[6], key: m[3] + ':' + m[4] + ':' + (m[2] || '') }));
     } else if ((m = /^(ERROR|WARNING|FATAL|INFO):\s*([^:\s]+):(\d+):\s*(.*)$/.exec(l))) {   // vvp: $error / $warning / $fatal / $info
@@ -86,12 +102,16 @@ export function parseSimLog(text, tool = 'icarus') {
       add(row({ source: 'sim', code: 'elab', severity: 'error', text: l, key: 'elab' }));
     }
   }
+  more();
   return rows;
 }
 
 /** What vvp said at the end: the time $finish was called, VCD opened. */
 export function simSummary(text) {
   const s = String(text);
+  // Verilator 5: "- Verilator: $finish at 2us; walltime …" (its "- tb.v:30: Verilog $finish" line holds the SOURCE line, not a time)
+  const ver = /- Verilator: \$(?:finish|stop) at ([\d.]+)\s*([munpf]?s)/.exec(s);
+  if (ver) return { finished: true, at: Number(ver[1]), unit: ver[2], vcd: '' };
   const fin = /(?:\$finish|\$stop) called at (\d+) \(([^)]+)\)/.exec(s) || /- (?:\S+):(\d+): Verilog \$finish/.exec(s);
   return { finished: !!fin, at: fin ? Number(fin[1]) : null, unit: fin && fin[2] ? fin[2] : '', vcd: /VCD info: dumpfile (\S+) opened/.exec(s)?.[1] || '' };
 }

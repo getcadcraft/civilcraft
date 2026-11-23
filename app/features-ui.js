@@ -18,9 +18,11 @@
  */
 
 import { t } from './i18n.js';
-import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel, gradeOverlay, flatten, setArc, arcText, parseArc, pointOnSeg, cadPolyline } from './featureline.js';
+import { FEATURE_DEFAULTS, USES, stations, segments, setElevation, setGrade, evenGrade, raise, fromSurface, offsetFeature, gradeLabel, gradeOverlay, flatten, setArc, arcText, parseArc, pointOnSeg, cadPolyline, moveVertex, insertVertex, removeVertex, nearestOnFeature } from './featureline.js';
 import { fixed, unitOf } from './units.js';
 import { createTeamLines } from './team-lines.js';   // 0.8 WL.26
+import { slopeToSurface, slopePolygon, longOffset, planLength } from './feature-grade.js';   // 0.10.1 #1970
+import { parseSlope } from './sides.js';
 
 const okB = (b) => Number.isFinite(b) && b !== 0 && Math.abs(b) < 100;
 
@@ -36,13 +38,18 @@ export function createFeatures(ctx) {
     if (!f) return false;
     const next = fn(f);
     if (!next || next === f) return false;
-    return P().change(label, (s) => { const i = s.features.findIndex((x) => x.id === id); if (i >= 0) s.features[i] = { ...next, id }; });
+    return P().change(label, (s) => { const i = s.features.findIndex((x) => x.id === id); if (i >= 0) s.features[i] = { ...next, id }; }, { keys: P().keysOf('features', id) });   // 0.11 PERF.21: hinted
   }
 
+  // 0.10.1 #1970: "Draw a feature line in this pad" (the pad's Properties) makes the next line drawn a design line, with its
+  // elevations read from the proposed surface (the pad) instead of the existing ground
+  let nextUse = null;
+  const drawAs = (use) => { nextUse = USES.includes(use) ? use : null; };
   function finish(pts, closed) {
     const min = closed ? 3 : 2;
     if (pts.length < min) { ctx.say(t(closed ? 'fl.need3' : 'fl.need2')); return null; }
-    const sf = ctx.eg();
+    const asUse = nextUse; nextUse = null;
+    const sf = (asUse === 'design' && ctx.graded?.()) || ctx.eg();
     let guessed = 0, prev = null;
     const out = pts.map((p) => {
       let z = Number.isFinite(p.z) ? p.z : sf?.elevationAt(p.x, p.y, 1e-6);
@@ -53,7 +60,7 @@ export function createFeatures(ctx) {
     out.forEach((q, i) => { if (q.b && !closed && i === out.length - 1) delete q.b; });
     const p = P(), id = p.nextId('f'), n = (p.state.features || []).length + 1, d = FEATURE_DEFAULTS(U());
     const name = t('fl.name', { n });
-    p.change(t('fl.undo.draw'), (s) => { (s.features ||= []).push({ id, name, pts: out, closed: !!closed, use: d.use, daylight: false, cut: d.cut, fill: d.fill }); });
+    p.change(t('fl.undo.draw'), (s) => { (s.features ||= []).push({ id, name, pts: out, closed: !!closed, use: asUse || d.use, daylight: false, cut: d.cut, fill: d.fill }); });
     ctx.select({ kind: 'feature', id });
     ctx.say(t('fl.drawn', { name, n: out.length }) + (guessed ? ' ' + t('fl.drawn.guessed', { n: guessed }) : ''));
     return id;
@@ -152,6 +159,97 @@ export function createFeatures(ctx) {
     return out;
   }
 
+  // ---- 0.10.1 #1970: two grading tools that make a new feature line from this one (feature-grade.js) ----
+  const box = (id, value) => el('input', { type: 'text', className: 'cv-input', id, value: String(value), inputMode: 'decimal' });
+  const choose = (id, opts) => el('select', { className: 'cv-select', id }, ...opts.map(([v, label]) => el('option', { value: v }, label)));
+  const numOf = (inp) => { const x = Number(String(inp.value).replace('%', '').trim()); return String(inp.value).trim() !== '' && Number.isFinite(x) ? x : null; };
+  const addLine = (label, obj, done) => {
+    const p = P(), nid = p.nextId('f'), d = FEATURE_DEFAULTS(U());
+    p.change(label, (st) => { (st.features ||= []).push({ daylight: false, cut: d.cut, fill: d.fill, ...obj, id: nid, name: String(obj.name).slice(0, 120) }); });
+    ctx.select({ kind: 'feature', id: nid });
+    ctx.say(done);
+  };
+  /** Slope to a surface: a daylight line from this line at a slope (start and stop slope, start and stop distance). */
+  function slopeBlock(f) {
+    const u = unitOf(U()), id = f.id, L = planLength(f);
+    const side = choose('cv-fl-sl-side', [['1', t('fl.side.right')], ['-1', t('fl.side.left')]]);
+    const surf = choose('cv-fl-sl-surf', [['eg', t('fl.sl.surf.eg')], ['fg', t('fl.sl.surf.fg')]]);
+    const from = box('cv-fl-sl-from', 0), to = box('cv-fl-sl-to', Number(L.toFixed(3))), s0 = box('cv-fl-sl-s0', '3:1'), s1 = box('cv-fl-sl-s1', '3:1');
+    const make = choose('cv-fl-sl-make', [['line', t('fl.sl.make.line')], ['area', t('fl.sl.make.area')]]);
+    const unit = (inp) => el('div', { className: 'cv-row' }, inp, el('span', { className: 'cv-unit' }, u.short));
+    const go = () => {
+      const cur = find(id); if (!cur) return;
+      const a = numOf(from), b = numOf(to), H0 = parseSlope(s0.value), H1 = String(s1.value).trim() === '' ? H0 : parseSlope(s1.value);
+      if (a === null || b === null || !(H0 > 0) || !(H1 > 0)) { ctx.say(t('fl.sl.bad')); return; }
+      const sf = surf.value === 'fg' ? ctx.graded?.() : ctx.eg();
+      if (!sf) { ctx.say(t(surf.value === 'fg' ? 'fl.sl.nofg' : 'fl.sl.noeg')); return; }
+      const r = slopeToSurface(cur, sf, { side: Number(side.value), from: a, to: b, slope0: H0, slope1: H1 });
+      if (r.problem) { ctx.say(t('fl.sl.err.' + r.problem)); return; }
+      const missed = r.missed ? ' ' + t('fl.sl.missed', { n: r.missed }) : '';
+      if (make.value === 'area') {
+        const poly = slopePolygon(r);
+        if (!poly) { ctx.say(t('fl.sl.err.cross')); return; }
+        const name = t('fl.sl.name.area', { name: cur.name });
+        addLine(t('fl.undo.slope'), { name, pts: poly, closed: true, use: 'design' }, t('fl.sl.done.area', { name }) + missed);
+      } else {
+        const name = t('fl.sl.name.line', { name: cur.name });
+        addLine(t('fl.undo.slope'), { name, pts: r.pts, closed: false, use: 'off' }, t('fl.sl.done.line', { name, n: r.pts.length }) + missed);
+      }
+    };
+    return [el('h3', { className: 'cv-h3' }, t('fl.sl.head')),
+      el('div', { className: 'cv-props', 'data-fl-slope': '' }, ...ctx.row(t('fl.side'), side, 'cv-fl-sl-side'), ...ctx.row(t('fl.sl.surf'), surf, 'cv-fl-sl-surf'),
+        ...ctx.row(t('fl.range.from'), unit(from), 'cv-fl-sl-from'), ...ctx.row(t('fl.range.to'), unit(to), 'cv-fl-sl-to'),
+        ...ctx.row(t('fl.sl.s0'), s0, 'cv-fl-sl-s0'), ...ctx.row(t('fl.sl.s1'), s1, 'cv-fl-sl-s1'), ...ctx.row(t('fl.sl.make'), make, 'cv-fl-sl-make')),
+      el('p', { className: 'cv-note' }, t('fl.sl.note')),
+      el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-fl-slope-go': '', onclick: go }, t('fl.sl.go')))];
+  }
+  /** Longitudinal feature: an offset whose distance and elevations change along the line. */
+  function longBlock(f) {
+    const u = unitOf(U()), id = f.id, L = planLength(f), d0 = FEATURE_DEFAULTS(U());
+    const side = choose('cv-fl-lo-side', [['1', t('fl.side.right')], ['-1', t('fl.side.left')]]);
+    const from = box('cv-fl-lo-from', 0), to = box('cv-fl-lo-to', Number(L.toFixed(3))), o0 = box('cv-fl-lo-o0', d0.offset), o1 = box('cv-fl-lo-o1', d0.offset);
+    const mode = choose('cv-fl-lo-mode', [['slope', t('fl.lo.mode.slope')], ['elev', t('fl.lo.mode.elev')], ['grade', t('fl.lo.mode.grade')], ['toelev', t('fl.lo.mode.toelev')]]);
+    const a = box('cv-fl-lo-a', '-2'), b = box('cv-fl-lo-b', '-2'), c = box('cv-fl-lo-c', '');
+    const la = el('label', { className: 'k', for: 'cv-fl-lo-a' }), lb = el('label', { className: 'k', for: 'cv-fl-lo-b' }), lc = el('label', { className: 'k', for: 'cv-fl-lo-c' });
+    const rowO0 = [el('label', { className: 'k', for: 'cv-fl-lo-o0' }, t('fl.lo.o0')), el('div', { className: 'cv-row' }, o0, el('span', { className: 'cv-unit' }, u.short))];
+    const rowO1 = [el('label', { className: 'k', for: 'cv-fl-lo-o1' }, t('fl.lo.o1')), el('div', { className: 'cv-row' }, o1, el('span', { className: 'cv-unit' }, u.short))];
+    const show = () => {
+      const m = mode.value;
+      la.textContent = t('fl.lo.a.' + m); lb.textContent = t('fl.lo.b.' + m); lc.textContent = t('fl.lo.c.toelev');
+      for (const n of [...rowO0, ...rowO1]) n.hidden = m === 'toelev';   // the offset is worked out from the slope
+      lc.hidden = c.hidden = m !== 'toelev';
+    };
+    mode.addEventListener('change', () => {
+      const z = find(id)?.pts[0]?.z ?? 0;
+      if (mode.value === 'slope' || mode.value === 'toelev') { a.value = mode.value === 'toelev' ? '25' : '-2'; b.value = a.value; c.value = mode.value === 'toelev' ? String(Number((z - 1).toFixed(3))) : ''; }
+      else if (mode.value === 'elev') { a.value = String(Number(z.toFixed(3))); b.value = a.value; }
+      else { a.value = String(Number(z.toFixed(3))); b.value = '1'; }
+      show();
+    });
+    show();
+    const go = () => {
+      const cur = find(id); if (!cur) return;
+      const m = mode.value, A = numOf(a), B = numOf(b), C = numOf(c), F0 = numOf(from), F1 = numOf(to), O0 = numOf(o0), O1 = numOf(o1);
+      if (F0 === null || F1 === null || A === null || B === null || (m === 'toelev' ? C === null : O0 === null || O1 === null)) { ctx.say(t('fl.lo.err.numbers')); return; }
+      const opts = { side: Number(side.value), from: F0, to: F1, off0: O0 ?? 0, off1: O1 ?? 0, mode: m };
+      if (m === 'slope') { opts.s0 = A / 100; opts.s1 = B / 100; }
+      else if (m === 'elev') { opts.z0 = A; opts.z1 = B; }
+      else if (m === 'grade') { opts.z0 = A; opts.grade = B / 100; }
+      else { opts.s0 = A / 100; opts.s1 = B / 100; opts.target = C; }
+      const r = longOffset(cur, opts);
+      if (r.problem) { ctx.say(t('fl.lo.err.' + r.problem)); return; }
+      const name = t('fl.lo.name', { name: cur.name });
+      addLine(t('fl.undo.long'), { name, pts: r.pts, closed: false, use: cur.use === 'design' ? 'design' : 'off' }, t('fl.lo.done', { name, n: r.pts.length }));
+    };
+    return [el('h3', { className: 'cv-h3' }, t('fl.lo.head')),
+      el('div', { className: 'cv-props', 'data-fl-long': '' }, ...ctx.row(t('fl.side'), side, 'cv-fl-lo-side'),
+        ...ctx.row(t('fl.range.from'), el('div', { className: 'cv-row' }, from, el('span', { className: 'cv-unit' }, u.short)), 'cv-fl-lo-from'),
+        ...ctx.row(t('fl.range.to'), el('div', { className: 'cv-row' }, to, el('span', { className: 'cv-unit' }, u.short)), 'cv-fl-lo-to'),
+        ...rowO0, ...rowO1, ...ctx.row(t('fl.lo.mode'), mode, 'cv-fl-lo-mode'), la, a, lb, b, lc, c),
+      el('p', { className: 'cv-note' }, t('fl.lo.note')),
+      el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-fl-long-go': '', onclick: go }, t('fl.lo.go')))];
+  }
+
   function props(f) {
     const out = [], u = unitOf(U()), id = f.id;
     const nm = el('input', { type: 'text', className: 'cv-input', id: 'cv-fl-name', value: f.name, maxLength: 120 });
@@ -166,7 +264,12 @@ export function createFeatures(ctx) {
       ...ctx.row(t('fl.props.length'), fixed(st[st.length - 1], 2) + ' ' + u.short),
       ...ctx.row(t('fl.props.length3d'), fixed(sg.reduce((a, s) => a + s.len3d, 0), 2) + ' ' + u.short)));
     out.push(el('label', { className: 'cv-check', for: 'cv-fl-closed' }, closed, ' ', t('fl.props.closed')));
-    out.push(el('p', { className: 'cv-note', 'data-fl-use-note': '' }, t('fl.use.note.' + f.use + (f.use === 'design' && !f.closed ? '.open' : ''))));
+    out.push(el('p', { className: 'cv-note', 'data-fl-use-note': '' }, t(f.use === 'design' && !f.closed ? 'fl.use.note.design.breakline' : 'fl.use.note.' + f.use)));   // 0.10.1 #1970: an open design line is a breakline of the proposed surface
+    if (f.use === 'design' && !f.closed) {
+      const it = (P().graded().items || []).find((x) => x.kind === 'breakline' && x.id === id);
+      if (it?.problems?.length) out.push(el('div', { className: 'cv-report is-error', 'data-fl-bl-problem': '' }, el('ul', {}, ...it.problems.map((x) => el('li', {}, x)))));
+      else if (it?.off) out.push(el('p', { className: 'cv-note', 'data-fl-bl-off': '' }, t('fl.bl.part', { n: it.off })));
+    }
     if (f.use === 'design' && f.closed) {
       const day = el('input', { type: 'checkbox', id: 'cv-fl-day', checked: f.daylight });
       day.addEventListener('change', () => edit(id, t('fl.undo.daylight'), (x) => ({ ...x, daylight: day.checked })));
@@ -182,8 +285,8 @@ export function createFeatures(ctx) {
     const tbody = el('tbody');
     f.pts.forEach((p, i) => {
       const s = sg[i];
-      const zIn = ctx.numInput(fixed(p.z, 3).replace(/,/g, ''), (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; edit(id, t('fl.undo.elev', { n: i + 1 }), (x) => setElevation(x, i, z)); return true; }, { label: t('fl.props.elev.of', { n: i + 1 }), width: '6.5rem' });
-      const gIn = s ? ctx.numInput(s.grade === null ? '' : (s.grade * 100).toFixed(2), (v) => { const g = Number(String(v).replace('%', '')) / 100; if (!Number.isFinite(g) || v === '') return false; edit(id, t('fl.undo.grade', { n: i + 1 }), (x) => setGrade(x, i, g)); return true; }, { label: t('fl.props.grade.of', { n: i + 1 }), text: true, calc: false, width: '4.25rem' }) : '—';
+      const zIn = ctx.numInput(fixed(p.z, 3).replace(/,/g, ''), (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; edit(id, t('fl.undo.elev', { n: i + 1 }), (x) => setElevation(x, i, z)); return true; }, { label: t('fl.props.elev.of', { n: i + 1 }), width: '5.25rem' });
+      const gIn = s ? ctx.numInput(s.grade === null ? '' : (s.grade * 100).toFixed(2), (v) => { const g = Number(String(v).replace('%', '')) / 100; if (!Number.isFinite(g) || v === '') return false; edit(id, t('fl.undo.grade', { n: i + 1 }), (x) => setGrade(x, i, g)); return true; }, { label: t('fl.props.grade.of', { n: i + 1 }), text: true, calc: false, width: '3.75rem' }) : '—';
       // 0.6 WL.24: the segment from this vertex as an arc — "50 L" / "50 R", empty = straight
       const rIn = s ? ctx.numInput(arcText(f, i), (v) => {
         const r = parseArc(v, !(s.arc && s.arc.sweep < 0));
@@ -193,11 +296,26 @@ export function createFeatures(ctx) {
         if (next === find(id)) { if (r.r) ctx.say(t('fl.arc.short', { n: i + 1, min: fixed(s.chord / 2, 2) })); return !r.r; }
         edit(id, t(r.r ? 'fl.undo.arc' : 'fl.undo.straight', { n: i + 1 }), () => next);
         return true;
-      }, { label: t('fl.props.radius.of', { n: i + 1 }), text: true, calc: false, width: '4.75rem' }) : '—';
-      tbody.append(el('tr', {}, el('td', {}, String(i + 1)), el('td', { className: 'num' }, fixed(st[i], 2)), el('td', {}, zIn), el('td', {}, gIn), el('td', { 'data-fl-arc': String(i) }, rIn)));
+      }, { label: t('fl.props.radius.of', { n: i + 1 }), text: true, calc: false, width: '4.25rem' }) : '—';
+      // 0.10.1 #1970: a Pick at the start of the row (its easting and northing from a plan click, snapped; the elevation stays), a vertex
+      // added after it or taken out at its end, and the row under the pointer or with the focus ringed on the plan
+      const pick = ctx.pickBtn(t('fl.pick.vertex', { n: i + 1 }), (pt) => edit(id, t('fl.undo.vmove', { n: i + 1 }), (x) => moveVertex(x, i, pt.x, pt.y)), { 'data-fl-pick': String(i) });
+      const add = s ? el('button', { type: 'button', className: 'cv-x', 'data-fl-vadd': String(i), title: t('fl.v.add.after', { n: i + 1 }), 'aria-label': t('fl.v.add.after', { n: i + 1 }), onclick: () => { if (edit(id, t('fl.undo.vadd'), (x) => insertVertex(x, i, 0.5))) ctx.say(t('fl.v.added', { n: i + 2 })); } }, el('i', { className: 'bi bi-plus-lg', 'aria-hidden': 'true' })) : null;
+      const del = el('button', { type: 'button', className: 'cv-x', 'data-fl-vdel': String(i), title: t('fl.v.remove', { n: i + 1 }), 'aria-label': t('fl.v.remove', { n: i + 1 }), disabled: f.pts.length <= (f.closed ? 3 : 2), onclick: () => { ctx.hot(null); if (edit(id, t('fl.undo.vremove', { n: i + 1 }), (x) => removeVertex(x, i))) ctx.say(t('fl.v.removed', { n: i + 1 })); else ctx.say(t('fl.v.few')); } }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' }));
+      const tr = el('tr', { 'data-fl-row': String(i) }, el('td', { className: 'cv-pickcell' }, pick), el('td', {}, String(i + 1)), el('td', { className: 'num' }, fixed(st[i], 2)), el('td', {}, zIn), el('td', {}, gIn), el('td', { 'data-fl-arc': String(i) }, rIn), el('td', { className: 'cv-rowbtns' }, add, del));
+      const on = () => ctx.hot(() => find(id)?.pts[i] || null), off = () => ctx.hot(null);
+      tr.addEventListener('mouseenter', on); tr.addEventListener('mouseleave', off); tr.addEventListener('focusin', on); tr.addEventListener('focusout', off);
+      tbody.append(tr);
     });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-fl-table': '' },
-      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, '#'), el('th', { scope: 'col', className: 'num' }, t('fl.props.station')), el('th', { scope: 'col' }, t('fl.props.elev')), el('th', { scope: 'col' }, t('fl.props.grade')), el('th', { scope: 'col' }, t('fl.props.radius')))), tbody)));
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, el('span', { className: 'visually-hidden' }, t('fl.v.pick.head'))), el('th', { scope: 'col' }, '#'), el('th', { scope: 'col', className: 'num' }, t('fl.props.station')), el('th', { scope: 'col' }, t('fl.props.elev')), el('th', { scope: 'col' }, t('fl.props.grade')), el('th', { scope: 'col' }, t('fl.props.radius')), el('th', { scope: 'col' }, el('span', { className: 'visually-hidden' }, t('fl.v.edit.head'))))), tbody)));
+    out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-fl-vadd-pick': '', onclick: () => ctx.armPick(t('fl.v.add.pick'), (pt) => {
+      const cur = find(id), h = cur && nearestOnFeature(cur, pt.x, pt.y);
+      if (!h) return;
+      if (h.u < 1e-6 || h.u > 1 - 1e-6) { ctx.say(t('fl.v.add.online')); return; }
+      if (edit(id, t('fl.undo.vadd'), (x) => insertVertex(x, h.i, h.u))) ctx.say(t('fl.v.added', { n: h.i + 2 }));
+    }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('fl.v.add'))));
+    out.push(el('p', { className: 'cv-note' }, t('fl.v.note')));
     out.push(el('p', { className: 'cv-note' }, t('fl.props.grade.note')));
     out.push(el('p', { className: 'cv-note' }, t('fl.props.radius.note')));
     // whole-line actions
@@ -230,6 +348,7 @@ export function createFeatures(ctx) {
       ctx.select({ kind: 'feature', id: nid });
       ctx.say(t('fl.offset.done', { name }));
     } }, t('fl.offset.go')));
+    out.push(...slopeBlock(f), ...longBlock(f));   // 0.10.1 #1970
     out.push(...teamBlock(f));   // 0.8 WL.26
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => ctx.command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     return out;
@@ -254,7 +373,7 @@ export function createFeatures(ctx) {
   }
   function grip(sel) {
     const f = sel?.kind === 'feature' ? find(sel.id) : null;
-    return f ? { list: f.pts, label: t('fl.undo.move'), get: () => find(sel.id)?.pts } : null;
+    return f ? { list: f.pts, label: t('fl.undo.move'), get: () => find(sel.id)?.pts, keys: P().keysOf('features', sel.id) } : null;
   }
   function overlay(c2d, toScreen, C, sel, font) {
     const f = sel?.kind === 'feature' ? find(sel.id) : null;
@@ -285,7 +404,7 @@ export function createFeatures(ctx) {
   function remove(id) {
     const f = find(id);
     if (!f) return false;
-    P().change(t('fl.undo.delete'), (s) => { s.features = s.features.filter((x) => x.id !== id); });
+    P().change(t('fl.undo.delete'), (s) => { s.features = s.features.filter((x) => x.id !== id); }, { keys: P().listKeys('features', id) });
     ctx.say(t('fl.deleted', { name: f.name }));
     return true;
   }
@@ -318,5 +437,5 @@ export function createFeatures(ctx) {
     c2d.restore();
     return items.length;
   }
-  return { finish, props, teamBlock, teamProject, sceneItems, pick, grip, overlay, remove, find, gradeLayer };
+  return { drawAs, finish, props, teamBlock, teamProject, sceneItems, pick, grip, overlay, remove, find, gradeLayer };
 }

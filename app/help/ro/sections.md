@@ -1,52 +1,70 @@
 ---
 title: Linii de profil și secțiuni transversale
-summary: Tăiați secțiuni perpendicular pe un ax, vedeți terenul, proiectarea și debleul și rambleul din fiecare pichet și obțineți volumele prin metoda ariilor la capete medii.
-keywords: diagrama maselor, diagrama de compensare, punct de echilibru, contracție, umflare, distanță de transport, împrumut, depozit, planșe de secțiuni, planșe transversale, pdf secțiuni, secțiuni, secțiuni transversale, linii de profil, vizualizarea profilului, debleu, rambleu, arii, metoda ariilor la capete medii, volume de terasamente, pichet, decalaj, csv
-from: 5060173c
+summary: Tăiați secțiuni perpendicular pe un aliniament, vedeți terenul, proiectul și debleul și rambleul la fiecare pichet și obțineți volume prin metoda ariilor medii la capete.
+keywords: diagrama maselor, curba masei, punct de echilibru, contracție, umflare, distanță de transport, împrumut, depozit, planșe de secțiuni, planșe de secțiuni transversale, secțiuni pdf, secțiuni, secțiuni transversale, linii de profil, vizualizarea secțiunii, debleu, rambleu, arii, volum prin arii medii la capete, terasamente, pichet, decalaj, csv
+from: 09639ce2
 ---
 
-O secțiune transversală arată drumul așa cum va fi construit: perpendicular pe ax, într-un singur pichet, terenul existent, proiectarea (coridorul sau platforma nivelată) și debleul și rambleul dintre ele.
+O secțiune transversală arată drumul așa cum va fi construit: perpendicular pe aliniament, la un pichet, terenul existent, proiectul (coridorul sau platforma nivelată) și debleul și rambleul dintre ele.
 
 ## Adăugarea liniilor de profil
 
-1. Selectați un ax. În **Proprietăți**, sub **Linii de profil**, faceți clic pe {{ui:Add sample lines}}.
-2. Setați **La fiecare** (distanța: 50 ft sau 20 m la început), **Lățimea stângă** și **Lățimea dreaptă** (cât de departe ajunge fiecare secțiune de la axă).
-3. Pentru a tăia o secțiune la un anumit pichet, scrieți-l în **Adăugare pichet** (de exemplu `2+35`) și apăsați {{key:Enter}}.
+1. Selectați un aliniament. În **Proprietăți**, sub **Linii de profil**, faceți clic pe {{ui:Adăugare linii de profil}}.
+2. Setați **La fiecare** (spațierea: 50 ft sau 20 m la început), **Lățimea stângă** și **Lățimea dreaptă** (cât de departe ajunge fiecare secțiune de la axul drumului).
+3. Pentru a tăia o secțiune la un anumit pichet, introduceți-l în **Adăugare pichet** (de exemplu `2+35`) și apăsați {{key:Enter}}.
 
-Secțiunile sunt tăiate la fiecare multiplu întreg al distanței, la ambele capete ale axului, la începutul și sfârșitul fiecărei curbe (PC și PT) și la pichetele pe care le adăugați. Liniile de profil apar pe plan ca linii gri peste ax; ies și în DXF, DWG și PDF, pe stratul C-ROAD-SCTN. Fiecare modificare este un pas: {{key:Mod+Z}} o anulează.
+Secțiunile se taie la fiecare multiplu întreg al spațierii, la ambele capete ale aliniamentului, la începutul și sfârșitul fiecărei curbe (PC și PT) și la pichetele pe care le adăugați. Liniile de profil apar în plan ca linii gri peste aliniament; ele merg și în DXF, DWG și PDF, pe stratul C-ROAD-SCTN. Fiecare modificare este un singur pas: {{key:Mod+Z}} îl anulează.
 
-## Vizualizarea profilului
+## Vizualizarea secțiunii
 
-Deschideți-o cu {{ui:Section view}} din Proprietățile axului, cu {{ui:Sections}} sub **Suprafață** › {{ui:More}}, sau cu {{key:X}}. Ține locul vederii profilului de sub plan.
+Deschideți-o cu {{ui:Vizualizarea profilului}} din **Proprietăți** ale aliniamentului, cu {{ui:Profile}} sub **{{ui:Model de teren}}** › {{ui:Mai multe}}, sau cu {{key:X}}. Ea ia locul vizualizării profilului de sub plan.
 
-- Parcurgeți secțiunile cu săgețile din bara sa, cu lista de pichete sau cu {{key:Left}} și {{key:Right}} cât timp vederea secțiunii are focusul ({{key:Home}} și {{key:End}} pentru prima și ultima).
-- Linia gri este terenul existent, linia roșie este proiectarea. Debleul este umbrit cu portocaliu, rambleul cu verde. Punctele coridorului sunt marcate: CL (axa), EOP (marginea părții carosabile), SH (umărul) și DL (punctul de intersecție cu terenul).
-- Antetul dă pichetul, ariile de debleu și rambleu ale acestei secțiuni și exagerarea verticală. **Fit** umple panoul; alegeți 1× ca să vedeți secțiunea la scară reală.
-- Linia groasă de pe plan arată ce secțiune este pe ecran.
+- Parcurgeți secțiunile cu săgețile din bară, din lista de pichete sau cu {{key:Left}} și {{key:Right}} cu vizualizarea secțiunii activă ({{key:Home}} și {{key:End}} pentru prima și ultima).
+- Linia gri este terenul existent, linia roșie proiectul. Debleul este hașurat portocaliu, rambleul verde. Punctele coridorului sunt marcate: CL (axul), EOP (marginea părții carosabile), SH (acostamentul) și DL (intersecția cu terenul).
+- Antetul dă pichetul, ariile de debleu și de rambleu ale acestei secțiuni și exagerarea verticală. **Potrivire** umple panoul; alegeți 1× pentru a vedea secțiunea la scară reală.
+- Linia groasă din plan arată ce secțiune este pe ecran.
+- **Zoom și deplasare:** rotița face zoom în jurul indicatorului, iar tragerea mută vizualizarea. {{ui:Potrivire}} (sau {{key:F}}, sau un dublu clic) potrivește din nou întreaga secțiune.
+
+## Măsurarea într-o secțiune
+
+1. Faceți clic pe {{ui:Măsurare}} din bara secțiunii sau apăsați {{key:M}}. Indicația spune „Faceți clic pe primul punct, apoi pe al doilea.”
+2. Faceți clic pe două puncte. Fiecare se agață de capătul unei linii sau de un punct al coridorului (CL, EOP, SH, DL); țineți apăsat {{key:Alt}} pentru un punct liber.
+3. Afișajul dă distanța orizontală (ΔH), distanța verticală (ΔV), panta în procente cu raportul ei și lungimea dreaptă, în unitățile proiectului.
+
+Faceți clic din nou pentru a începe o nouă măsurare. {{key:Esc}} o șterge, iar {{key:M}} dezactivează măsurarea.
 
 ## Planșele de secțiuni
 
-{{ui:Section sheets (PDF)}} sub **Linii de profil** pune fiecare secțiune pe pagini PDF, în rânduri de la stânga la dreapta și de sus în jos, în ordinea pichetelor. Alegeți **Hârtia**, **Scara planului** (scara orizontală a secțiunilor) și **Exagerarea profilului** (1×, 2×, 5× sau 10×); caseta spune câte secțiuni încap pe o pagină și câte pagini rezultă.
+{{ui:Planșe de profile (PDF)}} sub **Linii de profil** pune fiecare secțiune pe pagini PDF, în rânduri de la stânga la dreapta și de sus în jos, în ordinea pichetelor. Alegeți **Hârtia**, **Scara planului** (scara orizontală a secțiunilor) și **Exagerarea profilului** (1×, 2×, 5× sau 10×); caseta de dialog spune câte secțiuni încap pe o pagină și câte pagini rezultă.
 
-Fiecare secțiune arată o grilă cu decalaje și cote, terenul (punctat), proiectarea, debleul și rambleul umbrite (portocaliu și verde), punctele coridorului și, sub ea, pichetul și ariile sale de debleu și rambleu. Fiecare secțiune de pe planșe este desenată la aceeași dimensiune, suficient de înaltă pentru cea mai mare; când aceasta nu încape pe pagină la exagerarea dvs., CivilCraft folosește cea mai mare care încape și o spune. Banda de titlu numește axul, pichetele de pe pagina respectivă, scările și „Foaia 1 din 3”.
+Fiecare secțiune arată o grilă cu decalaje și cote, terenul (întrerupt), proiectul, debleul și rambleul hașurate (portocaliu și verde), punctele coridorului și, sub ea, pichetul și ariile sale de debleu și de rambleu. Fiecare secțiune de pe planșe este desenată la aceeași dimensiune, suficient de înaltă pentru cea mai mare; când aceasta nu încape în pagină la exagerarea aleasă, CivilCraft folosește cea mai mare care încape și o spune. Banda-titlu dă numele aliniamentului, pichetele de pe pagină, scările și „Planșa 1 din 3”.
 
-## Volume prin metoda ariilor la capete medii
+## Până la ce se măsoară debleul și rambleul
 
-Între două secțiuni vecine, volumul este media celor două arii ale lor înmulțită cu distanța dintre pichete. Bara arată totalurile pentru ax, iar {{ui:CSV}} descarcă ariile și volumele fiecărei secțiuni, cu totaluri parțiale (iarzi cubi pentru proiectele în picioare, metri cubi pentru cele metrice).
+Un coridor poate avea straturi sub îmbrăcăminte: straturi de îmbrăcăminte, componente de șablon, traseu. Selectorul **Volume măsurate până la** din bara secțiunii alege până unde merg debleul și rambleul:
 
-**Proprietățile** arată aceleași totaluri alături de volumele metodei pe grilă din [Volume de terasamente](topic:volumes). Cele două sunt aproximări diferite: secțiunile mai apropiate le aduc mai aproape, iar pe un drum drept, pe teren plat, sunt identice.
+- **Suprafața de jos** (implicită): până la baza acelor componente, astfel încât debleul include adâncimea stratificației îmbrăcămintei.
+- **Suprafața de sus**: doar până la partea de sus a proiectului, cum se socoteau înainte componentele.
+
+Ariile din antet, volumele de dedesubt, CSV-ul și diagrama maselor urmează toate această alegere, iar ea se salvează cu proiectul.
+
+## Volume prin ariile medii la capete
+
+Între două secțiuni vecine, volumul este media celor două arii înmulțită cu distanța dintre pichetele lor. Bara arată totalurile pentru aliniament, iar {{ui:CSV}} descarcă ariile și volumele fiecărei secțiuni, cu totaluri cumulate (iarzi cubi pentru proiectele în picioare, metri cubi pentru cele metrice).
+
+**Proprietăți** arată aceleași totaluri alături de volumele metodei rețelei din [Volume de terasamente](topic:volumes). Cele două sunt aproximări diferite: secțiunile mai apropiate le aduc mai aproape, iar pe un drum drept, pe teren plat, sunt identice.
 
 :::note
-Debleul și rambleul sunt numărate doar în interiorul suprafețelor nivelate (liniile de ieșire la lumină ale unui coridor sau ale unei platforme), ca în metoda pe grilă. Fără coridor sau platformă, proiectarea este terenul, deci o secțiune nu arată debleu sau rambleu.
+Debleul și rambleul se socotesc doar în interiorul zonelor nivelate (liniile de intersecție cu terenul ale unui coridor sau ale unei platforme), ca în metoda rețelei. Fără coridor sau platformă, proiectul este terenul, deci o secțiune nu arată debleu sau rambleu.
 :::
 
 ## Diagrama maselor
 
-**Diagrama maselor** sub **Linii de profil** desenează diagrama de compensare din aceleași volume prin metoda ariilor la capete: de-a lungul pichetelor, totalul cumulat al debleului minus rambleul.
+**Diagrama maselor** sub **Linii de profil** trasează diagrama maselor din aceleași volume prin arii la capete: de-a lungul pichetelor, totalul cumulat al debleului minus rambleul.
 
-- **Contracția (−) sau umflarea (+) a debleului** spune ce face un iard cub de debleu odată pus ca rambleu: −10 % (valoarea de pornire, un substituent) înseamnă că se contractă la 0.9; roca care se umflă poate fi +5 %. Folosiți cifra din raportul dvs. geotehnic.
-- Unde linia urcă, drumul este în debleu; unde coboară, în rambleu. Peste zero (umbrit cu portocaliu), pământul se mută spre pichetul mai mare; sub zero (verde), spre pichetul mai mic.
-- **Punctele de echilibru** sunt locurile unde linia taie zero: între două dintre ele debleul și rambleul se compensează. Tabelul listează fiecare porțiune echilibrată, volumul mutat (punctul său cel mai înalt sau cel mai jos) și distanța medie de transport (aria umbrită împărțită la acel volum).
-- Unde linia se termină departe de zero, ce rămâne este **depozit** (deasupra) sau **împrumut** (dedesubt). În ultima porțiune contează doar pământul de dincolo de nivelul la care se termină.
+- **Contracția (−) sau umflarea (+) a debleului** arată ce devine un iard cub de debleu odată așezat ca rambleu: −10 % (valoarea de pornire, provizorie) înseamnă că se contractă la 0.9; roca ce se umflă poate fi +5 %. Folosiți cifra din raportul geotehnic.
+- Acolo unde linia urcă, drumul este în debleu; acolo unde coboară, în rambleu. Deasupra zeroului (hașurat portocaliu), pământul se mută spre pichetele mai mari; sub zero (verde), spre cele mai mici.
+- **Punctele de echilibru** sunt acolo unde linia taie zero: între două dintre ele, debleul și rambleul se echilibrează. Tabelul listează fiecare porțiune echilibrată, volumul deplasat (cel mai înalt sau cel mai jos punct al său) și distanța medie de transport (aria hașurată împărțită la acel volum).
+- Acolo unde linia se termină departe de zero, surplusul este **depozit** (deasupra) sau **împrumut** (dedesubt). În ultima porțiune, doar pământul dincolo de nivelul la care se termină se socotește ca deplasat.
 
-**CSV** salvează ordonata de masă la fiecare secțiune, porțiunile și factorul.
+**CSV** salvează ordonata masei la fiecare secțiune, porțiunile și factorul.

@@ -24,7 +24,7 @@ function boot() {
   const key = hostKey(cfg.app);
   const slugOf = (id) => id.replace(/^field\./, '');
   const getJson = async (url) => { const r = await fetch(url, { credentials: 'omit' }); if (!r.ok) throw new Error(String(r.status)); return r.json(); };
-  const load = (id) => getJson('/assets/fields/' + slugOf(id) + '/pack.json');
+  const load = (id) => getJson(new URL('../fields/' + slugOf(id) + '/pack.json', import.meta.url).href);
   const F = createFields({ app: cfg.app, store, load,
     calc: () => (window.ccCalc && window.ccCalc.calcs ? window.ccCalc.calcs : null), lessons: () => window.ccLessons || null });
   const P = makePanel({ key: 'fields', icon: 'collection', titleKey: 'shell.fields.title', onOpen: () => render() });
@@ -33,7 +33,7 @@ function boot() {
 
   const listAll = async () => {
     if (!index) {
-      try { index = (await getJson('/assets/fields/index.json')).packs || []; } catch { index = []; }
+      try { index = (await getJson(new URL('../fields/index.json', import.meta.url).href)).packs || []; } catch { index = []; }
     }
     return index.filter((p) => key === 'super' || (p.hosts || []).includes(key));
   };

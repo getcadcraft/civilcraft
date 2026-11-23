@@ -23,6 +23,8 @@
  * connect to a street is not checked.
  */
 import TABLES from './parking-tables.js';
+import { pointInPolygon as pip2d } from './geom2d.js';   // 0.11 PERF.74: one copy of the ray cast (lib/geom2d)
+import { REGIONS as OTHER, IDS as OTHER_IDS } from './landscape/parking-regions.js';
 
 export const ANGLES = [90, 75, 60, 45, 30, 0];
 export const FT = 0.3048;
@@ -33,7 +35,20 @@ const rad = (d) => (d * Math.PI) / 180;
 
 const conv = (ft, units) => (units === 'm' ? Math.round(ft * FT * 20) / 20 : ft);   // metres rounded to 5 cm
 
-export function regionOf(region) { return TABLES.regions[region] || TABLES.regions.us; }
+/** Region ids a lot can use: the United States tables, custom, and (SU.1815) uk / au / eu from landscape/parking-regions.js: typical values, NOT read against the printed source (`unread`). */
+export const REGION_IDS = ['us', 'custom', ...OTHER_IDS];
+const FT_PER_M = 1 / 0.3048, ftOf = (m) => Math.round(m * FT_PER_M * 1000) / 1000;
+const otherCache = {};
+function otherRegion(id) {
+  if (otherCache[id]) return otherCache[id];
+  const R = OTHER[id], st = R.stall, row = { one: ftOf(R.aisle.one), two: ftOf(R.aisle.two) };
+  const base = TABLES.regions.custom;   // the custom block's accessible rule: the person types the count; nothing is entered until a person reads the local code
+  return (otherCache[id] = { name: R.name, unread: true, source: R.source,
+    accessible: { ...base.accessible, source: R.source, verified: false, percent: 0, min: 0, carWidthIn: R.accessibleStall ? Math.round(R.accessibleStall.w * FT_PER_M * 12) : base.accessible.carWidthIn, vanWidthIn: R.accessibleStall ? Math.round(R.accessibleStall.w * FT_PER_M * 12) : base.accessible.vanWidthIn, vanWidthNarrowIn: R.accessibleStall ? Math.round(R.accessibleStall.w * FT_PER_M * 12) : base.accessible.vanWidthNarrowIn, aisleWidthIn: R.accessibleStall ? Math.round(R.accessibleStall.aisleW * FT_PER_M * 12) : 0, aisleWidthVanNarrowIn: R.accessibleStall ? Math.round(R.accessibleStall.aisleW * FT_PER_M * 12) : 0 },
+    stall: { source: R.source, verified: false, wFt: ftOf(st.w), lFt: ftOf(st.l), parallelWFt: ftOf(st.parallelW), parallelLFt: ftOf(st.parallelL) },
+    aisle: { source: R.source, verified: false, ftByAngle: Object.fromEntries(ANGLES.map((a) => [String(a), row])) } });
+}
+export function regionOf(region) { return OTHER[region] ? otherRegion(region) : (TABLES.regions[region] || TABLES.regions.us); }
 
 export function defaults(units = 'ft', { region = 'us', angle = 90, traffic = null } = {}) {
   const R = regionOf(region), a = ANGLES.includes(angle) ? angle : 90;
@@ -57,13 +72,7 @@ export const vanCount = (n, region = 'us') => (n > 0 ? Math.ceil(n / regionOf(re
 // ------------------------------------------------------------------ small geometry
 const area2 = (P) => { let a = 0; for (let i = 0, j = P.length - 1; i < P.length; j = i++) a += (P[j].x + P[i].x) * (P[j].y - P[i].y); return -a / 2; };
 export const polyArea = (P) => Math.abs(area2(P));
-function pointIn(x, y, P) {
-  let c = false;
-  for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
-    if ((P[i].y > y) !== (P[j].y > y) && x < ((P[j].x - P[i].x) * (y - P[i].y)) / (P[j].y - P[i].y) + P[i].x) c = !c;
-  }
-  return c;
-}
+const pointIn = (x, y, P) => pip2d(x, y, P);
 function segCross(a, b, c, d) {
   const d1x = b.x - a.x, d1y = b.y - a.y, d2x = d.x - c.x, d2y = d.y - c.y, den = d1x * d2y - d1y * d2x;
   if (Math.abs(den) < EPS) return false;
@@ -148,12 +157,12 @@ function candidateAngles(B) {
 }
 
 export function layout(boundary, opts = {}) {
-  const units = opts.units === 'm' ? 'm' : 'ft', region = opts.region === 'custom' ? 'custom' : 'us';
+  const units = opts.units === 'm' ? 'm' : 'ft', region = REGION_IDS.includes(opts.region) ? opts.region : 'us';
   const d = defaults(units, { region, angle: ANGLES.includes(opts.angle) ? opts.angle : 90, traffic: opts.traffic });
   const o = { ...d, ...Object.fromEntries(Object.entries(opts).filter(([, v]) => v !== undefined && v !== null)), units, region };
   if (!ANGLES.includes(o.angle)) o.angle = 90;
   const out = { stalls: [], aisles: [], accessAisles: [], islands: [], counts: { total: 0, standard: 0, accessible: 0, van: 0, accessAisles: 0, islands: 0, required: 0 },
-    area: { lot: 0, stalls: 0, aisles: 0, islands: 0, perStall: null }, orientation: null, angle: o.angle, region, problems: [], notes: [], tables: { region, verified: false } };
+    area: { lot: 0, stalls: 0, aisles: 0, islands: 0, perStall: null }, orientation: null, angle: o.angle, region, problems: [], notes: [], tables: { region, verified: false, unread: !!regionOf(region).unread } };
   const B = (boundary || []).filter((p) => p && fin(p.x) && fin(p.y)).map((p) => ({ x: p.x, y: p.y }));
   if (B.length < 3 || polyArea(B) < EPS) { out.problems.push({ code: 'boundary' }); return out; }
   out.area.lot = polyArea(B);

@@ -95,9 +95,40 @@ ok(/IFCMEMBER\(/.test(ifc) && /IFCCOLUMN\(/.test(ifc) && /IFCPLATE\(/.test(ifc),
   const i2 = m2.change('s', (tx) => tx.addStair({ ...gen.defaults('us-ibc-2021'), tread: { ...gen.defaults().tread }, x: 0, y: 0, z: 0, rise: 4000, width: 1100, phase: 1 }));
   const b2 = cur.B.build(m2.state), mk2 = cur.Mk.markParts(b2, { perPhase: true });
   const ps = b2.parts.filter((p) => p.stair === i2);
-  ok(ps.some((p) => p.id.endsWith('.f2stringerL')) && ps.some((p) => p.id.endsWith('.l1cover')) && ps.filter((p) => /\.l1post/.test(p.id)).length === 2, 'two flights, a landing cover and two posts');
+  ok(ps.some((p) => p.id.endsWith('.f2stringerL')) && ps.some((p) => p.id.endsWith('.l1cover')) && ps.filter((p) => /\.l1post[LR]$/.test(p.id)).length === 2, 'two flights, a landing cover and two posts');
   const set2 = cur.D.drawingSet(m2.state, b2, mk2, { date: '2026-11-14' });
   ok(set2.sheets.some((s) => s.kind === 'stair') && set2.sheets.filter((s) => s.kind === 'stair')[0].items.filter((i) => i.k === 'text' && /f[12]stringerL/.test(i.s)).length === 2, 'the stair sheet draws a stringer for each flight');
+}
+
+// 8. 0.11 SU.1814c: the stringers' cut ends and the base plates in the built parts
+{
+  const m3 = new cur.Md.Model(cur.Md.starterState('cuts'));
+  const i3 = m3.change('s', (tx) => tx.addStair({ ...gen.defaults('us-ibc-2021'), tread: { ...gen.defaults().tread }, x: 1000, y: 500, z: 0, dir: 25, rise: 4000, width: 1100, phase: 1 }));
+  const b3 = cur.B.build(m3.state);
+  const Pr = await import(pathToFileURL(ROOT + 'dev/profiles.js').href), Ge = await import(pathToFileURL(ROOT + 'dev/geom.js').href);
+  const prof = (n) => Pr.getProfile(n, m3.state.profiles);
+  const lay = gen.build(m3.stair(i3), { profileOf: prof });
+  const s1 = b3.parts.find((p) => p.id === i3 + '.f1stringerL');
+  ok(!!s1.endCuts && !!s1.endCuts.start && !!s1.endCuts.end, 'the lower and the upper end are cut on planes (part.endCuts)');
+  const eng = lay.parts.find((p) => p.key === 'f1stringerL');
+  ok(Math.abs(s1.length - eng.length) < 1e-6, 'the built stringer is as long as the engine says (' + s1.length.toFixed(3) + ' mm): the cut list and the part agree');
+  // the lower face is horizontal: every corner of the section box on it has the same world z (the floor's top, z = 0); the upper face is vertical: every corner has the same distance along the climb
+  const F = s1.frame, w2 = s1.profile.width / 2, h2 = s1.profile.depth / 2;
+  const world = (x, u, v) => [0, 1, 2].map((k) => F.o[k] + F.x[k] * x + F.u[k] * u + F.v[k] * v);
+  const lowZ = [-h2, h2].map((v) => world(Ge.endX(s1, 'start', 0, v), 0, v)[2]), up = [-h2, h2].map((v) => { const p = world(Ge.endX(s1, 'end', 0, v), 0, v); return p[0] * Math.cos(25 * Math.PI / 180) + p[1] * Math.sin(25 * Math.PI / 180); });
+  ok(lowZ.every((z) => Math.abs(z) < 1e-6), 'the lower cut face is level at the floor: z ' + lowZ.map((z) => z.toFixed(6)).join(', '));
+  ok(Math.abs(up[0] - up[1]) < 1e-6, 'the upper cut face is plumb: the same distance along the climb at both edges (' + up.map((z) => z.toFixed(3)).join(', ') + ')');
+  const holes = s1.holes.length && s1.holes.every((h) => h.x >= 0 && h.x <= s1.length);
+  ok(holes, 'the fixing holes still lie on the shorter part (x measured from the cut start): ' + s1.holes.length);
+  const mk3 = cur.Mk.markParts(b3, { perPhase: true });
+  ok(!!mk3.partMark.get(s1.id), 'marks run on cut stringers: ' + mk3.partMark.get(s1.id));
+  const base = b3.parts.filter((p) => /\.l1post[LR]base$/.test(p.id));
+  ok(base.length === 2 && base.every((p) => p.holes.length === 4 && p.attachTo === p.id.replace(/base$/, '')), 'a base plate under each landing post, welded to its post, four holes');
+  ok(new Set(base.map((p) => mk3.partMark.get(p.id))).size === 1, 'the two base plates share one mark');
+  const ifc = cur.If.writeIfc(m3.state, b3, mk3, [], {});
+  ok(/IFCPLATE\(/.test(ifc), 'the IFC export carries the plates');
+  const sq = (() => { const m = new cur.Md.Model(cur.Md.starterState('sq')); const id = m.change('s', (tx) => tx.addStair({ ...gen.defaults('us-ibc-2021'), tread: { ...gen.defaults().tread }, endCuts: 'square', postBase: false, x: 1000, y: 500, dir: 25, rise: 4000, width: 1100, phase: 1 })); return cur.B.build(m.state).parts.find((p) => p.id === id + '.f1stringerL'); })();
+  ok(!sq.endCuts && sq.length < s1.length, 'a stair with end cuts switched off is square ended and shorter (' + sq.length.toFixed(1) + ' against ' + s1.length.toFixed(1) + ')');
 }
 console.log(`${pass} checks passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -12,7 +12,11 @@
  *     added on one side → kept; added on both with different content → a conflict (ours kept, theirs listed, never renumbered here);
  *     removed on one side and untouched on the other → removed; removed on one side and CHANGED on the other → removed, reported (conflict kind "deleted");
  *   - any other array (no ids, or primitives) → changed on one side only is taken, otherwise a conflict;
- *   - `opts.volatile` (paths like "savedAt", "view.cam") → ours; `opts.maxKeys` (like "seq", "nextId") → the larger number.
+ *   - `opts.volatile` (paths like "savedAt", "view.cam") → ours; `opts.maxKeys` (like "seq", "nextId") → the larger number;
+ *     a `*` in a maxKeys path stands for any one id in brackets ("defs[*].next": every ModelCraft definition's counter; 0.11 DC.27);
+ *   - `opts.numericIds` (ModelCraft: placements and faces carry integer ids) → an array of objects that all have an integer `id` merges by id too.
+ * Since 0.11 DC.27 every app hands out each editing session's ids from a block of its own, so two people's new objects have different
+ * ids and merge cleanly; `added-both` is left for files an older build wrote.
  */
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 export const same = (a, b) => {
@@ -24,12 +28,16 @@ export const same = (a, b) => {
   return ka.length === kb.length && ka.every((k) => Object.prototype.hasOwnProperty.call(b, k) && same(a[k], b[k]));
 };
 const clone = (v) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
-const hasIds = (arr) => Array.isArray(arr) && arr.length > 0 && arr.every((x) => isObj(x) && typeof x.id === 'string');
+const hasIds = (arr, numeric = false) => Array.isArray(arr) && arr.length > 0 && arr.every((x) => isObj(x) && (typeof x.id === 'string' || (numeric && Number.isInteger(x.id))));
+const pathRe = (p) => new RegExp('^' + p.replace(/[.+?^${}()|\\]/g, '\\$&').replace(/\[\*\]/g, '\\[[^\\]]+\\]') + '$');
 
 export function mergeJson(base, ours, theirs, opts = {}) {
   const conflicts = [], notes = [];
   const volatile = new Set(opts.volatile || []);
   const maxKeys = new Set(opts.maxKeys || []);
+  const maxRes = [...maxKeys].filter((k) => k.includes('[*]')).map(pathRe);
+  const isMax = (p) => maxKeys.has(p) || maxRes.some((r) => r.test(p));
+  const numeric = !!opts.numericIds;
   const conflict = (path, kind, o, t, b) => conflicts.push({ path, kind, ours: clone(o), theirs: clone(t), base: clone(b) });
 
   function merge(b, o, t, path) {
@@ -37,7 +45,7 @@ export function mergeJson(base, ours, theirs, opts = {}) {
     if (same(o, t)) return clone(o);
     if (same(b, o)) return clone(t);
     if (same(b, t)) return clone(o);
-    if (maxKeys.has(path) && typeof o === 'number' && typeof t === 'number') return Math.max(o, t);
+    if (isMax(path) && typeof o === 'number' && typeof t === 'number') return Math.max(o, t);
     if (isObj(o) && isObj(t)) {
       const bb = isObj(b) ? b : {};
       const out = {};
@@ -59,7 +67,7 @@ export function mergeJson(base, ours, theirs, opts = {}) {
       }
       return out;
     }
-    if (hasIds(o) && hasIds(t) && (b === undefined || b === null || hasIds(b) || (Array.isArray(b) && b.length === 0))) return mergeById(Array.isArray(b) ? b : [], o, t, path);
+    if (hasIds(o, numeric) && hasIds(t, numeric) && (b === undefined || b === null || hasIds(b, numeric) || (Array.isArray(b) && b.length === 0))) return mergeById(Array.isArray(b) ? b : [], o, t, path);
     conflict(path, 'changed', o, t, b);
     return clone(o);
   }

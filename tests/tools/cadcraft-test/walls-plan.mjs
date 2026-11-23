@@ -877,6 +877,82 @@ const styleAt = (w, pos) => { const r = (w.jn || []).find((x) => x.me === pos &&
   ok(M(d, cp.id).jn.length === 0 && styleAt(M(d, r.s.id), 'end') === 'square through', 'a Copy gets no records, so no style; the original keeps its own');
 }
 
+// ======================================================================== 0.10.1 inbox: #1973 wall centre lines, #1971 WALLPOLY radius
+console.log('== 0.10.1 wall centre-line snap, WALLDIM between centre lines, WALLPOLY typed radius');
+{
+  const S = await imp('walls-snap.js');
+  const h = harness();
+  const r = room(h.doc);   // walls 100 thick on the centre lines x = 0, x = 4000, y = 0, y = 3000
+  const west = M(h.doc, r.x.id), all = wallsOf(h.doc);
+  const label = (k) => 'Wall center: ' + k;
+  // the pointer 30 from the middle of the west wall's centre line (0, 1500), aperture 50: the midpoint of the axis, not of a face (x = ±50)
+  let c = S.wallAxisSnaps([west], { x: 30, y: 1500 }, 50, new Set(['mid']), null, label);
+  ok(c.length === 1 && c[0].kind === 'mid' && near(c[0].x, 0) && near(c[0].y, 1500) && c[0].label === 'Wall center: mid' && near(c[0].axis.a.y, 3000) && near(c[0].axis.b.y, 0), 'snap: the middle of a wall\'s centre line, labelled, with the axis to draw', c);
+  c = S.wallAxisSnaps([west], { x: 10, y: 20 }, 50, new Set(['end', 'mid']), null, label);
+  ok(c.length === 1 && c[0].kind === 'end' && near(c[0].x, 0) && near(c[0].y, 0), 'snap: the end of the centre line (the corner node)', c);
+  c = S.wallAxisSnaps([west], { x: 20, y: 700 }, 50, new Set(['perp']), { x: 2500, y: 720 }, label);
+  ok(c.length === 1 && c[0].kind === 'perp' && near(c[0].x, 0) && near(c[0].y, 720), 'snap: perpendicular from the base point to the centre line', c);
+  ok(S.wallAxisSnaps([west], { x: 20, y: 700 }, 50, new Set(['perp']), null, label).length === 0, 'no perpendicular without a base point');
+  c = S.wallAxisSnaps([west], { x: 20, y: 700 }, 50, new Set(['near']), null, label);
+  ok(c.length === 1 && c[0].kind === 'near' && near(c[0].x, 0) && near(c[0].y, 700), 'snap: the nearest point on the centre line (only with Nearest on)', c);
+  ok(S.wallAxisSnaps([west], { x: 20, y: 700 }, 50, new Set(['end', 'mid', 'cen', 'int']), null, label).length === 0 && S.wallAxisSnaps([west], { x: 30, y: 1500 }, 50, new Set(), null, label).length === 0, 'nothing out of reach, nothing with no snap kind on');
+  // at the corner (0, 0) two walls hold the point; a horizontal dimension can move only the vertical one
+  const at = S.wallsAtPoint(all, { x: 0, y: 0 }, 1);
+  ok(at.length === 2 && S.crossingWall(at, { x: 1, y: 0 }).w.id === r.x.id && S.crossingWall(at, { x: 0, y: 1 }).w.id === r.s.id && S.crossingWall(at, { x: 1, y: 0 }, r.x.id) === null, 'a corner point: the wall a dimension can move is the one that crosses it', at.map((x) => x.w.id));
+}
+{
+  // #1973: a linear dimension snapped to the ENDS of two centre lines (the corner nodes (0,0) and (4000,0), each inside two walls).
+  // Before: both ends resolved to the south wall, so WALLDIM said "must each be on a different wall". Now: the east wall moves to x = 4500.
+  const h = harness();
+  const r = room(h.doc);
+  let dim;
+  h.doc.change('dim', () => { dim = h.doc.add({ type: 'dim', kind: 'linear', layer: '0', p1: { x: 0, y: 0 }, p2: { x: 4000, y: 0 }, c: { x: 0, y: 0 }, loc: { x: 2000, y: -600 }, rot: 0, text: '', st: 'Standard' }); });
+  await h.type('WALLDIM');
+  await h.click(2000, -600);
+  await h.type('4500');
+  ok(near(M(h.doc, r.e.id).a.x, 4500) && near(M(h.doc, r.e.id).b.x, 4500) && near(M(h.doc, r.x.id).a.x, 0) && near(M(h.doc, r.s.id).a.y, 0) && near(M(h.doc, r.s.id).b.x, 4500), 'WALLDIM on a dimension between two centre-line ends (corners): the east wall moves to x = 4500, the west holds, the south follows', [M(h.doc, r.e.id).a, M(h.doc, r.s.id).b, h.log.slice(-2)]);
+  const d2 = h.doc.get(dim.id);
+  ok(near(d2.p2.x, 4500) && near(d2.p2.y, 0) && near(d2.p1.x, 0), 'the dimension\'s far point goes with the wall: it now measures 4500', [d2.p1, d2.p2]);
+  ok(h.doc.undoStack[h.doc.undoStack.length - 1].label === 'WALLDIM', 'still one undo step');
+  h.doc.undo();
+  ok(near(M(h.doc, r.e.id).a.x, 4000) && near(h.doc.get(dim.id).p2.x, 4000), 'undo puts the wall and the dimension back');
+}
+{
+  // a partition between the outer walls (the reporter's picture): centre lines at x = 0 and x = 610... here 0 and 1500; type 1800
+  const h = harness();
+  const r = room(h.doc);
+  const part = addWall(h.doc, [1500, 0], [1500, 3000]);
+  let dim;
+  h.doc.change('dim', () => { dim = h.doc.add({ type: 'dim', kind: 'linear', layer: '0', p1: { x: 0, y: 1500 }, p2: { x: 1500, y: 1500 }, c: { x: 0, y: 0 }, loc: { x: 750, y: 1800 }, rot: 0, text: '', st: 'Standard' }); });
+  await h.type('WALLDIM');
+  await h.click(750, 1800);
+  await h.type('1800');
+  const p = M(h.doc, part.id);
+  ok(near(p.a.x, 1800) && near(p.b.x, 1800) && near(M(h.doc, r.x.id).a.x, 0) && near(h.doc.get(dim.id).p2.x, 1800), 'centre line of the outer wall to centre line of the partition, 1500 -> 1800: the partition moves, the dimension reads 1800', [p.a, p.b, h.doc.get(dim.id).p2]);
+}
+{
+  // #1971: WALLPOLY takes a typed radius while the pointer is still on the centre (clicked the centre, then typed): before, "Point or option keyword required."
+  const h = harness();
+  h.host.cursor = { x: 200, y: 300 };
+  await h.type('WALLPOLY', '6', '200,300', 'I', '1000');
+  const ws = wallsOf(h.doc);
+  ok(ws.length === 6 && ws.every((w) => near(Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y), 1000, 1e-3)) && ws.some((w) => near(w.a.y, w.b.y, 1e-3) && near(w.a.y, 300 - 1000 * Math.sin(Math.PI / 3), 1e-3)), 'WALLPOLY 6, centre, Inscribed, radius 1000 typed with the pointer on the centre: a hexagon of side 1000, its bottom side horizontal', [ws.length, h.log.slice(-2)]);
+  ok(!h.eng.busy, 'the command finished');
+  const h2 = harness();
+  h2.host.cursor = { x: 0, y: 0 };
+  await h2.type('WALLPOLY', '4', '0,0', 'C', '500');
+  const w2 = wallsOf(h2.doc);
+  ok(w2.length === 4 && w2.every((w) => near(Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y), 1000, 1e-3)), 'Circumscribed, radius 500 typed: a square of side 1000', w2.map((w) => Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y)));
+  const h3 = harness();
+  h3.host.cursor = { x: 0, y: 800 };   // the pointer away from the centre: the typed radius still runs toward it (as before)
+  await h3.type('WALLPOLY', '6', '0,0', 'I', '1000');
+  { const w3 = wallsOf(h3.doc), lo = Math.min(...w3.map((w) => Math.min(w.a.y, w.b.y))); ok(w3.filter((w) => near(w.a.y, lo, 1e-3) && near(w.b.y, lo, 1e-3)).length === 1, 'with the pointer away from the centre the bottom side is still horizontal (Imtaar 2026-11-19)'); }
+  const h4 = harness();
+  await h4.type('WALLPOLY', '6', '0,0', 'I', '0');
+  ok(h4.eng.busy && wallsOf(h4.doc).length === 0, 'a radius of 0 is still refused');
+  await h4.type('1000');
+}
+
 // ======================================================================== done
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

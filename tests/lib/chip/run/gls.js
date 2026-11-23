@@ -8,6 +8,10 @@
  * design under test, so the testbench needs no change. SPEF (parasitics) is not read by Icarus: OpenROAD/OpenSTA read it (`read_spef`,
  * pnr.js with RCX rules) and write the SDF (`write_sdf`) that this run annotates. Icarus Verilog 11 applies IOPATH cell delays and says
  * "INTERCONNECT not supported" for wire delays, which it leaves out: its gate-level timing is cell delays only (parseGlsLog keeps that warning).
+ * Icarus Verilog 12 and later apply the SDF's INTERCONNECT (wire) delays too when started with -ginterconnect: option `interconnect: true`
+ * (real run 2026-11-21, Icarus 13 on OpenROAD's routed SDF; without it Icarus 13 says "Could not find net … -ginterconnect" per wire).
+ * The corner picks min:typ:max with iverilog -T (the models' own triples and the SDF's): OpenROAD writes (min::max) with no typical value,
+ * so corner typ there gives "SDF: Chosen value not defined" — use min or max with such a file.
  *
  *   glsSteps({ netlist, cells: [files], testbench, top, dut: 'counter_tb.dut', sdf, timescale, defines, corner: 'max'|'typ'|'min' })
  *       → { steps: [iverilog -g2012 -gspecify …, vvp -n out/gls.vvp], extra: { cc_sdf.v, cc_dump.v }, waves: 'out/gls.vcd' }
@@ -25,10 +29,10 @@ const PATH = /^[A-Za-z_][\w$]*(\.[A-Za-z_\\][\w$\\[\]]*)*$/;
 export function sdfModule(dut, sdf, corner = 'max', timescale = '') {
   const ts = /^\d+[munpf]?s\/\d+[munpf]?s$/.test(timescale) ? '`timescale ' + timescale + '\n' : '';
   const c = { min: 'MINIMUM', typ: 'TYPICAL', max: 'MAXIMUM' }[corner] || 'MAXIMUM';
-  return `// added by CadCraft's Chip design add-on: back-annotate ${sdf} onto ${dut}\n${ts}module cc_sdf;\n  initial $sdf_annotate("${sdf}", ${dut});   // wanted corner: ${c.toLowerCase()} (write the SDF for that corner)\nendmodule\n`;
+  return `// added by CadCraft's Chip design add-on: back-annotate ${sdf} onto ${dut}\n${ts}module cc_sdf;\n  initial $sdf_annotate("${sdf}", ${dut});   // corner: ${c.toLowerCase()} (iverilog -T${corner === 'min' || corner === 'typ' ? corner : 'max'})\nendmodule\n`;
 }
 
-export function glsSteps({ netlist, cells = [], testbench, top, dut, sdf = '', timescale = '', defines = {}, corner = 'max', vcd = 'out/gls.vcd' } = {}) {
+export function glsSteps({ netlist, cells = [], testbench, top, dut, sdf = '', timescale = '', defines = {}, corner = 'max', vcd = 'out/gls.vcd', interconnect = false } = {}) {
   if (!netlist || !testbench || !top) throw new Error('glsSteps: netlist, testbench and top');
   if (sdf && !(dut && PATH.test(dut))) throw new Error('glsSteps: the design under test (e.g. counter_tb.dut)');
   const extra = { 'cc_dump.v': dumpModule(top, vcd, timescale) };
@@ -37,7 +41,7 @@ export function glsSteps({ netlist, cells = [], testbench, top, dut, sdf = '', t
   const roots = ['-s', top, '-s', 'cc_dump', ...(sdf ? ['-s', 'cc_sdf'] : [])];
   return {
     steps: [
-      { tool: 'iverilog', label: 'iverilog gls', args: ['-g2012', '-gspecify', '-o', 'out/gls.vvp', ...roots, ...defs, ...cells, netlist, testbench, ...Object.keys(extra)] },
+      { tool: 'iverilog', label: 'iverilog gls', args: ['-g2012', '-gspecify', ...(interconnect && sdf ? ['-ginterconnect'] : []), '-T' + ({ min: 'min', typ: 'typ', max: 'max' }[corner] || 'max'), '-o', 'out/gls.vvp', ...roots, ...defs, ...cells, netlist, testbench, ...Object.keys(extra)] },
       { tool: 'vvp', label: 'vvp gls', args: ['-n', 'out/gls.vvp'] },
     ],
     extra,
@@ -47,7 +51,8 @@ export function glsSteps({ netlist, cells = [], testbench, top, dut, sdf = '', t
 
 export function parseGlsLog(text) {
   const rows = parseSimLog(text);
-  const seen = new Set(rows.map((r) => r.id));
+  const seen = new Set(rows.map((r) => r.id)), byText = new Map();
+  const capped = (r) => { const k = r.code + ':' + r.text.replace(/\d+/g, '#'); const n = (byText.get(k) || 0) + 1; byText.set(k, n); return n > 3; };
   for (const raw of String(text).split(/\r?\n/)) {
     const l = raw.trim();
     let m;
@@ -55,6 +60,9 @@ export function parseGlsLog(text) {
       const inner = !m[1] && /^([^:\s]+):(\d+):\s*(.*)$/.exec(m[4]);   // "SDF WARNING: file:line: …" (the other order)
       if (inner) m = [m[0], inner[1], inner[2], m[3], inner[3]];
       const r = row({ source: 'gls', code: 'sdf.' + m[3].toLowerCase(), severity: m[3] === 'ERROR' ? 'error' : 'warning', file: m[1] || '', line: Number(m[2]) || 0, vars: { what: m[4] }, text: 'SDF: ' + m[4], key: (m[1] || '') + ':' + (m[2] || '') + ':' + m[4].replace(/\d+/g, '#').slice(0, 60) });
+      if (!seen.has(r.id)) { seen.add(r.id); if (!capped(r)) rows.push(r); }
+    } else if ((m = /^Error:\s*(Could not find net[^\n]*)$/.exec(l))) {   // vvp 13 SDF interconnect without -ginterconnect
+      const r = row({ source: 'gls', code: 'sdf.interconnect', severity: 'warning', vars: { what: m[1] }, text: 'SDF: ' + m[1], key: 'interconnect' });
       if (!seen.has(r.id)) { seen.add(r.id); rows.push(r); }
     } else if ((m = /(setup|hold|width|period|recovery|removal)(?:\(.*?\))?\s*(?:timing )?violation/i.exec(l))) {
       const at = /time\s*[=:]?\s*(\d+)/i.exec(l);

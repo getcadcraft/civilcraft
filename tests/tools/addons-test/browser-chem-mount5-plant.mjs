@@ -32,6 +32,7 @@ const SESSION = admin('session');
 const [cname, cvalue] = SESSION.cookie.split('=');
 await ctx.addCookies([{ name: cname, value: cvalue, domain: 'getcadcraft.com', path: '/', secure: true, httpOnly: true }]);
 const problems = [];
+await ctx.addInitScript(() => localStorage.setItem('cc-autofocus', 'off'));   // the shell keeps one Properties section open (memory page-tests-folded-panels)
 const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
 page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));

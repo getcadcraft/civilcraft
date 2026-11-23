@@ -19,7 +19,8 @@ export function detect() {
   if (/mac|iphone|ipad|ipod/.test(plat) || /Macintosh|iPhone|iPad/.test(ua)) os = 'mac';
   else if (/linux|x11|cros/.test(plat) && !/Android/.test(ua)) os = 'linux';
   let browser = 'chromium';
-  if (/Firefox\//.test(ua)) browser = 'firefox';
+  if (nav.brave && typeof nav.brave.isBrave === 'function') browser = 'brave';   // Brave sends Chrome's user agent; navigator.brave is how it tells
+  else if (/Firefox\//.test(ua)) browser = 'firefox';
   else if (/Safari\//.test(ua) && !/Chrome\/|Chromium\/|CriOS\/|Edg\//.test(ua)) browser = 'safari';
   const desktop = !!(window.cadcraftDesktop);   // set by a desktop shell, when there is one
   const touch = window.matchMedia ? window.matchMedia('(pointer: coarse)').matches : false;   // i18n-ignore (media query)
@@ -40,9 +41,17 @@ export function parseSpec(spec) {
   return out;
 }
 
+/** Brave is its own choice, but it is Chromium: steps written for Chrome or Edge fit it too. */
+const ALSO = { browser: { brave: ['chromium'] } };
+
 export function matches(spec, ctx) {
   const s = parseSpec(spec);
-  return Object.keys(s).every((dim) => !ctx || ctx[dim] === undefined || ctx[dim] === null || s[dim].includes(ctx[dim]));
+  return Object.keys(s).every((dim) => {
+    if (!ctx || ctx[dim] === undefined || ctx[dim] === null) return true;
+    if (s[dim].includes(ctx[dim])) return true;
+    const also = ALSO[dim] && ALSO[dim][ctx[dim]];
+    return !!also && also.some((t) => s[dim].includes(t));
+  });
 }
 
 /**
@@ -64,7 +73,7 @@ export function apply(root, ctx) {
 
 export const LABELS = {
   os: { mac: 'Mac', windows: 'Windows', linux: 'Linux' },
-  browser: { chromium: 'Chrome or Edge', firefox: 'Firefox', safari: 'Safari' },   // i18n-ignore (English fallback; shell.help.browser.*)
+  browser: { chromium: 'Chrome or Edge', brave: 'Brave', firefox: 'Firefox', safari: 'Safari' },   // i18n-ignore (English fallback; shell.help.browser.*)
   shell: { web: 'browser', desktop: 'desktop app' },   // i18n-ignore (English fallback; shell.help.shell.*)
   net: { online: 'online', offline: 'offline' },
   input: { mouse: 'mouse', touch: 'touch' },

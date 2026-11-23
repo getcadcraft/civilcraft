@@ -176,6 +176,19 @@ export async function mepMode({ APP, ROOT, WebIFC, IfcModel, quiet }) {
   ok(key2 === 'mep.err.short' && M.readRuns(B.w()).find((r) => r.guid === mainRun.guid).valves.length === 2, 'a valve on top of the tee: refused, nothing written');
   ed.modelChange(M.removeValve(mainRun.guid, 1), { label: 'Valve' });
   ok(M.readRuns(B.w()).find((r) => r.guid === mainRun.guid).valves.length === 1, 'the check valve removed');
+  // 0.11 SU.1561 (su-finish-11): instruments stored on the run (CadCraft_MepRun.Instruments), one undo step, no geometry change
+  {
+    const t0 = dec(ed.save()), parts0 = M.readRuns(B.w()).find((r) => r.guid === mainRun.guid).parts.join(), n0i = ed.changes.length;
+    ok(!/'Instruments'/.test(t0), 'instruments: a model that never had any carries no Instruments property');
+    ed.modelChange(M.setRunInstruments([{ guid: mainRun.guid, instruments: [{ s: 900, tag: 'FIC-101', kind: 'fic', loc: 'panel' }, { s: 300, tag: 'PI-101', kind: 'PI' }, { s: 5, tag: 'PI-101', kind: 'TI' }, { s: -1, tag: 'X', kind: 'X' }] }, { guid: 'nope', instruments: [] }]), { label: 'Instruments' });
+    const rr = M.readRuns(B.w()).find((r) => r.guid === mainRun.guid), t1 = dec(ed.save());
+    ok(ed.changes.length === n0i + 1 && rr.instruments.map((i) => i.tag + ':' + i.kind + ':' + i.loc + '@' + i.s).join() === 'PI-101:PI:field@300,FIC-101:FIC:panel@900', 'instruments: stored on the run, checked (duplicate tag, bad place dropped), in order along it, one undo step', JSON.stringify(rr.instruments));
+    ok(/'Instruments'/.test(t1) && /FIC-101/.test(t1) && rr.parts.join() === parts0 && rr.valves.length === 1, 'instruments: in the saved IFC, the run\'s parts and valve untouched');
+    ed.modelChange(M.setRunSizes([{ guid: mainRun.guid, size: rr.size }]), { label: 'Size' });
+    ok(M.readRuns(B.w()).find((r) => r.guid === mainRun.guid).instruments.length === 2, 'instruments: another edit of the run keeps them');
+    ed.undo(); ed.undo();
+    ok(dec(ed.save()) === t0, 'instruments: two undos give the file back exactly');
+  }
   // delete: every part and port goes; a system with nothing in it goes too
   ed.modelChange(M.removeRuns([mainRun.guid]), { label: 'Delete' });
   txt = dec(ed.save());

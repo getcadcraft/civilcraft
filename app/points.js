@@ -28,14 +28,39 @@ import { lassoSelect } from './lasso-core.js';
 export const FORMATS = ['PNEZD', 'PENZD', 'PNEZ', 'PENZ', 'NEZD', 'ENZD', 'NEZ', 'ENZ'];
 const MAX_BAD = 200;
 
+/** A Set of strings with no ceiling: one JavaScript Set stops at 16,777,216 entries ("Set maximum size exceeded"), which a point file of 17 million points reaches. */
+class BigSet {
+  constructor() { this.sets = [new Set()]; }
+  has(k) { for (let i = 0; i < this.sets.length; i++) if (this.sets[i].has(k)) return true; return false; }
+  add(k) { let s = this.sets[this.sets.length - 1]; if (s.size >= 8000000) { s = new Set(); this.sets.push(s); } s.add(k); return this; }
+}
+
+/** The lines of `text` one at a time, exactly String(text).split(/\r\n|\r|\n/), a leading BOM dropped. `text` is a string or the parts of a file too big
+ *  for one string (PERF.20: textin.js TextParts, or an array of strings cut anywhere, even between a CR and its LF). Same function as lib/layout/layout-points.js. */
+function* pointLines(text) {
+  const parts = typeof text === 'string' ? [text] : Array.isArray(text) ? text : (text && Array.isArray(text.parts) ? text.parts : [String(text ?? '')]);
+  let carry = '', cr = false, first = true;
+  for (let part of parts) {
+    if (!part) continue;
+    if (first) { part = part.replace(/^﻿/, ''); first = false; if (!part) continue; }
+    if (cr && part.charCodeAt(0) === 10) { cr = false; part = part.slice(1); if (!part) continue; }
+    const lines = (carry ? carry + part : part).split(/\r\n|\r|\n/);
+    carry = lines.pop();
+    cr = part.charCodeAt(part.length - 1) === 13;
+    for (let i = 0; i < lines.length; i++) yield lines[i];
+  }
+  yield carry;
+}
+
 export function parsePoints(text, { format = 'auto', prefer = 'PNEZD' } = {}) {
-  const raw = String(text ?? '').replace(/^﻿/, '').split(/\r\n|\r|\n/);
   const rows = [];
-  raw.forEach((line, i) => {
+  let li = 0;
+  for (const line of pointLines(text ?? '')) {
+    li++;
     const t = line.trim();
-    if (!t || t.startsWith('#') || t.startsWith(';') || t.startsWith('//')) return;
-    rows.push({ line: i + 1, text: line });
-  });
+    if (!t || t.startsWith('#') || t.startsWith(';') || t.startsWith('//')) continue;
+    rows.push({ line: li, text: line });
+  }
   const out = { points: [], format: null, formatFrom: '', delimiter: null, header: null, bad: [], badCount: 0, duplicates: 0 };
   if (!rows.length) return out;
 
@@ -72,7 +97,7 @@ export function parsePoints(text, { format = 'auto', prefer = 'PNEZD' } = {}) {
 
   const cols = fmt.split('');
   const iP = cols.indexOf('P'), iN = cols.indexOf('N'), iE = cols.indexOf('E'), iZ = cols.indexOf('Z'), iD = cols.indexOf('D');
-  const seen = new Set();
+  const seen = new BigSet();
   let auto = 0;
   const bad = (r, why) => { out.badCount++; if (out.bad.length < MAX_BAD) out.bad.push({ line: r.line, text: r.text.slice(0, 160), why }); };
   for (let k = start; k < rows.length; k++) {

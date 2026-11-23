@@ -1,12 +1,18 @@
 % check_stress — the stress in a generated part under loads, by PartCraft's voxel stress solver
 %
 % Usage:      r = check_stress(f, h, alloy, bc)
+%             r = check_stress(f, h, alloy, bc, T)            at a temperature T in kelvin (steel only; needs the NIST TN 1907 steel pack added)
+%             r = check_stress(f, h, alloy, bc, T, grade)     grade: structural-steel (default), fire-resistive-steel, quenched-tempered-plate,
+%                                                             bolt-steel (material_list() names what the added packs hold)
 %             f a field (the part), h the voxel size in mm, alloy a material id (steel, ss304, al6061, ti64, abs, pla, nylon),
 %             bc.fixed = { box, … }     boxes [x0 y0 z0 x1 y1 z1] in mm; every node inside one is held in x, y and z
 %             bc.loads = { struct('box', box, 'force', [Fx Fy Fz]), … }   N, shared equally by the nodes in the box
 % Returns:    r.max_von_mises (a quantity: Pa), r.max_displacement (mm), r.safety_factor (yield / max von Mises), r.ok (safety factor
 %             at least 1), r.settings (the solver, voxel size, unknowns, material and its source: the lines for the data sheet), r.raw
 %             (static_voxel's own result: stresses and displacements per element and node).
+%             At a temperature: E is the room-temperature E times E(T) / E(20 degC) and the yield is the room-temperature yield times the
+%             retained yield Ry(T), both from the pack; r.temperature holds T, the grade, the two factors and their sources (with the pack
+%             hash). Outside the pack's range it refuses rather than guess. It is the material at T: no thermal strain, no creep.
 % Method:     field_voxel makes the cubes, nodes_in picks the nodes of each box, static_voxel solves K u = f (direct up to 60 000
 %             unknowns, the multigrid solver above) with the same h8i element PartCraft's Simulation uses. It calls those solvers and
 %             changes nothing in them.
@@ -15,14 +21,32 @@
 %             shrinks: read the stress a few voxels away from them. Elastic, small strains, one load case, no contact.
 % References: see static_voxel (Wilson-Taylor h8i element; Timoshenko, Strength of Materials, for the cantilever check).
 % Check:      a 100 x 10 x 10 mm steel cantilever, 100 N at the tip, h 2.5: tip deflection 0.2 mm (P L^3 / 3 E I), within 3 %
-%             (tools/field-test/check.mjs).
-function r = check_stress(f, h, alloy, bc)
+%             (tools/field-test/check.mjs); at 600 degC the deflection grows by E(20) / E(600) and the safety factor shrinks by Ry(600)
+%             (tools/engineer-test/check-stress-temp.mjs).
+function r = check_stress(f, h, alloy, bc, T, grade)
 if ~solver_available('stress')
   error(solver_none('stress'));
 end
 mat = material(alloy);
-v = field_voxel(f, h);
 E = mat.E.value / 1e6;                         % MPa
+fy = mat.yield.value;
+src = mat.E.ref;
+hot = nargin >= 5 && ~isempty(T);
+if hot
+  if ~strcmp(alloy, 'steel')
+    error('check_stress: a strength at temperature is published for steel only (NIST TN 1907); use alloy steel or leave T out');
+  end
+  if nargin < 6 || isempty(grade)
+    grade = 'structural-steel';
+  end
+  e0 = material_at(grade, 'E', 293.15);
+  eT = material_at(grade, 'E', T);
+  ry = material_at(grade, 'Ry', T);
+  kE = eT.value / e0.value;
+  E = E * kE;
+  fy = fy * ry.value;
+end
+v = field_voxel(f, h);
 b = struct();
 b.fixed = nodes_in(v, bc.fixed);
 loads = {};
@@ -45,9 +69,12 @@ vm = s.maxVm * 1e6;
 r = struct();
 r.max_von_mises = q(vm, 'Pa', 'static_voxel: von Mises at the cube centres, the h8i element (Wilson-Taylor)');
 r.max_displacement = q(s.maxDisp, 'mm', 'static_voxel');
-r.safety_factor = q(mat.yield.value / max(vm, 1e-9), '-', 'yield / max von Mises');
-r.ok = mat.yield.value >= vm;
-r.settings = struct('solver', s.solver, 'voxel_mm', h, 'unknowns', s.dofs, 'element', 'h8i, 8-node cube with incompatible modes', 'material', alloy, 'source', mat.E.ref);
+r.safety_factor = q(fy / max(vm, 1e-9), '-', 'yield / max von Mises');
+r.ok = fy >= vm;
+r.settings = struct('solver', s.solver, 'voxel_mm', h, 'unknowns', s.dofs, 'element', 'h8i, 8-node cube with incompatible modes', 'material', alloy, 'source', src);
+if hot
+  r.temperature = struct('T', q(T, 'K', 'given'), 'grade', grade, 'E_factor', q(kE, '-', eT.ref), 'yield_factor', q(ry.value, '-', ry.ref), 'yield', q(fy, 'Pa', 'room-temperature yield x Ry(T)'), 'note', ry.note);
+end
 r.raw = s;
 end
 

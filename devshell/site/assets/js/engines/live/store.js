@@ -4,7 +4,10 @@
  * source node feeds which place in a drawing or model, samples come in, rows and markers come out. It never writes to a plant.
  *
  *   map entry  { id, source, node, label?, unit?, scale?, offset?, target: { kind: 'pid'|'3d'|'drawing'|'element', id, prop? }, low?, high?, deadband?, staleS?, range?: [lo, hi] }
- *   new LiveStore({ now, staleS, trend })     .define(map) → { ok, problems }     .apply(source, samples)     .rows()     .markers()     .problems()     .history(id)
+ *   new LiveStore({ now, staleS, trend })     .define(map) → { ok, problems }     .apply(source, samples)     .rows()     .markers()     .problems()     .history(id, { gaps })
+ *   apply(): a sample older than the held one goes into the trend at its time, the current value stays (out-of-order delivery, a historian export after a live read).
+ *   .mergeHistory(source, samples)   older samples (an OPC UA HistoryRead, a historian export) into the trend only, in time order; the current value is untouched
+ *   The trend keeps a bad-quality sample as a gap ([ms, null]); history(id) leaves gaps out, history(id, { gaps: true }) keeps them (value null). 0.11 IND.12.
  *   sample     { node, value, quality: 'good'|'uncertain'|'bad', at }       (at: ISO text or ms)
  * Alarms have a deadband: once high, it stays high until the value falls below high − deadband (so a value on the limit does not flicker).
  */
@@ -39,11 +42,12 @@ export class LiveStore {
       const list = this.byKey.get(String(source) + '\u0000' + String(s?.node)); if (!list) continue;
       const at = typeof s.at === 'number' ? s.at : Date.parse(s.at); const ms = Number.isFinite(at) ? at : this.now();
       for (const e of list) {
-        const c = this.cur.get(e.id); if (c.at != null && ms < c.at) continue;
+        const c = this.cur.get(e.id); if (c.at != null && ms < c.at) { this.#late(e, c, s, ms); continue; }   // an older sample is not the current value, but it is part of the trend
         const raw = typeof s.value === 'number' && Number.isFinite(s.value) ? s.value : null, num = typeof s.value === 'boolean' ? (s.value ? 1 : 0) : raw;
         c.raw = typeof s.value === 'string' ? cleanText(s.value, 200) : s.value === true || s.value === false ? s.value : raw;
         c.quality = qual(s.quality); c.at = ms; c.received = this.now(); c.updates++;
         c.value = num == null ? null : num * e.scale + e.offset;
+        if (c.quality === 'bad' && c.trend.length && c.trend[c.trend.length - 1][1] != null) { c.trend.push([ms, null]); if (c.trend.length > this.trendMax) c.trend.splice(0, c.trend.length - this.trendMax); }
         if (c.value != null && c.quality !== 'bad') {
           c.trend.push([ms, c.value]); if (c.trend.length > this.trendMax) c.trend.splice(0, c.trend.length - this.trendMax);
           if (e.high != null) { if (c.value > e.high) c.alarm = 'high'; else if (c.alarm === 'high' && c.value < e.high - e.deadband) c.alarm = null; }
@@ -81,7 +85,24 @@ export class LiveStore {
     }
     return P;
   }
-  history(id) { return (this.cur.get(id)?.trend || []).map(([t, v]) => ({ t, value: v })); }
+  history(id, { gaps = false } = {}) { return (this.cur.get(id)?.trend || []).filter(([, v]) => gaps || v != null).map(([t, v]) => ({ t, value: v })); }
+  /** One sample into the trend at its time (one point per time, bad quality = a gap). True when it was added. */
+  #late(e, c, s, ms) {
+    const v = typeof s.value === 'boolean' ? (s.value ? 1 : 0) : typeof s.value === 'number' && Number.isFinite(s.value) ? s.value : null;
+    const val = v == null || qual(s.quality) === 'bad' ? null : v * e.scale + e.offset;
+    let i = c.trend.length; while (i > 0 && c.trend[i - 1][0] > ms) i--;
+    if (i > 0 && c.trend[i - 1][0] === ms) return false;
+    c.trend.splice(i, 0, [ms, val]); if (c.trend.length > this.trendMax) c.trend.splice(0, c.trend.length - this.trendMax);
+    return true;
+  }
+  /** Older samples into the trends only (sorted, one point per time, bad quality = a gap); returns how many points were added. */
+  mergeHistory(source, samples) {
+    let added = 0;
+    const list = (Array.isArray(samples) ? samples : []).map((s) => ({ s, ms: typeof s?.at === 'number' ? s.at : Date.parse(s?.at) })).filter((x) => Number.isFinite(x.ms)).sort((a, b) => a.ms - b.ms);
+    for (const { s, ms } of list) for (const e of this.byKey.get(String(source) + '\u0000' + String(s.node)) || []) if (this.#late(e, this.cur.get(e.id), s, ms)) added++;
+    for (const c of this.cur.values()) if (c.trend.length > this.trendMax) c.trend.splice(0, c.trend.length - this.trendMax);
+    return added;
+  }
   /** Model against plant: modelValues { tagId: value in the tag's own unit }. */
   compare(modelValues, rel = 0.05) {
     const out = [], P = [];

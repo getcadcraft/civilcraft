@@ -40,19 +40,22 @@ export class BitReader {
   }
   overrun(n) { throw new DwgReadError(msg('ccdwg.err.read_past_end', { at: this.pos + n, end: this.end })); }
   bitsLeft() { return this.end - this.pos; }
-  align() { this.pos = (this.pos + 7) & ~7; }
+  // PERF.19 (0.11): bit positions are plain numbers, not int32: a drawing whose object section passes 256 MiB (about 2.9 M entities) has positions past 2^31, where
+  // `p >> 3` and `& ~7` wrap and every later object read as empty. `p & 7` keeps the low bits of any number, and (p - (p & 7)) / 8 is the exact byte.
+  align() { const m = this.pos & 7; if (m) this.pos += 8 - m; }
 
   B() {
     const p = this.pos;
     if (p >= this.end) this.overrun(1);
     this.pos = p + 1;
-    return (this.buf[p >> 3] >> (7 - (p & 7))) & 1;
+    const q = p & 7;
+    return (this.buf[(p - q) / 8] >> (7 - q)) & 1;
   }
   BB() {
     const p = this.pos;
     if (p + 2 > this.end) this.overrun(2);
     this.pos = p + 2;
-    const s = p & 7, i = p >> 3;
+    const s = p & 7, i = (p - s) / 8;
     if (s < 7) return (this.buf[i] >> (6 - s)) & 3;
     return ((this.buf[i] & 1) << 1) | (this.buf[i + 1] >> 7);
   }
@@ -67,7 +70,7 @@ export class BitReader {
     const p = this.pos;
     if (p + 8 > this.end) this.overrun(8);
     this.pos = p + 8;
-    const i = p >> 3, s = p & 7;
+    const s = p & 7, i = (p - s) / 8;
     return s ? ((this.buf[i] << s) | (this.buf[i + 1] >> (8 - s))) & 0xFF : this.buf[i];
   }
   RS() { const a = this.RC(); return ((this.RC() << 8) | a) << 16 >> 16; }
@@ -81,7 +84,7 @@ export class BitReader {
   }
   bytes(n) {
     if (this.pos + n * 8 > this.end) this.overrun(n * 8);
-    if (!(this.pos & 7)) { const i = this.pos >> 3; this.pos += n * 8; return this.buf.slice(i, i + n); }
+    if (!(this.pos & 7)) { const i = this.pos / 8; this.pos += n * 8; return this.buf.slice(i, i + n); }
     const out = new Uint8Array(n);
     for (let i = 0; i < n; i++) out[i] = this.RC();
     return out;

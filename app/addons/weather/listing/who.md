@@ -1,0 +1,4 @@
+- Designers and energy modellers who need design temperatures and degree-days for the place a building stands.
+- Anyone running the EnergyPlus check for a year, who needs a weather file and does not have one.
+- Designers and students who want to see a climate: when it is hot, humid, windy or bright through the year and through the day.
+- Mechanical engineers checking a quick heat loss or cooling peak against a station's published design conditions.

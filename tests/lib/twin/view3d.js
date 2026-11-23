@@ -3,6 +3,7 @@
  * view3d.js — the equipment in a host's three.js scene (0.9 TW.5): real shapes in place of the flow add-on's strips, cartons on the belts, vehicles, moving robot arms. three.js is handed in (THREE),
  * so lib/twin stays free of it. It draws beside whatever is in the scene; the host hides the flow add-on's own marks while it is on.
  *
+ *   v.drawJoints(poses, soupOf)   poses = jobs.jointPoses(…) · soupOf(partKey) → { positions (m, part-local), tris } : a copy of each moving part drawn in its pose (the model's own copy stays at rest; see TW.13)
  *   const v = new TwinView(THREE, scene, invalidate)
  *   v.setEquipment(parts, { floor: part, robots: [{item, base, yaw}] })  ·  v.drawFrame({loads, vehicles}, t, stationsBusy: Set)  ·  v.drawBodies([{half, x, q}])  ·  v.clearFrame()  ·  v.dispose()
  */
@@ -104,9 +105,30 @@ export class TwinView {
     m.instanceMatrix.needsUpdate = true;
     this.invalidate();
   }
-  clearFrame() { for (const e of this.pools.values()) e.mesh.count = 0; this.invalidate(); }
+  /** A copy of each part that has a joint, drawn at the joint's value. The copy is hidden while the joint is home (the part itself is there). */
+  drawJoints(poses, soupOf) {
+    const T = this.T; this.ghosts = this.ghosts || new Map();
+    const live = new Set();
+    for (const p of poses || []) {
+      live.add(p.id);
+      let g = this.ghosts.get(p.id);
+      if (!g) {
+        const soup = soupOf(p.part); if (!soup) continue;
+        const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(Float32Array.from(soup.positions), 3)); geo.setIndex(Array.from(soup.tris)); geo.computeVertexNormals();
+        const mesh = new T.Mesh(geo, new T.MeshStandardMaterial({ color: COLORS.steel || '#9aa4ad', metalness: 0.1, roughness: 0.55, polygonOffsetFactor: -1, polygonOffsetUnits: -1, polygonOffset: true }));
+        mesh.matrixAutoUpdate = false; mesh.frustumCulled = false; mesh.name = 'twin:joint:' + p.id; this.dyn.add(mesh); g = { mesh, geo }; this.ghosts.set(p.id, g);
+      }
+      g.mesh.matrix.fromArray(p.matrix); g.mesh.matrixWorldNeedsUpdate = true; g.mesh.updateMatrixWorld(true); g.mesh.visible = Math.abs(p.value - p.home) > 1e-9;
+    }
+    for (const [id, g] of this.ghosts) if (!live.has(id)) { this.dyn.remove(g.mesh); g.geo.dispose(); g.mesh.material.dispose(); this.ghosts.delete(id); }
+    this.invalidate();
+  }
+  clearFrame() {
+    if (this.ghosts) for (const g of this.ghosts.values()) g.mesh.visible = false;
+ for (const e of this.pools.values()) e.mesh.count = 0; this.invalidate(); }
   dispose() {
     this.clearGroup(this.group);
+    if (this.ghosts) { for (const g of this.ghosts.values()) { g.geo.dispose(); g.mesh.material.dispose(); } this.ghosts.clear(); }
     for (const e of this.pools.values()) e.mesh.dispose();
     this.pools.clear();
     this.scene.remove(this.group, this.dyn);

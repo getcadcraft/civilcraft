@@ -130,6 +130,14 @@ export function readDwg(bytes, opts = {}) {
       }
       records.set(handle, rec);
     }
+    // objects-read.js: an entity read again with a plot style handle its flags do not name stays so only when that handle is a
+    // plot style placeholder; otherwise the first reading stands
+    for (const t of ctx.psRetried || []) {
+      if (records.get(t.rec._h.plotstyle)?.type === 'ACDBPLACEHOLDER') continue;
+      if (t.first) { if (records.get(t.rec.handle) === t.rec) records.set(t.rec.handle, t.first); }
+      else { t.rec._h = t.h; t.rec._hPos = t.hPos; }
+    }
+    ctx.psRetried = null;
   } else notes.push(msg('ccdwg.read.no_objects'));
   if (damaged > 20) notes.push(msg('ccdwg.read.more_failed', { n: damaged - 20 }));
   if (crcBad) notes.push(msg('ccdwg.read.crc_failed', { n: crcBad }));

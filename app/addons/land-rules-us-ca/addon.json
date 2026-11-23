@@ -1,0 +1,22 @@
+{
+  "id": "land-rules-us-ca",
+  "name": "Land rules: California",
+  "version": "0.11.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [],
+  "needs": [
+    {
+      "id": "land-records",
+      "range": "*"
+    }
+  ],
+  "description": "California's Subdivision Map Act for the Land records add-on: when a final map or a parcel map is needed, what a lot line adjustment may be, and the periods the Act states. Every figure names its section and how it was read. City and county lot rules come as their own add-ons on top. Not legal advice.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

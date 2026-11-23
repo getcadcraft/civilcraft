@@ -21,7 +21,7 @@
  *   cleanHardscape(list, units) (untrusted) · hardDefaults(units)
  *   pavingSurface(p, surface) → { corners: [{x,y,z}], drain: {x,y,z} | null, z0 }
  *   patternLines(p, { max }) → [[{x,y},{x,y}]…] the joint lines clipped to the area (capped)
- *   pathStrip(path, surface) → { center: [{x,y,z}], left, right, length, steepest, steep: [{ s, grade }] }
+ *   pathStrip(path, surface, { roads }) → { center: [{x,y,z}], left, right, length, steepest, steep: [{ s, grade }], runs }   (roads: 0.10.1 #1977, see the function)
  *   wallLayout(w, surface, units) → { stations: [{ s, x, y, ground, top, height, footing }], maxHeight, length, faceArea, volume, steps, engineer }
  *   rampLayout(r, surface, units) → { zs, ze, rise, length, grade, runs, landings, need, ok, checks }
  *   stepsLayout(s, surface, units) → { H, n, riser, going, treads, flights, run, length, fits, need, checks, treadLines }
@@ -70,7 +70,7 @@ export function cleanHardscape(list, units) {
   const D = hardDefaults(units), out = [];
   if (!Array.isArray(list)) return out;
   for (const h of list.slice(0, 2000)) {
-    if (!h || typeof h !== 'object' || !HARD_KINDS.includes(h.kind) || !/^l\d{1,9}$/.test(String(h.id))) continue;
+    if (!h || typeof h !== 'object' || !HARD_KINDS.includes(h.kind) || !/^l\d{1,16}$/.test(String(h.id))) continue;
     const pts = (Array.isArray(h.pts) ? h.pts.slice(0, 5000) : []).map(XY).filter(Boolean);
     const closed = h.kind === 'paving';
     if (pts.length < (closed ? 3 : 2)) continue;
@@ -197,18 +197,54 @@ export function patternLines(p, { max = 20000 } = {}) {
 }
 
 // ---- paths ----
-export function pathStrip(path, surface) {
-  const w = walk(path.pts), out = { center: [], left: [], right: [], length: w.L, steepest: 0, steep: [] };
+/**
+ * 0.10.1 #1977: with `roads` ([{ poly: [{x, y}] }], each a road's body outline: junction.js bodyOf) the path stops at a road's
+ * outer edge instead of lying over the road: a station is added exactly where the centre line crosses an outline, the stations
+ * inside a road are left out, and `runs` = [{ center, left, right }] holds the pieces (a path that crosses a road is two). An end
+ * that stops within twice the path's width short of a road is carried straight on to its edge. The graded surface passes through
+ * a road's edge, so the path meets the walk or shoulder at its level. Without `roads` nothing changes (runs = the one strip).
+ */
+export function pathStrip(path, surface, { roads = null } = {}) {
+  const bodies = (roads || []).filter((r) => r?.poly?.length >= 3);
+  let P = path.pts;
+  if (bodies.length && P.length >= 2) {
+    const inRoad = (q) => bodies.some((r) => inPoly(q.x, q.y, r.poly)), reach = 2 * path.width;
+    const carry = (end, from) => {
+      const L = Math.hypot(end.x - from.x, end.y - from.y);
+      if (!(L > 1e-9) || inRoad(end)) return null;
+      const far = { x: end.x + ((end.x - from.x) / L) * reach, y: end.y + ((end.y - from.y) / L) * reach };
+      let best = null;
+      for (const r of bodies) { const u = polyCuts(end, far, r.poly)[0]; if (u !== undefined && (best === null || u < best)) best = u; }
+      return best === null ? null : { x: end.x + (far.x - end.x) * best, y: end.y + (far.y - end.y) * best };
+    };
+    const head = carry(P[0], P[1]), tail = carry(P[P.length - 1], P[P.length - 2]);
+    if (head || tail) P = [...(head ? [head] : []), ...P, ...(tail ? [tail] : [])];
+  }
+  const w = walk(P), out = { center: [], left: [], right: [], length: w.L, steepest: 0, steep: [], runs: [] };
   if (!w.segs.length) return out;
   const step = Math.max(path.width / 2, w.L / 400);
-  let prev = null;
-  for (const s of stations(w, step)) {
+  let sts = stations(w, step);
+  const cuts = [];
+  if (bodies.length) {
+    for (const g of w.segs) for (const r of bodies) for (const u of polyCuts(g.a, g.b, r.poly)) cuts.push(Math.round((g.s0 + u * g.l) * 1e6) / 1e6);
+    sts = [...new Set([...sts, ...cuts])].sort((a, b) => a - b);
+  }
+  const isCut = (s) => cuts.some((c) => Math.abs(c - s) < 1e-6);
+  const within = (s) => { const q = w.at(s); return bodies.some((r) => inPoly(q.x, q.y, r.poly)); };
+  let prev = null, run = null, last = null;
+  for (const s of sts) {
+    if (bodies.length) {
+      if (!isCut(s) && within(s)) { run = null; prev = null; last = s; continue; }
+      if (run && last !== null && within((last + s) / 2)) { run = null; prev = null; }   // the stretch back to the last station lies in a road
+    }
+    last = s;
     const q = w.at(s), z = ground(surface, q.x, q.y);
     if (z === null) continue;
     const nx = -q.uy, ny = q.ux, h = path.width / 2, dz = (path.crossfall / 100) * path.width;   // falls to the right side
-    out.center.push({ x: q.x, y: q.y, z, s });
-    out.left.push({ x: q.x + nx * h, y: q.y + ny * h, z: z + dz / 2 });
-    out.right.push({ x: q.x - nx * h, y: q.y - ny * h, z: z - dz / 2 });
+    const c = { x: q.x, y: q.y, z, s }, l = { x: q.x + nx * h, y: q.y + ny * h, z: z + dz / 2 }, r = { x: q.x - nx * h, y: q.y - ny * h, z: z - dz / 2 };
+    out.center.push(c); out.left.push(l); out.right.push(r);
+    if (!run) { run = { center: [], left: [], right: [] }; out.runs.push(run); }
+    run.center.push(c); run.left.push(l); run.right.push(r);
     if (prev) {
       const g = Math.abs(z - prev.z) / Math.max(1e-9, s - prev.s) * 100;
       if (g > out.steepest) out.steepest = g;
@@ -216,7 +252,24 @@ export function pathStrip(path, surface) {
     }
     prev = { z, s };
   }
+  out.runs = out.runs.filter((r) => r.left.length >= 2);
   return out;
+}
+function inPoly(x, y, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const a = pts[i], b = pts[j]; if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) inside = !inside; }
+  return inside;
+}
+/** Where a→b crosses the closed outline `poly`: fractions along a→b, nearest first. */
+function polyCuts(a, b, poly) {
+  const out = [], dx = b.x - a.x, dy = b.y - a.y;
+  for (let i = 0; i < poly.length; i++) {
+    const c = poly[i], d = poly[(i + 1) % poly.length], ex = d.x - c.x, ey = d.y - c.y, den = dx * ey - dy * ex;
+    if (Math.abs(den) < 1e-15) continue;
+    const u = ((c.x - a.x) * ey - (c.y - a.y) * ex) / den, v = ((c.x - a.x) * dy - (c.y - a.y) * dx) / den;
+    if (u >= 0 && u <= 1 && v >= 0 && v <= 1) out.push(u);
+  }
+  return out.sort((m, n) => m - n);
 }
 
 // ---- walls ----
@@ -334,7 +387,7 @@ export function wallPatch(h, surf, units) {
     info: { kind: 'wall', hiLeft, high: mean(hiLeft ? left : right), low: mean(hiLeft ? right : left), off: offCount } };
 }
 
-export function hardGradeItems(ls, units) {
+export function hardGradeItems(ls, units, { roads = null } = {}) {   // roads: 0.10.1 #1977, () => the road bodies graded so far
   const out = [], late = [];   // 0.8 LA.4: steps and ramps after the paving they land on, so they win at the shared edge
   for (const h of ls?.hardscape || []) {
     if (h.kind === 'paving' && h.grade) out.push({ id: h.id, kind: 'ls-paving', name: h.name, patch: (surf) => {
@@ -359,9 +412,14 @@ export function hardGradeItems(ls, units) {
     } });
     if (h.kind === 'wall' && h.grade && h.wall === 'retaining') late.push({ id: h.id, kind: 'ls-wall', name: h.name, patch: (surf) => wallPatch(h, surf, units) });   // 0.8 LA.4: walls as modifiers
     if (h.kind === 'path' && h.grade) out.push({ id: h.id, kind: 'ls-path', name: h.name, patch: (surf) => {
-      const st = pathStrip(h, surf);
-      if (st.left.length < 2) return { problems: [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
-      return { problems: [], region: [...st.left, ...st.right.slice().reverse()].map((q) => ({ x: q.x, y: q.y })), points: [], breaklines: [{ name: h.name + ' L', pts: st.left }, { name: h.name + ' R', pts: st.right }], info: { kind: 'path', steepest: st.steepest } };
+      // 0.10.1 #1977: the path stops at a road's edge (it used to be graded across the road, reshaping the road's surface); a
+      // path a road cuts in two is graded as two pieces (`more`), a path wholly on a road grades nothing
+      const bodies = roads ? roads() : null, st = pathStrip(h, surf, { roads: bodies });
+      if (st.left.length < 2) return { problems: bodies?.length ? [] : [t('ls.g.err.off')], region: null, points: [], breaklines: [], info: null };
+      const piece = (r) => ({ region: [...r.left, ...r.right.slice().reverse()].map((q) => ({ x: q.x, y: q.y })), points: [], breaklines: [{ name: h.name + ' L', pts: r.left }, { name: h.name + ' R', pts: r.right }] });
+      const [first, ...rest] = st.runs.map(piece);
+      if (!first) return { problems: [], region: null, points: [], breaklines: [], info: null };
+      return { problems: [], ...first, ...(rest.length ? { more: rest } : {}), info: { kind: 'path', steepest: st.steepest, pieces: st.runs.length } };
     } });
   }
   return [...out, ...late];

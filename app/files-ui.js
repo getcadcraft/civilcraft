@@ -6,8 +6,11 @@
  */
 import { t } from './i18n.js';
 import { decodePartsAsync, partsOf, parseJsonParts } from './textin.js';
-import { Project } from './project.js';
-import { readLandXml, writeLandXml } from './landxml.js';
+import { primeSurface, primeFigures, parseProjectAsync, readLandXmlListsAsync, ASYNC_FROM, PARSE_ASYNC_FROM } from './open-async.js';   // 0.11 PERF.33
+import { Project, olderCopy, MAX_POINTS } from './project.js';
+/** 0.11 (the cap lifted, perf-finish-11 civil): the largest project file Open takes, in MB (measured: see docs/0.11-sessions/perf-finish-11-civil-cap.md). */
+export const OPEN_JSON_MB = 1024;
+import { readLandXml, writeLandXml, writeLandXmlChunks } from './landxml.js';
 import { cleanRail, railDefaults } from './rail.js';
 import { cleanWater } from './water.js';
 import { waterFromNetwork, waterNetwork } from './water-objects.js';
@@ -25,7 +28,10 @@ export function mountFiles(ctx) {
   const { ui, view, gisLoad, buildScene, refresh, rebind, say, nativeUi, ifcUi, refocus, busy, confirmDiscard } = ctx;
 
   async function openFile(f) {
-    if (f.size > 200 * 1024 * 1024) { say(t('cv.file.toobig')); return; }
+    // 0.11 (the cap lifted): a project file streams into the point table in the Worker, never one string, so it may be as big as OPEN_JSON_MB;
+    // every other file is still read whole (200 MB)
+    const maxMb = /\.json$/i.test(f.name) ? OPEN_JSON_MB : 200;
+    if (f.size > maxMb * 1024 * 1024) { say(maxMb === 200 ? t('cv.file.toobig') : t('cv.file.toobig.mb', { mb: maxMb.toLocaleString('en-US') })); return; }
     if (/\.ccbundle$|ccbundle\.zip$/i.test(f.name)) {   // 0.8 BIM-BUNDLE-OPEN: a project bundle opens as its IFC model (shared reader and plan, ./bundle/plan.js)
       const r = await (await import('./bundle/plan.js')).expandBundles([f], 'civilcraft', { prefer: ['model'], limit: 1 });
       const n = r.notes[0];
@@ -36,8 +42,22 @@ export function mountFiles(ctx) {
     }
     if (/\.ifc$/i.test(f.name)) { (await ifcUi())?.importFile(f); return; }   // 0.7.1 71.24: through cc-ifc (ifc-civil-read.js)
     busy(t('cad.ui.reading', { file: f.name }));
+    // 0.11 PERF.33: a big project file is read and parsed in the open Worker (the page keeps answering); no Worker: as before
+    if (/\.json$/i.test(f.name) && f.size >= PARSE_ASYNC_FROM) {
+      let pre = null;
+      performance.mark?.('cv-open:start');
+      const onStage = (stage, q) => { if (stage === 'read' && q.of) busy(t('cv.open.reading', { file: f.name, pct: Math.min(100, Math.floor(100 * q.done / q.of)), n: q.points.toLocaleString('en-US') })); };   // 0.11: how far the read has got
+      try { pre = await parseProjectAsync(f, { max: MAX_POINTS, onStage }); } catch (err) { busy(null); say(t('cv.open.failed', { file: f.name, why: err.message })); return; }
+      if (pre) { try { await openParsed(pre, f.name); } finally { busy(null); } return; }
+    }
+    // 0.11 PERF.33: a big LandXML file: its TIN lists (<Pnts>, <Faces>) are read in the Worker, the rest here (no Worker, or no plain list: as before)
+    if (/\.(xml|landxml)$/i.test(f.name) && f.size >= PARSE_ASYNC_FROM) {
+      performance.mark?.('cv-open:start');
+      const pre = await readLandXmlListsAsync(f);
+      if (pre) { try { await openLandXml(pre.rest, f.name, pre.cut); } finally { busy(null); } return; }
+    }
     // 0.10 PERF.20: a big text file (over 32 MB) is read in parts of 4 MB: LandXML and project files never as one string
-    try { openText(f.size > ctx.TEXT_PARTS_FROM ? await decodePartsAsync(f) : await f.text(), f.name); } catch (err) { say(t('cad.ui.read.failed', { file: f.name, why: err.message })); } finally { busy(null); }
+    try { await openText(f.size > ctx.TEXT_PARTS_FROM ? await decodePartsAsync(f) : await f.text(), f.name); } catch (err) { say(t('cad.ui.read.failed', { file: f.name, why: err.message })); } finally { busy(null); }
   }
 
   async function openText(text, name, ownUnit = null) {
@@ -51,17 +71,48 @@ export function mountFiles(ctx) {
   async function openProject(text, name) {
     const from = ctx.openingFrom;   // read now: it is cleared once the opening call returns, before the discard question
     let r;
+    performance.mark?.('cv-open:start');
+    if (typeof text === 'string' && text.length >= PARSE_ASYNC_FROM) {   // 0.11 PERF.33: a big text (a kept copy, a host's file) is parsed in the Worker too
+      let pre = null;
+      try { pre = await parseProjectAsync(text, { max: MAX_POINTS }); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
+      if (pre) { try { r = Project.fromJSON(pre.obj, { table: pre.table, total: pre.total }); primeFigures(r.project, pre); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; } return opened(r, name, from); }
+    }
     try { r = Project.fromJSON(typeof text === 'string' ? JSON.parse(text) : parseJsonParts(text)); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
+    return opened(r, name, from);
+  }
+  /** 0.11 PERF.33: a project parsed in the open Worker (parseProjectAsync): the rest of the file is read by fromJSON as always. */
+  async function openParsed(pre, name) {
+    const from = ctx.openingFrom;
+    let r;
+    try { r = Project.fromJSON(pre.obj, { table: pre.table, total: pre.total }); primeFigures(r.project, pre); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
+    return opened(r, name, from);
+  }
+  async function opened(r, name, from) {
+    performance.mark?.('cv-open:parsed');
     if (!(await confirmDiscard())) return;
+    // 0.11 PERF.33: a big project's surface (and the contours of the first scene) are built in the Worker while the page keeps answering;
+    // the status line says how long it has run
+    const sf = r.project.state.surface, nPts = sf.tin && Array.isArray(sf.tin.pts) ? sf.tin.pts.length : r.project.points.length;
+    if (nPts >= ASYNC_FROM) await primeWithStatus(r.project, nPts);
+    performance.mark?.('cv-open:surface');
+    r.project.takeIdBlock();   // 0.11 DC.27: this session's new ids come from a block of its own
     ctx.project = r.project; ctx.project.saved = ctx.project.version; ctx.projectTarget = from; rebind();
     ctx.sel = null; ctx.selPvi = -1; ctx.lastReport = r.notes.length ? r.notes : null;
     refresh(); fitAll();
+    performance.mark?.('cv-open:shown');
     say(t('cv.opened', { file: name }));
   }
 
-  async function openLandXml(text, name) {
+  async function primeWithStatus(project, nPts) {
+    const t0 = performance.now(), say0 = () => busy(t('cv.open.surface', { n: nPts.toLocaleString('en-US'), s: Math.round((performance.now() - t0) / 1000) })), tick = setInterval(say0, 1000);
+    say0();
+    try { await primeSurface(project); } catch { /* p.eg() builds it as before */ } finally { clearInterval(tick); }
+  }
+
+  async function openLandXml(text, name, cut = null) {
     let d;
-    try { d = readLandXml(text); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
+    try { d = readLandXml(text, cut ? { cut } : undefined); } catch (err) { say(t('cv.open.failed', { file: name, why: err.message })); return; }
+    performance.mark?.('cv-open:parsed');
     if (!d.points.length && !d.surfaces.length && !d.alignments.length && !d.networks?.length && !d.features?.length) { say(t('cv.lx.empty', { file: name }) + (d.notes.length ? ' ' + d.notes.join(' ') : '')); return; }
     if (!(await confirmDiscard())) return;
     const p = new Project(), notes = [...d.notes];
@@ -115,8 +166,11 @@ export function mountFiles(ctx) {
     }
     if (flOff) notes.push(t('cv.lx.fl.off', { n: flOff }));
     p.undoStack = []; p.version++; p.saved = p.version;
+    { const tin = p.state.surface.tin, nPts = tin && Array.isArray(tin.pts) ? tin.pts.length : p.points.length; if (nPts >= ASYNC_FROM) await primeWithStatus(p, nPts); }   // 0.11 PERF.33
+    performance.mark?.('cv-open:surface');
     ctx.project = p; rebind(); ctx.sel = null; ctx.selPvi = -1; ctx.lastReport = notes.length ? notes : null;
     refresh(); fitAll();
+    performance.mark?.('cv-open:shown');
     say(t('cv.lx.opened', { file: name, points: t('cv.pts.n', { n: d.points.length, count: num(d.points.length) }), surfaces: t('cv.surfaces.n', { n: d.surfaces.length }), alignments: t('cv.als.n', { n: d.alignments.length }) }));
     // GIS: the file's <CoordinateSystem> is offered as the project's system (gis-vector-ui.js)
     if (d.coordinateSystem) gisLoad().then(() => ctx.gisReg.landxmlCrs?.(d.coordinateSystem, name)).catch(() => {});
@@ -201,6 +255,18 @@ export function mountFiles(ctx) {
     return ok;
   }
 
+  /** 0.11 DC.27: Save for 0.10: a copy of the project file whose new ids are numbered again into the range 0.10 and older read
+   *  (project.js olderCopy), the JSON only (no IFC beside it, so no `pair`). Only when someone picks it; Save writes the file as it is. */
+  function saveOlder() {
+    let obj;
+    try { obj = olderCopy(ctx.project.toJSON()); } catch { say(t('file.older.full')); return false; }
+    delete obj.pair;
+    const name = fileStem() + ' (0.10).civilcraft.json';   // i18n-ignore: a file name
+    download(JSON.stringify(obj, null, 1), name, 'application/json');
+    say(t('file.older.saved', { file: name }));
+    return true;
+  }
+
   function exportLandXml() {
     const s = ctx.project.state, r = ctx.eg();
     if (!ctx.project.points.length && !r.surface && !s.alignments.length && !(s.features || []).length) { say(t('cv.export.none')); return; }
@@ -208,13 +274,13 @@ export function mountFiles(ctx) {
     if (r.surface) surfaces.push({ name: s.surface.name || t('surface.eg'), desc: t('surface.eg'), surface: r.surface, breaklines: ctx.project.egBreaklines(), boundary: s.surface.boundary });
     const g = ctx.graded();
     if (g.surface) surfaces.push({ name: t('cv.lx.proposed'), desc: t('cv.lx.proposed.desc', { n: s.pads.length }), surface: g.surface });
-    const xml = writeLandXml({
+    const xml = writeLandXmlChunks({   // PERF.26 (perf-finish-11): chunks; .output() below is the same string up to 300 MB of text, a Blob past it
       name: s.name, units: s.units, points: ctx.project.points, surfaces, crs: s.crs,   // GIS: <CoordinateSystem> when the project has one
       alignments: s.alignments.map((a) => ({ name: a.name, alignment: ctx.project.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: ctx.project.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: ctx.project.designProfile(a) } : null, cant: a.rail?.on ? { plan: ctx.project.railPlan(a), rail: a.rail, speed: ctx.project.railAsm(a).rail.speed } : null })),   // cant: CV.1 2026-11-12
       features: s.features || [],   // 0.6 WL.24
       networks: [...(s.water?.pipes?.length ? [waterNetwork(cleanWater(s.water, s.units), s.units, { zAt: (x, y) => { const z = (ctx.graded().surface || ctx.eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } })] : []), ...(s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = ctx.project.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [])],
     });
-    download(xml, fileStem() + '.xml', 'application/xml');
+    download(xml.output('application/xml'), fileStem() + '.xml', 'application/xml');
     const skipped = s.alignments.filter((a) => !ctx.project.alignment(a).ok).length;
     const als = t('cv.als.n', { n: s.alignments.length - skipped });
     const list = [t('cv.pts.n', { n: ctx.project.points.length, count: num(ctx.project.points.length) }), t('cv.surfaces.n', { n: surfaces.length }), skipped ? t('cv.lx.als.skipped', { alignments: als, n: skipped }) : als];
@@ -228,7 +294,7 @@ export function mountFiles(ctx) {
     const g = (x, y) => { b.minX = Math.min(b.minX, x); b.maxX = Math.max(b.maxX, x); b.minY = Math.min(b.minY, y); b.maxY = Math.max(b.maxY, y); };
     const sf = ctx.eg().surface;
     if (sf) { const s = sf.bounds; g(s.minX, s.minY); g(s.maxX, s.maxY); }
-    for (const p of ctx.project.points) g(p.x, p.y);
+    { const T = ctx.project.pointTable; for (const bk of T.blocks) for (let k = 0; k < bk.n; k++) { const o = bk.irr && bk.irr.get(k); if (o) g(o.x, o.y); else g(bk.x[k], bk.y[k]); } }   // 0.11: the table's columns
     for (const a of ctx.project.state.alignments) for (const p of a.pis) g(p.x, p.y);
     for (const d of ctx.project.state.pads) for (const p of d.pts) g(p.x, p.y);
     for (const d of [...(ctx.project.state.parcels || []), ...(ctx.project.state.masses || []), ...(ctx.project.state.network?.catchments || []), ...(ctx.project.state.features || [])]) for (const p of d.pts) g(p.x, p.y);   // 0.4 V14/V19/V21
@@ -368,5 +434,5 @@ export function mountFiles(ctx) {
     $d('[data-plot-go]').focus();
   }
 
-  return { openFile, openText, openProject, download, fileStem, saveProject, exportLandXml, extentsAll, fitAll, exportDxf, DWG_YEAR, dwgDialog, exportDwg, visibleMaps, plotNow, plotDialog };
+  return { openFile, openText, openProject, download, fileStem, saveProject, saveOlder, exportLandXml, extentsAll, fitAll, exportDxf, DWG_YEAR, dwgDialog, exportDwg, visibleMaps, plotNow, plotDialog };
 }

@@ -5,7 +5,7 @@
  *   mountTwin(el, host) → { refresh(), load(setup), destroy(), …what the browser test drives }
  *   host = { t, flow: {Sim, simulate, buildGraph, cleanLayout, newLayout, addAfter, defaults, makePlayer}, layout(), setLayout(L), onLayout(fn), flowOn(),
  *            load(), save(setup), view: { make() → TwinView | null, hideFlow(bool), redraw(), canvas() }, model: { addBodies, removeBodies, paths(group) }, timeline: { anim(), load(anim), lib } | null,
- *            behaviours: { parts() → [{key, name}], faces(key) → faceTable(), matrix(key), pick(cb), stopPick() } | null (TW.13),
+ *            behaviours: { parts() → [{key, name}], faces(key) → faceTable(), matrix(key), soup(key) → { positions, tris } (a joint's moving copy), pick(cb), stopPick() } | null (TW.13),
  *            video: { support(w, h, fps), sink(o) } | null, download(name, data, type), pickFile(accept) → {name, text} | null, confirm(q) }
  */
 import { WORDS } from './words.js';
@@ -17,6 +17,7 @@ import { sampleTracks, bakeAnim } from './bake.js';
 import { usdaOf } from './usd.js';
 import { CELLS, buildCell, billOfMaterials, bomCsv } from './templates.js';
 import { parseMeasured, compareMeasured, compareCsv } from './measured.js';
+import { applyJobs, jointPoses, ITEM_OK } from './jobs.js';
 import { cleanBehaviours, matchFace, runConveyor, runJoint, runScene, faceAxes, describeFace } from './behaviours.js';
 
 export const CSS = `
@@ -62,7 +63,14 @@ export function mountTwin(el, host) {
   const R = { player: null, result: null, playT: 0, playing: false, speed: 8, raf: 0, rig: null, rigPlayer: null, rigFaults: [], rigMsg: '', tests: null, ride: null, cmp: null, cmpBusy: null, meas: null, measRes: null, measErr: null, msg: {}, bh: { kind: 'conveyor', picked: null, picking: false, dirName: 'long', speed: 0.5, type: 'turn', min: -90, max: 90, home: 0, rate: 30, range: 2, status: {}, results: {}, msg: '' }, forces: {}, faultKind: 'belt-stop', faultEl: '', baked: false, cell: CELLS[0].id, phySource: '', tv: null };
 
   const L = () => host.layout();
-  const built = () => { const l = L(); return l && l.items && l.items.length ? flow.buildGraph(l) : null; };
+  // Material flow reads the jobs (TW.13): a conveyor job gives its belt's length and speed, a joint its station's time, a sensor its place; R.jobs = what was read and what was not
+  const jobResolve = (b) => { const m = bhFaces(b); return m && m.face ? { face: m.face, M: m.M } : null; };
+  const built = () => {
+    const l = L(); if (!l || !l.items || !l.items.length) return null;
+    if (!BH() || !S.behaviours.some((b) => b.flow)) { R.jobs = []; return flow.buildGraph(l); }
+    const j = applyJobs(l, S.behaviours, jobResolve, { links: flow.connect ? flow.connect(l).links : [] });
+    R.jobs = j.report; return flow.buildGraph(j.layout);
+  };
   const stations = () => (L()?.items || []).filter((i) => i.kind === 'station');
 
   // ---------------------------------------------------------------------------------------------- drawing
@@ -76,6 +84,7 @@ export function mountTwin(el, host) {
     v.setEquipment(parts, { floor: floorPart(parts), robots });
     host.view.hideFlow(true);
     v.drawFrame(R.player ? R.player.frame(R.playT) : null, R.playT, busyOf(R.player ? R.player.frame(R.playT) : null));
+    drawJoints(R.playT);
   }
   function busyOf(frame) {
     const b = built(), out = new Set(); if (!frame || !b) return out;
@@ -86,7 +95,14 @@ export function mountTwin(el, host) {
     if (!S.show) { S.show = true; save(); drawEquipment(); }
     const v = tv(); if (!v) return null;
     const f = p.frame(time);
+    drawJoints(time);
     return { frame: f, ...v.drawFrame(f, time, busyOf(f)) };
+  }
+  /** Joints move the part in the view: each joint linked to a flow item turns or slides while loads are on that item (jobs.js). */
+  function drawJoints(time) {
+    const v = R.tv; if (!v || !BH() || !R.result || !host.behaviours.soup) return;
+    const poses = jointPoses(S.behaviours, R.result.trace, time, jobResolve);
+    v.drawJoints(poses, (key) => host.behaviours.soup(key));
   }
   function tick(prev) {
     R.raf = requestAnimationFrame((now) => {
@@ -404,6 +420,13 @@ export function mountTwin(el, host) {
   // ---------------------------------------------------------------------------------------------- behaviours on imported CAD (TW.13)
   const BH = () => host.behaviours || null;
   const bhFaces = (b) => { const A = BH(), part = A && A.parts().find((q) => q.key === b.part); if (!part) return { status: 'lost', why: 'no-part', face: null }; const faces = A.faces(b.part), m = matchFace(b.face, faces); return { ...m, M: A.matrix(b.part), part }; };
+  /** What Material flow took from a job, or why it did not. */
+  function jobLine(b) {
+    if (!b.flow) return null;
+    const r = (R.jobs || []).find((x) => x.id === b.id); if (!r) return null;
+    const txt = r.why ? t('twin.bh.job.why.' + r.why) : Object.entries(r.set || {}).map(([k, v]) => k + ' ' + (v && v.v !== undefined ? num3(v.v) : num3(v))).join(', ');
+    return h('p', { class: r.why ? 'tw-bad' : 'tw-ok', 'data-tw-bh-job': b.id, text: r.why ? txt : t('twin.bh.job.read', { set: txt }) });
+  }
   function bhRecheck() {
     const st = {};
     for (const b of S.behaviours) {
@@ -484,6 +507,9 @@ export function mountTwin(el, host) {
       const m = R.bh.status[b.id] || (R.bh.status[b.id] = bhFaces(b)), res = k.results[b.id];
       return h('tr', { 'data-tw-bh': b.id }, h('td', {}, h('strong', { text: b.id }), ' ', t('twin.bh.kind.' + b.kind), h('br'), h('span', { class: 'tw-note', text: b.partName || b.part })),
         h('td', {}, h('span', { class: m.status === 'lost' ? 'tw-bad' : '', 'data-tw-bh-status': b.id, text: bhStatusText(m) }), res ? h('p', { class: res.ok ? 'tw-ok' : 'tw-bad', 'data-tw-bh-result': b.id, text: res.text }) : null),
+        h('td', {}, h('label', {}, t('twin.bh.flow'), h('select', { 'data-tw-bh-flow': b.id, onchange: (e) => { b.flow = e.target.value; save(); R.result = null; R.player = null; drawEquipment(); render(); } },
+          h('option', { value: '', text: t('twin.bh.flowNone'), selected: !b.flow }), (L()?.items || []).filter((i) => ITEM_OK[b.kind].includes(i.kind)).map((i) => h('option', { value: i.id, text: i.id, selected: b.flow === i.id })))),
+          jobLine(b)),
         h('td', {}, btn(t('twin.bh.test'), () => bhTest(b.id), { id: 'bh-test-' + b.id }), ' ', btn(t('twin.bh.remove'), () => bhRemove(b.id), { id: 'bh-remove-' + b.id })));
     });
     return section('behaviours', t('twin.bh.title'),

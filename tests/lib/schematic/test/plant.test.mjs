@@ -123,5 +123,72 @@ ok('instrument balloons with letters over the loop number', /class="instrument p
 // untrusted text is escaped
 const evil = new P.PlantGraph(); evil.addEquipment('pid', { tag: '<script>x', kind: 'vessel', nozzles: [] });
 ok('tags are escaped in the SVG', !P.toSvg(P.layout(evil), 0).includes('<script>'));
+// 0.11: the forms: equipment added and a line renamed on the P&ID are pending in 3D; a 3D reading does not undo the rename
+{
+  const h = new P.PlantGraph('Forms'); h.merge('three', P.snapshotFrom3d(desc(), h)); h.merge('pid', P.readPid(P.layout(h)));
+  ok('forms: nothing pending to start with', h.pending('three').length === 0 && h.pending('pid').length === 0, [h.pending('three'), h.pending('pid')]);
+  const e = h.addEquipment('pid', { kind: 'vessel', tag: 'V-201', name: 'Surge', nozzles: [{ name: 'in', size: '3', flow: 'SINK' }] });
+  ok('forms: equipment added on the P&ID is pending (add) in 3D', e && h.pending('three').some((x) => x.type === 'equipment' && x.label === 'V-201' && x.op === 'add'));
+  const A2 = h.lines.find((l) => l.run === 'ra') || h.lines[0], old = A2.number;
+  const r = h.rename('pid', A2.id, '3"-PW-900-CS40');
+  ok('forms: rename gives the new number, ok in P&ID, change in 3D, was kept', r && r.number === '3"-PW-900-CS40' && r.state.pid === 'ok' && r.state.three === 'change' && r.was.number === old, r);
+  ok('forms: renaming to a taken or empty number is refused', h.rename('pid', A2.id, '') === null && h.rename('pid', A2.id, h.lines.find((l) => l !== A2).number) === null);
+  h.merge('three', P.snapshotFrom3d(desc(), h));
+  ok('forms: a 3D reading keeps the line (same run) with its new number and does not add a second one', h.live(h.lines).length === 2 && h.lines.filter((l) => l.number === '3"-PW-900-CS40').length === 1, h.lines.map((l) => l.number));
+  ok('forms: the BOM lists the new number once', P.bom(h).rows.filter((x) => (x.tags || []).includes('3"-PW-900-CS40')).length === 1, P.bom(h).rows.map((x) => x.tags));
+  const back = new P.PlantGraph('Back2'); back.merge('pid', P.readPid(P.layout(h)));
+  ok('forms: drawn and read back, the renamed line and the added vessel survive', back.line('3"-PW-900-CS40') && back.equip('V-201'));
+}
+// 0.11 (su-finish-11): instruments stored in the 3D model, on the run, kept in step both ways, one BOM
+{
+  const base = desc();
+  const k = new P.PlantGraph('Inst'); k.merge('three', P.snapshotFrom3d(base, k)); k.merge('pid', P.readPid(P.layout(k)));
+  const lineA = k.lines.find((l) => l.run === 'rA'), lineB = k.lines.find((l) => l.run === 'rB');
+  const fic = k.addItem('pid', { line: lineA.id, cls: 'instrument', kind: 'FIC', loc: 'panel' });
+  const pi = k.addItem('pid', { line: lineB.id, cls: 'instrument', kind: 'PI', loc: 'field' });
+  ok('inst: two instruments added on the P&ID wait (add) for 3D', k.pending('three').filter((x) => x.op === 'add').length === 2, k.pending('three'));
+  const w1 = P.instrumentWrites(k, base);
+  ok('inst: one write per run, each with the instrument of its line, tag and letters', w1.writes.length === 2 && w1.left === 0
+    && w1.writes.find((x) => x.guid === 'rA').instruments.map((i) => i.tag + '/' + i.kind + '/' + i.loc).join() === fic.tag + '/FIC/panel'
+    && w1.writes.find((x) => x.guid === 'rB').instruments[0].tag === pi.tag, w1);
+  const LA = 4000 + 250;
+  ok('inst: an instrument with no place yet is spaced along its run (half way for one)', Math.abs(w1.writes.find((x) => x.guid === 'rA').instruments[0].s - LA / 2) < 1e-6, w1.writes[0]);
+  // the model stores them (as mep-model.js setRunInstruments does) and is read again
+  const stored3d = () => ({ ...base, runs: base.runs.map((r) => ({ ...r, instruments: (w1.writes.find((x) => x.guid === r.guid) || {}).instruments || [] })) });
+  const m1 = k.merge('three', P.snapshotFrom3d(stored3d(), k));
+  ok('inst: once the model stores them they are adopted: nothing pending in 3D', k.pending('three').length === 0 && m1.adopted === 2, [k.pending('three'), m1]);
+  ok('inst: the next plan writes nothing', P.instrumentWrites(k, stored3d()).writes.length === 0);
+  ok('inst: the BOM counts two instruments, none pending', P.bom(k).totals.instruments === 2 && !P.bom(k).rows.some((r) => r.section === 'instrument' && r.pending), P.bom(k).totals);
+  const bomPid = JSON.stringify(P.bom(k));
+  const fromModel = new P.PlantGraph('Inst'); fromModel.merge('three', P.snapshotFrom3d(stored3d(), fromModel));
+  ok('inst: a new graph read from the model alone has the same instruments in its BOM', JSON.stringify(P.bom(fromModel).rows.filter((r) => r.section === 'instrument').map((r) => [r.key, r.qty, r.tags]))
+    === JSON.stringify(P.bom(k).rows.filter((r) => r.section === 'instrument').map((r) => [r.key, r.qty, r.tags])), [P.bom(fromModel).rows, bomPid.length]);
+  // an instrument added in 3D (another person, another program writing the run) waits for the P&ID
+  const with3d = stored3d(); with3d.runs[1] = { ...with3d.runs[1], instruments: [...with3d.runs[1].instruments, { s: 2500, tag: 'TI-301', kind: 'TI', loc: 'field' }] };
+  k.merge('pid', P.readPid(P.layout(k)));
+  k.merge('three', P.snapshotFrom3d(with3d, k));
+  ok('inst: an instrument added in 3D is pending (add) on the P&ID, with its letters and place', k.pending('pid').some((x) => x.op === 'add' && /^TI-301/.test(x.label)) && k.item('TI-301').kind === 'TI' && k.item('TI-301').s === 2500, k.pending('pid'));
+  const svg = P.toSvg(P.layout(k), 0);
+  ok('inst: the P&ID draws its balloon (dashed while pending)', /class="instrument field" stroke-dasharray/.test(svg) && />TI<\/text>/.test(svg) && />301<\/text>/.test(svg));
+  k.merge('pid', P.readPid(P.layout(k)));
+  ok('inst: once drawn it is adopted on the P&ID', k.pending('pid').length === 0, k.pending('pid'));
+  // removed on the P&ID: 3D must drop it; the plan writes the run without it; the model then matches
+  k.remove('pid', k.item(pi.tag).id);
+  ok('inst: removed on the P&ID waits (remove) for 3D', k.pending('three').some((x) => x.op === 'remove'), k.pending('three'));
+  const w2 = P.instrumentWrites(k, with3d);
+  ok('inst: the plan writes run B with TI-301 only', w2.writes.length === 1 && w2.writes[0].guid === 'rB' && w2.writes[0].instruments.map((i) => i.tag).join() === 'TI-301', w2);
+  const after = { ...with3d, runs: with3d.runs.map((r) => (r.guid === 'rB' ? { ...r, instruments: w2.writes[0].instruments } : r)) };
+  k.merge('three', P.snapshotFrom3d(after, k));
+  ok('inst: once the model drops it nothing is pending and it is out of the BOM', k.pending('three').length === 0 && !k.item(pi.tag) && P.bom(k).totals.instruments === 2, [k.pending('three'), P.bom(k).totals]);
+  // removed in 3D: the P&ID must remove it
+  const gone = { ...after, runs: after.runs.map((r) => (r.guid === 'rA' ? { ...r, instruments: [] } : r)) };
+  k.merge('three', P.snapshotFrom3d(gone, k));
+  ok('inst: removed in 3D waits (remove) on the P&ID', k.pending('pid').some((x) => x.op === 'remove' && x.label.startsWith(fic.tag)), k.pending('pid'));
+  // an instrument on a P&ID-only line cannot be stored: counted as left, never written to a run
+  const pl = k.addLine('pid', { size: '2', service: 'pw', spec: 'CS40', from: { equip: 'V-101', nozzle: 'feed' }, to: null });
+  k.addItem('pid', { line: pl.id, cls: 'instrument', kind: 'LI' });
+  const w3 = P.instrumentWrites(k, gone);
+  ok('inst: an instrument on a line with no run is left (not written)', w3.left === 1 && !w3.writes.some((x) => x.instruments.some((i) => i.kind === 'LI')), w3);
+}
 console.log('plant graph: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

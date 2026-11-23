@@ -40,10 +40,16 @@ export function tube(pts, rads, segs = 10) {
     }
     return ring;
   });
+  // PS.11 (library-11): a tube whose path comes back to its first point (a ring, a chain link, a wire loop) was capped at both ends, so the two
+  // end caps sat on the same ring of vertices: four faces on an edge, not a solid. A closed path now joins its last ring to its first and has no caps.
+  const d0 = Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1], pts[0][2] - pts[pts.length - 1][2]);
+  const closedLoop = pts.length > 3 && d0 < 1e-6 && Math.abs(rads[0] - rads[rads.length - 1]) < 1e-9;
+  if (closedLoop) rings[rings.length - 1] = rings[0];
   for (let i = 0; i < rings.length - 1; i++) for (let k = 0; k < segs; k++) {
     const k2 = (k + 1) % segs;
     tris.push([rings[i][k], rings[i + 1][k], rings[i + 1][k2]], [rings[i][k], rings[i + 1][k2], rings[i][k2]]);
   }
+  if (closedLoop) return tris;
   for (const [ring, centre] of [[rings[0], pts[0]], [rings[rings.length - 1], pts[pts.length - 1]]]) {
     for (let k = 0; k < segs; k++) tris.push([centre, ring[k], ring[(k + 1) % segs]]);
   }

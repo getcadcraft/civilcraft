@@ -27,11 +27,20 @@ CadCraft ships none of these tools and no process design kit (PDK). You install 
 | Tool | What for | Licence (as its project publishes it) | Status |
 |---|---|---|---|
 | Icarus Verilog | simulation, gate-level simulation | GPL-2.0-or-later | run by us on the sample design |
+| Verilator | fast simulation (VCD or FST waves) | LGPL-3.0 or Artistic-2.0 | run by us on the sample design |
 | Yosys | synthesis | ISC | run by us on the sample design |
-| Verilator | fast simulation | LGPL-3.0 or Artistic-2.0 | not run by us yet |
-| OpenROAD | place and route, timing, SDF | BSD-3-Clause | not run by us yet |
-| KLayout | design rule check | GPL-2.0-or-later | not run by us yet |
-| Netgen | layout versus schematic | GPL (see its own licence file) | not run by us yet |
+| OpenSTA | timing after synthesis | GPL-3.0 | run by us on the sample design |
+| OpenROAD | place and route, power grid, clock tree, parasitics, SDF | BSD-3-Clause | run by us on the sample design |
+| KLayout | GDSII from the routed DEF, design rule check | GPL-2.0-or-later | run by us on the sample design |
+| Magic | layout netlist for LVS | Magic VLSI licence (BSD-style) | run by us on the sample design |
+| Netgen | layout versus schematic | GPL (see its own licence file) | run by us on the sample design |
+
+"Run by us" means: the sample chip went through that stage with that tool, through this add-on's own run script, on SkyWater 130 (sky130_fd_sc_hd) for place and route and the checks. The tool versions were Icarus Verilog 13, Verilator 5.054, Yosys 0.71, OpenROAD 2.0 (2024 build), KLayout 0.28.16, Magic 8.3 and Netgen 1.5.272. Other versions print their reports a little differently; tell us when something is not read.
+
+Some things the tools need that are not the add-on's:
+- **KLayout with Ruby** for most PDK rule decks (SkyWater's deck is a Ruby script). Some KLayout packages are built without Ruby; the check then says "no interpreter".
+- **Verilator's FST waves** need the lz4 library and headers where Verilator's C++ build can find them.
+- **Gate-level timing with wire delays** needs Icarus Verilog 12 or later (stage option `interconnect`). Choose the `min` or `max` corner for an SDF from OpenROAD, which writes no typical values.
 
 The browser edition reads and shows every file and result but cannot start programs: it saves a run package you run on your computer.
 

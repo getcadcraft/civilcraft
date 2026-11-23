@@ -126,7 +126,7 @@ export function createNative(ctx) {
     if (!ifcF && !jsonF) return false;
     // 0.10 PERF.33: a project .json used to be read and parsed whole here just to look for `pair`, then parsed again by openProject (6.8 s and
     // 751 MB for a 240 MB file that is then refused). Now the file is scanned in pieces for the key and only a file that names one is parsed.
-    const maybePair = jsonF && jsonF.size <= 200 * 1048576 ? await hasKey(jsonF, '"pair"') : false;   // over 200 MB: openFile refuses it, nothing to read here
+    const maybePair = jsonF && jsonF.size <= 200 * 1048576 ? await hasKey(jsonF, '"pair"') : false;   // over 200 MB: not looked at; openFile streams it into the point table (0.11, the cap lifted) and the IFC beside it is not compared (this path reads the file whole)
     if (!ifcF && !maybePair) return false;   // a project file from before the pair (or not ours): opened as before, by openFile, which reads and parses it once
     let jsonText = jsonF ? await jsonF.text() : null, jsonObj = null;
     if (jsonText !== null) { try { jsonObj = JSON.parse(jsonText); } catch { jsonObj = null; } }

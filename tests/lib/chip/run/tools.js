@@ -6,7 +6,9 @@
  * (Icarus Verilog, KLayout, Netgen) included, because they are never linked, imported or shipped.
  *
  *   TOOLS[id] = { id, ranByUs, label, programs: [file names], version: [args], licence, stage kinds }
- *     ranByUs: we ran it for real on our sample (Icarus Verilog 11, Yosys 0.9, 2026-11-03); false = "not run by us yet" (the honesty card says so)
+ *     ranByUs: we ran it for real on our sample (Icarus Verilog 11, Yosys 0.9, 2026-11-03; every tool below on Pebble + SkyWater 130 on
+ *     workstation11a 2026-11-21: Icarus 13, Verilator 5.054, Yosys 0.71, OpenSTA, OpenROAD 2.0-12381, KLayout 0.28.16 / 0.30.13, Magic 8.3.465,
+ *     Netgen 1.5.272, docs/0.11-sessions/chip-11-fu.md); false = "not run by us yet" (the honesty card says so)
  *   ALLOWED_PROGRAMS — the names the run script may start (the same list is in the script; test/run.test.mjs checks they agree)
  *   parseVersion(id, text) → '' | 'Yosys 0.9 (git sha1 …)'
  *   probeSteps() → steps that ask every tool its version (a run with no inputs)
@@ -15,21 +17,23 @@
 export const TOOLS = Object.freeze({
   iverilog: { id: 'iverilog', ranByUs: true, label: 'Icarus Verilog', programs: ['iverilog'], version: ['-V'], licence: 'GPL-2.0-or-later', kinds: ['sim', 'gls', 'stil'] },
   vvp: { id: 'vvp', ranByUs: true, label: 'Icarus Verilog runtime', programs: ['vvp'], version: ['-V'], licence: 'GPL-2.0-or-later', kinds: ['sim', 'gls', 'stil'] },
-  verilator: { id: 'verilator', ranByUs: false, label: 'Verilator', programs: ['verilator'], version: ['--version'], licence: 'LGPL-3.0 or Artistic-2.0', kinds: ['sim'] },
+  verilator: { id: 'verilator', ranByUs: true, label: 'Verilator', programs: ['verilator'], version: ['--version'], licence: 'LGPL-3.0 or Artistic-2.0', kinds: ['sim'] },
   yosys: { id: 'yosys', ranByUs: true, label: 'Yosys', programs: ['yosys'], version: ['-V'], licence: 'ISC', kinds: ['synth'] },
-  openroad: { id: 'openroad', ranByUs: false, label: 'OpenROAD', programs: ['openroad'], version: ['-version'], licence: 'BSD-3-Clause', kinds: ['pnr', 'gls'] },
-  klayout: { id: 'klayout', ranByUs: false, label: 'KLayout', programs: ['klayout'], version: ['-v'], licence: 'GPL-2.0-or-later', kinds: ['drc'] },
-  netgen: { id: 'netgen', ranByUs: false, label: 'Netgen', programs: ['netgen', 'netgen-lvs'], version: ['-batch', 'quit'], licence: 'GPL (see its own licence file)', kinds: ['lvs'] },
+  openroad: { id: 'openroad', ranByUs: true, label: 'OpenROAD', programs: ['openroad'], version: ['-version'], licence: 'BSD-3-Clause', kinds: ['pnr', 'gls'] },
+  klayout: { id: 'klayout', ranByUs: true, label: 'KLayout', programs: ['klayout'], version: ['-v'], licence: 'GPL-2.0-or-later', kinds: ['drc'] },
+  sta: { id: 'sta', ranByUs: true, label: 'OpenSTA', programs: ['sta'], version: ['-version'], licence: 'GPL-3.0 (OpenSTA; run as a separate program)', kinds: ['synth'] },
+  magic: { id: 'magic', ranByUs: true, label: 'Magic', programs: ['magic'], version: ['--version'], licence: 'Magic VLSI licence (BSD-style; see its own licence file)', kinds: ['lvs'] },
+  netgen: { id: 'netgen', ranByUs: true, label: 'Netgen', programs: ['netgen', 'netgen-lvs'], version: ['-batch', 'quit'], licence: 'GPL (see its own licence file)', kinds: ['lvs'] },
 });
 
 /** Program names the run script starts (plus `obj_dir/V<top>`, a program a Verilator step built inside the job folder). */
-export const ALLOWED_PROGRAMS = Object.freeze(['iverilog', 'vvp', 'verilator', 'yosys', 'yosys-abc', 'openroad', 'sta', 'klayout', 'netgen', 'netgen-lvs']);
+export const ALLOWED_PROGRAMS = Object.freeze(['iverilog', 'vvp', 'verilator', 'yosys', 'yosys-abc', 'openroad', 'sta', 'klayout', 'magic', 'netgen', 'netgen-lvs']);
 
 export function parseVersion(id, text) {
   const s = String(text || '');
   const pats = {
     iverilog: /Icarus Verilog version [^\n]+/, vvp: /Icarus Verilog runtime version [^\n]+/, verilator: /Verilator \d[^\n]*/,
-    yosys: /Yosys \d[^\n]*/, openroad: /^v?\d+\.\d+[^\s]*|OpenROAD [^\n]+/m, klayout: /KLayout \d[^\n]*/, netgen: /Netgen [^\n]*\d[^\n]*/,
+    yosys: /Yosys \d[^\n]*/, openroad: /^v?\d+\.\d+[^\s]*|OpenROAD [^\n]+/m, klayout: /KLayout \d[^\n]*/, netgen: /Netgen [^\n]*\d[^\n]*/, sta: /^\d+\.\d+\.\d+[^\s]*/m, magic: /Magic \d[^\n]*|^\d+\.\d+\.\d+/m,
   };
   const m = (pats[id] || /\S[^\n]*/).exec(s);
   return m ? m[0].trim().slice(0, 200) : '';

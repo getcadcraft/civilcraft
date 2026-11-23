@@ -173,5 +173,6 @@ export const SPIKE = {
     '(c) stay with the stability-class model here, labelled as such (what ships now).'],
   recommendation: 'Ship (c) now, say so in the help, decide (a) vs (b) with the owner after an engineer has checked (c).',
 };
-/** Engine record for lib/process/engines.js `createRegistry([…])`. Its licence is not on engines.js' permissive list (US-government public domain has no SPDX id there), so the registry marks it held until the owner decides. */
-export const AERMOD_ENGINE = { id: 'aermod', name: 'AERMOD (US EPA)', license: 'US-Government-public-domain', kind: 'program', caps: ['air'], note: 'Held: no source vendored, no wasm build (see SPIKE). Registers as not allowed until engines.js accepts the licence and an engine exists.' };
+/** Engine record for lib/process/engines.js `createRegistry([…])`. Licence LicenseRef-US-Gov-PD (US-government work, public domain), on engines.js' permissive list since
+ *  2026-11-21 (owner approval 2026-10-29, rec05). Still no engine: no source vendored and no build (see SPIKE), so nothing runs until route (a) or (b) is built. */
+export const AERMOD_ENGINE = { id: 'aermod', name: 'AERMOD (US EPA)', license: 'LicenseRef-US-Gov-PD', kind: 'program', available: false, caps: ['air'], note: 'Licence allowed (US-government public domain). No engine yet: no source vendored, no wasm build (see SPIKE); the stability-class model is what runs.' };

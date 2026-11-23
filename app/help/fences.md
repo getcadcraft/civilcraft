@@ -3,7 +3,7 @@ title: Fences
 summary: A fence along a line, parcel or pad: posts, rails, panels or pickets, gates, raked or stepped on the ground, a schedule, plan symbols and IFC elements. Also available to an assistant.
 section: tasks
 order: 66
-keywords: fence, posts, rails, panels, pickets, gate, raked, stepped, terrain, schedule, ifc, railing, boundary
+keywords: fence type, library, fence, posts, rails, panels, pickets, gate, raked, stepped, terrain, schedule, ifc, railing, boundary
 ---
 
 Make a fence along a feature line, an alignment, a parcel or a pad, with its posts and gates placed for you.
@@ -13,6 +13,8 @@ Make a fence along a feature line, an alignment, a parcel or a pad, with its pos
 1. Select a line, a parcel or a pad.
 2. Open **Surface, More, Fences...**
 3. Choose the style (panels, rails or pickets), raked or stepped, the height, the post spacing and the gate width, then **Fence along selection**, or **With a gate** to put a gate in the middle of the longest straight run.
+
+**Fence type** takes a fence type from the Library (Types, Barriers, with the sub-type fence): its style, height, post spacing, rails and picket sizes become the new fence's, and the fence keeps the type's name for the schedule and the IFC. Choose a type the Library lists, or **From a Library item file...** to read one you saved. A height or post spacing you type in the window wins over the type's. **No Library type** goes back to the window's own choices.
 
 Posts go at the ends, at each corner (a vertex that turns by 20 degrees or more), at both edges of every gate and at equal bays in between, none longer than the spacing. **Raked** panels follow the ground between their posts. **Stepped** panels stay level and step at the posts; the gap under a panel is widest at its downhill post, and the window warns when that gap is over the limit, or when the ground rises through a panel. Gates of 6 feet (1.8 m) and wider get two leaves; the plan shows the leaves open with their swing.
 

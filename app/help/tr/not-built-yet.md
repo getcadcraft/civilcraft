@@ -1,189 +1,189 @@
 ---
 title: Henüz yapılmadı
-summary: CivilCraft'ın bu sürümünün henüz yapmadıkları ve bugün bunların yerine ne yapmanız gerektiği.
-keywords: eksik, sınırlamalar, yol haritası, kullanılamıyor, spiraller, genişletme, dwg, dxf, giriş ağızları, bekletme, enine kesitler, ileride gelecek, sınırlar
-from: a2d970ef
+summary: Bu CivilCraft sürümünün henüz yapmadıkları ve bugün bunun yerine ne yapılacağı.
+keywords: eksik, sınırlamalar, yol haritası, kullanılamıyor, sarmallar, genişletme, dwg, dxf, giriş ağızları, tutma, enine kesitler, ileride gelecek, sınırlar
+from: b91588d4
 ---
 
-CivilCraft erken aşamada. Bu sayfa, mevcut sürümün neleri yapmadığını listeler; böylece onları aramazsınız. Bunlardan hiçbiri için bir tarih verilmez.
+CivilCraft erken aşamadadır. Bu sayfa, mevcut sürümün yapmadıklarını listeler; böylece onları aramazsınız. Burada hiçbir şey bir tarihe bağlı olarak vaat edilmez.
 
 ## Noktalar
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| İkinci bir nokta dosyasını ilkine eklemek | Dosyaları önce bir metin düzenleyicide ya da elektronik tabloda birleştirin |
-| Bir nokta metin dosyasını dışa aktarmak | LandXML dışa aktarın (noktalar CgPoint olarak çıkar), GIS {{ui:Dışa aktar}} kullanın (P, N, E, Z ve D alanlı noktalar) ya da {{ui:Kopyala}} ile noktaları bir elektronik tabloya aktarın |
-| Nokta etiket stilleri, tanım anahtarına göre semboller, hat kodlarından eğriler (yaylar), projeler arasında paylaşılacak bir tanım anahtarı dosyası | Etiketler numarayı, kotu ve tanımı, ya da daha azını gösterir ([CivilCraft ayarları](topic:settings)); anahtarlar proje dosyasında tutulur |
+| İlk nokta dosyasına ikinci bir nokta dosyası ekleme | Önce dosyaları bir metin düzenleyicide veya elektronik tabloda birleştirin |
+| Bir nokta metin dosyası dışa aktarma | LandXML dışa aktarın (noktalar CgPoints olarak çıkar), GIS {{ui:Dışa aktar}} kullanın (P, N, E, Z ve D alanlı noktalar) veya noktaları bir elektronik tabloya {{ui:Kopyala}} edin |
+| Nokta etiket stilleri, tanım anahtarı başına semboller, satır kodlarından yaylar (eğriler), projeler arasında paylaşılacak bir tanım anahtarı dosyası | Etiketler numarayı, kotu ve tanımı ya da daha azını gösterir ([CivilCraft ayarları](topic:settings)); anahtarlar proje dosyasında tutulur |
 | Birim dönüşümü | İçe aktarmadan önce dosyayı dönüştürün; **Birimler** yalnızca etiketi değiştirir |
 
 ## Yüzeyler
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Noktalardan oluşturulmuş birden fazla yüzey | Yüzey başına bir proje |
-| (İç) sınırları gizlemek | **En uzun dış kenar** ya da bir dış sınır kullanın |
-| Çizilmiş tek bir kırılma çizgisini seçmek ya da düzenlemek | {{key:Mod+Z}}, ya da {{ui:Çizilmiş kırılma çizgilerini kaldır}} ve yeniden çizin |
-| LandXML'den okunan bir yüzeyi düzenlemek (kırılma çizgileri, sınır) | {{ui:Yüzeyi noktalardan yeniden oluştur}} |
-| Bir kot ızgarasından yapılmış yüzeyi düzenlemek | Izgarayı diğer seçeneklerle yeniden içe aktarın |
-| Koordinat sistemi değiştiğinde LandXML'den okunan bir yüzeyi dönüştürmek | Önce {{ui:Yüzeyi noktalardan yeniden oluştur}} |
-| Etiketli nokta kotları ve eğim değerleri | Durum çubuğundan okuyun ya da Peyzaj çalışma alanındaki **Eğim analizi** ile yüzeyi eğime göre renklendirin ([Peyzaj için tesviye](topic:landscape-grading#grading-checks)) |
+| Noktalardan oluşturulmuş birden çok yüzey | Yüzey başına bir proje |
+| İç sınırları gizleme | **En uzun dış kenar** veya bir dış sınır kullanın |
+| Çizilmiş tek bir kırılma çizgisini seçme veya düzenleme | {{key:Mod+Z}} veya {{ui:Çizilmiş kırılma çizgilerini kaldır}} ve yeniden çizin |
+| LandXML'den okunan bir yüzeyi düzenleme (kırılma çizgileri, sınır) | {{ui:Yüzeyi noktalardan yeniden oluştur}} |
+| Bir yükseklik ızgarasından yapılmış bir yüzeyi düzenleme | Izgarayı farklı seçeneklerle yeniden içe aktarın |
+| Koordinat sistemi değiştiğinde LandXML'den okunan bir yüzeyi dönüştürme | Önce {{ui:Yüzeyi noktalardan yeniden oluştur}} |
+| Etiketli nokta kotları ve eğim değerleri | Bunları durum çubuğunda okuyun veya Peyzaj çalışma alanındaki **Eğim çözümlemesi** ile yüzeyi eğime göre renklendirin ([Peyzaj için tesviye](topic:landscape-grading#grading-checks)) |
 
-## Eksenler ve profiller
+## Eksenler ve boy kesitleri
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Klotoid dışındaki spiraller; iki eğri arasında bir spiral (bileşik geçişler) | Bir eğrinin uçlarındaki klotoid spiraller kullanılabilir; diğerleri adlandırılır ve LandXML içe aktarmada atlanır |
-| İki başka PI arasına bir PI eklemek | Ekseni yeniden çizin ya da PI koordinatlarını yeniden yazın |
-| Nesnelerden, ofsetlerden, genişletmelerden eksenler | PI'lerle çizin |
-| Düşey eğri için K yazmak | L yazın (K gösterilir) |
-| Dairesel ve simetrik olmayan düşey eğriler | Yalnızca simetrik parabolik düşey eğriler |
-| Eksen başına birden fazla tasarım profili | Varyant başına bir eksen |
-| Profil görünümünü yakınlaştırmak, profilin altındaki profil bantları | Profil görünümü tüm ekseni sığdırır; [plan ve profil sayfalarında](topic:plan-profile-sheets) çıktı alın |
-| DWG ya da LandXML'de kesitler | PDF olarak kesit sayfaları; alanların ve hacimlerin {{ui:CSV}} dosyası |
-| Açılı örnek çizgileri ya da yol boyunca farklı genişlikte örnek çizgileri | Tüm eksen için her iki yanda birer genişlik |
+| Klotoid dışındaki sarmallar; iki eğri arasında bir sarmal (bileşik geçişler) | Bir eğrinin uçlarındaki klotoid sarmallar kullanılabilir; diğerleri adlandırılır ve LandXML içe aktarımında atlanır |
+| İki başka PI arasına bir PI eklemek | Ekseni yeniden çizin veya PI koordinatlarını yeniden yazın |
+| Nesnelerden, ofsetlerden, genişletmelerden oluşan eksenler | PI'larla çizin |
+| Düşey bir eğri için K yazmak | L yazın (K gösterilir) |
+| Dairesel ve simetrik olmayan düşey eğriler | Yalnızca simetrik parabolik eğriler |
+| Eksen başına birden fazla tasarım boy kesiti | Her varyant için bir eksen |
+| Boy kesiti görünümünü yakınlaştırma, boy kesitinin altındaki boy kesiti bantları | Boy kesiti görünümü tüm ekseni sığdırır; [plan ve boy kesiti sayfalarında](topic:plan-profile-sheets) çizdirin |
+| DWG veya LandXML'de kesitler | PDF olarak kesit sayfaları; alan ve hacimlerin {{ui:CSV}} dosyası |
+| Açılı örnek çizgileri veya yol boyunca farklı genişlikte örnek çizgileri | Tüm eksen için her iki tarafta bir genişlik |
 
 ## Koridorlar
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Refüjler, bariyerler ve şablonları döndüren bir süperelevasyon | Şablon olarak çizin ([Koridor şablonları](topic:corridor-templates)); istasyona göre şablonlar henüz süperelevasyonu almaz |
-| İki bölge şablonu arasında kademeli bir değişim (geçişler, daralmalar) | Şablonu bir istasyonda değiştirin ya da daralma olarak çizilen bir çizgiye bir genişlik hedefi verin |
-| Bir kenar etrafında döndürme, LandXML'de süperelevasyon | Süperelevasyon dairesel eğrilerde eksen etrafında döner; bir özellik çizgisine genişlik hedefiyle bir şeridi genişletin |
-| Yan şevler için hedefler (bir çizgiye ya da yüzeye yarma-dolgu sınırı), koridorun kendi yüzeyleri | Hedefler kaplama ve bankuet kenarlarını taşır ([Koridorlar](topic:corridor)); koridor, önerilen yüzeye tesviye edilir |
-| LandXML yol olarak dışa aktarılan koridorlar; IFC dışa aktarımında bir eksende ikinci bir koridor | Önerilen yüzey dışa aktarılır |
-| Önerilen yüzeyi değiştiren arazi şablonları, 3D'de ya da kesitlerde | Her katmanın alanlarını ve hacimlerini verirler ([Arazi şablonları](topic:corridor-templates#terrain-templates)) |
-| Hız, lastik kayması, direksiyon süresi, direksiyonlu römorklar ya da gövde açıklığı ile dönüş izleri; standart tasarım araçları kütüphanesi; aracı sürükleyerek çizilen bir dönüş izi | Bir özellik çizgisi ya da bir eksen boyunca düşük hızlı dönüş izleri, kendi araç ölçülerinizle ([Araç dönüş izleri](topic:swept-paths)) |
+| Orta refüjler, bariyerler ve şablonları döndüren süperelevasyon | Bunları şablon olarak çizin ([Koridor şablonları](topic:corridor-templates)); istasyona göre şablonlar henüz süperelevasyonu desteklemez |
+| İki bölgenin şablonları arasında kademeli bir değişim (geçişler, daralmalar) | Bir istasyonda şablonu değiştirin veya geçiş olarak çizilmiş bir çizgiye bir noktaya genişlik hedefi verin |
+| Bir kenar etrafında döndürme, LandXML'de süperelevasyon | Süperelevasyon, dairesel eğrilerde eksen çizgisi etrafında döner; bir şeridi genişletmek için bir özellik çizgisine genişlik hedefi kullanın |
+| Şev için hedefler (yarma-dolgu sınırını bir çizgiye veya yüzeye bağlama), kendi koridor yüzeyleri | Hedefler kaplama kenarlarını ve bankuetleri taşır ([Koridorlar](topic:corridor)); koridor önerilen yüzeye tesviye edilir |
+| Kavşaklarda kıvrımlı bordür dönüşleri, dönüş şeritleri ve adacıklar tesviyesi; yan yolun ucunun eğik bir açıda ana yolun kenarına kesilmesi; bir yolun planda, uzunluğunda ve alanında bir patikaya birleşmesi | Birleşen yollar dik birleştirilir; ana yolun kenarı açılır ve yan yol ona doğru yumuşatılır ([Yollar buluştuğunda](topic:corridor#where-roads-meet-roads-pads-and-paths)); bir patika önerilen yüzeyde ve 3B'de yolun kenarında biter |
+| Koridorlar LandXML yol olarak dışa aktarılır; IFC dışa aktarımında bir eksende ikinci bir koridor | Önerilen yüzey dışa aktarılır |
+| Önerilen yüzeyi, 3B'de ya da kesitlerde değiştiren arazi şablonları | Her katmanın alan ve hacimlerini verirler ([Arazi şablonları](topic:corridor-templates#terrain-templates)) |
+| Hız, lastik kayması, direksiyon süresi, direksiyonlu römorklar veya gövde açıklığı ile dönüş izleri; standart tasarım araçları kütüphanesi; aracı sürükleyerek çizilen bir dönüş izi | Bir özellik çizgisi veya ekseni boyunca düşük hızlı dönüş izleri, kendi araç boyutlarınızla ([Araç dönüş izleri](topic:swept-paths)) |
 
 ## Tesviye ve hacimler
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Banketler, tasarıma tesviye edilen açık özellik çizgileri, başka yerden bir özellik çizgisine tesviye | Özellik çizgisini kapatın ([Özellik çizgileri](topic:feature-lines)) ya da mevcut zeminin bir kırılma çizgisi olarak kullanın |
-| Bir özellik çizgisi köşesi eklemek ya da kaldırmak | Çizgiyi yeniden çizin ya da ondan basamaklı bir ofset yapın |
-| Çizilmiş kırılma çizgilerinde yaylar (ölçü noktalarından geçen), özellik çizgilerinde spiraller | Yaylı bir özellik çizgisi çizin ve onu mevcut zeminin kırılma çizgisi olarak kullanın |
-| Bir mesafeye, kota ya da başka bir yüzeye tesviye | Yalnızca mevcut zemine yarma-dolgu sınırı |
-| Platform köşesi eklemek ya da kaldırmak | Platformu silin ve yeniden çizin |
-| TIN'den TIN'e (prizma) hacimler, ızgara hücre boyutunu seçmek | Izgara yöntemi, hücre boyutu sizin için seçilir |
-| Kabarma ve büzülme, bitkisel toprak, kaplama derinlikleri | Rapor edilen sayılara çarpanları kendiniz uygulayın |
-| Serbest taşıma ve fazla taşıma maliyetleri, farklı eksenler arası taşıma, planda yerleştirilen ödünç malzeme ocakları ve fire alanları | Denge noktaları, taşınan hacimler ve ortalama taşıma mesafeleri ile kütle taşıma diyagramı |
+| Kademeler, tasarıma tesviye edilen açık özellik çizgileri, başka yerden bir özellik çizgisine tesviye | Özellik çizgisini kapatın ([Özellik çizgileri](topic:feature-lines)) veya mevcut zeminin kırılma çizgisi olarak kullanın |
+| Bir özellik çizgisinin köşesini ekleme veya kaldırma | Çizgiyi yeniden çizin veya ondan basamaklı bir ofset yapın |
+| Çizilmiş kırılma çizgilerinde yaylar (araziden geçen noktalarda), özellik çizgilerinde sarmallar | Yaylı bir özellik çizgisi çizin ve mevcut zeminin kırılma çizgisi olarak kullanın |
+| Bir mesafeye, kotuna veya başka bir yüzeye tesviye | Yalnızca mevcut zemine yarma-dolgu sınırı |
+| Bir platform köşesi ekleme veya kaldırma | Platformu silin ve yeniden çizin |
+| TIN'den TIN'e (prizma) hacimler, hücre boyutunun seçilmesi | Izgara yöntemi, hücre boyutu sizin için seçilir |
+| Şişme ve büzülme, bitki toprağı, döşeme derinlikleri | Bildirilen sayılara katsayıları kendiniz uygulayın |
+| Serbest taşıma ve aşırı taşıma maliyetleri, farklı eksenler arasında taşıma, plana yerleştirilmiş ödünç alma sahaları ve atık sahaları | Denge noktaları, taşınan hacimler ve ortalama taşıma mesafeleriyle kütle taşıma diyagramı |
 
 ## Boru ağları
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Proje başına birden fazla ağ | Yağmur suyu ve pis su için ayrı projeler |
-| Su ana hatları: su kalitesi ve yaşı, kurala dayalı denetimler, diğer vana türleri (akış kontrolü, kısma, basınç sabitleme), güçle verilen pompalar, basınca bağlı talep, Darcy–Weisbach seçeneği, duvar kalınlıkları ve basınç sınıfları içeren bir boru kataloğu. Basınçlı ağların geri kalanı geliştirme aşamasındadır: [Su ana hatları](topic:water-mains) | Bunları su dağıtım yazılımında kontrol edin; pis su tasarım debileri [Pis su tasarım debileri](topic:sanitary-design) içindedir |
-| Zamana bağlı kanalizasyon akışları (hidrograflar, dinamik yönlendirme, depolama, pompalar, taşmalar) | [Pis su tasarım debileri](topic:sanitary-design), bir tasarım sayfasının kullandığı kararlı tepe debisini verir |
-| Giriş kapasitesi, oluk yayılımı, bekletme yönlendirmesi, hidrograflar, bir birleşim katsayısı dışındaki enerji kayıpları | Bunları başka yazılımlarda kontrol edin; debiler, boyutlar ve hidrolik eğim çizgileri (HGL) [Yağmur suyu drenajı](topic:storm-drainage) içindedir |
-| PDF çıktısında, DWG, DXF ya da LandXML'de havzalar; yüzeyden çıkan havzalar (su ayrım alanları) | Havzaları elle çizin; proje dosyasına kaydedilirler |
-| Boru katalogları, dairesel olmayan borular, dik kutu ya da silindir olmayan yapılar (koniler, basamaklar, banketler), kütüphanede bir drenaj kategorisi | Parametrelerden yapı türleri ([Boru ağı](topic:pipe-network)); çapı olan borular |
-| Profil görünümünde borular, eğri borular | Sağ paneldeki bağlantı kotlarını ve örtüyü okuyun |
+| Proje başına birden fazla ağ | Yağmur ve atık su için ayrı projeler |
+| Su ana boruları: su kalitesi ve yaşı, kurallara dayalı kontroller, diğer vana türleri (akış kontrolü, kısıcı, sürdürücü), basınçla verilen pompalar, basınca bağlı talep, bir Darcy–Weisbach seçeneği, duvar kalınlıkları ve basınç sınıfları içeren bir boru kataloğu. Basınçlı ağların geri kalanı laboratuvarda: [Su ana boruları](topic:water-mains) | Bunları bir su dağıtım yazılımında denetleyin; atık su tasarım debileri [Atık su tasarım debileri](topic:sanitary-design) konusunda |
+| Zaman içinde kanalizasyon akışları (hidrograflar, dinamik yönlendirme, depolama, pompalar, taşmalar) | [Atık su tasarım debileri](topic:sanitary-design), bir tasarım sayfasının kullandığı sabit tepe debisini verir |
+| Giriş ağzı kapasitesi, bordür yayılımı, tutma havuzu yönlendirmesi, hidrograflar, bir birleşim katsayısı dışındaki enerji kayıpları | Bunları başka bir yazılımda denetleyin; debiler, boyutlar ve kot çizgileri [Yağmur suyu drenajı](topic:storm-drainage) konusunda |
+| PDF çizimindeki, DWG, DXF veya LandXML'deki havzalar; yüzeyden çıkan havzalar (su ayrımları) | Havzaları elle çizin; proje dosyasında kaydedilirler |
+| Boru katalogları, dairesel olmayan borular, dik kutu ya da silindir olmayan yapılar (koniler, basamaklar, kademeler), kütüphanede bir drenaj kategorisi | Parametrelerden yapı türleri ([Boru ağı](topic:pipe-network)); çapı olan borular |
+| Boy kesiti görünümünde borular, eğri borular | Sağ paneldeki ters kotları ve örtüyü okuyun |
 
 ## Parseller
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Alan ya da cephe ile parsel yerleştirme, çevresindeki çizgilerden parseller, geçit hakkı (right-of-way) | Her parseli köşeleriyle çizin ya da parselin kayıt satırlarını girin |
-| Planda eğri tabloları ve çizgi tabloları; elle taşınan etiketler | Her kenar kendi boyunca etiketlenir |
-| LandXML'de parseller | Parseller proje dosyasına kaydedilir ve PDF, DWG ve DXF'e gider |
+| Parselleri alana veya cephe uzunluğuna göre yerleştirme, çevrelerindeki çizgilerden parseller, geçiş hakkı | Her parseli köşeleriyle çizin veya kenar bilgilerini girin |
+| Planda eğri tabloları ve doğru tabloları; elle taşınmış etiketler | Her kenar kendi boyunca etiketlenir |
+| LandXML'de parseller | Parseller proje dosyasında kaydedilir ve PDF, DWG ve DXF'e gider |
 
 ## Poligonlar
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| En küçük kareler dengelemesi, transit kuralı, açıların mesafelere göre ağırlıklandırılması | Pusula kuralı |
-| Sapma açıları, zenit açıları ve eğik mesafeler, trigonometrik nivelmanla kotlar | Yatay mesafelere ve doğru açılara indirgeyin, ya da yön açılarını kullanın |
+| En küçük kareler dengelemesi, geçiş kuralı, açıların uzaklıklara göre ağırlıklandırılması | Pusula kuralı |
+| Sapma açıları, zenit açıları ve eğik uzunluklar, trigonometrik nivelmanla kotlar | Yatay uzaklıkları ve açıları doğru indirgeyin veya azimutlar kullanın |
 | Yan atışlar, veri toplayıcılardan ham veri dosyaları | Noktaları bir nokta dosyası olarak içe aktarın |
 
 ## Kazık çakma
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Ofset kazıkları (kazıktan geriye yerleştirilen referans noktaları), yakalama noktasında şev kazıkları | İhtiyacınız olan ofsetlerde, bankuetin ötesinde dahil, kazık çakın |
-| Kazıkları doğrudan bir veri toplayıcının kendi biçimine göndermek | CSV, çoğu veri toplayıcının ofis yazılımında açılır |
-| Boru, platform ve parsel kazık çakma | Bir eksenin yakınındaki ölçü noktalarını ya da parselin kenarlarını kullanın |
+| Kazıkların geri çekilmiş referans noktaları (ofset kazıklar), yakalama noktasında şev kazıkları | İhtiyacınız olan ofsetlerde, şeridin ötesi dahil, kazık çakın |
+| Kazıkları doğrudan bir veri toplayıcının kendi biçimine göndermek | CSV dosyası çoğu veri toplayıcının ofis yazılımında açılır |
+| Boru, platform ve parsel kazık çakma | Eksenin yakınındaki ölçme noktalarını veya parselin kenarlarını kullanın |
 
 ## Dosyalar ve çıktı
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| DWG ya da DXF'den metin, taralamalar ve ölçülendirmeler; kâğıt uzayı; bağlı çizimler (xref); ikili DXF | Model uzayındaki çizgi işi açılır ([Bir DWG ya da DXF'i çizgi işi olarak açın](topic:open-dwg-dxf)); bağlı çizimleri ayrı ayrı açın |
-| Birden fazla noktayı sürükleyerek aynı anda taşımak | Kesip yapıştırın ya da birer birer düzenleyin |
-| Dikey sayfalar, kendi künyeleriniz, düzenlediğiniz görünüm pencereleri, DWG'de plan ve profil sayfaları | PDF başına bir yatay plan sayfası ya da bir eksen boyunca plan ve profil sayfaları (PDF) |
-| Kot bantlarını ve profilleri çıktı almak | Bantlar yalnızca ekranda gösterilir; ihtiyacınız varsa ekran görüntüsü alın |
-| Katman adlarını, renkleri ya da etiket stillerini değiştirmek | DXF dışa aktarımından sonra bir CAD programında değiştirin |
-| Bulut kaydı ve sürüm geçmişi | `.civilcraft.json` dosyalarını kaydedin ve yedekte tutun; bir projeyi birlikte çalışmak için CadCraft Studio'da canlı bir oturum kullanın ([Bir siteyi birlikte, canlı olarak tasarlayın](topic:work-live)) |
-| iPad ve iPhone için CadCraft Studio ve Google Play'den | Cihazda tarayıcıda CivilCraft'ı kullanın; Android'de CadCraft Studio, getcadcraft.com/download adresindeki APK'sından kurulur |
-| Birden fazla nokta ya da proje dosyasını aynı anda açmak | Her seferinde bir dosya açılır (birlikte ait olan GIS dosyaları, örneğin bir shapefile'ın parçaları, birlikte açılır) |
+| DWG veya DXF'ten metin, taralamalar ve ölçülendirmeler; kağıt uzayı; bağlı çizimler (xref); ikili DXF | Model uzayındaki çizgiler açılır ([Bir DWG veya DXF'i çizgi olarak açın](topic:open-dwg-dxf)); bağlı çizimleri kendi başlarına açın |
+| Birden çok noktayı sürükleyerek birlikte taşıma | Kesip yapıştırın veya birer birer düzenleyin |
+| Dikey sayfalar, kendi künyeleriniz, düzenlediğiniz görünüm pencereleri, DWG'deki plan ve boy kesiti sayfaları | Sayfa başına bir yatay plan sayfası veya bir eksen boyunca plan ve boy kesiti sayfaları (PDF) |
+| Yükseklik bantlarını ve boy kesitlerini çizdirme | Bantlar yalnızca ekrandadır; gerekirse ekran görüntüsü alın |
+| Katman adlarını, renklerini veya etiket stillerini değiştirme | DXF dışa aktarımından sonra bir CAD programında değiştirin |
+| Bulutta kaydetme ve sürüm geçmişi | `.civilcraft.json` dosyalarını kaydedin ve yedekleyin; bir projede birlikte çalışmak için CadCraft Studio içinde canlı bir oturum kullanın ([Bir siteyi birlikte, canlı olarak tasarlayın](topic:work-live)) |
+| iPad ve iPhone için CadCraft Studio, Google Play'den | CivilCraft'ı cihazdaki tarayıcıda kullanın; Android'de CadCraft Studio, getcadcraft.com/download adresindeki APK'sından kurulur |
+| Aynı anda birden çok nokta veya proje dosyası açma | Dosya başına bir dosya (birbiriyle ilişkili GIS dosyaları, örneğin bir shapefile'ın parçaları, birlikte açılır) |
 
 ## Peyzaj
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Üreticilerin başlıkları ve memeleri | Genel başlıklar ya da bir dosyadan kendi başlıklarınızı ekleyin; üreticilerin verileri izin verdikçe gelir |
-| Damla hatları için azami yan uzunluklar, zamana bağlı akışlar, pompalar, halka boru ağları | Damla hattı çalışmalarını üreticinin yayımladığı uzunlukta tutun; kontrol dallanmış bir ağ gerektirir |
-| İçbükey serbest biçimli bir nesnenin tam dış hattı; zemin altı hacminin tam ölçümü | Dışbükey gövde (convex hull) tesviye edilir ve zemin altı hacmi bir tahmindir (Özellikler'de belirtilir) |
-| BimCraft'ın ve ModelCraft'ın kendi Kütüphaneden yerleştir komutundaki bitkiler | Peyzaj IFC'sini dışa aktarın ve yapının yanında BimCraft'ta açın |
-| 3D görünümde ayrıntılı bitki modelleri (yapraklar, dallar, mevsimler); 3D görünümde serbest biçimli nesneler ve sulama | Bitkiler 3D'de, bitki listesinden boyutlandırılmış basit biçimler olarak görünür ([Siteyi 3D'de görüntüleyin](topic:site-3d)); ModelCraft'ın saçılımı peyzaj resimleri yapar |
-| Yüzeyde, arkasında tesviye edilmiş bir kotu tutan sert peyzaj duvarları | Bir platforma ya da pedde dik kenarlar verin: yüzeyde istinat duvarı olurlar ([Tesviye](topic:grading)) |
-| Kendi sembollerinizdeki SVG dönüşümleri; kendi GLB bitki modellerinizin dokuları ve renkleri; sıkıştırılmış GLB geometrisi | Önce çizim programınızda dönüşümleri düzleştirin; modeller bitkinin rengiyle çizilir; GLB'yi sıkıştırmadan dışa aktarın ([Bitki grafikleri](topic:plant-graphics)) |
-| Kütüphane hesabınızda tutulan kendi bitki listeniz (uygulamada düzenlenir) | Projenin kendi listesini Bitki tablosunda düzenleyin ve bir bitki dosyası olarak kaydedin |
-| Pencere olmadan asistanlar için peyzaj araçları (dosya sunucusu ve komut satırı) | Bunlar CivilCraft penceresi açıkken çalışır ([Bir yapay zekâ asistanının sitenizle çalışmasına izin verin](topic:assistants)) |
+| Üreticilerin başlıkları ve memeleri | Genel başlıklar veya kendi başlıklarınızı bir dosyadan ekleyin; üreticilerin verileri, izin verdikçe gelir |
+| Damlama hatları için en büyük yanal uzunluklar, zaman içinde akışlar, pompalar, döngüsel boru ağları | Damlama hatlarını üreticinin yayımladığı uzunlukta tutun; denetim, dallanan bir ağ gerektirir |
+| Çukur bir serbest biçimli nesnenin tam dış hattı; yer altı hacminin tam ölçümü | Dışbükey gövde tesviye edilir ve yer altı hacmi bir tahmindir (Özellikler'de belirtilir) |
+| BimCraft ve ModelCraft'ın kendi Kütüphaneden yerleştir özelliğindeki bitkiler | Peyzaj IFC'sini dışa aktarın ve BimCraft'ta bina yanında açın |
+| Bir yüzeyde, arkasında tesviye edilmiş bir kotu tutan sert zemin duvarları | Bir platforma veya pede dikey kenarlar verin: bunlar yüzeyde istinat duvarlarıdır ([Tesviye](topic:grading)) |
+| Kendi sembollerinizdeki SVG dönüşümleri; kendi GLB bitki modellerinizin dokuları ve renkleri; sıkıştırılmış GLB geometrisi | Önce çiziminizde dönüşümleri düzleştirin; modeller bitkinin rengiyle çizilir; GLB'yi sıkıştırmadan dışa aktarın ([Bitki grafikleri](topic:plant-graphics)) |
+| Kütüphane hesabınızda tutulan kendi bitki listeniz (uygulamada düzenlenen) | Projenin kendi listesini Bitki tablosunda düzenleyin ve bir bitki dosyası olarak kaydedin |
+| Pencere olmadan peyzaj araçları, yardımcılar için (dosya sunucusu ve komut satırı) | CivilCraft penceresi açıkken çalışırlar ([Bir yapay zekâ asistanının sahanızda çalışmasına izin verin](topic:assistants)) |
 
 ## Enerji hatları
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Bir ülkenin standardının yerleşik olması (yük durumları, güvenlik mesafeleri, katsayılar) | {{ui:Yük durumları ve sınırlar…}} içinde standardınızın değerlerini ayarlayın ve kütüphanenizle birlikte bir paket olarak kaydedin; yeniden kullanmak ve paylaşmak için ([Paketler](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
-| Bir iletkenden bir ağaç tepesine ya da hattın yanındaki bir duvara yatay mesafe | Hattın geçtiği bitkilerin ve duvarların üzerindeki düşey güvenlik mesafesi ([Enerji hattı kontrolleri](topic:power-line-checks#clearances)) |
-| İletken sünmesi ve yeni bir iletkenin uzaması | Bunlara, gerdirme tablosundaki sıcaklıklar üzerinden izin verin |
-| Gömülü kabloların ısıl değeri (döşenme biçiminden akım değeri) | Tedarikçinizin akım değerini kablo kaleminde girin |
-| Kısa devre, koruma ve topraklama çalışmaları | Ayrı bir elektrik programı kullanın; CivilCraft ağın uzunluklarını ve kablolarını verir |
-| Örgü kulelerin eleman eleman tasarlanması ve zemindeki gergi ankrajları | Direkler nominal yüklerine göre kontrol edilir; gergiler ise anma yüküne göre |
-| `.DON` çalışma dosyasının onu okuyan programda kontrol edilmesi | Dosyayı orada kontrol edin; gerçek bir dosya ile test edebilmemiz için bize bir örnek gönderin |
-| 3D görünümde ve IFC'de enerji hatları | Plan, hat profili, sayfalar ve GIS katmanları |
-| Pencere olmadan asistanlar için enerji hattı araçları | Bunlar CivilCraft penceresi açıkken çalışır ([Bir yapay zekâ asistanının sitenizle çalışmasına izin verin](topic:assistants)) |
+| Bir ülkenin yerleşik standardı (yük durumları, açıklıklar, katsayılar) | Standardınızın değerlerini {{ui:Yük durumları ve sınırlar…}} içinde ayarlayın ve kütüphanenizle birlikte bir paket olarak kaydedip paylaşın ([Paketler](topic:sag-and-tension#packs-rules-and-a-library-for-a-country)) |
+| Bir iletkenden yandaki bir ağaç tepesine veya hatların yanındaki bir duvara yatay mesafe | Hattın kestiği bitki ve duvarların üzerindeki düşey açıklık ([Enerji hattı denetimleri](topic:power-line-checks#clearances)) |
+| İletken sürünmesi ve yeni bir iletkenin uzaması | Bunları gerdirme tablosundaki sıcaklıklar üzerinden hesaba katın |
+| Gömülü kabloların termal akım taşıma kapasitesi (döşenme biçiminden akım taşıma kapasitesi) | Kablo kalemine tedarikçinizin akım taşıma değerini girin |
+| Kısa devre, koruma ve topraklama çalışmaları | Özel bir elektrik programı kullanın; CivilCraft ağın uzunluklarını ve kablolarını verir |
+| Kafes direklerin üye üye tasarımı ve zemindeki gergi angkrajları | Destekler nominal yüke göre, gergiler ise derecelendirilmiş yüke göre denetlenir |
+| Okunduğu programda bir `.DON` çalışma dosyası denetimi | Dosyayı orada denetleyin; gerçek bir örnekle test edebilmemiz için bize bir örnek gönderin |
+| 3B görünümde ve IFC'de enerji hatları | Plan, hat profili, sayfalar ve GIS katmanları |
+| Pencere olmadan enerji hattı araçları, yardımcılar için | CivilCraft penceresi açıkken çalışırlar ([Bir yapay zekâ asistanının sahanızda çalışmasına izin verin](topic:assistants)) |
 
-## Yapı kütleleri
+## Bina kütleleri
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| İmar kodlarının ya da herhangi bir kentin kurallarının kütüphanesi | Kendi imar mevzuatınızdan sınırları yazın ([İmar sınırları](topic:zoning-limits)) |
-| Duvarlardaki gökyüzü ışığı (cephe gün ışığı), rüzgâr | [Güneş saatleri](topic:sun-hours) yalnızca doğrudan güneşi sayar |
-| Ağaçlardan, bitkilerden ya da kütle olarak çizilmeyen herhangi bir şeyden gölge | Komşu yapıları kütle olarak çizin |
-| Kütlelerde çatı biçimleri | Düz tepeli kütleler |
-| Bir kütle BimCraft'ta geliştirildiğinde açıklıklar, çatılar ve duvar türleri | BimCraft her katta ve bir döşemede yalnızca düz dış duvarlar oluşturur; diğerlerini orada ekleyin |
+| İmar kodlarının veya herhangi bir şehrin kurallarının kütüphanesi | Kendi imar yönetmeliğinizden sınırları yazın ([İmar sınırları](topic:zoning-limits)) |
+| Duvarlardaki gökyüzü ışığı (cephe aydınlatması), rüzgâr | [Güneşlenme saatleri](topic:sun-hours) yalnızca doğrudan güneşi sayar |
+| Ağaçlardan, bitkilerden veya kütle olarak çizilmemiş herhangi bir şeyden gölge | Komşu binaları kütle olarak çizin |
+| Kütleler üzerinde çatı biçimleri | Düz üstlü kütleler |
+| BimCraft'ta bir kütle geliştirildiğinde açıklıklar, çatılar ve duvar türleri | BimCraft her katta ve bir döşemede düz dış duvarlar oluşturur; kalanları orada ekleyin |
 
 ## GIS ve koordinat sistemleri
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| File Geodatabase; KML stilleri, simgeler, zemin kaplamaları ve ağ bağlantıları | Önce GeoPackage, shapefile ya da GeoJSON'a dönüştürün; KML yer işaretleri stilleri olmadan okunur |
-| GIS öğelerini ya da öznitelikleri düzenlemek | Bir GIS programında düzenleyin ve yeniden içe aktarın. Analiz paneli yeni katmanlar oluşturur (tampon, bindirme, birleştirme, seçim) ve alan ile uzunluk alanları ekler, ama bir öğeyi yerinde düzenlemez |
-| Ağ ve raster analizi, düz ya da kare uçlu tamponlar ve tek taraflı tamponlar, öznitelik tablosunda satır eklemek ya da silmek ve bir alanın türünü değiştirmek, elle sınıf renkleri, çizimlerde bir stil açıklaması | Öğeleri seçmek için Seç kullanın ve onlardan bir katman oluşturun; düz uçlar sunulmaz. Öznitelikle renklendirme ve öznitelik tablosu yapılmıştır: [Bir katmanı öznitelikle stillendirme](topic:gis-symbology) ve [Bir katmanın öznitelik tablosuyla çalışma](topic:gis-table) |
-| Etiket stilleri (boyut, yerleşim) ve birbiriyle çakışmayan etiketler | Etiketler tek boyuttadır ve öğeler yoğunken üst üste gelebilir |
-| Düşey datumlar ve jeoid modelleri | Kotlar dosyanın verdiği gibi kullanılır; düşey datumu kendiniz kontrol edin |
-| NAD27'den NAD83'e alana göre önerilen ızgara kaymaları dışındaki kaymalar (OSTN15; diğer datumlar için NTv2, dosyayı eklediğinizde çalışır), aynı anda birden fazla ızgara, düşey ızgaralar | Datumunuz için ızgara dosyasını kendiniz ekleyin; proje başına bir ızgara |
-| DXF'de ya da 3D dışa aktarımlarda harita katmanları | Harita katmanları PDF çıktısına girer ve DWG yanında resim olarak eklenir |
-| Oturum açma, anahtar ya da belirteç gerektiren harita sunucuları | Genel hizmetleri ya da coğrafi referanslı bir görüntü dosyasını kullanın |
-| Bir yüzeyden, zemin modelinden ya da kot ızgarası ve LiDAR araçlarından LAS ya da LAZ dosyası yazmak | Yüzeyleri GeoTIFF kot ızgarası olarak dışa aktarın. [Nokta bulutları](topic:point-clouds) eklentisi temizlenmiş bulutu LAS 1.4 ya da LAZ olarak yazar |
-| LiDAR yoğunluğu, renk ve dönüşler; birden fazla bantlı kot ızgaraları; 200 MB'ı aşan ızgara ya da LiDAR dosyaları | LiDAR yalnızca sınıfa göre süzülür, ızgaralar ilk bantlarını kullanır; büyük dosyaları önce karolara bölün |
+| File Geodatabase; KML stilleri, simgeleri, zemin kaplamaları ve ağ bağlantıları | Önce GeoPackage, shapefile veya GeoJSON'a dönüştürün; KML yer işaretleri stilleri olmadan okunur |
+| GIS öğelerini veya özniteliklerini düzenleme | Bir GIS programında düzenleyip yeniden içe aktarın. Çözümle panelinde yeni katmanlar (tampon, bindirme, birleştirme, seçim) oluşturulur ve alan ile uzunluk alanları eklenir, ancak bir öğe yerinde düzenlenmez |
+| Ağ ve raster analizi, düz veya kare uçlu ve tek yönlü tamponlar; öznitelik tablosunda satır ekleme veya silme ya da bir alanın türünü değiştirme; elle sınıf renkleri; çizimlerde stil açıklaması | Öğeleri seçmek için Seç'i kullanın ve onlardan bir katman oluşturun; düz uçlar sunulmaz. Özniteliğe göre renklendirme ve öznitelik tablosu yapılmıştır: bkz. [Bir katmanı özniteliğe göre stillendirin](topic:gis-symbology) ve [Bir katmanın öznitelik tablosuyla çalışın](topic:gis-table) |
+| Etiket stilleri (boyut, yerleşim) ve birbirinden kaçınan etiketler | Etiketler tek boyutludur ve öğeler yoğun olduğunda üst üste binebilir |
+| Düşey datumlar ve jeoit modelleri | Kotlar dosyanın verdiği gibi kullanılır; düşey datumu kendiniz denetleyin |
+| Alana göre önerilen NAD27'den NAD83 dışındaki ağ kaymaları (OSTN15, diğer datumlar için NTv2, dosyayı eklediğinizde çalışır), birden çok ağ aynı anda, düşey ağlar | Datumunuz için ağ dosyasını kendiniz ekleyin; proje başına bir ağ |
+| DXF'te veya 3B dışa aktarımlarda harita katmanları | Harita katmanları PDF çizimine girer ve DWG yanında resim olarak eklenir |
+| Oturum açma, anahtar veya belirteç gerektiren harita sunucuları | Genel hizmetleri veya coğrafi referanslı bir resim dosyasını kullanın |
+| Bir yüzeyden, zemin modelinden veya kot ızgarası ve LiDAR araçlarından LAS veya LAZ dosyası yazma | Yüzeyleri GeoTIFF kot ızgarası olarak dışa aktarın. [Nokta bulutları](topic:point-clouds) eklentisi temizlenmiş bulutu LAS 1.4 veya LAZ olarak yazar |
+| LiDAR yoğunluğu, rengi ve dönüşleri; birden çok bantlı kot ızgaraları; 200 MB'tan büyük ızgara veya LiDAR dosyaları | LiDAR yalnızca sınıfa göre süzülür, ızgaralar ilk bandını kullanır; büyük dosyaları önce karolara bölün |
 
-## Giriş
+## Girdi
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| Dokunmatikle kutu seçimi ({{key:Shift}} gerektirir) | Eklemek için her ölçü noktasına uzun basın |
-| Çizim sırasında yazılmış koordinatlar ya da mesafeler | Kabaca çizin, sonra kesin PI koordinatlarını eksen PI tablosuna yazın |
-| Platform köşeleri ve yapılar için koordinat yazmak | Tutamaçlarını sürükleyin; hassasiyet için yakınlaştırın ve durum çubuğunda E ve N değerlerini izleyin |
-| Nesnelere yakalama (kırılma çizgileri için ölçü noktaları dışında) | Yakınlaştırın ve durum çubuğunu izleyin |
+| Dokunmatik kutu seçimi ({{key:Shift}} gerektirir) | Her ölçme noktasını uzun basarak ekleyin |
+| Çizerken yazılan koordinatlar veya uzaklıklar | Kabaca çizin, sonra eksenin PI tablosunda kesin PI koordinatlarını yazın |
+| Platform köşeleri ve yapılar için koordinat yazma | Tutamaçlarını sürükleyin; hassasiyet için yakınlaştırın ve durum çubuğunda E ve N'yi izleyin |
+| Nesnelere yakalama (kırılma çizgileri için ölçme noktaları dışında) | Yakınlaştırın ve durum çubuğunu izleyin |
 
-## 3D görünüm
+## 3B görünüm
 
-| Henüz yapılmadı | Bunun yerine, bugün |
+| Henüz yapılmadı | Bunun yerine bugün |
 |---|---|
-| 3D görünümde çizim ya da düzenleme | Planda çizin ve düzenleyin; 3D görünüm her düzenlemeyi izler |
-| 3D'de tıklayarak koridor özellik çizgilerini ya da GIS öğelerini seçmek | Bunları planda tıklayın |
-| Abartılmış görünümü ya da ft cinsinden dışa aktarmak | Dışa aktarımlar metre cinsinden gerçek ölçektedir; bkz. [Siteyi 3D olarak dışa aktarın](topic:export-3d) |
-| GLB ya da OBJ dışa aktarımlarında etiketler, 3D'de etiket boyutları ve stilleri | Etiketler yalnızca 3D görünümde ve tek boyutta gösterilir; bkz. [Siteyi 3D'de görüntüleyin](topic:site-3d) |
-| Fotoğraflardan dokular, bir sürüşü video olarak kaydetmek, siteden uzaktan gelen gölgeler, 3D görünümde gösterilen güneş saatleri | Yüzeylerin üzerine yerleştirilmiş harita katmanları; sürüşü ve güneşin konumunu tek bir zamanda; bir gün ya da mevsim için planda [güneş saatleri](topic:sun-hours) |
+| 3B görünümde çizim veya düzenleme | Planda çizin ve düzenleyin; 3B görünüm her düzenlemeyi izler |
+| Koridor özellik çizgilerini veya GIS öğelerini 3B'de tıklayarak seçme | Planda tıklayın |
+| Abartılı görünümü veya feet cinsini dışa aktarma | Dışa aktarımlar metre cinsinden gerçek ölçektedir; bkz. [Sahayı 3B'de dışa aktarın](topic:export-3d) |
+| GLB veya OBJ dışa aktarımlarında etiketler, 3B'de etiket boyutları ve stilleri | Etiketler yalnızca 3B görünümde, tek boyutta gösterilir; bkz. [Sahayı 3B'de görüntüleyin](topic:site-3d) |
+| Fotoğraflardan dokular, bir sürüşü video olarak kaydetme, sahanın ötesinden gölgeler, 3B görünümde güneşlenme saatleri | Yüzeylerin üzerine yerleştirilmiş harita katmanları; bir andaki sürüş ve güneşin konumu; bir gün veya mevsim için [güneşlenme saatleri](topic:sun-hours) planda |

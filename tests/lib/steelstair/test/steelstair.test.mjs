@@ -107,12 +107,13 @@ ok(clean({ stringer: 'C10x15.3\u0000x' }).stringer === 'C10x15.3x', 'clean strip
   ok(!b.problems.some((p) => p.code === 'opening' || p.code === 'rail-height'), 'IBC default rail height 914.4 is inside 34..38 in');
   // weights and cut list
   const cl = cutList(b, { profileOf });
-  let want = 0; for (const p of b.parts) { const len = Math.hypot(...p.end.map((v, i) => v - p.start[i])); want += profileOf(p.profileName).mass * len / 1000; }
+  let want = 0; for (const p of b.parts) { const len = p.length ?? Math.hypot(...p.end.map((v, i) => v - p.start[i])); want += profileOf(p.profileName).mass * len / 1000; }
   near(cl.totalKg, want, 0.6 + cl.rows.length * 0.01, 'cut list total = the sum of every part');
   ok(cl.count === b.parts.length, 'cut list counts every part: ' + cl.count + ' of ' + b.parts.length);
-  // two stringers: 2 x 6.0469 m x 22.7689 kg/m = 275.4 kg
+  // a stringer with its ends cut to the floors is longer than the square-ended one by 50 (k + 1/k) mm, k = riser / going (worked: the cut's corners sit (sd/2)(k + 1/k) off the axis points, the nominal ends are (sd/2 - 50)(k + 1/k) short of the floors):
+  // 6046.9 mm + 50 (0.571429 + 1.75) = 6162.97 mm; 6.16297 m x 22.768908 kg/m = 140.32 kg each
   const sRow = cl.rows.find((r) => r.section === 'C10x15.3' && /^Stringer/.test(r.role));
-  ok(!!sRow, 'a stringer row'); near(sRow ? sRow.unitKg : 0, 6.0469 * 22.768908, 0.1, 'one stringer kg');
+  ok(!!sRow, 'a stringer row'); near(sRow ? sRow.unitKg : 0, (6.0469 + 0.05 * (0.571429 + 1.75)) * 22.768908, 0.1, 'one stringer kg (cut to the floors)');
   const csv = cutListCsv(cl); ok(csv.startsWith('Item,Assembly,Part,Section,Length mm,Qty,Each kg,Total kg,Note') && csv.split('\n').length === cl.rows.length + 3, 'the CSV has a head, a row each and a total');
   ok(!/\n[=+\-@]/.test(csv.replace(/\n-?\d/g, '\n0')), 'no formula-looking cell');
   const td = treadDetail(b); ok(td.type === 'folded' && td.bolted && td.holeD === 14 && td.fold === 40 && td.count === 17, 'tread detail: folded, bolted, 14 mm holes, 40 mm return, 17 treads'); near(td.depth, 291.6667 + 25, 0.06, 'tread depth = going + nosing');
@@ -136,7 +137,7 @@ ok(clean({ stringer: 'C10x15.3\u0000x' }).stringer === 'C10x15.3x', 'clean strip
   const b = build({ ...defaults('us-ibc-2021'), rise: 4000, width: 1100 }, { profileOf });
   ok(b.flights.length === 2 && b.landings.length === 1, 'two flights and a landing');
   ok(!!b.parts.find((p) => p.key === 'l1beamL') && !!b.parts.find((p) => p.key === 'l1cover') && !!b.parts.find((p) => p.key === 'l1crossA'), 'the landing has beams, cross angles and a cover');
-  ok(b.parts.filter((p) => /^l1post/.test(p.key)).length === 2, 'two landing posts'); const cover = b.parts.find((p) => p.key === 'l1cover'); ok(cover.profileName.startsWith('PL4x1100'), 'the cover is as deep as the stair is wide: ' + cover.profileName);
+  ok(b.parts.filter((p) => /^l1post[LR]$/.test(p.key)).length === 2, 'two landing posts'); const cover = b.parts.find((p) => p.key === 'l1cover'); ok(cover.profileName.startsWith('PL4x1100'), 'the cover is as deep as the stair is wide: ' + cover.profileName);
   const f2 = b.parts.find((p) => p.key === 'f2stringerL'), f1 = b.parts.find((p) => p.key === 'f1stringerL');
   ok(f2.start[2] > f1.end[2] - 10 && b.stats.landings === 1, 'the second flight starts at the landing level');
   const off = build({ ...defaults('us-ibc-2021'), rise: 4000, width: 1100, landingPosts: false }, { profileOf }); ok(!off.parts.some((p) => /^l1post/.test(p.key)), 'landing posts can be left off');
@@ -150,5 +151,32 @@ ok(clean({ stringer: 'C10x15.3\u0000x' }).stringer === 'C10x15.3x', 'clean strip
   const noRail = build({ ...defaults(), rails: 'none' }, { profileOf }); ok(noRail.rails.length === 0 && !noRail.parts.some((p) => /rail|bal/.test(p.key)), 'no rails when none is chosen');
   const missing = build({ ...defaults(), stringer: 'XYZ' }, { profileOf }); ok(missing.problems.some((p) => p.code === 'stringer'), 'an unknown stringer section is a problem');
 }
+// 0.11 SU.1814c: stringer end cuts and post base plates (worked by hand in the comments)
+{
+  const rec = { ...defaults('us-ibc-2021'), rise: 4000, width: 1100 };   // 4000 mm: two flights and a landing (the rule's 12 ft flight limit is 3658 mm), landing posts
+  const b = build(rec, { profileOf });
+  const st = b.parts.find((p) => p.key === 'f1stringerL');
+  ok(!!st.planes && st.planes.start.n.join() === '0,0,-1' && st.planes.end.n.join() === '1,0,0', 'floor stringer: a level cut at the floor (outward normal down) and a plumb cut at the upper edge (normal along the climb)');
+  // dir 0: the lower face's point is on the floor (z = rec.z), the upper face's x is where the last tread ends: (risers - 1) * going from the foot
+  ok(Math.abs(st.planes.start.p[2] - 0) < 1e-9, 'the level cut is at the floor: z 0');
+  const f1 = b.flights[0];
+  ok(Math.abs(st.planes.end.p[0] - (f1.risers - 1) * b.going) < 1e-6 && Math.abs(st.planes.end.p[2] - f1.risers * b.riser) < 1e-6, 'the plumb cut is at the end of the last tread of the flight (' + st.planes.end.p[0].toFixed(3) + ', ' + st.planes.end.p[2].toFixed(3) + ')');
+  const f2 = b.parts.find((p) => p.key === 'f2stringerL');
+  ok(Math.abs(f2.planes.start.p[2] - f1.risers * b.riser) < 1e-6, 'the second flight is cut level on the landing: its z is the first flight\'s rise');
+  const sq = build({ ...rec, endCuts: 'square' }, { profileOf });
+  ok(!sq.parts.find((p) => p.key === 'f1stringerL').planes, 'endCuts "square" leaves the stringer as before: no planes');
+  const old = { ...rec }; delete old.endCuts; delete old.postBase; delete old.baseT; delete old.anchor;
+  const ob = build(old, { profileOf });
+  ok(!ob.parts.find((p) => p.key === 'f1stringerL').planes && !ob.parts.some((p) => /base$/.test(p.key)), 'a stair stored before 0.11 (no endCuts, no postBase) builds as it did: square ends, no base plates');
+  const bases = b.parts.filter((p) => /^l1post[LR]base$/.test(p.key));
+  ok(bases.length === 2 && bases.every((p) => p.holes.length === 4 && p.profileName === 'PL12x210'), 'a base plate under each landing post: PL12x210 (post width 101.6 + 100 -> 210), four holes');
+  const post = b.parts.find((p) => p.key === 'l1postL');
+  ok(Math.abs(post.start[2] - 12) < 1e-9, 'the post stands on the plate: it starts 12 mm up');
+  // anchors 30 mm in from the edges: x = 30 and 180 along the plate, y = -75 and 75 from its centre; hole 16 + 2 = 18
+  const h = bases[0].holes.map((q) => q.x + ':' + q.y + ':' + q.d).sort().join(' ');
+  ok(h === '180:-75:18 180:75:18 30:-75:18 30:75:18', 'anchor holes at 30 mm from the edges, 18 mm for a 16 mm anchor: ' + h);
+  ok(b.welds.some((w) => w.where === 'post to base plate'), 'the post is welded to its plate');
+}
+
 console.log(`${pass} checks passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

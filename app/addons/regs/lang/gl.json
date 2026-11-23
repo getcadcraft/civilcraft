@@ -103,6 +103,7 @@
   "regs.auth.professional": "Colexio profesional",
   "regs.auth.community": "Comunidade",
   "regs.where.egress": "Porta de saída",
+  "regs.where.guard": "Guarda",
   "regs.sheet.button": "Folla resumo do código",
   "regs.sheet.title": "Resumo do código",
   "regs.sheet.file": "resumo do código",

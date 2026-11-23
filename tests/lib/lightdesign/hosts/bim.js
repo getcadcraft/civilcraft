@@ -9,12 +9,18 @@
  *       its plan symbol, tag and Load = the luminaire's watts, so the device schedule and the electrical tools see them; a property set CadCraft_Light (kind, lumens of the web, colour from the colour temperature) makes each a lamp in BimCraft's render; CadCraft_LightDesign holds lumens, watts and
  *       the room's calculated mean lux), and the calculated lux are drawn in that level's plan view as numbers (drafting lines, tag 'lightdesign'). Drawing again replaces both.
  *   host.erase() → n   the fixtures this add-on placed and its numbers on the plan     host.count()     host.start(app) → nothing (the panel is the interface)
+ *   0.11 SU.1816: draw also names each fixture's light web (CadCraft_Light Ies = renderLamps' name) and keeps the webs on the IfcProject (CadCraft_LightIes Webs), so
+ *       BimCraft's own Render lights them with the measured spread, not a plain point. host.modelItems({ room }) → { items, floor, ceiling } | null: the model's own
+ *       surfaces near the room (api.model.triangles, the 3D view's colours; see-through ones as glass) as night-scene items, whether the model has a floor and a
+ *       ceiling over the room's middle (the night view adds its own where it has not) and the ceiling's height there (ceilingZ mm, the lowest face above 0.4 H).
  *   The fixtures are real model elements: moving or deleting one afterwards is the person's, the next Draw removes only the ones this add-on made (they carry CadCraft_LightDesign).
  */
-import { kelvinToHex, webFlux } from './lib/night.js';
+import { kelvinToHex, webFlux, renderLamps } from './lib/night.js';
+import { modelItem } from './lib/view.js';
 const PSET = 'CadCraft_LightDesign';
 const LAMP_PSET = 'CadCraft_Light';   // the set BimCraft's own render reads for a light fixture (render-bim.js: Kind, Lumens, Color, On)
 const TAG = 'lightdesign';
+const WEBS_PSET = 'CadCraft_LightIes';   // 0.11 SU.1816: on the IfcProject, Webs = JSON { name: { file, text } }; BimCraft's Render reads it (render-bim.js bimIes)
 
 // seven-segment digits as stroke polylines in a 2 × 4 box (x right, y up); one entry per digit, each a list of strokes
 const SEG = { a: [[0, 4], [2, 4]], b: [[2, 4], [2, 2]], c: [[2, 2], [2, 0]], d: [[0, 0], [2, 0]], e: [[0, 0], [0, 2]], f: [[0, 2], [0, 4]], g: [[0, 2], [2, 2]] };
@@ -43,6 +49,9 @@ export function detect(api, { t }) {
     w._guids = null;
     return r;
   };
+  const projectOf = (w) => { try { const v = w.api.GetLineIDsWithType(w.mid, w.W.IFCPROJECT); return v.size() ? v.get(0) : null; } catch { return null; } };
+  /** The model's room the panel's outline is (corners within 2 mm, same count), from the last rooms() read. */
+  const roomFor = (room) => last.find((q) => q.poly.length === room.polygon.length && q.poly.every((c, i) => Math.hypot(c[0] - room.polygon[i][0], c[1] - room.polygon[i][1]) <= 2)) || null;
   const mine = (E, w) => E.readDevices(w).filter((d) => { try { return !!w.readPset(d.id, PSET); } catch { return false; } });
   const host = {
     id: 'bim',
@@ -74,6 +83,7 @@ export function detect(api, { t }) {
         const ds = mine(E, w);
         if (ds.length) nest(w, E.removeDevices(ds.map((d) => d.guid)));
         removed = ds.length;
+        const pid = projectOf(w); if (pid !== null && ds.length) w.upsertPset(pid, WEBS_PSET, [['Webs', 'IFCTEXT', '{}']]);
       });
       try { if (typeof api.drafting?.put === 'function') await api.drafting.put(TAG, [], { label: t('bim.erase.label') }); } catch { /* no plan numbers to remove */ }
       try { await api.model.removeBodies?.('lightdesign'); } catch { /* the older display bodies, if the file still has them */ }
@@ -87,6 +97,7 @@ export function detect(api, { t }) {
       const r = last.find(same);
       if (!r || !r.storey) throw Object.assign(new Error('bim.noroom'), { key: 'bim.noroom' });
       const mean = Math.round(result.em);
+      const rl = renderLamps(luminaires, { axes: 'y', cct });   // the same names and webs as the night view and the lamps file
       let made = 0;
       await api.model.write(t('bim.draw.label'), (w) => {
         const old = mine(E, w);
@@ -96,10 +107,13 @@ export function detect(api, { t }) {
           const res = nest(w, E.placeDevice({ kind: linear ? 'luminaire.linear' : p.width > 0 && p.width < 250 && p.length < 250 ? 'downlight' : 'luminaire', level: r.storey, at: [L.p[0], L.p[1]], height: L.p[2], load: Math.round((p.watts || 0) * (L.scale ?? 1) * 10) / 10 }));
           if (res && res.id) {
             w.upsertPset(res.id, PSET, [['Lumens', 'IFCREAL', Math.round((p.lumens || 0) * (L.scale ?? 1))], ['Watts', 'IFCREAL', Math.round((p.watts || 0) * (L.scale ?? 1) * 10) / 10], ['Photometry', 'IFCLABEL', String(p.name || '').slice(0, 80)], ['RoomMeanLux', 'IFCREAL', mean]]);
-            w.upsertPset(res.id, LAMP_PSET, [['Kind', 'IFCLABEL', 'point'], ['Lumens', 'IFCREAL', Math.max(1, Math.round(webFlux(p) * (L.scale ?? 1)))], ['Color', 'IFCLABEL', kelvinToHex(L.cct ?? cct)], ['On', 'IFCBOOLEAN', true]]);   // SU.1816: the fixture is a lamp in BimCraft's own night render
+            const web = rl.lamps[luminaires.indexOf(L)]?.name, named = web && rl.ies[web] ? [['Ies', 'IFCLABEL', web]] : [];
+            w.upsertPset(res.id, LAMP_PSET, [['Kind', 'IFCLABEL', 'point'], ['Lumens', 'IFCREAL', Math.max(1, Math.round(webFlux(p) * (L.scale ?? 1)))], ['Color', 'IFCLABEL', kelvinToHex(L.cct ?? cct)], ['On', 'IFCBOOLEAN', true], ...named]);   // SU.1816: the fixture is a lamp in BimCraft's own night render
             made++;
           }
         }
+        const pid = projectOf(w);
+        if (pid !== null) w.upsertPset(pid, WEBS_PSET, [['Webs', 'IFCTEXT', JSON.stringify(rl.ies)]]);
       });
       // the calculated lux as numbers in the level's plan view (drafting lines: BimCraft shows them on screen, on sheets and in the PDF)
       const g = result.grid, step = Math.max(1, Math.ceil(g.points.length / 30)), h = Math.max(120, Math.min(250, g.spacing / 4)), items = [];
@@ -108,6 +122,24 @@ export function detect(api, { t }) {
       if (typeof api.drafting?.put === 'function' && items.length) { const put = await api.drafting.put(TAG, items, { label: t('bim.lux.label') }); lux = put.n; }
       n = made;
       return { n: made, lux };
+    },
+    async modelItems({ room }) {
+      const r = room && roomFor(room);
+      if (!r || !r.storey || typeof api.model.triangles !== 'function') return null;
+      const xs = room.polygon.map((q) => q[0]), ys = room.polygon.map((q) => q[1]), m = 600, H = room.height || 2800;
+      const box = { x0: Math.min(...xs) - m, y0: Math.min(...ys) - m, x1: Math.max(...xs) + m, y1: Math.max(...ys) + m, z0: -m, z1: H + m };
+      let groups;
+      try { groups = await api.model.triangles(r.storey, { box }); } catch { return null; }
+      if (!Array.isArray(groups) || !groups.length) return null;
+      // is there a floor (a face near z = 0) and a ceiling (a face between the lamps and H + m) over the middle of the room?
+      const cx = (box.x0 + box.x1) / 2, cy = (box.y0 + box.y1) / 2;
+      const over = (t) => { const [a, b, c] = t, d = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]); if (Math.abs(d) < 1e-9) return null; const u = ((b[0] - cx) * (c[1] - cy) - (c[0] - cx) * (b[1] - cy)) / d, v = ((c[0] - cx) * (a[1] - cy) - (a[0] - cx) * (c[1] - cy)) / d, w2 = 1 - u - v; return u >= 0 && v >= 0 && w2 >= 0 ? u * a[2] + v * b[2] + w2 * c[2] : null; };
+      let floor = false, ceiling = false, ceilingZ = Infinity;
+      const items = groups.map((g) => {
+        for (const t of g.tris) { const z = over(t); if (z === null) continue; if (z > -m && z < 150) floor = true; else if (z > H * 0.4 && z < H + m) { ceiling = true; ceilingZ = Math.min(ceilingZ, z); } }
+        return modelItem(g.tris, g.alpha < 0.98 ? 'glass' : g.color, 'y');
+      });
+      return { items, floor, ceiling, ceilingZ: ceiling ? Math.round(ceilingZ) : null, tris: groups.reduce((s, g) => s + g.tris.length, 0) };
     },
     start() { /* the panel is the whole interface */ },
   };

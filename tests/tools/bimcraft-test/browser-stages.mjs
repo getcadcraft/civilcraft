@@ -46,6 +46,7 @@ try {
     const [WebIFC, { IfcModel }, { IfcEditor }, N, OPS, { ModelWriter }, UI] = await Promise.all([imp('ifc/api.js'), imp('ifc-model.js'), imp('ifc-edit.js'), imp('new-model.js'), imp('model-ops.js'), imp('model-write.js'), imp('stages/stages-ui.js')]);
     const make = async (bytes) => { const eng = await IfcModel.create(WebIFC); await eng.load(bytes); return new IfcEditor(WebIFC, eng); };
     const H = { ed: await make(new TextEncoder().encode(N.newBuilding({ name: 'Stages house', levels: N.stackLevels(2, 3000, (i) => 'Level ' + (i + 1)), fileName: 'stages.ifc' }))), sel: [], picked: [], msg: '' };
+    document.querySelector('[data-stages-details]')?.remove();   // 0.11: the page mounts its own now (browser-core11 drives that one); this test drives a copy on its own editor
     const anchor = document.createElement('div'); anchor.id = 'st-anchor'; document.body.prepend(anchor);
     const host = { after: anchor, editor: () => H.ed, status: (t, e) => { H.msg = t; }, afterEdit() {}, selection: () => H.sel, select: (g) => { H.picked = g; }, today: () => '2026-11-13', fileName: () => 'stages.ifc', download() {}, WebIFC, IfcModel,
       openNew: async (bytes, name) => { H.ed = await make(bytes); H.opened = name; }, templates: async () => [], issues: () => [] };

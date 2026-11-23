@@ -773,3 +773,12 @@ body:not(.app-shell) > main { flex: 1 0 auto; }
 .scd-os-radio[value="macos"]:checked ~ .scd-panels [data-p="macos"],
 .scd-os-radio[value="linux"]:checked ~ .scd-panels [data-p="linux"],
 .scd-os-radio[value="web"]:checked ~ .scd-panels [data-p="web"] { display: block; }
+
+/* drop-files-staff.inc: the files a person sent with a submission, staff only (support inbox, /suggest-sent). */
+.drop-files-staff { margin: .6rem 0; }
+.drop-files-h { margin: 0 0 .3rem; font-weight: 600; }
+.drop-files-staff ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; }
+.drop-files-staff li > a:first-child, .drop-files-staff li > span:first-child { overflow-wrap: anywhere; }
+.drop-files-shot { display: block; margin-top: .4rem; }
+.drop-files-shot img { max-width: 100%; max-height: 22rem; height: auto; border: 1px solid var(--line, #ccc); background: #fff; }
+.subm-card:has(> .drop-files-staff:only-child) .drop-files-staff { margin: 0; }

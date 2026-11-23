@@ -61,6 +61,7 @@ export const MESSAGES = {
   'script.doc.solver_none': 'the sentence that says this program has no solver of that kind',
   'script.eng.property': 'The material "{id}" has no property "{prop}" in the installed packs.',
   'script.eng.pack_note': 'pack {id} {version}, sha256 {hash}, fit error {fit} %, valid {lo} to {hi} K',
+  'script.eng.pack_note_nofit': 'pack {id} {version}, sha256 {hash}, scatter not stated by the source, valid {lo} to {hi} K',
   'script.eng.pack': 'The materials pack {id} is not usable: {bad}.',
   'script.doc.material_at': 'a material property at a temperature in kelvin from an installed pack (NIST cryogenic curves): value, unit, source, and the pack id, version and hash; refuses outside the curve range',
   'script.doc.material_list': 'the materials and properties the installed packs hold',

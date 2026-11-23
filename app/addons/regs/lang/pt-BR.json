@@ -105,6 +105,7 @@
   "regs.auth.professional": "Entidade profissional",
   "regs.auth.community": "Comunidade",
   "regs.where.egress": "Porta de saída",
+  "regs.where.guard": "Guarda-corpo",
   "regs.sheet.button": "Folha de resumo do código",
   "regs.sheet.title": "Resumo do código",
   "regs.sheet.file": "resumo do código",

@@ -1,129 +1,129 @@
 ---
-title: Mis on uut versioonis 0.9
-summary: Koridori- ja maastikumallid, haakumised ja valimisnupud joonistamisel, GIS-analüüs atribuuditabeliga, varjuuuring, päikeseenergia saagis, mugavus ja tuuleuuring ala jaoks, 3D Render-vaade ning lisandmoodulid Punktipilved ja WaterCraft.
-keywords: mis on uut, 0.9, väljalaskemärkmed, koridori mallid, maastikumallid, mallide redaktor, tüüpiline lõige, mitu koridori, haakumine, haakumised, valimine, teisaldamine, kopeerimine, pööramine, puutuja, render, 3D render, GIS-analüüs, puhver, kattumine, ruumiline ühendamine, atribuuditabel, stiil atribuudi järgi, varjuuring, päikeseenergia saagis, utci, välistingimuste mugavus, tuuleuuring, openfoam, punktipilved, las, laz, watercraft, tuletõrje vooluhulk, hüdrant, vee vanus, kloor, tarbimised, tööriistavihjed, paigutus, muudatuste loend, 0.8, 0.8.1, versioon, uued funktsioonid, vihm, sademevesi, veelompimine, üleujutus, ülevool, pinnasetasakaal, kaevand ja täide, vedu, parim trass, vähim kulu, trass, sademeveetiik, väljavool, veetaseme langus, vaba kõrgus, edenemine, mõõdistus, droon, ladu, aadress asukohaks, krunt, pinnas, üleujutus, nõlva stabiilsus, Bishop, vajumine, ristmik, markeering, märgid, nähtavuskaugus, korrigeerimine, vähimruutude meetod, polügoonikäik, lahtine kaevandus, plokkmudel, raadiolink, Fresneli tsoon, raudteevahetus, ristvahetus, keeled, probleemid, reaalajas, dwg
-from: d7ac5b14
+title: Mis on uut versioonis 0.9 (varasem)
+summary: Koridori- ja maamallid, haakumised ja valimisnupud joonistamisel, GIS-analüüs atribuuttabeliga, varju-, päikesesaagi-, mugavus- ja tuulestuudiumid objektile, 3D renderdusvaade ning lisamoodulid Punktipilved ja WaterCraft.
+keywords: mis on uut 0.9, varasem väljalase, mis on uut, 0.9, väljalaske märkused, koridori mallid, maamallid, mallide redaktor, tüüpristlõige, mitu koridori, haakumine, haakumised, vali, teisalda, kopeeri, pööra, puutuja, renderda, 3D renderdus, GIS-analüüs, puhver, kattuvus, ruumiline ühendamine, atribuuttabel, stiil atribuudi järgi, varjuuuring, päikesesaak, UTCI, välistingimuste mugavus, tuulestuudium, OpenFOAM, punktipilved, LAS, LAZ, WaterCraft, tuletõrje vooluhulk, hüdrant, vee vanus, kloor, nõudlus, tööriistavihjed, paigutus, muudatuste logi, muudatused, 0.8, 0.8.1, versioon, uued funktsioonid, vihm, sadu, tiigid, ülevool, pinnasetööd, tasakaal, kaevand ja täide, vedu, parim tee, väikseim kulu, trass, viivitustiik, väljavool, tühjenemine, vaba kõrgus, edenemine, mõõdistus, droon, laoplats, aadress asukohani, krunt, pinnas, üleujutus, nõlva stabiilsus, Bishop, vajumine, ristmik, markeering, märgid, nähtavuskolmnurk, korrigeerimine, vähimruutude, polügoonikäik, lahtine kaevandus, blokkmudel, raadiolink, Fresnel, vahetus, ristühendus, keeled, probleemid, reaalajas, dwg
+from: 4664522c
 ---
 
-See on see, mis muutus CivilCraft 0.9 versioonis, võrreldes versiooniga 0.8.1. CivilCraft 0.9 on osa CadCraft Studio 0.9-st ja selle kaheksast rakendusest. Suurimad osad on koridori- ja maastikumallid, haakumine joonistamisel, GIS-analüüs, ala päikese, päikeseenergia saagise, mugavuse ja tuule uuringud ning kaks lisandmoodulit: Punktipilved ja WaterCraft.
+Need on muudatused CivilCraft 0.9-s võrreldes versiooniga 0.8.1. CivilCraft 0.9 on osa CadCraft Studio 0.9-st ja selle kaheksast rakendusest. Suured osad on koridori- ja maamallid, haakumised joonistamise ajal, GIS-analüüs, objekti päikese-, päikesesaagi-, mugavus- ja tuulestuudiumid ning kaks lisamoodulit: Punktipilved ja WaterCraft.
 
-## Uut
+## Uus
 
-### Koridori- ja maastikumallid
+### Koridori- ja maamallid
 
-- **Koridori mallid.** Ava {{ui:Pind}} › {{ui:Veel}} › {{ui:Koridori mallid…}} (või kirjuta {{cmd:TEMPLATES}}). Mall on väike ristlõige koos komponentide, nihkete, kallete, materjalide ja punktikoodidega. Hoia neid projektis, teegis {{ui:Minu teek}} või failina `.cctemplates.json`. Malliredaktor näitab õige mõõtkavaga joonist ja loetleb probleemid, kui sa kirjutad.
-- **Ehita mallide järgi jaamade kaupa.** Vali trass ja lülita selle omadustes sisse {{ui:Ehita mallide järgi jaamade kaupa}}. Iga piirkonna iga küljel on oma kattekihtide loend ja oma lõpptingimus. {{ui:Lisa koridor}} all {{ui:Koridorid sellel joondisel}} paneb mitu koridori ühele trassile.
-- **Maastikumallid.** {{ui:Pind}} › {{ui:Veel}} › {{ui:Maastikumallid…}} (või kirjuta {{cmd:TERRAINTEMPLATES}}) katab maastikku kihiliste materjalidega, nagu mullakiht või katend ja alus, koos pindala ja mahuga kihi kohta. Vaata [Koridorimallid ja maastikumallid](topic:corridor-templates).
+- **Koridori mallid.** Ava {{ui:Pind}} › {{ui:Veel}} › {{ui:Koridori mallid…}} (või kirjuta {{cmd:TEMPLATES}}). Mall on väike ristlõige komponentidega, nihetega, kallete, materjalide ja punktikoodidega. Hoia neid projektis, menüüs {{ui:Minu teek}} või failina `.cctemplates.json`. Malli redaktor näitab tõelises mõõtkavas joonist ja loetleb probleeme sisestamise ajal.
+- **Mallid jaamade kaupa.** Vali trass ja lülita selle atribuutides sisse {{ui:Ehita mallide järgi jaamade kaupa}}. Igal piirkonna poolel on oma kattekihtide loend ja oma otsatingimus. {{ui:Lisa koridor}} jaotises {{ui:Koridorid sellel joondisel}} paneb mitu koridori ühele trassile.
+- **Maamallid.** {{ui:Pind}} › {{ui:Veel}} › {{ui:Maamallid…}} (või kirjuta {{cmd:TERRAINTEMPLATES}}) katab maastiku kihiliste materjalidega, nagu mullakiht või katend ja alus, koos pindala ja mahuga kihi kohta. Vt [Koridori mallid ja maamallid](topic:corridor-templates).
 
 ### Joonistamine
 
-- **Haakumine.** Tööriistad Trass, Platvorm, Krunt, Ehitusmaht, Tunnusjoon, Mõõda, Piir ja Valgala haakuvad mõõdistuspunktide, PI-punktide, nurkade, tippude ja rajatiste külge, märgiga markeri kõrval. Vabapunkti jaoks hoia all {{key:Alt}}.
-- **Valimisnupud, puutuja ning teisalda, kopeeri, pööra.** Platvormi, krundi ja tunnusjoone nurkadel on sisestatavad Ida ja Põhja väljad ning ristkursoriga valimisnupp. Omadustes on ka {{ui:Puutuja kahest punktist}} trasside jaoks ja {{ui:Teisalda, kopeeri ja pööra}} trasside, platvormide, krundide ja tunnusjoonte jaoks. Vaata [Joonista haakumistega, valitud nurkade ja teisalda, kopeeri, pööra](topic:draft-with-snaps).
-- **Render-vaade 3D-s.** Nupp {{ui:Renderda}} 3D-ribal joonistab maa loomulike värvide, taeva, udu ja pehmete varjudega. See ei muuda mudelit. Menüül {{ui:Päike}} on nüüd nupud {{ui:Rakenda}} ja {{ui:Sulge}}. Vaata [Ala vaatamine 3D-s](topic:site-3d).
-- **Paneelid avanevad ükshaaval.** Vasak paneel ja Omaduste paneel avavad ühe jaotise ning sulevad teised, ja Haljastuse lindi plaadid, mis hoiavad mitut tööriista, on jagatud nupud.
+- **Haakumised.** Tööriistad Trass, Platvorm, Krunt, Mass, Tunnusjoon, Mõõt, Piir ja Valgala haakuvad mõõdistuspunktidele, PI-dele, nurkadele, tippudele ja rajatistele, sildiga markeri kõrval. Hoia {{key:Alt}}, et saada vaba punkt.
+- **Valimisnupud, puutuja ning teisalda, kopeeri, pööra.** Platvormi, krundi ja tunnusjoone nurkadel on kirjutatavad väljad Ida ja Põhi ning ristkursoriga nupp Vali. Atribuutides on trassidele {{ui:Puutuja kahest punktist}} ja trassidele, platvormidele, kruntidele ning tunnusjoontele {{ui:Teisalda, kopeeri ja pööra}}. Vt [Joonistamine haakumiste, valitud nurkade ning teisalda, kopeeri ja pööra abil](topic:draft-with-snaps).
+- **Renderdusvaade 3D-s.** Nupp {{ui:Renderda}} 3D-ribal joonistab maa looduslike värvidega, taeva, udu ja pehmed varjud. See ei muuda mudelit. Menüül {{ui:Päike}} on nüüd nupud {{ui:Rakenda}} ja {{ui:Sulge}}. Vt [Vaata objekti 3D-s](topic:site-3d).
+- **Paneelid avanevad ühe jaotisena korraga.** Vasak paneel ja atribuutide paneel avavad ühe jaotise ning sulgevad teised, ja Haljastuse lindi plaadid, mis hoiavad mitut tööriista, on jagatud nuppudeks.
 
 ### GIS-analüüs
 
-- **Analüüs.** {{ui:Pind}} › {{ui:Veel}} › {{ui:Analüüs}} pakub puhvrit, kattumist, ruumilist ühendamist, valimist atribuudi või kuju järgi ning mõõtmist. Iga tööriist teeb uue kihi ühe tagasivõtu sammuga.
-- **Atribuuditabel.** Kihi kolme punkti menüüs on {{ui:Atribuuditabel…}} ja {{ui:Stiil atribuudi järgi…}}. Vaata [GIS-kihtide analüüs](topic:gis-analysis) ja [Töö kihi atribuuditabeliga](topic:gis-table).
+- **Analüüs.** {{ui:Pind}} › {{ui:Veel}} › {{ui:Analüüs}} pakub puhvrit, kattuvust, ruumilist ühendamist, valikut atribuudi või kuju järgi ning mõõtmist. Iga tööriist teeb uue kihi ühe tagasivõtmise sammuga.
+- **Atribuuttabel.** Kihi kolme punktiga menüüs on {{ui:Atribuuttabel…}} ja {{ui:Stiil atribuudi järgi…}}. Vt [GIS-kihtide analüüs](topic:gis-analysis) ja [Kihi atribuuttabeliga töötamine](topic:gis-table).
 
-### Ala: päike, päikeseenergia, mugavus ja tuul
+### Objekt: päike, päikesesaak, mugavus ja tuul
 
-- **Keskkonnajaotis.** Vali ehitusmaht: jaotis {{ui:Keskkond}} asub selle omadustes jaotise {{ui:Päikesetunnid}} all. Seal on varjuuuring (kaart, tabel, animatsioon, CSV), päikeseenergia saagis tüüpilise aasta ilmafailist (.epw) ja välistingimuste mugavus (UTCI).
-- **Tuul, ainult sõeluuring.** {{ui:Käivita tuuleuuring}} värvib maapinna istumisest ebamugavani iga tuulesuuna järgi ilmafailis. See on valideerimata ja paneel ütleb seda.
-- **Jalakäijate tuul (OpenFOAM) lisandmoodul.** Väljas, kuni lülitad selle sisse jaotises {{ui:Sätted}} › {{ui:Lisandmoodulid}}. OpenFOAM on tarkvara, mille paigaldad ise. Vaata [Vari, päikeseenergia saagis ja välistingimuste mugavus](topic:environment).
+- **Keskkonna jaotis.** Vali mass: jaotis {{ui:Keskkond}} asub atribuutides jaotise {{ui:Päikesetunnid}} all. Sellel on varjuuuring (kaart, tabel, animatsioon, CSV), päikesesaak tüüpilise aasta ilmafailist (.epw) ja välistingimuste mugavus (UTCI).
+- **Tuul, ainult esialgseks sõeluringiks.** {{ui:Käivita tuulestuudium}} värvib maapinna iga tuulesuuna jaoks istumisest ebamugavuseni vastavalt ilmafailile. See pole kinnitatud ja paneel ütleb seda.
+- **Jalakäijate tuul (OpenFOAM) lisamoodul.** Väljas, kuni lülitad selle sisse menüüs {{ui:Sätted}} › {{ui:Lisandmoodulid}}. OpenFOAM on tarkvara, mille paigaldad ise. Vt [Vari, päikesesaak ja välistingimuste mugavus](topic:environment).
 
-### Punktipilved (lisandmoodul)
+### Punktipilved (lisamoodul)
 
-- Lülita sisse {{ui:Punktipilved}} jaotises {{ui:Sätted}} › {{ui:Lisandmoodulid}}; paremale paneelile ilmub vahekaart Punktipilved. Ava LAS- või LAZ-fail, puhasta see, sorteeri punktid maapinnaks, taimestikuks ja hoonetes, koosta maapind, samakõrgusjooned ja mahud ning ekspordi LAS või LAZ. Vaata [Punktipilved droonilt või skannerilt](topic:point-clouds).
+- Lülita {{ui:Punktipilved}} sisse menüüs {{ui:Sätted}} › {{ui:Lisandmoodulid}}; parempoolsel paneelil ilmub sakk Punktipilved. Ava LAS- või LAZ-fail, puhasta see, jaota maapinnaks, taimestikuks ja hoonteks, koosta maapind, kõverjooned ja mahud ning ekspordi LAS või LAZ. Vt [Punktipilved droonist või skannerist](topic:point-clouds).
 
-### WaterCraft (lisandmoodul)
+### WaterCraft (lisamoodul)
 
-- Lülita sisse {{ui:WaterCraft (veevarustus)}} jaotises {{ui:Sätted}} › {{ui:Lisandmoodulid}}; ilmub vahekaart WaterCraft. Sellel on tarbimised klientidelt, tuletõrje vooluhulk igal hüdrandil, millise torustiku katkestus on kõige olulisem, ning vee vanus ja kloor, igaüks salvestatud CSV-na. Vaata [WaterCraft: tarbimised, tuletõrje vooluhulk, katkestused ja vee vanus](topic:watercraft).
+- Lülita {{ui:WaterCraft (veejaotus)}} sisse menüüs {{ui:Sätted}} › {{ui:Lisandmoodulid}}; ilmub sakk WaterCraft. Sellel on nõudlus klientidelt, tuletõrje vooluhulk igal hüdrandil, millise torustiku katkestus on kõige olulisem, ning vee vanus ja kloor, mis kõik salvestatakse CSV-na. Vt [WaterCraft: nõudlus, tuletõrje vooluhulk, katkestused ja vee vanus](topic:watercraft).
 
 ### Koostöö
 
-- Reaalajas seansis näed plaanil teiste kursoreid ja nimesid. Teegi taimed: CivilCraft Landscape alustab oma vaikimisi teegikogumikust, {{ui:CivilCraft haljastus}}.
+- Reaalajas seansis näed teiste kursoreid ja nimesid plaanil. Haljastuse raamatukogu taimed alustavad oma vaikekogust {{ui:CivilCraft'i haljastus}}.
 
 ## Kõigis rakendustes
 
-- Vihjed kuvatakse Bootstrapi tööriistavihjetena ja alustusvihje saab sulgeda.
-- Paneeli vahekaardiriba, mis ei mahu, kerib selle asemel, et lõigatult ära minna.
-- Brauseri vahekaartide pealkirjad on kujul `<dokument> - CivilCraft | CadCraft`.
-- {{ui:Sätted}} sisaldab paigutuse jaotist, kus paigutused on kaherealiste valikutega rippmenüü.
-- Kaalu ja temperatuuri ühikud on jaotises {{ui:Sätted}} › {{ui:Globaalne}} › {{ui:Ühikud}}.
-- Keelte loend näitab keeli, mille jaoks versioonil on failid. Muud kui inglise keeled on masintõlked.
+- Vihjed kuvatakse Bootstrapi tööriistavihjetena ning alustusvihje saab sulgeda.
+- Paneeli sakiriba, mis ei mahu ära, kerib selle asemel, et lõigata maha.
+- Brauseri vahelehtede pealkirjad on `<document> - CivilCraft | CadCraft`.
+- {{ui:Sätted}} on paigutuse jaotis, kus paigutused on kahe rea valikutega rippmenüü.
+- Kaalu ja temperatuuri ühikud on menüüs {{ui:Sätted}} › {{ui:Globaalne}} › {{ui:Ühikud}}.
+- Keelte loend näitab keeli, mille jaoks versioonil on failid. Muud keeled kui inglise keel on masintõlked.
 
 ## Parandatud
 
-- Aadressi otsingu ja EnergyPlus-kontrolli lisandmooduleid ei saanud sisse lülitada; nüüd saab.
-- Abi ütleb nüüd, et lisandmoodul Punktipilved kirjutab puhastatud pilve LAS 1.4 või LAZ formaadis.
+- Aadressiotsingu ja EnergyPlus-i kontrolli lisamooduleid ei saanud sisse lülitada; nüüd saab.
+- Abi ütleb nüüd, et Punktipilvede lisamoodul kirjutab puhastatud pilve LAS 1.4 või LAZ-na.
 - Valitud objekti enda käepideme klõpsamine ei käivita enam käepideme lohistamist, mis peatas ootava valimise.
 
-## Piiranguid
+## Ausad piirangud
 
-- Koridorimallid on kohatäitjad, mis ei pärine ühestki standardist; insener peab need kontrollima. Maastikumallid ei lisa pinda ega joonistata 3D-s ega lõikevaates. Trassi teine koridor ei ole IFC-ekspordis. Kahe malli vahel pole jaamade kaupa üleminekut.
-- Punktipilved testiti väljamõeldud failidega, mitte tegeliku droonimõõdistusega. Loetakse ainult LAS ja LAZ.
-- GIS-analüüs testiti väljamõeldud kihtidega.
-- Varju, päikese ja mugavuse arvutused on planeerimishinnangud; tuul on valideerimata sõeluuring. Ükski neist pole projekteerimisväärtus.
-- WaterCraft on arvutusabi, mida kontrolliti väljamõeldud võrkudel. Veeinsener otsustab, mida arvud väärt on.
-- Muud kui inglise keeled on masintõlked.
-- Windowsi paigaldajad pole koodiga allkirjastatud ja macOS-i kettapilt ei ole notariseeritud.
+- Näidiskoridori mallid on kohatäited, mitte ühestki standardist; insener peab need kontrollima. Maamallid ei lisa pinda ega joonistata 3D-s ega lõikevaates. Teine koridor trassil ei ole IFC-ekspordis. Kahe malli vahel jaamade kaupa ei ole üleminekut.
+- Punktipilved testiti tehtud failidega, mitte päris droonimõõdistusega. Loetakse ainult LAS ja LAZ.
+- GIS-analüüs testiti tehtud kihtidega.
+- Varju, päikesesaak ja mugavus on planeerimise hinnangud; tuul on kinnitamata sõelumine. Ükski neist pole projekteerimisväärtus.
+- WaterCraft on arvutusabi, mis on kontrollitud tehtud võrkudel. Vee insener otsustab, mida arvud väärt on.
+- Muud keeled kui inglise keel on masintõlked.
+- Windowsi paigaldajad pole koodiga allkirjastatud ja macOS-i kettapilt pole notariseeritud.
 
-## Varem: 0.8 ja 0.8.1
+## Varasem: 0.8 ja 0.8.1
 
-See on see, mis muutus CivilCraft 0.8 (2026-11-01) ja 0.8.1 (2026-11-02) versioonis, võrreldes versiooniga 0.7. Suurimad uued osad on tööriistad, mis testivad sinu planeerimist ja ala (vihm, pinnasetasakaal, trassid, tiigid, edenemine), ning kuus arvutusakent maapinnale, teedele, mõõdistusele, kaevandustele, raadiolinkidele ja raudteele.
+Need on muudatused CivilCraft 0.8-s (2026-11-01) ja 0.8.1-s (2026-11-02) võrreldes versiooniga 0.7. Suured uued osad on tööriistad, mis testivad sinu planeeringut ja objekti (vihm, pinnasetööd, teed, tiigid, edenemine), ning kuus arvutusakent maapinnale, teedele, mõõdistusele, kaevandustele, linkidele ja raudteele.
 
-### Uut
+### Uus
 
-**Testi oma planeerimist**
+**Testi oma planeeringut**
 
-- **Lase sadada.** {{ui:Lase sadada…}} (menüüs {{ui:Pind}}) laseb sademe planeeritud maapinnale. Näed, kuidas vesi voolab platvormidelt, koguneb madalatesse nurkadesse ja ületab liiga väikesed tiigid. Käik on animeeritud ning annab mahud, tippväljavoolu ja iga tiigi CSV. Vaikimisi lahter on jäme, et esmane vaade oleks kiire; peenem lahter on aeglasem. Tiigid, mis ületavad, ilmuvad ka Probleemide paneelile.
-- **Pinnasetasakaal.** {{ui:Pinnasetasakaal…}} tõstab või langetab platvormi, kuni kaevand võrdub täitega, ja näitab nende vahelist veotabelit.
-- **Parim trass.** {{ui:Parim trass…}}: vali algus ja lõpp, ning CivilCraft leiab maastikult kõige odavama tee, mis hoiab sinu kalde- ja kõverapiire, ning teeb sellest trassi.
-- **Sademeveetiigid.** {{ui:Sademeveetiigid…}} arvutab veetaseme ja mahu sinu maapinnast, võtab väljavoolu seadmeid (ava, pais, V-pais, ülevoolurenn), juhib sademe läbi tiigi ning kontrollib kinnipeetud tippu, veetaseme langemise aega ja vaba kõrgust.
-- **Edenemine mõõdistustest.** {{ui:Edenemine mõõdistustest…}} võrdleb erinevatel kuupäevadel tehtud droonide või skannide pindu maapinnaga, nagu see oli, ja projektiga: protsent valmis mahu järgi, üle kaevatud ja üle täidetud alad, laod ning millal töö sellel tempol lõpeb (märgitud hinnanguna).
+- **Sajab vihma.** {{ui:Lase sadada…}} (menüüs {{ui:Pind}}) paneb tormi planeeritud maapinnale. Näed, kuidas vesi voolab platvormidelt, koguneb madalatesse nurkadesse ja ületab liiga väikesed tiigid. Käik on animeeritud ja annab mahud, tippväljavoolu ning CSV iga tiigi kohta. Vaikimisi koht on jäme, nii et esmane vaade on kiire; peenem koht on aeglasem. Ületavad tiigid ilmuvad ka paneelile Probleemid.
+- **Pinnasetasakaal.** {{ui:Pinnasetasakaal…}} tõstab või langetab platvormi, kuni kaevand võrdub täitega, ja näitab nende vahel vedamise tabelit.
+- **Parim tee.** {{ui:Parim trass…}}: vali algus ja lõpp, ning CivilCraft leiab maastikult odavaima tee, mis jääb sinu kalde- ja kõverapiirangute sisse, ja teeb sellest trassi.
+- **Viivitustiigid.** {{ui:Sademeveetiigid…}} arvutab astme ja mahu sinu maapinnalt, võtab väljavoolu seadmed (ava, pais, V-sälk, ülevoolutamm), suunab tormi läbi tiigi ning kontrollib kinnipeetud tippvoolu, tühjenemisaega ja vaba kõrgust.
+- **Edenemine mõõdistustest.** {{ui:Edenemine mõõdistustest…}} võrdleb erinevatel kuupäevadel droonide või skaneerimise pindu maapinnaga nagu see oli ja projektiga: protsent valmis mahu järgi, üle kaevatud ja üle täidetud alad, laod ning aeg, millal töö selle tempoga lõpeb (märgitud hinnanguna).
 
-**Tunne ala**
+**Tunne objekti**
 
-- **Aadress asukohaks.** {{ui:Aadress asukohaks…}} koondab avatud krundi-, hoone-, tsoneeringu-, pinnase-, üleujutus- ja maastikuandmed ühele alale. Saad ala hoida projektifailis: sisestatud aadressi, iga allika koos kuupäevaga, mil selle tõid, ja litsentsiga, ning tagastatud andmed. Kui avad projekti uuesti või jagad seda, on ala ikka seal, ilma et midagi uuesti tooks. Saad ala salvestada ka asukohafailina või saata BimCraftile. Vaata [Aadress asukohaks](topic:address-to-site).
+- **Aadress asukohani.** {{ui:Aadressist asukohani…}} koondab avatud krundi-, hoone-, tsoneerimis-, pinnase-, üleujutus- ja maastikuandmed ühele objektile. Võid objekti hoida projektifailis: kirjutatud aadress, iga allikas koos päevaga, mil see toodi, ja selle litsents ning see, mis tuli tagasi. Ava projekt uuesti või jaga seda ja objekt on ikka seal, ilma et midagi uuesti tooks. Võid selle salvestada ka objektifailina või saata BimCraftile. Vt [Aadress asukohani](topic:address-to-site).
 
-**Pinnas, teed, mõõdistus, kaevandused, lingid ja raudtee**
+**Maapind, teed, mõõdistus, kaevandused, lingid ja raudtee**
 
-- **Pinnased ja nõlvad.** {{ui:Pinnased ja nõlvad…}} joonistab pinnaseprofiili sinu sisestatud puuraukude vahel. Bishopi meetod otsib seejärel kriitilise ringi sinu maapinnal, arvestades veetaset, koormust ja maavärina koefitsienti; jala vajumine saab konsolideerumise, kohese vajumise ja aja.
-- **Ristmikud ja markeering.** {{ui:Ristmikud ja markeering…}} ühendab harud kanttee-ümardustega (üks raadius haru kohta või kolmekeskmelised ümardused), nägemiskauguse projekteerimiskiiruse järgi, nägemiskolmnurkade kontrolli, ülekäigurajad, peatusjooned, markeeringud ja märgid koos märgiloendiga. Need joonistatakse plaanile ja salvestatakse nimega kihtidega .dxf-failina.
-- **Mõõdistuse korrigeerimine.** {{ui:Mõõdistuse korrigeerimine…}} teeb polügoonikäigu või võrgu vähimruutude korrigeerimise: korrigeeritud koordinaadid, veaellipsid, hii-ruut-test ning märge mõõtmisele, mis ei sobi. Vabad võrgud, polügoonikäigu sulgemine kompassi reegliga ja RW5, GSI, JobXML või CSV väljafailid on kaasas ning korrigeeritud punktid salvestatakse CSV-na.
-- **Lahtised kaevandused.** {{ui:Lahtised kaevandused…}} muudab puuraproovid plokkmudeliks ja lõppkaevandiks sinu nõlvanurga piires, koos kattesuhtega, pingi kaupa tabeli ning sisalduse ja tonnaaži kõveraga. Pesastatud kaevandused tulu-teguri järgi ja tootmisgraafik diskonteeritud rahavoogudega on samuti olemas.
-- **Raadiolingid.** {{ui:Raadiolingid…}} kontrollib nägemissuunda sinu maapinna kohal, arvestades maakera kumerust, esimest Fresneli tsooni, lingi eelarvet, väljalangemisvaru ja mitmeteelise katkestust ning annab masti kõrguse, mis puhastaks trassi. Samuti teeb kiudoptiliste liinide kaoeelarveid, trassi koguseid ja tornile mõjuva tuule arvutust.
-- **Raudteevahetused.** {{ui:Raudteevahetused…}} teeb vahetuse selle sõlmeleibe numbrist, rööbasteede ühendused paralleelsete rööbasteede vahel ja konstruktsioonipiiri, mida kallutab ülekallang ja laiendab kõveras. Vahetus võib asuda trassi jaama juures.
+- **Pinnased ja nõlvad.** {{ui:Pinnased ja nõlvad…}} joonistab pinnaseprofiili sisestatud puuraukude vahel. Bishopi meetod otsib seejärel kriitilise ringi sinu maapinnal, arvestades veetaset, lisakoormust ja maavärinakoefitsienti; vundamendi vajumine saab konsolideerumise, koheise vajumise ja aja.
+- **Ristmikud ja markeering.** {{ui:Ristmikud ja markeering…}} ühendab harud nurgakõveratega (üks raadius haru kohta või kolmekeskmelised kõverad), vaatekauguse projekteerimiskiiruse järgi, nähtavuskolmnurkade kontrolli, ülekäigurajad, peatumisjooned, markeeringud ja märgid märkide loendiga. Need joonistatakse plaanile ja salvestatakse nimetatud kihtidega DXF-failina.
+- **Mõõdistuse korrigeerimine.** {{ui:Mõõdistuse korrigeerimine…}} teeb polügoonikäigu või võrgu vähimruutude korrigeerimise: korrigeeritud koordinaadid, veaellipsid, khi-ruut-test ja märgi mõõtmisele, mis ei sobi. Vabad võrgud, polügoonikäigu sulgemine kompassi reegliga ning RW5, GSI, JobXML või CSV väljafailid on kaasas ja korrigeeritud punktid salvestuvad CSV-na.
+- **Lahtised kaevandused.** {{ui:Lahtised kaevandused…}} muudab puuraproovid blokkmudeliks ja lõpliku kaevandi sinu nõlvanurga piires, koos kõrvalkivi suhtega, astmete kaupa tabeli ning sisalduse ja tonnaaži kõveraga. Tulu teguri järgi pesastatud kaevandid ja diskonteeritud rahavoogudega tootmisgraafik on samuti olemas.
+- **Raadiolingid.** {{ui:Raadiolingid…}} kontrollib nähtavust sinu maapinna kohal arvestades maakera kumerust ja esimest Fresneli tsooni, ning annab sidesumma, pleekimisvaru ja mitmeteelise katkestuse ning masti kõrguse, mis puhastaks tee. Teeb ka kiudoptika kaoarvestuse, teekoguste ja tuule mõju masti peal.
+- **Raudteevahetused.** {{ui:Raudteevahetused…}} teeb vahetuse selle ristmiku numbri järgi, paralleelsete rööbasteede vahel ristühendused ja konstruktsioonipiiri, mida kallutab kalle ja laiendab kõveras. Vahetus võib asuda trassi jaamas.
 
-Vaata [Pinnased, ristmikud, mõõdistuse korrigeerimine, kaevandused, raadiolingid ja vahetused](topic:soils-roads-survey-mines-links).
+Vt [Pinnased, ristmikud, mõõdistuse korrigeerimine, kaevandused, raadiolingid ja vahetused](topic:soils-roads-survey-mines-links).
 
 ### Kõigis rakendustes
 
-- **Keeled.** 54 keelt, neist kümme uut. Muud kui inglise keeled on masintõlked, kuni emakeelne kasutaja need üle vaatab. Abiteemad on enamasti veel inglise keeles.
-- **Tööriistariba read.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Tööriistariba read}}: Murra (nagu varem), 2 rida või 1 rida. CivilCraft-i riba näitab kõige enam kasutatud tööriista suurelt, järgmised väikselt ning ülejäänud rühma nime noole taga.
-- **Sisendseadmed.** Puuteplaat, pliiats, 3D-hiir, kontroller ja MIDI võivad rakendusi juhtida.
-- **Probleemid.** Probleemide paneel hoiatab kõigis rakendustes, kontrollid loevad reguleerimispakette.
-- **Reaalajas.** Reaalajas seansi osalejate asukohtade vaade.
-- **Lisandmoodulid.** Lisandmoodulite loend, koos valgustuse lisandmoodulitega.
-- **Ühenda oma tehisintellekt.** Mis tahes ühendatud abiline võib juhtida CivilCraft tööriistu. See tuleb märkusega, et ühe klõpsuga ühendamine CadCraft Studios ja hostitud ühendaja pole veel valmis. Vaata [Lase tehisintellekti abilisel töötada sinu alaga](topic:assistants).
+- **Keeled.** 54 keelt, neist kümme uut. Muud kui inglise keeled on masintõlked, kuni emakeelne lugeja need loeb. Abitekstid on enamasti veel inglise keeles.
+- **Tööriistaribad.** {{ui:Sätted}} › {{ui:Üldine}} › {{ui:Tööriistariba read}}: Mähi (nagu varem), 2 rida või 1 rida. CivilCraft'i lint näitab kõige enam kasutatavat tööriista suurelt, järgmised väikesed ja ülejäänud grupi nime noole taga.
+- **Sisendseadmed.** Puuteplaat, pliiats, 3D-hiir, kontroller ja MIDI võivad juhtida rakendusi.
+- **Probleemid.** Probleemide paneel hoiatab kõigis rakendustes, kontrollidega, mis loevad regulatsioonipakette.
+- **Reaalajas.** Vaade sellest, kes on kus reaalajas seansis.
+- **Lisamoodulid.** Lisamoodulite loend, valgustuse lisamoodulitega.
+- **Ühenda oma AI.** Iga ühendatud assistent võib juhtida CivilCraft'i tööriistu. See tuleb märkusega, et ühe klõpsuga ühendamine CadCraft Studios ja hostitud ühendaja pole veel valmis. Vt [Lase AI-assistendil töötada oma objektiga](topic:assistants).
 
 ### Parandatud versioonis 0.8.1
 
-- **DWG klasside jaotis.** Seda loeti vale tüübina (GitHub cadcraft#5). Parandatud CivilCraftis koos CadCrafti, BimCrafti, ModelCrafti ja TakeoffCrafti parandustega.
-- **Keele vahetamine töö ajal.** CadCraft Studio ja pakitud väljaanded saavad keelt vahetada töö ajal. Varem oli ainult inglise keel. Pole veel testitud igal platvormil: anna teada, kui keel ei muutu.
+- **DWG klasside jaotis.** Seda loeti vale tüübina (GitHub cadcraft#5). Parandatud CivilCraftis koos CadCrafti, BimCrafti, ModelCrafti ja TakeoffCraftiga.
+- **Keele vahetamine töötamise ajal.** CadCraft Studio ja pakitud väljaanded saavad keelt vahetada töötamise ajal. Enne olid need ainult inglise keeles. Pole veel testitud igal platvormil: anna teada, kui keel ei vaheta.
 
 ### Pole selles versioonis veel
 
-- **Need on arvutusabid.** Iga tulemus uutes akendes vajab insenerikontrolli. Pinnatugevused algavad pinnarühma tüüpilistest väärtustest ja aken ütleb seda.
-- **Lase sadada.** Brauseris võib näidisalal käitamine peenel lahtril kesta üle kahe minuti. See kontrolliti käsitsi arvutatud juhtumite ja V-kujulise valgalaga, mitte veel tegelikul planeeritud alal.
-- **Aadress asukohaks.** Loeb avatud andmefaile, mille sa tood, ja testiti ainult meie enda failidega. Puud pole allikaks. Allikate toomine sinu eest ootab privaatsussõnastust.
-- **Edenemine mõõdistustest.** Testitud ainult väljamõeldud mõõdistustega. Edenemist lehtedel ja märgistustel (MarkupCraft) ning skannimist mudeli vastu (BimCraft) pole ehitatud.
-- **Pinnased ja nõlvad.** Ainult ringikujulised pinnad: ei ole kiilu ega ploki otsingut ega pingepragu.
-- **Ristmikud.** Üks raadius haru kohta, ei ole veokite pöördetrajektoore ning need ei lähe veel koridori.
-- **Väljafailid.** Lugejad kirjutati avalike vormingukirjelduste järgi ja proovitud meie tehtud failidel. Vaja on tegelike instrumentide faile.
-- **Lingid ja raudtee.** Raadiolingid: ainult vaba ruumi kadu ja mitmeteeline katkestus (ei ole vihmakustutust ega antennimustreid). Raudteestandardit pole: iga raudtee piirang on kohatäitja, koos mustandnumbritega, mida ükski raudteeinsener pole kontrollinud.
-- **Windows ja macOS.** 0.8 pole koodiga allkirjastatud. Windows võib hoiatada ja macOS nõuab paremklõpsu, seejärel valikut {{ui:Ava}}.
+- **Need on arvutusabid.** Iga tulemus uutes akendes vajab insenerilt kontrolli. Pinnase tugevused alustavad tüüpilistest väärtustest pinnasegrupi järgi ja aken ütleb seda.
+- **Sajab vihma.** Käik näidisobjektil võib brauseris võtta üle kahe minuti peene koha korral. See kontrolliti käsitsi juhtumitega ja V-kujulise valgalaga, mitte veel päris planeeritud objektil.
+- **Aadress asukohani.** See loeb sinu toodud avatud andmefaile ja testiti ainult meie enda failidega. Puud ei ole allikas. Allikate toomine sinu eest ootab privaatsussõnastust.
+- **Edenemine mõõdistustest.** Testitud ainult tehtud mõõdistustega. Edenemine lehtedel ja märgistustes (MarkupCraft) ning skaneerimine mudeli vastu (BimCraft) pole tehtud.
+- **Pinnased ja nõlvad.** Ainult ringikujulised pinnad: kiilu- ja plokiotsingut ega pingepragu ei ole.
+- **Ristmikud.** Üks raadius haru kohta, veokite pöördeteid ei ole ja need ei lähe veel koridori.
+- **Väljafailid.** Lugejad kirjutati avalikest vormingukirjeldustest ja proovitud meie tehtud failidel. Päris instrumendi failid on oodatud.
+- **Lingid ja raudtee.** Raadiolingid: ainult vaba ruumi kadu ja mitmeteelise levi (ilma vihmapleekimise ja antennimustriteta). Raudteestandardit ei ole: iga raudteepiir on kohatäide, mida raudteeinsener pole kontrollinud.
+- **Windows ja macOS.** 0.8 pole koodiga allkirjastatud. Windows võib hoiatada ja macOS küsib paremklõpsu ning seejärel Ava.
 
-Kõik muu on lehel [Veel valmimata](topic:not-built-yet). Varasema väljalasde kohta vaata [Mis on uut versioonis 0.7](topic:whats-new-0-7).
+Kõik muu on lehel [Veel valmis pole](topic:not-built-yet). Varasema väljalasde kohta vt [Mis on uut versioonis 0.7](topic:whats-new-0-7).

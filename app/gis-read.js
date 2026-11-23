@@ -26,6 +26,7 @@
 
 import { readShapefile, shapefileSets } from './shapefile.js';
 import { readGeoJSON } from './geojson.js';
+import { decodeParts } from './textin.js';   // PERF.20 (perf-finish-11)
 import { readKml } from './kml.js';   // 0.4 V6: KML / KMZ
 import { t } from './i18n.js';
 import { listZip, unzipEntry } from './zipfile.js';
@@ -106,7 +107,7 @@ export async function readGisFiles(files, { tick = null, maxFeatures = 500000 } 
     const kind = gisFileKind(f.name, f.name.match(/\.json$/i) ? new TextDecoder().decode(f.data.subarray(0, 4096)) : '');
     if (kind === 'geojson') {
       try {
-        const text = new TextDecoder('utf-8').decode(f.data);
+        const text = decodeParts(f.data);   // PERF.20: parts; a file past 512 MB opens (textin's parseJsonParts hands parts under 400 M characters to JSON.parse)
         const r = readGeoJSON(text, f.name.replace(/^.*\//, '').replace(/\.(geo)?json$/i, ''), { maxFeatures });
         if (!r.layers.length) { notes.push(t('gread.geojson.empty', { file: f.name })); continue; }
         sources.push({ file: f.name, format: 'GeoJSON', layers: r.layers, src: r.crsCode ? resolveSrc({ code: r.crsCode }) : { kind: 'wgs84' }, notes: r.notes, legacyCrs: !!r.crsCode });

@@ -1,51 +1,53 @@
 ---
-title: Burkolatok, falak és lépcsők
-summary: Burkolat esésekkel a lefolyóhoz vagy keresztlejtéssel, mintázat és annak rétegrendje; a terepet követő utak; támfalak és szabadon álló falak lépcsős alapozással; szegélyek; rámpák és lépcsők a határértékeikkel ellenőrizve; IFC-exportálás.
-keywords: burkolt felület, burkolat, burkolókő, terasz, esés, lefolyó, keresztlejtés, halszálkás, fektetett kötés, út, sétány, támfal, kerti fal, alapozás, koronázás, szegély, szegélyezés, rámpa, akadálymentesség, lépcső, lépcsőfok, pihenő
-from: 51475877
+title: Burkolás, falak és lépcsők
+summary: Burkolás lefolyóra vagy keresztesésre, mintázattal és rétegszerkezettel; a talajt követő gyalogutak; támfalak és szabadon álló falak lépcsőzetes alapozással; szegélyek; rámpák és lépcsők a határértékeikhez képest ellenőrizve; IFC-kivitel.
+keywords: burkolt felület, burkolás, térkő, terasz, térburkolat, esés, lefolyó, keresztesés, halszálas, fekvő kötés, gyalogút, sétány, támfal, kerti fal, alapozás, koronázás, szegély, szegélyezés, rámpa, akadálymentesség, lépcsők, lépcsőfok-magasság, lépcsőfok-járófelület, lépcsőkar, pihenő
+from: d34b4466
 ---
 
-A burkolt felület minden alkalommal újra kiszámítódik a terepből, így követi a domborzatot, és újragenerálódik, amikor a talaj vagy a vonala mozdul. Húzza a sarkait a terven, mint bármely vonalat. Nyissa meg a {{ui:Burkolt felületek}} parancsot a Tájépítészet csoportban.
+A burkolt felületet minden alkalommal újraszámítja a program a talajból, így követi a terepet, és újra épül, ha a talaj vagy a vonala mozog. A sarkait a térképen bármely vonalhoz hasonlóan húzhatja. Nyissa meg a Tájépítészet csoportban lévő {{ui:Burkolt felületek}} gombból.
 
-## Burkolat
+## Burkolás
 
-Kattintson a sarkokra, és nyomja meg az {{key:Enter}} billentyűt. A Tulajdonságokban:
+Kattintson a sarkokra, majd nyomja meg az {{key:Enter}} billentyűt. A Tulajdonságokban:
 
-- **Szint**: üres = a talaj átlagos szintje alatta.
-- **Esések**: szint, **keresztlejtés** (% egy irányba) vagy **lefolyóhoz**: a CivilCraft megkéri, hogy kattintson oda, ahová a lefolyó kerül, majd minden sarok a lefolyótól emelkedik a megadott eséssel. A terven nyilak mutatják az eséseket.
-- **Mintázat** (rács, fektetett kötés, halszálkás) a mértékegységgel, fugával és szöggel; **Szegélyezés** szélessége. Rajzlapon az 1 mm-nél közelebb eső fugák kimaradnak.
-- A burkolat a tervezett felület része. Rétegei (burkolókő, ágyazat, alap) bekerülnek az IFC-be és a mennyiségekbe.
+- **Szint**: üresen hagyva a talaj alatta lévő átlagos szintje.
+- **Esések**: vízszintes, **keresztesés** (százalékos esés egy irány felé) vagy **lefolyóhoz**: a CivilCraft kéri, hogy kattintson arra a helyre, ahová a lefolyó kerül, majd minden sarok a lefolyótól az esésnek megfelelően emelkedik. A térképen nyilak mutatják az eséseket.
+- **Mintázat** (rács, fekvő kötés, halszálas) az egységméretével, hézagjával és szögével; **Szegélyezés** szélessége. A lapon az egy milliméternél szűkebb hézagok kimaradnak.
+- A burkolat a tervezett felület része. Rétegei (térkövek, ágyazat, alap) bekerülnek az IFC-be és a mennyiségekbe.
 
-## Utak
+## Gyalogutak
 
-Kattintson az út mentén, és nyomja meg az {{key:Enter}} billentyűt. Követi a terepet, a **Keresztlejtés** a jobb oldala felé mutat. Az a út, amelynek meredeksége meghaladja a **Megengedett legnagyobb meredekség** értéket, `!` jelet kap a terven arra a részre, ahol van, a Tulajdonságok pedig megmondja, mennyire meredek.
+Kattintson végig a gyalogút mentén, majd nyomja meg az {{key:Enter}} billentyűt. A talajt követi, **keresztesése** a jobb oldala felé. Ahol a gyalogút meredekebb a **Megengedett legnagyobb meredekségnél**, a térképen `!` jelöli, a Tulajdonságok pedig megmondja, mennyire meredek.
+
+Ahol a gyalogút sávval épített útba fut, az út külső szélénél megáll, az ottani járda vagy padka szintjén, a tervezett felületen és a 3D-nézetben. Az úton átvezető gyalogutat szintezzük és két darabként jelenítjük meg, a végét pedig, amely legfeljebb a gyalogút szélességének kétszeresével rövidebben van az úttól, az útig folytatjuk. A térkép továbbra is azt mutatja, amit rajzolt, a hossza és területe pedig a teljes vonalat számítja. Lásd: [Útsáv végigvezetése](topic:corridor).
 
 ## Falak
 
-Kattintson a fal mentén, és nyomja meg az {{key:Enter}} billentyűt. A fal **támfal** vagy **szabadon álló** lehet. Ha nincs megadva **Teteje**, a fal a **Magasság** értékével áll a talaj fölött végig; ha megad egy tetőszintet, vízszintesen tartja. Az **alapozása** egy beállított mélységben van a talaj alatt, és teljes lépcsőkben lép lefelé, így közöttük vízszintes marad. A Tulajdonságok megadják a hosszt, a magasságokat, a homlokzati felületet és az alapozási lépcsőket; a terv minden végén feliratozza a fal tetejét és alját (TW / BW).
+Kattintson végig a fal mentén, majd nyomja meg az {{key:Enter}} billentyűt. A fal **támfal** vagy **szabadon álló** fal. A **Felső szint** megadása nélkül a fal végig a **Magasságával** áll a talaj felett; a felső szint megadásával vízszintesen tartható. Az **alapozása** a talaj alatt adott mélységben helyezkedik el, és egész lépcsőkben lépcsőzetesen süllyed, így a lépcsők között vízszintes marad. A Tulajdonságok megadják a hosszát, magasságait, homlokfelületének területét és az alapozási lépcsőit; a térkép mindkét végén jelöli a fal tetejét és alját (TW / BW).
 
 :::warning
-Az 1,2 m (4 ft) magasságnál magasabb támfalat jelez a rendszer: ilyet mérnök tervez.
+Az 1,2 m (4 ft)-nél magasabb támfal jelzést kap: ezt mérnöknek kell megterveznie.
 :::
 
 ## Szegélyek
 
-Kattintson a szegély mentén, és nyomja meg az {{key:Enter}} billentyűt; állítsa be a szélességét és a kiemelkedését.
+Kattintson végig a szegély mentén, majd nyomja meg az {{key:Enter}} billentyűt; állítsa be a szélességét és a kiemelkedését.
 
 ## Rámpák
 
-Kattintson az aljától a tetejéig, és nyomja meg az {{key:Enter}} billentyűt. A szintek a két végén lévő talajból adódnak, hacsak be nem írja őket. Minden 750 mm (2,5 ft) emelkedésnél pihenőt kap a rámpa; ellenőrzi a **Megengedett legnagyobb meredekség** (kezdetben 1:12) értéket és a minimális szélességet. A Tulajdonságok megmondják, mekkora hosszúságra lenne szükség.
+Kattintson alulról felfelé, majd nyomja meg az {{key:Enter}} billentyűt. A szintek a két végén lévő talajból adódnak, hacsak nem írja be őket. A rámpa minden 750 mm (2,5 ft) emelkedés után pihenőt kap, és ellenőrzésre kerül a **Megengedett legnagyobb meredekség** (kezdetben 1:12) és a minimális szélesség szerint; a Tulajdonságok megmondják, mekkora hosszra lenne szükség.
 
 ## Lépcsők
 
-Kattintson az alsó lépcsőfok előlapjának élére, majd arra a helyre, ahol a lépcső eléri a tetejét, és nyomja meg az {{key:Enter}} billentyűt. A lépcsőfokok száma a magasságból és a **Legnagyobb lépcsőfok-magasság** értékből adódik; a lépcsőfok-mélység a 2R + G ≈ 630 mm kényelmi szabályból, és sosem lehet a **Legkisebb lépcsőfok-mélység** alatt; pihenő kerül minden olyan szakasz után, amelynek lépcsőfokszáma eléri a **Legtöbb lépcsőfok egy szakaszban** értéket. A Tulajdonságok megmondják, hogy a két pont között elférnek-e, vagy mennyivel hosszabbnak kellene lenniük.
+Kattintson az alsó lépcsőfok elülső élére, majd arra a helyre, ahol a lépcsők a felsőbe érnek, és nyomja meg az {{key:Enter}} billentyűt. A lépcsőfokok száma a magasságból és a **Legnagyobb lépcsőfok-magasságból** adódik; a járófelület-mélység a 2R + G ≈ 630 mm kényelmi szabályból adódik, soha nem lehet a **Legkisebb járófelület-mélység** alatt; pihenő minden **Egy szakaszban legfeljebb ennyi lépcsőfok** után. A Tulajdonságok megmondják, hogy a két pont közé beférnek-e, vagy mennyivel hosszabbak kellene legyenek.
 
 :::note
-A rámpák és lépcsők határértékei címkézett alapértékek. Állítsa be azokat, amelyeket az építési szabályzata előír.
+A rámpák és lépcsők határértékei címkézett alapértékek. Állítsa be azokat, amelyeket az Ön építési szabályzata előír.
 :::
 
-## Kivitel a CivilCraftból
+## A CivilCraften kívül
 
-- Továbbiak › {{ui:Tájépítészeti IFC exportálása}}: burkolatok és utak `IfcPavement`-ként, falak `IfcWall`-ként (a támfalak RETAININGWALL típussal) a rétegeikkel, szegélyek `IfcKerb`-ként, rámpák `IfcRamp`-ként, lépcsők `IfcStair`-ként a lépcsőfokaikkal és a lépcsőlapjaikkal együtt.
-- A növényjegyzék **Küldés a TakeoffCraftba** parancsa a burkolati területeket és rétegtérfogatokat, a falak homlokzati felületeit és hosszait, a szegélyek hosszait és a lépcsőszámokat viszi át.
-- A részletlap rajzolja meg minden fal metszetét, minden burkolat rétegrendjét és minden lépcsőszakaszt. Lásd: [Tájépítészeti lapok](topic:landscape-sheets).
+- Továbbiak › {{ui:Tájépítészeti IFC exportálása}}: a burkolat és a gyalogutak `IfcPavement` elemként, a falak `IfcWall` elemként (a támfalak RETAININGWALL néven), rétegeikkel együtt, a szegélyek `IfcKerb`, a rámpák `IfcRamp`, a lépcsők `IfcStair` elemként, lépcsőfok-magasságaikkal és -járófelületeikkel együtt.
+- A növénylista **Küldés a TakeoffCraft-nak** parancsa továbbviszi a burkolt területeket és rétegtérfogatokat, a falak homlokfelületeinek területét és hosszát, a szegélyek hosszát és a lépcsőfokok számát.
+- A részletlap minden fal keresztmetszetét, minden burkolat rétegrendjét és minden lépcsősort rajzolja. Lásd: [Tájépítészeti lapok](topic:landscape-sheets).

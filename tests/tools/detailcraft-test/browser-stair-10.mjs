@@ -41,6 +41,8 @@ await ctx.addInitScript(() => { window.showOpenFilePicker = undefined; });
 // 0.7 WS.13: CC_WORKSPACE=docked|toolbox runs the suite with that workspace layout on (Settings › Global › Layout)
 // (without it: classic, whatever a stored --state remembers)
 await ctx.addInitScript((w) => { try { if (w) localStorage.setItem('cc-workspace', w); else localStorage.removeItem('cc-workspace'); } catch (e) { /* no storage: classic */ } }, process.env.CC_WORKSPACE || '');
+// FX.314: the "I'm new here" offer (app-newhere.js) opens over a fresh profile and covers the Properties buttons; a person says No thanks once, the run does it up front
+await ctx.addInitScript(() => { try { if (!localStorage.getItem('cc-newhere')) localStorage.setItem('cc-newhere', 'skipped'); } catch (e) { /* none */ } });
 let page = await ctx.newPage();
 // CC_WORKSPACE: after a load, wait until the layout is mounted (it starts once the app has drawn), as a person would see it
 const wsSettled = (p) => { if (!process.env.CC_WORKSPACE) return; for (const m of ['goto', 'reload']) { const f = p[m].bind(p); p[m] = async (...a) => { const r = await f(...a); await p.waitForFunction(() => !document.querySelector('[data-detailcraft]') || document.querySelector('main')?.classList.contains('ws-on') || window.matchMedia('(max-width: 760px)').matches, null, { timeout: 30000 }).catch(() => {}); return r; }; }
@@ -95,7 +97,8 @@ async function download(action) {
 }
 async function canvasBox() { return page.locator('[data-canvas]').boundingBox(); }
 /** Screen point (page px) of a model point. */
-async function at(p) { const s = await dc((pt) => window.detailcraft.nodeScreen(pt), p); const b = await canvasBox(); return { x: b.x + s.x, y: b.y + s.y }; }
+const frame = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));   // FX.314: the camera's matrices are refreshed by the frame; a point read before it is the old view (the page was a second behind on a loaded machine)
+async function at(p) { await frame(); const s = await dc((pt) => window.detailcraft.nodeScreen(pt), p); const b = await canvasBox(); return { x: b.x + s.x, y: b.y + s.y }; }
 async function clickModel(p) { const s = await at(p); await page.mouse.move(s.x, s.y); await settle(); await page.mouse.click(s.x, s.y); await settle(); }
 /** A real drag from a to b (page px) in steps, with optional modifier held. */
 async function drag(a, b, { shift = false, shot = null } = {}) {
@@ -192,6 +195,19 @@ try {
   await page.keyboard.press('Escape');
   await settle();
 
+  // 0.11 SU.1814c: the stringers' ends cut to the floors and the landing posts' base plates, with real clicks on the two ticks
+  ok(await page.locator('label.dc-tick:has-text("Stringer ends cut to the floors") input').isChecked(), 'the end cuts tick is on for a new stair');
+  const cutNow = await page.evaluate(() => { const d = window.detailcraft; const ps = d.built.parts.filter((p) => /stringer[LR]$/.test(p.id)); return { n: ps.length, cut: ps.filter((p) => p.endCuts && p.endCuts.start && p.endCuts.end).length, len: ps[0] && ps[0].length }; });
+  ok(cutNow.n >= 2 && cutNow.cut === cutNow.n, 'every stringer is cut on its two ends in the model: ' + JSON.stringify(cutNow));
+  await page.locator('label.dc-tick:has-text("Stringer ends cut to the floors") input').uncheck();
+  await page.waitForTimeout(400);
+  const sqNow = await page.evaluate(() => { const d = window.detailcraft; const ps = d.built.parts.filter((p) => /stringer[LR]$/.test(p.id)); return { cut: ps.filter((p) => p.endCuts).length, len: ps[0] && ps[0].length }; });
+  ok(sqNow.cut === 0 && sqNow.len < cutNow.len, 'ticked off: square ended and shorter (' + sqNow.len.toFixed(1) + ' against ' + cutNow.len.toFixed(1) + ')');
+  await page.locator('label.dc-tick:has-text("Stringer ends cut to the floors") input').check();
+  await page.waitForTimeout(400);
+  ok(await page.evaluate(() => window.detailcraft.built.parts.filter((p) => /stringer[LR]$/.test(p.id) && p.endCuts).length >= 2), 'ticked on again: cut ends back');
+  for (let i = 0; i < 2; i++) { await page.keyboard.press("Control+z"); await settle(); }   // the two ticks above are undone (each is one step); the stair itself is next
+  ok(await dc(() => window.detailcraft.model.state.stairs.length) === 1 && await dc(() => window.detailcraft.built.parts.filter((p) => /stringer[LR]$/.test(p.id) && p.endCuts).length >= 2), 'undo twice: back to the start, the stair stays with its cut ends');
   await page.keyboard.press('Control+z');
   await settle();
   ok(await dc(() => window.detailcraft.model.state.stairs.length) === 0, 'one undo takes the stair out');

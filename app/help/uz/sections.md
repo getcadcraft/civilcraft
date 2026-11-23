@@ -1,52 +1,70 @@
 ---
-title: Namuna chiziqlari va kundalang kesimlar
-summary: Kesimlarni trassaga perpendikulyar kesing, har bir stansiyada yer, loyiha va kesma-toʻldirmani koʻring, hajmlarni oʻrtacha uchki maydonlar boʻyicha oling.
-keywords: massa tashish, massa diagrammasi, muvozanat nuqtasi, qisqarish, kengayish, tashish masofasi, qarz olish, chiqindi, kesim varaqlari, kundalang kesim varaqlari, kesimlar pdf, kesimlar, kundalang kesimlar, namuna chiziqlari, kesim koʻrinishi, kesma, toʻldirma, maydonlar, oʻrtacha uchki maydon, uchki maydon hajmlari, yer ishlari, stansiya, ofset, csv
-from: 5060173c
+title: Namuna chiziqlari va koʻndalang kesimlar
+summary: Kesimlarni trassaga perpendikulyar kesing, har bir piketda yerni, loyihani va kesish hamda toʻldirishni koʻring, oʻrtacha uchli yuzalar boʻyicha hajmlarni oling.
+keywords: massa diagrammasi, massa egri chizigʻi, balans nuqtasi, qisqarish, shishish, tashish masofasi, qarz, chiqindi, kesim varaqlari, koʻndalang kesim varaqlari, kesimlar pdf, kesimlar, koʻndalang kesimlar, namuna chiziqlari, kesim koʻrinishi, kesish, toʻldirish, maydonlar, oʻrtacha uchli maydon, uchli maydon hajmlari, yer ishlari, piket, siljish, csv
+from: 09639ce2
 ---
 
-Kundalang kesim yoʻlni qurilganidek koʻrsatadi: bitta stansiyada trassaga koʻndalang, mavjud yer, loyiha (koridor yoki maydoncha tekislangan holda) va ular orasidagi kesma va toʻldirma.
+Koʻndalang kesim yoʻlni qanday qurilishini koʻrsatadi: trassaga koʻndalang bitta piketda mavjud yer, loyiha (koridor yoki maydoncha tekislangan holda) va ular orasidagi kesish va toʻldirish.
 
 ## Namuna chiziqlarini qoʻshish
 
-1. Trassani tanlang. **Xossalar** da, **Namuna chiziqlari** ostida {{ui:Namuna chiziqlarini qoʻshish}} tugmasini bosing.
-2. **Har** (oraliq: boshida 50 ft yoki 20 m), **Chap kenglik** va **Oʻng kenglik** (har bir kesim oʻq chizigʻidan qancha uzoqlashishini) ni belgilang.
-3. Aniq stansiyada kesim kesish uchun uni **Stansiya qoʻshish** ga yozing (masalan, `2+35`) va {{key:Enter}} ni bosing.
+1. Trassani tanlang. **Xususiyatlar** ichida, **Namuna chiziqlari** ostida {{ui:Namuna chiziqlarini qoʻshish}} ni bosing.
+2. **Har** (oraliq: boshida 50 ft yoki 20 m), **Chap kenglik** va **Oʻng kenglik** ni belgilang (har bir kesim markaziy chiziqdan qancha masofaga boradi).
+3. Aniq piketda kesim olish uchun uni **Piket qoʻshish** ga kiriting (masalan `2+35`) va {{key:Enter}} ni bosing.
 
-Kesimlar oraliqning har bir butun karralisida, trassaning ikki uchida, har bir egri chiziqning boshi va oxirida (PC va PT) hamda siz qoʻshgan stansiyalarda kesiladi. Namuna chiziqlari rejada trassani kesib oʻtuvchi kulrang chiziqlar sifatida koʻrinadi; ular DXF, DWG va PDF formatlarida C-ROAD-SCTN qatlamida ham chiqadi. Har bir oʻzgarish bitta qadam: {{key:Mod+Z}} uni bekor qiladi.
+Kesimlar oraliqning har bir butun karralisida, trassaning ikki uchida, har bir egri chiziqning boshida va oxirida (PC va PT) hamda siz qoʻshgan piketlarda kesiladi. Namuna chiziqlari rejada trassa boʻylab kulrang chiziqlar sifatida koʻrinadi; ular shuningdek DXF, DWG va PDF da C-ROAD-SCTN qatlamida chiqadi. Har bir oʻzgarish bitta qadam: {{key:Mod+Z}} uni bekor qiladi.
 
 ## Kesim koʻrinishi
 
-Uni trassaning **Xossalar** ida {{ui:Kesim koʻrinishi}} bilan, **Yuza** › {{ui:Yana}} ostidagi {{ui:Kesimlar}} bilan yoki {{key:X}} bilan oching. U rejaning ostidagi profil koʻrinishi oʻrnini egallaydi.
+Uni trassaning **Xususiyatlari** boʻlimidagi {{ui:Kesim koʻrinishi}}, **Yuza** › {{ui:Yana}} ostidagi {{ui:Kesimlar}} yoki {{key:X}} bilan oching. U reja ostidagi profil koʻrinishining oʻrnini egallaydi.
 
-- Kesimlar orasida oʻtish uchun uning panelidagi strelkalar, stansiyalar roʻyxati yoki kesim koʻrinishi fokusda boʻlganda {{key:Left}} va {{key:Right}} dan foydalaning ({{key:Home}} va {{key:End}} birinchi va oxirgisi uchun).
-- Kulrang chiziq mavjud yer, qizil chiziq loyiha. Kesma toʻq sariq, toʻldirma yashil rangda soyalangan. Koridor nuqtalari belgilanadi: CL (oʻq chizigʻi), EOP (yoʻl chekkasi), SH (yelka) va DL (ochiq yer).
-- Sarlavhada stansiya, shu kesimning kesma va toʻldirma maydonlari va vertikal oshirish koʻrsatiladi. **Moslash** panelni toʻldiradi; 1× ni tanlasangiz, kesim haqiqiy masshtabda koʻrinadi.
+- Kesimlar boʻylab uning panelidagi tugmalar, piketlar roʻyxati yoki kesim koʻrinishi tanlanganda {{key:Left}} va {{key:Right}} yordamida yuring ({{key:Home}} va {{key:End}} birinchi va oxirgisi uchun).
+- Kulrang chiziq mavjud yer, qizil chiziq loyiha. Kesish toʻq sariq, toʻldirish yashil rangda boʻyaladi. Koridor nuqtalari belgilanadi: CL (markaziy chiziq), EOP (qoplama chekkasi), SH (chekka) va DL (yer bilan tutashuv).
+- Sarlavhada piket, shu kesimning kesish va toʻldirish maydonlari hamda vertikal kattalashtirish koʻrsatiladi. {{ui:Moslash}} panelni toʻldiradi; kesimni haqiqiy masshtabda koʻrish uchun 1× ni tanlang.
 - Rejadagi qalin chiziq ekranda qaysi kesim borligini koʻrsatadi.
+- **Kattalashtirish va surish:** gʻildirak koʻrsatkich atrofida kattalashtiradi, sudrash koʻrinishni siljitadi. {{ui:Moslash}} (yoki {{key:F}}, yoki ikki marta bosish) butun kesimni yana moslaydi.
+
+## Kesimda oʻlchash
+
+1. Kesim panelidagi {{ui:Oʻlchash}} ni bosing yoki {{key:M}} ni bosing. Maslahat: "Birinchi nuqtani, soʻng ikkinchisini bosing."
+2. Ikki nuqtani bosing. Har biri chiziq uchiga yoki koridor nuqtasiga (CL, EOP, SH, DL) tutib olinadi; erkin nuqta uchun {{key:Alt}} ni bosib turing.
+3. Oʻqish gorizontal masofani (ΔH), vertikal masofani (ΔV), foizdagi qiyalikni nisbati bilan va toʻgʻri uzunlikni loyiha birliklarida beradi.
+
+Yangi oʻlchovni boshlash uchun yana bosing. {{key:Esc}} uni tozalaydi, {{key:M}} esa Oʻlchashni oʻchiradi.
 
 ## Kesim varaqlari
 
-{{ui:Kesim varaqlari (PDF)}} **Namuna chiziqlari** ostida har bir kesimni PDF sahifalarida stansiya tartibida chapdan oʻngga va yuqoridan pastga qatorlarga joylaydi. **Qogʻoz**, **Reja masshtabi** (kesimlarning gorizontal masshtabi) va **Profil oshirilishi** (1×, 2×, 5× yoki 10×) ni tanlang; dialog bir sahifaga nechta kesim sigʻishini va buning nechta sahifa boʻlishini koʻrsatadi.
+**Namuna chiziqlari** ostidagi {{ui:Kesim varaqlari (PDF)}} har bir kesimni PDF sahifalariga joylashtiradi: piketlar tartibida chapdan oʻngga va yuqoridan pastga qatorlarga. **Qogʻoz**, **Reja masshtabi** (kesimlarning gorizontal masshtabi) va **Profil kattalashtirishi** (1×, 2×, 5× yoki 10×) ni tanlang; dialogda sahifaga nechta kesim sigʻishi va shundan nechta sahifa chiqishi koʻrsatiladi.
 
-Har bir kesimda offset va balandliklar toʻri, yer (punktir), loyiha, kesma va toʻldirma (toʻq sariq va yashil), koridor nuqtalari va uning pastida stansiya hamda kesma va toʻldirma maydonlari koʻrsatiladi. Varaqlardagi har bir kesim bir xil oʻlchamda chiziladi, eng kattasiga yetadigan balandlikda; agar bu sahifaga tanlangan oshirishda sigʻmasa, CivilCraft sigʻadigan eng kattasini qoʻllaydi va buni aytadi. Sarlavha qatorida trassa nomi, shu sahifadagi stansiyalar, masshtablar va "1-varaq (jami 3)" yoziladi.
+Har bir kesimda siljishlar va balandliklar setkasi, yer (shtrixli), loyiha, kesish va toʻldirish (toʻq sariq va yashil) bilan soyalangan, koridor nuqtalari va uning ostida piketi hamda kesish va toʻldirish maydonlari koʻrsatiladi. Varaqdagi har bir kesim bir xil oʻlchamda chiziladi, eng kattasiga yetadigan balandlikda; buning kattaligi bilan sahifaga sigʻmasa, CivilCraft sigʻadigan eng kattasidan foydalanadi va buni aytadi. Sarlavha chizigʻida trassa nomi, shu sahifadagi piketlar, masshtablar va "Varaq 1 (jami 3)" yoziladi.
 
-## Oʻrtacha uchki maydonlar boʻyicha hajmlar
+## Kesish va toʻldirish nimaga qarab oʻlchanadi
 
-Ikki qoʻshni kesim orasida hajm — ularning ikki maydonining oʻrtachasi, ularning stansiyalari orasidagi masofaga koʻpaytirilgan. Panelda trassa uchun jami koʻrsatiladi, va {{ui:CSV}} har bir kesimning maydonlari va hajmlarini yugurma yigʻindilar bilan yuklab oladi (futli loyihalarda kub yard, metrlida kub metr).
+Koridorda qoplama ostida qatlamlar boʻlishi mumkin: qoplama qatlamlari, shablon tarkibiy qismlari, iz. Kesim panelidagi **Hajmlar oʻlchanadigan** tanlovi kesish va toʻldirish qayergacha borishini belgilaydi:
 
-**Xossalar** [Yer ishlari hajmlari](topic:volumes) dagi panjara usuli hajmlari bilan yonma-yon bir xil jamini koʻrsatadi. Ikkalasi turli taxminlar: yaqinroq kesimlar ularni yaqinlashtiradi, tekis yerdagi toʻgʻri yoʻlda ular bir xil.
+- **Pastki yuza** (boshlangʻich): bu tarkibiy qismlarning pastigacha, shuning uchun kesishga qoplama qatlamlarining chuqurligi kiradi.
+- **Yuqori yuza**: faqat loyihaning yuqorisigacha, avvalgidek tarkibiy qismlar hisobga olinmasdan.
+
+Sarlavhadagi maydonlar, pastdagi hajmlar, CSV va massa tashish shu tanlovga amal qiladi va u loyiha bilan saqlanadi.
+
+## Oʻrtacha uchli maydonlar boʻyicha hajmlar
+
+Ikki qoʻshni kesim orasida hajm ularning ikki maydoni oʻrtachasi va piketlar orasidagi masofa koʻpaytmasiga teng. Panelda trassa boʻyicha jami koʻrsatiladi, {{ui:CSV}} esa har bir kesimning maydonlari va hajmlarini jamgʻarma yigʻindilari bilan yuklab oladi (futli loyihalar uchun kubik yard, metrik loyihalar uchun kubik metr).
+
+**Xususiyatlar** [Yer ishlari hajmlari](topic:volumes) dagi setka usuli hajmlari yonida xuddi shu jami natijalarni koʻrsatadi. Ikkalasi turli taxminlar: kesimlar yaqinlashsa, ular ham yaqinlashadi, tekis yerdagi toʻgʻri yoʻlda esa bir xil boʻladi.
 
 :::note
-Kesma va toʻldirma faqat chizilgan hududlarda hisoblanadi (koridor yoki maydonchaning ochiq yer chiziqlari), panjara usuli kabi. Koridor yoki maydoncha boʻlmasa, loyiha yer bilan bir xil boʻladi, shuning uchun kesim kesma yoki toʻldirma koʻrsatmaydi.
+Kesish va toʻldirish faqat tekislangan maydonlar (koridor yoki maydonchaning yer bilan tutashuv chiziqlari) ichida hisoblanadi, xuddi setka usulidagidek. Koridor yoki maydonchasiz loyiha yer boʻladi, shuning uchun kesim kesish yoki toʻldirishni koʻrsatmaydi.
 :::
 
 ## Massa tashish
 
-**Namuna chiziqlari** ostidagi **Massa tashish** xuddi shu oʻrtacha uchki maydon hajmlaridan massa tashish diagrammasini chizadi: stansiyalar boʻylab, kesma minus toʻldirmaning yugurma yigʻindisi.
+**Namuna chiziqlari** ostidagi **Massa tashish** xuddi shu uchli maydon hajmlaridan massa tashish diagrammasini chizadi: piketlar boʻylab kesish minus toʻldirishning jamgʻarma yigʻindisi.
 
-- **Kesmaning qisqarishi (−) yoki kengayishi (+)** bir kub yard kesma joylashtirilgandan keyin toʻldirma sifatida nima berishini koʻrsatadi: −10 % (boshlangʻich, vaqtinchalik qiymat) u 0.9 gacha qisqarishini bildiradi; kengayadigan tosh +5 % boʻlishi mumkin. Geotexnik hisobotingizdagi raqamdan foydalaning.
-- Chiziq koʻtarilgan joyda yoʻl kesmada; pasaygan joyda toʻldirmada. Nol ustida (toʻq sariq soyalangan) yer stansiya ortishi tomon koʻchadi; nol ostida (yashil) esa stansiya kamayishi tomon.
-- **Muvozanat nuqtalari** — chiziq nolni kesib oʻtgan joylar: ikkitasi orasida kesma va toʻldirma muvozanatda. Jadvalda har bir muvozanatlashgan uchastka, koʻchirilgan hajm (uning eng yuqori yoki eng past nuqtasi) va oʻrtacha tashish masofasi (soyalangan maydon shu hajmga boʻlinadi) koʻrsatiladi.
-- Chiziq nolga teng boʻlmagan joyda tugasa, qolgan narsa **chiqindi** (yuqorida) yoki **qarz** (pastda) boʻladi. Oxirgi uchastkada faqat tugagan darajadan tashqari yer koʻchirilgan hisoblanadi.
+- **Kesishning qisqarishi (−) yoki shishishi (+)** bir kubik yard kesish toʻldirish sifatida joylashtirilgandan keyin nimaga aylanishini bildiradi: −10 % (boshlangʻich qiymat, vaqtinchalik) u 0.9 gacha qisqarishini bildiradi; shishadigan tosh +5 % boʻlishi mumkin. Geotexnik hisobotingizdagi raqamdan foydalaning.
+- Chiziq koʻtarilgan joyda yoʻl kesishda; pastga tushgan joyda toʻldirishda. Nol dan yuqorida (toʻq sariq soya) yer katta piketlar tomon, nol dan pastda (yashil) kichik piketlar tomon harakatlanadi.
+- **Balans nuqtalari** — chiziq nolni kesib oʻtgan joylar: ikkitasi orasida kesish va toʻldirish muvozanatda. Jadvalda har bir muvozanatlangan oraliq, koʻchirilgan hajm (uning eng yuqori yoki eng past nuqtasi) va oʻrtacha tashish masofasi (soyali maydon shu hajmga boʻlingan) koʻrsatiladi.
+- Chiziq nolda tugamagan joyda ortib qolgani **chiqindi** (yuqorida) yoki **qarz** (pastda) boʻladi. Oxirgi oraliqda faqat u tugagan sathdan tashqari yer koʻchirilgan hisoblanadi.
 
-**CSV** har bir kesimdagi massa ordinatasi, uchastkalar va koeffitsiyentni saqlaydi.
+**CSV** har bir kesimdagi massa ordinatasi, oraliqlar va koeffitsiyentni saqlaydi.

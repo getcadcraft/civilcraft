@@ -40,6 +40,7 @@ export function curvatureAt(al, sta) {
   if (!e || e.type === 'line') return 0;
   const sg = e.ccw ? 1 : -1;
   if (e.type !== 'spiral') return sg / e.r;
+  if (e.io === 'cs') return e.k1 + ((e.k2 - e.k1) * Math.min(e.len, Math.max(0, sta - e.sta))) / e.len;   // 0.11 SU.1944
   const s = Math.min(e.len, Math.max(0, sta - e.sta)), u = e.len > 0 ? (e.io === 'in' ? s / e.len : 1 - s / e.len) : 1;
   return (sg * rampShape(e.tr || 'clothoid')(u)) / e.r;
 }

@@ -20,7 +20,9 @@
  *   toolbox.tools / toolrows.tools / toolpalette.tools   { "groups": [ { "id", "name"?, "tools": […] } ] }
  *   menubar.menus  [ { "id", "name"?, "items": [registry command ids] } ]
  *   <block>.when   { "<tool id>": { "enabled"?: expr, "visible"?: expr } } (ribbon, toolbox, toolrows, menubar) and ribbon.tools.tabs[].show: expr — declarations read against the one state (app-state.js)
- *   palettes.stacks [ [slot, …], [slot, …] ]   (two stacks; replaces upper / lower)
+ *   palettes.stacks [ [slot, …], [slot, …] ]   (two stacks; replaces upper / lower) · palettes.place2 "left-panel|right-panel" (the second stack in the other panel; 0.11 UI.5)
+ *   a group in a `tools` section: "visible": 1…48 (how many of its tools show; the rest under its ▾) · "size": "large|small" (a ribbon group's tools all large or all small; 0.11 UI.6)
+ *   "place": "window" (ribbon, toolbox, toolrows, statusbar; 0.11 UI.6 / UI.3): the block opens in a window of its own (one click: a browser opens windows only inside one), at home until then
  * A tool, group, tab or menu is named by the app's own id; app-workspace-tools.js shapes the app's lists by these (an id the app lacks is left out with a note at resolve time).
  *
  * Read as untrusted: unknown keys are dropped and counted, every value is bounded, a block in a place it cannot go is dropped with a
@@ -52,7 +54,9 @@ export const ACTIONS = ['open', 'save', 'undo', 'redo', 'select', 'clear', 'fit'
  * view-top / view-bottom (over the drawing, between the columns). float = over the drawing by the pointer, only while it is wanted (the
  * pet palette). none = left out (for the app's own toolbar: hidden).
  */
-export const PLACES = ['top', 'bottom', 'left-panel', 'right-panel', 'stage-top', 'stage-bottom', 'stage-left', 'stage-right', 'view-top', 'view-bottom', 'view-tl', 'view-tr', 'view-bl', 'view-br', 'float', 'none'];
+export const PLACES = ['top', 'bottom', 'left-panel', 'right-panel', 'stage-top', 'stage-bottom', 'stage-left', 'stage-right', 'view-top', 'view-bottom', 'view-tl', 'view-tr', 'view-bl', 'view-br', 'float', 'window', 'none'];
+/** 0.11 UI.6: "window" is a version 2 place (a version 1 file naming it has the block left out, as before); resolveLayout mounts the block at its first place with `window: true`. */
+export const V2_PLACES = Object.freeze(['window']);
 export const CORNERS = Object.freeze(['view-tl', 'view-tr', 'view-bl', 'view-br']);   // UI.10: the four corners of the drawing, each a small stack of overlays
 
 const bool = (v) => v === true;
@@ -72,7 +76,10 @@ function readGroups(v, left) {
     left.n -= tools.length;
     const name = strip(g.name, LIMITS.label), o = { id: g.id };
     if (name) o.name = name;
-    o.tools = tools; out.push(o);
+    o.tools = tools;
+    if (Number.isInteger(g.visible) && g.visible >= 1 && g.visible <= LIMITS.tools) o.visible = g.visible;   // 0.11 UI.6: the first n tools show, the rest sit under the group's ▾
+    if (g.size === 'large' || g.size === 'small') o.size = g.size;   // 0.11 UI.6: a ribbon group drawn all large or all small
+    out.push(o);
   }
   return out;
 }
@@ -151,26 +158,26 @@ export const BLOCKS = Object.freeze({
   titlebar: { places: ['top'], needs: [], opts: {   // the app's logo and name, quick commands, the document's name, full screen, Help, Settings; hides the app bar
     quick: cmds(LIMITS.list), inventory: bool,   // quick: the well-known actions or any registry command id (0.10 UI.8)
     menus: flag, switcher: flag, find: flag, pins: flag } },   // 0.10 UI.8 / UI.24: the absolute top (app-block-titlebar.js): the Craft menu, the layout switcher, Find, up to six pinned options
-  ribbon: { places: ['top', 'stage-top'], needs: ['ribbon'], opts: {   // the app's ribbon (tabs → groups → large and small tools), a File menu
+  ribbon: { places: ['top', 'stage-top', 'window'], needs: ['ribbon'], opts: {   // the app's ribbon (tabs → groups → large and small tools), a File menu
     file: (v) => list(v, isAction, LIMITS.list), collapse: bool, collapsed: bool, tearOff: bool, tools: readRibbonTools, when: readWhen, more: flag, slots: flag, contextual: flag } },   // more, slots, contextual: UI.11 (app-block-ribbonx.js)   // tools (v2): the tabs, groups and tools; collapsed: starts folded to its tabs (needs collapse)
   options: { places: ['top', 'bottom', 'stage-top', 'stage-bottom'], needs: [], opts: {   // what the running tool asks for, or what to do next
     commands: (v) => list(v, isAction, LIMITS.list) } },
   toolbar: { places: ['none', 'stage-top', 'stage-bottom'], needs: ['toolbar'], opts: {} },   // the app's own toolbar (every toolbar style, Arrange, lock)
   infobox: { places: ['stage-top', 'stage-bottom'], needs: [], opts: {   // labelled groups: the app's slots; "tool" = the running tool's options or the selection
     slots: (v) => list(v, isSlot, LIMITS.slots) } },
-  toolbox: { places: ['stage-left', 'stage-right'], needs: ['toolbox'], opts: {   // a column of the app's tools in groups
+  toolbox: { places: ['stage-left', 'stage-right', 'window'], needs: ['toolbox'], opts: {   // a column of the app's tools in groups
     collapse: bool, tearOff: bool, mine: bool, tools: readGroupTools, when: readWhen } },   // mine: a "My tools" group of empty slots a person fills (WS.21)
   petpalette: { places: ['float'], needs: [], opts: {} },   // the app's edit commands by the pointer when something is picked (WS.22)
   palettes: { places: ['left-panel', 'right-panel'], needs: [], opts: {   // two palettes stacked inside an app panel; "panel" = that panel's own content
     upper: (v) => (typeof v === 'string' && isSlot(v) ? v : undefined), lower: (v) => list(v, isSlot, 4),
-    rail: bool, stacks: readStacks } },   // rail: a column of icons on the panel's left that shows one palette at a time (Duncan)
+    rail: bool, stacks: readStacks, place2: (v) => (v === 'left-panel' || v === 'right-panel' ? v : undefined) } },   // rail: a column of icons on the panel's left that shows one palette at a time (Duncan)
   viewtabs: { places: ['view-top', 'view-bottom'], needs: ['views'], opts: {   // open = a tab per opened view (closable); all = a tab for every view
     mode: (v) => (v === 'open' || v === 'all' ? v : undefined) } },
   viewbar: { places: ['view-bottom', 'view-top'], needs: [], opts: {   // the current view's name and the app's view slots
     slots: (v) => list(v, isSlot, LIMITS.slots) } },
   quickbar: { places: ['stage-bottom', 'stage-top', 'bottom'], needs: [], opts: {   // a strip of the app's slots
     slots: (v) => list(v, isSlot, LIMITS.slots) } },
-  toolrows: { places: ['top', 'stage-top'], needs: ['toolbox'], opts: {   // the toolbox's groups laid out as two rows over the drawing (Duncan, 0.9 DU.1); each group shows its first tools and keeps the whole set under ▾
+  toolrows: { places: ['top', 'stage-top', 'window'], needs: ['toolbox'], opts: {   // the toolbox's groups laid out as two rows over the drawing (Duncan, 0.9 DU.1); each group shows its first tools and keeps the whole set under ▾
     split: (v) => (Number.isInteger(v) && v >= 1 && v <= 12 ? v : undefined), visible: (v) => (Number.isInteger(v) && v >= 2 && v <= 12 ? v : undefined), tearOff: bool,
     icons: (v) => (v === 'set' || v === 'app' ? v : undefined), tools: readGroupTools, when: readWhen } },   // icons: "set" = one icon family for the tools it knows, "app" (default) = the app's own   // split: groups in row one (default: half)
   menubar: { places: ['top'], needs: [], opts: {   // the classic menu bar (Vector, 0.9 VEC.1): every command of the app's input registry under one menu, by its group; shell: Help + Settings at the right (default on)
@@ -188,7 +195,7 @@ export const BLOCKS = Object.freeze({
     history: flag, log: flag, width: (v) => (Number.isInteger(v) && v >= 20 && v <= 60 ? v : undefined), mode: (v) => (CMD_MODES.includes(v) ? v : undefined) } },
   statustoggles: { places: ['bottom'], needs: [], opts: { toggles: cmds(16) } },   // 0.10 UI.11: mode toggles (grid, snap, ortho …) as lit icon buttons, the scale, a gear that chooses which show
   modeltabs: { places: ['view-bottom', 'view-top'], needs: ['views'], opts: {} },   // 0.10 UI.11: Model / Layout tabs with a "+" where the app can add a view
-  statusbar: { places: ['bottom'], needs: [], opts: {   // the app's status line, the selection count, the layout's name; command: a command line docked in it
+  statusbar: { places: ['bottom', 'window'], needs: [], opts: {   // the app's status line, the selection count, the layout's name; command: a command line docked in it
     command: bool, tearOff: bool } },
 });
 export const LOOK = Object.freeze({ density: ['regular', 'compact', 'comfortable'], outline: ['faint', 'box', 'none'], tabs: ['filled', 'underline'],
@@ -196,7 +203,7 @@ export const LOOK = Object.freeze({ density: ['regular', 'compact', 'comfortable
   tone: ['theme', 'dark', 'light'], names: ['below', 'above'], overflow: ['more', 'compact', 'drop'] });   // tone, names, overflow: version 2 (UI.6, UI.16)
 /** The version 2 keys: a version 1 file that uses one has it left out with a note (so a v1 file means what it always meant). */
 export const V2_LOOK = Object.freeze(['tone', 'names', 'overflow', 'zones']);
-export const V2_OPTS = Object.freeze({ ribbon: ['tools', 'when'], toolbox: ['tools', 'when'], toolrows: ['tools', 'when'], toolpalette: ['tools'], menubar: ['menus', 'when'], palettes: ['stacks'] });   // skin (optional, left out = the classic paint): "pro" = the Pro skin, one chrome for every app (0.10 PRO.1); a file without it is unchanged
+export const V2_OPTS = Object.freeze({ ribbon: ['tools', 'when'], toolbox: ['tools', 'when'], toolrows: ['tools', 'when'], toolpalette: ['tools'], menubar: ['menus', 'when'], palettes: ['stacks', 'place2'] });   // skin (optional, left out = the classic paint): "pro" = the Pro skin, one chrome for every app (0.10 PRO.1); a file without it is unchanged
 const TOP_KEYS = ['format', 'version', 'id', 'name', 'nameKey', 'description', 'hintKey', 'author', 'license', 'look', 'blocks'];
 
 const clean = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max).replace(/[\ud800-\udbff]$/, '') : '');   // never half a character at the cut
@@ -213,7 +220,7 @@ function readZones(v) {
   if (!isObj(v)) return undefined;
   const out = {};
   for (const k of Object.keys(v)) {
-    if (!PLACES.includes(k) || k === 'none' || !isObj(v[k])) continue;
+    if (!PLACES.includes(k) || k === 'none' || k === 'window' || !isObj(v[k])) continue;
     const names = v[k].names;
     if (LOOK.names.includes(names)) out[k] = { names };
   }
@@ -258,7 +265,7 @@ export function validateLayout(obj) {
     if (!spec) { dropped.push('block ' + clean(String(b.block), 24)); continue; }
     if (seen.has(b.block)) { dropped.push('block ' + b.block + ' (twice)'); continue; }
     const place = b.place === undefined ? spec.places[0] : b.place;
-    if (!spec.places.includes(place)) { dropped.push('block ' + b.block + ' (cannot go ' + clean(String(place), 24) + ')'); continue; }
+    if (!spec.places.includes(place) || (ver < 2 && V2_PLACES.includes(place))) { dropped.push('block ' + b.block + ' (cannot go ' + clean(String(place), 24) + ')'); continue; }
     if (seen.size >= LIMITS.blocks) { dropped.push('block ' + b.block + ' (too many)'); continue; }
     seen.add(b.block);
     const order = Number.isInteger(b.order) && b.order >= 0 && b.order <= LIMITS.order ? b.order : 0;
@@ -310,6 +317,7 @@ export function resolveLayout(layout, caps = {}) {
     const miss = spec.needs.find((n) => !caps[n]);
     if (miss) { notes.push(b.block + ': this app has no ' + miss); continue; }
     const r = { ...b };
+    if (r.place === 'window') { r.place = spec.places[0]; r.window = true; r.tearOff = true; }   // v2: mounted at home, then offered to its own window
     for (const k of ['quick', 'file', 'commands']) if (r[k]) { const okId = (x) => actions.has(x) || (k === 'quick' && !!cmdSet && cmdSet.has(x)); const keep = r[k].filter(okId); if (keep.length < r[k].length) notes.push(b.block + '.' + k + ': ' + r[k].filter((x) => !okId(x)).join(', ')); r[k] = keep; }
     if (Array.isArray(r.slots)) { const keep = r.slots.filter((x) => x === 'tool' || slots.has(x)); if (keep.length < r.slots.length) notes.push(b.block + '.slots: ' + r.slots.filter((x) => !keep.includes(x)).join(', ')); r.slots = keep; }
     if (r.tools) {
@@ -327,6 +335,11 @@ export function resolveLayout(layout, caps = {}) {
         const gone = [], st = r.stacks.map((x) => x.filter((n) => palettes.has(n) || (gone.push(n), false))).filter((x) => x.length);
         if (gone.length) notes.push('palettes.stacks: ' + gone.join(', '));
         if (st.length) r.stacks = st; else delete r.stacks;
+      }
+      if (r.place2) {   // the second stack in the other panel: only with two stacks, never the host panel's own content
+        const two = r.stacks && r.stacks.length === 2 && r.place2 !== r.place;
+        if (two && r.stacks[1].includes('panel')) { notes.push('palettes.stacks: panel'); const s2 = r.stacks[1].filter((n) => n !== 'panel'); r.stacks = s2.length ? [r.stacks[0], s2] : [r.stacks[0]]; }
+        if (!(r.stacks && r.stacks.length === 2 && r.place2 !== r.place)) { notes.push('palettes.place2: ' + r.place2); delete r.place2; }
       }
       if (r.upper && !palettes.has(r.upper)) { notes.push('palettes.upper: ' + r.upper); delete r.upper; }
       if (r.lower) { const keep = r.lower.filter((x) => palettes.has(x)); if (keep.length < r.lower.length) notes.push('palettes.lower: ' + r.lower.filter((x) => !keep.includes(x)).join(', ')); r.lower = keep; }

@@ -7,7 +7,10 @@
  *   - the picture's corners come from the layer the opener made (its geotransform), compared with the cloud's bounds: how much of the
  *     cloud the picture covers, and a plain warning when it covers none (the usual cause: a different coordinate system)
  *   - nothing is uploaded; the picture is kept inside the project file like any other map layer (the opener's limit: 25 MB after the
- *     picture is re-encoded; a file over 200 MB is refused by the GeoTIFF reader; a very large mosaic is reduced to 16 megapixels)
+ *     picture is re-encoded; a very large mosaic is reduced to 16 megapixels)
+ *   - 0.11: a GeoTIFF over 200 MB (the opener's own GeoTIFF reader refuses it) is read here by ortho-big.js, window by window, from the file's
+ *     pyramid when it has one, reduced to 16 megapixels and handed to the same opener as a JPEG with its world file (the person is asked for the
+ *     coordinate system as for any picture; a .prj chosen with the file goes along)
  */
 import { el, field } from './ui.js';
 import { fmt } from './ctx.js';
@@ -35,10 +38,30 @@ export function mountOrtho(ctx) {
     return area > 0 ? (w * h) / area : 0;
   };
 
+  const BIG = 190 * 1048576;   // CivilCraft's GeoTIFF reader refuses 200 MB (terrain.js LIMITS.fileBytes); a little under, so the two never disagree
+  /** A GeoTIFF too big for the opener, as a JPEG + world file it will take. Returns the replacement file list. */
+  async function shrinkBig(files) {
+    const big = files.find((f) => /\.tiff?$/i.test(f.name) && f.size > BIG);
+    if (!big) return files;
+    const [{ readBigGeoTiff }, geotiff] = await Promise.all([import('./ortho-big.js'), import('geotiff')]);
+    out.textContent = t('pc.o.big.reading', { name: big.name, mb: fmt(big.size / 1048576, 0) });
+    const r = await readBigGeoTiff(big, { geotiff, progress: (f) => { out.textContent = t('pc.o.big.progress', { name: big.name, pct: fmt(f * 100, 0) }); } });
+    const cvs = new OffscreenCanvas(r.width, r.height);
+    cvs.getContext('2d').putImageData(new ImageData(r.rgba, r.width, r.height), 0, 0);
+    const blob = await cvs.convertToBlob(r.notes.includes('ortho_nodata_alpha') ? { type: 'image/png' } : { type: 'image/jpeg', quality: 0.85 });
+    const stem = big.name.replace(/\.tiff?$/i, ''), png = blob.type === 'image/png';
+    const pic = new File([blob], stem + (png ? '.png' : '.jpg'), { type: blob.type }), wf = new File([r.worldFile], stem + (png ? '.pgw' : '.jgw'), { type: 'text/plain' });
+    out.textContent = t('pc.o.big.reduced', { name: big.name, w: fmt(r.source.width, 0), h: fmt(r.source.height, 0), rw: fmt(r.width, 0), rh: fmt(r.height, 0) })
+      + (r.notes.includes('ortho_overview') ? ' ' + t('pc.o.big.overview') : '');
+    ctx.orthoBig = { source: r.source, notes: r.notes, bbox: r.bbox, epsg: r.epsg, bytes: blob.size };
+    return [...files.filter((f) => f !== big && !/\.(tfw|tifw|wld)$/i.test(f.name)), pic, wf];
+  }
+
   async function load(files) {
     const app = ctx.app();
     if (!app || !app.gis || !files.length) return;
     out.textContent = t('pc.o.reading');
+    try { files = await shrinkBig(files); } catch (e) { out.textContent = t('pc.o.big.failed', { reason: String((e && e.message) || e).slice(0, 160) }); return; }
     const before = new Set(maps().map((m) => m.id));
     try {
       await app.gis.open(files);

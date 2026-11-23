@@ -30,7 +30,10 @@ export function planLoops(polys, { snap = 1e-3, lines = [] } = {}) {
   for (const l of lines || []) { const a = l[0], b = l[1]; if (a && b && Math.hypot(b[0] - a[0], b[1] - a[1]) > EPS) edges.push([[a[0], a[1]], [b[0], b[1]]]); }
   // split every edge at the points where others cross or touch it
   const cuts = edges.map(() => [0, 1]);
-  for (let i = 0; i < edges.length; i++) for (let j = i + 1; j < edges.length; j++) {
+  // #1995: only pairs whose boxes meet are tested (every edge against every other was O(n²): 10 s of a 3,400-wall set of sheets). Each box
+  // is grown by more than any test below can reach past its edge (t, u within EPS of [0, 1]; collinear ends inside), so the pairs left out
+  // are exactly ones the tests turn down: the same cuts, in a different order, which the sort below makes the same.
+  for (const [i, j] of edgePairs(edges)) {
     const [a, b] = edges[i], [c, d] = edges[j];
     const r = sub(b, a), s = sub(d, c), den = cross(r, s), ca = sub(c, a);
     if (Math.abs(den) < 1e-12 * Math.hypot(...r) * Math.hypot(...s)) {
@@ -61,7 +64,7 @@ export function planLoops(polys, { snap = 1e-3, lines = [] } = {}) {
     }
   });
   // which pieces are on the boundary, turned so the free side is on the left
-  const inside = (x, y) => polys.some((p) => inPoly(x, y, p));
+  const inside = insideAny(polys);   // #1995: polys.some(inPoly) through a grid of their boxes (a point outside a box is never inside it)
   const out = new Map();   // node → [{ to, ang }]
   const push = (from, to) => {
     if (!out.has(from)) out.set(from, []);
@@ -150,6 +153,53 @@ export function labelPoint(p) {
   let best = null;
   for (let i = 0; i + 1 < xs.length; i += 2) if (!best || xs[i + 1] - xs[i] > best[1] - best[0]) best = [xs[i], xs[i + 1]];
   return best ? [(best[0] + best[1]) / 2, c[1]] : c;
+}
+/** The pairs [i, j] (i < j, each once) of segments whose boxes, grown by 1e-5 of their length + 1e-6, meet: a uniform grid. */
+function edgePairs(edges) {
+  const n = edges.length, bx = new Float64Array(n * 4);
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const [a, b] = edges[i], L = Math.hypot(b[0] - a[0], b[1] - a[1]), m = 1e-5 * L + 1e-6;
+    bx[4 * i] = Math.min(a[0], b[0]) - m; bx[4 * i + 1] = Math.min(a[1], b[1]) - m; bx[4 * i + 2] = Math.max(a[0], b[0]) + m; bx[4 * i + 3] = Math.max(a[1], b[1]) + m;
+    sum += L;
+  }
+  const out = [];
+  if (n < 2) return out;
+  if (!(sum > 0) || !bx.every(Number.isFinite)) { for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) out.push([i, j]); return out; }   // not a plan the grid can hold: every pair, as before
+  const cell = Math.max(sum / n, 1e-3), grid = new Map();
+  const cx = (v) => Math.floor(v / cell);
+  for (let i = 0; i < n; i++) {
+    const x0 = cx(bx[4 * i]), y0 = cx(bx[4 * i + 1]), x1 = cx(bx[4 * i + 2]), y1 = cx(bx[4 * i + 3]);
+    if ((x1 - x0 + 1) * (y1 - y0 + 1) > 4096) { (grid.get('big') || grid.set('big', []).get('big')).push(i); continue; }   // a huge box: met by everyone
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) { const k = x + ',' + y; let l = grid.get(k); if (!l) grid.set(k, (l = [])); l.push(i); }
+  }
+  const big = grid.get('big') || [];
+  const seen = new Int32Array(n).fill(-1);
+  const meet = (i, j) => bx[4 * i] <= bx[4 * j + 2] && bx[4 * j] <= bx[4 * i + 2] && bx[4 * i + 1] <= bx[4 * j + 3] && bx[4 * j + 1] <= bx[4 * i + 3];
+  for (let i = 0; i < n; i++) {
+    const js = [];
+    const take = (j) => { if (j > i && seen[j] !== i) { seen[j] = i; if (meet(i, j)) js.push(j); } };
+    const x0 = cx(bx[4 * i]), y0 = cx(bx[4 * i + 1]), x1 = cx(bx[4 * i + 2]), y1 = cx(bx[4 * i + 3]);
+    if ((x1 - x0 + 1) * (y1 - y0 + 1) > 4096) { for (let j = i + 1; j < n; j++) take(j); }
+    else { for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (const j of grid.get(x + ',' + y) || []) take(j); for (const j of big) take(j); }
+    js.sort((p, q) => p - q);
+    for (const j of js) out.push([i, j]);
+  }
+  return out;
+}
+/** (x, y) → is it inside any of the polygons (inPoly), checking only the polygons whose box holds the point. */
+function insideAny(polys) {
+  const boxes = polys.map((p) => { let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; for (const q of p) { if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; if (q[1] < y0) y0 = q[1]; if (q[1] > y1) y1 = q[1]; } return [x0, y0, x1, y1]; });
+  if (polys.length < 32 || !boxes.every((b) => b.every(Number.isFinite))) return (x, y) => polys.some((p) => inPoly(x, y, p));
+  let sum = 0; for (const b of boxes) sum += Math.max(b[2] - b[0], b[3] - b[1]);
+  const cell = Math.max(sum / boxes.length, 1e-3), grid = new Map(), cx = (v) => Math.floor(v / cell), wide = [];
+  boxes.forEach((b, i) => {
+    const x0 = cx(b[0]), y0 = cx(b[1]), x1 = cx(b[2]), y1 = cx(b[3]);
+    if ((x1 - x0 + 1) * (y1 - y0 + 1) > 4096) { wide.push(i); return; }
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) { const k = x + ',' + y; let l = grid.get(k); if (!l) grid.set(k, (l = [])); l.push(i); }
+  });
+  const hold = (i, x, y) => { const b = boxes[i]; return x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3] && inPoly(x, y, polys[i]); };
+  return (x, y) => { for (const i of grid.get(cx(x) + ',' + cx(y)) || []) if (hold(i, x, y)) return true; for (const i of wide) if (hold(i, x, y)) return true; return false; };
 }
 export function inPoly(x, y, p) {
   let inside = false;

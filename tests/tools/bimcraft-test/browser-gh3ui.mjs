@@ -41,7 +41,7 @@ async function fresh(viewport = { width: 1440, height: 900 }) {
   page.on('console', (m) => { if (m.type() === 'error') problems.push('console: ' + m.text()); });
   page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
   await page.goto(BASE + '/lab/bimcraft', { waitUntil: 'networkidle' });
-  await page.evaluate(() => { try { localStorage.setItem('bimcraft.model.units', 'ftin'); } catch (e) { /* none */ } });
+  await page.evaluate(() => { try { localStorage.setItem('cc-autofocus', 'off'); localStorage.setItem('bimcraft.model.units', 'ftin'); } catch (e) { /* none */ } });
   await page.reload({ waitUntil: 'networkidle' });
 }
 const waitStatus = (re, timeout = 60000) => page.waitForFunction((src) => new RegExp(src).test(document.querySelector('[data-status]')?.textContent || ''), re.source, { timeout });
@@ -81,6 +81,9 @@ try {
     await page.waitForTimeout(150);
     const txt = (await panelText()).replace(/\/\s?\d+\s?(ft|m)\b/g, '');
     const mark = { ftin: '', in: 'in', ftdec: 'ft', mm: 'mm', cm: 'cm', m: 'm' }[u];
+    // 2026-11-20: boxes written once (the model Offset form, the opening size row, the servitude width) are re-worded on a unit change
+    const once = await page.evaluate(() => [...document.querySelectorAll('[data-model-offset] input[data-axis], [data-ws-ow], [data-ws-oh], [data-ws-osill], [data-sc-width]')].map((i) => i.value).join(' | '));
+    ok(once.length > 0 && !BAD[u].test(once), u + ': the Offset, opening size and servitude width boxes are in the pick: ' + once);
     ok(!BAD[u].test(txt), u + ': the plan bar, levels, schedule and Properties carry no other unit family' + (BAD[u].test(txt) ? ' -> ' + (() => { const m = txt.match(BAD[u]); return JSON.stringify(txt.slice(Math.max(0, m.index - 50), m.index + 30)); })() : ''));
     const rows = await page.evaluate(() => [...document.querySelectorAll('[data-props] [data-pg-row], [data-props] dt')].map((e) => e.textContent).join('|'));
     void rows; void mark;

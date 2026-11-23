@@ -1,0 +1,3 @@
+- Shows 30 figures and conditions of the Subdivision Map Act: five or more parcels need a final map and its exceptions, a lot line adjustment between four or fewer adjoining parcels, the days an agency has for a tentative map, how long a tentative map lasts, the urban lot split.
+- Prints them on the rules sheet of a proposal, each with its section.
+- Serves as the base of city and county rules add-ons.

@@ -12,4 +12,4 @@ keywords: engineer, export control, export controls, sanctions, notice, data she
 
 The same words are at the foot of every data sheet (in the panel, in the PDF and in the JSON file) and beside any generator that carries the notice, such as the nozzle.
 
-Engineer is not an app of its own: it is a shared part of every CadCraft program that mounts it, and the notice is the same in each. See [Parts from physics: generators](topic:engineer-generators).
+Engineer is not an app of its own: it is a shared part of every CadCraft program that mounts it, and the notice is the same in each. See [Parts from physics: generators](app:partcraft/engineer-generators).

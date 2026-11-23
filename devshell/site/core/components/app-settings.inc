@@ -49,7 +49,8 @@ $__lang_pick = isset($__langs[$__lang_cookie]) ? $__lang_cookie : '';
 $__ver = (string)($__build['version'] ?? '');
 /* Version (owner 2026-10-28): always in Settings, because a workspace layout (its own title bar) and a too-full app bar (the "More"
    layout) can take the version chip off the screen. Reuses app-bar.inc's builds list and lab stamp when it ran (app-shell.inc). */
-$__vs = ['builds' => $__builds ?? [], 'stamp' => $__stamp ?? null, 'stampTitle' => $__stampTitle ?? '', 'area' => $__area ?? null, 'older' => !empty($__older)];
+/* Owner 2026-11-01 "no version selector" on released apps: the other-versions list is the lab's only (it leaked into Settings on /use until 2026-11-22) */
+$__vs = ['builds' => (($__area['key'] ?? '') === 'lab') ? ($__builds ?? []) : [],'stamp' => $__stamp ?? null, 'stampTitle' => $__stampTitle ?? '', 'area' => $__area ?? null, 'older' => !empty($__older)];
 $__versionSet = static function () use ($app, $__build, $__an, $__vs): void {
     $label = (string)($__build['label'] ?? $__build['version'] ?? '');
     $__shotV = shot_mode();   // ?shot=1: the release number, no "dev", no stamp, no area, no other builds
@@ -58,30 +59,36 @@ $__versionSet = static function () use ($app, $__build, $__an, $__vs): void {
         : (($__build['current'] ?? '') === ($__build['version'] ?? null) ? Lang::t('shell.bar.ver.current') : ($__vs['older'] ? Lang::t('shell.settings.version.older') : '')));
     $stamp = $__vs['stamp'];
     $area = $__vs['area'];
-    $areaName = $area ? (Lang::has('shell.bar.area.' . $area['key']) ? Lang::t('shell.bar.area.' . $area['key']) : (string)$area['label']) : '';
     $builds = array_values(array_filter($__vs['builds'], static fn ($b) => $b['v'] !== ($__build['version'] ?? '') && !($b['v'] === 'dev' && !empty($__build['is_dev']))));
+    /* 0.11 (owner 2026-11-22): no longer a section in the list; the version sits at the right of the tab row, other versions behind a
+       small disclosure (caret on the right: open = down). Owner, same day: no "Running in" row, just " – Browser|Desktop|Mobile" after
+       the version. The server always prints Browser (lab and editions run in a browser too); app-settings.js swaps in Desktop or
+       Mobile when Studio's bridge (window.cadcraftDesktop.info().platform: android / ios = Mobile) is there. */
     ?>
-    <fieldset class="shell-set" data-version-set>
-      <legend><?= Lang::e('shell.settings.version.legend') ?></legend>
-      <p class="shell-hint-text"><?= Lang::e('shell.settings.version.hint', $__an) ?></p>
+    <div class="shell-dlg-ver" data-version-set>
       <dl class="shell-version">
-        <dt><?= Lang::e('shell.settings.version.version') ?></dt>
-        <dd data-version-label><?= e($app['name'] . ' ' . $label) ?><?= $note !== '' ? ' (' . e($note) . ')' : '' ?></dd>
-        <?php if (!empty($__build['is_dev']) && $stamp): ?>
-        <dt><?= Lang::e('shell.settings.version.build') ?></dt>
-        <dd title="<?= e($__vs['stampTitle']) ?>"><code><?= e($stamp['hash']) ?></code> <?= e(fmt_date($stamp['time'], 'M j, Y H:i T')) ?></dd>
-        <?php endif; ?>
-        <?php if ($areaName !== ''): ?>
-        <dt><?= Lang::e('shell.settings.version.area') ?></dt>
-        <dd><?= e($areaName) ?></dd>
-        <?php endif; ?>
-        <?php if ($builds): ?>
-        <dt><?= Lang::e('shell.settings.version.others') ?></dt>
-        <dd><ul class="shell-version-list"><?php foreach ($builds as $b): ?><li><a href="<?= e($b['href']) ?>"><?= e($b['v']) ?></a><?= $b['note'] !== '' ? ' <span class="shell-hint-text">' . e($b['note']) . '</span>' : '' ?></li><?php endforeach; ?></ul></dd>
-        <?php endif; ?>
+        <div><dt><?= Lang::e('shell.settings.version.version') ?></dt>
+        <dd><span data-version-label><?= e($app['name'] . ' ' . $label) ?><?= $note !== '' ? ' (' . e($note) . ')' : '' ?></span><?php if (!$__shotV): ?> <span data-version-where data-where-desktop="<?= Lang::e('shell.settings.version.where.desktop') ?>" data-where-mobile="<?= Lang::e('shell.settings.version.where.mobile') ?>">– <?= Lang::e('shell.settings.version.where.browser') ?></span><?php endif; ?></dd></div>
       </dl>
-    </fieldset>
+      <?php $__devStamp = !empty($__build['is_dev']) && $stamp; ?>
+      <?php if ($builds || $__devStamp): ?>
+      <details class="shell-ver-more">
+        <summary><?= Lang::e($builds ? 'shell.settings.version.others' : 'shell.settings.version.build') ?> <i class="bi bi-chevron-up" aria-hidden="true"></i></summary>
+        <div class="shell-ver-pop">
+          <?php if ($__devStamp): ?>
+          <p class="shell-hint-text"><?= Lang::e('shell.settings.version.build') ?>: <code><?= e($stamp['hash']) ?></code> <?= e(fmt_date($stamp['time'], 'M j, Y H:i T')) ?></p>
+          <?php endif; ?>
+          <?php if ($builds): ?>
+          <ul class="shell-version-list"><?php foreach ($builds as $b): ?><li><a href="<?= e($b['href']) ?>"><?= e($b['v']) ?></a><?= $b['note'] !== '' ? ' <span class="shell-hint-text">' . e($b['note']) . '</span>' : '' ?></li><?php endforeach; ?></ul>
+          <?php endif; ?>
+        </div>
+      </details>
+      <?php endif; ?>
+    </div>
 <?php };
+/* An app's own tab may put the shared "Menus, keys and mouse" section into one of its groups: manifest "inputGroup": "<group id>" */
+$__input_group = (string)($__build['manifest']['inputGroup'] ?? '');
+if (!preg_match('/^[a-z][a-z0-9-]{0,30}$/', $__input_group)) $__input_group = '';
 $__shell_07 = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', (string)($__build['version'] ?? '')) === 1 && version_compare((string)$__build['version'], '0.7', '>='));   // 0.7 PANEL-COMPACT (session shell-07): layout density, panel title bars
 $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/', $__ver) === 1 && version_compare($__ver, '0.6', '>='));
 ?>
@@ -91,25 +98,27 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
 <?php if ($__shell_07): /* 0.7 PANEL-COMPACT: the layout density before first paint (html[data-cc-density]; Comfortable sets nothing) */ ?>
 <script>(function () { try { var v = JSON.parse(localStorage.getItem(<?= json_embed('cc-app-settings:' . $app['slug']) ?>) || '{}').density; if (v === 'compact') document.documentElement.setAttribute('data-cc-density', 'compact'); } catch (e) {} })();</script>
 <?php endif; ?>
-<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?><?= $__shell_ui ? ' data-shell-ui' : '' ?><?= $__shell_07 ? ' data-shell-07' : '' ?> aria-labelledby="shell-settings-h">
+<dialog class="shell-settings<?= method_exists('AppBuilds', 'wideSettings') && AppBuilds::wideSettings($__build) ? ' shell-settings-wide' : '' ?>" data-app-settings data-app="<?= e($app['slug']) ?>" data-app-name="<?= e($app['name']) ?>"<?= $__panels ? ' data-panels="' . e(implode(' ', $__panels)) . '"' : '' ?><?= $__shell_ui ? ' data-shell-ui' : '' ?><?= $__shell_07 ? ' data-shell-07' : '' ?><?= !empty($__build['is_dev']) && (($__build['manifest']['toolbarRows'] ?? null) === 'auto') ? ' data-tb-rows-default="auto"' : '' ?> aria-labelledby="shell-settings-h">
   <form method="dialog" class="shell-dlg">
     <div class="shell-dlg-head">
       <h2 id="shell-settings-h"><?= Lang::e('shell.settings.title', $__an) ?></h2>
       <button type="submit" class="shell-x" aria-label="<?= Lang::e('shell.settings.close') ?>"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
     </div>
+    <div class="shell-tabrow">
     <?php if ($__own_settings): ?>
       <div class="shell-tabs" role="tablist" aria-label="<?= Lang::e('shell.bar.settings') ?>" data-settings-tabs hidden>
         <button type="button" role="tab" id="shell-tab-app" aria-controls="shell-pane-app" aria-selected="true" data-settings-tab="app"><?= e($app['name']) ?></button>
         <button type="button" role="tab" id="shell-tab-general" aria-controls="shell-pane-general" aria-selected="false" tabindex="-1" data-settings-tab="general"><?= Lang::e($__shell_07 ? 'shell.settings.global' : 'shell.settings.general') ?></button>
       </div>
     <?php endif; ?>
+      <?php $__versionSet(); ?>
+    </div>
     <div class="shell-dlg-body">
       <?php if ($__own_settings): ?>
         <section class="shell-pane" id="shell-pane-app" role="tabpanel" aria-labelledby="shell-tab-app" data-settings-pane="app">
           <p class="shell-hint-text shell-pane-lede"><?= Lang::e('shell.settings.app_only', $__an) ?></p>
-          <?php $__versionSet(); ?>
           <?php if (AppBuilds::input($__build)): /* menus, keys and mouse (0.5 track IP): assets/js/app-input-ui.js fills it */ ?>
-          <fieldset class="shell-set shell-set-wide" data-input-set>
+          <fieldset class="shell-set shell-set-wide" data-input-set<?= $__input_group !== '' ? ' data-sec-group="' . e($__input_group) . '"' : '' ?>>
             <legend><?= Lang::e('shell.input.legend') ?></legend>
             <div data-input-settings><p class="shell-hint-text"><?= Lang::e('shell.input.loading') ?></p></div>
           </fieldset>
@@ -118,7 +127,6 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </section>
       <?php endif; ?>
       <section class="shell-pane" id="shell-pane-general"<?= $__own_settings ? ' role="tabpanel" aria-labelledby="shell-tab-general"' : '' ?> data-settings-pane="general">
-      <?php if (!$__own_settings) $__versionSet(); ?>
 <?php if ($__shell_ui): /* 0.6 DF.8: the way back when a bar, a menu or a panel went missing */ ?>
       <fieldset data-sec-group="interface" class="shell-set" data-layout-set>
         <legend><?= Lang::e('shell.layout') ?></legend>
@@ -145,10 +153,21 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         </div>
         </div>
         </div>
-        <?php /* 0.9 FX.82: a layout for this app alone (cc-workspace-app); off = follows the choice above for every app */ ?>
+        <?php if (!empty($__build['is_dev'])): /* 0.11 UI.7 (1), lab (dev) builds only (rule 62): the pick is this app's by default; "This app" / "Every app" says where it goes
+           (app-settings.js wsScope: cc-workspace-app for this app, cc-workspace for every app, cc-workspace-every = the apps that follow every app) */ ?>
+        <p class="shell-hint-text" id="shell-ws-scope-h"><?= Lang::e('shell.ws.scope') ?></p>
+        <div class="shell-seg" role="radiogroup" aria-labelledby="shell-ws-scope-h" data-ws-scope-set>
+          <label><input type="radio" name="ws-scope" value="app" data-ws-scope> <i class="bi bi-app" aria-hidden="true"></i> <?= Lang::e('shell.ws.scope.app') ?> <strong data-ws-perapp-name></strong></label>
+          <label><input type="radio" name="ws-scope" value="all" data-ws-scope> <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i> <?= Lang::e('shell.ws.scope.all') ?></label>
+        </div>
+        <p class="shell-hint-text"><?= Lang::e('shell.ws.scope.hint') ?></p>
+        <?php else: /* 0.9 FX.82: a layout for this app alone (cc-workspace-app); off = follows the choice above for every app */ ?>
         <label class="shell-ws-perapp"><input type="checkbox" data-ws-perapp> <span><?= Lang::e('shell.ws.perapp') ?> <strong data-ws-perapp-name></strong></span></label>
         <p class="shell-hint-text"><?= Lang::e('shell.ws.perapp.hint') ?></p>
+<?php endif; ?>
         <p class="shell-hint-text"><?= Lang::e('shell.ws.hint') ?></p>
+        <?php /* 0.11 FX.304: what the chosen style leaves out in this app (app-settings.js fills it in the lab; hidden otherwise) */ ?>
+        <p class="shell-hint-text" data-ws-cannot role="status" hidden></p>
         </section>
         <section class="shell-group" aria-labelledby="shell-grp-files"><h3 class="shell-group-h" id="shell-grp-files"><?= Lang::e('shell.group.files') ?></h3>
         <?php /* 0.7 WS.25 (Discord 2026-10-24): build a layout of your own from the blocks; the engine's dialog (app-workspace-arrange.js) */ ?>
@@ -195,6 +214,10 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
       </fieldset>
       <?php /* 0.9 DU.1 (owner 2026-11-05): the tool icons of layouts that use the CadCraft icon set (Duncan): full colour, or outline in a colour
          the person picks, or each app's own drawings. localStorage cc-icons {style, color}; app-settings.js; the set is assets/js/app-workspace-icons.js */ ?>
+<?php /* 0.11 UI.15 (icons-11 -> shell-start-11): Theme colour style, its colour select, the contrast line and the labels switch. app-settings.js already handles them
+   (cc-icons {style, themeColor, labels}); .env SHELL_ICON_THEME=1 (`lab` = dev builds only) prints the markup, unset = nothing changes (rule 62, shared with released builds). */
+$__icTheme = strtolower(trim((string)(function_exists('env') ? env('SHELL_ICON_THEME', '') : '')));
+$__icTheme = $__icTheme === '1' || $__icTheme === 'true' || $__icTheme === 'on' || $__icTheme === 'yes' || ($__icTheme === 'lab' && !empty($__build['is_dev'])); ?>
       <fieldset data-sec-group="interface" class="shell-set" data-icons-set>
         <legend><?= Lang::e('shell.icons') ?></legend>
         <section class="shell-group" aria-labelledby="shell-grp-icstyle"><h3 class="shell-group-h" id="shell-grp-icstyle"><?= Lang::e('shell.group.ic.style') ?></h3>
@@ -202,6 +225,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
         <div class="shell-seg shell-seg-col" role="radiogroup" aria-labelledby="shell-ic-h">
           <label class="shell-ws-opt"><input type="radio" name="icons" value="full"> <i class="bi bi-palette" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.full') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.full.hint') ?></span></span></label>
           <label class="shell-ws-opt"><input type="radio" name="icons" value="outline"> <i class="bi bi-pencil" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.outline') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.outline.hint') ?></span></span></label>
+          <?php if ($__icTheme): ?><label class="shell-ws-opt"><input type="radio" name="icons" value="theme"> <i class="bi bi-palette2" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.theme') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.theme.hint') ?></span></span></label><?php endif; ?>
           <label class="shell-ws-opt"><input type="radio" name="icons" value="app"> <i class="bi bi-grid-3x3-gap" aria-hidden="true"></i> <span><span class="shell-ws-name"><?= Lang::e('shell.icons.app') ?></span> <span class="shell-hint-text shell-ws-hint"><?= Lang::e('shell.icons.app.hint') ?></span></span></label>
         </div>
         </section>
@@ -212,16 +236,33 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
           <button type="button" class="btn-line btn-sm-cc" data-icons-reset><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> <?= Lang::e('shell.icons.reset') ?></button>
         </div>
         <div class="shell-icons-preview" aria-hidden="true" data-icons-preview></div>
+        <?php if ($__icTheme): ?>
+        <div class="shell-row" data-icons-theme-row>
+          <label for="shell-ic-theme"><?= Lang::e('shell.icons.themecolor') ?></label>
+          <select id="shell-ic-theme" data-icons-theme>
+            <option value=""><?= Lang::e('shell.icons.themecolor.app') ?></option>
+            <?php foreach (['red', 'blue', 'orange', 'magenta', 'ochre', 'green', 'violet', 'cyan'] as $__l): ?><option value="<?= $__l ?>"><?= Lang::e('shell.icons.layer.' . $__l) ?></option><?php endforeach; ?>
+            <option value="custom"><?= Lang::e('shell.icons.themecolor.custom') ?></option>
+          </select>
+          <input type="color" data-icons-theme-hex value="#1b7fb5" aria-label="<?= Lang::e('shell.icons.themecolor.custom') ?>">
+        </div>
+        <p class="shell-hint-text" data-icons-check hidden></p><?php /* the contrast of the picked colour on both sheets; data-ok="0" = below 3 : 1 */ ?>
+        <label class="shell-row"><input type="checkbox" data-icons-labels> <span><?= Lang::e('shell.icons.labels') ?></span></label>
+        <?php endif; ?>
         <p class="shell-hint-text"><?= Lang::e('shell.icons.hint') ?></p>
         </section>
       </fieldset>
 <?php endif; ?>
       <fieldset data-sec-group="interface" class="shell-set">
         <legend><?= Lang::e('shell.settings.theme') ?></legend>
+        <?php /* 0.11 UI.20: with the owner's .env SHELL_THEME_TOGGLE on (as app-bar.inc reads it) the radios say Light / Dark like the sun and moon
+           in the bar; off they keep Paper (light) / Model (dark). The values stay paper / model. */
+        $__thv = strtolower(trim((string)(function_exists('env') ? env('SHELL_THEME_TOGGLE', '') : '')));
+        $__thIcons = in_array($__thv, ['1', 'true', 'yes', 'on'], true) || ($__thv === 'lab' && !empty($__build['is_dev'])); ?>
         <div class="shell-seg" role="radiogroup" aria-label="<?= Lang::e('shell.settings.theme') ?>">
-          <label><input type="radio" name="theme" value="paper"> <i class="bi bi-sun" aria-hidden="true"></i> <?= Lang::e('shell.settings.theme.paper') ?></label>
-          <label><input type="radio" name="theme" value="model"> <i class="bi bi-moon" aria-hidden="true"></i> <?= Lang::e('shell.settings.theme.model') ?></label>
-          <label><input type="radio" name="theme" value="system"> <i class="bi bi-circle-half" aria-hidden="true"></i> <?= Lang::e('shell.settings.theme.system') ?></label>
+          <label><input type="radio" name="theme" value="paper"> <i class="bi bi-sun" aria-hidden="true"></i> <?= Lang::e($__thIcons ? 'shell.bar.light' : 'shell.settings.theme.paper') ?></label>
+          <label><input type="radio" name="theme" value="model"> <i class="bi bi-moon" aria-hidden="true"></i> <?= Lang::e($__thIcons ? 'shell.bar.dark' : 'shell.settings.theme.model') ?></label>
+          <label><input type="radio" name="theme" value="system"> <i class="bi bi-circle-half" aria-hidden="true"></i> <?= Lang::e($__thIcons ? 'shell.bar.system' : 'shell.settings.theme.system') ?></label>
         </div>
         <p class="shell-hint-text"><?= Lang::e('shell.settings.theme.hint') ?></p>
       </fieldset>
@@ -331,8 +372,12 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
             <label><input type="radio" name="tbRows" value="wrap"> <i class="bi bi-text-wrap" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.wrap') ?></label>
             <label><input type="radio" name="tbRows" value="2"> <i class="bi bi-layout-split" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.2') ?></label>
             <label><input type="radio" name="tbRows" value="1"> <i class="bi bi-distribute-vertical" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.1') ?></label>
+            <?php if (!empty($__build['is_dev'])): /* 0.11 UI.17 (owner 2026-11-21): Automatic = one row when wrapping would take three or more; lab builds only */ ?>
+            <label><input type="radio" name="tbRows" value="auto"> <i class="bi bi-magic" aria-hidden="true"></i> <?= Lang::e('shell.settings.tb.rows.auto') ?></label>
+            <?php endif; ?>
           </div>
           <p class="shell-hint-text"><?= Lang::e('shell.settings.tb.rows.hint') ?></p>
+          <?php if (!empty($__build['is_dev'])): ?><p class="shell-hint-text"><?= Lang::e('shell.settings.tb.rows.auto.hint') ?></p><?php endif; ?>
         </div>
         <?php endif; ?>
         <div data-tb-touch-row hidden>
@@ -404,7 +449,7 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
       </fieldset>
       <?php endif; ?>
 
-      <fieldset data-sec-group="interface" class="shell-set">
+      <fieldset data-sec-group="interface" class="shell-set" data-sizes-set>
         <legend><?= Lang::e($__shell_ui ? 'shell.settings.sizes' : 'shell.settings.panels') ?></legend>
         <section class="shell-group" aria-labelledby="shell-grp-szsize"><h3 class="shell-group-h" id="shell-grp-szsize"><?= Lang::e('shell.group.sz.text') ?></h3>
         <?php if ($__shell_ui): /* 0.6 DF.28: the whole app's size, beside the panel text size */ ?>
@@ -473,7 +518,11 @@ $__shell_ui = !empty($__build['is_dev']) || (preg_match('/^\d{1,3}\.\d{1,3}(\.\d
       <fieldset class="shell-set shell-set-wide" data-addons-set hidden>
         <legend><?= Lang::e('shell.addons') ?></legend>
         <ul class="shell-addons" data-addons-list></ul>
+        <p class="shell-hint-text" data-addons-none hidden><?= Lang::e('shell.addons.none', $__an) ?></p>
         <p class="shell-hint-text"><?= Lang::e('shell.addons.hint', $__an) ?></p>
+        <?php /* owner 2026-11-22: "there should be a link to the library" (opens on this app's add-ons). Absolute (closing 0.11, FX.458): a packed browser
+                 edition or Studio has no /library of its own, and the edition packer refuses root-relative links; devshell_app() exists only there. */ ?>
+        <p class="shell-acc-actions"><a class="btn btn-sm btn-primary" href="<?= e((function_exists('devshell_app') ? 'https://getcadcraft.com' : rtrim(url('/'), '/')) . '/library/addons?app=' . (RoadmapCatalog::keyForSlug($app['slug']) ?? $app['slug'])) ?>" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> <?= Lang::e('shell.addons.library') ?></a></p>
         <p class="shell-hint-text shell-addon-dev" data-addons-dev hidden><?= Lang::e('shell.addons.dev') ?></p>
       </fieldset>
       <fieldset class="shell-set shell-set-wide" data-addons-account-set hidden></fieldset>

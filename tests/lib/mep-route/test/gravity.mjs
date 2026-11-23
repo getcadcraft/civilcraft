@@ -64,5 +64,37 @@ ok(Math.min(...Object.values(one.drops)) >= 100 - 1e-6 && Math.min(...Object.val
 const b1 = one.runs.find((r) => r.terminal === 'wc1');
 const L = b1.points.reduce((n, p, i) => n + (i ? Math.hypot(p[0] - b1.points[i - 1][0], p[1] - b1.points[i - 1][1]) : 0), 0);
 ok(Math.abs((b1.inverts[0] - b1.inverts[1]) - L / 96) < 0.5, 'a 3 in drain falls L/96 (1/8 in per ft): ' + (L / 96).toFixed(1) + ' mm over ' + Math.round(L) + ' mm');
+console.log('== 0.11: two storeys on one stack in one call');
+// ground floor (z 0) and first floor (z 3000): a water closet and a lavatory on each, the same stack
+const two = [
+  { id: 'g-wc', storey: 'G', p: [2000, 1500, 0], dir: [0, 0, -1], units: 3, dn: 3 }, { id: 'g-lav', storey: 'G', p: [2800, 600, 500], dir: [0, 1, 0], units: 1, dn: 1.25 },
+  { id: 'u-wc', storey: 'U', p: [2000, 1500, 3000], dir: [0, 0, -1], units: 3, dn: 3 }, { id: 'u-lav', storey: 'U', p: [2800, 600, 3500], dir: [0, 1, 0], units: 1, dn: 1.25 },
+];
+const two1 = planDrainage({ fixtures: two, outlet: { p: [0, 1000, -1200], out: [-1, 0, 0], z: -1200 }, stacks: [{ id: 'S1', p: [1000, 1000] }], rules, minTail: 100 });
+ok(two1.ok, 'both storeys planned in one call', JSON.stringify(two1.failed));
+const s2 = two1.stacks[0];
+ok(s2 && s2.storeys === 2 && s2.taps.length === 2, 'the stack has two taps, one per storey', JSON.stringify(s2?.taps));
+ok(s2 && Math.abs(s2.units - 8) < 1e-9, 'it carries 3+1+3+1 = 8 DFU');
+ok(s2 && s2.taps[1].z - s2.taps[0].z > 2500 && s2.taps[1].z - s2.taps[0].z < 3100, 'the upper tap is about one storey (3000 mm) above the lower: ' + (s2 ? s2.taps[1].z - s2.taps[0].z : ''));
+const stk = two1.runs.find((r) => r.role === 'stack');
+ok(stk && stk.points[0][2] > s2.taps[1].z && stk.points[1][2] < s2.taps[0].z, 'one vertical stack run spans from above the upper tap to below the lower');
+ok(two1.runs.filter((r) => r.role !== 'stack' && /^u-/.test(r.terminal || '')).every((r) => r.points.every((q) => q[2] > 1500)), 'the first-floor laterals stay on the first floor');
+ok(two1.vents.length === 4, 'a vent stub at each of the 4 fixtures', String(two1.vents.length));
+
+console.log('== 0.11: trap-to-vent distances (limits are the person\'s: a typed number here, never a code table)');
+const own = planDrainage({ fixtures: fx.slice(0, 3), outlet: { p: [0, 1500, 0], out: [-1, 0, 0] }, rules, minTail: 100 });
+ok(own.ventChecks.length === 3 && own.ventChecks.every((r) => r.mode === 'own' && r.limit === null && r.ok), 'own-vent mode: three distances reported, none checked without a limit');
+ok(own.ventChecks.every((r) => r.distance > own.drops[r.id] - 1e-6), 'a distance is at least the tail down from the trap');
+const lim = planDrainage({ fixtures: fx.slice(0, 3), outlet: { p: [0, 1500, 0], out: [-1, 0, 0] }, rules, minTail: 100, ventLimit: 100 });
+ok(!lim.ok && lim.failed.some((f) => f.error === 'vent-distance' && f.over > 0), 'a typed limit of 100 mm is exceeded: vent-distance with the mm over', JSON.stringify(lim.failed));
+const viaStack = planDrainage({ fixtures: fx.slice(0, 3), outlet: { p: [0, 1500, -1200], out: [-1, 0, 0], z: -1200 }, stacks: [{ id: 'S1', p: [1000, 1500] }], rules, minTail: 100, vent: 'stack', ventLimit: 5000 });
+ok(viaStack.vents.length === 0 && viaStack.ventChecks.every((r) => r.mode === 'stack'), 'vented through the stack: no stubs, distances to the stack', JSON.stringify(viaStack.ventChecks));
+const wc = viaStack.ventChecks.find((r) => r.id === 'wc1'), bt = viaStack.runs.find((r) => r.terminal === 'wc1');
+ok(wc && bt && wc.distance >= Math.hypot(2000 - 1000, 1500 - 1500) - 1, 'the wc is at least its straight 1000 mm from the stack: ' + (wc && wc.distance));
+const lim2 = planDrainage({ fixtures: fx.slice(0, 3), outlet: { p: [0, 1500, -1200], out: [-1, 0, 0], z: -1200 }, stacks: [{ id: 'S1', p: [1000, 1500] }], rules: { ...rules, ventLimit: (n) => (n >= 3 ? 1000 : 99999) }, minTail: 100, vent: 'stack' });
+ok(lim2.failed.some((f) => f.error === 'vent-distance' && f.id === 'wc1'), 'rules.ventLimit(trap size) is asked per fixture: the 3 in wc is flagged against 1000 mm');
+
+console.log('== 0.11: 45-degree wye junctions named');
+ok(own.junctions.length === 2 && own.junctions.every((j) => j.kind === 'wye' && j.angle === 45 && Array.isArray(j.at)), 'two junctions (3 fixtures = main + 2 branches), each a 45-degree wye');
 console.log((bad ? 'FAILED ' : 'passed ') + good + ' / ' + (good + bad));
 process.exit(bad ? 1 : 0);

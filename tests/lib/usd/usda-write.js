@@ -3,6 +3,7 @@
  * usda-write.js — an sdf.js Layer as USD text (`.usda`, "#usda 1.0"), following the published text format. DOM-free.
  *
  *   writeUsda(layer) → string
+ *   writeUsdaTo(layer, out) → out   the same lines pushed into `out` (an array or a TextChunks): for big layers (PERF.26)
  *   formatValue(value, indent) → string (one value in text form; used by tests and the dictionary writer)
  *
  * Numbers: doubles in their shortest exact form, floats and halves in the shortest form that reads back to the same
@@ -19,7 +20,16 @@ const KEYWORD = { documentation: 'doc', variantSelection: 'variants', variantSet
 const LISTOP_KEYS = [['deletedItems', 'delete '], ['addedItems', 'add '], ['prependedItems', 'prepend '], ['appendedItems', 'append '], ['orderedItems', 'reorder ']];
 
 export function writeUsda(layer) {
-  const out = ['#usda 1.0'];
+  const out = [];
+  writeUsdaTo(layer, out);
+  return out.join('\n');
+}
+/**
+ * 0.11 PERF.26: writeUsda's lines handed to `out.push(...lines)` one prim at a time (an array, or lib/textout's TextChunks with
+ * separator '\n'), so a host can write a big layer without one string: the lines joined by '\n' are exactly writeUsda(layer).
+ */
+export function writeUsdaTo(layer, out) {
+  out.push('#usda 1.0');
   const root = layer.specs.get('/');
   const meta = [];
   for (const [k, v] of root ? root.fields : []) {
@@ -30,7 +40,7 @@ export function writeUsda(layer) {
   if (meta.length) out.push('(', ...meta, ')');
   out.push('');
   for (const c of layer.children('/')) out.push(...primText(layer, c, ''), '');
-  return out.join('\n');
+  return out;
 }
 
 function subLayersText(list, offsets, ind) {

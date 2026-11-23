@@ -495,7 +495,7 @@ function readMap(m, images) {
   const s = (v, n = 300) => (typeof v === 'string' ? clean(v, n) : '');
   const f = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
   const r = {
-    id: /^m\d{1,9}$/.test(m.id) ? m.id : 'm' + Math.floor(Math.random() * 1e6),
+    id: /^m\d{1,16}$/.test(m.id) ? m.id : 'm' + Math.floor(Math.random() * 1e6),
     name: s(m.name, 120) || t('mapl.default_name'), kind: m.kind, url: '', layer: s(m.layer, 300), style: s(m.style, 200), format: s(m.format, 80) || 'image/png',
     version: m.version === '1.1.1' ? '1.1.1' : '1.3.0',
     crsCode: Number.isInteger(m.crsCode) && m.crsCode > 0 && m.crsCode < 1e6 ? m.crsCode : null, crsName: s(m.crsName, 200),
@@ -505,7 +505,7 @@ function readMap(m, images) {
     image: '', width: 0, height: 0, a0: 0, a1: 1, a2: 0, a3: 0, a4: 0, a5: -1, grid: '', set: s(m.set, 200), template: '', subdomains: s(m.subdomains, 20).replace(/[^a-z0-9]/gi, ''),
   };
   if (m.kind === 'image') {
-    if (!/^img\d{1,9}$/.test(m.image) || (images && !images.has(m.image))) throw new Error('image');
+    if (!/^img\d{1,16}$/.test(m.image) || (images && !images.has(m.image))) throw new Error('image');
     r.image = m.image;
     r.width = Number.isInteger(m.width) && m.width > 0 && m.width <= 65536 ? m.width : 0; r.height = Number.isInteger(m.height) && m.height > 0 && m.height <= 65536 ? m.height : 0;
     const a = [m.a0, m.a1, m.a2, m.a3, m.a4, m.a5].map(f);

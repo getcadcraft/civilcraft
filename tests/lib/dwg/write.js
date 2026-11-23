@@ -831,6 +831,11 @@ export function writeDwg(model = {}, opts = {}) {
   for (const r of recs) {
     if (!r.eed) continue;
     r.eed = r.eed.filter((blk) => {
+      // perf-finish-11 (PERF.30): a block with no handle in it keeps its items as they are (it was copied pair by pair for every entity:
+      // about a gigabyte of arrays at a million entities that carry xdata); one with a handle is rebuilt as before
+      let refs = false;
+      for (const it of blk.items) if (it[0] === 1005 || it[0] === 1003) { refs = true; break; }
+      if (!refs) return true;
       const items = [];
       for (const [code, v] of blk.items) {
         if (code === 1005 || code === 1003) {
@@ -847,13 +852,18 @@ export function writeDwg(model = {}, opts = {}) {
   }
   if (droppedEed) report.notes.push(msg('ccdwg.write.eed_dropped', { n: droppedEed }));
   let entities = 0;
-  for (const r of recs) {
+  // perf-finish-11 (PERF.30): each record is let go once it is encoded (the blocks' lists of them first), so the records and their bytes are
+  // not both held at the end of a big drawing
+  for (const B of blocks) B.ents = null;
+  for (let i = 0; i < recs.length; i++) {
+    const r = recs[i]; recs[i] = null;
     if (r.pre !== undefined) { storeSeq.push(r.pre); entities++; continue; }   // encoded when it was made (a plain entity)
     const data = encodeObject(r, ctx, true);   // a view of a reused buffer: the store copies it at once
     if (!data) { report.notes.push(`internal: no encoder for ${r.t}`); continue; }
     storeSeq.push(store.add(r.h, data));
     if (!/CONTROL|^LAYER$|^STYLE$|^LTYPE$|^APPID$|^DIMSTYLE$|^VPORT$|^VIEW$|DICTIONARY|PLACEHOLDER|MLINESTYLE|LAYOUT|BLOCK_HEADER/.test(r.t)) entities++;
   }
+  recs.length = 0;
   const objects = store.seal(storeSeq);   // iterates as the { handle, data } list, in handle order
   const hv = { ...hdrIn };
   if (hv.INSUNITS === undefined) hv.INSUNITS = 0;

@@ -133,6 +133,9 @@ ok(S2.wallfinishes.head.length === S2.wallfinishes.cols.length && S2.wallfinishe
 const tt = S2.wallfinishtotals;
 ok(tt.vals.find((v, i) => /tile/i.test(tt.rows[i][0]))[2] === 2100000 && tt.rows.find((r) => /tile/i.test(r[0]))[3] === '21', 'by finish: the tile is 2 100 000 mm2 and 21 whole tiles');
 
+{ const SD = await imp('schedule-data.js');   // 0.11 BK.130 (bim-core-11): the Schedules panel's own data carries the three wall-face schedules, under keys of their own
+  const all = SD.modelSchedules(ed, { units: 'mm', t: (k) => k }).all;
+  ok(SD.WALLFACE_KEYS.every((k) => all[k] && all[k].rows.length === 2) && all.roomfinishes !== undefined, 'modelSchedules gives wfaces, wfacetotals and wfacerooms (2 rows each) beside the room-finish schedules', Object.keys(all).filter((k) => /f/.test(k)).slice(0, 12)); }
 console.log('== a wall that is deleted takes its finishes with it');
 ed.modelChange(OPS.removeWalls([south.guid]));
 ed.modelChange(OPS.op((ww) => F.syncWallFinishCoverings(ww)), { label: 'sync' });

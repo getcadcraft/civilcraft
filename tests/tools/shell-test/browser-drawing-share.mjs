@@ -35,7 +35,7 @@ const pct = (x) => (x * 100).toFixed(1) + ' %';
 export const TARGET = 0.75;
 /** Floors with labels on and the panels in the edge strip, in percent: what was measured on 2026-11-11, less half a point. */
 export const LABELS = {
-  bimcraft: { standard: 70.0 /* 70.8 to 74.1: its Draw bar wraps to one row more when an add-on's tool arrives first */, docked: 73.6, toolbox: 71.8, autorev: 76.2, duncan: 79.7, vector: 73.3, sketch: 75.5, rhino: 74.0 },
+  bimcraft: { standard: 70.0 /* 70.8 to 74.1: its Draw bar wraps to one row more when an add-on's tool arrives first */, docked: 73.6, toolbox: 71.8, autorev: 75.2 /* 2026-11-21 (FX.436): 75.7 in the lab, in the 0.10 release (/use) and 76.0 in the 0.9 release, all with the same bars (title 32, ribbon tabs 28, ribbon 89, options 28, view tabs 28, view controls 28, status 24 px); the 0.3 between 0.9 and now is the plan / 3D splitter's 10 px grab strip over the views (BT.11); the 76.7 of 2026-11-11 is in no build kept */, duncan: 79.7, vector: 73.3, sketch: 75.5, rhino: 74.0 },
   cadcraft: { standard: 63.7, docked: 62.8, toolbox: 57.4 /* 57.9 to 64.5 over three runs on 2026-11-11, after its duplicated toolbar went (53.5 before) */, autorev: 65.4, duncan: 68.5, vector: 64.3, sketch: 64.8, rhino: 63.5 },
 };
 /** Layouts that do not reach 75 % in the compact state: [floor in percent, why]. Reported in the session log; not counted as meeting BK.35. */
@@ -60,7 +60,7 @@ try {
       // --- labels: only the panels go to the edge strip
       const side = await page.evaluate(() => { const P = window.ccShellPanels, l = P.panels().filter((p) => (p.dock === 'left' || p.dock === 'right') && !p.hidden); for (const p of l) P.pin(p.id); return l.map((p) => p.id); });
       await page.waitForTimeout(700); await page.mouse.move(960, 620); await page.waitForTimeout(500);
-      const strip = await page.evaluate(() => [...document.querySelectorAll('.shell-pintab[data-kind="pin"]')].map((t) => { const r = t.getBoundingClientRect(), s = t.querySelector('span'); return { w: Math.round(r.width), h: Math.round(r.height), text: !!s && getComputedStyle(s).display !== 'none', icon: !!t.querySelector('i.bi'), label: t.getAttribute('aria-label') || '', title: t.title || t.dataset.bsOriginalTitle || t.dataset.ccTitle || '' }; }));
+      const strip = await page.evaluate(() => [...document.querySelectorAll('.shell-pintab[data-kind="pin"]')].map((t) => { const r = t.getBoundingClientRect(), s = t.querySelector('span'); return { w: Math.round(r.width), h: Math.round(r.height), text: !!s && getComputedStyle(s).display !== 'none', icon: !!t.querySelector('i.bi, svg.ccic'), label: t.getAttribute('aria-label') || '', title: t.title || t.dataset.bsOriginalTitle || t.dataset.ccTitle || '' }; }));
       ok(side.length > 0 && strip.length === side.length, `${slug} / ${L}: every side panel collapses to the edge strip (${side.join(', ')})`, JSON.stringify(strip));
       ok(strip.every((t) => t.icon && t.text && t.label), `${slug} / ${L}: with labels on, each edge tab shows its icon and its name`);
       const a = await measureShare(page);
@@ -71,7 +71,7 @@ try {
       const was = await page.evaluate(() => window.ccFit.room(true));
       await page.waitForTimeout(900); await page.mouse.move(960, 620); await page.waitForTimeout(500);
       const c = await page.evaluate(() => ({ tb: document.body.dataset.shellTb,
-        tabs: [...document.querySelectorAll('.shell-pintab[data-kind="pin"]')].map((t) => { const r = t.getBoundingClientRect(), s = t.querySelector('span'); return { w: Math.round(r.width), h: Math.round(r.height), text: !!s && getComputedStyle(s).display !== 'none' && s.getBoundingClientRect().width > 0, icon: !!t.querySelector('i.bi'), label: t.getAttribute('aria-label') || '' }; }),
+        tabs: [...document.querySelectorAll('.shell-pintab[data-kind="pin"]')].map((t) => { const r = t.getBoundingClientRect(), s = t.querySelector('span'); return { w: Math.round(r.width), h: Math.round(r.height), text: !!s && getComputedStyle(s).display !== 'none' && s.getBoundingClientRect().width > 0, icon: !!t.querySelector('i.bi, svg.ccic'), label: t.getAttribute('aria-label') || '' }; }),
         rows: [...document.querySelectorAll('.tr-group .ws-tool')].filter((b) => !b.closest('.tr-more-list') && b.getBoundingClientRect().width > 0).map((b) => ({ h: Math.round(b.getBoundingClientRect().height), text: getComputedStyle(b.querySelector('span') || b).display !== 'none' && !!b.querySelector('span'), label: b.getAttribute('aria-label') || '', title: b.title || b.dataset.bsOriginalTitle || '' })) }));
       ok(c.tb === 'icons', `${slug} / ${L}: the compact bar is on (icons without labels)`, c.tb);
       ok(c.tabs.length === side.length && c.tabs.every((t) => t.icon && !t.text && t.label && t.w <= 40 && t.h <= 40), `${slug} / ${L}: the edge strip is icons only, each named for a screen reader and at most 40 px square`, JSON.stringify(c.tabs));

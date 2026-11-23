@@ -237,7 +237,7 @@ export function cleanPond(o, units = 'ft') {
     return { kind: x.kind, crest: clampN(x.crest, 0, -1e5, 1e5), length: clampN(x.length, 1, 0.01, 1e4) };
   }).filter(Boolean);
   return {
-    id: /^q\d{1,9}$/.test(String(o.id)) ? String(o.id) : null, name: nm(o.name, d.name),
+    id: /^q\d{1,16}$/.test(String(o.id)) ? String(o.id) : null, name: nm(o.name, d.name),
     area: clampN(o.area, d.area, 1e-6, 1e12), cn: clampN(o.cn, d.cn, 1, 100), tc: clampN(o.tc, d.tc, 1, 5000), catchment: typeof o.catchment === 'string' && o.catchment.length < 40 ? o.catchment : null,
     storm: { mode: st.mode === 'idf' ? 'idf' : 'uniform', depth: clampN(st.depth, d.storm.depth, 0.001, 5000), duration: clampN(st.duration, d.storm.duration, 1, 4320) },
     start: fin(o.start) ? o.start : null, target: fin(o.target) && o.target > 0 ? o.target : null, drawdownMax: clampN(o.drawdownMax, 72, 1, 2000),

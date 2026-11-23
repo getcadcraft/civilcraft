@@ -103,7 +103,9 @@ export function landscapeTools(app) {
         spots: { type: 'array', items: { type: 'object', properties: { x: { type: 'number' }, y: { type: 'number' }, z: { type: 'number' } }, required: ['x', 'y', 'z'], additionalProperties: false }, maxItems: 1000 },
       }, required: ['kind', 'points'], additionalProperties: false },
       run: (a) => {
-        const p = P(), d = defaults(p.state.units), id = nid();
+        const p = P(), d = defaults(p.state.units);
+        if (!p.eg().surface) throw new Error('The site has no existing-ground surface yet: add survey points with elevations first (points_add), then grade. Nothing was made.');   // cut and fill are measured against the ground
+        const id = nid();
         const raw = { id, kind: a.kind, name: a.name || a.kind, pts: a.points, z: a.z ?? null, fall: a.fall || null, height: a.height ?? d.height, cut: a.cut ?? d.cut, fill: a.fill ?? d.fill,
           depth: a.depth ?? d.depth, bottom: a.bottom ?? d.bottom, side: a.side ?? d.side, ...(a.kind === 'swale' ? { fall: a.swaleFall ?? null } : {}),
           spots: (a.spots || []).map((s, i) => ({ id: 's' + (i + 1), ...s })), contours: [] };

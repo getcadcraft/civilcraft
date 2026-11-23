@@ -1,0 +1,22 @@
+{
+  "id": "land-rules-tr",
+  "name": "Land rules: Türkiye",
+  "version": "0.11.0",
+  "apps": [
+    "civilcraft"
+  ],
+  "api": "1.0",
+  "license": "Apache-2.0",
+  "entry": "./main.js",
+  "permissions": [],
+  "needs": [
+    {
+      "id": "land-records",
+      "range": "*"
+    }
+  ],
+  "description": "Türkiye's national parcel rules for the Land records add-on: the parcel frontages and depths of the Planned Areas Zoning Regulation and the figures of Planning Law 3194 on subdivision, consolidation and Article 18. Every figure names its article and how it was read. Not legal advice.",
+  "author": "CadCraft",
+  "lang": "./lang/",
+  "default": "off"
+}

@@ -385,6 +385,31 @@ export function formatString(s) {
   return out + "'";
 }
 
+/**
+ * The string token the hand-written IFC writers (CivilCraft, DetailCraft) have always produced: `''` and `\\` doubled,
+ * printable ASCII as it is, every other character its own \X2\ run (a surrogate pair is one run of two units; no \X4\), null and undefined
+ * an empty string. Not the same bytes as formatString (which merges runs and writes \X4\), so those writers keep their files byte for byte.
+ */
+export function stepString(str) {
+  let out = '';
+  for (const ch of String(str ?? '')) {
+    const c = ch.codePointAt(0);
+    if (c === 39) out += "''";
+    else if (c === 92) out += '\\\\';
+    else if (c >= 32 && c < 127) out += ch;
+    else {
+      const units = [];
+      for (let i = 0; i < ch.length; i++) units.push(ch.charCodeAt(i).toString(16).toUpperCase().padStart(4, '0'));
+      out += '\\X2\\' + units.join('') + '\\X0\\';
+    }
+  }
+  return "'" + out + "'";
+}
+/** A list of already-formatted tokens: (a,b,c). */
+export const stepList = (a) => '(' + a.join(',') + ')';
+/** A boolean: .T. or .F. */
+export const stepBool = (v) => (v ? '.T.' : '.F.');
+
 /** A REAL token: always with a ".", exponent as E. */
 export function formatReal(x) {
   if (!Number.isFinite(x)) throw new StepError('A real value must be finite');

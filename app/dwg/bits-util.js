@@ -18,7 +18,7 @@ export function unb64(s) {
 export function sliceBits(buf, from, to) {
   const n = Math.max(0, to - from);
   const out = new Uint8Array((n + 7) >> 3);
-  const sh = from & 7, b0 = from >> 3;
+  const sh = from & 7, b0 = (from - sh) / 8;   // not `from >> 3`: a position can pass 2^31 (see bits-read.js)
   if (!sh) out.set(buf.subarray(b0, b0 + out.length));
   else for (let i = 0; i < out.length; i++) out[i] = ((buf[b0 + i] << sh) | ((buf[b0 + i + 1] || 0) >> (8 - sh))) & 0xFF;
   if (n & 7) out[out.length - 1] &= (0xFF << (8 - (n & 7))) & 0xFF;

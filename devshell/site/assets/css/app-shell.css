@@ -241,7 +241,7 @@ body.shell-hinting .shell-hint { opacity: 1; }
 }
 .app-bar-btn:hover:not(:disabled) { background: var(--sheet); }
 .app-bar-btn:disabled { opacity: .6; }
-.app-bar-help[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
+.app-bar-help[aria-expanded="true"], .app-bar-palette[aria-expanded="true"] { color: var(--on-action, var(--sheet)); background: var(--ink); }
 .app-bar-offline[data-state="ready"] .bi { color: var(--layer-green); }
 .app-bar-offline[data-state="failed"] .bi { color: var(--layer-red); }
 .app-bar-offline[data-state="saving"] { font-variant-numeric: tabular-nums; }
@@ -260,6 +260,14 @@ html.cc-bar-tight .app-bar-offline[data-state="saving"] .app-bar-btn-label { dis
   .app-bar-btn-label { display: none; }   /* icons only; the title says what they do */
   .app-bar-offline[data-state="saving"] .app-bar-btn-label { display: inline; }
 }
+/* Owner 2026-11-22: bar labels only on a large viewport (1600 px and up), icons everywhere else; Full screen follows the same rule
+   (it kept its label while the rest were icons). Still icons when the labels would not fit (html.cc-bar-tight). body.shell-bar-next = the lab and
+   release 0.10.1 on (app-shell.inc); older releases keep the 1100 px rule above. */
+@media (max-width: 1599.98px) {
+  body.shell-bar-next .app-bar-btn-label, body.shell-bar-next .app-bar-fs-label { display: none; }
+  body.shell-bar-next .app-bar-offline[data-state="saving"] .app-bar-btn-label { display: inline; }
+}
+html.cc-bar-tight body.shell-bar-next .app-bar-fs-label { display: none; }
 
 /* ---- Settings (assets/js/app-settings.js, core/components/app-settings.inc) ---- */
 body.app-shell > main { position: relative; }   /* the panel resize handles are placed over it */
@@ -332,11 +340,24 @@ body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user
 .shell-check { display: flex; gap: .5rem; align-items: baseline; cursor: pointer; }
 .shell-check input { accent-color: var(--layer); }
 .shell-hint-text { margin: 0; color: var(--ink-2); }
-/* Settings › Version (owner 2026-10-28): which build this is, always reachable (layouts can hide the bar's version chip) */
-.shell-version { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; margin: 0; }
+/* Settings › which build this is (owner 2026-10-28: always reachable, layouts can hide the bar's version chip). Owner 2026-11-22:
+   not a section any more; it sits at the right of the tab row (.shell-tabrow), other versions behind a small disclosure. */
+.shell-tabrow { display: flex; align-items: center; gap: .5rem 1rem; padding-right: 1rem; border-bottom: var(--pen-1) solid var(--line); }
+.shell-tabrow .shell-tabs { flex: 0 1 auto; min-width: 0; border-bottom: 0; align-self: flex-end; }
+.shell-tabrow:not(:has(.shell-tabs:not([hidden]))) { padding: .45rem 1rem; }
+.shell-dlg-ver { position: relative; display: flex; align-items: center; gap: .9rem; min-width: 0; margin-left: auto; padding: .35rem 0; font-size: var(--fs-xs, .8rem); }
+@media (max-width: 560px) { .shell-tabrow { flex-wrap: wrap; } .shell-dlg-ver { margin-left: 1rem; } }
+.shell-version { display: flex; flex-wrap: wrap; gap: .1rem .9rem; margin: 0; }
+.shell-version > div { display: flex; gap: .35rem; align-items: baseline; }
 .shell-version dt { font-weight: 600; color: var(--ink-2); }
 .shell-version dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; user-select: text; }
 .shell-version code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.shell-ver-more summary { display: flex; align-items: center; gap: .3rem; list-style: none; cursor: pointer; color: var(--action, var(--ink-2)); white-space: nowrap; }
+.shell-ver-more summary::-webkit-details-marker { display: none; }
+.shell-ver-more summary .bi { font-size: .7em; transition: transform .15s; }
+.shell-ver-more[open] summary .bi { transform: rotate(180deg); }   /* the one flip-line: closed = up, open = down (owner UI rule) */
+.shell-ver-pop { position: absolute; right: 0; top: 100%; z-index: 20; display: grid; gap: .45rem; min-width: 12rem; max-width: min(26rem, calc(100vw - 3rem)); padding: .55rem .75rem; background: var(--sheet-2); border: var(--pen-1) solid var(--line); border-radius: var(--radius); box-shadow: var(--sc-shadow, 0 .4rem 1.2rem color-mix(in srgb, var(--ink) 18%, transparent)); }
+.shell-ver-pop code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .shell-version-list { display: flex; flex-wrap: wrap; gap: .25rem .9rem; margin: 0; padding: 0; list-style: none; }
 @media (max-width: 480px) {
   .shell-seg, .shell-row { grid-template-columns: minmax(0, 1fr); }
@@ -374,9 +395,9 @@ body.shell-resizing, body.shell-resizing * { cursor: col-resize !important; user
 .shell-settings-secs .shell-pane > * { grid-column: auto; }
 .shell-settings-secs .shell-sec-off { display: none !important; }
 .shell-sec-nav ul { list-style: none; margin: 0 0 .5rem; padding: 0; display: grid; gap: .125rem; }   /* owner 2026-10-24: more breathing room */
-.shell-sec-eyebrow { display: flex; gap: .35rem; align-items: center; margin: .5rem .9rem .3rem .75rem; padding-top: .6rem; border-top: var(--pen-1) solid var(--line); font-size: .6875rem; font-weight: 700; letter-spacing: .04em; color: var(--ink-2); }
+.shell-sec-eyebrow { display: flex; gap: .35rem; align-items: center; margin: .5rem .9rem .3rem .75rem; padding-top: .6rem; border-top: var(--pen-1) solid var(--line); font-size: .6875rem; font-weight: 700; letter-spacing: .04em; color: var(--layer, var(--ink-2)); }   /* owner 2026-11-22: eyebrows in the app's colour */
 .shell-sec-eyebrow .bi { color: var(--layer, var(--action)); }
-.shell-sec-nav button { display: block; width: 100%; padding: .7rem 1rem .7rem .875rem; font: inherit; font-size: .875rem; line-height: 1.3; text-align: left; color: var(--ink-2); background: transparent; border: 0; border-left: var(--pen-3) solid transparent; cursor: pointer; }
+.shell-sec-nav button { display: block; width: 100%; padding: .7rem 1rem .7rem calc(.875rem - 2px); font: inherit; font-size: .875rem; line-height: 1.3; text-align: left; color: var(--ink-2); background: transparent; border: 0; border-left: 4px solid transparent; cursor: pointer; }   /* owner 2026-11-22: thicker bar on the picked section (was 2px) */
 .shell-sec-nav button:hover { color: var(--ink); background: var(--sheet-2); }
 .shell-sec-nav button:focus-visible { outline: var(--pen-2) solid var(--layer, var(--action)); outline-offset: -2px; }
 .shell-sec-nav button[aria-current="true"] { color: var(--ink); font-weight: 600; background: var(--sheet-2); border-left-color: var(--layer, var(--action)); }
@@ -658,6 +679,9 @@ body.shell-pw { height: 100vh; height: 100dvh; display: flex; flex-direction: co
 .shell-pw-bar { flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; padding: .4rem .75rem; background: var(--sheet-2); border-bottom: var(--pen-2) solid var(--ink); }
 .shell-pw-title { margin: 0 auto 0 0; font-size: var(--fs-sm); font-weight: 700; font-stretch: 112%; }
 .shell-pw-title .bi { color: var(--layer); }
+/* Owner 2026-11-22 ("the buttons should be small"): the panels window's header buttons are compact, on the title's row */
+.shell-pw-bar { gap: .4rem; padding: .3rem .6rem; }
+.shell-pw-bar :is(.btn-plot, .btn-line) { min-height: 0; padding: .25rem .6rem; gap: .3rem; font-size: var(--fs-xs, .8rem); font-weight: 600; font-stretch: 100%; border-width: var(--pen-1); white-space: nowrap; }
 .shell-pw-orphan { display: none; margin: 0; padding: .5rem .75rem; font-size: var(--fs-sm); color: var(--sheet); background: var(--layer-red); }
 body.shell-pw-lost .shell-pw-orphan { display: block; }
 body.shell-pw > main.shell-pw-main {
@@ -750,6 +774,10 @@ html.cc-touch .shell-unit-star { min-width: 2.75rem; }
 .shell-addon-section-tog > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .shell-addon-section-tog .bi { flex: 0 0 auto; font-size: .75em; }
 .shell-addon-section.is-collapsed .shell-addon-section-tog .bi { transform: rotate(-90deg); }
+/* Owner 2026-11-22 (PRO-cad2, /use and /lab): when the shell's fold owns the section header (data-af on the h2: lock + caret on the RIGHT), the add-on's own
+   left chevron is a second caret; hide it, the right one is the only one. Sections the fold does not own keep their chevron. */
+.shell-addon-section-h[data-af] .shell-addon-section-tog > .bi, .shell-addon-section-h[data-af-id] .shell-addon-section-tog > .bi { display: none; }
+.shell-addon-section-h[data-af] .shell-addon-section-tog { pointer-events: none; }   /* the click goes to the header, the shell's fold (frozen releases' addons.js too) */
 .shell-addon-section-grip { flex: 0 0 auto; display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; padding: 0; color: var(--ink-2); background: transparent; border: var(--pen-1) solid transparent; border-radius: var(--radius); cursor: grab; touch-action: none; }
 .shell-addon-section-grip:hover { color: var(--ink); border-color: var(--line); }
 .shell-addon-section-grip[hidden] { display: none; }
@@ -1242,7 +1270,8 @@ body.shell-lab :is(.shell-x, main .mc-x, main .bc-forget) .bi, body.shell-lab :i
 .about-check input { margin-top: .2rem; flex: none; }
 .about-see { font-size: .75rem; } .about-see summary { cursor: pointer; }
 .about-see pre { margin: .25rem 0 0; padding: .375rem .5rem; max-height: 9rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--paper-2, rgba(127,127,127,.08)); font-size: .75rem; }
-.about-foot { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.about-foot { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; font-size: .875rem; }
+.about-foot .btn-plot { font-size: .875rem; font-weight: 600; padding: .375rem .875rem; min-height: 0; line-height: 1.25; }
 .help-about { padding: .25rem .75rem; font-size: .8125rem; }
 
 /* FX.84 (owner 2026-11-06): a titled frame groups related settings so a long pane reads as a few blocks, not one run of controls */
@@ -1254,6 +1283,14 @@ body.shell-lab :is(.shell-x, main .mc-x, main .bc-forget) .bi, body.shell-lab :i
 /* FX.86: "Starting up…" beside the app name until the app has settled (app-shell.js) */
 .app-bar-boot { display: inline-flex; align-items: center; gap: .35rem; margin-left: .6rem; color: var(--ink-2); font-size: var(--fs-sm); white-space: nowrap; transition: opacity .15s ease; animation: app-boot-tint 1.4s ease-in-out infinite; }
 .app-bar-boot[hidden] { display: none; }
+/* 0.11 UI.17 (contact sheet: SuperCad's bar ran 197 px past a 1280 px window while "Starting up" showed): in the lab the start-up line gives way to
+   the bar's buttons, shortening its step text first; released pages keep the line as it was (rule 62) */
+body.shell-lab .app-bar-boot { flex: 0 1 auto; min-width: 0; overflow: hidden; }
+body.shell-lab .app-bar-boot-step { min-width: 0; flex: 0 1 auto; }
+/* the line sits inside .app-bar-name, which never shrinks (FX.89: the name stays whole): while the line shows, the group may shrink and only
+   the line gives way; the mark, name, area chip and version keep their size */
+body.shell-lab .app-bar-name:has(> .app-bar-boot:not([hidden]):not(.is-done)) { flex: 0 1 auto; min-width: 0; }
+body.shell-lab .app-bar-name:has(> .app-bar-boot) > :not(.app-bar-boot) { flex-shrink: 0; }
 .app-bar-boot.is-done { opacity: 0; }
 .app-bar-boot-clock { flex: 0 0 auto; transform-box: view-box; transform-origin: 50% 50%; animation: app-boot-spin 1.6s linear infinite; }   /* an SVG, so it turns about its own centre */
 @keyframes app-boot-spin { to { transform: rotate(360deg); } }
@@ -1371,3 +1408,14 @@ html.sc-noshadow body.shell-lab dialog[open]:modal:not(.shell-dw-dialog) { box-s
 .shell-hidden-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
 .shell-hidden-row > span { min-width: 0; }
 .shell-hidden-row > button { flex: none; }
+
+/* 0.11 UI.20: the sun/moon form (SHELL_THEME_TOGGLE) in the app bar and its More menu: the icons sit centred in the same pill buttons */
+.space-toggle.blk-theme button { display: inline-grid; place-items: center; }
+.space-toggle.blk-theme button svg { display: block; }
+
+/* Settings › Your add-ons (owner 2026-11-22: "should probably be small buttons"): the site's page buttons (site.css, 3rem) are too big
+   here, and the section's grid stretched each one across the panel. Compact buttons, the three actions on one row. */
+[data-addons-account-set] .btn:not(.btn-link) { min-height: 0; padding: .3rem .75rem; font-size: var(--fs-sm); font-weight: 600; font-stretch: 100%; border-width: var(--pen-1); justify-self: start; }
+[data-addons-account-set] .btn-link { min-height: 0; padding: 0; font-size: var(--fs-sm); border: 0; }
+[data-addons-account-set] li { padding: .2rem 0; }
+.shell-acc-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }

@@ -8,7 +8,7 @@
  * and drives the cached Playwright Chromium. The admin-login throttle (10 / 10 min for 127.0.0.1) is shared: run it once
  * per finished item. Fails on any console error.
  *
- *   w26  browser edition (`#cc-edition` {library: false}, injected into the lab page): no Library tab, no Library or
+ *   w26  browser edition (`#cc-edition` {library: false}, injected into the lab page): the Library tab keeps only its local sources (SU.812), no
  *        Updates button, ?library=<uuid> ignored, not one request to /api/v1/library; Equipment and Credits stay
  *   i11  cc-ifc instead of web-ifc: the import map has no web-ifc and maps manifold-3d; nothing is fetched from
  *        /assets/vendor/web-ifc; the generated fixture opens (its door cut into its wall: no "not cut" note); a public
@@ -103,10 +103,19 @@ try {
     requests.length = 0;
     await page.goto(BASE + '/lab/bimcraft?space=paper&library=11111111-2222-3333-4444-555555555555', { waitUntil: 'networkidle' });
     ok(await page.evaluate(() => !!document.getElementById('cc-edition')), 'the edition flags are on the page');
-    ok(await hidden('[data-rtab="library"]'), 'no Library tab in the right panel');
-    ok(await hidden('[data-lib-tool="library"]') && await hidden('[data-lib-tool="updates"]'), 'no Library and no Updates button in the toolbar');
+    // SU.812 (2026-11-19): the tab stays for the sources that need no site (symbols, plants, This file, Files...); Library, kits and feeds go
+    ok(!(await hidden('[data-rtab="library"]')) && !(await hidden('[data-lib-tool="library"]')), 'the Library tab and button stay (local sources)');
+    ok(await hidden('[data-lib-tool="updates"]'), 'no Updates button in the toolbar');
+    await page.evaluate(() => document.querySelector('[data-rtab="library"]').click());
+    const srcs = await page.evaluate(() => [...document.querySelectorAll('[data-rpane="library"] .bc-lib-src')].map((b) => b.textContent.trim()));
+    ok(srcs.length === 4, 'four sources in the edition: symbols, plants, This file, Files', srcs.join(' | '));
+    ok(!srcs.includes('Library') && !(await page.evaluate(() => !!document.querySelector('[data-rpane="library"] [data-lib-signin]'))), 'no Library source and no sign-in line');
+    ok(await page.waitForFunction(() => window.bimcraftLibrary.source === 'symbols' && window.bimcraftLibrary.entries.length > 0, null, { timeout: 8000 }).then(() => true, () => false), 'the built-in symbols are listed');
+    await page.evaluate(() => window.bimcraftLibrary.setSource('librarycraft'));
+    ok(await page.evaluate(() => window.bimcraftLibrary.source !== 'librarycraft'), 'the site Library cannot be switched to in an edition');
+    await page.evaluate(() => [...document.querySelectorAll('[data-rpane="library"] .bc-lib-src')].at(-1).click());
+    ok(await page.evaluate(() => window.bimcraftLibrary.source === 'files' && !!document.querySelector('[data-rpane="library"] input[type="file"]')), 'Files... offers a file chooser');
     ok(!(await hidden('[data-lib-tool="equipment"]')) && !(await hidden('[data-lib-tool="credits"]')), 'Equipment and Credits stay (they read the model only)');
-    ok(await page.evaluate(() => document.querySelector('[data-rpane="library"]').hidden), '?library=<uuid> does not open the library pane');
     await page.setInputFiles('[data-file]', fixtureFile());
     await waitStatus(/^Opened /);
     await page.keyboard.press('Escape');

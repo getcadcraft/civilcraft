@@ -70,7 +70,17 @@
   // their row, and already put away if the person chose "Don't show this again". Before, the plain card flashed and then changed or vanished.
   function scan() { cards().forEach(wire); pair(); cards().forEach(function (c) { if (!c.hasAttribute('data-hint-ready')) c.setAttribute('data-hint-ready', ''); }); }
   scan();
-  new MutationObserver(function () { scan(); }).observe(document.documentElement, { childList: true, subtree: true });
+  // PERF.56 (2026-11-20): scan only when a node the scan cares about was added (a card, an empty state, a sample button); before, every DOM change in the
+  // page ran five document-wide queries (60 runs, 96 ms in CadCraft's first ten seconds). The scoped test costs a matches/querySelector on the added node only.
+  var WATCH = '[data-hint], [data-empty], ' + SAMPLE;
+  function relevant(recs) {
+    for (var i = 0; i < recs.length; i++) {
+      var add = recs[i].addedNodes;
+      for (var j = 0; j < add.length; j++) { var n = add[j]; if (n.nodeType === 1 && (n.matches(WATCH) || n.querySelector(WATCH))) return true; }
+    }
+    return false;
+  }
+  new MutationObserver(function (recs) { if (relevant(recs)) scan(); }).observe(document.documentElement, { childList: true, subtree: true });
   function reg() { if (window.ccPalette && window.ccPalette.register) window.ccPalette.register([{ id: 'start-tip-again', label: T('shell.hint.again'), group: 'shell', keywords: 'start tip hint help card welcome empty again show', run: again }]); }
   if (window.ccPalette) reg(); else window.addEventListener('load', reg);
   /* Settings > Global > "Show the start tip" reads and writes the same per-app choice */

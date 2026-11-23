@@ -93,7 +93,7 @@ export function siteGenTools(app) {
       inputSchema: { type: 'object', properties: {
         points: { type: 'array', items: XY, minItems: 2, maxItems: 5000 }, feature: { type: 'string', description: 'Or the name or id of a feature line, parcel or pad.' }, closed: { type: 'boolean' }, name: { type: 'string' },
         style: { type: 'string', enum: F.STYLES }, terrain: { type: 'string', enum: F.TERRAIN }, height: { type: 'number', exclusiveMinimum: 0 }, postSpacing: { type: 'number', exclusiveMinimum: 0 }, postSize: { type: 'number', exclusiveMinimum: 0 },
-        rails: { type: 'integer', minimum: 1, maximum: 8 }, gap: { type: 'number', minimum: 0 }, maxGap: { type: 'number', minimum: 0 }, type: { type: 'string', description: 'A fence type name (Library item) to carry into the schedule and IFC.' },
+        rails: { type: 'integer', minimum: 1, maximum: 8 }, gap: { type: 'number', minimum: 0 }, maxGap: { type: 'number', minimum: 0 }, type: { type: 'string', description: 'A fence type name (Library item) to carry into the schedule and IFC.' }, libraryItem: { type: 'object', description: 'A Library item of kind fence-type ({ kind, name, uuid, params } in metres): its style, height, spacing and so on become the fence\'s, anything else you pass wins.' },
         gates: { type: 'array', maxItems: 50, items: { type: 'object', properties: { station: { type: 'number', minimum: 0, description: 'Distance along the path to the gate\'s first post.' }, width: { type: 'number', exclusiveMinimum: 0 }, name: { type: 'string' } }, required: ['station', 'width'], additionalProperties: false } },
       }, additionalProperties: false },
       run: (a) => {
@@ -105,7 +105,9 @@ export function siteGenTools(app) {
           pts = hit.pts; name ||= hit.name || ''; closed = closed || hit.closed === true || (s.parcels || []).includes(hit) || (s.pads || []).includes(hit);
         }
         if (!pts || pts.length < 2) throw new Error('Give points or a feature.');
-        const raw = { id: p.nextId('fc'), name, pts: pts.map((q) => ({ x: q.x, y: q.y })), closed, ...Object.fromEntries(['style', 'terrain', 'height', 'postSpacing', 'postSize', 'rails', 'gap', 'maxGap', 'type'].filter((k) => a[k] !== undefined).map((k) => [k, a[k]])),
+        const lib = a.libraryItem ? F.typeFromItem(a.libraryItem, u) : null;
+        if (a.libraryItem && !lib) throw new Error('libraryItem must be a Library item of kind fence-type with params.');
+        const raw = { id: p.nextId('fc'), name, pts: pts.map((q) => ({ x: q.x, y: q.y })), closed, ...(lib || {}), ...Object.fromEntries(['style', 'terrain', 'height', 'postSpacing', 'postSize', 'rails', 'gap', 'maxGap', 'type'].filter((k) => a[k] !== undefined).map((k) => [k, a[k]])),
           gates: (a.gates || []).map((g) => ({ s: g.station, width: g.width, name: g.name || '' })) };
         const rec = F.clean(raw, u);
         if (!rec) throw new Error('The fence needs at least two points (three when closed).');

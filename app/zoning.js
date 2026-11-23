@@ -41,7 +41,7 @@ const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 const nz = (v, max) => (fin(v) && v > 0 && v < max ? v : 0);
 
 export function cleanZone(o, units = 'ft') {
-  if (!o || typeof o !== 'object' || !/^r\d{1,9}$/.test(String(o.parcel))) return null;
+  if (!o || typeof o !== 'object' || !/^r\d{1,16}$/.test(String(o.parcel))) return null;
   const big = units === 'm' ? 1000 : 3000, idx = (v) => (Number.isInteger(v) && v >= 0 && v < 5000 ? v : null);
   const setbacks = {};
   if (o.setbacks && typeof o.setbacks === 'object') for (const [k, v] of Object.entries(o.setbacks).slice(0, 5000)) if (/^\d{1,4}$/.test(k) && fin(v) && v >= 0 && v < big) setbacks[k] = v;

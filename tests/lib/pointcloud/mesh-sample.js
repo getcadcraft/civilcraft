@@ -21,6 +21,9 @@
  * format specification (a zip, stored not deflated, files 64-byte aligned). A phone app's real export was not available to the build
  * (docs/0.10-sessions/pointcloud-10.md): the readers take the formats as documented, and the tests use files WE wrote in those formats.
  */
+import { readUsdc } from './usd-crate.js';
+import { readGlb } from './glb.js';
+export { readUsdc, readGlb };
 const TD = new TextDecoder();
 const fail = (code, data) => { throw Object.assign(new Error('mesh: ' + code), { name: 'PcError', code, data }); };
 
@@ -159,6 +162,19 @@ function readUsda(text) {
   return { vertices: V, colors: null, triangles: Uint32Array.from(T), notes: [] };
 }
 
+function joinMeshes(parts) {
+  let nv = 0, nt = 0, col = false;
+  for (const m of parts) { nv += m.vertices.length / 3; nt += m.triangles ? m.triangles.length : 0; if (m.colors) col = true; }
+  const V = new Float64Array(3 * nv), C = col ? new Uint8Array(3 * nv).fill(160) : null, T = new Uint32Array(nt);
+  let ov = 0, ot = 0;
+  for (const m of parts) {
+    V.set(m.vertices, 3 * ov); if (C && m.colors) C.set(m.colors, 3 * ov);
+    if (m.triangles) { for (let i = 0; i < m.triangles.length; i++) T[ot + i] = m.triangles[i] + ov; ot += m.triangles.length; }
+    ov += m.vertices.length / 3;
+  }
+  return { vertices: V, colors: C, triangles: nt ? T : null, notes: [...new Set(parts.flatMap((m) => m.notes || []))] };
+}
+
 export function readUsdz(bytes) {
   const entries = readZip(bytes), notes = [];
   const find = (re) => entries.find((e) => re.test(e.name) && e.bytes);
@@ -166,7 +182,17 @@ export function readUsdz(bytes) {
   const ply = find(/\.ply$/i), obj = find(/\.obj$/i), usda = find(/\.usda$/i);
   if (ply) mesh = readPly(ply.bytes); else if (obj) mesh = readObj(TD.decode(obj.bytes)); else if (usda) mesh = readUsda(TD.decode(usda.bytes));
   const usdc = entries.some((e) => /\.usdc$/i.test(e.name));
-  if (!mesh && usdc) notes.push('usdc_unsupported');
+  // 0.11: the binary layers (what an iPhone or iPad export holds) are read by usd-crate.js; every layer that holds a mesh is joined
+  if (!mesh && usdc) {
+    const parts = [];
+    for (const e of entries) {
+      if (!/\.usdc$/i.test(e.name) || !e.bytes) continue;
+      try { parts.push(readUsdc(e.bytes)); } catch (err) { if (err.code !== 'usdc_no_mesh') notes.push(err.code || 'usdc_bad'); }
+    }
+    if (parts.length) mesh = parts.length === 1 ? parts[0] : joinMeshes(parts);
+    if (mesh) for (const n of mesh.notes || []) notes.push(n);
+    else if (!notes.length) notes.push('usdc_unsupported');
+  }
   if (entries.some((e) => e.method !== 0)) notes.push('compressed_entries');
   return { entries: entries.map((e) => ({ name: e.name, size: e.bytes ? e.bytes.length : null })), mesh, usdc, notes };
 }

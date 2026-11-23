@@ -1,0 +1,14 @@
+printed 55
+printed 1
+printed 1
+printed 2
+printed 3
+printed 5
+printed 8
+printed 13
+printed 55
+PASS: Pebble printed the 9 expected numbers
+- pebble_tb.v:30: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.054 2026-11-01
+- Verilator: $finish at 2us; walltime 0.000 s; speed 13.790 ms/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 4 MB

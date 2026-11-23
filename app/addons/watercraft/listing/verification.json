@@ -1,7 +1,59 @@
-{"cases": [
-  {"id": "wn-demand", "name": "Allocation conserves the total and matches hand arithmetic", "result": "100 homes at 300 gpd is 20.83 gpm, 2 acres at 1,500 gpd per acre is 2.08 gpm, every flow is accounted for, a shared load adds back to its flow, every day pattern has a mean of exactly 1 (bin/test-waternet.mjs)"},
-  {"id": "wn-fire", "name": "Fire flow against an independent bisection on the Hazen-Williams loss", "result": "Available flow within 0.3 % of the independent answer for a 1,000 ft, 12 in main, and within 1 % of the Water mains window's own one-hydrant answer; a node already under the residual gives 0 (bin/test-waternet.mjs)"},
-  {"id": "wn-crit", "name": "Outages in a dead-end line, a loop and a valved line", "result": "Closing the pipe to a dead end cuts off exactly that junction's demand; in a loop one outage cuts off nothing; one valve in the middle of a line makes two sections and shutting the far one cuts off exactly its two junctions (bin/test-waternet.mjs)"},
-  {"id": "wn-quality", "name": "Water age, chlorine and trace in one pipe, two feeds and a filling tank", "result": "Age equals pipe volume over flow within 1.5 %; chlorine equals c0 times exp(-k t) within 1 %; two equal feeds trace 50 percent each within 0.5; a filling tank matches (L - L0)/L within 3 % (bin/test-waternet.mjs)"},
-  {"id": "wn-csv", "name": "CSV quoting and formula guard", "result": "Commas, quotes and a leading = or + are handled so a spreadsheet does not run a name as a formula (bin/test-waternet.mjs)"}
-]}
+{
+ "cases": [
+  {
+   "id": "wn-demand",
+   "name": "Allocation conserves the total and matches hand arithmetic",
+   "result": "100 homes at 300 gpd is 20.83 gpm, 2 acres at 1,500 gpd per acre is 2.08 gpm, every flow is accounted for, a shared load adds back to its flow, every day pattern has a mean of exactly 1 (bin/test-waternet.mjs)"
+  },
+  {
+   "id": "wn-fire",
+   "name": "Fire flow against an independent bisection on the Hazen-Williams loss",
+   "result": "Available flow within 0.3 % of the independent answer for a 1,000 ft, 12 in main, and within 1 % of the Water mains window's own one-hydrant answer; a node already under the residual gives 0 (bin/test-waternet.mjs)"
+  },
+  {
+   "id": "wn-crit",
+   "name": "Outages in a dead-end line, a loop and a valved line",
+   "result": "Closing the pipe to a dead end cuts off exactly that junction's demand; in a loop one outage cuts off nothing; one valve in the middle of a line makes two sections and shutting the far one cuts off exactly its two junctions (bin/test-waternet.mjs)"
+  },
+  {
+   "id": "wn-quality",
+   "name": "Water age, chlorine and trace in one pipe, two feeds and a filling tank",
+   "result": "Age equals pipe volume over flow within 1.5 %; chlorine equals c0 times exp(-k t) within 1 %; two equal feeds trace 50 percent each within 0.5; a filling tank matches (L - L0)/L within 3 % (bin/test-waternet.mjs)"
+  },
+  {
+   "id": "wn-csv",
+   "name": "CSV quoting and formula guard",
+   "result": "Commas, quotes and a leading = or + are handled so a spreadsheet does not run a name as a formula (bin/test-waternet.mjs)"
+  },
+  {
+   "id": "wn-net1",
+   "name": "EPANET Example Network 1 (EPA, public domain), 24 hours with the tank rules",
+   "result": "Heads within 0.03 ft and flows within 0.15 gpm at hour 0; the tank level every hour within 0.03 ft and the pump flow within 0.2 gpm; the pump stops at 12.54 h and starts at 22.69 h; pump usage 57.7 %, kWh per million gallons within 0.3 % of EPANET 2.3.6's report (bin/test-waternet-11.mjs)"
+  },
+  {
+   "id": "wn-valves",
+   "name": "Flow-control and pressure-sustaining valves against EPANET 2.3.6",
+   "result": "Flow within 0.2 % and pressures within 0.12 psi for a flow-control valve at 200 and 600 gpm and a pressure-sustaining valve open and closed; throttling pressure-sustaining valve within 2 % (EPANET and we use slightly different psi per foot) (bin/test-waternet-11.mjs)"
+  },
+  {
+   "id": "wn-pdd",
+   "name": "Pressure-dependent demand and emitters against EPANET 2.3.6",
+   "result": "Net1 with every demand times 14, 20 to 60 psi, exponent 0.5: delivered flow within 0.6 gpm and pressure within 0.12 psi at every junction; emitters within 0.12 gpm and heads within 0.03 ft; the Wagner curve by hand (bin/test-waternet-11.mjs)"
+  },
+  {
+   "id": "wn-emerg",
+   "name": "Main break, power cut and fire against EPANET 2.3.6, and a tank by hand",
+   "result": "A tank feeding 100 gpm alone is empty at volume over flow, 9.79 h, within 0.005 h; the tank level every hour of a 4 h power cut within 0.05 ft and of a 1,500 gpm fire within 0.06 ft; pressures with a main closed within 0.12 psi (bin/test-waternet-11.mjs)"
+  },
+  {
+   "id": "wn-calib",
+   "name": "Calibration recovers a known roughness",
+   "result": "Readings from EPANET on Net1 with C 80, 130 and 70 in three groups, started at 100: each group recovered within 8 %, and a 30 % demand error found as a factor of 1.3 (bin/test-waternet-11.mjs)"
+  },
+  {
+   "id": "wn-size",
+   "name": "Pipe sizing against the closed form, and EPANET on the result",
+   "result": "One pipe gets the smallest listed size at or above the Hazen-Williams closed form; Net1 sized to 114 psi is checked by EPANET on the sized network (lowest 114.23 psi); a budget is never exceeded (bin/test-waternet-11.mjs)"
+  }
+ ]
+}

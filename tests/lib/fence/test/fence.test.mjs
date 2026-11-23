@@ -58,4 +58,52 @@ ok(F.ifcModel(F.build(rec({}), { units: 'm' }), 'm').posts.length === 11, 'ifc m
 // untrusted
 ok(F.clean({ id: 'x', pts: [] }, 'm') === null && F.clean({ id: 'fc3', pts: [{ x: 0, y: 0 }, { x: 'a', y: 1 }] }, 'm') === null, 'clean refuses junk');
 ok(F.clean({ id: 'fc3', pts: [{ x: 0, y: 0 }, { x: 1, y: 1 }], height: -4, style: 'x', rails: 99 }, 'm').height === 1.8, 'bad numbers take defaults');
+// SU.1814b (0.11): one element per part, pickets, Library types, gates and the ground
+{
+  const rk = { id: 'fc7', pts: [{ x: 0, y: 0 }, { x: 4.8, y: 0 }], style: 'pickets', postSpacing: 2.4, picketW: 0.1, picketGap: 0.05, gap: 0.05, units: 'm', gates: [{ s: 2.4, width: 1.2, name: 'Side' }] };
+  const lay = F.build(rk, { units: 'm', zAt: (x) => x * 0.1 });
+  const pk = F.pickets(lay, rk), ps = F.parts(lay, rk);
+  // bays: 2.4 m with posts at 0 / 1.2? gate edges at 1.8 and 3.0 -> count by the layout, not by assumption
+  const perBay = lay.panels.map((p) => Math.floor((Math.hypot(p.b.x - p.a.x, p.b.y - p.a.y) + 0.05) / 0.15 + 1e-9));
+  ok(pk.length === perBay.reduce((a, b) => a + b, 0) && pk.length === lay.stats.pickets, 'one element per picket, as many as the schedule counts', [pk.length, lay.stats.pickets]);
+  ok(new Set(pk.map((k) => k.id)).size === pk.length, 'every picket has its own id');
+  const k0 = pk[0], pan = lay.panels.find((p) => p.id === k0.panel), t = Math.hypot(k0.x - pan.a.x, k0.y - pan.a.y) / Math.hypot(pan.b.x - pan.a.x, pan.b.y - pan.a.y);
+  near(k0.z, pan.a.z + (pan.b.z - pan.a.z) * t, 1e-6, 'a picket stands on the panel bottom line (follows the ground)');
+  ok(pk.every((k) => { const p = lay.panels.find((q) => q.id === k.panel); const s = Math.hypot(k.x - p.a.x, k.y - p.a.y), L = Math.hypot(p.b.x - p.a.x, p.b.y - p.a.y); return s - k.w / 2 >= -1e-6 && s + k.w / 2 <= L + 1e-6; }), 'every picket lies inside its bay');
+  const kinds = ps.reduce((m, p) => (m[p.part] = (m[p.part] || 0) + 1, m), {});
+  ok(kinds.post === lay.posts.length && kinds.gate === 1 && kinds.picket === pk.length && kinds.panel === lay.panels.length, 'parts: a post, a gate and a picket each its own element', kinds);
+  ok(ps.filter((p) => p.part === 'panel').every((p) => p.virtual === true), 'on a pickets fence the panel rows are virtual (the pickets are the elements)');
+  ok(ps.find((p) => p.part === 'gate').ifc === 'IfcDoor' && ps.find((p) => p.part === 'post').ifc === 'IfcMember', 'IFC classes per part');
+  ok(F.pickets(F.build({ ...rk, style: 'panel' }, { units: 'm' }), { ...rk, style: 'panel' }).length === 0, 'a panel fence has no pickets');
+  const types = F.typeFromItem({ kind: 'fence-type', name: 'Picket 1.2 m', uuid: 'abcd1234-ef', params: { style: 'pickets', height: 1.2, postSpacing: 2, picketW: 0.09, rails: 3, bad: 5, gap: -1 } }, 'ft');
+  near(types.height, 1.2 / 0.3048, 1e-4, 'a Library type is converted to the project units'); ok(types.style === 'pickets' && types.rails === 3 && types.type === 'Picket 1.2 m' && types.typeRef === 'abcd1234-ef' && !('gap' in types) && !('bad' in types), 'known fields only, a negative value dropped', types);
+  ok(F.typeFromItem({ kind: 'other', params: {} }) === null && F.typeFromItem(null) === null && F.typeFromItem({ kind: 'fence-type' }) === null, 'not a fence type: null');
+  ok(F.clean({ id: 'fc8', pts: [{ x: 0, y: 0 }, { x: 5, y: 0 }], typeRef: 'zz zz' }, 'm').typeRef === '' && F.clean({ id: 'fc8', pts: [{ x: 0, y: 0 }, { x: 5, y: 0 }], typeRef: 'abcd1234-ef' }, 'm').typeRef === 'abcd1234-ef', 'typeRef kept only when it looks like an id');
+}
+{ // 0.11 SU.1814b (su-finish-11 barriers): the Library picker's data, with a stand-in fetch. Fence types are Types in the category Barriers, sub-type fence (mm).
+  const bar = (name, uuid, b, ifc = 'FENCE') => ({ format: 'cadcraft-library-item', format_version: 1, kind: 'type', category: 'types/barriers', name, uuid, ifc: { class: 'IfcRailingType', predefined: ifc }, type: { element: 'barrier', lod: 200, barrier: b }, plan: { layers: [], entities: [] }, body: null, params: {} });
+  const item = bar('Rail 1.2 m', 'abcd1234-ef', { subtype: 'fence', height: 1200, style: 'rails', rails: 3, postSpacing: 2500 });
+  const guard = bar('Glass guard', 'abcd1234-aa', { subtype: 'guard', height: 1070, infill: 'panel' }, 'GUARDRAIL');
+  const p = F.typeFromItem(item, 'm');
+  ok(p && Math.abs(p.height - 1.2) < 1e-9 && Math.abs(p.postSpacing - 2.5) < 1e-9 && p.rails === 3 && p.style === 'rails' && p.type === 'Rail 1.2 m', 'a Barriers fence type (mm) is read in metres', p);
+  near(F.typeFromItem(item, 'ft').height, 1.2 / 0.3048, 1e-6, 'and in feet');
+  ok(F.typeFromItem(guard, 'm') === null, 'a Barriers type of another sub-type (guard) is not a fence type');
+  ok(F.typeFromItem({ ...item, type: { element: 'wall' } }) === null && F.typeFromItem({ ...item, type: null }) === null, 'a wall type or a type with no block: null');
+  const asked = [];
+  const items = { 'https://x.test/item.json?view=1': item, 'https://x.test/guard.json?view=1': guard };
+  const fake = async (url) => { asked.push(url); if (url.includes('/items?')) return { ok: true, json: async () => ({ status: 'success', data: { items: [{ uuid: 'abcd1234-ef', name: 'Rail 1.2 m', kind: 'type', category: 'types/barriers', version: 2, item_url: 'https://x.test/item.json' }, { uuid: 'abcd1234-aa', name: 'Glass guard', kind: 'type', category: 'types/barriers', version: 1, item_url: 'https://x.test/guard.json' }, { uuid: 'zz', name: 'a wall', kind: 'type', category: 'types/walls', item_url: 'https://x.test/w.json' }] } }) }; if (items[url]) return { ok: true, json: async () => items[url] }; if (url === 'https://x.test/item.json') return { ok: true, json: async () => item }; return { ok: false }; };
+  const rows = await F.libraryTypes({ fetch: fake, base: '/api/v1/library' });
+  ok(asked[0] === '/api/v1/library/items?kind=type&category=types%2Fbarriers&per=100', 'libraryTypes asks for the Barriers Types', asked[0]);
+  ok(rows.length === 1 && rows[0].name === 'Rail 1.2 m' && rows[0].version === 2 && rows[0].item?.uuid === 'abcd1234-ef', 'and keeps only sub-type fence (the guard and the wall left out)', rows.map((r) => r.name));
+  ok(asked.includes('https://x.test/item.json?view=1') && !asked.includes('https://x.test/w.json?view=1'), 'the sub-type is read from each Barriers item with ?view=1 (not counted as an install)', asked);
+  ok((await F.libraryTypes({ fetch: async () => ({ ok: false }) })).length === 0 && (await F.libraryTypes({ fetch: async () => { throw new Error('offline'); } })).length === 0, 'no Library (an error or offline): an empty list, never a made-up type');
+  const got = await F.loadLibraryType(rows[0], { fetch: fake });
+  ok(got && got.name === 'Rail 1.2 m' && F.typeFromItem(got, 'm').rails === 3, 'loadLibraryType gives the item read for the list');
+  ok((await F.loadLibraryType({ itemUrl: 'https://x.test/item.json' }, { fetch: fake }))?.name === 'Rail 1.2 m', 'or fetches it from itemUrl');
+  ok((await F.loadLibraryType({ itemUrl: 'https://x.test/missing.json' }, { fetch: fake })) === null && (await F.loadLibraryType({ item: guard })) === null, 'a missing item or a guard: null');
+  ok(F.typeFromFile(JSON.stringify(item))?.name === 'Rail 1.2 m' && F.typeFromFile('﻿' + JSON.stringify(item)) !== null, 'typeFromFile reads a Library item file (with or without a BOM)');
+  const old = { format: 'cadcraft-library-item', kind: 'fence-type', name: 'Old rail 1.2 m', params: { style: 'rails', height: 1.2, rails: 3 } };
+  ok(F.typeFromFile(JSON.stringify(old))?.name === 'Old rail 1.2 m' && Math.abs(F.typeFromItem(old, 'm').height - 1.2) < 1e-9, 'the older item-file shape (kind fence-type, metres) is still read');
+  ok(F.typeFromFile('{"kind":"door","params":{}}') === null && F.typeFromFile('not json') === null && F.typeFromFile(JSON.stringify({ ...item, format: 'other' })) === null && F.typeFromFile(JSON.stringify(guard)) === null, 'typeFromFile refuses what is not a fence type');
+}
 console.log(`fence: ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

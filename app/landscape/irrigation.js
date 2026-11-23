@@ -63,7 +63,7 @@ export const DEFAULT_SETTINGS = { C: 150, vMax: 1.5, valveLoss: 20, weekly: 25, 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 const str = (v, n = 120) => String(v ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').slice(0, n);
 const XY = (q) => (q && fin(q.x) && fin(q.y) && Math.abs(q.x) < 1e9 && Math.abs(q.y) < 1e9 ? { x: q.x, y: q.y } : null);
-const ID = (v, p) => (new RegExp('^' + p + '\\d{1,9}$').test(String(v)) ? String(v) : null);
+const ID = (v, p) => (new RegExp('^' + p + '\\d{1,16}$').test(String(v)) ? String(v) : null);
 
 // ---- the hydraulics ----
 export function hazenWilliams({ Q, d, L, C = 150 }) {

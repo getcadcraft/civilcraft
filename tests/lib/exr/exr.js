@@ -28,7 +28,7 @@
  *   isExr(bytes) · layersOf(part) → [{ name ('' = the main layer), channels: { R: channel, … } }]
  *   rgbaOf(part, { layer }) → { width, height, data: Float32Array RGBA } (Y → grey; no A → 1)
  */
-import { ExrError, LIMITS, Reader, Writer, damaged, HALF_TO_FLOAT, floatToHalf, utf8Bytes } from './util.js';
+import { ExrError, LIMITS, Reader, Writer, damaged, halfTable, floatToHalf, utf8Bytes } from './util.js';
 import { msg } from './messages.js';
 import { inflateZlib, deflateZlib } from './zlib.js';
 import { pizDecode, pizEncode } from './piz.js';
@@ -346,6 +346,7 @@ function pxr24Decode(part, layout, src) {
 let B44_LOG = null;
 function b44LogTable() {
   if (!B44_LOG) {
+    const HALF_TO_FLOAT = halfTable();
     B44_LOG = new Uint16Array(65536);
     for (let x = 0; x < 65536; x++) {
       if ((x & 0x7c00) === 0x7c00 || x > 0x8000) { B44_LOG[x] = 0; continue; }
@@ -455,7 +456,7 @@ function storeBlock(part, layout, bytes, xOff) {
     const base = sy * c.width + xOff(c);
     const d = c.data;
     let at = row.at;
-    if (c.type === 'half') for (let i = 0; i < row.n; i++, at += 2) d[base + i] = HALF_TO_FLOAT[dv.getUint16(at, true)];
+    if (c.type === 'half') { const H = halfTable(); for (let i = 0; i < row.n; i++, at += 2) d[base + i] = H[dv.getUint16(at, true)]; }
     else if (c.type === 'float') for (let i = 0; i < row.n; i++, at += 4) d[base + i] = dv.getFloat32(at, true);
     else for (let i = 0; i < row.n; i++, at += 4) d[base + i] = dv.getUint32(at, true);
   }

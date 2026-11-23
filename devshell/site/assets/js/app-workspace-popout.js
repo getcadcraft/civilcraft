@@ -94,7 +94,7 @@ export function popout({ name, title, nodes, listeners = [], onChange = () => {}
       d.body.className = document.body.className + ' ws-popout ' + cls;
       for (const a of ['data-shell-tb', 'data-shell-tb-touch']) { const v = document.body.getAttribute(a); if (v === null) d.body.removeAttribute(a); else d.body.setAttribute(a, v); }
     };
-    sync(); obs = new MutationObserver(sync); obs.observe(document.body, { attributes: true }); obs.observe(document.documentElement, { attributes: true });
+    sync(); obs = new MutationObserver(sync); obs.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-shell-tb', 'data-shell-tb-touch'] }); obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-space', 'data-theme', 'style', 'lang', 'dir'] });   // PERF.56 (0.11): the attributes sync() copies, no others
     box = d.createElement('div'); box.className = 'ws-popout-box' + (boxCls ? ' ' + boxCls : '');
     for (const [type, fn, capture] of listeners) box.addEventListener(type, fn, capture);
     nodes[0].before(home);

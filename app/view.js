@@ -102,23 +102,42 @@ export class PlanView {
   buildPaths(sc) {
     const ox = this.origin.x, oy = this.origin.y;
     const byLayer = new Map(), texts = [], points = [], dashed = [];
+    let table = null;
     const P = (layer) => { let p = byLayer.get(layer); if (!p) byLayer.set(layer, (p = new Path2D())); return p; };
     for (const it of sc.items) {
       if (it.kind === 'poly') {
         const p = it.dashed ? (dashed.push({ layer: it.layer, pts: it.pts }), null) : P(it.layer);
         if (!p) continue;
-        it.pts.forEach((q, i) => (i ? p.lineTo(q.x - ox, q.y - oy) : p.moveTo(q.x - ox, q.y - oy)));
-        if (it.closed) p.closePath();
+        // 0.11 PERF.33: a closed line is made as a path of its own and added: closePath() on the layer's big path costs what the path already
+        // holds (Chromium, measured: 10,788 closed contours of 141 points 14 s, added 0.16 s), the shape drawn is the same
+        const q0 = it.closed ? new Path2D() : p;
+        it.pts.forEach((q, i) => (i ? q0.lineTo(q.x - ox, q.y - oy) : q0.moveTo(q.x - ox, q.y - oy)));
+        if (it.closed) { q0.closePath(); p.addPath(q0); }
       } else if (it.kind === 'arc') {
         const p = P(it.layer);
         p.moveTo(it.c.x - ox + it.r * Math.cos(it.a0), it.c.y - oy + it.r * Math.sin(it.a0));
         p.arc(it.c.x - ox, it.c.y - oy, it.r, it.a0, it.a1, false);
       } else if (it.kind === 'text') texts.push(it);
       else if (it.kind === 'point') points.push(it);
+      else if (it.kind === 'points') table = it.table;   // 0.11: millions of survey points as one item
     }
     // 0.10 PERF.32: the survey points as two typed arrays (500,000 point objects were walked, projected and stroked on every paint)
-    const pts = { n: points.length, x: new Float64Array(points.length), y: new Float64Array(points.length) };
-    for (let i = 0; i < points.length; i++) { pts.x[i] = points[i].x; pts.y[i] = points[i].y; }
+    let pts;
+    if (table) {   // 0.11: copied out of the point table's blocks once per version of it (a zoom step rebuilds the scene, not the points)
+      const c = this.ptsCache;
+      if (c && c.table === table && c.version === table.version && c.ox === ox && c.oy === oy && c.extra === points.length) pts = c.pts;
+      else {
+        const n = table.length + points.length, x = new Float64Array(n), y = new Float64Array(n);
+        let i = 0;
+        for (const b of table.blocks) for (let k = 0; k < b.n; k++, i++) { const o = b.irr && b.irr.get(k); x[i] = o ? o.x : b.x[k]; y[i] = o ? o.y : b.y[k]; }
+        for (const p of points) { x[i] = p.x; y[i] = p.y; i++; }
+        pts = { n, x, y };
+        this.ptsCache = { table, version: table.version, ox, oy, extra: points.length, pts };
+      }
+    } else {
+      pts = { n: points.length, x: new Float64Array(points.length), y: new Float64Array(points.length) };
+      for (let i = 0; i < points.length; i++) { pts.x[i] = points[i].x; pts.y[i] = points[i].y; }
+    }
     const layerToken = new Map(sc.layers.map((l) => [l.name, l.token]));
     return { byLayer, texts, points: pts, dashed, layerToken, order: sc.layers.map((l) => l.name) };
   }
@@ -150,7 +169,7 @@ export class PlanView {
       this.worldTransform(ctx);
       const ox = this.origin.x, oy = this.origin.y;
       const byColor = new Map();
-      for (const b of bands) { let p = byColor.get(b.color); if (!p) byColor.set(b.color, (p = new Path2D())); const L = b.loop; p.moveTo(L[0] - ox, L[1] - oy); for (let i = 2; i < L.length; i += 2) p.lineTo(L[i] - ox, L[i + 1] - oy); p.closePath(); }
+      for (const b of bands) { let p = byColor.get(b.color); if (!p) byColor.set(b.color, (p = new Path2D())); const L = b.loop; p.moveTo(L[0] - ox, L[1] - oy); for (let i = 2; i < L.length; i += 2) p.lineTo(L[i] - ox, L[i + 1] - oy); }   // 0.11 PERF.33: no closePath (only filled, and a fill closes every piece itself; closePath on a big path costs what it holds)
       ctx.globalAlpha = this.dark ? 0.55 : 0.6;
       for (const [color, p] of byColor) { ctx.fillStyle = color; ctx.fill(p); }
       ctx.globalAlpha = 1;

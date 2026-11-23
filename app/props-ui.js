@@ -11,19 +11,21 @@ import { earthworkFile, QTY_EXT } from './qtyout.js';
 import { cleanDesign, SPEED_UNITS } from './project.js';
 import { curveWhy, verticalWhy } from './solve-why.js';
 import { railProps } from './rail-ui.js';
+import { elementsBlock } from './alignment-table-ui.js';   // 0.11 FX.369
 import { defaultAssembly } from './corridor.js';
 import { assemblyProps } from './assembly-ui.js';
 import { targetProps } from './targets-ui.js';
 import { superProps } from './super-ui.js';
 import { bearingBetween, setTangent, copyOf, translate, rotate } from './snap.js';
 import { slopeInput, sidesBlock } from './sides-ui.js';
-import { polyArea } from './tin.js';
+import { polyArea, pointInPoly } from './tin.js';
 import { cleanSides } from './sides.js';
 import { autoInverts } from './pipes.js';
 import { editPoint } from './point-edit.js';
+import { cornerZ, hasCornerZ, setCornerZ, levelPad, edgeGrades, insertCorner, removeCorner, nearestSide } from './pad-edit.js';   // 0.10.1 #1970
 
 export function mountProps(ctx) {
-  const { ui, secUi, flUi, drUi, seUi, pcUi, msUi, tvUi, skUi, stUi, swUi, rvUi, wmUi, tpUi, codesUi, ppUi, fileStem, download, units, u, eg, graded, findAl, findPad, net, findStruct, findPipe, diaU, refresh, renderProps, numInput, row, gridRow, roRow, propGrid, numberSpan, showProfile, renderProfile, pviPickBtn, slopeCell, command, armPick, say } = ctx;
+  const { ui, secUi, flUi, drUi, seUi, pcUi, msUi, tvUi, skUi, stUi, swUi, rvUi, wmUi, tpUi, codesUi, ppUi, pprUi, fileStem, download, units, u, eg, graded, findAl, findPad, net, findStruct, findPipe, diaU, refresh, renderProps, numInput, row, gridRow, roRow, propGrid, numberSpan, showProfile, renderProfile, pviPickBtn, slopeCell, command, armPick, say } = ctx;   // ctx.hot(pt | null) rings a vertex on the plan (0.10.1 #1970)
 
   function projectProps() {
     ui.propsH.textContent = t('cv.props.project');
@@ -81,7 +83,7 @@ export function mountProps(ctx) {
    *  IFC (Pset_RoadDesignCriteriaCommon), not checked: CivilCraft has no table that ties a speed to a radius (al.speed.note). */
   function designRows(a) {
     const d = a.design || {}, unitDefault = units() === 'm' ? 'km/h' : 'mph';
-    const setD = (label, fn) => ctx.project.change(label, () => { const x = findAl(a.id); const nd = { ...(x.design || { unit: unitDefault }) }; fn(nd); x.design = cleanDesign(nd) || undefined; if (!x.design) delete x.design; });
+    const setD = (label, fn) => ctx.project.change(label, () => { const x = findAl(a.id); const nd = { ...(x.design || { unit: unitDefault }) }; fn(nd); x.design = cleanDesign(nd) || undefined; if (!x.design) delete x.design; }, { keys: ctx.project.keysOf('alignments', a.id) });
     const sp = numInput(Number.isFinite(d.speed) ? String(d.speed) : '', (v) => { const x = v.trim() === '' ? null : Number(v); if (x !== null && !(x > 0 && x < 1000)) return false; setD(t('al.speed.undo'), (nd) => { if (x === null) delete nd.speed; else nd.speed = x; }); }, { text: true, id: 'cv-al-speed', width: '5rem' });
     sp.placeholder = t('al.speed.none');
     const un = el('select', { className: 'cv-select', 'aria-label': t('al.speed.unit'), 'data-al-speed-unit': '' }, ...SPEED_UNITS.map((x) => el('option', { value: x, selected: x === (d.unit || unitDefault) }, x)));
@@ -95,10 +97,10 @@ export function mountProps(ctx) {
   function alignmentProps(a) {
     ui.propsH.textContent = t('sec.alignment');
     const al = ctx.project.alignment(a), U = u(), out = [];
-    const alName = (v) => { ctx.project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = v.trim().slice(0, 120) || t('sec.alignment'); }); };
-    const alStart = (v) => { const x = parseStation(v, units()); if (x === null) return false; ctx.project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }); };
+    const alName = (v) => { ctx.project.change(t('cv.undo.al.rename'), () => { findAl(a.id).name = v.trim().slice(0, 120) || t('sec.alignment'); }, { keys: ctx.project.keysOf('alignments', a.id) }); };
+    const alStart = (v) => { const x = parseStation(v, units()); if (x === null) return false; ctx.project.change(t('cv.al.start'), () => { findAl(a.id).start = x; }, { keys: ctx.project.keysOf('alignments', a.id) }); };
     // 0.5 WL.23: a design minimum radius (empty = none): curves under it are said, with the smallest radius that fits
-    const alMinR = (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; ctx.project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }); };
+    const alMinR = (v) => { const x = v.trim() === '' ? 0 : Number(v); if (!(x >= 0)) return false; ctx.project.change(t('why.undo.minr'), () => { findAl(a.id).minR = x; }, { keys: ctx.project.keysOf('alignments', a.id) }); };
     if (window.ccPropGrid) {   // 0.8 PANEL-COMPACT: name, start station, minimum radius and the read-only length/end in the shared grid; design speed/class rows stay below
       const C = t('sec.alignment');
       const rows = [gridRow('name', C, t('fl.props.name'), a.name, { maxLength: 120 }), gridRow('start', C, t('cv.al.start'), formatStation(Number(a.start) || 0, units())),
@@ -124,20 +126,24 @@ export function mountProps(ctx) {
     const tbody = el('tbody');
     a.pis.forEach((p, i) => {
       const end = i === 0 || i === a.pis.length - 1;
-      const setXY = (k) => (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; ctx.project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { findAl(a.id).pis[i][k] = x; }); };
+      const setXY = (k) => (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; ctx.project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { findAl(a.id).pis[i][k] = x; }, { keys: ctx.project.keysOf('alignments', a.id) }); };
       tbody.append(el('tr', {},
         el('td', {}, String(i + 1)),
         el('td', {}, numInput(fixed(p.x, 2), setXY('x'), { label: t('cv.al.pi.e', { n: i + 1 }) })),
         el('td', {}, el('div', { className: 'cv-row' }, numInput(fixed(p.y, 2), setXY('y'), { label: t('cv.al.pi.n', { n: i + 1 }) }),   // 0.9 WB.15: pick the place in the plan
-          ctx.pickBtn(t('cv.pick.pi', { n: i + 1 }), (pt) => ctx.project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { const q = findAl(a.id).pis[i]; q.x = pt.x; q.y = pt.y; })))),
-        el('td', end ? { className: 'cv-dash' } : {}, end ? '—' : numInput(p.r || 0, (v) => { const r = Number(v); if (!(r >= 0)) return false; ctx.project.change(t('cv.al.pi.r', { n: i + 1 }), () => { findAl(a.id).pis[i].r = r; }); }, { label: t('cv.al.pi.r', { n: i + 1 }), min: 0 })),
-        ...[['ls1', 'cv.al.pi.ls1'], ['ls2', 'cv.al.pi.ls2']].map(([k, key]) => el('td', end || !(p.r > 0) ? { className: 'cv-dash' } : {}, end || !(p.r > 0) ? '—' : numInput(p[k] || 0, (v) => { const x = Number(v); if (!(x >= 0)) return false; ctx.project.change(t('cv.undo.pi.ls'), () => { const q = findAl(a.id).pis[i]; if (x > 0) q[k] = x; else delete q[k]; }); }, { label: t(key, { n: i + 1 }), min: 0, id: 'cv-pi' + (i + 1) + '-' + k }))),   // 0.7 D7.35
-        el('td', {}, a.pis.length > 2 ? el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.al.pi.remove', { n: i + 1 }), title: t('cv.al.pi.remove.title'), onclick: () => ctx.project.change(t('cv.undo.pi.remove'), () => { findAl(a.id).pis.splice(i, 1); }) }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })) : '')));
+          ctx.pickBtn(t('cv.pick.pi', { n: i + 1 }), (pt) => ctx.project.change(t('cv.undo.pi.move.n', { n: i + 1 }), () => { const q = findAl(a.id).pis[i]; q.x = pt.x; q.y = pt.y; }, { keys: ctx.project.keysOf('alignments', a.id) })))),
+        el('td', end ? { className: 'cv-dash' } : {}, end ? '—' : numInput(p.r || 0, (v) => { const r = Number(v); if (!(r >= 0)) return false; ctx.project.change(t('cv.al.pi.r', { n: i + 1 }), () => { findAl(a.id).pis[i].r = r; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { label: t('cv.al.pi.r', { n: i + 1 }), min: 0 })),
+        ...[['ls1', 'cv.al.pi.ls1'], ['ls2', 'cv.al.pi.ls2']].map(([k, key]) => el('td', end || !(p.r > 0) ? { className: 'cv-dash' } : {}, end || !(p.r > 0) ? '—' : numInput(p[k] || 0, (v) => { const x = Number(v); if (!(x >= 0)) return false; ctx.project.change(t('cv.undo.pi.ls'), () => { const q = findAl(a.id).pis[i]; if (x > 0) q[k] = x; else delete q[k]; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { label: t(key, { n: i + 1 }), min: 0, id: 'cv-pi' + (i + 1) + '-' + k }))),   // 0.7 D7.35
+        (() => { const can = !end && p.r > 0 && i + 1 < a.pis.length - 1 && a.pis[i + 1].r > 0; return el('td', can ? {} : { className: 'cv-dash' }, can ? numInput(p.lsc || 0, (v) => { const x = Number(v); if (!(x >= 0)) return false; ctx.project.change(t('cv.undo.pi.lsc'), () => { const q = findAl(a.id).pis[i]; if (x > 0) q.lsc = x; else delete q.lsc; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { label: t('cv.al.pi.lsc', { n: i + 1 }), min: 0, id: 'cv-pi' + (i + 1) + '-lsc' }) : '—'); })(),   // 0.11 SU.1944
+        el('td', {}, a.pis.length > 2 ? el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.al.pi.remove', { n: i + 1 }), title: t('cv.al.pi.remove.title'), onclick: () => ctx.project.change(t('cv.undo.pi.remove'), () => { findAl(a.id).pis.splice(i, 1); }, { keys: ctx.project.keysOf('alignments', a.id) }) }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })) : '')));
     });
+    // 0.10.1 #1970: the PI whose row is under the pointer or has the focus is ringed on the plan
+    [...tbody.children].forEach((tr, i) => { const on = () => ctx.hot(() => findAl(a.id)?.pis[i] || null), off = () => ctx.hot(null); tr.addEventListener('mouseenter', on); tr.addEventListener('mouseleave', off); tr.addEventListener('focusin', on); tr.addEventListener('focusout', off); });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' },
       el('thead', {},
-        el('tr', {}, ...[['#', '#'], [t('pt.props.easting')], [t('pt.props.northing')], [t('se.c.r')]].map(([x]) => el('th', { scope: 'col', rowSpan: 2 }, x)), el('th', { scope: 'colgroup', colSpan: 2, className: 'cv-th-group' }, t('cv.al.col.spiral')), el('th', { rowSpan: 2 }, el('span', { className: 'visually-hidden' }, t('sec.props.remove')))),
-        el('tr', {}, el('th', { scope: 'col' }, t('cv.al.col.in')), el('th', { scope: 'col' }, t('cv.al.col.out')))), tbody)));
+        el('tr', {}, ...[['#', '#'], [t('pt.props.easting')], [t('pt.props.northing')], [t('se.c.r')]].map(([x]) => el('th', { scope: 'col', rowSpan: 2 }, x)), el('th', { scope: 'colgroup', colSpan: 3, className: 'cv-th-group' }, t('cv.al.col.spiral')), el('th', { rowSpan: 2 }, el('span', { className: 'visually-hidden' }, t('sec.props.remove')))),
+        el('tr', {}, el('th', { scope: 'col' }, t('cv.al.col.in')), el('th', { scope: 'col' }, t('cv.al.col.out')), el('th', { scope: 'col' }, t('cv.al.col.next')))), tbody)));
+    if (a.pis.some((q) => q.lsc > 0)) out.push(el('p', { className: 'cv-note', 'data-al-comp-note': '' }, t('cv.al.comp.note')));
     out.push(tangentBlock(a), transformBlock('alignment', a.id));   // 0.9 WB.15 / WB.10
     // curves
     const cvs = al.ok ? al.curves : [];
@@ -150,20 +156,24 @@ export function mountProps(ctx) {
           el('span', { className: 'cv-curve-sta' }, sp ? t('cv.al.curve.sta.sp', { ts: st(c.ts), sc: st(c.sc), cs: st(c.cs), st: st(c.st) }) : t('cv.al.curve.sta', { pc: st(c.ts), pt: st(c.st) })),
           el('span', {}, t(c.ccw ? 'cv.al.curve.left' : 'cv.al.curve.right', { r: fixed(c.r, 2), delta: dms(Math.abs(c.d) * 180 / Math.PI) })),
           sp ? el('span', { 'data-spiral-facts': '' }, t('cv.al.curve.sp', { ls1: fixed(c.ls1, 2), ls2: fixed(c.ls2, 2), th1: dg(c.theta1), th2: dg(c.theta2), t1: fixed(c.T1, 2), t2: fixed(c.T2, 2), es: fixed(c.Es, 2) })) : null,
+          c.lsc > 0 && al.curves.find((q) => q.compoundWith === c.piIndex) ? el('span', { 'data-comp-spiral': '' }, (() => { const n2 = al.curves.find((q) => q.compoundWith === c.piIndex), rev = c.ccw !== n2.ccw; return t('cv.al.curve.comp', { ls: fixed(c.lsc, 2), kind: t(rev ? 'cv.al.comp.reverse' : 'cv.al.comp.compound'), r1: fixed(c.r, 2), r2: fixed(n2.r, 2), sign: rev ? '−' : '' }); })()) : null,   // 0.11 SU.1944
           el('span', {}, t('cv.al.curve.parts', { len: fixed(c.Lc, 2), tan: fixed(c.T1, 2), ext: fixed(c.Es, 2), chord: fixed(2 * c.r * Math.sin(Math.max(0, Math.abs(c.d) - c.theta1 - c.theta2) / 2), 2) })));
       })));
       out.push(el('p', { className: 'cv-note' }, t('cv.al.curves.note')));
     }
     if (al.ok) out.push(el('p', { className: 'cv-note' }, t('cv.al.tangent', { b: bearing(al.elements[0].dir ?? al.elements[0].dirIn) })));
+    if (al.ok) out.push(...elementsBlock(a, al, { units, download, fileStem, say }));   // 0.11 FX.369
     // 0.7.1 71.26: railway — track, gauge, transitions, cant per curve, limits, warnings, the cant diagram, quantities
     if (al.ok) out.push(...railProps({ el, project: () => ctx.project, units: () => units(), numInput: (...x) => numInput(...x), row: (...x) => row(...x), say: (m) => say(m) }, a, ctx.project.railPlan(a), (eg().surface ? graded().items?.find((x) => x.id === a.id && x.kind === 'corridor') : ctx.project.standInCorridors().find((x) => x.id === a.id)) || null));
-    // profile
+    // profile. FX.350 (civil-11): the action buttons sit BEFORE the first fold heading; after the last heading (Sample lines) they were
+    // folded away with it, so Swept path... was hidden until that block was opened.
     out.push(el('h3', { className: 'cv-h3' }, t('cv.prof.head')));
     if (al.ok) out.push(...profileProps(a, al));
     if (al.ok) out.push(...corridorProps(a));
     if (al.ok && !a.rail?.on) out.push(...tpUi.moreCorridors(a, eg().surface ? graded() : { items: ctx.project.standInCorridors() }));   // 0.9 SU.1110: more corridors on this alignment
     if (al.ok) out.push(...secUi.props(a));   // 0.4 V13 sample lines
-    out.push(el('div', { className: 'cv-actions' },
+    const firstH3 = out.findIndex((n) => n && n.tagName === 'H3');   // the folds start at the first h3; before it nothing folds
+    out.splice(firstH3 < 0 ? out.length : firstH3, 0, el('div', { className: 'cv-actions', 'data-al-actions': '' },
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => showProfile(true, a.id) }, el('i', { className: 'bi bi-graph-up', 'aria-hidden': 'true' }), ' ', t('cv.prof.view')),
       al.ok ? skUi.button(a) : null,   // 0.4 V23
       al.ok ? swUi.button('alignment', a.id) : null,   // 0.6 WL.28
@@ -179,7 +189,7 @@ export function mountProps(ctx) {
    */
   function whyBlock(a, why) {
     const U = u().short, n = (v) => fixed(v, 2).replace(/,/g, '');
-    const setR = (pairs, label) => () => { ctx.project.change(label, () => { const al = findAl(a.id); for (const [i, r] of pairs) al.pis[i].r = r; }); say(label); };
+    const setR = (pairs, label) => () => { ctx.project.change(label, () => { const al = findAl(a.id); for (const [i, r] of pairs) al.pis[i].r = r; }, { keys: ctx.project.keysOf('alignments', a.id) }); say(label); };
     const shown = new Set();   // one button per fix: two overlaps round one PI often offer the same radius
     const btn = (text, attr, fn) => { if (shown.has(attr)) return null; shown.add(attr); return el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-why-fix': attr, onclick: fn }, text); };
     const items = why.map((w) => {
@@ -220,27 +230,29 @@ export function mountProps(ctx) {
       out.push(el('div', { className: 'cv-report cv-why is-error', 'data-vwhy-block': '' }, el('p', { className: 'cv-why-h' }, t('why.head.error')), el('ul', {}, ...vwhy.map((w) => el('li', { 'data-why': 'vc' },
         el('p', {}, t(w.side === 'before' ? 'why.vc.before' : 'why.vc.past', { pvi: w.pvi + 1, l: n(w.L), room: n(w.room / 2), u: u().short })),
         w.fix ? el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-why-fix': 'L' + w.index + ':' + w.fix,
-          onclick: () => { const lbl = t('why.undo.l', { pvi: w.pvi + 1, l: n(w.fix) }); ctx.project.change(lbl, () => { const v = findAl(a.id).pvis[w.index]; v.L = w.fix; delete v.K; }); say(lbl); } }, t('why.fix.l', { pvi: w.pvi + 1, l: n(w.fix), k: fixed(w.K, 1), u: u().short }))) : null)))));
+          onclick: () => { const lbl = t('why.undo.l', { pvi: w.pvi + 1, l: n(w.fix) }); ctx.project.change(lbl, () => { const v = findAl(a.id).pvis[w.index]; v.L = w.fix; delete v.K; }, { keys: ctx.project.keysOf('alignments', a.id) }); say(lbl); } }, t('why.fix.l', { pvi: w.pvi + 1, l: n(w.fix), k: fixed(w.K, 1), u: u().short }))) : null)))));
     } else if (prof.errors.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...prof.errors.map((e) => el('li', {}, e)))));
     const tbody = el('tbody');
     a.pvis.forEach((v, i) => {
       const interior = i > 0 && i < a.pvis.length - 1;
       tbody.append(el('tr', { className: ctx.selPvi === i ? 'is-sel' : '' },
         el('td', {}, el('button', { type: 'button', className: 'cv-linkbtn', onclick: () => { ctx.selPvi = i; renderProfile(); renderProps(); } }, String(i + 1))),
-        el('td', { className: 'cv-pickcell' }, numInput(formatStation(v.sta, units()), (x) => { const s = parseStation(x, units()); if (s === null) return false; ctx.project.change(t('cv.undo.pvi.sta'), () => { const p = findAl(a.id).pvis; p[i].sta = s; p.sort((m, n) => m.sta - n.sta); }); }, { text: true, station: true, label: t('cv.pvi.sta.of', { n: i + 1 }) }), pviPickBtn(i, 'sta')),
-        el('td', { className: 'cv-pickcell' }, numInput(fixed(v.z, 2), (x) => { const z = Number(x); if (!Number.isFinite(z) || x === '') return false; ctx.project.change(t('cv.undo.pvi.z'), () => { findAl(a.id).pvis[i].z = z; }); }, { label: t('cv.pvi.z.of', { n: i + 1 }) }), pviPickBtn(i, 'z')),
-        el('td', interior ? {} : { className: 'cv-dash' }, interior ? numInput(v.L || 0, (x) => { const L = Number(x); if (!(L >= 0)) return false; ctx.project.change(t('cv.undo.pvi.l'), () => { findAl(a.id).pvis[i].L = L; }); }, { label: t('cv.pvi.l.of', { n: i + 1 }), min: 0 }) : '—'),
+        el('td', { className: 'cv-pickcell' }, numInput(formatStation(v.sta, units()), (x) => { const s = parseStation(x, units()); if (s === null) return false; ctx.project.change(t('cv.undo.pvi.sta'), () => { const p = findAl(a.id).pvis; p[i].sta = s; p.sort((m, n) => m.sta - n.sta); }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { text: true, station: true, label: t('cv.pvi.sta.of', { n: i + 1 }) }), pviPickBtn(i, 'sta')),
+        el('td', { className: 'cv-pickcell' }, numInput(fixed(v.z, 2), (x) => { const z = Number(x); if (!Number.isFinite(z) || x === '') return false; ctx.project.change(t('cv.undo.pvi.z'), () => { findAl(a.id).pvis[i].z = z; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { label: t('cv.pvi.z.of', { n: i + 1 }) }), pviPickBtn(i, 'z')),
+        el('td', interior ? {} : { className: 'cv-dash' }, interior ? numInput(v.L || 0, (x) => { const L = Number(x); if (!(L >= 0)) return false; ctx.project.change(t('cv.undo.pvi.l'), () => { findAl(a.id).pvis[i].L = L; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { label: t('cv.pvi.l.of', { n: i + 1 }), min: 0 }) : '—'),
+        el('td', interior ? {} : { className: 'cv-dash' }, interior ? numInput(v.R || 0, (x) => { const Rv = Number(x); if (!(Rv >= 0)) return false; ctx.project.change(t('cv.undo.pvi.r'), () => { const q = findAl(a.id).pvis[i]; if (Rv > 0) q.R = Rv; else delete q.R; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { label: t('cv.pvi.r.of', { n: i + 1 }), min: 0, id: 'cv-pvi' + (i + 1) + '-r' }) : '—'),   // 0.11 FX.366: a circular vertical curve by its radius
         slopeCell(a, i),
         el('td', {}, el('button', { type: 'button', className: 'cv-x cv-lock' + (v.locked ? ' is-on' : ''), 'data-pvi-lock': String(i), 'aria-pressed': String(!!v.locked), 'aria-label': t('cv.pvi.lock.of', { n: i + 1 }), title: t(v.locked ? 'cv.pvi.lock.on' : 'cv.pvi.lock.off'),
-          onclick: () => { ctx.project.change(t(v.locked ? 'cv.undo.pvi.unlock' : 'cv.undo.pvi.lock'), () => { const q = findAl(a.id).pvis[i]; if (q.locked) delete q.locked; else q.locked = true; }); } }, el('i', { className: 'bi ' + (v.locked ? 'bi-lock-fill' : 'bi-unlock'), 'aria-hidden': 'true' }))),
-        el('td', {}, el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.pvi.remove.of', { n: i + 1 }), onclick: () => { ctx.project.change(t('cv.undo.pvi.remove'), () => { findAl(a.id).pvis.splice(i, 1); }); ctx.selPvi = -1; } }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })))));
+          onclick: () => { ctx.project.change(t(v.locked ? 'cv.undo.pvi.unlock' : 'cv.undo.pvi.lock'), () => { const q = findAl(a.id).pvis[i]; if (q.locked) delete q.locked; else q.locked = true; }, { keys: ctx.project.keysOf('alignments', a.id) }); } }, el('i', { className: 'bi ' + (v.locked ? 'bi-lock-fill' : 'bi-unlock'), 'aria-hidden': 'true' }))),
+        el('td', {}, el('button', { type: 'button', className: 'cv-x', 'aria-label': t('cv.pvi.remove.of', { n: i + 1 }), onclick: () => { ctx.project.change(t('cv.undo.pvi.remove'), () => { findAl(a.id).pvis.splice(i, 1); }, { keys: ctx.project.keysOf('alignments', a.id) }); ctx.selPvi = -1; } }, el('i', { className: 'bi bi-x', 'aria-hidden': 'true' })))));
     });
     out.push(el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table', 'data-pvi-table': '' },
-      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, t('cv.pvi.col')), el('th', { scope: 'col' }, t('sec.station.label')), el('th', { scope: 'col' }, t('pt.props.elev')), el('th', { scope: 'col' }, t('cv.pvi.col.l')), el('th', { scope: 'col' }, t('cv.pvi.col.slope')), el('th', {}, el('span', { className: 'visually-hidden' }, t('cv.pvi.col.lock'))), el('th', {}, el('span', { className: 'visually-hidden' }, t('sec.props.remove'))))), tbody)));
+      el('thead', {}, el('tr', {}, el('th', { scope: 'col' }, t('cv.pvi.col')), el('th', { scope: 'col' }, t('sec.station.label')), el('th', { scope: 'col' }, t('pt.props.elev')), el('th', { scope: 'col' }, t('cv.pvi.col.l')), el('th', { scope: 'col' }, t('cv.pvi.col.r')), el('th', { scope: 'col' }, t('cv.pvi.col.slope')), el('th', {}, el('span', { className: 'visually-hidden' }, t('cv.pvi.col.lock'))), el('th', {}, el('span', { className: 'visually-hidden' }, t('sec.props.remove'))))), tbody)));
     if (prof.ok) {
       const lines = prof.grades.map((g, i) => t('cv.prof.grade', { n: i + 1, g: pct(g.g) }));
       for (const c of prof.curves) {
         lines.push(t(c.kind === 'crest' ? 'cv.prof.crest' : 'cv.prof.sag', { sta: formatStation(c.pvi, units()), l: fixed(c.L, 2), k: fixed(c.K, 1), bvc: formatStation(c.bvc, units()), zbvc: fixed(c.zBvc, 2), evc: formatStation(c.evc, units()), zevc: fixed(c.zEvc, 2) }));
+        if (c.circ) lines.push(t('cv.prof.circ', { r: fixed(c.R, 2), tan: fixed(c.T, 2), arc: fixed(c.R * Math.abs(Math.atan(c.g2) - Math.atan(c.g1)), 2) }));   // 0.11 FX.366
         const hp = c.high || c.low;
         if (hp) lines.push(t(c.high ? 'cv.prof.high' : 'cv.prof.low', { sta: formatStation(hp.sta, units()), z: fixed(hp.z, 2) }));
       }
@@ -254,10 +266,10 @@ export function mountProps(ctx) {
     const out = [el('h3', { className: 'cv-h3' }, t('cv.co.head'))], U = u();
     const c = { ...defaultAssembly(units()), ...(a.corridor || {}) };
     const on = el('input', { type: 'checkbox', id: 'cv-co-on', checked: !!a.corridor?.on });
-    on.addEventListener('change', () => ctx.project.change(on.checked ? t('cv.undo.co.on') : t('cv.undo.co.off'), () => { const x = findAl(a.id); x.corridor = { ...defaultAssembly(units()), ...(x.corridor || {}), on: on.checked }; }));
+    on.addEventListener('change', () => ctx.project.change(on.checked ? t('cv.undo.co.on') : t('cv.undo.co.off'), () => { const x = findAl(a.id); x.corridor = { ...defaultAssembly(units()), ...(x.corridor || {}), on: on.checked }; }, { keys: ctx.project.keysOf('alignments', a.id) }));
     out.push(el('label', { className: 'cv-check', for: 'cv-co-on' }, on, ' ', t('cv.co.on')));
     if (!a.corridor?.on) { out.push(el('p', { className: 'cv-note' }, t('cv.co.off.note'))); return out; }
-    const field = (k, label, undo, scale, unit, id) => [el('label', { for: id }, label), el('div', { className: 'cv-row' }, numInput(fixed(c[k] * scale, 2), (v) => { const x = Number(v); if (!(x >= 0) || v === '' || ((k === 'cut' || k === 'fill' || k === 'step') && !(x > 0))) return false; ctx.project.change(undo, () => { findAl(a.id).corridor[k] = x / scale; }); }, { id, min: 0 }), el('span', { className: 'cv-unit' }, unit))];
+    const field = (k, label, undo, scale, unit, id) => [el('label', { for: id }, label), el('div', { className: 'cv-row' }, numInput(fixed(c[k] * scale, 2), (v) => { const x = Number(v); if (!(x >= 0) || v === '' || ((k === 'cut' || k === 'fill' || k === 'step') && !(x > 0))) return false; ctx.project.change(undo, () => { findAl(a.id).corridor[k] = x / scale; }, { keys: ctx.project.keysOf('alignments', a.id) }); }, { id, min: 0 }), el('span', { className: 'cv-unit' }, unit))];
     const railTrack = !!a.rail?.on;   // 0.7.1 71.26: a track (Railway block above): only the side slopes and the section step here
     const tplMode = !railTrack && !!a.corridor?.regions;   // 0.9 SU.1110: built from templates by station (the side slopes = the daylight when no end condition meets the ground)
     const custom = !!a.corridor?.parts || railTrack || tplMode;   // 0.7 D7.35: built from parts, left and right
@@ -283,6 +295,19 @@ export function mountProps(ctx) {
       out.push(el('p', { className: 'cv-note', 'data-corridor-facts': '' }, vi ? t('cv.co.facts.vol', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()), cut: volumeText(vi.cut, units()), fill: volumeText(vi.fill, units()) }) : t('cv.co.facts', { n: it.sections.length, from: formatStation(it.from, units()), to: formatStation(it.to, units()) })));
     }
     if (railTrack) return out;   // 0.7.1 71.26: no targets or superelevation on a track (its cant is in the Railway block)
+    // 0.10.1 #1977: the corridor joins the roads and pads it meets (junction.js); the switch, and what it joined this time
+    {
+      const join = el('input', { type: 'checkbox', id: 'cv-co-join', checked: a.corridor.join !== false });
+      join.addEventListener('change', () => ctx.project.change(join.checked ? t('cv.undo.co.join.on') : t('cv.undo.co.join.off'), () => { const x = findAl(a.id); if (join.checked) delete x.corridor.join; else x.corridor.join = false; }, { keys: ctx.project.keysOf('alignments', a.id) }));
+      out.push(el('label', { className: 'cv-check', for: 'cv-co-join' }, join, ' ', t('cv.co.join')));
+      const U2 = u();
+      for (const g of it?.ties || []) {
+        const d = Math.abs(g.dz), key = d < 0.005 ? 'cv.co.tie.level' : g.dz > 0 ? 'cv.co.tie.up' : 'cv.co.tie.down';
+        const name = g.name || (g.kind === 'pad' ? t('scene.pad.default') : t('scene.al.default'));
+        out.push(el('p', { className: 'cv-note', 'data-corridor-tie': g.kind + ':' + g.id }, t(key, { name, sta: formatStation(g.end === 'start' ? g.to : g.from, units()), dz: fixed(d, 2), len: fixed(g.len, 1), unit: U2.short })));
+      }
+      if (a.corridor.join !== false && !(it?.ties || []).length) out.push(el('p', { className: 'cv-note', 'data-corridor-join-note': '' }, t('cv.co.join.note')));
+    }
     out.push(...tpUi.corridorBlock(a, a.corridor, a.id, it));   // 0.9 SU.1110: templates by station, left and right apart
     if (tplMode) { out.push(el('p', { className: 'cv-note', 'data-tpl-mode-note': '' }, t('tpl.co.mode.note'))); return out; }
     out.push(...targetProps({ el, project: () => ctx.project, say: (m) => say(m) }, a, it));   // 0.6 WL.25
@@ -295,7 +320,7 @@ export function mountProps(ctx) {
     const egp = ctx.project.egProfile(a).filter((p) => p.z !== null);
     if (!al.ok || egp.length < 2) { say(t('cv.prof.noground')); return; }
     const z0 = egp[0], z1 = egp[egp.length - 1];
-    ctx.project.change(t('cv.undo.prof.start'), () => { findAl(a.id).pvis = [{ sta: z0.sta, z: Number(z0.z.toFixed(2)), L: 0 }, { sta: z1.sta, z: Number(z1.z.toFixed(2)), L: 0 }]; });
+    ctx.project.change(t('cv.undo.prof.start'), () => { findAl(a.id).pvis = [{ sta: z0.sta, z: Number(z0.z.toFixed(2)), L: 0 }, { sta: z1.sta, z: Number(z1.z.toFixed(2)), L: 0 }]; }, { keys: ctx.project.keysOf('alignments', a.id) });
     showProfile(true, a.id);
     say(t('cv.prof.started'));
   }
@@ -308,16 +333,52 @@ export function mountProps(ctx) {
     if (!o) return el('span');
     const move = (i, x, y) => ctx.project.change(t('cv.undo.corner.move', { n: i + 1 }), () => { const q = get()?.pts[i]; if (q) { q.x = x; q.y = y; } });
     const num = (v) => { const x = Number(v); return v !== '' && Number.isFinite(x) ? x : null; };
-    return el('div', { 'data-cv-corners': kind }, el('h3', { className: 'cv-h3' }, t('cv.corners.head')),
-      el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' },
-        el('thead', {}, el('tr', {}, ...['#', t('pt.props.easting'), t('pt.props.northing')].map((h) => el('th', { scope: 'col' }, h)))),
-        el('tbody', {}, ...o.pts.map((q, i) => el('tr', {},
+    // 0.10.1 #1970: a pad's corners carry an elevation (Z), corners are added and taken out here, and the row in use is ringed on the plan
+    const pad = kind === 'pad';
+    const swap = (label, fn) => { const cur = get(); const next = cur && fn(cur); if (!next || next === cur) return false; return ctx.project.change(label, (st) => { const i = st.pads.findIndex((x) => x.id === id); if (i >= 0) st.pads[i] = { ...next, id }; }); };
+    const hotRow = (tr, i) => { const on = () => ctx.hot(() => get()?.pts[i] || null), off = () => ctx.hot(null); tr.addEventListener('mouseenter', on); tr.addEventListener('mouseleave', off); tr.addEventListener('focusin', on); tr.addEventListener('focusout', off); return tr; };
+    const zCell = (q, i) => {
+      const own = Number.isFinite(q.z);
+      const inp = numInput(fixed(cornerZ(o, i), 2).replace(/,/g, ''), (v) => {
+        if (String(v).trim() === '') { if (!Number.isFinite(get()?.pts[i]?.z)) return true; swap(t('cv.undo.corner.zclear', { n: i + 1 }), (d) => setCornerZ(d, i, null)); return true; }
+        const z = num(v); if (z === null || Math.abs(z) >= 1e6) return false;
+        if (get()?.pts[i]?.z === z) return true;
+        swap(t('cv.undo.corner.z', { n: i + 1 }), (d) => setCornerZ(d, i, z));
+      }, { label: t('cv.corner.z', { n: i + 1 }), width: '5rem' });
+      inp.dataset.cvCornerZ = String(i);
+      if (!own) { inp.classList.add('cv-inherit'); inp.title = t('cv.corner.z.pad'); }
+      return el('td', {}, inp);
+    };
+    const rowBtns = (i) => el('td', { className: 'cv-rowbtns' },
+      el('button', { type: 'button', className: 'cv-x', 'data-cv-corner-add': String(i), title: t('cv.corner.add.after', { n: i + 1 }), 'aria-label': t('cv.corner.add.after', { n: i + 1 }), onclick: () => { if (swap(t('cv.undo.corner.add'), (d) => insertCorner(d, i, 0.5))) say(t('cv.corner.added', { n: i + 2 })); } }, el('i', { className: 'bi bi-plus-lg', 'aria-hidden': 'true' })),
+      el('button', { type: 'button', className: 'cv-x', 'data-cv-corner-del': String(i), title: t('cv.corner.remove', { n: i + 1 }), 'aria-label': t('cv.corner.remove', { n: i + 1 }), disabled: o.pts.length <= 3, onclick: () => { ctx.hot(null); if (swap(t('cv.undo.corner.remove', { n: i + 1 }), (d) => removeCorner(d, i))) say(t('cv.corner.removed', { n: i + 1 })); else say(t('cv.corner.three')); } }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' })));
+    const head = ['#', t('pt.props.easting'), t('pt.props.northing'), ...(pad ? [t('cv.corner.zhead') + ' (' + u().short + ')', ''] : [])];
+    const out = [el('h3', { className: 'cv-h3' }, t('cv.corners.head')),
+      el('div', { className: 'cv-table-wrap' }, el('table', { className: 'cv-table' + (pad ? ' cv-corner-table' : '') },
+        el('thead', {}, el('tr', {}, ...head.map((h) => el('th', { scope: 'col' }, h)))),
+        el('tbody', {}, ...o.pts.map((q, i) => hotRow(el('tr', { 'data-cv-corner-row': String(i) },
           el('td', {}, String(i + 1)),
           el('td', {}, numInput(fixed(q.x, 2), (v) => { const x = num(v); if (x === null) return false; move(i, x, get().pts[i].y); }, { label: t('cv.corner.e', { n: i + 1 }) })),
           el('td', {}, el('div', { className: 'cv-row' },
             numInput(fixed(q.y, 2), (v) => { const y = num(v); if (y === null) return false; move(i, get().pts[i].x, y); }, { label: t('cv.corner.n', { n: i + 1 }) }),
-            ctx.pickBtn(t('cv.pick.corner', { n: i + 1 }), (pt) => move(i, pt.x, pt.y))))))))),
-      el('p', { className: 'cv-note' }, t('cv.corners.note')));
+            ctx.pickBtn(t('cv.pick.corner', { n: i + 1 }), (pt) => move(i, pt.x, pt.y)))),
+          ...(pad ? [zCell(q, i), rowBtns(i)] : [])), i))))),
+      el('p', { className: 'cv-note' }, t('cv.corners.note'))];
+    if (pad) {
+      out.push(el('div', { className: 'cv-actions' },
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-corner-pick-add': '', onclick: () => armPick(t('cv.corner.add.pick'), (pt) => {
+          const d = get(), s = d && nearestSide(d, pt.x, pt.y);
+          if (!s) return;
+          if (s.u < 1e-6 || s.u > 1 - 1e-6) { say(t('cv.corner.add.onside')); return; }
+          if (swap(t('cv.undo.corner.add'), (x) => insertCorner(x, s.k, s.u))) say(t('cv.corner.added', { n: s.k + 2 }));
+        }) }, el('i', { className: 'bi bi-crosshair', 'aria-hidden': 'true' }), ' ', t('cv.corner.add')),
+        hasCornerZ(o) ? el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-cv-corner-level': '', onclick: () => { if (swap(t('cv.undo.corner.level'), (d) => levelPad(d))) say(t('cv.corner.levelled')); } }, t('cv.corner.level')) : null));
+      const g = edgeGrades(o);
+      out.push(el('p', { className: 'cv-note', 'data-cv-corner-grades': '' }, hasCornerZ(o)
+        ? t('cv.corner.grades', { list: g.map((x, k) => (k + 1) + '→' + (((k + 1) % o.pts.length) + 1) + ' ' + (x === null ? '—' : (Math.abs(x) < 5e-5 ? '0.00' : (x > 0 ? '+' : '−') + (Math.abs(x) * 100).toFixed(2)) + '%')).join(' · ') })
+        : t('cv.corner.z.note')));
+    }
+    return el('div', { 'data-cv-corners': kind }, ...out);
   }
 
   /** A tangent's direction from two picked points: PI k+1 turns about PI k to that direction, the tangent keeps its length. */
@@ -379,14 +440,32 @@ export function mountProps(ctx) {
       el('p', { className: 'cv-note' }, t('cv.tx.note')));
   }
 
+  /** 0.10.1 #1970: the feature lines that shape a pad's interior (open design lines lying in it: swales, ridges, ramps), the
+   *  lines in it that could, and a button to draw one. */
+  function padLinesBlock(d) {
+    const fs = (ctx.project.state.features || []).filter((f) => f.pts.length >= 2 && f.pts.some((p) => pointInPoly(p.x, p.y, d.pts)));
+    const inUse = fs.filter((f) => f.use === 'design' && !f.closed), can = fs.filter((f) => !f.closed && f.use !== 'design' && f.pts.every((p) => pointInPoly(p.x, p.y, d.pts)));
+    const pickLine = (f) => el('button', { type: 'button', className: 'cv-linkbtn', 'data-pad-line': f.id, onclick: () => { ctx.picked.clear(); ctx.sel = { kind: 'feature', id: f.id }; ctx.selPvi = -1; refresh(); } }, f.name);
+    const setUse = (f, use, label, done) => { ctx.project.change(label, (st) => { const x = (st.features || []).find((q) => q.id === f.id); if (x) x.use = use; }); say(done); };
+    const rows = [
+      ...inUse.map((f) => el('li', { 'data-pad-line-row': f.id }, pickLine(f), ' ', el('span', { className: 'cv-unit' }, t('cv.pad.lines.shapes')), ' ',
+        el('button', { type: 'button', className: 'cv-x', 'data-pad-line-out': f.id, title: t('cv.pad.lines.out', { name: f.name }), 'aria-label': t('cv.pad.lines.out', { name: f.name }), onclick: () => setUse(f, 'off', t('cv.undo.pad.line.out'), t('cv.pad.lines.out.done', { name: f.name })) }, el('i', { className: 'bi bi-x-lg', 'aria-hidden': 'true' })))),
+      ...can.map((f) => el('li', { 'data-pad-line-row': f.id }, pickLine(f), ' ',
+        el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-pad-line-add': f.id, onclick: () => setUse(f, 'design', t('cv.undo.pad.line.add'), t('cv.pad.lines.add.done', { name: f.name })) }, t('cv.pad.lines.add'))))];
+    return el('div', { 'data-pad-lines': '' }, el('h3', { className: 'cv-h3' }, t('cv.pad.lines.head')),
+      rows.length ? el('ul', { className: 'cv-plainlist' }, ...rows) : el('p', { className: 'cv-note', 'data-pad-lines-none': '' }, t('cv.pad.lines.none')),
+      el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc', 'data-pad-line-draw': '', onclick: () => { command('feature'); flUi.drawAs('design'); say(t('cv.pad.lines.draw.hint')); } }, el('i', { className: 'bi bi-bezier2', 'aria-hidden': 'true' }), ' ', t('cv.pad.lines.draw'))),
+      el('p', { className: 'cv-note' }, t('cv.pad.lines.note')));
+  }
+
   function padProps(d) {
     ui.propsH.textContent = t('cv.pad');
     const out = [], U = u();
-    const padName = (v) => { ctx.project.change(t('cv.undo.pad.rename'), () => { findPad(d.id).name = v.trim().slice(0, 120) || t('cv.pad'); }); };
-    const padZ = (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; ctx.project.change(t('cv.undo.pad.z'), () => { findPad(d.id).z = x; }); };
+    const padName = (v) => { ctx.project.change(t('cv.undo.pad.rename'), () => { findPad(d.id).name = v.trim().slice(0, 120) || t('cv.pad'); }, { keys: ctx.project.keysOf('pads', d.id) }); };
+    const padZ = (v) => { const x = Number(v); if (!Number.isFinite(x) || v === '') return false; ctx.project.change(t('cv.undo.pad.z'), () => { findPad(d.id).z = x; }, { keys: ctx.project.keysOf('pads', d.id) }); };
     // 0.7.1 71.22: slopes typed as 3, 3:1, 33% or 18.4° (sides-ui.js slopeInput)
-    const cut = slopeInput(numInput, d.cut, (x) => { ctx.project.change(t('fl.props.cut'), () => { findPad(d.id).cut = x; }); }, { id: 'cv-pad-cut', label: t('fl.props.cut') });
-    const fill = slopeInput(numInput, d.fill, (x) => { ctx.project.change(t('fl.props.fill'), () => { findPad(d.id).fill = x; }); }, { id: 'cv-pad-fill', label: t('fl.props.fill') });
+    const cut = slopeInput(numInput, d.cut, (x) => { ctx.project.change(t('fl.props.cut'), () => { findPad(d.id).cut = x; }, { keys: ctx.project.keysOf('pads', d.id) }); }, { id: 'cv-pad-cut', label: t('fl.props.cut') });
+    const fill = slopeInput(numInput, d.fill, (x) => { ctx.project.change(t('fl.props.fill'), () => { findPad(d.id).fill = x; }, { keys: ctx.project.keysOf('pads', d.id) }); }, { id: 'cv-pad-fill', label: t('fl.props.fill') });
     if (window.ccPropGrid) {
       const C = t('cv.pad');
       out.push(propGrid('pad', C, [gridRow('name', C, t('fl.props.name'), d.name, { maxLength: 120 }), gridRow('z', C, t('pt.props.elev') + ' (' + U.short + ')', fixed(Number(d.z), 2)),
@@ -414,8 +493,8 @@ export function mountProps(ctx) {
     }
     // 0.7.1 71.22: each side its own slopes or a retaining wall, the walls' quantities and warnings
     out.push(...sidesBlock({ el, numInput: (...x) => numInput(...x), units: units(), n: d.pts.length, sides: d.sides, cut: Number(d.cut), fill: Number(d.fill), info: gp,
-      change: (label, sides) => ctx.project.change(label, () => { const p = findPad(d.id); const c = cleanSides(sides, units(), p.pts.length); if (c) p.sides = c; else delete p.sides; }), idp: 'cv-pad-sd' }));
-    out.push(cornersBlock('pad', d.id), transformBlock('pad', d.id));   // 0.9 WB.10 / WB.15
+      change: (label, sides) => ctx.project.change(label, () => { const p = findPad(d.id); const c = cleanSides(sides, units(), p.pts.length); if (c) p.sides = c; else delete p.sides; }, { keys: ctx.project.keysOf('pads', d.id) }), idp: 'cv-pad-sd' }));
+    out.push(cornersBlock('pad', d.id), padLinesBlock(d), transformBlock('pad', d.id));   // 0.9 WB.10 / WB.15 · 0.10.1 #1970
     out.push(volumeBlock());
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
@@ -457,9 +536,9 @@ export function mountProps(ctx) {
     const stSumpBox = () => numInput(x.sumpDepth || 0, stSump, { id: 'cv-st-sump', min: 0 });
     const stDiaBox = () => { const dia = numInput(x.dia, stDia, { id: 'cv-st-dia', min: 1 }); if (x.type) { dia.disabled = true; dia.title = t('st.dia.typed'); } return dia; };
     const stName = (v) => { ctx.project.change(t('cv.undo.st.rename'), () => { findStruct(x.id).name = v.trim().slice(0, 60) || t('cv.st'); }); };
-    const stRim = (v) => { if (v === '') { ctx.project.change(t('cv.undo.st.rim.surface'), () => { findStruct(x.id).rim = null; }); return; } const z = Number(v); if (!Number.isFinite(z)) return false; ctx.project.change(t('cv.undo.st.rim'), () => { findStruct(x.id).rim = z; }); };
-    const stSump = (v) => { const z = Number(v); if (!(z >= 0)) return false; ctx.project.change(t('cv.st.sump'), () => { findStruct(x.id).sumpDepth = z; }); };
-    const stDia = (v) => { const z = Number(v); if (!(z > 0)) return false; ctx.project.change(t('cv.undo.st.size'), () => { findStruct(x.id).dia = z; }); };
+    const stRim = (v) => { if (v === '') { ctx.project.change(t('cv.undo.st.rim.surface'), () => { findStruct(x.id).rim = null; }, { keys: ['k:network'] }); return; } const z = Number(v); if (!Number.isFinite(z)) return false; ctx.project.change(t('cv.undo.st.rim'), () => { findStruct(x.id).rim = z; }, { keys: ['k:network'] }); };
+    const stSump = (v) => { const z = Number(v); if (!(z >= 0)) return false; ctx.project.change(t('cv.st.sump'), () => { findStruct(x.id).sumpDepth = z; }, { keys: ['k:network'] }); };
+    const stDia = (v) => { const z = Number(v); if (!(z > 0)) return false; ctx.project.change(t('cv.undo.st.size'), () => { findStruct(x.id).dia = z; }, { keys: ['k:network'] }); };
     const rimHint = info?.rim !== null && info?.rim !== undefined ? t('cv.st.rim.ph', { z: fixed(info.rim, 2) }) : t('cv.st.rim.off');
     const rimUsed = info?.rim !== null && info?.rim !== undefined ? (info.rimFrom === 'surface' ? t('cv.st.rim.from', { z: fixed(info.rim, 2) }) : fixed(info.rim, 2)) : '—';
     if (window.ccPropGrid) {
@@ -487,6 +566,7 @@ export function mountProps(ctx) {
     const probs = (chk?.problems || []).filter((p) => p.id === x.id);
     if (probs.length) out.push(el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((p) => el('li', {}, p.msg)))));
     out.push(...(net().type === 'sanitary' ? seUi.structureRows(x) : drUi.structureRows(x)));   // 0.4 V19/V20; 0.6 LC.16 S1
+    out.push(el('div', { className: 'cv-actions' }, pprUi.button(x.id)));   // 0.11 SU.1937
     out.push(el('div', { className: 'cv-actions' }, el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
   }
@@ -494,9 +574,9 @@ export function mountProps(ctx) {
   function pipeProps(p) {
     ui.propsH.textContent = t('dr.r.pipe');
     const chk = ctx.project.networkCheck(), info = chk?.pipes.get(p.id), U = u(), out = [];
-    const ppName = (v) => { ctx.project.change(t('cv.undo.pp.rename'), () => { findPipe(p.id).name = v.trim().slice(0, 60) || t('dr.r.pipe'); }); };
-    const ppDia = (v) => { const z = Number(v); if (!(z > 0)) return false; ctx.project.change(t('cv.undo.pp.size'), () => { findPipe(p.id).dia = z; }); };
-    const ppInv = (k, label) => (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; ctx.project.change(label, () => { findPipe(p.id)[k] = z; }); };
+    const ppName = (v) => { ctx.project.change(t('cv.undo.pp.rename'), () => { findPipe(p.id).name = v.trim().slice(0, 60) || t('dr.r.pipe'); }, { keys: ['k:network'] }); };
+    const ppDia = (v) => { const z = Number(v); if (!(z > 0)) return false; ctx.project.change(t('cv.undo.pp.size'), () => { findPipe(p.id).dia = z; }, { keys: ['k:network'] }); };
+    const ppInv = (k, label) => (v) => { const z = Number(v); if (!Number.isFinite(z) || v === '') return false; ctx.project.change(label, () => { findPipe(p.id)[k] = z; }, { keys: ['k:network'] }); };
     const a = findStruct(p.from), b = findStruct(p.to);
     const fromTo = (a?.name || '?') + ' → ' + (b?.name || '?'), lenT = info ? fixed(info.len, 2) + ' ' + U.short : '—';
     const slopeT = info?.slope !== null && info?.slope !== undefined ? pct(info.slope) : '—', coverT = info?.cover !== null && info?.cover !== undefined ? fixed(info.cover, 2) + ' ' + U.short : '—';
@@ -521,9 +601,11 @@ export function mountProps(ctx) {
     }
     const probs = (chk?.problems || []).filter((x) => x.id === p.id);
     out.push(probs.length ? el('div', { className: 'cv-report is-error' }, el('ul', {}, ...probs.map((x) => el('li', {}, x.msg)))) : el('p', { className: 'cv-note' }, t('cv.pp.ok')));
+    { const mat = drUi.rulesets.pipeMaterial(p, net(), (v) => ctx.project.change(t('rs.undo.mat'), () => { const q = findPipe(p.id); if (v) q.mat = v; else delete q.mat; }, { keys: ['k:network'] })); if (mat.length) out.push(el('div', { className: 'cv-props' }, ...mat)); }   // 0.11 SU.1937b
     out.push(...(net().type === 'sanitary' ? seUi.pipeRows(p) : drUi.pipeRows(p)));   // 0.4 V19/V20; 0.6 LC.16 S1
     out.push(el('div', { className: 'cv-actions' },
       el('button', { type: 'button', className: 'btn-line btn-sm-cc', onclick: () => setInverts(new Set([p.id])) }, t('cv.pp.auto')),
+      pprUi.button(p.from),   // 0.11 SU.1937: the run from this pipe's upper structure
       el('button', { type: 'button', className: 'btn-line btn-sm-cc cv-danger', onclick: () => command('delete') }, el('i', { className: 'bi bi-trash3', 'aria-hidden': 'true' }), ' ', t('fl.props.delete'))));
     ui.props.replaceChildren(...out);
   }

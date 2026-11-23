@@ -1,52 +1,70 @@
 ---
 title: Nümunə xətləri və eninə kəsiklər
-summary: Trassaya düz kəsiklər kəsin, hər pikitdə yer səthini, layihəni və kəsim/doldurmanı görün və orta son sahələrlə həcmləri alın.
-keywords: kütlə daşınması, kütlə diaqramı, balans nöqtəsi, sıxılma, şişmə, daşıma məsafəsi, gətirmə, tullantı, kəsik vərəqləri, eninə kəsik vərəqləri, kəsiklər pdf, kəsiklər, eninə kəsiklər, nümunə xətləri, kəsik görünüşü, kəsim, doldurma, sahələr, orta son sahə, son sahə həcmləri, torpaq işləri, pikit, ofset, csv
-from: 5060173c
+summary: Trassaya düz kəsiklər kəsin, hər pikətdə zəmini, layihəni, kəsmə və doldurmanı görün və orta uc sahələri ilə həcmləri alın.
+keywords: kütlə daşınması, kütlə diaqramı, balans nöqtəsi, sıxılma, şişmə, daşınma məsafəsi, götürmə, tullantı, kəsik vərəqləri, eninə kəsik vərəqləri, kəsiklər pdf, kəsiklər, eninə kəsiklər, nümunə xətləri, kəsik görünüşü, kəsmə, doldurma, sahələr, orta uc sahəsi, uc sahəsi həcmləri, torpaq işləri, piket, ofset, csv
+from: 09639ce2
 ---
 
-Eninə kəsik yolun trassaya düz, bir pikitdə necə qurulacağını göstərir: mövcud yer səthi, layihə (dəhliz və ya platforma daxil edilmiş) və aralarındakı kəsim və doldurma.
+Eninə kəsik yolu tikiləcəyi kimi göstərir: trassanı bir pikətdə kəsən, mövcud zəmini, layihəni (korridor və ya platforma salınmış) və aralarındakı kəsmə və doldurmanı.
 
 ## Nümunə xətləri əlavə edin
 
-1. Trassa seçin. **Xüsusiyyətlər**də, **Nümunə xətləri** altında {{ui:Add sample lines}} klikləyin.
-2. **Hər** (aralıq: başlanğıcda 50 ft və ya 20 m), **Sol en** və **Sağ en** təyin edin (hər kəsik mərkəz xəttindən nə qədər uzanır).
-3. Müəyyən pikitdə kəsik üçün **Pikit əlavə et** sahəsinə yazın (məsələn `2+35`) və {{key:Enter}} basın.
+1. Trassa seçin. **Xüsusiyyətlər**də, **Nümunə xətləri** altında {{ui:Nümunə xətləri əlavə et}} klikləyin.
+2. **Aralıq** (başlanğıc: 50 ft və ya 20 m), **Sol en** və **Sağ en** təyin edin (hər kəsik mərkəz xəttindən nə qədər uzanır).
+3. Müəyyən pikətdə kəsik üçün **Pikət əlavə et** sahəsinə yazın (məsələn `2+35`) və {{key:Enter}} basın.
 
-Kəsiklər aralığın hər tam qatında, trassanın hər iki ucunda, hər əyrinin başlanğıcında və sonunda (PC və PT) və əlavə etdiyiniz pikitlərdə kəsilir. Nümunə xətləri planda trassanın üzərindən keçən boz xətlər kimi göstərilir; onlar həmçinin DXF, DWG və PDF-də C-ROAD-SCTN təbəqəsində çıxır. Hər dəyişiklik bir addımdır: {{key:Mod+Z}} onu geri qaytarır.
+Kəsiklər aralığın hər tam misli ilə, trassanın hər iki ucunda, hər əyrinin başlanğıcında və sonunda (PC və PT) və əlavə etdiyiniz piketlərdə kəsilir. Nümunə xətləri planda trassanı kəsən boz xətlər kimi göstərilir; onlar həmçinin DXF, DWG və PDF-ə C-ROAD-SCTN qatında gedir. Hər dəyişiklik bir addımdır: {{key:Mod+Z}} geri qaytarır.
 
 ## Kəsik görünüşü
 
-{{ui:Section view}} ilə açın: trassanın **Xüsusiyyətlər**ində, **Səth** › {{ui:More}} altında {{ui:Sections}}, ya da {{key:X}}. O, planın altındakı profil görünüşünün yerini tutur.
+Onu açmaq üçün trassanın **Xüsusiyyətləri**ndə {{ui:Kəsik görünüşü}}, **Səth** › {{ui:Daha çox}} altında {{ui:Kəsiklər}}, və ya {{key:X}}. O, plan altında profil görünüşünün yerini tutur.
 
-- Onun panelindəki oxlarla, pikit siyahısı ilə və ya kəsik görünüşü fokusda ikən {{key:Left}} və {{key:Right}} ilə kəsikləri irəli-geri keçin ({{key:Home}} və {{key:End}} ilk və son üçün).
-- Boz xətt mövcud yer səthi, qırmızı xətt layihədir. Kəsim narıncı, doldurma yaşıl kölgələnir. Dəhliz nöqtələri işarələnir: CL (mərkəz xətti), EOP (asfalt kənarı), SH (çiyin) və DL (təmas).
-- Başlıqda pikit, bu kəsiyin kəsim və doldurma sahələri və şaquli şişirtmə göstərilir. **Sığdır** paneli doldurur; həqiqi miqyasda görmək üçün 1× seçin.
+- Kəsiklər arasında panelin oxları, stansiya siyahısı və ya kəsik görünüşü fokusda ikən {{key:Left}} və {{key:Right}} ilə addımlayın ({{key:Home}} və {{key:End}} birinci və son üçün).
+- Boz xətt mövcud zəmin, qırmızı xətt layihədir. Kəsmə narıncı, doldurma yaşıl kölgəlidir. Korridor nöqtələri işarələnir: CL (mərkəz xətti), EOP (örtük kənarı), SH (çiyin) və DL (daylight).
+- Başlıq piketi, bu kəsiyin kəsmə və doldurma sahələrini və şaquli böyütməni göstərir. **Sığdır** paneli doldurur; 1× seçin ki, kəsiyi miqyasda görəsiniz.
 - Planda qalın xətt ekranda hansı kəsiyin olduğunu göstərir.
+- **Böyütmə və sürüşdürmə:** təkər göstəricinin ətrafında böyüdür, sürükləmək görünüşü hərəkət etdirir. {{ui:Sığdır}} (və ya {{key:F}}, və ya iki klik) bütün kəsiyi yenidən sığdırır.
+
+## Kəsikdə ölçmə
+
+1. Kəsik panelində {{ui:Ölç}} klikləyin, və ya {{key:M}} basın. İşarə deyir: "Birinci nöqtəyə, sonra ikinciyə klikləyin."
+2. İki nöqtəyə klikləyin. Hər biri xəttin ucuna və ya korridor nöqtəsinə (CL, EOP, SH, DL) yapışır; sərbəst nöqtə üçün {{key:Alt}} saxlayın.
+3. Oxunuş üfüqi məsafəni (ΔH), şaquli məsafəni (ΔV), faiz meylini nisbəti ilə və düz uzunluğunu layihənin vahidlərində verir.
+
+Yenidən başlamaq üçün yenə klikləyin. {{key:Esc}} onu təmizləyir, {{key:M}} Ölçməni söndürür.
 
 ## Kəsik vərəqləri
 
-{{ui:Section sheets (PDF)}} **Nümunə xətləri** altında hər kəsiyi PDF səhifələrində, pikit sırası ilə soldan sağa və yuxarıdan aşağıya sıralar şəklində qoyur. **Kağız**, **Plan miqyası** (kəsiklərin üfüqi miqyası) və **Profil şişirtməsi** (1×, 2×, 5× və ya 10×) seçin; dialoq səhifəyə neçə kəsiyin sığdığını və neçə səhifə alınacağını göstərir.
+{{ui:Kəsik vərəqləri (PDF)}} **Nümunə xətləri** altında hər kəsiyi PDF səhifələrinə qoyur, sətir-sətir soldan sağa və yuxarıdan aşağıya piket sırası ilə. **Kağız**, **Plan miqyası** (kəsiklərin üfüqi miqyası) və **Profil böyütməsi** (1×, 2×, 5× və ya 10×) seçin; dialoq hər səhifədə neçə kəsiyin sığdığını və neçə səhifə alındığını deyir.
 
-Hər kəsik ölçü şəbəkəsi, ofsetlər və yüksəkliklərlə göstərilir; yer (xətli), layihə, kəsim və doldurma (narıncı və yaşıl kölgə), dəhliz nöqtələri, altında isə pikit və kəsim və doldurma sahələri. Vərəqlərdəki hər kəsik ən böyüyünə uyğun eyni ölçüdə çəkilir; bu sizin şişirtmənizlə səhifəyə sığmadıqda CivilCraft ən böyük sığan ölçünü seçir və bunu bildirir. Başlıq zolağı trassanın adını, həmin səhifədəki pikitləri, miqyasları və "Vərəq 1 / 3" yazır.
+Hər kəsik ofsetləri və hündürlükləri olan şəbəkəni, zəmini (kəsikli), layihəni, kəsmə və doldurmanı (narıncı və yaşıl) korridor nöqtələri ilə göstərir və altında onun pikətini və kəsmə-doldurma sahələrini. Vərəqlərdəki bütün kəsiklər eyni ölçüdə çəkilir, ən böyük üçün kifayət qədər hündür; bu sizin böyütmənizdə səhifəyə sığmadıqda, CivilCraft sığan ən böyüyünü götürür və bunu deyir. Başlıq zolağı trassanı, həmin səhifədəki piketləri, miqyasları və "Vərəq 1 / 3"-ü göstərir.
 
-## Orta son sahələrlə həcmlər
+## Kəsmə və doldurma nəyə ölçülür
 
-İki qonşu kəsik arasında həcm, onların iki sahəsinin ortası ilə pikitləri arasındakı məsafənin hasilidir. Zolaq trassa üçün cəmləri göstərir və {{ui:CSV}} hər kəsiyin sahələrini və həcmlərini işləyən cəmlərlə yükləyir (fut layihələri üçün kubik yard, metrik olanlar üçün kubik metr).
+Korridorun asfaltın altında təbəqələri ola bilər: yol örtüyü təbəqələri, şablon komponentləri, yol. **Kəsik panelində** **Həcmlər nəyə ölçülür** seçin ki, kəsmə və doldurma nəyə qədər getsin:
 
-**Xüsusiyyətlər** eyni cəmləri [Torpaq həcmləri](topic:volumes) bölməsindən şəbəkə üsulu həcmləri ilə yanında göstərir. İkisi fərqli yaxınlaşmalardır: daha sıx kəsiklər onları yaxınlaşdırır, düz yolda və düz yerdə isə eynidirlər.
+- **Aşağı səth** (başlanğıc): bu komponentlərin aşağısına, buna görə kəsmə yol örtüyünün dərinliyini də əhatə edir.
+- **Yuxarı səth**: yalnız layihənin yuxarısına, komponentlər əvvəllər sayıldığı kimi.
+
+Başlıqdakı sahələr, aşağıdakı həcmlər, CSV və kütlə daşınması hamısı bu seçimi izləyir və layihə ilə birlikdə saxlanılır.
+
+## Orta uc sahələri ilə həcmlər
+
+İki qonşu kəsik arasında həcm iki sahənin ortasıdır, pikətləri arasındakı məsafə ilə vurulmuş. Panel trassa üzrə cəmləri göstərir və {{ui:CSV}} hər kəsiyin sahələrini və həcmlərini qaçan cəmlərlə yükləyir (fut layihələri üçün kubik yard, metrik layihələr üçün kubik metr).
+
+**Xüsusiyyətlər** eyni cəmləri [Torpaq işlərinin həcmləri](topic:volumes)-dəki şəbəkə üsulu həcmlərinin yanında göstərir. İkisi müxtəlif təxminlərdir: kəsiklər yaxınlaşdıqca yaxınlaşırlar, düz yolda və düz zəmində isə eynidirlər.
 
 :::note
-Kəsim və doldurma yalnız işlənmiş sahələrdə (dəhlizin və ya platformanın təmas xətləri daxilində) sayılır, şəbəkə üsulu kimi. Dəhliz və ya platforma olmadan layihə yerin özüdür, buna görə kəsik heç bir kəsim və ya doldurma göstərmir.
+Kəsmə və doldurma yalnız işlənmiş sahələrin daxilində sayılır (korridorun və ya platformanın daylight xətləri), şəbəkə üsulunda olduğu kimi. Korridor və ya platforma olmadan layihə zəminin özüdür, buna görə kəsik kəsmə və ya doldurma göstərmir.
 :::
 
 ## Kütlə daşınması
 
-**Nümunə xətləri** altında **Kütlə daşınması** eyni son sahə həcmlərindən kütlə daşınma diaqramını çəkir: pikitlər boyunca kəsimin işləyən cəmi, doldurmadan çıxılmış.
+**Nümunə xətləri** altında **Kütlə daşınması** eyni orta uc həcmlərindən kütlə diaqramını çəkir: piketlər boyunca, kəsmənin cəmi doldurmadan çıxılması.
 
-- **Kəsimin sıxılması (−) və ya şişməsi (+)** kəsimin bir kubik yardının doldurma olaraq nə verdiyini bildirir: −10 % (başlanğıc qiymət, yer tutucu) onun 0.9-a sıxılması deməkdir; şişən qaya +5 % ola bilər. Geotexniki hesabatınızın rəqəmini istifadə edin.
-- Xəttin yüksəldiyi yerdə yol kəsimdədir; düşdüyü yerdə doldurmadadır. Sıfırın üstündə (narıncı kölgəli) torpaq pikit üzrə yuxarı, altında (yaşıl) aşağı daşınır.
-- **Balans nöqtələri** xəttin sıfırı kəsdiyi yerlərdir: onların iki arasındakı hissədə kəsim və doldurma tarazlaşır. Cədvəl hər balanslı hissəni, daşınan həcmi (onun ən yüksək və ya ən aşağı nöqtəsi) və orta daşıma məsafəsini (kölgəli sahə bu həcmə bölünür) sadalayır.
-- Xətt sıfırdan kənarda bitdikdə, qalan hissə **tullantı** (yuxarıda) və ya **gətirmə** (aşağıda) olur. Həmin son hissədə yalnız bitdiyi səviyyədən kənardakı torpaq daşınmış sayılır.
+- **Kəsmənin sıxılması (−) və ya şişməsi (+)** bir kubik yard kəsmənin doldurma olaraq yerləşdirildikdə nə etdiyini deyir: −10 % (başlanğıc dəyər, yer tutucu) 0.9-a sıxıldığını bildirir; şişən qaya +5 % ola bilər. Geotexniki hesabatınızın rəqəmini istifadə edin.
+- Xətt qalxdıqda yol kəsmədədir; düşdükdə doldurmadadır. Sıfırdan yuxarı (narıncı kölgə) torpaq piketə doğru hərəkət edir; sıfırdan aşağı (yaşıl), aşağı piketə doğru.
+- **Balans nöqtələri** xəttin sıfırı kəsdiyi yerlərdir: onların iki arasında kəsmə və doldurma balanslaşır. Cədvəl hər balanslı hissəni, köçürülmüş həcmi (onun ən yüksək və ya ən aşağı nöqtəsi) və orta daşınma məsafəsini (kölgəli sahənin həmin həcmə bölünməsi) sadalayır.
+- Xəttin sıfırdan kənar bitdiyi yerdə qalan **tullantı** (yuxarıda) və ya **götürmə** (aşağıda) olur. Bu son hissədə yalnız bitdiyi səviyyədən kənardakı torpaq köçürülmüş sayılır.
 
-**CSV** hər kəsikdə kütlə ordinatını, hissələri və əmsalı saxlayır.
+**CSV** hər kəsikdə kütlə ordinatını, hissələri və amili saxlayır.

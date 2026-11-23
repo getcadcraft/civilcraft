@@ -6,6 +6,8 @@
  *   const pv = new ProfileView(canvas)
  *   pv.set({ eg, profile, pvis, start, end, units, sel, hover, features })   then pv.draw()
  *   pv.toData(sx, sy) → { sta, z }    pv.toScreen(sta, z)    pv.hitPvi(sx, sy) → index | -1
+ *   utilities (0.11 SU.1810): [{ sta, service, name, top, bottom, size }] — a utility run crossing the alignment: a bar from the bottom to the top of the pipe or
+ *   cable at that station (absolute elevations), in its service's colour, labelled "<name or service> <size> mm"
  *   features (0.5 WL.20, featureline.js featureProfile): [{ id, name, crossings [{sta, z}], runs [[{sta, z}]] }] — each
  *   crossing a diamond labelled "<name> <elevation>" (upright text, up from the mark), each run a dashed line named at its
  *   middle; `featSel` = the selected feature line's id (drawn in the action colour); pv.hitFeature(sx, sy) → id | null
@@ -70,6 +72,7 @@ export class ProfileView {
     for (const p of d.eg || []) if (p.z !== null) { lo = Math.min(lo, p.z); hi = Math.max(hi, p.z); }
     for (const v of d.pvis || []) { lo = Math.min(lo, v.z); hi = Math.max(hi, v.z); }
     for (const f of d.features || []) for (const q of [...f.crossings, ...f.runs.flat()]) { lo = Math.min(lo, q.z); hi = Math.max(hi, q.z); }
+    for (const u of d.utilities || []) if (u.bottom !== null && u.top !== null) { lo = Math.min(lo, u.bottom); hi = Math.max(hi, u.top); }   // 0.11 SU.1810: a deep pipe stays in view
     if (!Number.isFinite(lo)) { lo = 0; hi = 10; }
     const span = Math.max(hi - lo, 2), m = span * 0.15;
     this.z0 = lo - m; this.z1 = hi + m;
@@ -167,6 +170,7 @@ export class ProfileView {
     }
     ctx.restore();
     this.drawFeatures(C);
+    this.drawUtilities(C);
 
     // labels
     ctx.font = '600 11.5px ' + LABEL_FONT;
@@ -279,6 +283,26 @@ ProfileView.prototype.drawFeatures = function drawFeatures(C) {
       }
       ctx.restore();
     }
+  }
+};
+
+/** Utility runs crossing the alignment (0.11 SU.1810): a bar from the pipe's bottom to its top at the crossing station, in the service colour, with its name and size. */
+const UTIL_COLOR = { water: '#1d6fd8', sewer: '#8a5a2b', storm: '#1a9a8a', gas: '#c79200', power: '#d3302a', telecom: '#8a3fd0' };
+ProfileView.prototype.drawUtilities = function drawUtilities(C) {
+  const ctx = this.ctx, d = this.data, P = this.plot;
+  ctx.font = '600 11px ' + LABEL_FONT;
+  for (const u of d.utilities || []) {
+    if (u.top === null || u.bottom === null) continue;
+    const a = this.toScreen(u.sta, u.top), b = this.toScreen(u.sta, u.bottom);
+    if (a.x < P.x0 - 1 || a.x > P.x1 + 1) continue;
+    const h = Math.max(6, Math.abs(b.y - a.y)), y = (a.y + b.y) / 2 - h / 2, col = UTIL_COLOR[u.service] || C.action;
+    ctx.fillStyle = col; ctx.strokeStyle = C.bg; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.rect(a.x - 4, y, 8, h); ctx.fill(); ctx.stroke();
+    const text = t('pv.un.cross', { name: u.name || t('un.s.' + u.service), size: u.size }), w = ctx.measureText(text).width, right = a.x + 9 + w <= P.x1;
+    ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = C.bg; ctx.fillStyle = col; ctx.textAlign = right ? 'left' : 'right'; ctx.textBaseline = 'middle';
+    const x = right ? a.x + 8 : a.x - 8, ty = y + h / 2;
+    ctx.strokeText(text, x, ty); ctx.fillText(text, x, ty);
+    ctx.restore();
   }
 };
 

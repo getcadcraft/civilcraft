@@ -13,8 +13,10 @@
  *
  *   STEPS · SIZES · autoStep(w, h, dpr) → step · panelBounds(step, w) → { min, max } in px
  *   createDensity({ root, app, onPresent }) → { step(), choice(), set('auto'|step), present(on), isPresenting(), refresh(), destroy() }
+ *   it also registers the Craft menu option "Present" (id present, words shell.present) through ccShell.option (0.11 UI.18).
  */
 import { el, store } from './app-block-core.js';
+import { install as craftInstall } from './app-block-craft.js';
 
 export const STEPS = ['compact', 'normal', 'comfortable'];
 export const SCALE = { compact: 0.9, normal: 1, comfortable: 1.12 };
@@ -66,9 +68,13 @@ export function createDensity({ root = document.documentElement, app = '', onPre
   root.ownerDocument.addEventListener('keydown', key, true);
   win.addEventListener('resize', refresh);
   refresh();
+  // 0.11 UI.18: Present is reached from the Craft menu (ccShell.option; kept and replayed until the menu exists), pinnable like the other options
+  const word = (k) => { try { const v = win.ccShellT ? win.ccShellT(k) : ''; return v && v !== k ? v : ''; } catch (e) { return ''; } };
+  let offPresent = null;
+  try { const label = word('shell.present'); if (label) offPresent = craftInstall(win).option({ id: 'present', label, order: 40, icon: win.ccIconSet?.node?.('present') || undefined, run: () => present(true) }); } catch (e) { /* the menu keeps its other options */ }
   return {
     step: current, choice: () => choice, isPresenting: () => presenting, refresh, present,
     set(v) { if (v !== 'auto' && !STEPS.includes(v)) return false; choice = v; st.set('density', v); refresh(); return true; },
-    destroy() { present(false); root.ownerDocument.removeEventListener('keydown', key, true); win.removeEventListener('resize', refresh); ['data-ws-density', 'data-ws-density-mode'].forEach((a) => root.removeAttribute(a)); ['--ws-scale', '--ws-panel-min', '--ws-panel-max'].forEach((p) => root.style.removeProperty(p)); },
+    destroy() { present(false); try { offPresent?.(); } catch (e) { /* */ } root.ownerDocument.removeEventListener('keydown', key, true); win.removeEventListener('resize', refresh); ['data-ws-density', 'data-ws-density-mode'].forEach((a) => root.removeAttribute(a)); ['--ws-scale', '--ws-panel-min', '--ws-panel-max'].forEach((p) => root.style.removeProperty(p)); },
   };
 }

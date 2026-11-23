@@ -34,7 +34,7 @@ final class Help
     /** Variant dimensions → tokens → label. */
     public const VARIANTS = [
         'os'      => ['mac' => 'Mac', 'windows' => 'Windows', 'linux' => 'Linux'],
-        'browser' => ['chromium' => 'Chrome or Edge', 'firefox' => 'Firefox', 'safari' => 'Safari'],
+        'browser' => ['chromium' => 'Chrome or Edge', 'brave' => 'Brave', 'firefox' => 'Firefox', 'safari' => 'Safari'],
         'shell'   => ['web' => 'In the browser', 'desktop' => 'Desktop app'],
         'net'     => ['online' => 'Online', 'offline' => 'Offline'],
         'input'   => ['mouse' => 'Mouse', 'touch' => 'Touch'],
@@ -655,6 +655,21 @@ final class Help
             return ['build' => $found['build'], 'own' => $own, 'whats_new' => self::topic($found['data'], 'whats-new', $slug)];
         });
         return isset($r['none']) ? null : $r;
+    }
+
+    /**
+     * The test build's help, for a signed-in person who may open that app's lab build (staff, lab access, or an active lab pass
+     * for its dev build): a topic written for something not released yet can then be read on the site (OPT.1, owner 2026-11-19:
+     * "put the help topic link in the email"). Anyone else: null, so the page 404s as before and nothing unreleased is announced.
+     * @return ?array{data: array, build: string}
+     */
+    public static function forLab(string $slug, ?array $user): ?array
+    {
+        if (!$user || !Catalog::app($slug) || !AppBuilds::hasDev($slug)) return null;
+        $scope = LabPass::scopeFor($user);   // null = every lab build
+        if ($scope !== null && !in_array('dev', $scope[$slug] ?? [], true)) return null;
+        $d = self::readModule(self::sourceDir($slug, 'dev') . '/help.js');
+        return $d ? ['data' => $d, 'build' => 'dev'] : null;
     }
 
     private static function loadForApp(string $slug): ?array

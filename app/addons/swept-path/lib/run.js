@@ -11,6 +11,7 @@
 import { coreVehicle, toUnits } from './vehicle.js';
 import { runAircraft } from './aircraft.js';
 import { runRail } from './rail.js';
+import { sweptEnvelope } from './envelope.js';
 
 let core = null;
 export function configure(c) { core = c && typeof c.simulate === 'function' && typeof c.envelope === 'function' && typeof c.bodyOutline === 'function' ? c : null; return !!core; }
@@ -30,7 +31,22 @@ export function run(vehicle, path, opts = {}) {
   const frames = sim.frames.map((f) => ({ s: f.s, bodies: Array.from({ length: n }, (_, i) => core.bodyOutline(cv, f, i)), steer: f.steer, art: f.art }));
   const w = sim.wheels || [];
   const traces = w.map((P, i) => ({ name: 'wheel-' + (i + 1), pts: P }));
-  const env = opts.envelope === false ? null : core.envelope(sim, cv, { cell: opts.cell || null });
-  return { kind: 'road', ok: true, frames, traces, steer: sim.frames.map((f) => f.steer), maxSteer: sim.maxSteer, maxArt: sim.maxArt, problems: sim.problems, length: sim.length, envelope: env, limit: { steer: cv.maxSteer, art: cv.trailers.map((t) => t.maxArticulation) }, notes: [] };
+  // FX.351: our own sparse envelope (a fine cell at any path length); the core's dense grid is kept only for opts.coreEnvelope
+  const env = opts.envelope === false ? null : opts.coreEnvelope ? core.envelope(sim, cv, { cell: opts.cell || null }) : sweptEnvelope(frames.flatMap((f) => f.bodies), { cell: opts.cell || null, tol: opts.tol || null });
+  return { kind: 'road', ok: true, frames, traces, steer: sim.frames.map((f) => f.steer), maxSteer: sim.maxSteer, maxArt: sim.maxArt, problems: sim.problems, length: sim.length, stepError: stepError(frames), envelope: env, limit: { steer: cv.maxSteer, art: cv.trailers.map((t) => t.maxArticulation) }, notes: [] };
+}
+/** SW.3: how far a body corner can leave the union of the sampled bodies between two frames: chord x turn / 8 (the sagitta of the arc it travels), the largest over the run, in project units. */
+export function stepError(frames) {
+  let worst = 0;
+  for (let i = 1; i < frames.length; i++) {
+    const A = frames[i - 1].bodies, B = frames[i].bodies;
+    for (let u = 0; u < Math.min(A.length, B.length); u++) {
+      const a = A[u], b = B[u]; if (!a || !b || a.length < 2 || b.length < 2) continue;
+      let d = Math.atan2(b[1].y - b[0].y, b[1].x - b[0].x) - Math.atan2(a[1].y - a[0].y, a[1].x - a[0].x);
+      d = Math.abs(Math.atan2(Math.sin(d), Math.cos(d)));
+      for (let k = 0; k < Math.min(a.length, b.length); k++) worst = Math.max(worst, Math.hypot(b[k].x - a[k].x, b[k].y - a[k].y) * d / 8);
+    }
+  }
+  return worst;
 }
 const fail = (m) => ({ kind: null, ok: false, frames: [], traces: [], steer: [], maxSteer: 0, maxArt: [], problems: [], length: 0, envelope: null, notes: [m], error: m });

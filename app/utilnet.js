@@ -44,7 +44,7 @@ export function cleanUtilities(raw, units = 'ft') {
   if (!raw || typeof raw !== 'object') return out;
   const seen = new Set();
   for (const r of (Array.isArray(raw.runs) ? raw.runs : []).slice(0, MAX.runs)) {
-    if (!r || !SERVICES[r.service] || !/^ur\d{1,9}$/.test(String(r.id)) || seen.has(r.id)) continue;
+    if (!r || !SERVICES[r.service] || !/^ur\d{1,16}$/.test(String(r.id)) || seen.has(r.id)) continue;
     const pts = (Array.isArray(r.pts) ? r.pts : []).slice(0, MAX.pts).filter((p) => p && fin(p.x) && fin(p.y)).map((p) => ({ x: p.x, y: p.y }));
     if (pts.length < 2) continue;
     seen.add(r.id);
@@ -52,7 +52,7 @@ export function cleanUtilities(raw, units = 'ft') {
       depth: fin(r.depth) && r.depth >= 0 && r.depth < 200 ? r.depth : DEFAULTS.depth[units === 'm' ? 'm' : 'ft'], owner: str(r.owner, 80), source: r.source === 'osm' ? 'osm' : 'drawn', ...(r.osm ? { osm: str(r.osm, 40) } : {}) });
   }
   for (const n of (Array.isArray(raw.nodes) ? raw.nodes : []).slice(0, MAX.nodes)) {
-    if (!n || !SERVICES[n.service] || !NODE_KINDS.includes(n.kind) || !/^un\d{1,9}$/.test(String(n.id)) || seen.has(n.id) || !fin(n.x) || !fin(n.y)) continue;
+    if (!n || !SERVICES[n.service] || !NODE_KINDS.includes(n.kind) || !/^un\d{1,16}$/.test(String(n.id)) || seen.has(n.id) || !fin(n.x) || !fin(n.y)) continue;
     seen.add(n.id);
     out.nodes.push({ id: n.id, service: n.service, kind: n.kind, name: str(n.name, 80), x: n.x, y: n.y, depth: fin(n.depth) && n.depth >= 0 && n.depth < 200 ? n.depth : 0, owner: str(n.owner, 80), source: n.source === 'osm' ? 'osm' : 'drawn', ...(n.osm ? { osm: str(n.osm, 40) } : {}) });
   }

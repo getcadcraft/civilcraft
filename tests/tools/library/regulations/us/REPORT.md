@@ -11,7 +11,7 @@ Made by `make-us.mjs` from `research/` on 2026-10-27. Numbers and section number
 | `us-irc-2021` United States: International Residential Code 2021 | — | — | 2021-01 | model-code | — | draft |
 | `us-irc-2024` United States: International Residential Code 2024 | — | — | 2024-05 | model-code | — | draft |
 | `us-ar` Arkansas: Arkansas Fire Prevention Code, 2021 Edition, Volume III (Residential) | us-irc-2021 | 2023-01-01 | 2023-01-01 | adopted-law | 0 | draft |
-| `us-ca` California: 2025 California Residential Code (CRC), Title 24 Part 2.5 | us-irc-2024 | 2026-01-01 | 2025-07-01 | adopted-law | 0 | draft |
+| `us-ca` California: 2025 California Residential Code (CRC), Title 24 Part 2.5 | us-irc-2024 | 2026-01-01 | 2025-07-01 | adopted-law | 28 | draft |
 | `us-ct` Connecticut: 2022 Connecticut State Building Code (residential portion) | us-irc-2021 | 2022-10-01 | — | adopted-law | 0 | draft |
 | `us-dc` District of Columbia: 2017 District of Columbia Construction Codes: Residential Code (IRC 2015 + DC Residential Code Su… | us-irc-2015 | 2020-05-29 | 2026 | adopted-law | 0 | draft |
 | `us-fl` Florida: Florida Building Code – Residential, 8th Edition (2023) | us-irc-2021 | 2023-12-31 | 2026-10 | adopted-law | 0 | draft |

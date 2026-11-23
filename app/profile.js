@@ -42,6 +42,21 @@ export function buildProfile(pvisIn) {
     const v = pvis[i], g1 = grades[i - 1].g, g2 = grades[i].g, A = (g2 - g1) * 100;
     let L = Number(v.L) || 0;
     if (!L && Number(v.K) > 0) L = Number(v.K) * Math.abs(A);
+    // 0.11 FX.366: a PVI with a radius R is a TRUE circle tangent to both grades (tangent length T = R·tan(|θ2 − θ1|/2) along each
+    // grade line, θ = atan g): its BVC and EVC lie T·cos θ before and after the PVI, so its horizontal length follows from R
+    const R = Number(v.R) > 0 ? Number(v.R) : 0;
+    if (R > 0 && Math.abs(A) >= 1e-9) {
+      const th1 = Math.atan(g1), th2 = Math.atan(g2), T = R * Math.tan(Math.abs(th2 - th1) / 2);
+      const bvc = v.sta - T * Math.cos(th1), evc = v.sta + T * Math.cos(th2);
+      L = evc - bvc; v.L = L;
+      const sag = g2 > g1, zBvc = v.z - g1 * (v.sta - bvc), zEvc = v.z + g2 * (evc - v.sta);
+      // centre: R from the BVC, perpendicular to grade 1, above for a sag and below for a crest
+      const cx = bvc + (sag ? -1 : 1) * R * Math.sin(th1), cz = zBvc + (sag ? 1 : -1) * R * Math.cos(th1);
+      const c = { i, pvi: v.sta, zPvi: v.z, bvc, evc, L, R, T, circ: true, cx, cz, sg: sag ? -1 : 1, g1, g2, A, K: L / Math.abs(A), zBvc, zEvc, kind: sag ? 'sag' : 'crest' };
+      if (g1 * g2 < 0 && cx > bvc && cx < evc) { const pt = { sta: cx, z: sag ? cz - R : cz + R }; if (sag) c.low = pt; else c.high = pt; }
+      curves.push(c);
+      continue;
+    }
     v.L = L;
     if (L <= 0 || Math.abs(A) < 1e-9) continue;
     const bvc = v.sta - L / 2, evc = v.sta + L / 2;
@@ -63,6 +78,9 @@ export function buildProfile(pvisIn) {
   return new Profile(pvis, grades, curves, errors);
 }
 
+/** Elevation on a circular vertical curve: the centre (cx, cz), radius R; the circle is above its centre on a crest, below on a sag. */
+const circleZ = (c, sta) => c.cz + c.sg * Math.sqrt(Math.max(0, c.R * c.R - (sta - c.cx) ** 2));
+
 export class Profile {
   constructor(pvis, grades, curves, errors) {
     this.pvis = pvis; this.grades = grades; this.curves = curves; this.errors = errors;
@@ -74,12 +92,12 @@ export class Profile {
   elevationAt(sta) {
     const P = this.pvis;
     if (P.length < 2 || sta < this.start - 1e-9 || sta > this.end + 1e-9) return null;
-    for (const c of this.curves) if (sta >= c.bvc && sta <= c.evc) { const x = sta - c.bvc; return c.zBvc + c.g1 * x + (c.g2 - c.g1) * x * x / (2 * c.L); }
+    for (const c of this.curves) if (sta >= c.bvc && sta <= c.evc) { if (c.circ) return circleZ(c, sta); const x = sta - c.bvc; return c.zBvc + c.g1 * x + (c.g2 - c.g1) * x * x / (2 * c.L); }
     for (let i = 0; i + 1 < P.length; i++) if (sta <= P[i + 1].sta + 1e-9) return P[i].z + this.grades[i].g * (sta - P[i].sta);
     return null;
   }
   gradeAt(sta) {
-    for (const c of this.curves) if (sta >= c.bvc && sta <= c.evc) return c.g1 + (c.g2 - c.g1) * (sta - c.bvc) / c.L;
+    for (const c of this.curves) if (sta >= c.bvc && sta <= c.evc) return c.circ ? -(sta - c.cx) / (circleZ(c, sta) - c.cz) : c.g1 + (c.g2 - c.g1) * (sta - c.bvc) / c.L;
     for (const g of this.grades) if (sta <= g.to + 1e-9) return g.g;
     return null;
   }

@@ -28,10 +28,16 @@ const doc = { a: [1, -2.5e10, 0, 1e-7, true, false, null, 'q"\\\né\u0001'], b: 
 const j = JSON.stringify(doc, null, 1).replace('"c": {}', '"__proto__": 5,\n "c": {}');
 for (const cut of [1, 2, 3, 5, 17, 100]) {
   const ps = []; for (let i = 0; i < j.length; i += cut) ps.push(j.slice(i, i + cut));
-  const v = parseJsonParts(ps);
-  ok(JSON.stringify(v) === JSON.stringify(JSON.parse(j)) && Object.getOwnPropertyDescriptor(v.b, '__proto__')?.value === 5, 'json cut ' + cut);
+  for (const joinUpTo of [0, undefined]) {   // 0: the incremental parser; default: joined and JSON.parse (perf-finish-11)
+    const v = parseJsonParts(ps, { joinUpTo });
+    ok(JSON.stringify(v) === JSON.stringify(JSON.parse(j)) && Object.getOwnPropertyDescriptor(v.b, '__proto__')?.value === 5, 'json cut ' + cut + ' joinUpTo ' + joinUpTo);
+    ok(Object.keys(v).join() === Object.keys(JSON.parse(j)).join(), 'json key order ' + cut + ' ' + joinUpTo);
+  }
 }
-for (const bad of ['{"a":1,}', '[1,2', '{"a" 1}', '01', '"abc', 'tru', '[1] x']) { let t = false; try { parseJsonParts(['', bad.slice(0, 2), bad.slice(2)]); } catch (e) { t = e instanceof SyntaxError; } ok(t, 'bad json ' + bad); }
-ok(parseJsonParts(['  ', '[1', ',2]  ']).length === 2, 'ws');
+for (const joinUpTo of [0, undefined]) {
+  for (const bad of ['{"a":1,}', '[1,2', '{"a" 1}', '01', '"abc', 'tru', '[1] x']) { let t = false; try { parseJsonParts(['', bad.slice(0, 2), bad.slice(2)], { joinUpTo }); } catch (e) { t = e instanceof SyntaxError; } ok(t, 'bad json ' + bad + ' ' + joinUpTo); }
+  ok(parseJsonParts(['  ', '[1', ',2]  '], { joinUpTo }).length === 2, 'ws ' + joinUpTo);
+}
+ok(parseJsonParts(['[1', ',2]'], { joinUpTo: 3 })[1] === 2 && parseJsonParts(['[1', ',2]'], { joinUpTo: 4 })[1] === 2, 'join at the limit and past it');
 console.log(`textin: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
