@@ -1,6 +1,6 @@
 # CivilCraft for Linux
 
-CivilCraft comes inside [CadCraft Studio](https://github.com/getcadcraft/studio) (all eight apps in one install) from 0.5 on; there are no separate CivilCraft installers any more. Get Studio 0.10 from the [download page](https://getcadcraft.com/download#studio) or its [GitHub release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.10.0). Studio ships as a `.deb` and an AppImage.
+CivilCraft comes inside [CadCraft Studio](https://github.com/getcadcraft/studio) (all eight apps in one install) from 0.5 on; there are no separate CivilCraft installers any more. Get Studio 0.11 from the [download page](https://getcadcraft.com/download#studio) or its [GitHub release](https://github.com/getcadcraft/studio/releases/tag/studio-v0.10.0). Studio ships as a `.deb` and an AppImage.
 
 ## File types
 
