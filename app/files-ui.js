@@ -116,6 +116,8 @@ export function mountFiles(ctx) {
     if (!d.points.length && !d.surfaces.length && !d.alignments.length && !d.networks?.length && !d.features?.length) { say(t('cv.lx.empty', { file: name }) + (d.notes.length ? ' ' + d.notes.join(' ') : '')); return; }
     if (!(await confirmDiscard())) return;
     const p = new Project(), notes = [...d.notes];
+    const missingCrs = d.coordinateSystem ? '' : t('cv.lx.crs.missing');
+    if (missingCrs) notes.push(missingCrs);
     p.state.units = d.units || 'ft';
     p.state.name = (d.name || name.replace(/\.[^.]+$/, '')).slice(0, 120);
     if (d.points.length) p.setPoints(d.points, name);
@@ -171,7 +173,7 @@ export function mountFiles(ctx) {
     ctx.project = p; rebind(); ctx.sel = null; ctx.selPvi = -1; ctx.lastReport = notes.length ? notes : null;
     refresh(); fitAll();
     performance.mark?.('cv-open:shown');
-    say(t('cv.lx.opened', { file: name, points: t('cv.pts.n', { n: d.points.length, count: num(d.points.length) }), surfaces: t('cv.surfaces.n', { n: d.surfaces.length }), alignments: t('cv.als.n', { n: d.alignments.length }) }));
+    say(t('cv.lx.opened', { file: name, points: t('cv.pts.n', { n: d.points.length, count: num(d.points.length) }), surfaces: t('cv.surfaces.n', { n: d.surfaces.length }), alignments: t('cv.als.n', { n: d.alignments.length }) }) + (missingCrs ? ' ' + missingCrs : ''));
     // GIS: the file's <CoordinateSystem> is offered as the project's system (gis-vector-ui.js)
     if (d.coordinateSystem) gisLoad().then(() => ctx.gisReg.landxmlCrs?.(d.coordinateSystem, name)).catch(() => {});
   }

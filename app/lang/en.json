@@ -4468,6 +4468,7 @@
   "cv.lx.net.rules": "Pipe network rules were not in the file; the placeholders are in use — set yours under Project.",
   "cv.lx.nets.more": "Only the first pipe network was opened; the file has {n} more.",
   "cv.lx.opened": "Opened {file}: {points}, {surfaces}, {alignments}.",
+  "cv.lx.crs.missing": "The file has no usable horizontal coordinate system. Coordinates were kept as supplied. If you know the source system, set it in GIS › Coordinates.",
   "cv.surfaces.n": {
     "one": "{n} surface",
     "other": "{n} surfaces"
