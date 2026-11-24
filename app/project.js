@@ -14,7 +14,7 @@
  *                                            bug in the caller: Project.verifyHints = true (tests) checks every hinted step in full
  *   p.eg()            { surface, report }     existing ground (points + breaklines + boundary, or a TIN read from LandXML)
  *   p.contours()      [{z, pts, closed}]      at state.display.interval
- *   p.alignment(a)    Alignment               p.egProfile(a) [{sta, z}]   p.designProfile(a) Profile
+ *   p.alignment(a)    Alignment               p.egProfile(a) [{sta, z}]   p.designProfile(a) Profile   p.designProfileName(a)
  *   p.graded()        { surface, report, regions, items:[{id, kind:'corridor'|'pad', problems, region, …}] }
  *                     EG with every corridor (alignments with corridor.on) and pad graded in
  *   p.volumes()       gridVolume between EG and the graded surface inside the daylight lines (+ .items per item)
@@ -663,6 +663,7 @@ export class Project {
     return this.memo('eg:' + a.id, this.surfaceDeps() + JSON.stringify([a.pis, a.start]), () => sampleSurface(sf, al));
   }
   designProfile(a) { return this.memo('fg:' + a.id, JSON.stringify(a.pvis), () => buildProfile(a.pvis || [])); }
+  designProfileName(a) { return a.profName || t('cv.lx.design', { name: a.name }); }
 
   padsDeps(tag = 'fg') { return tag === 'eg' ? '' : this.gradeDeps(); }
   /** What the graded surface depends on besides the existing ground: pads, and alignments with a corridor on. */
@@ -1199,7 +1200,8 @@ export class Project {
       const minR = fin(a.minR) && a.minR > 0 && a.minR < 1e7 ? a.minR : 0;   // 0.5 WL.23: design minimum radius (0 = none)
       const design = cleanDesign(a.design);   // 0.7.1 71.24: design speed and class (older files: none)
       const rail = cleanRail(a.rail, s.units);   // 0.7.1 71.26: a track (older files: none)
-      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(more.length ? { corridors: more } : {}), ...(minR ? { minR } : {}), ...(design ? { design } : {}), ...(rail ? { rail } : {}) };
+      const profName = typeof a.profName === 'string' ? str(a.profName, 120).trim() : '';
+      return { id: id(a.id, 'a'), name: str(a.name, 120) || t('scene.al.default'), start: fin(a.start) ? a.start : 0, pis, pvis, corridor, sampling: cleanSampling(a.sampling, s.units), ...(more.length ? { corridors: more } : {}), ...(minR ? { minR } : {}), ...(design ? { design } : {}), ...(rail ? { rail } : {}), ...(profName ? { profName } : {}) };
     }, 1000);
     s.pads = list(obj.pads, (d) => {
       // 0.10.1 #1970: a corner may carry its own elevation (a sloped pad, a ramp); it was dropped on open before
