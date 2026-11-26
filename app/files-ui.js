@@ -19,6 +19,7 @@ import { cleanType } from './structs.js';
 import { cleanFeature } from './featureline.js';
 import { num, el } from './ui-util.js';
 import { parsePoints } from './points.js';
+import { cleanText } from './project-rows.js';
 import { fixed } from './units.js';
 import { fitScale, paperBy, PAPERS, scalesFor, sheetWindow, planSheet, toPdf } from './plot.js';
 import { writeDxf } from './dxf.js';
@@ -128,8 +129,8 @@ export function mountFiles(ctx) {
       if (d.surfaces.length > 1) notes.push(t('cv.lx.surfaces.more', { name: s0.name, n: d.surfaces.length - 1 }));
     }
     for (const a of d.alignments) {
-      const prof = a.profiles[0];
-      p.state.alignments.push({ id: p.nextId('a'), name: a.name.slice(0, 120), start: a.start, pis: a.pis, pvis: prof ? prof.pvis : [],
+      const prof = a.profiles[0], profName = cleanText(prof?.name, 120).trim();
+      p.state.alignments.push({ id: p.nextId('a'), name: a.name.slice(0, 120), start: a.start, pis: a.pis, pvis: prof ? prof.pvis : [], ...(profName ? { profName } : {}),
         ...(a.cant ? { rail: cleanRail({ ...railDefaults(p.state.units), on: true, pivot: a.cant.pivot, ...(a.cant.gauge ? { gauge: a.cant.gauge } : {}) }, p.state.units), ...(a.cant.speed ? { design: { speed: a.cant.speed, unit: a.cant.speedUnit } } : {}) } : {}) });   // CV.1 2026-11-12: a <Cant> makes it a railway
       if (a.profiles.length > 1) notes.push(t('cv.lx.profiles.more', { name: a.name }));
     }
@@ -276,7 +277,7 @@ export function mountFiles(ctx) {
     if (g.surface) surfaces.push({ name: t('cv.lx.proposed'), desc: t('cv.lx.proposed.desc', { n: s.pads.length }), surface: g.surface });
     const xml = writeLandXmlChunks({   // PERF.26 (perf-finish-11): chunks; .output() below is the same string up to 300 MB of text, a Blob past it
       name: s.name, units: s.units, points: ctx.project.points, surfaces, crs: s.crs,   // GIS: <CoordinateSystem> when the project has one
-      alignments: s.alignments.map((a) => ({ name: a.name, alignment: ctx.project.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: ctx.project.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: t('cv.lx.design', { name: a.name }), profile: ctx.project.designProfile(a) } : null, cant: a.rail?.on ? { plan: ctx.project.railPlan(a), rail: a.rail, speed: ctx.project.railAsm(a).rail.speed } : null })),   // cant: CV.1 2026-11-12
+      alignments: s.alignments.map((a) => ({ name: a.name, alignment: ctx.project.alignment(a), eg: r.surface ? { name: s.surface.name || t('surface.eg'), pts: ctx.project.egProfile(a) } : null, profile: a.pvis.length >= 2 ? { name: ctx.project.designProfileName(a), profile: ctx.project.designProfile(a) } : null, cant: a.rail?.on ? { plan: ctx.project.railPlan(a), rail: a.rail, speed: ctx.project.railAsm(a).rail.speed } : null })),   // cant: CV.1 2026-11-12
       features: s.features || [],   // 0.6 WL.24
       networks: [...(s.water?.pipes?.length ? [waterNetwork(cleanWater(s.water, s.units), s.units, { zAt: (x, y) => { const z = (ctx.graded().surface || ctx.eg().surface)?.elevationAt(x, y); return Number.isFinite(z) ? z : null; } })] : []), ...(s.network ? [{ ...s.network, structures: s.network.structures.map((x) => { const i = ctx.project.networkCheck().structs.get(x.id); return { ...x, rimShown: i?.rim ?? null, sump: i?.sump ?? null }; }) }] : [])],
     });
